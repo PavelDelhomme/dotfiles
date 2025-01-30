@@ -349,3 +349,5 @@ monitor_weedlyweb() {
     done
 }
 
+export EDITOR="vim"
+export VISUAL="vim"
