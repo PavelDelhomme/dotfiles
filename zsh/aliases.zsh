@@ -1,4 +1,4 @@
-# ~/.zsh/aliases.zsh
+# ~/zsh/aliases.zsh
 alias msfconsole="sudo msfconsole"
 alias cls="clear"
 alias ports="list_ports"

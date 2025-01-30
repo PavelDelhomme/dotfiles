@@ -15,11 +15,11 @@ fi
 
 
 # Source custom configurations
-if [ -f ~/dotfiles/zsh/zshrc_custom ]; then
-	source ~/dotfiles/zsh/zshrc_custom
-	echo "Fichier ~/dotfiles/zsh/zshrc_custom sourcé"
+if [ -f "$HOME/dotfiles/zsh/zshrc_custom" ]; then
+	source "$HOME/dotfiles/zsh/zshrc_custom"
+	echo "Fichier $HOME/dotfiles/zsh/zshrc_custom sourcé"
 else
-	echo "⚠️  Fichier ~/dotfiles/zsh/zshrc_custom introuvable."
+	echo "⚠️  Fichier '$HOME'/dotfiles/zsh/zshrc_custom introuvable."
 fi
 
 # Load function files
@@ -31,4 +31,3 @@ fi
 #[ -f ~/dotfiles/zsh/aliases.zsh ] && source ~/dotfiles/zsh/aliases.zsh
 #[ -f ~/dotfiles/zsh/env.sh ] && source ~/dotfiles/zsh/env.sh
 
-neofetch

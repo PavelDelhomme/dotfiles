@@ -1,26 +1,34 @@
-# ~/.zsh/zshrc_custom
-FUNCTIONS_PATH="$HOME/dotfiles/zsh/functions/**/*.sh"
-ENV_FILE="$HOME/dotfiles/zsh/env.sh"
-ALIASES_FILES="$HOME/dotfiles/zsh/aliases.zsh"
+# ~/dotfiles/zsh/zshrc_custom
 
+DOTFILES_PATH="$HOME/dotfiles/"
+DOTFILES_ZSH_PATH="$DOTFILES_PATH/zsh/"
+ENV_FILE="$DOTFILES_ZSH_PATH/env.sh"
+ALIASES_FILES="$DOTFILES_ZSH_PATH/aliases.zsh"
+FUNCTIONS_DIR="$DOTFILES_ZSH_PATH/functions/"
 
+# === Chargement des fonctions ===
+if [ -d "$FUNCTIONS_DIR" ]; then
+    for func_file in "$FUNCTIONS_DIR"/**/*.sh; do
+        if [ -f "$func_file" ]; then
+            source "$func_file" && echo "✔️ Chargé : $func_file" || echo "❌ Erreur de chargement : $func_file"
+        fi
+    done
+else
+    echo "⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR"
+fi
 
-# === Chargement des fonction ===
-#for func_file in ~/dotfiles/zsh/functions/**/*.sh; do
-for func_file in "$FUNCTIONS_PATH"; do
-	source "$func_file"
-done
-
-# === Environments ==
+# === Environments ===
 if [ -f "$ENV_FILE" ]; then
-	source "$ENV_FILE"
+    source "$ENV_FILE"
+else
+    echo "⚠️ Fichier $ENV_FILE introuvable."
 fi
 
 # === Chargement des alias ===
 if [ -f "$ALIASES_FILES" ]; then
     source "$ALIASES_FILES"
 else
-    echo "⚠️  Fichier $ALIASES_FILES introuvable."
+    echo "⚠️ Fichier $ALIASES_FILES introuvable."
 fi
 
 # Nettoyage des doublons dans le PATH
@@ -32,7 +40,4 @@ fi
 
 alias build_run='cd ~/Documents/Projects/Perso/CPP/weedlyweb && rm -rf build && mkdir build && cd build && cmake .. && make -j$(nproc) && ./WeedlyWeb'
 
-
-
-
-
+neofetch

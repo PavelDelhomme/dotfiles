@@ -11,7 +11,7 @@ list_zsh() {
 
     # === Affichage des Fonctions ===
     echo "📝 Fonctions définies dans ~/dotfiles/zsh/functions/"
-    find ~/dotfiles/.zsh/functions/ -type f -name '*.sh' | while read -r file; do
+    find ~/dotfiles/zsh/functions/ -type f -name '*.sh' | while read -r file; do
         echo "📄 Fichier : $(basename "$file")"
         awk '
 	BEGIN {
