@@ -17,6 +17,12 @@ else
     echo "⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR"
 fi
 
+backup_dotfiles() {
+	echo "📁 Sauvegarde manuelle des dotfiles..."
+	~/auto_backup_dotfiles.sh
+	echo "✅ Sauvegarde terminée."
+}
+
 # === Environments ===
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
