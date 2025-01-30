@@ -1,5 +1,5 @@
-PATH_BACKUP_FILE="$HOME/dotfiles/.zsh/PATH_SAVE"
-PATH_LOG_FILE="$HOME/dotfiles/.zsh/path_log.txt"
+PATH_BACKUP_FILE="$HOME/dotfiles/zsh/PATH_SAVE"
+PATH_LOG_FILE="$HOME/dotfiles/zsh/path_log.txt"
 DEFAULT="$HOME/.local/bin:/usr/local/bin:/usr/sbin:/sbin:/usr/local/bin:/bin:/usr/local/games:/snap/bin:/home/pactivisme/.dotnet/tools"
 
 # DESC: Compresse le fichier de log du PATH

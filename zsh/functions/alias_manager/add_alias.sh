@@ -1,6 +1,6 @@
 # ~/.zsh/functions/alias_manager/add_alias.sh
 
-ALIASES_FILE="$HOME/dotfiles/.zsh/aliases.zsh"
+ALIASES_FILE="$HOME/dotfiles/zsh/aliases.zsh"
 
 # DESC: Ajoute un nouvel alias au fichier des alias
 # USAGE: add_alias <name> <command> [description]

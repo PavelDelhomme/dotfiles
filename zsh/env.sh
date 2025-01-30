@@ -26,5 +26,5 @@ else
 fi
 
 # Affiche un message de confirmation
-echo "✔️  ~/.zsh/env.sh chargé avec succès"
+echo "✔️  ~/dotfiles/zsh/env.sh chargé avec succès"
 

@@ -9,11 +9,11 @@ search_zsh() {
     echo "🔍 Recherche de '$keyword' dans les alias et fonctions"
     echo "---------------------------------------------"
 
-    echo "📝 Alias définis dans ~/dotfiles/.zsh/aliases.zsh"
-    grep -iE "$keyword" ~/dotfiles/.zsh/aliases.zsh | sed 's/^# DESC:/👉 /'
+    echo "📝 Alias définis dans ~/dotfiles/zsh/aliases.zsh"
+    grep -iE "$keyword" ~/dotfiles/zsh/aliases.zsh | sed 's/^# DESC:/👉 /'
 
     # Rechercher dans les fonctions
-    echo "📝 Fonctions définies dans ~/dotfiles/.zsh/functions/"
-    find ~/dotfiles/.zsh/functions/ -type f -name '*.sh' -exec grep -H -iE "$keyword" {} + | sed 's/^# DESC:/👉 /'
+    echo "📝 Fonctions définies dans ~/dotfiles/zsh/functions/"
+    find ~/dotfiles/zsh/functions/ -type f -name '*.sh' -exec grep -H -iE "$keyword" {} + | sed 's/^# DESC:/👉 /'
     echo "---------------------------------------------"
 }

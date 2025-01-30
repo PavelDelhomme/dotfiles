@@ -5,12 +5,12 @@ list_zsh() {
     echo "---------------------------------------------"
 
     # === Affichage des Alias ===
-    echo "📝 Alias définis dans ~/dotfiles/.zsh/aliases.zsh"
-    grep -E '^# DESC:|^alias ' ~/dotfiles/.zsh/aliases.zsh | sed 's/^# DESC:/👉 /'
+    echo "📝 Alias définis dans ~/dotfiles/zsh/aliases.zsh"
+    grep -E '^# DESC:|^alias ' ~/dotfiles/zsh/aliases.zsh | sed 's/^# DESC:/👉 /'
     echo ""
 
     # === Affichage des Fonctions ===
-    echo "📝 Fonctions définies dans ~/dotfiles/.zsh/functions/"
+    echo "📝 Fonctions définies dans ~/dotfiles/zsh/functions/"
     find ~/dotfiles/.zsh/functions/ -type f -name '*.sh' | while read -r file; do
         echo "📄 Fichier : $(basename "$file")"
         awk '

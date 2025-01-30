@@ -1,10 +1,26 @@
 # ~/.zsh/zshrc_custom
+FUNCTIONS_PATH="$HOME/dotfiles/zsh/functions/**/*.sh"
+ENV_FILE="$HOME/dotfiles/zsh/env.sh"
+ALIASES_FILES="$HOME/dotfiles/zsh/aliases.zsh"
+
+
+
+# === Chargement des fonction ===
+#for func_file in ~/dotfiles/zsh/functions/**/*.sh; do
+for func_file in "$FUNCTIONS_PATH"; do
+	source "$func_file"
+done
+
+# === Environments ==
+if [ -f "$ENV_FILE" ]; then
+	source "$ENV_FILE"
+fi
 
 # === Chargement des alias ===
-if [ -f ~/.zsh/aliases.zsh ]; then
-    source ~/.zsh/aliases.zsh
+if [ -f "$ALIASES_FILES" ]; then
+    source "$ALIASES_FILES"
 else
-    echo "⚠️  Fichier ~/.zsh/aliases.zsh introuvable."
+    echo "⚠️  Fichier $ALIASES_FILES introuvable."
 fi
 
 # Nettoyage des doublons dans le PATH
