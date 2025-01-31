@@ -30,3 +30,4 @@ alias cd_weedlyweb="cd /home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb_Si
 alias run_simplebrowser="cmake -DCMAKE_BUILD_TYPE=Release -B build && cmake --build build && ./build/simplebrowser"
 alias debug_build_simplebrowser="cmake -DCMAKE_BUILD_TYPE=Debug -B build && cmake --build build && ./build/simplebrowser"
 alias debug_simplebrowser="cmake -DCMAKE_BUILD_TYPE=Debug -B build && cmake --build build && gdb -ex "set debuginfod enabled on" -ex run --args ./build/simplebrowser"
+alias lscopy="ls | xclip -selection clipboard"
