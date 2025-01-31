@@ -20,7 +20,7 @@ if type add_to_path &> /dev/null; then
     #add_to_path "$JAVA_HOME/bin"
     add_to_path "/usr/lib/jvm/java-17-openjdk/bin"
     add_to_path "$ANDROID_HOME/emulator"
-    add_to_path "$ANDROID_HOME/cmdline-tools/latest/bin"
+    add_to_path "$ANDROID_HOME/cmdline-tools/bin"
     add_to_path "$ANDROID_HOME/platform-tools"
     add_to_path "$PUB_CACHE/bin"
     add_to_path "/opt/flutter/bin"
