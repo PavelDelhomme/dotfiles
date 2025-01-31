@@ -10,15 +10,25 @@ fi
 export ANDROID_HOME="$HOME/Android/Sdk"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 
-mkdir -p "$ANDROID_HOME/cmdline-tools/latest/bin"
-mkdir -p "$ANDROID_HOME/platform-tools"
-mkdir -p "$ANDROID_HOME/tools"
-mkdir -p "$HOME/.pub-cache/bin"
+
+CMDLINE_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
+PLATFORM_TOOLS="$ANDROID_HOME/platform-tools"
+ANDROID_TOOLS="$ANDROID_HOME/tools"
+
+mkdir -p "$CMDLINE_TOOLS"
+mkdir -p "$PLATFORM_TOOLS"
+mkdir -p "$ANDROID_TOOLS"
 
 
+# Ajout des chemins Android au PATH
+add_to_path "$CMDLINE_TOOLS"
+add_to_path "$PLATFORM_TOOLS"
 
 # Dart pub-cache
 export PUB_CACHE="$HOME/.pub-cache"
+PUB_FLUTTER="$HOME/.pub-cache"
+PUB_FLUTTER_BIN="$PUB_FLUTTER/bin"
+export PUB_CACHE="$PUB_FLUTTER"
 
 # Emacs & Doom
 export EMACSDIR="$HOME/.emacs.d/bin"
@@ -43,10 +53,6 @@ if type add_to_path &> /dev/null; then
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
-
-# Ajout des chemins au PATH
-PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$HOME/.pub-cache/bin:/opt/flutter/bin:$HOME/.emacs.d/bin:/usr/share/dotnet:$HOME/.dotnet/tools"
-
 
 export PATH="$PATH:$PATH_ORIGINAL"
 
