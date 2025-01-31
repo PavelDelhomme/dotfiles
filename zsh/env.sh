@@ -43,6 +43,11 @@ if type add_to_path &> /dev/null; then
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
+
+# Ajout des chemins au PATH
+PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools:$HOME/.pub-cache/bin:/opt/flutter/bin:$HOME/.emacs.d/bin:/usr/share/dotnet:$HOME/.dotnet/tools"
+
+
 export PATH="$PATH:$PATH_ORIGINAL"
 
 # Affiche un message de confirmation
