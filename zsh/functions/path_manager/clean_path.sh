@@ -9,7 +9,7 @@ clean_path() {
     # Liste des chemins à préserver
     local preserve_paths=(
         "/usr/lib/jvm/java-17-openjdk/bin"
-        "$HOME/Android/Sdk/cmdline-tools/bin"
+        "$HOME/Android/Sdk/cmdline-tools/latest/bin"
         "$HOME/Android/Sdk/platform-tools"
         "$HOME/Android/Sdk/tools"
         "$HOME/.pub-cache/bin"
