@@ -1,8 +1,4 @@
-# Use powerline
 USE_POWERLINE="true"
-# Has weird character width
-# Example:
-#    is not a diamond
 HAS_WIDECHARS="false"
 # Source manjaro-zsh-configuration
 if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
@@ -13,13 +9,12 @@ if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
   source /usr/share/zsh/manjaro-zsh-prompt
 fi
 
-
 # Source custom configurations
 if [ -f "$HOME/dotfiles/zsh/zshrc_custom" ]; then
 	source "$HOME/dotfiles/zsh/zshrc_custom"
-	echo "Fichier $HOME/dotfiles/zsh/zshrc_custom sourcé"
+	echo "File $HOME/dotfiles/zsh/zshrc_custom sourced"
 else
-	echo "⚠️  Fichier '$HOME'/dotfiles/zsh/zshrc_custom introuvable."
+	echo "⚠️  File '$HOME'/dotfiles/zsh/zshrc_custom not found."
 fi
 
 # Load function files
