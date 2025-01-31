@@ -30,8 +30,7 @@ export PUB_CACHE="$PUB_FLUTTER"
 export EMACSDIR="$HOME/.emacs.d/bin"
 
 # .NET SDK
-export DOTNET_ROOT="/usr/share/dotnet"
-export MSBuildSDKsPath="$DOTNET_ROOT/sdk/$(${DOTNET_ROOT}/dotnet --version)/Sdks"
+export DOTNET_PATH="$HOME/.dotnet/tools"
 
 # === Ajout des chemins au PATH ===
 if type add_to_path &> /dev/null; then
@@ -42,8 +41,7 @@ if type add_to_path &> /dev/null; then
     add_to_path "$PUB_FLUTTER_BIN"
     add_to_path "/opt/flutter/bin"
     add_to_path "$EMACSDIR"
-    add_to_path "$DOTNET_ROOT"
-    add_to_path "$HOME/.dotnet/tools"
+    add_to_path "$DOTNET_PATH"
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
