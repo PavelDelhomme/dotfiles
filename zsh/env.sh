@@ -11,6 +11,9 @@ export PUB_CACHE="$HOME/.pub-cache"
 
 export DOOMDIR="/etc/doom.d"
 
+export DOTNET_ROOT="/usr/share/dotnet"
+export MSBuildSDKsPath="$DOTNET_ROOT/sdk/$(${DOTNET_ROOT}/dotnet --version)/Sdks"
+
 # === Ajout des chemins au PATH ===
 if type add_to_path &> /dev/null; then
     add_to_path "$JAVA_HOME/bin"
@@ -21,6 +24,9 @@ if type add_to_path &> /dev/null; then
     add_to_path "$PUB_CACHE/bin"
     add_to_path "/opt/flutter/bin"
     add_to_path "/usr/local/share/doom-emacs/bin"
+    add_to_path "$DOOMDIR"
+    add_to_path "$DOTNET_ROOT"
+    add_to_path "$HOME/.dotnet/tools"
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
