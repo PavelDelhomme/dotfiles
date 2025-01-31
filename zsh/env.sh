@@ -1,13 +1,21 @@
-# === Export des variables d'environnement ===
-# Java (pour Android Studio)
-#export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 if [ -z "$PATH_ORIGINAL" ]; then
 	export PATH_ORIGINAL=$PATH
 fi
 
+# === Export des variables d'environnement ===
+# Java (pour Android Studio)
+#export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+
 # Android SDK
 export ANDROID_HOME="$HOME/Android/Sdk"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
+
+mkdir -p "$ANDROID_HOME/cmdline-tools/latest/bin"
+mkdir -p "$ANDROID_HOME/platform-tools"
+mkdir -p "$ANDROID_HOME/tools"
+mkdir -p "$HOME/.pub-cache/bin"
+
+
 
 # Dart pub-cache
 export PUB_CACHE="$HOME/.pub-cache"
