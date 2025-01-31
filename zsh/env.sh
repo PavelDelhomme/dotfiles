@@ -1,6 +1,9 @@
 # === Export des variables d'environnement ===
 # Java (pour Android Studio)
 #export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+if [ -z "$PATH_ORIGINAL" ]; then
+	export PATH_ORIGINAL=$PATH
+fi
 
 # Android SDK
 export ANDROID_HOME="$HOME/Android/Sdk"
@@ -32,6 +35,7 @@ if type add_to_path &> /dev/null; then
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
+export PATH="$PATH:$PATH_ORIGINAL"
 
 # Affiche un message de confirmation
 echo "✔️  ~/dotfiles/zsh/env.sh chargé avec succès"
