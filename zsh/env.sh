@@ -56,6 +56,14 @@ fi
 
 export PATH="$PATH:$PATH_ORIGINAL"
 
+
+# Nettoyage du PATH
+if type clean_path &> /dev/null; then
+	clean_path
+else
+	echo "❌ La fonction clean_path n'est pas disponible."
+fi
+
 # Affiche un message de confirmation
 echo "✔️  ~/dotfiles/zsh/env.sh chargé avec succès"
 
