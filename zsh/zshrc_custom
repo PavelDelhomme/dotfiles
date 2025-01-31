@@ -42,13 +42,6 @@ else
     echo "⚠️ Fichier $ALIASES_FILES introuvable."
 fi
 
-# Nettoyage des doublons dans le PATH
-if type clean_path &> /dev/null; then
-    clean_path
-else
-    echo "❌ La fonction clean_path n'est pas disponible."
-fi
-
 alias build_run='cd ~/Documents/Projects/Perso/CPP/weedlyweb && rm -rf build && mkdir build && cd build && cmake .. && make -j$(nproc) && ./WeedlyWeb'
 
 neofetch
