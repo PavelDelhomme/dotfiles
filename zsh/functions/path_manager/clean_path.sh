@@ -12,8 +12,22 @@ clean_path() {
 	IFS="$old_IFS"
 	local new_path=""
 	local dir
-	
-    	# Garde les répertoires critiques
+
+
+    	# Liste des chemins à préserver
+    	local preserve_paths=(
+        	"/usr/lib/jvm/java-17-openjdk/bin"
+        	"$HOME/Android/Sdk/cmdline-tools/bin"
+        	"$HOME/Android/Sdk/platform-tools"
+        	"$HOME/Android/Sdk/tools"
+        	"$HOME/.pub-cache/bin"
+        	"/opt/flutter/bin"
+        	"$HOME/.emacs.d/bin"
+        	"/usr/share/dotnet"
+        	"$HOME/.dotnet/tools"
+    	)	
+    	
+	# Garde les répertoires critiques
     	local critical_paths=(
 		"/bin" "/usr/bin" "/usr/local/bin" "/snap/bin" "$HOME/.local/bin" "$HOME/.dotnet/tools"
 		"/usr/local/sbin" "/usr/sbin" "/sbin" "/usr/local/games" "/usr/games"
