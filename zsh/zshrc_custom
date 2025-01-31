@@ -1,5 +1,10 @@
 # ~/dotfiles/zsh/zshrc_custom
 
+# Restaurer le PATH original si nécessaire
+if [ -n "$PATH_ORIGINAL" ]; then
+	export PATH=$PATH_ORIGINAL
+fi
+
 DOTFILES_PATH="$HOME/dotfiles/"
 DOTFILES_ZSH_PATH="$DOTFILES_PATH/zsh/"
 ENV_FILE="$DOTFILES_ZSH_PATH/env.sh"
