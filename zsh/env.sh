@@ -22,6 +22,7 @@ if type add_to_path &> /dev/null; then
     #add_to_path "$ANDROID_HOME/emulator"
     add_to_path "$ANDROID_HOME/cmdline-tools/bin"
     add_to_path "$ANDROID_HOME/platform-tools"
+    add_to_path "$ANDROID_HOME/tools"
     add_to_path "$PUB_CACHE/bin"
     add_to_path "/opt/flutter/bin"
     #add_to_path "/usr/local/share/doom-emacs/bin"
