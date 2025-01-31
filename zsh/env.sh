@@ -1,6 +1,6 @@
 # === Export des variables d'environnement ===
 # Java (pour Android Studio)
-export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+#export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
 
 # Android SDK
 export ANDROID_HOME="$HOME/Android/Sdk"
@@ -16,7 +16,7 @@ export MSBuildSDKsPath="$DOTNET_ROOT/sdk/$(${DOTNET_ROOT}/dotnet --version)/Sdks
 
 # === Ajout des chemins au PATH ===
 if type add_to_path &> /dev/null; then
-    add_to_path "$JAVA_HOME/bin"
+    #add_to_path "$JAVA_HOME/bin"
     add_to_path "/usr/lib/jvm/java-17-openjdk/bin"
     add_to_path "$ANDROID_HOME/emulator"
     add_to_path "$ANDROID_HOME/cmdline-tools/latest/bin"
