@@ -9,7 +9,6 @@ alias tree_clean="tree -I 'venv|__pycache__|staticfiles|objects|hooks|*.pyc|*.py
 alias copyfile="copy_file"
 alias cgoban="java -jar /opt/cgoban.jar"
 alias zshrc="source ~/.zshrc"
-#alias emacs="emacs --with-profile default"
 alias watch_weedly="watch -n 1 'ps -p $(pgrep WeedlyWeb) -o pid,%cpu,%mem,etime,cmd'"
 alias make_and_rebuild="rm -rf build && mkdir build && cd build && cmake .. && make"
 alias rmr="cd .. && rm -R"
