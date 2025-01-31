@@ -25,4 +25,4 @@ fi
 # Source aliases and environment variables
 #[ -f ~/dotfiles/zsh/aliases.zsh ] && source ~/dotfiles/zsh/aliases.zsh
 #[ -f ~/dotfiles/zsh/env.sh ] && source ~/dotfiles/zsh/env.sh
-
+# Test modification
