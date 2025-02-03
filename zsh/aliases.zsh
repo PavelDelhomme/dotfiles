@@ -28,6 +28,7 @@ alias pacmans="sudo pacman -S --noconfirm"
 alias pacmanr="sudo pacman -Rns --noconfirm"
 alias cd_weedlyweb="cd /home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb_SimpleBrowser"
 alias run_simplebrowser="cmake -DCMAKE_BUILD_TYPE=Release -B build && cmake --build build && ./build/simplebrowser"
+alias build_run_simplebrowser='cd /home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb_SimpleBrowser && rm -rf build && mkdir build && cd build && cmake .. && make -j$(nproc) && ./simplebrowser'
 alias debug_build_simplebrowser="cmake -DCMAKE_BUILD_TYPE=Debug -B build && cmake --build build && ./build/simplebrowser"
 alias debug_simplebrowser="cmake -DCMAKE_BUILD_TYPE=Debug -B build && cmake --build build && gdb -ex "set debuginfod enabled on" -ex run --args ./build/simplebrowser"
 alias lscopy="ls | xclip -selection clipboard"
