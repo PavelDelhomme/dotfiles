@@ -42,6 +42,5 @@ else
     echo "⚠️ Fichier $ALIASES_FILES introuvable."
 fi
 
-#alias build_run='cd ~/Documents/Projects/Perso/CPP/weedlyweb && rm -rf build && mkdir build && cd build && cmake .. && make -j$(nproc) && ./WeedlyWeb'
 
 neofetch
