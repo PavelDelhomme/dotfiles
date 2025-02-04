@@ -34,3 +34,4 @@ alias sdkmanager="/home/pactivisme/Android/Sdk/cmdline-tools/latest/bin/sdkmanag
 alias update="sudo pacman -Sy --noconfirm"
 alias upgrade="sudo pacman -Syu --noconfirm"
 alias zshrc="zsh"
+alias dc="docker-compose"
