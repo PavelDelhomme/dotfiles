@@ -8,12 +8,19 @@ copy_last_command_output() {
         return 1
     fi
 
-    eval "$last_command" | xclip -selection clipboard
+    # Utilisation de eval avec une redirection pour capturer la sortie
+    local output
+    output=$(eval "$last_command" 2>&1)
+    local exit_code=$?
 
-    if [[ $? -eq 0 ]]; then
-        echo "📋 Sortie de la commande '$last_command' copiée dans le presse-papier."
+
+    if [[ $exit_code -eq 0 ]]; then
+	    echo "$output" | xclip -selection clipboard
+	    echo "📋 Sortie de la commande '$last_command' copiée dans le presse-papier."
     else
-        echo "❌ Échec de l'exécution de la commande : $last_command"
+	    echo "❌ Échec de l'exécution de la commande : $last_command"
+	    echo "Sortie d'erreur :"
+	    echo "$output"
     fi
 }
 
