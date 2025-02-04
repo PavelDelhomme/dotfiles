@@ -4,6 +4,7 @@ WEEDLYWEB_DIR="/home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb_SimpleBrow
 
 weedlyweb_run() {
     cd "$WEEDLYWEB_DIR" && \
+    export LIBVA_DRIVER_NAME=nvidia && \
     rm -rf build && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release .. && \
     make -j$(nproc) && \
@@ -12,6 +13,7 @@ weedlyweb_run() {
 
 weedlyweb_debug_build() {
     cd "$WEEDLYWEB_DIR" && \
+    export LIBVA_DRIVER_NAME=nvidia && \
     rm -rf build && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Debug .. && \
     make -j$(nproc) && \
@@ -20,6 +22,7 @@ weedlyweb_debug_build() {
 
 weedlyweb_debug() {
     cd "$WEEDLYWEB_DIR" && \
+    export LIBVA_DRIVER_NAME=nvidia && \
     rm -rf build && mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Debug .. && \
     make -j$(nproc) && \
