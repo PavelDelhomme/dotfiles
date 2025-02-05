@@ -31,9 +31,17 @@ weedlyweb_debug() {
 
 
 weedlyweb_clean() {
-    cd "$WEEDLYWEB_DIR" && \
+    current_dir=$(pwd)
+    cd "$WEEDLYWEB_DIR"
     rm -rf build
-}
+    mkdir build
+    if [[ $current_dir == $WEEDLYWEB_DIR/build* ]]; then
+	    cd "$WEEDLYWEB_DIR"
+    else
+	    cd "$current_dir"
+    fi
+    echo "Build directory cleaned and recreated."
+}	
 
 weedlyweb_rebuild() {
     weedlyweb_clean && weedlyweb_run
