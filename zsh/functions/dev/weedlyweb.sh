@@ -29,3 +29,12 @@ weedlyweb_debug() {
     gdb -ex "set debuginfod enabled on" -ex run --args ./simplebrowser
 }
 
+
+weedlyweb_clean() {
+    cd "$WEEDLYWEB_DIR" && \
+    rm -rf build
+}
+
+weedlyweb_rebuild() {
+    weedlyweb_clean && weedlyweb_run
+}
