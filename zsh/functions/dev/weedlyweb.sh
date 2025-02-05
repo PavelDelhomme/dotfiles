@@ -6,7 +6,7 @@ weedlyweb_run() {
     cd "$WEEDLYWEB_DIR" && \
     export LIBVA_DRIVER_NAME=nvidia && \
     rm -rf build && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake -DCMAKE_BUILD_TYPE=Release . && \
     make -j$(nproc) && \
     ./simplebrowser
 }
@@ -15,7 +15,7 @@ weedlyweb_debug_build() {
     cd "$WEEDLYWEB_DIR" && \
     export LIBVA_DRIVER_NAME=nvidia && \
     rm -rf build && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Debug .. && \
+    cmake -DCMAKE_BUILD_TYPE=Debug . && \
     make -j$(nproc) && \
     ./simplebrowser
 }
@@ -24,7 +24,7 @@ weedlyweb_debug() {
     cd "$WEEDLYWEB_DIR" && \
     export LIBVA_DRIVER_NAME=nvidia && \
     rm -rf build && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Debug .. && \
+    cmake -DCMAKE_BUILD_TYPE=Debug . && \
     make -j$(nproc) && \
     gdb -ex "set debuginfod enabled on" -ex run --args ./simplebrowser
 }
