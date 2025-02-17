@@ -1,47 +1,36 @@
 #!/bin/zsh
 
-WEEDLYWEB_DIR="/home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb_SimpleBrowser"
+WEEDLYWEB_DIR="/home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb"
 
 weedlyweb_run() {
     cd "$WEEDLYWEB_DIR" && \
-    export LIBVA_DRIVER_NAME=nvidia && \
-    rm -rf build && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    mkdir -p build && cd build && \
+    cmake .. && \
     make -j$(nproc) && \
-    ./simplebrowser
+    ./bin/weedlyweb
 }
 
 weedlyweb_debug_build() {
     cd "$WEEDLYWEB_DIR" && \
-    export LIBVA_DRIVER_NAME=nvidia && \
-    rm -rf build && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Debug . && \
-    make -j$(nproc) && \
-    ./simplebrowser
+    mkdir -p build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Debug .. && \
+    make -j$(nproc)
 }
 
 weedlyweb_debug() {
-    cd "$WEEDLYWEB_DIR" && \
-    export LIBVA_DRIVER_NAME=nvidia && \
-    rm -rf build && mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Debug .. && \
-    make -j$(nproc) && \
-    gdb -ex "set debuginfod enabled on" -ex run --args ./simplebrowser
+    cd "$WEEDLYWEB_DIR/build" && \
+    gdb ./bin/weedlyweb
 }
 
-
 weedlyweb_clean() {
-    current_dir=$(pwd)
     cd "$WEEDLYWEB_DIR"
-    rm -rf build
-    mkdir build
+    local current_dir=$(pwd)
     if [[ $current_dir == $WEEDLYWEB_DIR/build* ]]; then
-	    cd "$WEEDLYWEB_DIR"
-    else
-	    cd "$current_dir"
+        cd ..
     fi
-    echo "Build directory cleaned and recreated."
-}	
+    rm -rf build
+    echo "Build directory cleaned."
+}
 
 weedlyweb_rebuild() {
     weedlyweb_clean && weedlyweb_run
