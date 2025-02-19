@@ -6,22 +6,29 @@ end
 set -g AUTO_BACKUP_PID_FILE "/tmp/auto_backup_dotfiles.pid"
 
 function start_auto_backup
-	while true
-		auto_backup_dotfiles
-		sleep 900
-	end
+    set -l iterations 0
+    set -l max_iterations 96 # 24 heures à raison d'une sauvegarde toutes les 15 minutes
+    while test $iterations -lt $max_iterations
+        auto_backup_dotfiles
+        sleep 900 # 15 minutes
+        set iterations (math $iterations + 1)
+    end
+    rm /tmp/auto_backup_dotfiles.lock
 end
+
 
 
 function start_auto_backup_if_not_running
-	if not test -f $AUTO_BACKUP_PID_FILE
-		start_auto_backup &
-		echo $fish_pid > $AUTO_BACKUP_PID_FILE
-		echo "Sauvegarde automatique démarré"
-	else
-		echo "La sauvegarde automatique est déjà en cours d'exécution"
-	end
+    set -l lock_file /tmp/auto_backup_dotfiles.lock
+    if not test -f $lock_file
+        touch $lock_file
+        start_auto_backup &
+        disown
+    else
+        echo "La sauvegarde automatique est déjà en cours d'exécution"
+    end
 end
+
 
 set DOTFILES_PATH "$HOME/dotfiles/"
 set DOTFILES_FISH_PATH "$DOTFILES_PATH/fish/"
