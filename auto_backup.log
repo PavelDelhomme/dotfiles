@@ -30,3 +30,84 @@ Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pacti
 To github.com:PavelDelhomme/dotfiles.git
    22c63cf..7155983  master -> master
 Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
+[master f2d08f5] Auto-commit: 2025-02-20 21:18:45
+ 77 files changed, 98 insertions(+)
+ mode change 100644 => 100755 fish/functions/alias_manager/add_alias.fish
+ mode change 100644 => 100755 fish/functions/alias_manager/find_alias.fish
+ mode change 100644 => 100755 fish/functions/alias_manager/list_alias.fish
+ mode change 100644 => 100755 fish/functions/alias_manager/modify_alias.fish
+ mode change 100644 => 100755 fish/functions/alias_manager/reload_aliases.fish
+ mode change 100644 => 100755 fish/functions/alias_manager/remove_alias.fish
+ mode change 100644 => 100755 fish/functions/cyber/analyze_headers.fish
+ mode change 100644 => 100755 fish/functions/cyber/arp_spoof.fish
+ mode change 100644 => 100755 fish/functions/cyber/brute_ssh.fish
+ mode change 100644 => 100755 fish/functions/cyber/check_heartbleed.fish
+ mode change 100644 => 100755 fish/functions/cyber/check_ssl.fish
+ mode change 100644 => 100755 fish/functions/cyber/check_ssl_cert.fish
+ mode change 100644 => 100755 fish/functions/cyber/deauth_attack.fish
+ mode change 100644 => 100755 fish/functions/cyber/dns_lookup.fish
+ mode change 100644 => 100755 fish/functions/cyber/dnsenum_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/domain_whois.fish
+ mode change 100644 => 100755 fish/functions/cyber/enhanced_traceroute.fish
+ mode change 100644 => 100755 fish/functions/cyber/enum_dirs.fish
+ mode change 100644 => 100755 fish/functions/cyber/enum_shares.fish
+ mode change 100644 => 100755 fish/functions/cyber/enumerate_users.fish
+ mode change 100644 => 100755 fish/functions/cyber/find_subdomains.fish
+ mode change 100644 => 100755 fish/functions/cyber/get_http_headers.fish
+ mode change 100644 => 100755 fish/functions/cyber/get_robots_txt.fish
+ mode change 100644 => 100755 fish/functions/cyber/network_map.fish
+ mode change 100644 => 100755 fish/functions/cyber/nikto_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/nmap_vuln_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/password_crack.fish
+ mode change 100644 => 100755 fish/functions/cyber/port_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/proxycmd.fish
+ mode change 100644 => 100755 fish/functions/cyber/recon_domain.fish
+ mode change 100644 => 100755 fish/functions/cyber/scan_ports.fish
+ mode change 100644 => 100755 fish/functions/cyber/scan_vulns.fish
+ mode change 100644 => 100755 fish/functions/cyber/scan_web_ports.fish
+ mode change 100644 => 100755 fish/functions/cyber/sniff_traffic.fish
+ mode change 100644 => 100755 fish/functions/cyber/start_tor.fish
+ mode change 100644 => 100755 fish/functions/cyber/stop_tor.fish
+ mode change 100644 => 100755 fish/functions/cyber/vuln_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/web_dir_enum.fish
+ mode change 100644 => 100755 fish/functions/cyber/web_port_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/web_traceroute.fish
+ mode change 100644 => 100755 fish/functions/cyber/web_vuln_scan.fish
+ mode change 100644 => 100755 fish/functions/cyber/wifi_scan.fish
+ mode change 100644 => 100755 fish/functions/dev/weedlyweb.fish
+ mode change 100644 => 100755 fish/functions/dot_files_manager/sav_dot.fish
+ mode change 100644 => 100755 fish/functions/misc/colorpasswd.fish
+ mode change 100644 => 100755 fish/functions/misc/copy_file.fish
+ mode change 100644 => 100755 fish/functions/misc/copy_last_command_output.fish
+ mode change 100644 => 100755 fish/functions/misc/copy_tree.fish
+ mode change 100644 => 100755 fish/functions/misc/create_backup.fish
+ mode change 100644 => 100755 fish/functions/misc/decrypt_file.fish
+ mode change 100644 => 100755 fish/functions/misc/encrypt_file.fish
+ mode change 100644 => 100755 fish/functions/misc/extract.fish
+ mode change 100644 => 100755 fish/functions/misc/gen_password.fish
+ mode change 100644 => 100755 fish/functions/misc/open_ports.fish
+ mode change 100644 => 100755 fish/functions/misc/reload_shell.fish
+ mode change 100644 => 100755 fish/functions/misc/show_ip.fish
+ mode change 100644 => 100755 fish/functions/misc/system_info.fish
+ mode change 100644 => 100755 fish/functions/network/check_active_connections.fish
+ mode change 100644 => 100755 fish/functions/network/kill_ports.fish
+ mode change 100644 => 100755 fish/functions/network/network_manager.fish
+ mode change 100644 => 100755 fish/functions/network/show_dns_info.fish
+ mode change 100644 => 100755 fish/functions/network/show_network_info.fish
+ mode change 100644 => 100755 fish/functions/network/show_routing_table.fish
+ mode change 100644 => 100755 fish/functions/path_manager/add_logs.fish
+ mode change 100644 => 100755 fish/functions/path_manager/add_to_path.fish
+ mode change 100644 => 100755 fish/functions/path_manager/clean_invalid_paths.fish
+ mode change 100644 => 100755 fish/functions/path_manager/clean_path.fish
+ mode change 100644 => 100755 fish/functions/path_manager/compress_logs.fish
+ mode change 100644 => 100755 fish/functions/path_manager/ensure_path_log.fish
+ mode change 100644 => 100755 fish/functions/path_manager/remove_from_path.fish
+ mode change 100644 => 100755 fish/functions/path_manager/restore_path.fish
+ mode change 100644 => 100755 fish/functions/path_manager/save_path.fish
+ mode change 100644 => 100755 fish/functions/path_manager/show_path.fish
+ mode change 100644 => 100755 fish/functions/search_manager/list_fish.fish
+ mode change 100644 => 100755 fish/functions/search_manager/search_fish.fish
+ mode change 100644 => 100755 fish/functions/search_manager/search_history.fish
+To github.com:PavelDelhomme/dotfiles.git
+   7155983..f2d08f5  master -> master
+Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
