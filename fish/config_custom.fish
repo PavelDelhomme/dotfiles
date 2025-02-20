@@ -17,13 +17,13 @@ function start_auto_backup
 end
 
 
-
 function start_auto_backup_if_not_running
     set -l lock_file /tmp/auto_backup_dotfiles.lock
     if not test -f $lock_file
         touch $lock_file
-        start_auto_backup &
+	fish -c "while true; auto_backup_dotfiles; sleep 900; end" &
         disown
+        echo "Sauvegarde automatique démarrée en arrière-plan"
     else
         echo "La sauvegarde automatique est déjà en cours d'exécution"
     end

@@ -1,16 +1,15 @@
 function auto_backup_dotfiles
     set dotfiles_dir "$HOME/dotfiles"
+    set log_file "$dotfiles_dir/auto_backup.log"
     cd $dotfiles_dir
 
-    # Vérifier s'il y a des changements
     if test (git status --porcelain | wc -l) -gt 0
-        # Il y a des changements, on les commit
         git add .
-        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')"
-        git push origin master  # Assurez-vous que 'main' est le nom de votre branche principale
-        echo "Dotfiles sauvegardés et poussés vers le dépôt distant."
+        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')" >> $log_file 2>&1
+        git push origin master >> $log_file 2>&1
+        echo "Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez $log_file pour plus de détails." >> $log_file
     else
-        echo "Aucun changement détecté dans les dotfiles."
+        echo "Aucun changement détecté dans les dotfiles." >> $log_file
     end
 end
 
