@@ -4,8 +4,8 @@ if not set -q PATH_ORIGINAL
 end
 
 # Java (pour Android Studio)
-#set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk
-set -gx JAVA_HOME /usr/lib/jvm/java-21-openjdk
+set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk
+#set -gx JAVA_HOME_21 /usr/lib/jvm/java-21-openjdk
 
 # Android SDK
 #set -gx ANDROID_HOME $HOME/Android/Sdk
