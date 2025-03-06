@@ -20,7 +20,7 @@ set -gx FLUTTER_ROOT /opt/flutter
 
 # Dart pub-cache
 set -gx PUB_CACHE $HOME/.pub-cache
-mkdir -p $PUB_CACHE/bin
+command mkdir -p $PUB_CACHE/bin
 
 # Emacs & Doom
 set -gx EMACSDIR $HOME/.emacs.d/bin
@@ -49,7 +49,8 @@ add_to_path $DOTNET_PATH
 add_to_path /opt/flutter/bin/cache/dart-sdk/bin
 
 # Nettoyage du PATH (suppression des doublons)
-set -gx PATH (echo $PATH | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
+##set -gx PATH (echo $PATH | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
+set -gx PATH (string split ' ' $PATH | awk '!seen[$0]++' | string join ' ')
 set -gx PATH $FLUTTER_ROOT/bin $DART_SDK $PATH
 #set -gx PATH $FLUTTER_ROOT/bin $DART_SDK $ANDROID_HOME/platform-tools $PATH
 # Ajout de l'exécutable Chrome au PATH
