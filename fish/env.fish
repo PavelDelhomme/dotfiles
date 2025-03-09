@@ -47,10 +47,12 @@ add_to_path /opt/flutter/bin
 add_to_path $EMACSDIR
 add_to_path $DOTNET_PATH
 add_to_path /opt/flutter/bin/cache/dart-sdk/bin
+add_to_path /home/pactivisme/kotlin/bin
 
 # Nettoyage du PATH (suppression des doublons)
 ##set -gx PATH (echo $PATH | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
-set -gx PATH (string split ' ' $PATH | awk '!seen[$0]++' | string join ' ')
+#set -gx PATH (string split ' ' $PATH | awk '!seen[$0]++' | string join ' ')
+set -gx PATH (string join ' ' (array uniq (string split ' ' $PATH)))
 set -gx PATH $FLUTTER_ROOT/bin $DART_SDK $PATH
 #set -gx PATH $FLUTTER_ROOT/bin $DART_SDK $ANDROID_HOME/platform-tools $PATH
 # Ajout de l'exécutable Chrome au PATH
