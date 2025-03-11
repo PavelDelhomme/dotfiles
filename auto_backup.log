@@ -958,3 +958,11 @@ Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pacti
 To github.com:PavelDelhomme/dotfiles.git
    496786f..db33181  master -> master
 Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
+[master 27b2fd0] Auto-commit: 2025-03-11 15:20:13
+ 1 file changed, 5 insertions(+)
+ssh: Could not resolve hostname github.com: Temporary failure in name resolution
+fatal : Impossible de lire le dépôt distant.
+
+Veuillez vérifier que vous avez les droits d'accès
+et que le dépôt existe.
+Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
