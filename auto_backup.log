@@ -1011,3 +1011,13 @@ Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pacti
 To github.com:PavelDelhomme/dotfiles.git
    0fd5ee0..ad36790  master -> master
 Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
+[master 65b3c9d] Auto-commit: 2025-03-16 13:34:25
+ 25 files changed, 517 insertions(+), 122 deletions(-)
+ delete mode 100644 fish/config.fish
+ create mode 100755 fish/functions/alias_manager/delete_alias.fish
+ delete mode 100755 fish/functions/alias_manager/remove_alias.fish
+ create mode 100755 fish/functions/alias_manager/show_aliases.fish
+ delete mode 100644 fish/functions/auto_backup_dotfiles.fish
+To github.com:PavelDelhomme/dotfiles.git
+   ad36790..65b3c9d  master -> master
+Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
