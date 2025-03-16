@@ -11,7 +11,7 @@ function copy_tree
 
     set -l tree_output (tree -a -I '.*' "$dir" 2>/dev/null)
     if test -n "$tree_output"
-        echo "$tree_output" | xclip -selection clipboard
+        echo "$tree_output" | fish_clipboard_copy
         echo "📋 Sortie de 'tree' du répertoire '$dir' copiée dans le presse-papier."
     else
         echo "❌ Impossible de générer le 'tree' du répertoire '$dir'."

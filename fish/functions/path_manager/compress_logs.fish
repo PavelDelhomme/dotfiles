@@ -6,7 +6,7 @@ function compress_logs
     ensure_path_log
     if test -f "$PATH_LOG_FILE"
         gzip -f "$PATH_LOG_FILE"
-        echo "Logs compressés : ${PATH_LOG_FILE}.gz"
+        echo "Logs compressés : $PATH_LOG_FILE.gz"
     end
 end
 

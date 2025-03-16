@@ -1,9 +1,11 @@
 function copy_file
-    if test -f $argv[1]
-        cat $argv[1] | xclip -selection clipboard
-        echo "📋 Contenu de '$argv[1]' copié dans le presse-papier."
+    set file_path $argv[1]
+    if test -f "$file_path"
+        cat "$file_path" | fish_clipboard_copy
+        echo "📋 Contenu de '$file_path' copié dans le presse-papier."
     else
-        echo "❌ Fichier '$argv[1]' introuvable ou vide."
+        echo "❌ Fichier '$file_path' introuvable ou vide."
+        return 1
     end
 end
 

@@ -10,9 +10,12 @@ set -gx JAVA_HOME /usr/lib/jvm/java-17-openjdk
 # Flutter Path
 set -gx FLUTTER_ROOT /opt/flutter
 
+# Android Home
+set -gx ANDROID_HOME $HOME/Android/Sdk
+
 # Dart pub-cache
 set -gx PUB_CACHE $HOME/.pub-cache
-mkdir -p $PUB_CACHE/bin
+/usr/bin/mkdir -p $PUB_CACHE/bin
 
 # Emacs & Doom
 set -gx EMACSDIR $HOME/.emacs.d/bin
@@ -33,6 +36,10 @@ add_to_path $EMACSDIR
 add_to_path $DOTNET_PATH
 add_to_path /opt/flutter/bin/cache/dart-sdk/bin
 add_to_path /home/pactivisme/kotlin/bin
+add_to_path $ANDROID_HOME/platforms-tools
+add_to_path $ANDROID_HOME/cmdline-tools/latest/bin
+add_to_path $ANDROID_HOME/emulator
+
 
 # Ajout de l'exécutable Chrome au PATH
 add_to_path /usr/bin
@@ -47,4 +54,8 @@ set -gx CHROME_EXECUTABLE /usr/bin/google-chrome-stable
 echo "✔ ~/dotfiles/fish/env.fish chargé avec succès"
 
 set -gx CHROME_EXECUTABLE /usr/bin/google-chrome-stable
+
+# Activation des fonctionnalité expérimentales
+export COMPOSE_BAKE=true
+export DOCKER_BUILDKIT=1
 

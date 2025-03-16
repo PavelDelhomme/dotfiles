@@ -1,6 +1,6 @@
 # Restaurer le PATH original si nécessaire
 if set -q PATH_ORIGINAL
-    set PATH $PATH_ORIGINAL
+    set -g PATH $PATH_ORIGINAL
 end
 
 set -g AUTO_BACKUP_PID_FILE "/tmp/auto_backup_dotfiles.pid"
@@ -21,7 +21,7 @@ function start_auto_backup_if_not_running
     set -l lock_file /tmp/auto_backup_dotfiles.lock
     if not test -f $lock_file
         touch $lock_file
-	fish -c "while true; auto_backup_dotfiles; sleep 900; end" &
+        fish -c "while true; auto_backup_dotfiles; sleep 900; end" &
         disown
         echo "Sauvegarde automatique démarrée en arrière-plan"
     else
@@ -30,30 +30,37 @@ function start_auto_backup_if_not_running
 end
 
 
-set DOTFILES_PATH "$HOME/dotfiles/"
-set DOTFILES_FISH_PATH "$DOTFILES_PATH/fish/"
-set ENV_FILE "$DOTFILES_FISH_PATH/env.fish"
-set ALIASES_FILE "$DOTFILES_FISH_PATH/aliases.fish"
-set FUNCTIONS_DIR "$DOTFILES_FISH_PATH/functions/"
+# === Définition des chemins (VARIABLES GLOBALES) ===
+set -g DOTFILES_PATH "$HOME/dotfiles"
+set -g DOTFILES_FISH_PATH "$DOTFILES_PATH/fish"
+set -g ENV_FILE "$DOTFILES_FISH_PATH/env.fish"
+set -g ALIASES_FILE "$DOTFILES_FISH_PATH/aliases.fish"
+set -g FUNCTIONS_DIR "$DOTFILES_FISH_PATH/functions"
 
-# === Chargement des fonctions ===
-if test -d $FUNCTIONS_DIR
-    for func_file in $FUNCTIONS_DIR/*.fish
-        if test -f $func_file
-            source $func_file
-            echo "✔️ Chargé : $func_file"
-        else
-            echo "❌ Erreur de chargement : $func_file"
+
+for func_dir in $FUNCTIONS_DIR/*
+    if test -d $func_dir
+        for func_file in $func_dir/*.fish
+		source $func_file
+		echo "✔ Chargé : $func_file"
         end
     end
-else
-    echo "⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR"
 end
 
-function backup_dotfiles
-    echo "📁 Sauvegarde manuelle des dotfiles..."
-    ~/auto_backup_dotfiles.sh
-    echo "✅ Sauvegarde terminée."
+# === Auto-backup ===
+function auto_backup_dotfiles
+    set dotfiles_dir "$HOME/dotfiles"
+    set log_file "$dotfiles_dir/auto_backup.log"
+    cd $dotfiles_dir
+
+    if test (git status --porcelain | wc -l) -gt 0
+        git add .
+        git commit -m "Auto-commit: $(date '+%Y-%m-%d %H:%M:%S')" >> $log_file 2>&1
+        git push origin master >> $log_file 2>&1
+        echo "Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez $log_file pour plus de détails." >> $log_file
+    else
+        echo "Aucun changement détecté dans les dotfiles." >> $log_file
+    end
 end
 
 # === Environments ===

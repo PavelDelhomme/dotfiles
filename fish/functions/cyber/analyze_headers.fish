@@ -1,4 +1,15 @@
-function analyze_headers
+function analyze_headers -d "Analyse les en-têtes HTTP d'un site web"
+    # Usage: analyze_headers <url>
+    #
+    # Arguments:
+    #   url     L'URL du site web à analyser
+    #
+    # Exemple:
+    #   analyze_headers https://example.com
+    #
+    # Retourne:
+    #   Les en-têtes HTTP du site web
+
     if test (count $argv) -eq 0
         echo "Usage: analyze_headers <url>"
         echo "Analyse les en-têtes HTTP d'un site web."

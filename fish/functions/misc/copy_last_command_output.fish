@@ -9,7 +9,7 @@ function copy_last_command_output
     set -l exit_code $status
 
     if test $exit_code -eq 0
-        echo "$output" | xclip -selection clipboard
+        echo "$output" | fish_clipboard_copy
         echo "📋 Sortie de la commande '$last_command' copiée dans le presse-papier."
     else
         echo "❌ Échec de l'exécution de la commande : $last_command"
