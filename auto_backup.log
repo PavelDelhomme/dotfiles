@@ -1102,3 +1102,11 @@ Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pacti
 To github.com:PavelDelhomme/dotfiles.git
    5694af0..e3adde6  master -> master
 Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
+[master e7712af] Auto-commit: 2025-03-18 12:36:39
+ 1 file changed, 5 insertions(+)
+Connection reset by 64:ff9b::8c52:7903 port 22
+fatal : Impossible de lire le dépôt distant.
+
+Veuillez vérifier que vous avez les droits d'accès
+et que le dépôt existe.
+Dotfiles sauvegardés et poussés vers le dépôt distant. Consultez /home/pactivisme/dotfiles/auto_backup.log pour plus de détails.
