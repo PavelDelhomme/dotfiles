@@ -167,3 +167,4 @@ alias logs_promanage_backend 'sh /home/pactivisme/Documents/Dev/Projets/Perso/pr
 # DESC: Arrête le backend Django Promanage et supprime les volumes
 alias stop_promanage_backend 'docker-compose down -v'
 
+alias stop_promanage_backend_and_rebuild 'docker-compose down && docker-compose build --no-cache && docker-compose up -d'
