@@ -159,7 +159,6 @@ alias cd_promanage 'cd /home/pactivisme/Documents/Dev/Projets/Perso/promanage/Pr
 alias docker-logs-promanage 'docker-compose logs -f promanage-backend'
 
 # DESC: Lance le backend Django Promanage
-alias launch_promanage_backend 'sh /home/pactivisme/Documents/Dev/Projets/Perso/promanage/Promanage/promanage-backend/scripts/launch_backend.sh'
 
 # DESC: Affiche les logs du backend Django Promanage
 alias logs_promanage_backend 'sh /home/pactivisme/Documents/Dev/Projets/Perso/promanage/Promanage/promanage-backend/scripts/logs_backend.sh'
@@ -168,3 +167,4 @@ alias logs_promanage_backend 'sh /home/pactivisme/Documents/Dev/Projets/Perso/pr
 alias stop_promanage_backend 'docker-compose down -v'
 
 alias stop_promanage_backend_and_rebuild 'docker-compose down && docker-compose build --no-cache && docker-compose up -d'
+alias launch_pro_backend 'docker-compose down && docker-compose build --no-cache && docker-compose up -d'
