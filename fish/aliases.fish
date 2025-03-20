@@ -168,3 +168,4 @@ alias stop_promanage_backend 'docker-compose down -v'
 
 alias stop_promanage_backend_and_rebuild 'docker-compose down && docker-compose build --no-cache && docker-compose up -d'
 alias launch_pro_backend 'docker-compose down && docker-compose build --no-cache && docker-compose up -d'
+alias cd_jobbingtrack 'cd /home/pactivisme/Documents/Dev/Projets/Perso/JobbingTrack'
