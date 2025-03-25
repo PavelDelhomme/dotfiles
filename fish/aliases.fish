@@ -170,3 +170,4 @@ alias stop_promanage_backend_and_rebuild 'docker-compose down && docker-compose 
 alias launch_pro_backend 'docker-compose down && docker-compose build --no-cache && docker-compose up -d'
 alias cd_jobbingtrack 'cd /home/pactivisme/Documents/Dev/Projets/Perso/JobbingTrack'
 alias sunzip 'sudo unzip'
+alias yays 'yay -S --noconfirm'
