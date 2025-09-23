@@ -1,4 +1,4 @@
-# ~/dotfiles/zsh/zshrc_custom
+# ~/dotfiles/zsh/zshrc_custom - VERSION CORRIGÉE
 
 # Restaurer le PATH original si nécessaire
 if [ -n "$PATH_ORIGINAL" ]; then
@@ -13,7 +13,8 @@ FUNCTIONS_DIR="$DOTFILES_ZSH_PATH/functions/"
 
 # === Chargement des fonctions ===
 if [ -d "$FUNCTIONS_DIR" ]; then
-    for func_file in "$FUNCTIONS_DIR"/**/*.sh; do
+    # CORRECTION: Charger aussi les fichiers .zsh
+    for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
         if [ -f "$func_file" ]; then
             source "$func_file" && echo "✔️ Chargé : $func_file" || echo "❌ Erreur de chargement : $func_file"
         fi
@@ -41,24 +42,6 @@ if [ -f "$ALIASES_FILES" ]; then
 else
     echo "⚠️ Fichier $ALIASES_FILES introuvable."
 fi
-
-
-#switch-git-perso() {
-#  git config --global user.name "Paul Delhomme"
-#  git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
-#  echo "Profil global Git: perso (Paul Delhomme)"
-#}
-
-#switch-git-piter() {
-#  git config --global user.name "Paul Piter"
-#  git config --global user.email "paul@piter.at"
-#  echo "Profil global Git: pro (Paul Piter)"
-#}
-
-#whoami-git() {
-#  echo "user.name = $(git config --global user.name)"
-#  echo "user.email = $(git config --global user.email)"
-#}
 
 whoami-git() {
   echo "user.name = $(git config --global user.name)"
@@ -100,13 +83,25 @@ switch-git-identity() {
   whoami-git
 }
 
-
-
 neofetch
 
-# NETMAN - Network Manager
-[ -f "$DOTFILES_ZSH_PATH/functions/network/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network/netman.zsh"
+# =============================================================================
+# GESTIONNAIRES UNIFIÉS (*MAN) - CORRECTION DES CHEMINS
+# =============================================================================
+# NETMAN - Network Manager  
+[ -f "$DOTFILES_ZSH_PATH/functions/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/netman.zsh"
+
 # PATHMAN - Path Manager
-[ -f "$DOTFILES_ZSH_PATH/functions/path/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network/pathman.zsh"
-# ALIASMAN - Alias manager
-[ -f "$DOTFILES_ZSH_PATH/functions/alias/aliasman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/alias/aliasman.zsh"
+[ -f "$DOTFILES_ZSH_PATH/functions/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/pathman.zsh"
+
+# ALIAMAN - Alias Manager  
+[ -f "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/aliaman.zsh"
+
+# MISCMAN - Misc Manager
+[ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh"
+
+# SEARCHMAN - Search Manager
+[ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh"
+
+# Messages de confirmation du chargement des gestionnaires
+echo "🚀 Gestionnaires chargés: NETMAN, PATHMAN, ALIAMAN, MISCMAN, SEARCHMAN"
