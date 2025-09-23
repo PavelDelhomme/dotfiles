@@ -106,3 +106,7 @@ neofetch
 
 # NETMAN - Network Manager
 [ -f "$DOTFILES_ZSH_PATH/functions/network/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network/netman.zsh"
+# PATHMAN - Path Manager
+[ -f "$DOTFILES_ZSH_PATH/functions/path/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network/pathman.zsh"
+# ALIASMAN - Alias manager
+[ -f "$DOTFILES_ZSH_PATH/functions/alias/aliasman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/alias/aliasman.zsh"
