@@ -54,6 +54,21 @@ clean_history() {
     rm $HISTFILE_TMP
 }
 
+# Fonction pour changer de remote git facilement
+#function git-switch-identity() {
+#    local target_host=$1
+##    if [[ "$target_host" == "piter" ]]; then
+#        git remote set-url origin github-piter:$(git remote show origin | grep -o "[^:]*\/[^ ]*")
+#        echo "Remote origin basculé sur l'identité Piter (clé pro)"
+#    elif [[ "$target_host" == "perso" ]]; then
+#        git remote set-url origin github.com:$(git remote show origin | grep -o "[^:]*\/[^ ]*")
+#        echo "Remote origin basculé sur l'identité perso"
+#    else
+#        echo "Usage : git-switch-identity [piter|perso]"
+#    fi
+#}
+
+
 # Nettoyage automatique de l'historique à chaque 1000 commandes
 #if (( $HISTCMD % $SAVEHIST == 0 )); then
 #    clean_history
