@@ -39,12 +39,13 @@ if type add_to_path &> /dev/null; then
     add_to_path "$PLATFORM_TOOLS"
     add_to_path "$ANDROID_TOOLS"
     add_to_path "$PUB_FLUTTER_BIN"
-    add_to_path "/opt/flutter/bin"
+    add_to_path "$HOME/flutter/bin"
     add_to_path "$EMACSDIR"
     add_to_path "$DOTNET_PATH"
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
+export ADDED_FLUTTER_PATH="$HOME/flutter/bin"
 
 # Nettoyage du PATH
 if type clean_path &> /dev/null; then
@@ -53,7 +54,9 @@ else
 	echo "❌ La fonction clean_path n'est pas disponible."
 fi
 
-export PATH="$PATH:$PATH_ORIGINAL"
+export PATH="$PATH:$PATH_ORIGINAL:$ADDED_FLUTTER_PATH"
+
+export NDK_HOME="$ANDROID_HOME/ndk"
 
 # Affiche un message de confirmation
 echo "✔️  ~/dotfiles/zsh/env.sh chargé avec succès"

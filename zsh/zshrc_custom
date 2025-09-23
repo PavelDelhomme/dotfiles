@@ -43,4 +43,66 @@ else
 fi
 
 
+#switch-git-perso() {
+#  git config --global user.name "Paul Delhomme"
+#  git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
+#  echo "Profil global Git: perso (Paul Delhomme)"
+#}
+
+#switch-git-piter() {
+#  git config --global user.name "Paul Piter"
+#  git config --global user.email "paul@piter.at"
+#  echo "Profil global Git: pro (Paul Piter)"
+#}
+
+#whoami-git() {
+#  echo "user.name = $(git config --global user.name)"
+#  echo "user.email = $(git config --global user.email)"
+#}
+
+whoami-git() {
+  echo "user.name = $(git config --global user.name)"
+  echo "user.email = $(git config --global user.email)"
+  echo "Répertoire courant : $PWD"
+}
+
+switch-git-identity() {
+  local arg="$1"
+  local path="$PWD"
+
+  # Si argument fourni
+  if [[ "$arg" == "piter" ]]; then
+    git config --global user.name "Paul Piter"
+    git config --global user.email "paul@piter.at"
+    echo "Profil global Git: pro (Paul Piter)"
+    whoami-git
+    return
+  elif [[ "$arg" == "perso" ]]; then
+    git config --global user.name "Paul Delhomme"
+    git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
+    echo "Profil global Git: perso (Paul Delhomme)"
+    whoami-git
+    return
+  fi
+
+  # Si aucun argument, détermine seul le contexte Piter
+  if [[ "$path" =~ ^/home/pactivisme/Documents/Travail/.*[Pp][Ii][Tt][Ee][Rr].* ]]; then
+	  whoami-git
+	  git config --global user.name "Paul Piter"
+	  git config --global user.email "paul@piter.at"
+	  echo "Profil automatiquement basculé sur Piter (dossier contenant 'Piter')"
+  else
+	  whoami-git
+	  git config --global user.name "Paul Delhomme"
+	  git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
+	  echo "Profil automatiquement basculé sur Delhomme (dossier sans 'Piter')"
+  fi
+  whoami-git
+}
+
+
+
 neofetch
+
+# NETMAN - Network Manager
+[ -f "$DOTFILES_ZSH_PATH/functions/network/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network/netman.zsh"
