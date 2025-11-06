@@ -10,7 +10,7 @@ fi
 # Android SDK
 export ANDROID_HOME="$HOME/Android/Sdk"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
-
+export CHROME_EXECUTABLE="/usr/bin/chromium"
 
 CMDLINE_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
 PLATFORM_TOOLS="$ANDROID_HOME/platform-tools"
@@ -39,13 +39,13 @@ if type add_to_path &> /dev/null; then
     add_to_path "$PLATFORM_TOOLS"
     add_to_path "$ANDROID_TOOLS"
     add_to_path "$PUB_FLUTTER_BIN"
-    add_to_path "$HOME/flutter/bin"
+    add_to_path "/opt/flutter/bin"
     add_to_path "$EMACSDIR"
     add_to_path "$DOTNET_PATH"
 else
     echo "❌ La fonction add_to_path n'est pas disponible."
 fi
-export ADDED_FLUTTER_PATH="$HOME/flutter/bin"
+export ADDED_FLUTTER_PATH="/opt/flutter/bin"
 
 # Nettoyage du PATH
 if type clean_path &> /dev/null; then

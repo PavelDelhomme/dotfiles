@@ -48,7 +48,6 @@ alias yays="yay -S"
 
 alias run_cyna="cd ~/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_backend/cyna_backend && docker compose up -d 2342f041cbc6 sleep 3 && docker compose logs -f 2342f041cbc6"
 
-alias cd_jobbingtrack_api="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrackProject/API/JobbingTrackApi/jobbingtrack_api"
 alias cd_cyna="cd /home/pactivisme/Documents/Dev/Travail/SupDeVinci/CYNA"
 alias cd_cyna_frontend="cd /home/pactivisme/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_front"
 alias cd_cyna_backend="cd /home/pactivisme/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_backend"
@@ -62,3 +61,5 @@ alias git_account="ssh -T git@github.com"
 alias gpo="git push origin"
 alias playwright_test="npx playwright test"
 alias playwright_test_web_interface="npx playwright test --ui-port=4020"
+alias cd_jobbingtrack="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrack"
+alias gca="git commit -a -m"
