@@ -2,6 +2,8 @@
 
 Configuration personnelle pour Manjaro Linux avec installation automatisée complète.
 
+**Version :** 2.0.0
+
 ## 🚀 Installation rapide (nouvelle machine)
 
 **UNE SEULE LIGNE** pour installer et configurer tous les dotfiles :
@@ -103,7 +105,6 @@ Le script `setup.sh` (menu interactif) permet d'installer et configurer automati
 - ✅ Docker & Docker Compose (optimisé BuildKit)
 - ✅ Proton Mail & Proton Pass
 - ✅ PortProton (jeux Windows)
-- ✅ BlueMail
 - ✅ Session Desktop
 
 ### Environnement de développement
@@ -403,15 +404,6 @@ prime-run <app>         # Forcer app sur NVIDIA
 2. Dans le BIOS : `Primary Display` = `PCI-E` ou `Discrete`
 3. Redémarrez après installation
 
-## 📧 BlueMail - Configuration
-
-Comptes email à configurer :
-- `paul@delhomme.ovh`
-- `dumb@delhomme.ovh`
-
-Paramètres serveur :
-- **IMAP** : `mail.delhomme.ovh:993` (SSL/TLS)
-- **SMTP** : `mail.delhomme.ovh:465 ou 587` (SSL/TLS)
 
 ## 🛠️ Maintenance
 
@@ -433,21 +425,24 @@ update-cursor.sh
 
 ## 📦 Structure recommandée après installation
 
+Les symlinks sont créés automatiquement lors de l'installation pour centraliser la configuration :
+
 ```
 ~/
 ├── dotfiles/                   # Ce repo
-│   ├── .zshrc
-│   ├── .env
-│   ├── aliases.zsh
-│   ├── functions.zsh
-│   ├── setup.sh
-│   └── archive_manjaro_setup_final.sh (ancien script, archivé)
-├── .zshrc -> ~/dotfiles/.zshrc    # Symlink
-├── .gitconfig -> ~/dotfiles/.gitconfig
+│   ├── .zshrc                 # Configuration ZSH principale
+│   ├── .gitconfig             # Configuration Git
+│   └── .ssh/                  # Clés SSH et config
+│       ├── id_ed25519
+│       └── config
+├── .zshrc -> ~/dotfiles/.zshrc              # Symlink
+├── .gitconfig -> ~/dotfiles/.gitconfig       # Symlink
 └── .ssh/
-    ├── id_ed25519              # Clé SSH GitHub
-    └── config                  # Config SSH
+    ├── id_ed25519 -> ~/dotfiles/.ssh/id_ed25519      # Symlink
+    └── config -> ~/dotfiles/.ssh/config              # Symlink
 ```
+
+**Note :** Les symlinks sont proposés automatiquement lors de l'installation via `bootstrap.sh` ou `setup.sh`.
 
 ## 🚨 Troubleshooting
 
@@ -486,7 +481,7 @@ grep "source ~/dotfiles" ~/.zshrc
 5. **Répondre aux prompts** (nom, email, installation système)
 6. **Redémarrer**
 7. **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
-8. **Configuration apps** : Cursor login, Proton Pass, BlueMail
+8. **Configuration apps** : Cursor login, Proton Pass
 
 ## 🔄 Rollback / Désinstallation
 
@@ -547,7 +542,6 @@ Configuration personnelle - libre d'utilisation et modification.
 ## 👤 Auteur
 
 **PavelDelhomme**
-- Email: dev@delhomme.ovh
 - GitHub: [@PavelDelhomme](https://github.com/PavelDelhomme)
 
 ---

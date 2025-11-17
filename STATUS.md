@@ -2,6 +2,7 @@
 
 Ce fichier documente toutes les modifications apportées aux dotfiles depuis le début de la refactorisation complète.
 
+**Version :** 2.0.0  
 **Date de création :** Décembre 2024  
 **Dernière mise à jour :** Décembre 2024
 
@@ -333,14 +334,57 @@ dotfiles/
 
 ---
 
+## 🔗 PHASE 12 : Centralisation avec symlinks et améliorations
+
+### Modifications
+- ✅ Création script `scripts/config/create_symlinks.sh` pour centraliser la configuration
+- ✅ Symlinks automatiques pour `.zshrc`, `.gitconfig`, `.ssh/id_ed25519`, `.ssh/config`
+- ✅ Intégration dans `bootstrap.sh` et `setup.sh` (option 23)
+- ✅ Script de migration `scripts/migrate_existing_user.sh` pour utilisateurs existants
+- ✅ Amélioration `validate_setup.sh` avec vérifications supplémentaires :
+  - Flutter dans PATH
+  - Permissions Docker
+  - Configuration NVIDIA (GPU, Xorg, nvidia-prime)
+  - Vérification symlinks
+  - Dotfiles sourcés
+- ✅ Suppression informations sensibles du README.md (emails, serveurs)
+- ✅ Correction auteur README (PavelDelhomme uniquement)
+
+### Nouveaux fichiers créés
+- ✅ `scripts/config/create_symlinks.sh` - Création symlinks centralisés
+- ✅ `scripts/migrate_existing_user.sh` - Migration utilisateurs existants
+
+### Fichiers modifiés
+- ✅ `bootstrap.sh` - Ajout étape création symlinks
+- ✅ `setup.sh` - Ajout option 23 (création symlinks)
+- ✅ `scripts/test/validate_setup.sh` - Vérifications étendues
+- ✅ `README.md` - Suppression infos sensibles, ajout section symlinks
+- ✅ `STATUS.md` - Documentation des nouvelles modifications
+
+### Structure recommandée
+```
+~/
+├── dotfiles/                   # Configuration centralisée
+│   ├── .zshrc
+│   ├── .gitconfig
+│   └── .ssh/
+│       ├── id_ed25519
+│       └── config
+├── .zshrc -> ~/dotfiles/.zshrc              # Symlink
+├── .gitconfig -> ~/dotfiles/.gitconfig       # Symlink
+└── .ssh/
+    ├── id_ed25519 -> ~/dotfiles/.ssh/id_ed25519
+    └── config -> ~/dotfiles/.ssh/config
+```
+
+---
+
 ## 🚀 PROCHAINES ÉTAPES POSSIBLES
 
 ### Améliorations futures
 - [ ] Ajouter support pour d'autres identités Git (si besoin)
 - [ ] Ajouter plus de scripts d'installation (selon besoins)
-- [ ] Améliorer le script de validation avec plus de vérifications
-- [ ] Ajouter tests automatisés
-- [ ] Créer script de migration pour utilisateurs existants
+- [ ] Tests automatisés
 
 ---
 
@@ -354,5 +398,5 @@ dotfiles/
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.0 (Refactorisation complète)
+**Version :** 2.0.0 (Refactorisation complète + Centralisation symlinks)
 

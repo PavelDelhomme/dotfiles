@@ -83,6 +83,14 @@ for path_entry in "${PATHS_TO_CHECK[@]}"; do
     fi
 done
 
+# Vérification spécifique Flutter dans PATH
+if command -v flutter &> /dev/null; then
+    FLUTTER_PATH=$(which flutter)
+    check_pass "Flutter trouvé dans PATH: $FLUTTER_PATH"
+else
+    check_fail "Flutter non trouvé dans PATH (vérifiez /opt/flutter/bin)"
+fi
+
 ################################################################################
 # VÉRIFICATIONS SERVICES
 ################################################################################
@@ -98,6 +106,15 @@ if systemctl is-active --quiet docker 2>/dev/null; then
     check_pass "Service Docker actif"
 else
     check_warn "Service Docker non actif (optionnel)"
+fi
+
+# Vérification permissions Docker
+if command -v docker &> /dev/null; then
+    if docker ps &> /dev/null; then
+        check_pass "Permissions Docker OK (utilisateur dans groupe docker)"
+    else
+        check_fail "Permissions Docker refusées (ajoutez l'utilisateur au groupe docker: sudo usermod -aG docker \$USER)"
+    fi
 fi
 
 if pgrep -x ssh-agent > /dev/null; then
@@ -196,10 +213,63 @@ for file_entry in "${DOTFILES_FILES[@]}"; do
 done
 
 # Vérifier que zshrc_custom est sourcé
-if grep -q "zshrc_custom" "$HOME/.zshrc" 2>/dev/null; then
+if grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
     check_pass "zshrc_custom sourcé dans .zshrc"
 else
-    check_fail "zshrc_custom non sourcé dans .zshrc"
+    check_fail "zshrc_custom non sourcé dans .zshrc (relancez setup.sh)"
+fi
+
+# Vérifier symlinks
+if [ -L "$HOME/.zshrc" ]; then
+    LINK_TARGET=$(readlink "$HOME/.zshrc")
+    if [[ "$LINK_TARGET" == *"dotfiles"* ]]; then
+        check_pass "Symlink .zshrc configuré: $LINK_TARGET"
+    else
+        check_warn "Symlink .zshrc pointe vers: $LINK_TARGET (attendu: ~/dotfiles/.zshrc)"
+    fi
+else
+    check_warn ".zshrc n'est pas un symlink (optionnel, utilisez option 23 pour créer)"
+fi
+
+if [ -L "$HOME/.gitconfig" ]; then
+    LINK_TARGET=$(readlink "$HOME/.gitconfig")
+    if [[ "$LINK_TARGET" == *"dotfiles"* ]]; then
+        check_pass "Symlink .gitconfig configuré: $LINK_TARGET"
+    else
+        check_warn "Symlink .gitconfig pointe vers: $LINK_TARGET"
+    fi
+else
+    check_warn ".gitconfig n'est pas un symlink (optionnel)"
+fi
+
+################################################################################
+# VÉRIFICATIONS NVIDIA
+################################################################################
+log_section "Vérifications NVIDIA (si présent)"
+
+if command -v nvidia-smi &> /dev/null; then
+    if nvidia-smi &> /dev/null; then
+        GPU_INFO=$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -n1)
+        check_pass "NVIDIA GPU détecté: $GPU_INFO"
+        
+        # Vérifier configuration Xorg
+        if [ -f /etc/X11/xorg.conf ] || [ -f /etc/X11/xorg.conf.d/*nvidia* ]; then
+            check_pass "Configuration Xorg NVIDIA présente"
+        else
+            check_warn "Configuration Xorg NVIDIA non trouvée (peut être normal)"
+        fi
+        
+        # Vérifier nvidia-prime
+        if command -v prime-run &> /dev/null; then
+            check_pass "nvidia-prime installé (prime-run disponible)"
+        else
+            check_warn "nvidia-prime non installé (optionnel)"
+        fi
+    else
+        check_fail "nvidia-smi échoue (GPU non détecté ou pilotes non chargés)"
+    fi
+else
+    check_warn "NVIDIA non détecté (normal si pas de GPU NVIDIA)"
 fi
 
 ################################################################################

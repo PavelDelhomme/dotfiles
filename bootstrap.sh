@@ -209,7 +209,26 @@ if [ ! -d "$DOTFILES_DIR" ]; then
 fi
 
 ################################################################################
-# 4. LANCER LE SETUP DOTFILES
+# 4. CRÉER LES SYMLINKS (CENTRALISATION CONFIGURATION)
+################################################################################
+log_section "Création des symlinks pour centraliser la configuration"
+
+if [ -f "$DOTFILES_DIR/scripts/config/create_symlinks.sh" ]; then
+    printf "Créer les symlinks pour centraliser la configuration? (o/n) [défaut: o]: "
+    read -r create_symlinks
+    create_symlinks=${create_symlinks:-o}
+    if [[ "$create_symlinks" =~ ^[oO]$ ]]; then
+        log_info "Création des symlinks..."
+        bash "$DOTFILES_DIR/scripts/config/create_symlinks.sh"
+    else
+        log_warn "Création des symlinks ignorée"
+    fi
+else
+    log_warn "Script create_symlinks.sh non trouvé"
+fi
+
+################################################################################
+# 5. LANCER LE SETUP DOTFILES
 ################################################################################
 log_section "Lancement du setup dotfiles"
 
@@ -229,7 +248,7 @@ else
 fi
 
 ################################################################################
-# 5. MENU D'INSTALLATION MODULAIRE
+# 6. MENU D'INSTALLATION MODULAIRE
 ################################################################################
 log_section "Menu d'installation modulaire"
 

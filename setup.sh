@@ -84,6 +84,7 @@ show_menu() {
     echo "20. Recharger configuration ZSH"
     echo "21. Installer fonctions USB test"
     echo "22. Validation complète du setup"
+    echo "23. Créer symlinks (centraliser configuration)"
     echo ""
     echo "99. ROLLBACK - Désinstaller tout (ATTENTION!)"
     echo ""
@@ -260,6 +261,11 @@ while true; do
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
+        23)
+            log_section "Création des symlinks"
+            run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création symlinks"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
         99)
             log_section "ROLLBACK - Désinstallation complète"
             log_warn "⚠️  ATTENTION : Cette option va désinstaller TOUT"
@@ -282,7 +288,7 @@ while true; do
             ;;
         *)
             log_error "Choix invalide: '$choice'"
-            log_info "Veuillez entrer un nombre entre 0 et 22"
+            log_info "Veuillez entrer un nombre entre 0 et 23"
             sleep 2
             ;;
     esac
