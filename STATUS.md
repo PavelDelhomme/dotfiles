@@ -2,7 +2,7 @@
 
 Ce fichier documente toutes les modifications apportées aux dotfiles depuis le début de la refactorisation complète.
 
-**Version :** 2.0.0  
+**Version :** 2.2.0  
 **Date de création :** Décembre 2024  
 **Dernière mise à jour :** Décembre 2024
 
@@ -453,6 +453,52 @@ make clean            # Nettoyer fichiers temporaires
 
 ---
 
+## 🚀 PHASE 14 : Simplification du workflow d'installation
+
+### Modifications
+- ✅ **bootstrap.sh simplifié** : Lance automatiquement le menu interactif après le clonage
+- ✅ **Plus de questions intermédiaires** : Le workflow est maintenant linéaire et automatique
+- ✅ **Menu setup.sh amélioré** : Affiche l'état d'installation au premier lancement
+- ✅ **Fonction show_status()** : Affiche clairement ce qui est installé et ce qui manque
+- ✅ **Indications claires** : Chaque élément manquant indique quelle option du menu choisir
+
+### Nouveaux fichiers créés
+- Aucun (améliorations uniquement)
+
+### Fichiers modifiés
+- ✅ `bootstrap.sh` - Simplification : lance automatiquement setup.sh après clonage
+- ✅ `setup.sh` - Ajout fonction `show_status()` pour afficher l'état d'installation
+- ✅ `README.md` - Documentation mise à jour avec workflow simplifié
+- ✅ `STATUS.md` - Documentation des nouvelles modifications
+
+### Workflow simplifié
+
+**Avant :**
+```bash
+curl | bash bootstrap.sh
+# → Questions multiples
+# → Choix entre make install / make setup / bash setup.sh
+# → Confusion sur quelle méthode utiliser
+```
+
+**Maintenant :**
+```bash
+curl | bash bootstrap.sh
+# → Configuration Git automatique
+# → Clonage dotfiles
+# → Menu interactif lancé automatiquement
+# → État d'installation affiché en haut du menu
+# → Choix clair des options à installer
+```
+
+### Avantages
+- ✅ **Workflow linéaire** : Une seule commande, tout est automatique
+- ✅ **Visibilité immédiate** : L'utilisateur voit directement l'état de son installation
+- ✅ **Guidage clair** : Chaque élément manquant indique quelle option choisir
+- ✅ **Pas de confusion** : Plus de questions intermédiaires, le menu gère tout
+
+---
+
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.1.0 (Refactorisation complète + Centralisation symlinks + Makefile)
+**Version :** 2.2.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié)
 

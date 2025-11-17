@@ -277,108 +277,40 @@ fi
 # Cette section est TOUJOURS exécutée si dotfiles existe
 
 ################################################################################
-# 5. PROPOSER UTILISATION MAKEFILE (recommandé)
+# 5. LANCER AUTOMATIQUEMENT LE MENU INTERACTIF
 ################################################################################
 log_section "Installation des dotfiles"
 
 # Cette section doit TOUJOURS être atteinte si dotfiles existe
-# Vérifier explicitement que nous arrivons ici
+# Lancer automatiquement le menu interactif setup.sh
 
-if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/Makefile" ]; then
+if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/setup.sh" ]; then
     log_info "✅ Dotfiles clonés avec succès dans: $DOTFILES_DIR"
     echo ""
-    log_info "Pour continuer l'installation, utilisez le Makefile (recommandé):"
+    log_info "Lancement du menu interactif d'installation..."
     echo ""
-    echo "  cd ~/dotfiles"
-    echo "  make install          # Installation complète"
-    echo "  make setup            # Menu interactif"
-    echo "  make help             # Voir toutes les commandes"
-    echo ""
-    printf "Voulez-vous lancer l'installation maintenant? (o/n) [défaut: o]: "
-    IFS= read -r launch_install </dev/tty 2>/dev/null || read -r launch_install
-    launch_install=${launch_install:-o}
     
-    if [[ "$launch_install" =~ ^[oO]$ ]]; then
-        cd "$DOTFILES_DIR" || {
-            log_error "Impossible de se déplacer dans $DOTFILES_DIR"
-            exit 1
-        }
-        
-        echo ""
-        log_info "Méthodes disponibles:"
-        echo "  1. make install    - Installation complète (bootstrap complet)"
-        echo "  2. make setup      - Menu interactif (recommandé)"
-        echo "  3. bash setup.sh   - Menu interactif (alternative)"
-        echo ""
-        printf "Choisir une méthode (1/2/3) [défaut: 2]: "
-        IFS= read -r method_choice </dev/tty 2>/dev/null || read -r method_choice
-        method_choice=${method_choice:-2}
-        
-        case "$method_choice" in
-            1)
-                log_info "Lancement: make install"
-                if command -v make &> /dev/null; then
-                    make install
-                else
-                    log_warn "make non disponible, utilisation de bootstrap.sh directement"
-                    bash "$DOTFILES_DIR/bootstrap.sh"
-                fi
-                ;;
-            2)
-                log_info "Lancement: make setup"
-                if command -v make &> /dev/null; then
-                    make setup
-                else
-                    log_warn "make non disponible, utilisation de setup.sh directement"
-                    bash "$DOTFILES_DIR/setup.sh"
-                fi
-                ;;
-            3)
-                log_info "Lancement: bash setup.sh"
-                bash "$DOTFILES_DIR/setup.sh"
-                ;;
-            *)
-                log_warn "Choix invalide, utilisation de make setup par défaut"
-                if command -v make &> /dev/null; then
-                    make setup
-                else
-                    bash "$DOTFILES_DIR/setup.sh"
-                fi
-                ;;
-        esac
-        
-        EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 0 ]; then
-            log_info "Installation terminée, au revoir!"
-            exit 0
-        fi
-    else
-        log_info "Installation ignorée"
-        echo ""
-        log_info "Pour installer plus tard:"
-        echo "  cd ~/dotfiles"
-        echo "  make install    # ou make setup"
+    # Changer dans le répertoire dotfiles
+    cd "$DOTFILES_DIR" || {
+        log_error "Impossible de se déplacer dans $DOTFILES_DIR"
+        exit 1
+    }
+    
+    # Lancer directement setup.sh
+    bash "$DOTFILES_DIR/setup.sh"
+    
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 0 ]; then
+        log_info "Installation terminée, au revoir!"
         exit 0
+    else
+        exit $EXIT_CODE
     fi
 else
-    log_warn "Répertoire dotfiles ou Makefile non trouvé"
-    if [ -f "$DOTFILES_DIR/setup.sh" ]; then
-        log_info "Utilisation de setup.sh en fallback..."
-        bash "$DOTFILES_DIR/setup.sh"
-        if [ $? -eq 0 ]; then
-            exit 0
-        fi
-    fi
+    log_error "Répertoire dotfiles ou setup.sh non trouvé"
+    log_warn "Le repository semble incomplet"
+    exit 1
 fi
 
-################################################################################
-# TERMINÉ
-################################################################################
-log_section "Bootstrap terminé!"
-log_info "Dotfiles installés et configurés"
-echo ""
-log_warn "Prochaines étapes:"
-echo "  1. Rechargez votre shell: exec zsh"
-echo "  2. Si QEMU installé: déconnectez-vous et reconnectez-vous"
-echo "  3. Vérifiez les installations avec les commandes appropriées"
-echo ""
+# Le script se termine ici si setup.sh a été lancé avec succès
+# setup.sh gère sa propre sortie et affichage

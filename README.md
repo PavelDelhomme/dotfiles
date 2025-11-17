@@ -2,7 +2,7 @@
 
 Configuration personnelle pour Manjaro Linux avec installation automatisée complète.
 
-**Version :** 2.0.0
+**Version :** 2.2.0
 
 ## 📑 Table des matières
 
@@ -67,36 +67,43 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 ## 🚀 Installation rapide (nouvelle machine)
 
-### Méthode 1 : Makefile (recommandé)
+### Installation en une seule commande
 
-**UNE SEULE LIGNE** pour installer et configurer tous les dotfiles :
+**UNE SEULE LIGNE** pour tout installer et configurer :
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
 ```
 
-Puis utilisez le Makefile pour toutes les opérations :
+Cette commande va automatiquement :
+1. ✅ Vérifier et installer Git si nécessaire
+2. ✅ Configurer Git (nom et email)
+3. ✅ Générer une clé SSH et l'ajouter à GitHub
+4. ✅ Cloner le repository dotfiles dans `~/dotfiles`
+5. ✅ **Lancer automatiquement le menu interactif d'installation**
+
+Le menu interactif affiche :
+- 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
+- 🎯 **Toutes les options disponibles** pour installer/configurer
+- ✅ **Indications claires** sur quelle option choisir pour chaque composant
+
+### Après l'installation
+
+Une fois le menu lancé, vous pouvez :
+- Choisir les options que vous voulez installer
+- Voir l'état de votre installation en haut du menu
+- Utiliser l'option **22** pour valider complètement votre setup
+- Utiliser l'option **0** pour quitter (vous pouvez relancer `cd ~/dotfiles && bash setup.sh` plus tard)
+
+### Commandes utiles après installation
 
 ```bash
 cd ~/dotfiles
-make install          # Installation complète
-make setup            # Menu interactif
-make validate         # Valider le setup
-make help             # Voir toutes les commandes
+bash setup.sh          # Relancer le menu interactif
+make setup              # Alternative avec Makefile
+make validate           # Valider le setup complet
+make help               # Voir toutes les commandes disponibles
 ```
-
-### Méthode 2 : Scripts bash (alternative)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
-```
-
-Cette commande va :
-- Installer Git si nécessaire
-- Configurer Git automatiquement (identité auto-détectée)
-- Générer une clé SSH et l'ajouter à GitHub
-- Cloner le repo dotfiles
-- Lancer le menu interactif d'installation
 
 ### Installation manuelle (alternative)
 

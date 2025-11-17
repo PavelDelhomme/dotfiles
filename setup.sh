@@ -33,6 +33,112 @@ is_package_installed() {
     pacman -Q "$1" >/dev/null 2>&1 2>/dev/null
 }
 
+################################################################################
+# AFFICHAGE DE L'ÉTAT D'INSTALLATION
+################################################################################
+show_status() {
+    echo ""
+    log_section "État de l'installation"
+    echo ""
+    
+    # Configuration Git
+    if git config --global user.name &>/dev/null && git config --global user.email &>/dev/null; then
+        GIT_NAME=$(git config --global user.name)
+        GIT_EMAIL=$(git config --global user.email)
+        log_info "✅ Git configuré: $GIT_NAME <$GIT_EMAIL>"
+    else
+        log_warn "❌ Git non configuré (option 1)"
+    fi
+    
+    # Clé SSH
+    if [ -f "$HOME/.ssh/id_ed25519" ] || [ -f "$HOME/.ssh/id_rsa" ]; then
+        log_info "✅ Clé SSH présente"
+    else
+        log_warn "❌ Clé SSH absente (option 1)"
+    fi
+    
+    # Outils de base
+    echo ""
+    echo "Outils de base:"
+    TOOLS_BASE=("git" "curl" "wget" "zsh" "btop")
+    for tool in "${TOOLS_BASE[@]}"; do
+        if is_installed "$tool"; then
+            echo "  ✅ $tool"
+        else
+            echo "  ❌ $tool (option 3)"
+        fi
+    done
+    
+    # Gestionnaires
+    echo ""
+    echo "Gestionnaires de paquets:"
+    if is_installed "yay"; then
+        echo "  ✅ yay"
+    else
+        echo "  ❌ yay (option 4 ou 18)"
+    fi
+    if is_installed "snap"; then
+        echo "  ✅ snap"
+    else
+        echo "  ❌ snap (option 4)"
+    fi
+    if is_installed "flatpak"; then
+        echo "  ✅ flatpak"
+    else
+        echo "  ❌ flatpak (option 4)"
+    fi
+    
+    # Outils de développement
+    echo ""
+    echo "Outils de développement:"
+    if is_installed "docker"; then
+        DOCKER_VERSION=$(docker --version 2>/dev/null | head -n1)
+        echo "  ✅ Docker: $DOCKER_VERSION"
+    else
+        echo "  ❌ Docker (option 15)"
+    fi
+    if is_installed "go"; then
+        GO_VERSION=$(go version 2>/dev/null | head -n1)
+        echo "  ✅ Go: $GO_VERSION"
+    else
+        echo "  ❌ Go (option 19)"
+    fi
+    
+    # Applications
+    echo ""
+    echo "Applications:"
+    if is_installed "cursor"; then
+        echo "  ✅ Cursor IDE"
+    else
+        echo "  ❌ Cursor IDE (option 8)"
+    fi
+    if is_installed "brave-browser" || is_installed "brave"; then
+        echo "  ✅ Brave Browser"
+    else
+        echo "  ❌ Brave Browser (option 17)"
+    fi
+    
+    # Auto-sync Git
+    echo ""
+    if systemctl --user is-active dotfiles-sync.timer &>/dev/null; then
+        log_info "✅ Auto-sync Git actif (option 12)"
+    else
+        log_warn "❌ Auto-sync Git inactif (option 12)"
+    fi
+    
+    # Symlinks
+    echo ""
+    if [ -L "$HOME/.zshrc" ] && [[ $(readlink "$HOME/.zshrc") == *"dotfiles"* ]]; then
+        log_info "✅ Symlinks configurés (option 23)"
+    else
+        log_warn "❌ Symlinks non configurés (option 23)"
+    fi
+    
+    echo ""
+    echo "─────────────────────────────────────────────────────────"
+    echo ""
+}
+
 run_script() {
     local script="$1"
     local name="$2"
@@ -100,7 +206,16 @@ show_menu() {
 ################################################################################
 # OPTIONS DU MENU
 ################################################################################
+# Afficher l'état au premier lancement
+FIRST_RUN=true
+
 while true; do
+    # Afficher l'état uniquement au premier lancement
+    if [ "$FIRST_RUN" = true ]; then
+        show_status
+        FIRST_RUN=false
+    fi
+    
     show_menu
     printf "Choix: "
     
