@@ -242,54 +242,95 @@ else
 fi
 
 ################################################################################
-# 5. LANCER LE SETUP DOTFILES
+# 5. PROPOSER UTILISATION MAKEFILE (recommandé)
 ################################################################################
-log_section "Lancement du setup dotfiles"
+log_section "Installation des dotfiles"
 
-if [ -f "$DOTFILES_DIR/setup.sh" ]; then
-    log_info "Exécution de setup.sh..."
-    bash "$DOTFILES_DIR/setup.sh"
-    SETUP_EXIT_CODE=$?
+if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/Makefile" ]; then
+    log_info "✅ Dotfiles clonés avec succès dans: $DOTFILES_DIR"
+    echo ""
+    log_info "Pour continuer l'installation, utilisez le Makefile (recommandé):"
+    echo ""
+    echo "  cd ~/dotfiles"
+    echo "  make install          # Installation complète"
+    echo "  make setup            # Menu interactif"
+    echo "  make help             # Voir toutes les commandes"
+    echo ""
+    printf "Voulez-vous lancer l'installation maintenant? (o/n) [défaut: o]: "
+    IFS= read -r launch_install </dev/tty 2>/dev/null || read -r launch_install
+    launch_install=${launch_install:-o}
     
-    # Si setup.sh s'est terminé avec exit 0 (quitter), arrêter bootstrap.sh aussi
-    if [ $SETUP_EXIT_CODE -eq 0 ]; then
-        log_info "Setup terminé, au revoir!"
+    if [[ "$launch_install" =~ ^[oO]$ ]]; then
+        cd "$DOTFILES_DIR" || {
+            log_error "Impossible de se déplacer dans $DOTFILES_DIR"
+            exit 1
+        }
+        
+        echo ""
+        log_info "Méthodes disponibles:"
+        echo "  1. make install    - Installation complète (bootstrap complet)"
+        echo "  2. make setup      - Menu interactif (recommandé)"
+        echo "  3. bash setup.sh   - Menu interactif (alternative)"
+        echo ""
+        printf "Choisir une méthode (1/2/3) [défaut: 2]: "
+        IFS= read -r method_choice </dev/tty 2>/dev/null || read -r method_choice
+        method_choice=${method_choice:-2}
+        
+        case "$method_choice" in
+            1)
+                log_info "Lancement: make install"
+                if command -v make &> /dev/null; then
+                    make install
+                else
+                    log_warn "make non disponible, utilisation de bootstrap.sh directement"
+                    bash "$DOTFILES_DIR/bootstrap.sh"
+                fi
+                ;;
+            2)
+                log_info "Lancement: make setup"
+                if command -v make &> /dev/null; then
+                    make setup
+                else
+                    log_warn "make non disponible, utilisation de setup.sh directement"
+                    bash "$DOTFILES_DIR/setup.sh"
+                fi
+                ;;
+            3)
+                log_info "Lancement: bash setup.sh"
+                bash "$DOTFILES_DIR/setup.sh"
+                ;;
+            *)
+                log_warn "Choix invalide, utilisation de make setup par défaut"
+                if command -v make &> /dev/null; then
+                    make setup
+                else
+                    bash "$DOTFILES_DIR/setup.sh"
+                fi
+                ;;
+        esac
+        
+        EXIT_CODE=$?
+        if [ $EXIT_CODE -eq 0 ]; then
+            log_info "Installation terminée, au revoir!"
+            exit 0
+        fi
+    else
+        log_info "Installation ignorée"
+        echo ""
+        log_info "Pour installer plus tard:"
+        echo "  cd ~/dotfiles"
+        echo "  make install    # ou make setup"
         exit 0
     fi
 else
-    log_warn "setup.sh non trouvé, création des symlinks de base..."
-    # Créer les symlinks de base si setup.sh n'existe pas
-    if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
-        if ! grep -q "dotfiles" "$HOME/.zshrc" 2>/dev/null; then
-            echo "" >> "$HOME/.zshrc"
-            echo "# Dotfiles" >> "$HOME/.zshrc"
-            echo "[ -f $DOTFILES_DIR/zsh/zshrc_custom ] && source $DOTFILES_DIR/zsh/zshrc_custom" >> "$HOME/.zshrc"
+    log_warn "Répertoire dotfiles ou Makefile non trouvé"
+    if [ -f "$DOTFILES_DIR/setup.sh" ]; then
+        log_info "Utilisation de setup.sh en fallback..."
+        bash "$DOTFILES_DIR/setup.sh"
+        if [ $? -eq 0 ]; then
+            exit 0
         fi
     fi
-fi
-
-################################################################################
-# 6. MENU D'INSTALLATION MODULAIRE (si setup.sh n'a pas été quitté)
-################################################################################
-# Cette section ne sera atteinte que si setup.sh ne s'est pas terminé normalement
-# ou si l'utilisateur veut relancer le menu
-log_section "Menu d'installation modulaire"
-
-printf "Lancer le menu d'installation modulaire? (o/n) [défaut: n]: "
-read -r launch_menu
-launch_menu=${launch_menu:-n}
-
-if [[ "$launch_menu" =~ ^[oO]$ ]]; then
-    log_info "Lancement du menu interactif..."
-    bash "$DOTFILES_DIR/setup.sh"
-    # Si setup.sh se termine avec exit 0, arrêter bootstrap.sh aussi
-    if [ $? -eq 0 ]; then
-        log_info "Menu terminé, au revoir!"
-        exit 0
-    fi
-else
-    log_warn "Menu ignoré"
-    log_info "Pour lancer plus tard: bash $DOTFILES_DIR/setup.sh"
 fi
 
 ################################################################################
