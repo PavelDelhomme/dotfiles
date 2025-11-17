@@ -114,23 +114,19 @@ else
 fi
 
 ################################################################################
-# 5. INSTALLATION DES OUTILS (OPTIONNEL)
+# 5. MENU D'INSTALLATION MODULAIRE
 ################################################################################
-log_section "Installation des outils"
+log_section "Menu d'installation modulaire"
 
-if [ -f "$DOTFILES_DIR/scripts/install/install_all.sh" ]; then
-    read -p "Installer tous les outils (Git, Cursor, PortProton, QEMU)? (o/n) [défaut: o]: " install_tools
-    install_tools=${install_tools:-o}
-    
-    if [[ "$install_tools" =~ ^[oO]$ ]]; then
-        log_info "Lancement de l'installation complète..."
-        bash "$DOTFILES_DIR/scripts/install/install_all.sh"
-    else
-        log_warn "Installation des outils ignorée"
-        log_info "Pour installer plus tard: bash $DOTFILES_DIR/scripts/install/install_all.sh"
-    fi
+read -p "Lancer le menu d'installation modulaire? (o/n) [défaut: o]: " launch_menu
+launch_menu=${launch_menu:-o}
+
+if [[ "$launch_menu" =~ ^[oO]$ ]]; then
+    log_info "Lancement du menu interactif..."
+    bash "$DOTFILES_DIR/setup.sh"
 else
-    log_warn "Script install_all.sh non trouvé"
+    log_warn "Menu ignoré"
+    log_info "Pour lancer plus tard: bash $DOTFILES_DIR/setup.sh"
 fi
 
 ################################################################################
