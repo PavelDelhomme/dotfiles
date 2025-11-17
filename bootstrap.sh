@@ -249,6 +249,13 @@ log_section "Lancement du setup dotfiles"
 if [ -f "$DOTFILES_DIR/setup.sh" ]; then
     log_info "Exécution de setup.sh..."
     bash "$DOTFILES_DIR/setup.sh"
+    SETUP_EXIT_CODE=$?
+    
+    # Si setup.sh s'est terminé avec exit 0 (quitter), arrêter bootstrap.sh aussi
+    if [ $SETUP_EXIT_CODE -eq 0 ]; then
+        log_info "Setup terminé, au revoir!"
+        exit 0
+    fi
 else
     log_warn "setup.sh non trouvé, création des symlinks de base..."
     # Créer les symlinks de base si setup.sh n'existe pas
@@ -262,17 +269,24 @@ else
 fi
 
 ################################################################################
-# 6. MENU D'INSTALLATION MODULAIRE
+# 6. MENU D'INSTALLATION MODULAIRE (si setup.sh n'a pas été quitté)
 ################################################################################
+# Cette section ne sera atteinte que si setup.sh ne s'est pas terminé normalement
+# ou si l'utilisateur veut relancer le menu
 log_section "Menu d'installation modulaire"
 
-printf "Lancer le menu d'installation modulaire? (o/n) [défaut: o]: "
+printf "Lancer le menu d'installation modulaire? (o/n) [défaut: n]: "
 read -r launch_menu
-launch_menu=${launch_menu:-o}
+launch_menu=${launch_menu:-n}
 
 if [[ "$launch_menu" =~ ^[oO]$ ]]; then
     log_info "Lancement du menu interactif..."
     bash "$DOTFILES_DIR/setup.sh"
+    # Si setup.sh se termine avec exit 0, arrêter bootstrap.sh aussi
+    if [ $? -eq 0 ]; then
+        log_info "Menu terminé, au revoir!"
+        exit 0
+    fi
 else
     log_warn "Menu ignoré"
     log_info "Pour lancer plus tard: bash $DOTFILES_DIR/setup.sh"
