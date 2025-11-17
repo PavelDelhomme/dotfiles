@@ -57,21 +57,50 @@ log_section "Configuration Git globale"
 DEFAULT_GIT_NAME="PavelDelhomme"
 DEFAULT_GIT_EMAIL="dev@delhomme.ovh"
 
-# Demander confirmation ou utiliser les valeurs par défaut
-printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
-IFS= read -r git_name </dev/tty 2>/dev/null || read -r git_name
+# Vérifier si Git est déjà configuré
+CURRENT_GIT_NAME=$(git config --global user.name 2>/dev/null)
+CURRENT_GIT_EMAIL=$(git config --global user.email 2>/dev/null)
 
-# Utiliser la valeur par défaut si vide
-if [ -z "$git_name" ]; then
-    git_name="$DEFAULT_GIT_NAME"
-fi
-
-printf "Email Git (défaut: %s): " "$DEFAULT_GIT_EMAIL"
-IFS= read -r git_email </dev/tty 2>/dev/null || read -r git_email
-
-# Utiliser la valeur par défaut si vide
-if [ -z "$git_email" ]; then
-    git_email="$DEFAULT_GIT_EMAIL"
+if [ -n "$CURRENT_GIT_NAME" ] && [ -n "$CURRENT_GIT_EMAIL" ]; then
+    # Git est déjà configuré
+    log_info "✓ Git déjà configuré: $CURRENT_GIT_NAME <$CURRENT_GIT_EMAIL>"
+    printf "Voulez-vous modifier la configuration Git? (o/n) [défaut: n]: "
+    IFS= read -r change_git </dev/tty 2>/dev/null || read -r change_git
+    change_git=${change_git:-n}
+    
+    if [[ ! "$change_git" =~ ^[oO]$ ]]; then
+        # Garder la configuration actuelle
+        git_name="$CURRENT_GIT_NAME"
+        git_email="$CURRENT_GIT_EMAIL"
+        log_info "Configuration Git conservée"
+    else
+        # Modifier la configuration
+        printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
+        IFS= read -r git_name </dev/tty 2>/dev/null || read -r git_name
+        if [ -z "$git_name" ]; then
+            git_name="$DEFAULT_GIT_NAME"
+        fi
+        
+        printf "Email Git (défaut: %s): " "$DEFAULT_GIT_EMAIL"
+        IFS= read -r git_email </dev/tty 2>/dev/null || read -r git_email
+        if [ -z "$git_email" ]; then
+            git_email="$DEFAULT_GIT_EMAIL"
+        fi
+    fi
+else
+    # Git n'est pas configuré, demander la configuration
+    log_info "Configuration Git nécessaire"
+    printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
+    IFS= read -r git_name </dev/tty 2>/dev/null || read -r git_name
+    if [ -z "$git_name" ]; then
+        git_name="$DEFAULT_GIT_NAME"
+    fi
+    
+    printf "Email Git (défaut: %s): " "$DEFAULT_GIT_EMAIL"
+    IFS= read -r git_email </dev/tty 2>/dev/null || read -r git_email
+    if [ -z "$git_email" ]; then
+        git_email="$DEFAULT_GIT_EMAIL"
+    fi
 fi
 
 # Vérifier que git_email est bien défini (sécurité)
@@ -86,6 +115,7 @@ if [ -z "$git_name" ] || [[ "$git_name" == *"\$"* ]] || [[ "$git_name" == *"DEFA
     log_warn "Nom invalide détecté, utilisation de la valeur par défaut"
 fi
 
+# Configurer Git (même si déjà configuré, pour s'assurer que tout est à jour)
 git config --global user.name "$git_name"
 git config --global user.email "$git_email"
 git config --global init.defaultBranch main
