@@ -107,15 +107,26 @@ if [ ! -f "$SSH_KEY" ]; then
     log_info "✓ Clé ajoutée au ssh-agent"
     
     # Copier la clé publique dans le presse-papier
-    if command -v xclip &> /dev/null; then
-        cat "$SSH_PUB_KEY" | xclip -selection clipboard
-        log_info "✓ Clé publique copiée dans le presse-papier (xclip)"
-    elif command -v wl-copy &> /dev/null; then
-        cat "$SSH_PUB_KEY" | wl-copy
-        log_info "✓ Clé publique copiée dans le presse-papier (wl-copy)"
+    if [ -f "$SSH_PUB_KEY" ]; then
+        # Lire uniquement la première ligne (la clé SSH complète)
+        SSH_KEY_CONTENT=$(head -n1 "$SSH_PUB_KEY" 2>/dev/null)
+        
+        if [ -n "$SSH_KEY_CONTENT" ]; then
+            if command -v xclip &> /dev/null; then
+                echo -n "$SSH_KEY_CONTENT" | xclip -selection clipboard 2>/dev/null
+                log_info "✓ Clé publique copiée dans le presse-papier (xclip)"
+            elif command -v wl-copy &> /dev/null; then
+                echo -n "$SSH_KEY_CONTENT" | wl-copy 2>/dev/null
+                log_info "✓ Clé publique copiée dans le presse-papier (wl-copy)"
+            else
+                log_warn "xclip/wl-copy non disponible, affichage de la clé:"
+                echo "$SSH_KEY_CONTENT"
+            fi
+        else
+            log_error "Impossible de lire la clé publique"
+        fi
     else
-        log_warn "xclip/wl-copy non disponible, affichage de la clé:"
-        cat "$SSH_PUB_KEY"
+        log_error "Fichier clé publique non trouvé: $SSH_PUB_KEY"
     fi
     
     log_warn "⚠️ Ajoutez cette clé SSH sur GitHub:"
