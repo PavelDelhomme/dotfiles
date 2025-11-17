@@ -201,9 +201,6 @@ fi
 ################################################################################
 log_section "Clonage du repo dotfiles"
 
-# Debug: vérifier si on arrive ici
-log_info "Vérification du dossier dotfiles..."
-
 # Si le dossier existe déjà et est un repo git, on l'utilise directement
 if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
     log_info "✓ Dossier dotfiles existe déjà: $DOTFILES_DIR"
@@ -215,6 +212,7 @@ if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
     git pull origin main || git pull origin master || true
     cd ~
     log_info "✓ Repository à jour"
+    # IMPORTANT: Continuer vers la section suivante (symlinks puis Makefile)
 elif [ -d "$DOTFILES_DIR" ]; then
     # Dossier existe mais n'est pas un repo git
     log_warn "Dossier $DOTFILES_DIR existe mais n'est pas un repository Git"
