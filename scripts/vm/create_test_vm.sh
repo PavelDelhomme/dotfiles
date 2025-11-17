@@ -37,8 +37,11 @@ if ! command -v virt-manager >/dev/null 2>&1; then
     log_error "QEMU/KVM/virt-manager non installé!"
     log_info "Installation..."
 
-    if [ -f ~/dotfiles/install_qemu.sh ]; then
-        bash ~/dotfiles/install_qemu.sh
+    DOTFILES_DIR="$HOME/dotfiles"
+    if [ -f "$DOTFILES_DIR/scripts/install/install_qemu_simple.sh" ]; then
+        bash "$DOTFILES_DIR/scripts/install/install_qemu_simple.sh"
+    elif [ -f "$DOTFILES_DIR/scripts/install/install_qemu.sh" ]; then
+        bash "$DOTFILES_DIR/scripts/install/install_qemu.sh"
     else
         sudo pacman -S --noconfirm qemu-desktop libvirt virt-manager virt-viewer
         sudo systemctl enable --now libvirtd

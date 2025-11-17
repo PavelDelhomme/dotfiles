@@ -55,53 +55,82 @@ log_section "Configuration Git globale"
 
 # Demander confirmation ou utiliser les valeurs par défaut
 read -p "Nom Git (défaut: $DEFAULT_GIT_NAME): " git_name
-git_name=\${git_name:-"$DEFAULT_GIT_NAME"}
+git_name=${git_name:-"$DEFAULT_GIT_NAME"}
 
 read -p "Email Git (défaut: $DEFAULT_GIT_EMAIL): " git_email
-git_email=\${git_email:-"$DEFAULT_GIT_EMAIL"}
+git_email=${git_email:-"$DEFAULT_GIT_EMAIL"}
 
-git config --global user.name "\$git_name"
-git config --global user.email "\$git_email"
+git config --global user.name "$git_name"
+git config --global user.email "$git_email"
+git config --global init.defaultBranch main
+git config --global core.editor vim
+git config --global color.ui auto
 
-log_info "✓ Git configuré: \$git_name <\$git_email>"
+log_info "✓ Git configuré: $git_name <$git_email>"
 
 ################################################################################
 # 3. CLONER LE REPO DOTFILES
 ################################################################################
 log_section "Clonage du repo dotfiles"
 
-if [ -d "\$DOTFILES_DIR" ]; then
-    log_warn "Dossier \$DOTFILES_DIR existe déjà"
+if [ -d "$DOTFILES_DIR" ]; then
+    log_warn "Dossier $DOTFILES_DIR existe déjà"
     read -p "Supprimer et re-cloner? (o/n): " delete_choice
-    if [[ "\$delete_choice" =~ ^[oO]\$ ]]; then
-        rm -rf "\$DOTFILES_DIR"
+    if [[ "$delete_choice" =~ ^[oO]$ ]]; then
+        rm -rf "$DOTFILES_DIR"
         log_info "Dossier supprimé"
     else
         log_info "Utilisation du dossier existant"
-        cd "\$DOTFILES_DIR"
-        git pull origin main || git pull origin master
+        cd "$DOTFILES_DIR"
+        git pull origin main || git pull origin master || true
         cd ~
     fi
 fi
 
-if [ ! -d "\$DOTFILES_DIR" ]; then
-    log_info "Clonage de \$DOTFILES_REPO..."
-    git clone "\$DOTFILES_REPO" "\$DOTFILES_DIR"
+if [ ! -d "$DOTFILES_DIR" ]; then
+    log_info "Clonage de $DOTFILES_REPO..."
+    git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
     log_info "✓ Dotfiles clonés"
 fi
 
 ################################################################################
-# 4. LANCER LE SETUP
+# 4. LANCER LE SETUP DOTFILES
 ################################################################################
 log_section "Lancement du setup dotfiles"
 
-if [ -f "\$DOTFILES_DIR/setup.sh" ]; then
+if [ -f "$DOTFILES_DIR/setup.sh" ]; then
     log_info "Exécution de setup.sh..."
-    bash "\$DOTFILES_DIR/setup.sh"
+    bash "$DOTFILES_DIR/setup.sh"
 else
-    log_error "setup.sh non trouvé dans le repo!"
-    log_warn "Le repo dotfiles est peut-être incomplet"
-    exit 1
+    log_warn "setup.sh non trouvé, création des symlinks de base..."
+    # Créer les symlinks de base si setup.sh n'existe pas
+    if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
+        if ! grep -q "dotfiles" "$HOME/.zshrc" 2>/dev/null; then
+            echo "" >> "$HOME/.zshrc"
+            echo "# Dotfiles" >> "$HOME/.zshrc"
+            echo "[ -f $DOTFILES_DIR/zsh/zshrc_custom ] && source $DOTFILES_DIR/zsh/zshrc_custom" >> "$HOME/.zshrc"
+        fi
+    fi
+fi
+
+################################################################################
+# 5. INSTALLATION DES OUTILS (OPTIONNEL)
+################################################################################
+log_section "Installation des outils"
+
+if [ -f "$DOTFILES_DIR/scripts/install/install_all.sh" ]; then
+    read -p "Installer tous les outils (Git, Cursor, PortProton, QEMU)? (o/n) [défaut: o]: " install_tools
+    install_tools=${install_tools:-o}
+    
+    if [[ "$install_tools" =~ ^[oO]$ ]]; then
+        log_info "Lancement de l'installation complète..."
+        bash "$DOTFILES_DIR/scripts/install/install_all.sh"
+    else
+        log_warn "Installation des outils ignorée"
+        log_info "Pour installer plus tard: bash $DOTFILES_DIR/scripts/install/install_all.sh"
+    fi
+else
+    log_warn "Script install_all.sh non trouvé"
 fi
 
 ################################################################################
@@ -109,4 +138,9 @@ fi
 ################################################################################
 log_section "Bootstrap terminé!"
 log_info "Dotfiles installés et configurés"
-log_warn "Rechargez votre shell: exec zsh"
+echo ""
+log_warn "Prochaines étapes:"
+echo "  1. Rechargez votre shell: exec zsh"
+echo "  2. Si QEMU installé: déconnectez-vous et reconnectez-vous"
+echo "  3. Vérifiez les installations avec les commandes appropriées"
+echo ""
