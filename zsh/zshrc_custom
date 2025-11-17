@@ -11,97 +11,99 @@ ENV_FILE="$DOTFILES_ZSH_PATH/env.sh"
 ALIASES_FILES="$DOTFILES_ZSH_PATH/aliases.zsh"
 FUNCTIONS_DIR="$DOTFILES_ZSH_PATH/functions/"
 
-# === Chargement des fonctions ===
+
+# =============================================================================
+# CHARGEMENT DES GESTIONNAIRES (*MAN) EN PREMIER
+# =============================================================================
+echo "🚀 Chargement des gestionnaires..."
+
+[ -f "$DOTFILES_ZSH_PATH/functions/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/pathman.zsh" && echo "✔️ PATHMAN chargé"
+[ -f "$DOTFILES_ZSH_PATH/functions/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/netman.zsh" && echo "✔️ NETMAN chargé"
+[ -f "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" && echo "✔️ ALIAMAN chargé"
+[ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh" && echo "✔️ MISCMAN chargé"
+[ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo "✔️ SEARCHMAN chargé"
+
+
+# =============================================================================
+# CHARGEMENT DES FONCTIONS INDIVIDUELLES
+# =============================================================================
 if [ -d "$FUNCTIONS_DIR" ]; then
-    # CORRECTION: Charger aussi les fichiers .zsh
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        if [ -f "$func_file" ]; then
-            source "$func_file" && echo "✔️ Chargé : $func_file" || echo "❌ Erreur de chargement : $func_file"
+        # Ignore les gestionnaires déjà chargés
+        if [[ "$func_file" != *"man.zsh" ]] && [ -f "$func_file" ]; then
+            source "$func_file" 2>/dev/null && echo "  ✔️ $func_file" || echo "  ❌ Erreur: $func_file"
         fi
     done
 else
     echo "⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR"
 fi
 
+# =============================================================================
+# FONCTION BACKUP DOTFILES
+# =============================================================================
 backup_dotfiles() {
-	echo "📁 Sauvegarde manuelle des dotfiles..."
-	~/auto_backup_dotfiles.sh
-	echo "✅ Sauvegarde terminée."
+    echo "📁 Sauvegarde manuelle des dotfiles..."
+    ~/auto_backup_dotfiles.sh
+    echo "✅ Sauvegarde terminée."
 }
 
-# === Environments ===
+# =============================================================================
+# ENVIRONMENTS
+# =============================================================================
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
 else
     echo "⚠️ Fichier $ENV_FILE introuvable."
 fi
 
-# === Chargement des alias ===
+# =============================================================================
+# ALIASES
+# =============================================================================
 if [ -f "$ALIASES_FILES" ]; then
     source "$ALIASES_FILES"
 else
     echo "⚠️ Fichier $ALIASES_FILES introuvable."
 fi
 
+# =============================================================================
+# FONCTIONS GIT
+# =============================================================================
 whoami-git() {
-  echo "user.name = $(git config --global user.name)"
-  echo "user.email = $(git config --global user.email)"
-  echo "Répertoire courant : $PWD"
+    echo "user.name = $(git config --global user.name)"
+    echo "user.email = $(git config --global user.email)"
+    echo "Répertoire courant : $PWD"
 }
 
 switch-git-identity() {
-  local arg="$1"
-  local path="$PWD"
+    local arg="$1"
+    local path="$PWD"
 
-  # Si argument fourni
-  if [[ "$arg" == "piter" ]]; then
-    git config --global user.name "Paul Piter"
-    git config --global user.email "paul@piter.at"
-    echo "Profil global Git: pro (Paul Piter)"
-    whoami-git
-    return
-  elif [[ "$arg" == "perso" ]]; then
-    git config --global user.name "Paul Delhomme"
-    git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
-    echo "Profil global Git: perso (Paul Delhomme)"
-    whoami-git
-    return
-  fi
+    if [[ "$arg" == "piter" ]]; then
+        git config --global user.name "Paul Piter"
+        git config --global user.email "paul@piter.at"
+        echo "Profil global Git: pro (Paul Piter)"
+        whoami-git
+        return
+    elif [[ "$arg" == "perso" ]]; then
+        git config --global user.name "Paul Delhomme"
+        git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
+        echo "Profil global Git: perso (Paul Delhomme)"
+        whoami-git
+        return
+    fi
 
-  # Si aucun argument, détermine seul le contexte Piter
-  if [[ "$path" =~ ^/home/pactivisme/Documents/Travail/.*[Pp][Ii][Tt][Ee][Rr].* ]]; then
-	  whoami-git
-	  git config --global user.name "Paul Piter"
-	  git config --global user.email "paul@piter.at"
-	  echo "Profil automatiquement basculé sur Piter (dossier contenant 'Piter')"
-  else
-	  whoami-git
-	  git config --global user.name "Paul Delhomme"
-	  git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
-	  echo "Profil automatiquement basculé sur Delhomme (dossier sans 'Piter')"
-  fi
-  whoami-git
+    if [[ "$path" =~ ^/home/pactivisme/Documents/Travail/.*[Pp][Ii][Tt][Ee][Rr].* ]]; then
+        git config --global user.name "Paul Piter"
+        git config --global user.email "paul@piter.at"
+        echo "Profil automatiquement basculé sur Piter"
+    else
+        git config --global user.name "Paul Delhomme"
+        git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
+        echo "Profil automatiquement basculé sur Delhomme"
+    fi
+    whoami-git
 }
 
 neofetch
+echo "🎉 Configuration ZSH personnalisée chargée avec succès"
 
-# =============================================================================
-# GESTIONNAIRES UNIFIÉS (*MAN) - CORRECTION DES CHEMINS
-# =============================================================================
-# NETMAN - Network Manager  
-[ -f "$DOTFILES_ZSH_PATH/functions/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/netman.zsh"
-
-# PATHMAN - Path Manager
-[ -f "$DOTFILES_ZSH_PATH/functions/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/pathman.zsh"
-
-# ALIAMAN - Alias Manager  
-[ -f "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/aliaman.zsh"
-
-# MISCMAN - Misc Manager
-[ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh"
-
-# SEARCHMAN - Search Manager
-[ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh"
-
-# Messages de confirmation du chargement des gestionnaires
-echo "🚀 Gestionnaires chargés: NETMAN, PATHMAN, ALIAMAN, MISCMAN, SEARCHMAN"
