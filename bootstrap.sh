@@ -58,11 +58,19 @@ DEFAULT_GIT_NAME="Paul Delhomme"
 DEFAULT_GIT_EMAIL="36136537+PavelDelhomme@users.noreply.github.com"
 
 # Demander confirmation ou utiliser les valeurs par défaut
-read -p "Nom Git (défaut: $DEFAULT_GIT_NAME): " git_name
+printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
+read -r git_name
 git_name=${git_name:-"$DEFAULT_GIT_NAME"}
 
-read -p "Email Git (défaut: $DEFAULT_GIT_EMAIL): " git_email
+printf "Email Git (défaut: %s): " "$DEFAULT_GIT_EMAIL"
+read -r git_email
 git_email=${git_email:-"$DEFAULT_GIT_EMAIL"}
+
+# Vérifier que git_email est bien défini (sécurité)
+if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]]; then
+    git_email="$DEFAULT_GIT_EMAIL"
+    log_warn "Email invalide détecté, utilisation de la valeur par défaut"
+fi
 
 git config --global user.name "$git_name"
 git config --global user.email "$git_email"
@@ -95,8 +103,22 @@ SSH_PUB_KEY="$SSH_KEY.pub"
 
 if [ ! -f "$SSH_KEY" ]; then
     log_info "Génération de la clé SSH ED25519..."
-    ssh-keygen -t ed25519 -C "$git_email" -f "$SSH_KEY" -N ""
-    log_info "✓ Clé SSH générée: $SSH_KEY"
+    
+    # S'assurer que git_email contient bien la valeur réelle
+    # Si git_email contient encore des variables non résolues, utiliser la valeur par défaut
+    if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]] || [[ "$git_email" == *"git_email"* ]]; then
+        git_email="36136537+PavelDelhomme@users.noreply.github.com"
+        log_warn "Email invalide détecté, utilisation de la valeur par défaut pour la clé SSH"
+    fi
+    
+    # Générer la clé avec l'email correct (vérifier une dernière fois)
+    SSH_EMAIL="$git_email"
+    if [ -z "$SSH_EMAIL" ]; then
+        SSH_EMAIL="36136537+PavelDelhomme@users.noreply.github.com"
+    fi
+    
+    ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$SSH_KEY" -N "" 2>/dev/null
+    log_info "✓ Clé SSH générée: $SSH_KEY (email: $SSH_EMAIL)"
     
     # Démarrer ssh-agent
     log_info "Démarrage de ssh-agent..."
@@ -166,7 +188,8 @@ log_section "Clonage du repo dotfiles"
 
 if [ -d "$DOTFILES_DIR" ]; then
     log_warn "Dossier $DOTFILES_DIR existe déjà"
-    read -p "Supprimer et re-cloner? (o/n): " delete_choice
+    printf "Supprimer et re-cloner? (o/n): "
+    read -r delete_choice
     if [[ "$delete_choice" =~ ^[oO]$ ]]; then
         rm -rf "$DOTFILES_DIR"
         log_info "Dossier supprimé"
