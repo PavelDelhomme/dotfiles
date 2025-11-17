@@ -52,7 +52,9 @@ run_script() {
 # MENU PRINCIPAL
 ################################################################################
 show_menu() {
-    clear
+    # Ne pas utiliser clear dans certains environnements (peut causer des problèmes)
+    # clear
+    echo ""
     log_section "Setup modulaire dotfiles"
     echo ""
     echo "1.  Configuration Git"
@@ -99,25 +101,39 @@ show_menu() {
 while true; do
     show_menu
     printf "Choix: "
-    # Lire l'input de manière plus robuste
-    IFS= read -r choice 2>/dev/null || {
-        # Si read échoue, essayer une autre méthode
-        read choice 2>/dev/null || choice=""
-    }
     
-    # Nettoyer le choix (enlever espaces, caractères invisibles et garder seulement le premier nombre)
-    # Extraire uniquement les chiffres du début de la ligne
-    choice=$(echo "$choice" | sed 's/^[^0-9]*//' | sed 's/[^0-9].*$//' | head -c 10)
+    # Lire l'input de manière robuste - utiliser read avec timeout pour éviter les blocages
+    # Désactiver l'echo pour éviter les problèmes d'affichage
+    stty -echo 2>/dev/null || true
+    choice=""
     
-    # Si le choix est vide après nettoyage, réafficher le menu
+    # Lire caractère par caractère jusqu'à Enter
+    while IFS= read -r -n 1 char; do
+        if [ -z "$char" ] || [ "$char" = $'\n' ] || [ "$char" = $'\r' ]; then
+            # Enter pressé
+            break
+        elif [[ "$char" =~ [0-9] ]]; then
+            # Chiffre valide, l'ajouter
+            choice="${choice}${char}"
+            printf "%s" "$char"  # Afficher le chiffre
+        fi
+    done
+    
+    # Réactiver l'echo
+    stty echo 2>/dev/null || true
+    echo ""  # Nouvelle ligne après le choix
+    
+    # Si le choix est vide, réafficher le menu
     if [ -z "$choice" ]; then
+        log_warn "Choix vide, veuillez entrer un nombre"
+        sleep 1
         continue
     fi
     
     # Vérifier que le choix est un nombre valide
     if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
         log_error "Choix invalide: '$choice' (doit être un nombre)"
-        log_info "Veuillez entrer un nombre entre 0 et 23"
+        log_info "Veuillez entrer un nombre entre 0 et 99"
         sleep 2
         continue
     fi
