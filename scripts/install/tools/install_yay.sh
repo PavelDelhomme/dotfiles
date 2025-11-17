@@ -78,11 +78,35 @@ cd "$YAY_TMP_DIR"
 if ! makepkg -si --noconfirm 2>&1; then
     log_error "Erreur lors de la compilation/installation de yay"
     log_warn "Cela peut être dû à des problèmes de dépendances système"
-    log_warn "Essayez de mettre à jour votre système: sudo pacman -Syu"
-    log_warn "Puis réessayez l'installation de yay"
-    cd - > /dev/null
-    rm -rf "$YAY_TMP_DIR"
-    exit 1
+    echo ""
+    log_warn "⚠️  SOLUTION : Mettre à jour le système d'abord"
+    printf "Voulez-vous mettre à jour le système maintenant? (o/n) [défaut: o]: "
+    read -r update_system
+    update_system=${update_system:-o}
+    
+    if [[ "$update_system" =~ ^[oO]$ ]]; then
+        log_info "Mise à jour du système..."
+        sudo pacman -Syu --noconfirm
+        log_info "✓ Système mis à jour"
+        log_info "Réessayons l'installation de yay..."
+        
+        # Réessayer l'installation
+        if makepkg -si --noconfirm 2>&1; then
+            log_info "✓ yay installé avec succès après mise à jour"
+        else
+            log_error "Échec même après mise à jour"
+            log_warn "Installez yay manuellement: https://github.com/Jguer/yay"
+            cd - > /dev/null
+            rm -rf "$YAY_TMP_DIR"
+            exit 1
+        fi
+    else
+        log_warn "Mise à jour ignorée"
+        log_warn "Installez yay manuellement après avoir fait: sudo pacman -Syu"
+        cd - > /dev/null
+        rm -rf "$YAY_TMP_DIR"
+        exit 1
+    fi
 fi
 
 log_info "✓ yay compilé et installé"

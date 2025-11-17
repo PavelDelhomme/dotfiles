@@ -66,19 +66,36 @@ fi
 log_section "2. Désinstallation applications"
 
 # Docker
-if command -v docker &> /dev/null; then
+if command -v docker &> /dev/null || systemctl list-unit-files | grep -q docker.service; then
     log_info "Désinstallation Docker..."
+    
+    # Arrêter et désactiver le service d'abord
+    sudo systemctl stop docker 2>/dev/null || true
+    sudo systemctl disable docker 2>/dev/null || true
+    sudo systemctl stop docker.socket 2>/dev/null || true
+    sudo systemctl disable docker.socket 2>/dev/null || true
+    
+    # Supprimer les paquets
     if [ -f /etc/arch-release ]; then
-        sudo pacman -Rns --noconfirm docker docker-compose 2>/dev/null || true
+        sudo pacman -Rns --noconfirm docker docker-compose containerd runc 2>/dev/null || true
     elif command -v apt &> /dev/null; then
         sudo apt remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 2>/dev/null || true
+        sudo apt purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 2>/dev/null || true
     elif command -v dnf &> /dev/null; then
         sudo dnf remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 2>/dev/null || true
     fi
-    sudo systemctl stop docker 2>/dev/null || true
-    sudo systemctl disable docker 2>/dev/null || true
+    
+    # Supprimer le groupe
     sudo groupdel docker 2>/dev/null || true
+    
+    # Nettoyer les fichiers de configuration
+    sudo rm -rf /var/lib/docker 2>/dev/null || true
+    sudo rm -rf /etc/docker 2>/dev/null || true
     rm -rf ~/.docker 2>/dev/null || true
+    
+    # Recharger systemd
+    sudo systemctl daemon-reload 2>/dev/null || true
+    
     log_info "✓ Docker désinstallé"
 fi
 

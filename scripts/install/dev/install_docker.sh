@@ -109,16 +109,63 @@ if [ "$DESKTOP_ONLY" = false ]; then
     log_section "Configuration du service Docker"
 
     log_info "Activation du service Docker..."
-    sudo systemctl enable --now docker
-    log_info "✓ Service Docker activé et démarré"
+    sudo systemctl enable docker
+    
+    # Démarrer le service et vérifier qu'il fonctionne
+    if sudo systemctl start docker; then
+        # Attendre un peu pour que le service démarre
+        sleep 2
+        
+        # Vérifier que le service est actif
+        if sudo systemctl is-active --quiet docker; then
+            log_info "✓ Service Docker activé et démarré"
+        else
+            log_warn "⚠️ Service Docker activé mais ne démarre pas"
+            log_warn "Vérifiez avec: sudo systemctl status docker"
+            log_warn "Ou redémarrez le système"
+        fi
+    else
+        log_error "✗ Échec démarrage du service Docker"
+        log_warn "Vérifiez avec: sudo systemctl status docker"
+        log_warn "Ou redémarrez le système"
+    fi
 
     ################################################################################
     # ÉTAPE 4: Ajout de l'utilisateur au groupe docker
     ################################################################################
     log_info "Ajout de l'utilisateur au groupe docker..."
     sudo usermod -aG docker "$USER"
-    log_warn "⚠️ Déconnectez-vous et reconnectez-vous pour que le groupe docker soit actif"
     log_info "✓ Utilisateur ajouté au groupe docker"
+    
+    # Proposer de redémarrer la session
+    echo ""
+    log_warn "⚠️  IMPORTANT : Le groupe docker nécessite une nouvelle session"
+    printf "Voulez-vous redémarrer votre session maintenant? (o/n) [défaut: n]: "
+    read -r restart_session
+    restart_session=${restart_session:-n}
+    
+    if [[ "$restart_session" =~ ^[oO]$ ]]; then
+        log_info "Redémarrage de la session..."
+        # Essayer différentes méthodes selon l'environnement
+        if [ -n "$DISPLAY" ] && command -v gnome-session-quit &> /dev/null; then
+            # GNOME
+            gnome-session-quit --logout --no-prompt 2>/dev/null &
+        elif [ -n "$DISPLAY" ] && command -v xfce4-session-logout &> /dev/null; then
+            # XFCE
+            xfce4-session-logout --logout 2>/dev/null &
+        elif [ -n "$DISPLAY" ] && command -v mate-session-save &> /dev/null; then
+            # MATE
+            mate-session-save --logout 2>/dev/null &
+        else
+            # Fallback : utiliser newgrp pour recharger les groupes
+            log_info "Utilisation de newgrp pour recharger les groupes..."
+            log_warn "Si cela ne fonctionne pas, déconnectez-vous manuellement"
+            exec newgrp docker
+        fi
+    else
+        log_warn "⚠️  Déconnectez-vous et reconnectez-vous manuellement pour que le groupe docker soit actif"
+        log_warn "   Ou utilisez 'newgrp docker' pour recharger les groupes dans cette session"
+    fi
 
     ################################################################################
     # ÉTAPE 5: Test de l'installation
@@ -154,10 +201,17 @@ if [ "$DESKTOP_ONLY" = true ] || [ "$DESKTOP_ONLY" = false ]; then
             arch)
                 if command -v yay &> /dev/null; then
                     log_info "Installation via yay (Arch Linux)..."
-                    yay -S docker-desktop --noconfirm
+                    if yay -S docker-desktop --noconfirm; then
+                        log_info "✓ Docker Desktop installé"
+                    else
+                        log_error "Échec installation Docker Desktop"
+                        log_warn "Installez manuellement: yay -S docker-desktop"
+                    fi
                 else
-                    log_warn "yay non installé. Installez-le d'abord ou installez manuellement."
+                    log_warn "yay non installé. Installez-le d'abord (option 18 du menu)"
                     log_info "Lien: https://aur.archlinux.org/packages/docker-desktop"
+                    log_info "Ou installez yay d'abord puis réessayez"
+                    exit 1
                 fi
                 ;;
             debian)
@@ -214,12 +268,17 @@ if [ "$DESKTOP_ONLY" = false ]; then
         if sudo docker login 2>&1; then
             log_info "✓ Connexion réussie"
             
-            # Test avec hello-world
-            log_info "Test avec hello-world..."
-            if sudo docker run hello-world; then
-                log_info "✅ Docker configuré et connecté"
+            # Test avec hello-world (seulement si le daemon Docker fonctionne)
+            if sudo docker ps &>/dev/null; then
+                log_info "Test avec hello-world..."
+                if sudo docker run hello-world; then
+                    log_info "✅ Docker configuré et connecté"
+                else
+                    log_warn "⚠️ Test hello-world échoué (peut-être normal si pas de connexion)"
+                fi
             else
-                log_warn "⚠️ Test hello-world échoué (peut-être normal si pas de connexion)"
+                log_warn "⚠️ Docker daemon non accessible"
+                log_warn "Le service Docker doit être redémarré ou vous devez vous reconnecter"
             fi
         else
             log_warn "⚠️ Connexion échouée ou annulée"

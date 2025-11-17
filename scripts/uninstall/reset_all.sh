@@ -161,24 +161,38 @@ reinstall=${reinstall:-o}
 if [[ "$reinstall" =~ ^[oO]$ ]]; then
     log_info "Réinstallation des dotfiles..."
     echo ""
-    log_info "Exécutez cette commande pour réinstaller :"
+    log_info "Méthodes disponibles :"
+    echo "  1. Process substitution (recommandé)"
+    echo "  2. Téléchargement puis exécution"
+    echo "  3. Pipe (peut avoir des problèmes)"
     echo ""
-    echo "  curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash"
-    echo ""
-    printf "Exécuter maintenant? (o/n) [défaut: n]: "
-    read -r run_now
-    run_now=${run_now:-n}
+    printf "Choisir une méthode (1/2/3) [défaut: 1]: "
+    read -r method
+    method=${method:-1}
     
-    if [[ "$run_now" =~ ^[oO]$ ]]; then
-        curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
-    else
-        log_info "Réinstallation manuelle requise"
-    fi
+    case "$method" in
+        1)
+            log_info "Lancement avec process substitution..."
+            bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
+            ;;
+        2)
+            log_info "Téléchargement puis exécution..."
+            curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh -o /tmp/bootstrap.sh && bash /tmp/bootstrap.sh
+            ;;
+        3)
+            log_info "Lancement avec pipe..."
+            curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+            ;;
+        *)
+            log_warn "Méthode invalide, utilisation de la méthode 1"
+            bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
+            ;;
+    esac
 else
     log_info "Réinstallation ignorée"
     echo ""
     log_info "Pour réinstaller plus tard :"
-    echo "  curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash"
+    echo "  bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)"
 fi
 
 echo ""

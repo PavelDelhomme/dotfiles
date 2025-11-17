@@ -303,6 +303,13 @@ while true; do
             log_section "Installation complète système"
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
             run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires"
+            
+            # Installer yay AVANT Docker Desktop (nécessaire pour Docker Desktop sur Arch)
+            if [ -f /etc/arch-release ] && ! command -v yay &> /dev/null; then
+                log_info "Installation de yay (nécessaire pour Docker Desktop)..."
+                run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "Installation yay"
+            fi
+            
             run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Cursor"
             run_script "$SCRIPT_DIR/install/apps/install_portproton.sh" "PortProton"
             
@@ -311,12 +318,6 @@ while true; do
             read -r install_docker
             if [[ "$install_docker" =~ ^[oO]$ ]]; then
                 run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Docker"
-            fi
-            
-            printf "Installer Docker Desktop? (o/n): "
-            read -r install_docker_desktop
-            if [[ "$install_docker_desktop" =~ ^[oO]$ ]]; then
-                run_script "$SCRIPT_DIR/install/dev/install_docker.sh --desktop-only" "Docker Desktop"
             fi
             
             printf "Installer Brave? (o/n): "
