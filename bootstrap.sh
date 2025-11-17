@@ -196,6 +196,10 @@ if [ ! -f "$SSH_KEY" ]; then
     printf "\nAppuyez sur Entrée après avoir ajouté la clé sur GitHub... "
     read -r dummy
     
+    # Attendre un peu pour que GitHub propage la clé
+    log_info "Attente de 3 secondes pour la propagation de la clé sur GitHub..."
+    sleep 3
+    
     # Tester la connexion
     log_info "Test de la connexion GitHub..."
     if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
@@ -206,6 +210,16 @@ if [ ! -f "$SSH_KEY" ]; then
     fi
 else
     log_info "✓ Clé SSH déjà présente: $SSH_KEY"
+    
+    # Démarrer ssh-agent si nécessaire et ajouter la clé
+    if [ -z "$SSH_AUTH_SOCK" ] || ! ssh-add -l &>/dev/null; then
+        log_info "Démarrage de ssh-agent..."
+        eval "$(ssh-agent -s)" > /dev/null
+        ssh-add "$SSH_KEY" 2>/dev/null || log_warn "Impossible d'ajouter la clé au ssh-agent"
+        log_info "✓ Clé ajoutée au ssh-agent"
+        # Attendre un peu pour que ssh-agent soit prêt
+        sleep 2
+    fi
     
     # Tester la connexion existante
     log_info "Test de la connexion GitHub..."
