@@ -201,6 +201,9 @@ fi
 ################################################################################
 log_section "Clonage du repo dotfiles"
 
+# Debug: vérifier si on arrive ici
+log_info "Vérification du dossier dotfiles..."
+
 # Si le dossier existe déjà, on l'utilise directement (pas besoin de re-cloner)
 if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
     log_info "✓ Dossier dotfiles existe déjà: $DOTFILES_DIR"
