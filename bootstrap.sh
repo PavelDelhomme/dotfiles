@@ -218,17 +218,19 @@ fi
 # Forcer la continuation même si quelque chose a échoué
 set +e  # S'assurer qu'on ne s'arrête pas sur erreurs
 
-# FORCER la continuation - test explicite AVANT tout log
-# Cette ligne ne devrait jamais échouer, mais force la continuation
+# FORCER la continuation - test explicite IMMÉDIATEMENT après le fi
 # Dans un pipe curl | bash, il faut s'assurer que le script continue
-{ true; } || { echo "ERREUR: true a échoué" >&2; exit 1; }
+# Utiliser une sous-shell pour forcer l'exécution
+( true ) || exit 1
 
-# Debug: vérifier qu'on arrive bien ici - FORCER l'affichage avec echo direct
+# Debug: vérifier qu'on arrive bien ici - FORCER l'affichage IMMÉDIATEMENT
 # Utiliser à la fois stdout et stderr pour être sûr que ça s'affiche
-echo "" >&2
-echo "═══════════════════════════════════" >&2
-echo "DEBUG: Script continue après SSH..." >&2
-echo "═══════════════════════════════════" >&2
+exec >&2  # Rediriger stdout vers stderr temporairement pour forcer l'affichage
+echo ""
+echo "═══════════════════════════════════"
+echo "DEBUG: Script continue après SSH..."
+echo "═══════════════════════════════════"
+exec >&1  # Restaurer stdout
 log_info "Continuation vers le clonage du repository..."
 
 ################################################################################
