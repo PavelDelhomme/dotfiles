@@ -203,23 +203,37 @@ log_section "Clonage du repo dotfiles"
 
 if [ -d "$DOTFILES_DIR" ]; then
     log_warn "Dossier $DOTFILES_DIR existe déjà"
-    printf "Supprimer et re-cloner? (o/n): "
-    read -r delete_choice
+    printf "Supprimer et re-cloner? (o/n) [défaut: n]: "
+    IFS= read -r delete_choice </dev/tty 2>/dev/null || read -r delete_choice
+    delete_choice=${delete_choice:-n}
     if [[ "$delete_choice" =~ ^[oO]$ ]]; then
         rm -rf "$DOTFILES_DIR"
         log_info "Dossier supprimé"
     else
         log_info "Utilisation du dossier existant"
-        cd "$DOTFILES_DIR"
-        git pull origin main || git pull origin master || true
-        cd ~
+        cd "$DOTFILES_DIR" 2>/dev/null || {
+            log_warn "Impossible d'accéder au dossier, clonage dans un nouveau..."
+            rm -rf "$DOTFILES_DIR"
+        }
+        if [ -d "$DOTFILES_DIR" ]; then
+            cd "$DOTFILES_DIR"
+            git pull origin main || git pull origin master || true
+            cd ~
+        fi
     fi
 fi
 
 if [ ! -d "$DOTFILES_DIR" ]; then
     log_info "Clonage de $DOTFILES_REPO..."
-    git clone "$DOTFILES_REPO" "$DOTFILES_DIR"
-    log_info "✓ Dotfiles clonés"
+    if git clone "$DOTFILES_REPO" "$DOTFILES_DIR" 2>&1; then
+        log_info "✓ Dotfiles clonés"
+    else
+        log_error "Erreur lors du clonage des dotfiles"
+        log_warn "Vérifiez votre connexion internet et réessayez"
+        exit 1
+    fi
+else
+    log_info "✓ Dossier dotfiles existe déjà"
 fi
 
 ################################################################################
@@ -229,7 +243,7 @@ log_section "Création des symlinks pour centraliser la configuration"
 
 if [ -f "$DOTFILES_DIR/scripts/config/create_symlinks.sh" ]; then
     printf "Créer les symlinks pour centraliser la configuration? (o/n) [défaut: o]: "
-    read -r create_symlinks
+    IFS= read -r create_symlinks </dev/tty 2>/dev/null || read -r create_symlinks
     create_symlinks=${create_symlinks:-o}
     if [[ "$create_symlinks" =~ ^[oO]$ ]]; then
         log_info "Création des symlinks..."
