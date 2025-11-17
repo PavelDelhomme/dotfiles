@@ -102,30 +102,45 @@ while true; do
     show_menu
     printf "Choix: "
     
-    # Lire l'input de manière simple et robuste
-    # Utiliser read avec IFS vide pour éviter les problèmes d'espaces
-    IFS= read -r choice </dev/tty 2>/dev/null || read -r choice
+    # Lire l'input de manière robuste
+    # Essayer plusieurs méthodes pour être compatible avec tous les environnements
+    choice=""
+    
+    # Méthode 1 : Lire depuis /dev/tty (meilleur pour les VMs)
+    if [ -t 0 ] && [ -r /dev/tty ]; then
+        IFS= read -r choice </dev/tty 2>/dev/null || true
+    fi
+    
+    # Méthode 2 : Lire depuis stdin si /dev/tty ne fonctionne pas
+    if [ -z "$choice" ]; then
+        IFS= read -r choice 2>/dev/null || true
+    fi
+    
+    # Méthode 3 : Dernière tentative avec read simple
+    if [ -z "$choice" ]; then
+        read choice 2>/dev/null || true
+    fi
     
     # Nettoyer le choix : enlever tous les espaces et caractères non-numériques
     # Garder uniquement les chiffres
-    choice=$(echo "$choice" | tr -d '[:space:]' | tr -cd '0-9' | head -c 10)
+    if [ -n "$choice" ]; then
+        choice=$(echo "$choice" | tr -d '[:space:]' | tr -cd '0-9' | head -c 10)
+    fi
     
-    # Si le choix est vide, demander à nouveau sans réafficher tout le menu
+    # Si le choix est vide, demander à nouveau
     if [ -z "$choice" ]; then
         echo ""
         log_warn "Choix vide, veuillez entrer un nombre"
         sleep 1
-        echo ""
         continue
     fi
     
-    # Vérifier que le choix est un nombre valide (déjà fait par tr, mais double vérification)
+    # Vérifier que le choix est un nombre valide
     if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
         echo ""
         log_error "Choix invalide: '$choice' (doit être un nombre)"
         log_info "Veuillez entrer un nombre entre 0 et 99"
         sleep 2
-        echo ""
         continue
     fi
     

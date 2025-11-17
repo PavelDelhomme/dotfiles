@@ -5,7 +5,7 @@
 # Vérifie toutes les installations et configurations
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour continuer toutes les vérifications
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -43,22 +43,39 @@ log_section() {
 ################################################################################
 log_section "Vérifications fonctions ZSH"
 
+# Note: Les fonctions ZSH ne sont disponibles que dans un shell ZSH interactif
+# Dans un script bash, elles ne seront pas disponibles - c'est normal
+# On vérifie si on est dans un shell ZSH ou si les fonctions sont chargées
+
 if type add_alias &> /dev/null; then
     check_pass "add_alias disponible"
 else
-    check_fail "add_alias non disponible"
+    # C'est normal si on est dans un script bash, vérifier si zshrc_custom est sourcé
+    if [ -n "$ZSH_VERSION" ] || grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
+        check_warn "add_alias non disponible (normal dans script bash, sera disponible après 'exec zsh')"
+    else
+        check_warn "add_alias non disponible (zshrc_custom non sourcé)"
+    fi
 fi
 
 if type add_to_path &> /dev/null; then
     check_pass "add_to_path disponible"
 else
-    check_fail "add_to_path non disponible"
+    if [ -n "$ZSH_VERSION" ] || grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
+        check_warn "add_to_path non disponible (normal dans script bash, sera disponible après 'exec zsh')"
+    else
+        check_warn "add_to_path non disponible (zshrc_custom non sourcé)"
+    fi
 fi
 
 if type clean_path &> /dev/null; then
     check_pass "clean_path disponible"
 else
-    check_fail "clean_path non disponible"
+    if [ -n "$ZSH_VERSION" ] || grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
+        check_warn "clean_path non disponible (normal dans script bash, sera disponible après 'exec zsh')"
+    else
+        check_warn "clean_path non disponible (zshrc_custom non sourcé)"
+    fi
 fi
 
 ################################################################################

@@ -59,17 +59,31 @@ DEFAULT_GIT_EMAIL="dev@delhomme.ovh"
 
 # Demander confirmation ou utiliser les valeurs par défaut
 printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
-read -r git_name
-git_name=${git_name:-"$DEFAULT_GIT_NAME"}
+IFS= read -r git_name </dev/tty 2>/dev/null || read -r git_name
+
+# Utiliser la valeur par défaut si vide
+if [ -z "$git_name" ]; then
+    git_name="$DEFAULT_GIT_NAME"
+fi
 
 printf "Email Git (défaut: %s): " "$DEFAULT_GIT_EMAIL"
-read -r git_email
-git_email=${git_email:-"$DEFAULT_GIT_EMAIL"}
+IFS= read -r git_email </dev/tty 2>/dev/null || read -r git_email
+
+# Utiliser la valeur par défaut si vide
+if [ -z "$git_email" ]; then
+    git_email="$DEFAULT_GIT_EMAIL"
+fi
 
 # Vérifier que git_email est bien défini (sécurité)
-if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]]; then
+if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]] || [[ "$git_email" == *"git_email"* ]]; then
     git_email="$DEFAULT_GIT_EMAIL"
     log_warn "Email invalide détecté, utilisation de la valeur par défaut"
+fi
+
+# Vérifier que git_name est bien défini
+if [ -z "$git_name" ] || [[ "$git_name" == *"\$"* ]] || [[ "$git_name" == *"DEFAULT"* ]] || [[ "$git_name" == *"git_name"* ]]; then
+    git_name="$DEFAULT_GIT_NAME"
+    log_warn "Nom invalide détecté, utilisation de la valeur par défaut"
 fi
 
 git config --global user.name "$git_name"
