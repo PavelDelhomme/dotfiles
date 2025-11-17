@@ -215,6 +215,12 @@ fi
 
 # IMPORTANT: Le script continue ici vers le clonage
 # Ne pas s'arrêter après la vérification SSH
+# Forcer la continuation même si quelque chose a échoué
+set +e  # S'assurer qu'on ne s'arrête pas sur erreurs
+
+# Debug: vérifier qu'on arrive bien ici - FORCER l'affichage
+echo "" >&2
+echo "DEBUG: Après section SSH, continuation..." >&2
 log_info "Continuation vers le clonage du repository..."
 
 ################################################################################
