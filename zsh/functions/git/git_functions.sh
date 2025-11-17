@@ -20,9 +20,9 @@ switch-git-identity() {
     local arg="${1:-perso}"
 
     if [[ "$arg" == "perso" ]]; then
-        git config --global user.name "Paul Delhomme"
-        git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
-        echo "Profil global Git: perso (Paul Delhomme)"
+        git config --global user.name "PavelDelhomme"
+        git config --global user.email "dev@delhomme.ovh"
+        echo "Profil global Git: perso (PavelDelhomme)"
         whoami-git
     else
         echo "Usage: switch-git-identity [perso]"

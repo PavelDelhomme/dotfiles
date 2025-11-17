@@ -85,6 +85,8 @@ show_menu() {
     echo "21. Installer fonctions USB test"
     echo "22. Validation complète du setup"
     echo ""
+    echo "99. ROLLBACK - Désinstaller tout (ATTENTION!)"
+    echo ""
     echo "0.  Quitter"
     echo ""
 }
@@ -256,6 +258,18 @@ while true; do
             ;;
         22)
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        99)
+            log_section "ROLLBACK - Désinstallation complète"
+            log_warn "⚠️  ATTENTION : Cette option va désinstaller TOUT"
+            printf "Continuer avec le rollback? (tapez 'OUI' en majuscules): "
+            read -r rollback_confirm
+            if [ "$rollback_confirm" = "OUI" ]; then
+                run_script "$SCRIPT_DIR/uninstall/rollback_all.sh" "Rollback complet"
+            else
+                log_info "Rollback annulé"
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         0)

@@ -54,8 +54,8 @@ fi
 log_section "Configuration Git globale"
 
 # Configuration par défaut (compte perso)
-DEFAULT_GIT_NAME="Paul Delhomme"
-DEFAULT_GIT_EMAIL="36136537+PavelDelhomme@users.noreply.github.com"
+DEFAULT_GIT_NAME="PavelDelhomme"
+DEFAULT_GIT_EMAIL="dev@delhomme.ovh"
 
 # Demander confirmation ou utiliser les valeurs par défaut
 printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
@@ -107,14 +107,14 @@ if [ ! -f "$SSH_KEY" ]; then
     # S'assurer que git_email contient bien la valeur réelle
     # Si git_email contient encore des variables non résolues, utiliser la valeur par défaut
     if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]] || [[ "$git_email" == *"git_email"* ]]; then
-        git_email="36136537+PavelDelhomme@users.noreply.github.com"
+        git_email="dev@delhomme.ovh"
         log_warn "Email invalide détecté, utilisation de la valeur par défaut pour la clé SSH"
     fi
     
     # Générer la clé avec l'email correct (vérifier une dernière fois)
     SSH_EMAIL="$git_email"
     if [ -z "$SSH_EMAIL" ]; then
-        SSH_EMAIL="36136537+PavelDelhomme@users.noreply.github.com"
+        SSH_EMAIL="dev@delhomme.ovh"
     fi
     
     ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$SSH_KEY" -N "" 2>/dev/null
