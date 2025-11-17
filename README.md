@@ -72,7 +72,14 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 **UNE SEULE LIGNE** pour tout installer et configurer :
 
 ```bash
+# Méthode 1 : Pipe (peut avoir des problèmes dans certains environnements)
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+
+# Méthode 2 : Process substitution (recommandé si méthode 1 ne fonctionne pas)
+bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
+
+# Méthode 3 : Téléchargement puis exécution (si les deux autres ne fonctionnent pas)
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh -o /tmp/bootstrap.sh && bash /tmp/bootstrap.sh
 ```
 
 Cette commande va automatiquement :

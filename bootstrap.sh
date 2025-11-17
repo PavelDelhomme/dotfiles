@@ -3,9 +3,12 @@
 ################################################################################
 # Bootstrap Script - Installation dotfiles sans configuration Git préalable
 # Usage: curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+# Alternative: bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
 ################################################################################
 
-set +e  # Ne pas arrêter sur erreurs pour permettre la continuation
+# Ne pas arrêter sur erreurs pour permettre la continuation
+set +e
+set -o pipefail 2>/dev/null || true  # Ignorer si pipefail n'est pas supporté
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -224,13 +227,11 @@ set +e  # S'assurer qu'on ne s'arrête pas sur erreurs
 ( true ) || exit 1
 
 # Debug: vérifier qu'on arrive bien ici - FORCER l'affichage IMMÉDIATEMENT
-# Utiliser à la fois stdout et stderr pour être sûr que ça s'affiche
-exec >&2  # Rediriger stdout vers stderr temporairement pour forcer l'affichage
-echo ""
-echo "═══════════════════════════════════"
-echo "DEBUG: Script continue après SSH..."
-echo "═══════════════════════════════════"
-exec >&1  # Restaurer stdout
+# Utiliser stderr directement pour être sûr que ça s'affiche même dans un pipe
+echo "" >&2
+echo "═══════════════════════════════════" >&2
+echo "DEBUG: Script continue après SSH..." >&2
+echo "═══════════════════════════════════" >&2
 log_info "Continuation vers le clonage du repository..."
 
 ################################################################################
