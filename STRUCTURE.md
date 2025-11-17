@@ -2,8 +2,9 @@
 
 ## Fichiers principaux à la racine
 
+- `Makefile` - **Interface standardisée** avec `make` pour toutes les opérations (recommandé)
 - `bootstrap.sh` - Script principal pour installer depuis zéro (curl) - **Configuration Git automatique**
-- `setup.sh` - Menu interactif modulaire pour installer/configurer - **22 options disponibles**
+- `setup.sh` - Menu interactif modulaire pour installer/configurer - **24 options disponibles**
 
 ## Structure scripts/
 
@@ -36,8 +37,13 @@ scripts/
 │   ├── git_auto_sync.sh        # Script de synchronisation (pull/push)
 │   └── install_auto_sync.sh    # Installation systemd timer
 │
-├── test/                       # Validation & tests (NOUVEAU)
+├── test/                       # Validation & tests
 │   └── validate_setup.sh       # Validation complète du setup
+│
+├── uninstall/                  # Désinstallation et rollback
+│   ├── rollback_all.sh         # Rollback complet (désinstaller tout)
+│   ├── rollback_git.sh         # Rollback Git uniquement
+│   └── reset_all.sh            # Réinitialisation complète (rollback + suppression + réinstallation)
 │
 └── vm/                         # Gestion VM
     └── create_test_vm.sh       # Création VM de test
@@ -69,7 +75,53 @@ scripts/
 
 | Script | Description | Options menu |
 |--------|-------------|--------------|
-| `validate_setup.sh` | Validation complète du setup. Vérifie fonctions, PATH, services, Git, outils. | Option 22 |
+| `validate_setup.sh` | Validation complète du setup. Vérifie fonctions, PATH, services, Git, outils, symlinks, NVIDIA. | Option 22 |
+
+### Scripts de désinstallation (scripts/uninstall/)
+
+| Script | Description | Options menu |
+|--------|-------------|--------------|
+| `rollback_all.sh` | Rollback complet - Désinstalle tout ce qui a été installé et configuré | Option 99 |
+| `rollback_git.sh` | Rollback Git uniquement - Revenir à une version précédente | - |
+| `reset_all.sh` | Réinitialisation complète - Rollback + suppression dotfiles + réinstallation | Option 98 |
+
+### Scripts de configuration (scripts/config/)
+
+| Script | Description | Options menu |
+|--------|-------------|--------------|
+| `create_symlinks.sh` | Créer symlinks pour centraliser la configuration (.zshrc, .gitconfig, .ssh/) | Option 23 |
+| `migrate_existing_user.sh` | Migrer configuration existante vers structure dotfiles centralisée | - |
+
+## Interface Makefile (recommandé)
+
+Le Makefile fournit une interface standardisée et simple pour toutes les opérations :
+
+```bash
+cd ~/dotfiles
+make help             # Voir toutes les commandes disponibles
+make install          # Installation complète
+make setup            # Menu interactif
+make validate         # Valider le setup
+make symlinks         # Créer symlinks
+make migrate          # Migrer config existante
+make install-docker   # Installer Docker
+make install-go       # Installer Go
+make install-cursor   # Installer Cursor
+make install-brave    # Installer Brave
+make install-yay      # Installer yay
+make git-config       # Config Git
+make git-remote       # Config remote Git
+make auto-sync        # Config auto-sync
+make rollback         # Rollback complet
+make reset            # Réinitialisation complète
+make clean            # Nettoyer fichiers temporaires
+```
+
+**Avantages :**
+- Interface standardisée et universelle
+- Commandes plus simples et mémorisables
+- Documentation intégrée (`make help`)
+- Compatible avec tous les scripts bash existants
 
 ## Workflow d'utilisation
 

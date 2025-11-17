@@ -379,6 +379,62 @@ dotfiles/
 
 ---
 
+## 🔧 PHASE 13 : Makefile et corrections menu
+
+### Modifications
+- ✅ Création `Makefile` complet avec toutes les commandes principales
+- ✅ Interface standardisée avec `make` pour toutes les opérations
+- ✅ Correction bug menu `setup.sh` (gestion input améliorée)
+- ✅ Script `scripts/uninstall/reset_all.sh` pour réinitialisation complète
+- ✅ Option 98 ajoutée dans `setup.sh` (réinitialisation complète)
+- ✅ Documentation Makefile dans `README.md`
+
+### Nouveaux fichiers créés
+- ✅ `Makefile` - Interface standardisée avec make
+- ✅ `scripts/uninstall/reset_all.sh` - Réinitialisation complète (rollback + suppression + réinstallation)
+
+### Fichiers modifiés
+- ✅ `setup.sh` - Correction gestion input menu (extraction nombre uniquement)
+- ✅ `setup.sh` - Ajout option 98 (réinitialisation complète)
+- ✅ `README.md` - Section Makefile ajoutée avec toutes les commandes
+- ✅ `STATUS.md` - Documentation des nouvelles modifications
+
+### Commandes Makefile disponibles
+```bash
+make help             # Aide complète
+make install          # Installation complète
+make setup            # Menu interactif
+make validate         # Validation setup
+make symlinks         # Créer symlinks
+make migrate          # Migrer config existante
+make install-docker   # Installer Docker
+make install-go       # Installer Go
+make install-cursor   # Installer Cursor
+make install-brave    # Installer Brave
+make install-yay      # Installer yay
+make git-config       # Config Git
+make git-remote       # Config remote Git
+make auto-sync        # Config auto-sync
+make rollback         # Rollback complet
+make reset            # Réinitialisation complète
+make clean            # Nettoyer fichiers temporaires
+```
+
+### Corrections techniques
+- **Bug menu setup.sh** : L'input capturait du texte indésirable (ex: `'log_warn"Menuignoré"'`)
+  - Solution : Extraction uniquement des chiffres avec `sed 's/^[^0-9]*//' | sed 's/[^0-9].*$//'`
+  - Validation : Vérification que le choix est un nombre avant le `case`
+  - Utilisation de `IFS= read -r` pour une lecture plus robuste
+
+### Avantages du Makefile
+- ✅ Interface standardisée et universelle
+- ✅ Commandes plus simples et mémorisables
+- ✅ Documentation intégrée (`make help`)
+- ✅ Compatibilité avec scripts bash existants
+- ✅ Extensible facilement
+
+---
+
 ## 🚀 PROCHAINES ÉTAPES POSSIBLES
 
 ### Améliorations futures
@@ -398,5 +454,5 @@ dotfiles/
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.0.0 (Refactorisation complète + Centralisation symlinks)
+**Version :** 2.1.0 (Refactorisation complète + Centralisation symlinks + Makefile)
 
