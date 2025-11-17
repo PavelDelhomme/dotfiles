@@ -5,7 +5,7 @@
 # Usage: curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour permettre la continuation
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -201,8 +201,20 @@ fi
 ################################################################################
 log_section "Clonage du repo dotfiles"
 
-if [ -d "$DOTFILES_DIR" ]; then
-    log_warn "Dossier $DOTFILES_DIR existe déjà"
+# Si le dossier existe déjà, on l'utilise directement (pas besoin de re-cloner)
+if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
+    log_info "✓ Dossier dotfiles existe déjà: $DOTFILES_DIR"
+    log_info "Mise à jour du repository..."
+    cd "$DOTFILES_DIR" 2>/dev/null || {
+        log_warn "Impossible d'accéder au dossier"
+        exit 1
+    }
+    git pull origin main || git pull origin master || true
+    cd ~
+    log_info "✓ Repository à jour"
+elif [ -d "$DOTFILES_DIR" ]; then
+    # Dossier existe mais n'est pas un repo git
+    log_warn "Dossier $DOTFILES_DIR existe mais n'est pas un repository Git"
     printf "Supprimer et re-cloner? (o/n) [défaut: n]: "
     IFS= read -r delete_choice </dev/tty 2>/dev/null || read -r delete_choice
     delete_choice=${delete_choice:-n}
@@ -210,30 +222,28 @@ if [ -d "$DOTFILES_DIR" ]; then
         rm -rf "$DOTFILES_DIR"
         log_info "Dossier supprimé"
     else
-        log_info "Utilisation du dossier existant"
-        cd "$DOTFILES_DIR" 2>/dev/null || {
-            log_warn "Impossible d'accéder au dossier, clonage dans un nouveau..."
-            rm -rf "$DOTFILES_DIR"
-        }
-        if [ -d "$DOTFILES_DIR" ]; then
-            cd "$DOTFILES_DIR"
-            git pull origin main || git pull origin master || true
-            cd ~
-        fi
+        log_warn "Dossier non-Git conservé, impossible de continuer"
+        exit 1
     fi
 fi
 
+# Cloner si le dossier n'existe pas
 if [ ! -d "$DOTFILES_DIR" ]; then
     log_info "Clonage de $DOTFILES_REPO..."
     if git clone "$DOTFILES_REPO" "$DOTFILES_DIR" 2>&1; then
-        log_info "✓ Dotfiles clonés"
+        log_info "✓ Dotfiles clonés avec succès"
     else
         log_error "Erreur lors du clonage des dotfiles"
         log_warn "Vérifiez votre connexion internet et réessayez"
         exit 1
     fi
-else
-    log_info "✓ Dossier dotfiles existe déjà"
+fi
+
+# Vérifier que le clonage a réussi
+if [ ! -d "$DOTFILES_DIR" ] || [ ! -f "$DOTFILES_DIR/Makefile" ]; then
+    log_error "Le clonage semble avoir échoué ou le Makefile est absent"
+    log_warn "Vérifiez le dossier: $DOTFILES_DIR"
+    exit 1
 fi
 
 ################################################################################
