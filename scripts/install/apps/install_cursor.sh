@@ -36,14 +36,21 @@ if [ "$SKIP_CHECK" = false ]; then
     echo "1. Vérification installation"
     echo "═══════════════════════════════════"
 
-    if [ -f /opt/cursor.appimage ]; then
+    if command -v cursor &> /dev/null || [ -f /opt/cursor.appimage ]; then
         log_warn "Cursor déjà installé"
+        if command -v cursor &> /dev/null; then
+            CURSOR_VERSION=$(cursor --version 2>/dev/null || echo "version inconnue")
+            log_info "Version actuelle: $CURSOR_VERSION"
+        fi
         read -p "Mettre à jour? (o/n): " update_choice
         if [[ "$update_choice" =~ ^[nN]$ ]]; then
             log_info "Installation annulée"
             exit 0
         fi
         UPDATE_ONLY=true
+        # Nettoyer l'ancienne installation
+        sudo rm -f /opt/cursor.appimage
+        sudo rm -f /usr/local/bin/cursor
     fi
 fi
 
@@ -141,6 +148,56 @@ chmod +x ~/.local/bin/update-cursor
 log_info "✓ Script update-cursor créé"
 
 ################################################################################
+# ÉTAPE 6: Création alias via add_alias si disponible
+################################################################################
+if [ "$UPDATE_ONLY" = false ] && [ "$NO_DESKTOP" = false ]; then
+    echo ""
+    echo "═══════════════════════════════════"
+    echo "6. Création alias"
+    echo "═══════════════════════════════════"
+    
+    if type add_alias &> /dev/null; then
+        log_info "Création alias via add_alias..."
+        add_alias "cursor" "/opt/cursor.appimage" "Cursor IDE - AI-powered code editor"
+        log_info "✓ Alias créé via add_alias"
+    else
+        log_warn "add_alias non disponible, ajout manuel dans aliases.zsh..."
+        ALIASES_FILE="$HOME/dotfiles/zsh/aliases.zsh"
+        if [ -f "$ALIASES_FILE" ]; then
+            if ! grep -q "^alias cursor=" "$ALIASES_FILE"; then
+                echo "" >> "$ALIASES_FILE"
+                echo "# Cursor IDE" >> "$ALIASES_FILE"
+                echo "alias cursor='/opt/cursor.appimage'" >> "$ALIASES_FILE"
+                log_info "✓ Alias ajouté dans $ALIASES_FILE"
+            else
+                log_info "✓ Alias déjà présent"
+            fi
+        fi
+    fi
+fi
+
+################################################################################
+# ÉTAPE 7: Vérification finale
+################################################################################
+if [ "$UPDATE_ONLY" = false ]; then
+    echo ""
+    echo "═══════════════════════════════════"
+    echo "7. Vérification"
+    echo "═══════════════════════════════════"
+    
+    if [ -f /opt/cursor.appimage ] && [ -x /opt/cursor.appimage ]; then
+        log_info "✓ Cursor AppImage installé et exécutable"
+        if /opt/cursor.appimage --version &> /dev/null; then
+            VERSION=$(/opt/cursor.appimage --version 2>/dev/null || echo "version inconnue")
+            log_info "✓ Version: $VERSION"
+        fi
+    else
+        log_error "✗ Erreur lors de la vérification"
+        exit 1
+    fi
+fi
+
+################################################################################
 # RÉSUMÉ
 ################################################################################
 echo ""
@@ -151,7 +208,7 @@ echo ""
 echo "Cursor installé: /opt/cursor.appimage"
 echo ""
 echo "Commandes disponibles:"
-echo "  cursor                  # Lancer Cursor (via .desktop)"
+echo "  cursor                  # Lancer Cursor (via .desktop ou alias)"
 echo "  /opt/cursor.appimage    # Lancer directement"
 echo "  update-cursor           # Mettre à jour Cursor"
 echo ""

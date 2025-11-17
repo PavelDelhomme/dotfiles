@@ -49,9 +49,13 @@ else
 fi
 
 ################################################################################
-# 2. CONFIGURATION GIT GLOBALE (Pactivisme)
+# 2. CONFIGURATION GIT GLOBALE
 ################################################################################
 log_section "Configuration Git globale"
+
+# Configuration par défaut (compte perso)
+DEFAULT_GIT_NAME="Paul Delhomme"
+DEFAULT_GIT_EMAIL="36136537+PavelDelhomme@users.noreply.github.com"
 
 # Demander confirmation ou utiliser les valeurs par défaut
 read -p "Nom Git (défaut: $DEFAULT_GIT_NAME): " git_name
@@ -67,6 +71,82 @@ git config --global core.editor vim
 git config --global color.ui auto
 
 log_info "✓ Git configuré: $git_name <$git_email>"
+
+################################################################################
+# 2.1. CONFIGURATION CREDENTIAL HELPER
+################################################################################
+log_section "Configuration credential helper"
+
+if [ -z "$(git config --global credential.helper)" ]; then
+    log_info "Configuration du credential helper (cache)..."
+    git config --global credential.helper cache
+    log_info "✓ Credentials stockés en cache (15min)"
+else
+    log_info "✓ Credential helper déjà configuré: $(git config --global credential.helper)"
+fi
+
+################################################################################
+# 2.2. GÉNÉRATION CLÉ SSH (si absente)
+################################################################################
+log_section "Configuration SSH pour GitHub"
+
+SSH_KEY="$HOME/.ssh/id_ed25519"
+SSH_PUB_KEY="$SSH_KEY.pub"
+
+if [ ! -f "$SSH_KEY" ]; then
+    log_info "Génération de la clé SSH ED25519..."
+    ssh-keygen -t ed25519 -C "$git_email" -f "$SSH_KEY" -N ""
+    log_info "✓ Clé SSH générée: $SSH_KEY"
+    
+    # Démarrer ssh-agent
+    log_info "Démarrage de ssh-agent..."
+    eval "$(ssh-agent -s)" > /dev/null
+    
+    # Ajouter la clé
+    ssh-add "$SSH_KEY" 2>/dev/null || log_warn "Impossible d'ajouter la clé au ssh-agent"
+    log_info "✓ Clé ajoutée au ssh-agent"
+    
+    # Copier la clé publique dans le presse-papier
+    if command -v xclip &> /dev/null; then
+        cat "$SSH_PUB_KEY" | xclip -selection clipboard
+        log_info "✓ Clé publique copiée dans le presse-papier (xclip)"
+    elif command -v wl-copy &> /dev/null; then
+        cat "$SSH_PUB_KEY" | wl-copy
+        log_info "✓ Clé publique copiée dans le presse-papier (wl-copy)"
+    else
+        log_warn "xclip/wl-copy non disponible, affichage de la clé:"
+        cat "$SSH_PUB_KEY"
+    fi
+    
+    log_warn "⚠️ Ajoutez cette clé SSH sur GitHub:"
+    log_info "URL: https://github.com/settings/keys"
+    
+    # Ouvrir automatiquement GitHub
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "https://github.com/settings/keys" 2>/dev/null || true
+    fi
+    
+    read -p "Appuyez sur Entrée après avoir ajouté la clé sur GitHub..."
+    
+    # Tester la connexion
+    log_info "Test de la connexion GitHub..."
+    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+        log_info "✅ Connexion GitHub OK"
+    else
+        log_warn "⚠️ Connexion GitHub non vérifiée (peut être normal si clé non encore ajoutée)"
+        log_info "Testez manuellement avec: ssh -T git@github.com"
+    fi
+else
+    log_info "✓ Clé SSH déjà présente: $SSH_KEY"
+    
+    # Tester la connexion existante
+    log_info "Test de la connexion GitHub..."
+    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+        log_info "✅ Connexion GitHub OK"
+    else
+        log_warn "⚠️ Connexion GitHub échouée, vérifiez la clé SSH"
+    fi
+fi
 
 ################################################################################
 # 3. CLONER LE REPO DOTFILES

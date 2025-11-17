@@ -86,8 +86,8 @@ fi
 if [ "$SKIP_CURSOR" = false ]; then
     log_section "Installation Cursor"
     
-    if [ -f "$SCRIPT_DIR/install_cursor.sh" ]; then
-        bash "$SCRIPT_DIR/install_cursor.sh" --skip-check
+    if [ -f "$SCRIPT_DIR/apps/install_cursor.sh" ]; then
+        bash "$SCRIPT_DIR/apps/install_cursor.sh" --skip-check
         log_info "✓ Cursor installé"
     else
         log_error "Script install_cursor.sh non trouvé"
@@ -102,8 +102,8 @@ fi
 if [ "$SKIP_PORTPROTON" = false ]; then
     log_section "Installation PortProton"
     
-    if [ -f "$SCRIPT_DIR/install_portproton.sh" ]; then
-        bash "$SCRIPT_DIR/install_portproton.sh"
+    if [ -f "$SCRIPT_DIR/apps/install_portproton.sh" ]; then
+        bash "$SCRIPT_DIR/apps/install_portproton.sh"
         log_info "✓ PortProton installé"
     else
         log_error "Script install_portproton.sh non trouvé"

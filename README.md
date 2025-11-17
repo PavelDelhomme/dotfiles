@@ -4,7 +4,20 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 ## 🚀 Installation rapide (nouvelle machine)
 
-Sur une **nouvelle installation Manjaro**, il suffit de :
+**UNE SEULE LIGNE** pour installer et configurer tous les dotfiles :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+```
+
+Cette commande va :
+- Installer Git si nécessaire
+- Configurer Git automatiquement (identité auto-détectée)
+- Générer une clé SSH et l'ajouter à GitHub
+- Cloner le repo dotfiles
+- Lancer le menu interactif d'installation
+
+### Installation manuelle (alternative)
 
 ```bash
 # 1. Installer git
@@ -18,25 +31,30 @@ cd ~/dotfiles
 bash setup.sh
 ```
 
-Le script `setup.sh` va :
-- Créer tous les symlinks nécessaires
-- Configurer le sourcing dans `.zshrc`
-- Créer les fichiers manquants (`.env`, `aliases.zsh`, `functions.zsh`)
-- Proposer de lancer l'installation complète du système
+Le script `setup.sh` propose un menu interactif avec toutes les options d'installation.
 
 ## 📁 Structure du repository
 
+Voir `STRUCTURE.md` pour la structure complète et détaillée.
+
+Structure principale :
 ```
 ~/dotfiles/
-├── setup.sh                    # Script d'initialisation des dotfiles
-├── manjaro_setup_final.sh      # Installation complète du système
-├── .zshrc                       # Configuration ZSH principale
-├── .env                         # Variables d'environnement (PATH, etc.)
-├── aliases.zsh                  # Aliases personnalisés
-├── functions.zsh                # Fonctions shell personnalisées
-├── .gitconfig                   # Configuration Git
-├── .vimrc                       # Configuration Vim (optionnel)
-└── README.md                    # Ce fichier
+├── bootstrap.sh                 # Installation en une ligne (curl)
+├── setup.sh                     # Menu interactif modulaire
+├── zsh/
+│   ├── zshrc_custom            # Configuration ZSH principale
+│   ├── env.sh                  # Variables d'environnement
+│   ├── aliases.zsh             # Aliases personnalisés
+│   └── functions/              # Fonctions shell
+│       ├── *man.zsh            # Gestionnaires (pathman, aliaman, etc.)
+│       └── **/*.sh             # Fonctions individuelles
+└── scripts/
+    ├── config/                 # Configurations unitaires
+    ├── install/                # Scripts d'installation
+    ├── sync/                   # Auto-sync Git
+    ├── test/                   # Validation & tests
+    └── vm/                     # Gestion VM
 ```
 
 ## 🔧 Fichiers de configuration
@@ -155,16 +173,202 @@ Clé stockée dans : `~/.ssh/id_ed25519`
 
 ## 🐳 Docker
 
-Configuration optimisée avec :
-- BuildKit activé (builds plus rapides)
+### Installation
+
+Installation complète via le menu setup.sh (option 15) :
+- Docker Engine
+- Docker Compose
+- BuildKit activé par défaut
 - Groupe docker configuré
-- Login Docker Hub requis après installation
+- Login Docker Hub avec support 2FA
+
+```bash
+# Via le menu
+bash ~/dotfiles/setup.sh
+# Choisir option 15
+
+# Ou directement
+bash ~/dotfiles/scripts/install/dev/install_docker.sh
+```
+
+### Configuration BuildKit
+
+BuildKit est automatiquement activé dans `~/.docker/daemon.json` :
+```json
+{
+  "features": {
+    "buildkit": true
+  }
+}
+```
+
+### Docker Desktop (optionnel)
+
+Installation via option 16 du menu ou :
+```bash
+bash ~/dotfiles/scripts/install/dev/install_docker.sh --desktop-only
+```
+
+### Login Docker Hub
+
+Le script propose automatiquement de se connecter à Docker Hub :
+- Support 2FA (utilisez un Personal Access Token)
+- Génération de token : https://hub.docker.com/settings/security
 
 ```bash
 docker login
-# ou
-docker login -u votre_username
+# Test avec
+docker run hello-world
 ```
+
+### Commandes utiles
+
+```bash
+docker --version              # Vérifier la version
+docker ps                     # Lister les conteneurs
+docker-compose up             # Lancer avec docker-compose
+docker compose up             # Lancer avec docker compose (plugin)
+```
+
+## 🔄 Auto-Synchronisation Git
+
+Système de synchronisation automatique des dotfiles toutes les heures via systemd timer.
+
+### Installation
+
+Via le menu setup.sh (option 12) ou directement :
+```bash
+bash ~/dotfiles/scripts/sync/install_auto_sync.sh
+```
+
+### Fonctionnement
+
+- **Timer systemd** : Exécution toutes les heures
+- **Pull automatique** : Récupère les modifications distantes
+- **Push automatique** : Envoie les modifications locales (si changements)
+- **Logs** : Disponibles dans `~/dotfiles/auto_sync.log`
+
+### Commandes utiles
+
+```bash
+# Vérifier le statut
+systemctl --user status dotfiles-sync.timer
+
+# Voir tous les timers
+systemctl --user list-timers
+
+# Arrêter/Démarrer le timer
+systemctl --user stop dotfiles-sync.timer
+systemctl --user start dotfiles-sync.timer
+
+# Voir les logs
+journalctl --user -u dotfiles-sync.service
+
+# Tester manuellement
+bash ~/dotfiles/scripts/sync/git_auto_sync.sh
+```
+
+### Configuration
+
+Le timer est configuré pour :
+- Démarrer 5 minutes après le boot
+- S'exécuter toutes les heures
+- Précision de 1 minute
+
+## 🌐 Brave Browser
+
+Installation optionnelle du navigateur Brave.
+
+### Installation
+
+Via le menu setup.sh (option 17) ou directement :
+```bash
+bash ~/dotfiles/scripts/install/apps/install_brave.sh
+```
+
+### Support
+
+- **Arch Linux** : Installation via yay (brave-bin)
+- **Debian/Ubuntu** : Dépôt officiel Brave
+- **Fedora** : Dépôt officiel Brave
+- **Autres** : Installation manuelle ou Flatpak
+
+## 📦 Scripts Modulaires
+
+Structure organisée des scripts dans `scripts/` :
+
+```
+scripts/
+├── config/              # Configurations unitaires
+│   ├── git_config.sh     # Config Git (nom, email)
+│   ├── git_remote.sh     # Remote GitHub (SSH/HTTPS)
+│   ├── qemu_packages.sh  # Installation paquets QEMU
+│   ├── qemu_network.sh   # Configuration réseau NAT
+│   └── qemu_libvirt.sh   # Configuration permissions libvirt
+│
+├── install/              # Scripts d'installation
+│   ├── system/          # Paquets système
+│   ├── apps/            # Applications utilisateur
+│   │   ├── install_brave.sh         # Brave Browser
+│   │   ├── install_cursor.sh         # Cursor IDE
+│   │   └── install_portproton.sh     # PortProton
+│   ├── dev/             # Outils de développement
+│   │   ├── install_docker.sh         # Docker & Docker Compose
+│   │   ├── install_docker_tools.sh   # Outils build (Arch)
+│   │   └── install_go.sh             # Go (Golang)
+│   └── tools/           # Outils système
+│       └── install_yay.sh            # yay (AUR helper)
+│
+├── sync/                # Synchronisation Git
+│   ├── git_auto_sync.sh         # Script de synchronisation
+│   └── install_auto_sync.sh     # Installation systemd timer
+│
+├── test/                 # Validation & tests
+│   └── validate_setup.sh         # Validation complète du setup
+│
+└── vm/                   # Gestion VM
+    └── create_test_vm.sh          # Création VM de test
+```
+
+### Tableau des scripts
+
+| Fichier | Description | Usage |
+|---------|-------------|-------|
+| `apps/install_brave.sh` | Installation Brave Browser | Option 17 du menu |
+| `apps/install_cursor.sh` | Installation Cursor IDE | Option 8 du menu |
+| `apps/install_portproton.sh` | Installation PortProton | Option 9 du menu |
+| `dev/install_docker.sh` | Installation Docker complet | Option 15 du menu |
+| `dev/install_docker_tools.sh` | Outils build (make, gcc, cmake) | Arch Linux uniquement |
+| `dev/install_go.sh` | Installation Go (Golang) | Option 19 du menu |
+| `tools/install_yay.sh` | Installation yay AUR helper | Option 18 du menu |
+| `test/validate_setup.sh` | Validation complète | Option 22 du menu |
+
+## ✅ Validation du Setup
+
+Script de validation complète pour vérifier toutes les installations et configurations.
+
+### Utilisation
+
+Via le menu setup.sh (option 22) ou directement :
+```bash
+bash ~/dotfiles/scripts/test/validate_setup.sh
+```
+
+### Vérifications effectuées
+
+- ✅ **Fonctions ZSH** : add_alias, add_to_path, clean_path
+- ✅ **PATH** : Go, Flutter, Android SDK, Dart
+- ✅ **Services** : systemd timer, Docker, SSH agent
+- ✅ **Git** : user.name, user.email, credential.helper, SSH key
+- ✅ **Outils** : Go, Docker, Cursor, yay, make, gcc, cmake
+- ✅ **Fichiers** : zshrc_custom, env.sh, aliases.zsh, etc.
+
+### Rapport
+
+Le script affiche un rapport avec :
+- ✅ Réussis (vert)
+- ❌ Échecs (rouge)
+- ⚠️ Avertissements (jaune)
 
 ## 📱 Flutter & Android
 

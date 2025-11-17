@@ -1,4 +1,4 @@
-# ~/dotfiles/zsh/zshrc_custom - VERSION CORRIGÉE
+# ~/dotfiles/zsh/zshrc_custom - VERSION RÉORGANISÉE
 
 # Restaurer le PATH original si nécessaire
 if [ -n "$PATH_ORIGINAL" ]; then
@@ -11,31 +11,79 @@ ENV_FILE="$DOTFILES_ZSH_PATH/env.sh"
 ALIASES_FILES="$DOTFILES_ZSH_PATH/aliases.zsh"
 FUNCTIONS_DIR="$DOTFILES_ZSH_PATH/functions/"
 
+# Couleurs pour messages
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
 
 # =============================================================================
-# CHARGEMENT DES GESTIONNAIRES (*MAN) EN PREMIER
+# ÉTAPE 1 : CHARGEMENT DES GESTIONNAIRES (*MAN) EN PREMIER
 # =============================================================================
-echo "🚀 Chargement des gestionnaires..."
+echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 
-[ -f "$DOTFILES_ZSH_PATH/functions/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/pathman.zsh" && echo "✔️ PATHMAN chargé"
-[ -f "$DOTFILES_ZSH_PATH/functions/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/netman.zsh" && echo "✔️ NETMAN chargé"
-[ -f "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" && echo "✔️ ALIAMAN chargé"
-[ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh" && echo "✔️ MISCMAN chargé"
-[ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo "✔️ SEARCHMAN chargé"
+[ -f "$DOTFILES_ZSH_PATH/functions/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/pathman.zsh" && echo -e "${GREEN}  ✔️ PATHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ PATHMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/netman.zsh" && echo -e "${GREEN}  ✔️ NETMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ NETMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" && echo -e "${GREEN}  ✔️ ALIAMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ ALIAMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh" && echo -e "${GREEN}  ✔️ MISCMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ MISCMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo -e "${GREEN}  ✔️ SEARCHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ SEARCHMAN introuvable${NC}"
 
+# Charger les fonctions utilitaires depuis les backups si disponibles
+if [ -f "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/add_to_path.sh" ]; then
+    source "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/add_to_path.sh"
+    source "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/clean_path.sh"
+    source "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/ensure_path_log.sh" 2>/dev/null || true
+fi
+
+if [ -f "$DOTFILES_ZSH_PATH/functions/alias_manager/backup_202509_211846/add_alias.sh" ]; then
+    source "$DOTFILES_ZSH_PATH/functions/alias_manager/backup_202509_211846/add_alias.sh"
+fi
 
 # =============================================================================
-# CHARGEMENT DES FONCTIONS INDIVIDUELLES
+# ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
 # =============================================================================
+echo -e "${CYAN}📦 ÉTAPE 2/4 : Chargement des variables d'environnement...${NC}"
+if [ -f "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+    echo -e "${GREEN}  ✔️ Variables d'environnement chargées${NC}"
+else
+    echo -e "${YELLOW}  ⚠️ Fichier $ENV_FILE introuvable${NC}"
+fi
+
+# =============================================================================
+# ÉTAPE 3 : CHARGEMENT DES FONCTIONS INDIVIDUELLES
+# =============================================================================
+echo -e "${CYAN}🔧 ÉTAPE 3/4 : Chargement des fonctions individuelles...${NC}"
 if [ -d "$FUNCTIONS_DIR" ]; then
+    local loaded_count=0
+    local error_count=0
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        # Ignore les gestionnaires déjà chargés
-        if [[ "$func_file" != *"man.zsh" ]] && [ -f "$func_file" ]; then
-            source "$func_file" 2>/dev/null && echo "  ✔️ $func_file" || echo "  ❌ Erreur: $func_file"
+        # Ignore les gestionnaires déjà chargés et les backups
+        if [[ "$func_file" != *"man.zsh" ]] && [[ "$func_file" != *"backup"* ]] && [ -f "$func_file" ]; then
+            if source "$func_file" 2>/dev/null; then
+                ((loaded_count++))
+            else
+                ((error_count++))
+                echo -e "${YELLOW}  ⚠️ Erreur: $(basename "$func_file")${NC}" >&2
+            fi
         fi
     done
+    echo -e "${GREEN}  ✔️ $loaded_count fonctions chargées${NC}"
+    [ $error_count -gt 0 ] && echo -e "${YELLOW}  ⚠️ $error_count erreurs${NC}"
 else
-    echo "⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR"
+    echo -e "${YELLOW}  ⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR${NC}"
+fi
+
+# =============================================================================
+# ÉTAPE 4 : CHARGEMENT DES ALIASES
+# =============================================================================
+echo -e "${CYAN}📝 ÉTAPE 4/4 : Chargement des alias...${NC}"
+if [ -f "$ALIASES_FILES" ]; then
+    source "$ALIASES_FILES"
+    echo -e "${GREEN}  ✔️ Alias chargés${NC}"
+else
+    echo -e "${YELLOW}  ⚠️ Fichier $ALIASES_FILES introuvable${NC}"
 fi
 
 # =============================================================================
@@ -48,62 +96,8 @@ backup_dotfiles() {
 }
 
 # =============================================================================
-# ENVIRONMENTS
+# FIN DU CHARGEMENT
 # =============================================================================
-if [ -f "$ENV_FILE" ]; then
-    source "$ENV_FILE"
-else
-    echo "⚠️ Fichier $ENV_FILE introuvable."
-fi
-
-# =============================================================================
-# ALIASES
-# =============================================================================
-if [ -f "$ALIASES_FILES" ]; then
-    source "$ALIASES_FILES"
-else
-    echo "⚠️ Fichier $ALIASES_FILES introuvable."
-fi
-
-# =============================================================================
-# FONCTIONS GIT
-# =============================================================================
-whoami-git() {
-    echo "user.name = $(git config --global user.name)"
-    echo "user.email = $(git config --global user.email)"
-    echo "Répertoire courant : $PWD"
-}
-
-switch-git-identity() {
-    local arg="$1"
-    local path="$PWD"
-
-    if [[ "$arg" == "piter" ]]; then
-        git config --global user.name "Paul Piter"
-        git config --global user.email "paul@piter.at"
-        echo "Profil global Git: pro (Paul Piter)"
-        whoami-git
-        return
-    elif [[ "$arg" == "perso" ]]; then
-        git config --global user.name "Paul Delhomme"
-        git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
-        echo "Profil global Git: perso (Paul Delhomme)"
-        whoami-git
-        return
-    fi
-
-    if [[ "$path" =~ ^/home/pactivisme/Documents/Travail/.*[Pp][Ii][Tt][Ee][Rr].* ]]; then
-        git config --global user.name "Paul Piter"
-        git config --global user.email "paul@piter.at"
-        echo "Profil automatiquement basculé sur Piter"
-    else
-        git config --global user.name "Paul Delhomme"
-        git config --global user.email "36136537+PavelDelhomme@users.noreply.github.com"
-        echo "Profil automatiquement basculé sur Delhomme"
-    fi
-    whoami-git
-}
-
 neofetch
 echo "🎉 Configuration ZSH personnalisée chargée avec succès"
 

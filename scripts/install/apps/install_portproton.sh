@@ -64,13 +64,39 @@ log_info "✓ Permissions configurées"
 echo ""
 echo "[4/4] Création alias et scripts helper..."
 
-# Créer fonction dans functions.zsh ou directement
-cat >> ~/.zshrc <<'PORTALIAS'
+ALIASES_FILE="$HOME/dotfiles/zsh/aliases.zsh"
 
-# PortProton helpers
-alias portproton='flatpak run ru.linux_gaming.PortProton'
-alias pp='flatpak run ru.linux_gaming.PortProton'
+# Créer le fichier aliases.zsh s'il n'existe pas
+if [ ! -f "$ALIASES_FILE" ]; then
+    mkdir -p "$(dirname "$ALIASES_FILE")"
+    touch "$ALIASES_FILE"
+    echo "# ~/dotfiles/zsh/aliases.zsh" > "$ALIASES_FILE"
+fi
 
+# Utiliser add_alias si disponible
+if type add_alias &> /dev/null; then
+    log_info "Création alias via add_alias..."
+    add_alias "portproton" "flatpak run ru.linux_gaming.PortProton" "PortProton - Jeux Windows sur Linux"
+    add_alias "pp" "flatpak run ru.linux_gaming.PortProton" "PortProton (raccourci)"
+    log_info "✓ Alias créés via add_alias"
+else
+    log_warn "add_alias non disponible, ajout manuel..."
+    if ! grep -q "^alias portproton=" "$ALIASES_FILE"; then
+        echo "" >> "$ALIASES_FILE"
+        echo "# PortProton helpers" >> "$ALIASES_FILE"
+        echo "alias portproton='flatpak run ru.linux_gaming.PortProton'" >> "$ALIASES_FILE"
+        echo "alias pp='flatpak run ru.linux_gaming.PortProton'" >> "$ALIASES_FILE"
+        log_info "✓ Alias ajoutés dans $ALIASES_FILE"
+    else
+        log_info "✓ Alias déjà présents"
+    fi
+fi
+
+# Ajouter les fonctions helper
+if ! grep -q "portproton-install-game()" "$ALIASES_FILE"; then
+    cat >> "$ALIASES_FILE" <<'PORTFUNCTIONS'
+
+# PortProton helper functions
 portproton-install-game() {
     if [ $# -lt 1 ]; then
         echo "Usage: portproton-install-game <installer.exe>"
@@ -86,9 +112,11 @@ portproton-run() {
     fi
     flatpak run ru.linux_gaming.PortProton "$1"
 }
-PORTALIAS
+PORTFUNCTIONS
+    log_info "✓ Fonctions helper ajoutées"
+fi
 
-log_info "✓ Alias créés (recharger avec: source ~/.zshrc)"
+log_info "✓ Alias et fonctions créés (recharger avec: source ~/.zshrc)"
 
 ################################################################################
 # RÉSUMÉ
