@@ -88,7 +88,7 @@ Fonctions utiles :
 
 ## 🖥️ Installation complète du système
 
-Le script `manjaro_setup_final.sh` installe et configure automatiquement :
+Le script `setup.sh` (menu interactif) permet d'installer et configurer automatiquement :
 
 ### Gestionnaires de paquets
 - ✅ yay (AUR helper)
@@ -441,7 +441,7 @@ update-cursor.sh
 │   ├── aliases.zsh
 │   ├── functions.zsh
 │   ├── setup.sh
-│   └── manjaro_setup_final.sh
+│   └── archive_manjaro_setup_final.sh (ancien script, archivé)
 ├── .zshrc -> ~/dotfiles/.zshrc    # Symlink
 ├── .gitconfig -> ~/dotfiles/.gitconfig
 └── .ssh/
