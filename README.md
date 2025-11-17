@@ -488,16 +488,68 @@ grep "source ~/dotfiles" ~/.zshrc
 7. **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
 8. **Configuration apps** : Cursor login, Proton Pass, BlueMail
 
+## 🔄 Rollback / Désinstallation
+
+### Rollback complet (tout désinstaller)
+
+Pour désinstaller **TOUT** ce qui a été installé et configuré :
+
+**Via le menu setup.sh :**
+```bash
+bash ~/dotfiles/setup.sh
+# Choisir option 99
+```
+
+**Ou directement :**
+```bash
+bash ~/dotfiles/scripts/uninstall/rollback_all.sh
+```
+
+Le script va :
+- ✅ Arrêter et supprimer les services systemd (auto-sync)
+- ✅ Désinstaller toutes les applications (Docker, Cursor, Brave, Go, yay, etc.)
+- ✅ Supprimer la configuration Git
+- ✅ Supprimer les clés SSH (avec confirmation)
+- ✅ Nettoyer la configuration ZSH
+- ✅ Supprimer le dossier dotfiles (avec confirmation)
+- ✅ Nettoyer les logs et fichiers temporaires
+- ✅ Option rollback Git vers version précédente
+
+**⚠️ Double confirmation requise** : Taper "OUI" en majuscules pour confirmer.
+
+### Rollback Git uniquement
+
+Pour revenir à une version précédente des dotfiles (sans désinstaller les applications) :
+
+```bash
+bash ~/dotfiles/scripts/uninstall/rollback_git.sh
+```
+
+Options disponibles :
+- Revenir au commit précédent (HEAD~1)
+- Revenir à un commit spécifique (par hash)
+- Revenir à origin/main (dernière version distante)
+
+### Rollback Git manuel
+
+```bash
+cd ~/dotfiles
+git log --oneline -10          # Voir les commits
+git reset --hard <commit_hash> # Revenir à un commit
+# ou
+git reset --hard origin/main   # Revenir à la version distante
+```
+
 ## 📄 Licence
 
 Configuration personnelle - libre d'utilisation et modification.
 
 ## 👤 Auteur
 
-**Paul Pavel Théo Delhomme**
-- Email: paul@delhomme.ovh
+**PavelDelhomme**
+- Email: dev@delhomme.ovh
 - GitHub: [@PavelDelhomme](https://github.com/PavelDelhomme)
 
 ---
 
-*Dernière mise à jour : Novembre 2025*
+*Dernière mise à jour : Décembre 2024*
