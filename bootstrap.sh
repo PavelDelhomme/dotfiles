@@ -196,6 +196,9 @@ else
     fi
 fi
 
+# IMPORTANT: Le script continue ici vers le clonage
+# Ne pas s'arrêter après la vérification SSH
+
 ################################################################################
 # 3. CLONER LE REPO DOTFILES
 ################################################################################
@@ -270,10 +273,16 @@ else
     log_warn "Script create_symlinks.sh non trouvé"
 fi
 
+# IMPORTANT: Le script continue ici vers la proposition Makefile
+# Cette section est TOUJOURS exécutée si dotfiles existe
+
 ################################################################################
 # 5. PROPOSER UTILISATION MAKEFILE (recommandé)
 ################################################################################
 log_section "Installation des dotfiles"
+
+# Cette section doit TOUJOURS être atteinte si dotfiles existe
+# Vérifier explicitement que nous arrivons ici
 
 if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/Makefile" ]; then
     log_info "✅ Dotfiles clonés avec succès dans: $DOTFILES_DIR"
