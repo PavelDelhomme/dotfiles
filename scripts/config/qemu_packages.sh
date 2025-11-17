@@ -5,7 +5,7 @@
 # Installe uniquement les paquets nécessaires
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour mieux gérer les problèmes de dépendances
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -38,7 +38,8 @@ fi
 
 # Installer les paquets
 log_info "Installation des paquets..."
-sudo pacman -S --needed --noconfirm \
+
+if ! sudo pacman -S --needed --noconfirm \
     qemu-desktop \
     libvirt \
     virt-manager \
@@ -46,7 +47,14 @@ sudo pacman -S --needed --noconfirm \
     dnsmasq \
     bridge-utils \
     openbsd-netcat \
-    ebtables
+    ebtables 2>&1; then
+    log_error "Erreur lors de l'installation des paquets QEMU"
+    log_warn "Cela peut être dû à des problèmes de dépendances système"
+    log_warn "Essayez de mettre à jour votre système d'abord:"
+    log_warn "  sudo pacman -Syu"
+    log_warn "Puis réessayez l'installation"
+    exit 1
+fi
 
 log_info "✓ Paquets installés"
 
