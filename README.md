@@ -1,4 +1,4 @@
-# Dotfiles - Paul Delhomme
+# Dotfiles - PavelDelhomme
 
 Configuration personnelle pour Manjaro Linux avec installation automatisée complète.
 
