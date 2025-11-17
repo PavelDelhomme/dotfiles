@@ -218,9 +218,12 @@ fi
 # Forcer la continuation même si quelque chose a échoué
 set +e  # S'assurer qu'on ne s'arrête pas sur erreurs
 
-# Debug: vérifier qu'on arrive bien ici - FORCER l'affichage
-echo "" >&2
-echo "DEBUG: Après section SSH, continuation..." >&2
+# FORCER la continuation - test explicite
+# Cette ligne ne devrait jamais échouer, mais force la continuation
+true
+
+# Debug: vérifier qu'on arrive bien ici - FORCER l'affichage avec echo direct
+echo "DEBUG: Script continue après SSH..." >&2
 log_info "Continuation vers le clonage du repository..."
 
 ################################################################################
