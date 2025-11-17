@@ -5,7 +5,7 @@
 # Support: Arch Linux, Debian/Ubuntu, Fedora
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour mieux gérer les interruptions
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -17,6 +17,9 @@ log_info() { echo -e "${GREEN}[✓]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[!]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
+
+# Gestion des interruptions (Ctrl+C)
+trap 'log_warn "Installation interrompue par l'\''utilisateur"; exit 130' INT TERM
 
 DESKTOP_ONLY=false
 
@@ -203,10 +206,12 @@ if [ "$DESKTOP_ONLY" = false ]; then
     if [[ "$login_choice" =~ ^[oO]$ ]]; then
         log_warn "Si 2FA est activé, utilisez un Personal Access Token"
         log_info "Générez un token: https://hub.docker.com/settings/security"
-        read -p "Appuyez sur Entrée pour lancer docker login..."
+        printf "Appuyez sur Entrée pour lancer docker login... "
+        read -r dummy
         
         # Utiliser sudo si nécessaire
-        if sudo docker login; then
+        # Gérer l'interruption (Ctrl+C) pendant docker login
+        if sudo docker login 2>&1; then
             log_info "✓ Connexion réussie"
             
             # Test avec hello-world
