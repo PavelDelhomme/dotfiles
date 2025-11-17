@@ -127,6 +127,19 @@ make clean            # Nettoyer fichiers temporaires
 
 ### 1. Installation complète (nouvelle machine)
 
+**Méthode 1 : Makefile (recommandé)**
+```bash
+# Installation initiale
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+
+# Puis utiliser le Makefile
+cd ~/dotfiles
+make install          # Installation complète
+make setup            # Menu interactif
+make validate         # Valider le setup
+```
+
+**Méthode 2 : Scripts bash (alternative)**
 ```bash
 # Une seule ligne
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
