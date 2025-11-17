@@ -1,0 +1,32 @@
+[user]
+	name = Pactivisme
+	email = dev@delhomme.ovh
+
+[core]
+	editor = vim
+	autocrlf = input
+
+[init]
+	defaultBranch = main
+
+[color]
+	ui = auto
+
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	log1 = log --oneline --graph --decorate
+	undo = reset --soft HEAD^
+	amend = commit --amend --no-edit
+
+[pull]
+	rebase = false
+
+[push]
+	default = simple
+
+[credential]
+	helper = cache --timeout=3600
+
