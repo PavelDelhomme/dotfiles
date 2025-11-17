@@ -65,9 +65,60 @@ echo "✓ Utilisateur ajouté au groupe libvirt"
 echo ""
 echo "[6/7] Configuration réseau..."
 sleep 2
-sudo virsh net-start default 2>/dev/null || echo "Réseau déjà démarré"
+
+# Activer le forwarding IP pour le NAT
+if [ "$(cat /proc/sys/net/ipv4/ip_forward 2>/dev/null)" != "1" ]; then
+    echo "Activation du forwarding IP pour le NAT..."
+    echo "net.ipv4.ip_forward = 1" | sudo tee -a /etc/sysctl.conf > /dev/null
+    sudo sysctl -w net.ipv4.ip_forward=1
+    echo "✓ Forwarding IP activé"
+else
+    echo "✓ Forwarding IP déjà activé"
+fi
+
+# Vérifier si le réseau default existe
+if ! virsh net-list --all | grep -q "default"; then
+    echo "Création du réseau par défaut (NAT)..."
+    # Créer le réseau NAT par défaut
+    sudo virsh net-define /usr/share/libvirt/networks/default.xml 2>/dev/null || \
+    # Générer une adresse MAC aléatoire
+    MAC_SUFFIX=$(od -An -N3 -tx1 /dev/urandom | sed 's/ /:/g' | cut -d: -f2-4)
+    MAC_ADDRESS="52:54:00:$MAC_SUFFIX"
+    
+    cat <<EOF | sudo tee /tmp/default-network.xml > /dev/null
+<network>
+  <name>default</name>
+  <uuid>$(uuidgen 2>/dev/null || cat /proc/sys/kernel/random/uuid)</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='$MAC_ADDRESS'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+    </dhcp>
+  </ip>
+</network>
+EOF
+    sudo virsh net-define /tmp/default-network.xml
+    sudo rm -f /tmp/default-network.xml
+    echo "✓ Réseau par défaut créé"
+fi
+
+# Démarrer et activer le réseau
+if ! virsh net-list | grep -q "default.*active"; then
+    sudo virsh net-start default
+    echo "✓ Réseau démarré"
+else
+    echo "✓ Réseau déjà actif"
+fi
+
+# Activer le démarrage automatique
 sudo virsh net-autostart default
-echo "✓ Réseau configuré"
+echo "✓ Réseau configuré avec NAT (accès Internet activé)"
 
 # Créer dossiers et scripts
 echo ""
