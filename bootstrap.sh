@@ -159,7 +159,8 @@ if [ ! -f "$SSH_KEY" ]; then
         xdg-open "https://github.com/settings/keys" 2>/dev/null || true
     fi
     
-    read -p "Appuyez sur Entrée après avoir ajouté la clé sur GitHub..."
+    printf "\nAppuyez sur Entrée après avoir ajouté la clé sur GitHub... "
+    read -r dummy
     
     # Tester la connexion
     log_info "Test de la connexion GitHub..."
