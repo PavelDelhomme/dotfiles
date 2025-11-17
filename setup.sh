@@ -87,6 +87,7 @@ show_menu() {
     echo "23. Créer symlinks (centraliser configuration)"
     echo ""
     echo "99. ROLLBACK - Désinstaller tout (ATTENTION!)"
+    echo "98. RÉINITIALISATION - Remise à zéro complète (ATTENTION!)"
     echo ""
     echo "0.  Quitter"
     echo ""
@@ -98,13 +99,28 @@ show_menu() {
 while true; do
     show_menu
     printf "Choix: "
-    read -r choice 2>/dev/null || read choice
+    # Lire l'input de manière plus robuste
+    IFS= read -r choice 2>/dev/null || {
+        # Si read échoue, essayer une autre méthode
+        read choice 2>/dev/null || choice=""
+    }
     
-    # Nettoyer le choix (enlever espaces et caractères invisibles)
-    choice=$(echo "$choice" | tr -d '[:space:]' | tr -d '\n\r')
+    # Nettoyer le choix (enlever espaces, caractères invisibles et garder seulement le premier nombre)
+    # Extraire uniquement les chiffres du début de la ligne
+    choice=$(echo "$choice" | sed 's/^[^0-9]*//' | sed 's/[^0-9].*$//' | head -c 10)
     
-    # Debug (peut être retiré après test)
-    # log_info "Choix reçu: '$choice'"
+    # Si le choix est vide après nettoyage, réafficher le menu
+    if [ -z "$choice" ]; then
+        continue
+    fi
+    
+    # Vérifier que le choix est un nombre valide
+    if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
+        log_error "Choix invalide: '$choice' (doit être un nombre)"
+        log_info "Veuillez entrer un nombre entre 0 et 23"
+        sleep 2
+        continue
+    fi
     
     case "$choice" in
         1)
@@ -278,15 +294,24 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
+        98)
+            log_section "RÉINITIALISATION - Remise à zéro complète"
+            log_warn "⚠️  ATTENTION : Cette option va TOUT désinstaller ET supprimer dotfiles"
+            printf "Continuer avec la réinitialisation? (tapez 'OUI' en majuscules): "
+            read -r reset_confirm
+            if [ "$reset_confirm" = "OUI" ]; then
+                run_script "$SCRIPT_DIR/uninstall/reset_all.sh" "Réinitialisation complète"
+            else
+                log_info "Réinitialisation annulée"
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
         0)
             log_info "Au revoir!"
             exit 0
             ;;
-        "")
-            # Choix vide, réafficher le menu
-            continue
-            ;;
         *)
+            # Ce cas ne devrait jamais être atteint grâce à la validation avant
             log_error "Choix invalide: '$choice'"
             log_info "Veuillez entrer un nombre entre 0 et 23"
             sleep 2

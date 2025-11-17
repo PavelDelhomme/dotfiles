@@ -6,7 +6,25 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 ## 🚀 Installation rapide (nouvelle machine)
 
+### Méthode 1 : Makefile (recommandé)
+
 **UNE SEULE LIGNE** pour installer et configurer tous les dotfiles :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+```
+
+Puis utilisez le Makefile pour toutes les opérations :
+
+```bash
+cd ~/dotfiles
+make install          # Installation complète
+make setup            # Menu interactif
+make validate         # Valider le setup
+make help             # Voir toutes les commandes
+```
+
+### Méthode 2 : Scripts bash (alternative)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
@@ -141,6 +159,41 @@ update-cursor.sh
 
 ## 🎯 Usage quotidien
 
+### Commandes Makefile (recommandé)
+
+```bash
+cd ~/dotfiles
+
+# Voir toutes les commandes disponibles
+make help
+
+# Installation et configuration
+make install          # Installation complète
+make setup             # Menu interactif
+make symlinks          # Créer symlinks
+make migrate           # Migrer config existante
+
+# Validation
+make validate          # Valider le setup
+
+# Installations spécifiques
+make install-docker    # Installer Docker
+make install-go        # Installer Go
+make install-cursor    # Installer Cursor
+make install-brave     # Installer Brave
+make install-yay       # Installer yay (Arch)
+
+# Configuration
+make git-config        # Configurer Git
+make git-remote        # Configurer remote Git
+make auto-sync         # Configurer auto-sync
+
+# Maintenance
+make rollback          # Rollback complet
+make reset             # Réinitialisation complète
+make clean             # Nettoyer fichiers temporaires
+```
+
 ### Recharger la configuration
 ```bash
 source ~/.zshrc
@@ -152,7 +205,7 @@ exec zsh
 ```bash
 cd ~/dotfiles
 git pull
-bash setup.sh
+make setup             # Ou: bash setup.sh
 ```
 
 ### Vérifications système
