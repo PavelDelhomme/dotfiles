@@ -5,7 +5,7 @@
 # yay, snap, flatpak
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour mieux gérer les problèmes
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -34,14 +34,36 @@ log_info "Installation gestionnaires de paquets..."
 # yay
 if ! is_installed "yay"; then
     log_info "Installation de yay..."
-    sudo pacman -S --needed --noconfirm git base-devel
+    sudo pacman -S --needed --noconfirm git base-devel || log_warn "Erreur installation dépendances yay"
+    
+    YAY_TMP_DIR="/tmp/yay"
+    # Nettoyer si existe déjà
+    if [ -d "$YAY_TMP_DIR" ]; then
+        log_info "Nettoyage du dossier temporaire..."
+        rm -rf "$YAY_TMP_DIR"
+    fi
+    
+    # Vérifier aussi dans le répertoire courant
+    if [ -d "yay" ]; then
+        log_warn "Répertoire 'yay' trouvé dans le répertoire courant, nettoyage..."
+        rm -rf "yay"
+    fi
+    
     cd /tmp
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si --noconfirm
+    if git clone https://aur.archlinux.org/yay.git "$YAY_TMP_DIR" 2>/dev/null; then
+        cd "$YAY_TMP_DIR"
+        if makepkg -si --noconfirm 2>&1; then
+            log_info "✓ yay installé"
+        else
+            log_warn "Erreur lors de la compilation de yay (peut être dû à des dépendances)"
+            log_warn "Essayez: sudo pacman -Syu puis réessayez"
+        fi
+        cd /tmp
+        rm -rf "$YAY_TMP_DIR"
+    else
+        log_warn "Erreur lors du clonage de yay (vérifiez votre connexion)"
+    fi
     cd ~
-    rm -rf /tmp/yay
-    log_info "✓ yay installé"
 else
     log_skip "yay déjà installé"
 fi

@@ -5,7 +5,7 @@
 # Usage: ./install_cursor.sh [--skip-check] [--no-desktop] [--update-only]
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour mieux gérer les problèmes réseau
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -65,7 +65,21 @@ echo "════════════════════════�
 CURSOR_URL="https://downloader.cursor.sh/linux/appImage/x64"
 
 log_info "Téléchargement depuis: $CURSOR_URL"
-sudo curl -L -o /opt/cursor.appimage "$CURSOR_URL"
+
+# Vérifier la connexion internet d'abord
+if ! curl -s --head --fail "https://downloader.cursor.sh" > /dev/null 2>&1; then
+    log_error "Impossible de se connecter à downloader.cursor.sh"
+    log_warn "Vérifiez votre connexion internet et votre résolution DNS"
+    log_warn "Vous pouvez essayer: ping downloader.cursor.sh"
+    exit 1
+fi
+
+if ! sudo curl -L -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
+    log_error "Erreur lors du téléchargement de Cursor"
+    log_warn "Vérifiez votre connexion internet et réessayez"
+    exit 1
+fi
+
 sudo chmod +x /opt/cursor.appimage
 
 log_info "✓ AppImage téléchargée: /opt/cursor.appimage"

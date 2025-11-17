@@ -38,8 +38,10 @@ run_script() {
     local name="$2"
     if [ -f "$script" ]; then
         log_info "Exécution: $name"
+        # Ne pas faire échouer setup.sh si un script échoue (certains scripts peuvent avoir des erreurs non critiques)
         bash "$script" || {
             log_error "Erreur lors de l'exécution de: $name"
+            log_warn "Le script a rencontré une erreur, mais le menu continue"
             return 1
         }
     else

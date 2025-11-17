@@ -4,7 +4,7 @@
 # Installation yay (AUR Helper pour Arch Linux)
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour mieux gérer les problèmes de dépendances
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -59,14 +59,34 @@ if [ -d "$YAY_TMP_DIR" ]; then
     rm -rf "$YAY_TMP_DIR"
 fi
 
+# Vérifier aussi dans le répertoire courant (au cas où)
+if [ -d "yay" ]; then
+    log_warn "Répertoire 'yay' trouvé dans le répertoire courant, nettoyage..."
+    rm -rf "yay"
+fi
+
 log_info "Clonage du repo yay..."
-git clone https://aur.archlinux.org/yay.git "$YAY_TMP_DIR"
+if ! git clone https://aur.archlinux.org/yay.git "$YAY_TMP_DIR" 2>/dev/null; then
+    log_error "Erreur lors du clonage de yay"
+    log_warn "Vérifiez votre connexion internet et réessayez"
+    exit 1
+fi
 
 log_info "Compilation et installation..."
 cd "$YAY_TMP_DIR"
-makepkg -si --noconfirm
+
+if ! makepkg -si --noconfirm 2>&1; then
+    log_error "Erreur lors de la compilation/installation de yay"
+    log_warn "Cela peut être dû à des problèmes de dépendances système"
+    log_warn "Essayez de mettre à jour votre système: sudo pacman -Syu"
+    log_warn "Puis réessayez l'installation de yay"
+    cd - > /dev/null
+    rm -rf "$YAY_TMP_DIR"
+    exit 1
+fi
 
 log_info "✓ yay compilé et installé"
+cd - > /dev/null
 
 ################################################################################
 # NETTOYAGE

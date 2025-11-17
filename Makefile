@@ -58,7 +58,7 @@ help: ## Afficher cette aide
 install: ## Installation complète depuis zéro (bootstrap)
 	@echo "$(BLUE)🚀 Installation complète des dotfiles...$(NC)"
 	@if [ -f "$(DOTFILES_DIR)/bootstrap.sh" ]; then \
-		bash "$(DOTFILES_DIR)/bootstrap.sh; \
+		bash "$(DOTFILES_DIR)/bootstrap.sh"; \
 	else \
 		echo "$(YELLOW)⚠️  bootstrap.sh non trouvé, clonage depuis GitHub...$(NC)"; \
 		curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash; \
