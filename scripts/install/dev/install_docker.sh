@@ -315,10 +315,22 @@ EOF
     log_info "✓ BuildKit activé dans daemon.json"
 
     # Redémarrer Docker si le service est actif
-    if systemctl is-active --quiet docker; then
+    if sudo systemctl is-active --quiet docker 2>/dev/null; then
         log_info "Redémarrage du service Docker..."
-        sudo systemctl restart docker
-        log_info "✓ Docker redémarré"
+        if sudo systemctl restart docker 2>/dev/null; then
+            sleep 1
+            if sudo systemctl is-active --quiet docker 2>/dev/null; then
+                log_info "✓ Docker redémarré"
+            else
+                log_warn "⚠️ Docker redémarré mais service non actif"
+                log_warn "Vérifiez avec: sudo systemctl status docker"
+            fi
+        else
+            log_warn "⚠️ Échec redémarrage Docker"
+            log_warn "Vérifiez avec: sudo systemctl status docker"
+        fi
+    else
+        log_warn "⚠️ Service Docker non actif, pas de redémarrage nécessaire"
     fi
 fi
 

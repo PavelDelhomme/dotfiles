@@ -140,16 +140,34 @@ show_status() {
 }
 
 run_script() {
-    local script="$1"
+    local full_path="$1"
     local name="$2"
+    
+    # Séparer le script et les arguments si présents
+    local script="${full_path%% *}"  # Prendre tout jusqu'au premier espace
+    local args="${full_path#* }"      # Prendre tout après le premier espace
+    
+    # Si args est identique à full_path, il n'y a pas d'arguments
+    if [ "$args" = "$full_path" ]; then
+        args=""
+    fi
+    
     if [ -f "$script" ]; then
         log_info "Exécution: $name"
         # Ne pas faire échouer setup.sh si un script échoue (certains scripts peuvent avoir des erreurs non critiques)
-        bash "$script" || {
-            log_error "Erreur lors de l'exécution de: $name"
-            log_warn "Le script a rencontré une erreur, mais le menu continue"
-            return 1
-        }
+        if [ -n "$args" ]; then
+            bash "$script" $args || {
+                log_error "Erreur lors de l'exécution de: $name"
+                log_warn "Le script a rencontré une erreur, mais le menu continue"
+                return 1
+            }
+        else
+            bash "$script" || {
+                log_error "Erreur lors de l'exécution de: $name"
+                log_warn "Le script a rencontré une erreur, mais le menu continue"
+                return 1
+            }
+        fi
     else
         log_error "Script non trouvé: $script"
         return 1
