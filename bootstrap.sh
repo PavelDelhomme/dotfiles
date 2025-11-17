@@ -204,12 +204,12 @@ log_section "Clonage du repo dotfiles"
 # Debug: vérifier si on arrive ici
 log_info "Vérification du dossier dotfiles..."
 
-# Si le dossier existe déjà, on l'utilise directement (pas besoin de re-cloner)
+# Si le dossier existe déjà et est un repo git, on l'utilise directement
 if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
     log_info "✓ Dossier dotfiles existe déjà: $DOTFILES_DIR"
     log_info "Mise à jour du repository..."
     cd "$DOTFILES_DIR" 2>/dev/null || {
-        log_warn "Impossible d'accéder au dossier"
+        log_error "Impossible d'accéder au dossier $DOTFILES_DIR"
         exit 1
     }
     git pull origin main || git pull origin master || true
@@ -242,11 +242,15 @@ if [ ! -d "$DOTFILES_DIR" ]; then
     fi
 fi
 
-# Vérifier que le clonage a réussi
-if [ ! -d "$DOTFILES_DIR" ] || [ ! -f "$DOTFILES_DIR/Makefile" ]; then
-    log_error "Le clonage semble avoir échoué ou le Makefile est absent"
-    log_warn "Vérifiez le dossier: $DOTFILES_DIR"
+# Vérifier que le dossier existe et contient le Makefile
+if [ ! -d "$DOTFILES_DIR" ]; then
+    log_error "Le dossier dotfiles n'existe pas après le clonage"
     exit 1
+fi
+
+if [ ! -f "$DOTFILES_DIR/Makefile" ]; then
+    log_warn "Makefile non trouvé dans $DOTFILES_DIR"
+    log_warn "Le repository semble incomplet, mais on continue..."
 fi
 
 ################################################################################
