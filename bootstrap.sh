@@ -19,9 +19,9 @@ log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
 
 ################################################################################
-# CONFIGURATION PAR DÉFAUT (Pactivisme)
+# CONFIGURATION PAR DÉFAUT
 ################################################################################
-DEFAULT_GIT_NAME="Pactivisme"
+DEFAULT_GIT_NAME="PavelDelhomme"
 DEFAULT_GIT_EMAIL="dev@delhomme.ovh"
 DOTFILES_REPO="https://github.com/PavelDelhomme/dotfiles.git"
 DOTFILES_DIR="$HOME/dotfiles"
@@ -198,6 +198,7 @@ fi
 
 # IMPORTANT: Le script continue ici vers le clonage
 # Ne pas s'arrêter après la vérification SSH
+log_info "Continuation vers le clonage du repository..."
 
 ################################################################################
 # 3. CLONER LE REPO DOTFILES
@@ -233,7 +234,8 @@ fi
 
 # Cloner si le dossier n'existe pas
 if [ ! -d "$DOTFILES_DIR" ]; then
-    log_info "Clonage de $DOTFILES_REPO..."
+    log_info "Dossier dotfiles n'existe pas, clonage nécessaire..."
+    log_info "Clonage de $DOTFILES_REPO dans $DOTFILES_DIR..."
     if git clone "$DOTFILES_REPO" "$DOTFILES_DIR" 2>&1; then
         log_info "✓ Dotfiles clonés avec succès"
     else
@@ -241,18 +243,26 @@ if [ ! -d "$DOTFILES_DIR" ]; then
         log_warn "Vérifiez votre connexion internet et réessayez"
         exit 1
     fi
+else
+    log_info "Dossier dotfiles existe déjà, pas besoin de cloner"
 fi
 
 # Vérifier que le dossier existe et contient le Makefile
+log_info "Vérification du dossier dotfiles..."
 if [ ! -d "$DOTFILES_DIR" ]; then
     log_error "Le dossier dotfiles n'existe pas après le clonage"
     exit 1
 fi
+log_info "✓ Dossier dotfiles existe: $DOTFILES_DIR"
 
 if [ ! -f "$DOTFILES_DIR/Makefile" ]; then
     log_warn "Makefile non trouvé dans $DOTFILES_DIR"
     log_warn "Le repository semble incomplet, mais on continue..."
+else
+    log_info "✓ Makefile trouvé"
 fi
+
+log_info "Continuation vers la création des symlinks..."
 
 ################################################################################
 # 4. CRÉER LES SYMLINKS (CENTRALISATION CONFIGURATION)
@@ -275,6 +285,7 @@ fi
 
 # IMPORTANT: Le script continue ici vers la proposition Makefile
 # Cette section est TOUJOURS exécutée si dotfiles existe
+log_info "Continuation vers le lancement du menu interactif..."
 
 ################################################################################
 # 5. LANCER AUTOMATIQUEMENT LE MENU INTERACTIF
