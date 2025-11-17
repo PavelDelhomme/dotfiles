@@ -209,7 +209,8 @@ fi
 ################################################################################
 log_section "Menu d'installation modulaire"
 
-read -p "Lancer le menu d'installation modulaire? (o/n) [défaut: o]: " launch_menu
+printf "Lancer le menu d'installation modulaire? (o/n) [défaut: o]: "
+read -r launch_menu
 launch_menu=${launch_menu:-o}
 
 if [[ "$launch_menu" =~ ^[oO]$ ]]; then

@@ -5,7 +5,8 @@
 # Permet de choisir ce qu'on veut installer/configurer
 ################################################################################
 
-set -e
+# Ne pas utiliser set -e pour permettre la gestion d'erreurs dans le menu
+set +e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -37,9 +38,13 @@ run_script() {
     local name="$2"
     if [ -f "$script" ]; then
         log_info "Exécution: $name"
-        bash "$script"
+        bash "$script" || {
+            log_error "Erreur lors de l'exécution de: $name"
+            return 1
+        }
     else
         log_error "Script non trouvé: $script"
+        return 1
     fi
 }
 
@@ -89,44 +94,52 @@ show_menu() {
 ################################################################################
 while true; do
     show_menu
-    read -p "Choix: " choice
+    printf "Choix: "
+    read -r choice 2>/dev/null || read choice
     
-    case $choice in
+    # Nettoyer le choix (enlever espaces et caractères invisibles)
+    choice=$(echo "$choice" | tr -d '[:space:]' | tr -d '\n\r')
+    
+    # Debug (peut être retiré après test)
+    # log_info "Choix reçu: '$choice'"
+    
+    case "$choice" in
         1)
             run_script "$SCRIPT_DIR/config/git_config.sh" "Configuration Git"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "
+            read -r dummy
             ;;
         2)
             run_script "$SCRIPT_DIR/config/git_remote.sh" "Configuration remote Git"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         3)
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         4)
             run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires de paquets"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         5)
             run_script "$SCRIPT_DIR/config/qemu_packages.sh" "Installation QEMU/KVM"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         6)
             run_script "$SCRIPT_DIR/config/qemu_network.sh" "Configuration réseau QEMU"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         7)
             run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Configuration libvirt"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         8)
             run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Installation Cursor"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         9)
             run_script "$SCRIPT_DIR/install/apps/install_portproton.sh" "Installation PortProton"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         10)
             log_section "Installation complète système"
@@ -136,22 +149,26 @@ while true; do
             run_script "$SCRIPT_DIR/install/apps/install_portproton.sh" "PortProton"
             
             # Prompts pour installations optionnelles
-            read -p "Installer Docker? (o/n): " install_docker
+            printf "Installer Docker? (o/n): "
+            read -r install_docker
             if [[ "$install_docker" =~ ^[oO]$ ]]; then
                 run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Docker"
             fi
             
-            read -p "Installer Docker Desktop? (o/n): " install_docker_desktop
+            printf "Installer Docker Desktop? (o/n): "
+            read -r install_docker_desktop
             if [[ "$install_docker_desktop" =~ ^[oO]$ ]]; then
                 run_script "$SCRIPT_DIR/install/dev/install_docker.sh --desktop-only" "Docker Desktop"
             fi
             
-            read -p "Installer Brave? (o/n): " install_brave
+            printf "Installer Brave? (o/n): "
+            read -r install_brave
             if [[ "$install_brave" =~ ^[oO]$ ]]; then
                 run_script "$SCRIPT_DIR/install/apps/install_brave.sh" "Brave"
             fi
             
-            read -p "Configurer auto-sync Git? (o/n): " install_autosync
+            printf "Configurer auto-sync Git? (o/n): "
+            read -r install_autosync
             if [[ "$install_autosync" =~ ^[oO]$ ]]; then
                 run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Auto-sync Git"
             fi
@@ -167,7 +184,7 @@ while true; do
             [ "$install_docker_desktop" = "o" ] && echo "  ✓ Docker Desktop"
             [ "$install_brave" = "o" ] && echo "  ✓ Brave"
             [ "$install_autosync" = "o" ] && echo "  ✓ Auto-sync Git"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         11)
             log_section "Configuration complète QEMU"
@@ -176,40 +193,40 @@ while true; do
             run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Libvirt"
             log_info "✓ Configuration QEMU complète terminée"
             log_warn "⚠ Déconnectez-vous et reconnectez-vous pour groupe libvirt"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         12)
             run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Configuration auto-sync Git"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         13)
             run_script "$SCRIPT_DIR/sync/git_auto_sync.sh" "Test synchronisation manuelle"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         14)
             log_section "Statut auto-sync"
             systemctl --user status dotfiles-sync.timer --no-pager -l || log_warn "Timer non configuré"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         15)
             run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Installation Docker & Docker Compose"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         16)
             run_script "$SCRIPT_DIR/install/dev/install_docker.sh --desktop-only" "Installation Docker Desktop"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         17)
             run_script "$SCRIPT_DIR/install/apps/install_brave.sh" "Installation Brave Browser"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         18)
             run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "Installation yay (AUR)"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         19)
             run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Installation Go"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         20)
             log_section "Rechargement configuration ZSH"
@@ -235,19 +252,24 @@ while true; do
             else
                 log_error "Fichier non trouvé: $USB_FUNCTIONS"
             fi
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         22)
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
-            read -p "Appuyez sur Entrée pour continuer..."
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         0)
             log_info "Au revoir!"
             exit 0
             ;;
+        "")
+            # Choix vide, réafficher le menu
+            continue
+            ;;
         *)
-            log_error "Choix invalide"
-            sleep 1
+            log_error "Choix invalide: '$choice'"
+            log_info "Veuillez entrer un nombre entre 0 et 22"
+            sleep 2
             ;;
     esac
 done
