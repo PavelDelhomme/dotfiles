@@ -2,7 +2,7 @@
 
 Configuration personnelle pour Manjaro Linux avec installation automatisée complète.
 
-**Version :** 2.2.0
+**Version :** 2.5.0
 
 ## 📑 Table des matières
 
@@ -83,23 +83,36 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 ```
 
 Cette commande va automatiquement :
-1. ✅ Vérifier et installer Git si nécessaire
-2. ✅ Configurer Git (nom et email)
-3. ✅ Générer une clé SSH et l'ajouter à GitHub
-4. ✅ Cloner le repository dotfiles dans `~/dotfiles`
-5. ✅ **Lancer automatiquement le menu interactif d'installation**
+1. ✅ **Vérifier et installer Git** si nécessaire (pacman/apt/dnf)
+2. ✅ **Configurer Git** (nom et email) avec valeurs par défaut ou interactif
+3. ✅ **Configurer credential helper** (cache pour 15 minutes)
+4. ✅ **Générer clé SSH ED25519** si absente (avec email configuré)
+5. ✅ **Copier clé publique** dans presse-papier automatiquement
+6. ✅ **Ouvrir GitHub** pour ajouter la clé SSH
+7. ✅ **Tester connexion GitHub SSH** (vérifie `ssh -T git@github.com`)
+8. ✅ **Cloner le repository dotfiles** dans `~/dotfiles` si inexistant
+9. ✅ **Mettre à jour** si repo existe déjà (`git pull`)
+10. ✅ **Demander choix du shell** (Zsh/Fish/Les deux)
+11. ✅ **Créer symlinks** si demandé
+12. ✅ **Lancer automatiquement le menu interactif d'installation** (`setup.sh`)
 
 Le menu interactif affiche :
 - 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
-- 🎯 **Toutes les options disponibles** pour installer/configurer
+- 🎯 **Toutes les options disponibles** pour installer/configurer (50-70+ options)
 - ✅ **Indications claires** sur quelle option choisir pour chaque composant
+- 📋 **Logs d'installation** pour tracer toutes les actions
 
 ### Après l'installation
 
 Une fois le menu lancé, vous pouvez :
-- Choisir les options que vous voulez installer
-- Voir l'état de votre installation en haut du menu
-- Utiliser l'option **22** pour valider complètement votre setup
+- **Option 50** : Afficher ce qui manque (état détaillé, scrollable)
+- **Option 51** : Installer éléments manquants un par un (menu interactif)
+- **Option 52** : Installer tout ce qui manque automatiquement
+- **Option 53** : Afficher logs d'installation (voir ce qui a été fait, quand, pourquoi)
+- Choisir les options que vous voulez installer (1-27)
+- Désinstaller individuellement (options 60-70)
+- Utiliser l'option **23** pour valider complètement votre setup (validation exhaustive 117+ vérifications)
+- Utiliser l'option **28** pour restaurer depuis Git (annuler modifications locales)
 - Utiliser l'option **0** pour quitter (vous pouvez relancer `cd ~/dotfiles && bash setup.sh` plus tard)
 
 ### Commandes utiles après installation
@@ -422,6 +435,47 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 - **Fedora** : Dépôt officiel Brave
 - **Autres** : Installation manuelle ou Flatpak
 
+## 📊 Options principales du menu (setup.sh)
+
+### Installation & Détection (50-53)
+- **50** : Afficher ce qui manque (état, scrollable via less)
+- **51** : Installer éléments manquants (un par un, menu interactif)
+- **52** : Installer tout ce qui manque (automatique, avec logs)
+- **53** : Afficher logs d'installation (filtres, statistiques, scrollable)
+
+### Désinstallation individuelle (60-70)
+- **60** : Désinstaller configuration Git
+- **61** : Désinstaller configuration remote Git
+- **62** : Désinstaller paquets de base
+- **63** : Désinstaller gestionnaires de paquets (yay, snap, flatpak)
+- **64** : Désinstaller Brave Browser
+- **65** : Désinstaller Cursor IDE
+- **66** : Désinstaller Docker & Docker Compose
+- **67** : Désinstaller Go (Golang)
+- **68** : Désinstaller yay (AUR helper)
+- **69** : Désinstaller auto-sync Git
+- **70** : Désinstaller symlinks
+
+### Autres options importantes
+- **23** : Validation complète du setup (117+ vérifications exhaustives)
+- **28** : Restaurer depuis Git (annuler modifications locales, restaurer fichiers supprimés)
+- **26-27** : Migration shell (Fish ↔ Zsh), Changer shell par défaut
+
+## 📝 Système de logs d'installation
+
+Toutes les installations et configurations sont automatiquement tracées dans `~/dotfiles/install.log` :
+
+- ✅ **Format** : `[timestamp] [action] [status] component | details`
+- ✅ **Actions tracées** : install, config, uninstall, test, run
+- ✅ **Statuts** : success, failed, skipped, info
+- ✅ **Navigation** : Pagination via less, filtres par action/composant
+- ✅ **Statistiques** : Total, réussies, échouées, ignorées
+
+Consulter les logs via **Option 53** du menu ou directement :
+```bash
+less ~/dotfiles/install.log
+```
+
 ## 📦 Scripts Modulaires
 
 Structure organisée des scripts dans `scripts/` :
@@ -450,10 +504,26 @@ scripts/
 │
 ├── sync/                # Synchronisation Git
 │   ├── git_auto_sync.sh         # Script de synchronisation
-│   └── install_auto_sync.sh     # Installation systemd timer
+│   ├── install_auto_sync.sh     # Installation systemd timer
+│   └── restore_from_git.sh      # Restaurer depuis Git (option 28)
 │
 ├── test/                 # Validation & tests
-│   └── validate_setup.sh         # Validation complète du setup
+│   └── validate_setup.sh         # Validation complète (117+ vérifications)
+│
+├── lib/                  # Bibliothèques communes
+│   ├── common.sh                # Fonctions communes (logging, couleurs)
+│   ├── install_logger.sh        # Système de logs d'installation
+│   └── check_missing.sh         # Détection éléments manquants
+│
+├── uninstall/            # Désinstallation individuelle
+│   ├── uninstall_git_config.sh  # Désinstaller config Git
+│   ├── uninstall_brave.sh       # Désinstaller Brave
+│   ├── uninstall_cursor.sh      # Désinstaller Cursor
+│   ├── uninstall_docker.sh      # Désinstaller Docker
+│   ├── uninstall_go.sh          # Désinstaller Go
+│   ├── uninstall_yay.sh         # Désinstaller yay
+│   ├── uninstall_auto_sync.sh   # Désinstaller auto-sync
+│   └── uninstall_symlinks.sh    # Désinstaller symlinks
 │
 └── vm/                   # Gestion VM
     └── create_test_vm.sh          # Création VM de test
@@ -483,14 +553,33 @@ Via le menu setup.sh (option 22) ou directement :
 bash ~/dotfiles/scripts/test/validate_setup.sh
 ```
 
-### Vérifications effectuées
+### Vérifications effectuées (117+ vérifications)
 
-- ✅ **Fonctions ZSH** : add_alias, add_to_path, clean_path
-- ✅ **PATH** : Go, Flutter, Android SDK, Dart
-- ✅ **Services** : systemd timer, Docker, SSH agent
-- ✅ **Git** : user.name, user.email, credential.helper, SSH key
-- ✅ **Outils** : Go, Docker, Cursor, yay, make, gcc, cmake
-- ✅ **Fichiers** : zshrc_custom, env.sh, aliases.zsh, etc.
+**Structure dotfiles** :
+- ✅ Fichiers racine (bootstrap.sh, setup.sh, Makefile, README, STATUS, STRUCTURE, zshrc)
+- ✅ Bibliothèque commune (lib/common.sh, lib/install_logger.sh, lib/check_missing.sh)
+- ✅ Structure ZSH/Fish complète (zshrc_custom, env.sh, aliases.zsh, path_log.txt, PATH_SAVE)
+
+**Scripts** :
+- ✅ Scripts d'installation (12 scripts : packages_base, install_docker, install_go, etc.)
+- ✅ Scripts configuration (6 scripts : git_config, create_symlinks, qemu_*, etc.)
+- ✅ Scripts synchronisation (3 scripts : git_auto_sync, install_auto_sync, restore_from_git)
+- ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
+
+**Fonctions ZSH** :
+- ✅ Gestionnaires (6 : pathman, netman, aliaman, miscman, searchman, cyberman)
+- ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
+- ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
+- ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)
+
+**Installations** :
+- ✅ Fonctions ZSH (add_alias, add_to_path, clean_path)
+- ✅ PATH (Go, Flutter, Android SDK, Dart)
+- ✅ Services (systemd timer, Docker, SSH agent)
+- ✅ Git (user.name, user.email, credential.helper, SSH key)
+- ✅ Outils (Go, Docker, Cursor, yay, make, gcc, cmake)
+- ✅ Répertoires (zsh/functions, dev/, misc/, cyber/, scripts/*)
+- ✅ Symlinks (.zshrc, .gitconfig)
 
 ### Rapport
 
@@ -602,14 +691,38 @@ grep "source ~/dotfiles" ~/.zshrc
 
 ## 🔄 Workflow complet (nouvelle machine)
 
-1. **Installer Manjaro**
-2. **Installer Git** : `sudo pacman -S git`
-3. **Cloner dotfiles** : `git clone git@github.com:PavelDelhomme/dotfiles.git ~/dotfiles`
-4. **Lancer setup** : `bash ~/dotfiles/setup.sh`
-5. **Répondre aux prompts** (nom, email, installation système)
-6. **Redémarrer**
-7. **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
-8. **Configuration apps** : Cursor login, Proton Pass
+### Méthode automatique (recommandée)
+
+**Une seule commande** pour tout faire :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+```
+
+Cette commande fait automatiquement :
+1. ✅ Installation Git (si nécessaire)
+2. ✅ Configuration Git (nom, email, credential helper)
+3. ✅ Génération clé SSH ED25519 (si absente)
+4. ✅ Test connexion GitHub SSH (`ssh -T git@github.com`)
+5. ✅ Clone repository dotfiles (ou `git pull` si existe déjà)
+6. ✅ Choix du shell (Zsh/Fish/Les deux)
+7. ✅ Création symlinks (optionnel)
+8. ✅ Lancement menu interactif `setup.sh`
+
+### Dans le menu setup.sh
+
+1. **Voir ce qui manque** : Option 50
+2. **Installer individuellement** : Option 51 (un par un) ou Option 52 (tout automatique)
+3. **Suivre les logs** : Option 53 pour voir ce qui est fait
+4. **Valider installation** : Option 23 (validation exhaustive)
+5. **Configurer auto-sync** : Option 12 (synchronisation automatique Git)
+
+### Après installation
+
+- **Redémarrer** pour appliquer toutes les configurations
+- **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
+- **Configuration apps** : Cursor login, Proton Pass
+- **Consulter logs** : Option 53 ou `less ~/dotfiles/install.log`
 
 ## 🔄 Rollback / Désinstallation
 

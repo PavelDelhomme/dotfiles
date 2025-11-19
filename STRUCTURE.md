@@ -3,8 +3,8 @@
 ## Fichiers principaux à la racine
 
 - `Makefile` - **Interface standardisée** avec `make` pour toutes les opérations (recommandé)
-- `bootstrap.sh` - Script principal pour installer depuis zéro (curl) - **Configuration Git automatique**
-- `setup.sh` - Menu interactif modulaire pour installer/configurer - **24 options disponibles**
+- `bootstrap.sh` - Script principal pour installer depuis zéro (curl) - **Configuration Git automatique + Test SSH GitHub + Clone repo + Lancement menu**
+- `setup.sh` - Menu interactif modulaire pour installer/configurer - **70+ options disponibles**
 
 ## Structure scripts/
 
@@ -37,15 +37,32 @@ scripts/
 │
 ├── sync/                       # Synchronisation Git
 │   ├── git_auto_sync.sh        # Script de synchronisation (pull/push)
-│   └── install_auto_sync.sh    # Installation systemd timer
+│   ├── install_auto_sync.sh    # Installation systemd timer
+│   └── restore_from_git.sh     # Restaurer depuis Git (option 28)
 │
 ├── test/                       # Validation & tests
-│   └── validate_setup.sh       # Validation complète du setup
+│   └── validate_setup.sh       # Validation complète du setup (117+ vérifications)
+│
+├── lib/                        # Bibliothèques communes
+│   ├── common.sh               # Fonctions communes (logging, couleurs)
+│   ├── install_logger.sh       # Système de logs d'installation
+│   └── check_missing.sh        # Détection éléments manquants
 │
 ├── uninstall/                  # Désinstallation et rollback
-│   ├── rollback_all.sh         # Rollback complet (désinstaller tout)
+│   ├── rollback_all.sh         # Rollback complet (désinstaller tout) - Option 99
 │   ├── rollback_git.sh         # Rollback Git uniquement
-│   └── reset_all.sh            # Réinitialisation complète (rollback + suppression + réinstallation)
+│   ├── reset_all.sh            # Réinitialisation complète (rollback + suppression + réinstallation) - Option 98
+│   ├── uninstall_git_config.sh # Désinstaller config Git - Option 60
+│   ├── uninstall_git_remote.sh # Désinstaller remote Git - Option 61
+│   ├── uninstall_base_packages.sh # Désinstaller paquets de base - Option 62
+│   ├── uninstall_package_managers.sh # Désinstaller gestionnaires - Option 63
+│   ├── uninstall_brave.sh      # Désinstaller Brave - Option 64
+│   ├── uninstall_cursor.sh     # Désinstaller Cursor - Option 65
+│   ├── uninstall_docker.sh     # Désinstaller Docker - Option 66
+│   ├── uninstall_go.sh         # Désinstaller Go - Option 67
+│   ├── uninstall_yay.sh        # Désinstaller yay - Option 68
+│   ├── uninstall_auto_sync.sh  # Désinstaller auto-sync - Option 69
+│   └── uninstall_symlinks.sh   # Désinstaller symlinks - Option 70
 │
 └── vm/                         # Gestion VM
     └── create_test_vm.sh       # Création VM de test
@@ -79,15 +96,26 @@ scripts/
 
 | Script | Description | Options menu |
 |--------|-------------|--------------|
-| `validate_setup.sh` | Validation complète du setup. Vérifie fonctions, PATH, services, Git, outils, symlinks, NVIDIA. | Option 22 |
+| `test/validate_setup.sh` | Validation complète du setup (117+ vérifications exhaustives). Vérifie structure, scripts, fonctions, PATH, services, Git, outils, symlinks, NVIDIA. | Option 23 |
 
 ### Scripts de désinstallation (scripts/uninstall/)
 
 | Script | Description | Options menu |
 |--------|-------------|--------------|
-| `rollback_all.sh` | Rollback complet - Désinstalle tout ce qui a été installé et configuré | Option 99 |
-| `rollback_git.sh` | Rollback Git uniquement - Revenir à une version précédente | - |
-| `reset_all.sh` | Réinitialisation complète - Rollback + suppression dotfiles + réinstallation | Option 98 |
+| `uninstall/rollback_all.sh` | Rollback complet - Désinstalle tout ce qui a été installé et configuré | Option 99 |
+| `uninstall/rollback_git.sh` | Rollback Git uniquement - Revenir à une version précédente | - |
+| `uninstall/reset_all.sh` | Réinitialisation complète - Rollback + suppression dotfiles + réinstallation | Option 98 |
+| `uninstall/uninstall_git_config.sh` | Désinstaller configuration Git (user.name, user.email, credential.helper) | Option 60 |
+| `uninstall/uninstall_git_remote.sh` | Désinstaller ou réinitialiser remote Git (origin) | Option 61 |
+| `uninstall/uninstall_base_packages.sh` | Désinstaller paquets de base (xclip, curl, wget, make, cmake, gcc, git, base-devel, zsh, btop) | Option 62 |
+| `uninstall/uninstall_package_managers.sh` | Désinstaller gestionnaires de paquets (yay, snapd, flatpak) | Option 63 |
+| `uninstall/uninstall_brave.sh` | Désinstaller Brave Browser (+ dépôt optionnel) | Option 64 |
+| `uninstall/uninstall_cursor.sh` | Désinstaller Cursor IDE (AppImage, config, cache, alias) | Option 65 |
+| `uninstall/uninstall_docker.sh` | Désinstaller Docker & Docker Compose (+ conteneurs/images optionnels) | Option 66 |
+| `uninstall/uninstall_go.sh` | Désinstaller Go (Golang) (+ GOPATH/GOROOT optionnels) | Option 67 |
+| `uninstall/uninstall_yay.sh` | Désinstaller yay AUR helper (Arch Linux uniquement) | Option 68 |
+| `uninstall/uninstall_auto_sync.sh` | Désinstaller auto-sync Git (systemd timer/service) | Option 69 |
+| `uninstall/uninstall_symlinks.sh` | Désinstaller symlinks (.zshrc, .gitconfig, .ssh, etc.) | Option 70 |
 
 ### Scripts de configuration (scripts/config/)
 
@@ -150,30 +178,42 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 ```
 
 **Ce que fait bootstrap.sh :**
-1. Installe Git si nécessaire
-2. Configure l'identité Git (compte perso par défaut)
-3. Configure credential helper (cache)
-4. Génère clé SSH ED25519 si absente
-5. Copie clé publique dans presse-papier
-6. Ouvre GitHub pour ajouter la clé
-7. Teste la connexion SSH
-8. Clone le repo dotfiles
-9. Lance setup.sh (menu interactif)
+1. ✅ Vérifie et installe Git si nécessaire (pacman/apt/dnf)
+2. ✅ Configure Git (nom et email) avec valeurs par défaut ou interactif
+3. ✅ Configure credential helper (cache pour 15 minutes)
+4. ✅ Génère clé SSH ED25519 si absente (avec email configuré)
+5. ✅ Copie clé publique dans presse-papier automatiquement
+6. ✅ Ouvre GitHub pour ajouter la clé SSH
+7. ✅ **Teste connexion GitHub SSH** (`ssh -T git@github.com`) - Vérifie que GitHub est accessible
+8. ✅ Clone le repo dotfiles dans `~/dotfiles` si inexistant
+9. ✅ Met à jour si repo existe déjà (`git pull`)
+10. ✅ Demande choix du shell (Zsh/Fish/Les deux)
+11. ✅ Crée symlinks si demandé
+12. ✅ Lance automatiquement setup.sh (menu interactif)
 
 ### 2. Menu interactif (setup.sh)
 
-**Options principales :**
+**Options principales (70+ options) :**
 - 1-2 : Configuration Git
 - 3-4 : Installation paquets de base et gestionnaires
 - 5-7 : Configuration QEMU/KVM
 - 8-9 : Installation Cursor et PortProton
 - 10 : Installation complète système (avec prompts optionnels)
 - 11 : Configuration complète QEMU
-- 12-14 : Auto-sync Git (installation, test, statut)
-- 15-19 : Installations Docker, Brave, yay, Go
-- 20 : Recharger configuration ZSH
-- 21 : Installer fonctions USB test
-- 22 : Validation complète du setup
+- 12-15 : Auto-sync Git (installation, activer/désactiver, test, statut)
+- 16-19 : Installations Docker, Brave, yay, Go
+- 20-22 : Recharger configuration ZSH, Installer fonctions USB test, Créer symlinks
+- 23 : Validation complète du setup (117+ vérifications exhaustives)
+- 24 : Créer symlinks (centraliser configuration)
+- 25 : Sauvegarde manuelle (commit + push Git)
+- 26-27 : Migration shell (Fish ↔ Zsh), Changer shell par défaut
+- 28 : Restaurer depuis Git (annuler modifications locales, restaurer fichiers supprimés)
+- 50 : Afficher ce qui manque (état détaillé, scrollable via less)
+- 51 : Installer éléments manquants un par un (menu interactif)
+- 52 : Installer tout ce qui manque automatiquement (avec logs)
+- 53 : Afficher logs d'installation (voir ce qui a été fait, quand, pourquoi)
+- 60-70 : Désinstallation individuelle (config Git, remote Git, paquets base, gestionnaires, Brave, Cursor, Docker, Go, yay, auto-sync, symlinks)
+- 98-99 : RÉINITIALISATION complète, ROLLBACK complet
 
 ### 3. Cas d'usage
 
@@ -215,14 +255,21 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 
 ## Ordre d'exécution recommandé
 
-1. **bootstrap.sh** → Configuration Git + Clone repo
+1. **bootstrap.sh** → Installation Git + Configuration Git + Test SSH GitHub + Clone repo + Lancement menu
+2. **setup.sh option 50** → Voir ce qui manque (état détaillé)
+3. **setup.sh option 52** → Installer tout ce qui manque automatiquement (OU option 51 pour installer un par un)
+4. **setup.sh option 23** → Valider le setup complet (117+ vérifications)
+5. **setup.sh option 53** → Consulter les logs d'installation (voir ce qui a été fait)
+
+**Ou manuellement :**
+1. **bootstrap.sh** → Configuration Git + Clone repo + Lancement menu
 2. **setup.sh option 3-4** → Paquets de base + Gestionnaires
 3. **setup.sh option 18** → Installer yay (si Arch)
-4. **setup.sh option 15** → Installer Docker
+4. **setup.sh option 16** → Installer Docker
 5. **setup.sh option 8-9** → Installer Cursor + PortProton
 6. **setup.sh option 19** → Installer Go
 7. **setup.sh option 12** → Configurer auto-sync Git
-8. **setup.sh option 22** → Valider le setup
+8. **setup.sh option 23** → Valider le setup
 
 ## Structure zsh/functions/
 

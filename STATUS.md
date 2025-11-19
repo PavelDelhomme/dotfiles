@@ -599,7 +599,7 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.5.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/)
+**Version :** 2.6.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git)
 
 ---
 
@@ -644,4 +644,114 @@ curl | bash bootstrap.sh
 - ✅ `misc/clipboard/path.sh` - Nouveau
 - ✅ `misc/clipboard/text.sh` - Nouveau
 - ✅ `STRUCTURE.md` - Documentation mise à jour
+
+---
+
+## 🚀 PHASE 19 : Système de logs complet et désinstallation individuelle
+
+### Système de logs d'installation
+- ✅ **Nouveau fichier** : `scripts/lib/install_logger.sh`
+  - `log_install_action()` - Logger toutes les actions (install/config/uninstall/test) avec timestamp, statut, détails
+  - `show_install_logs()` - Afficher logs avec pagination (less)
+  - `get_install_summary()` - Statistiques (réussies/échouées/ignorées)
+  - `get_recent_actions()` - Dernières actions effectuées
+- ✅ **Fichier de log** : `~/dotfiles/install.log`
+  - Format: `[timestamp] [action] [status] component | details`
+  - Trace: QUOI, QUAND, POURQUOI, RÉSULTAT
+  - Toutes les installations via setup.sh sont automatiquement loggées
+
+### Système de détection des éléments manquants
+- ✅ **Nouveau fichier** : `scripts/lib/check_missing.sh`
+  - `detect_missing_components()` - Détecte tous les éléments manquants
+  - `show_missing_components()` - Affiche de manière organisée (scrollable via less)
+  - `get_missing_list()` - Liste pour scripts
+- ✅ **Vérifications complètes** : paquets base, gestionnaires, applications, outils, config Git, remote, auto-sync, symlinks
+- ✅ **Groupement par catégorie** : commandes, configs, services, symlinks
+
+### Réorganisation options 50-53 dans setup.sh
+- ✅ **Option 50** : Afficher ce qui manque (état uniquement, scrollable via less)
+  * Utilise `show_missing_components()` pour affichage organisé
+  * Groupement par catégories claires
+  * Pagination automatique via less
+- ✅ **Option 51** : Installer éléments manquants (un par un)
+  * Liste interactive de tous les éléments manquants
+  * Choix numéroté pour installer individuellement
+  * Logging automatique de chaque action
+- ✅ **Option 52** : Installer tout ce qui manque (automatique)
+  * Installation automatique de TOUS les composants manquants
+  * Détection intelligente de ce qui est déjà installé
+  * Logging complet de chaque étape (success/failed/skipped)
+- ✅ **Option 53** : Afficher logs d'installation (NOUVEAU)
+  * Menu interactif pour consulter les logs
+  * Options: dernières 50/100 lignes, toutes, filtrer par action/composant, résumé
+  * Pagination via less pour navigation facile
+  * Statistiques complètes (total, réussies, échouées, ignorées)
+
+### Désinstallation individuelle (options 60-70)
+- ✅ **13 nouveaux scripts** dans `scripts/uninstall/` :
+  * `uninstall_git_config.sh` - Supprime user.name, user.email, credential.helper
+  * `uninstall_git_remote.sh` - Supprime ou réinitialise remote origin
+  * `uninstall_base_packages.sh` - Supprime paquets de base
+  * `uninstall_package_managers.sh` - Supprime yay, snapd, flatpak
+  * `uninstall_brave.sh` - Supprime Brave Browser + dépôt optionnel
+  * `uninstall_cursor.sh` - Supprime Cursor IDE (AppImage, config, cache, alias)
+  * `uninstall_docker.sh` - Supprime Docker & Docker Compose (+ conteneurs/images optionnels)
+  * `uninstall_go.sh` - Supprime Go (+ GOPATH/GOROOT optionnels)
+  * `uninstall_yay.sh` - Supprime yay AUR helper (Arch Linux uniquement)
+  * `uninstall_auto_sync.sh` - Supprime auto-sync Git (systemd timer/service)
+  * `uninstall_symlinks.sh` - Supprime symlinks (.zshrc, .gitconfig, .ssh, etc.)
+- ✅ **Intégration dans setup.sh** : Options 60-70 dans le menu
+- ✅ **Fonctionnalités** :
+  * Confirmation obligatoire avant désinstallation (tapez 'OUI')
+  * Options interactives (supprimer dépôts, cache, config, etc.)
+  * Support multi-distributions (Arch, Debian, Fedora)
+  * Détection automatique des installations
+  * Messages clairs avec solutions suggérées
+
+### Restaurer depuis Git (option 28)
+- ✅ **Nouveau script** : `scripts/sync/restore_from_git.sh`
+  - Restaure l'état du repo depuis origin/main
+  - Annule toutes les modifications locales
+  - Peut restaurer un fichier spécifique ou tous les fichiers
+  - Options: restauration fichiers modifiés, reset hard complet
+- ✅ **Intégration dans setup.sh** : Option 28 avec sous-menu (restaurer tous fichiers, fichier spécifique, reset hard)
+- ✅ **Via Makefile** : Commande `make restore`
+
+### Validation exhaustive (validate_setup.sh)
+- ✅ **117+ vérifications au total** :
+  * Structure dotfiles (7 fichiers racine, bibliothèque commune)
+  * Scripts d'installation (12 scripts)
+  * Scripts configuration (6 scripts)
+  * Scripts synchronisation (3 scripts)
+  * Scripts désinstallation (13 scripts)
+  * Scripts migration (2 scripts)
+  * Fonctions ZSH - Gestionnaires (6)
+  * Fonctions ZSH - Dev (6)
+  * Fonctions ZSH - Misc (9)
+  * Fonctions ZSH - Cyber (structure complète + fonctions clés)
+  * Fonctions ZSH - Autres (git, utils)
+  * Répertoires essentiels (10)
+  * Variables d'environnement
+  * Symlinks
+  * + toutes les vérifications précédentes (PATH, services, Git, outils, NVIDIA)
+- ✅ **Rapport détaillé** : Total vérifications, réussies, échecs, avertissements
+- ✅ **Solutions suggérées** : Pour chaque problème détecté
+
+### Fichiers créés/modifiés
+- ✅ `scripts/lib/install_logger.sh` - Système de logs complet
+- ✅ `scripts/lib/check_missing.sh` - Détection éléments manquants
+- ✅ `scripts/sync/restore_from_git.sh` - Restaurer depuis Git
+- ✅ `scripts/uninstall/uninstall_*.sh` - 11 nouveaux scripts de désinstallation individuelle
+- ✅ `setup.sh` - Réorganisation options 50-53, ajout 60-70, 28
+- ✅ `scripts/test/validate_setup.sh` - Validation exhaustive (117+ vérifications)
+- ✅ `.gitignore` - Ajout install.log
+- ✅ `README.md` - Documentation mise à jour
+- ✅ `STATUS.md` - Documentation mise à jour
+
+### Intégration système de logs
+- ✅ `run_script()` modifié pour logger automatiquement :
+  * Log début d'exécution (info)
+  * Log succès/échec après exécution
+- ✅ Toutes les installations via setup.sh sont loggées
+- ✅ Format clair permettant de tracer: QUOI, QUAND, POURQUOI, RÉSULTAT
 
