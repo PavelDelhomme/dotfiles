@@ -121,9 +121,14 @@ fi
 log_section "Vérifications services systemd"
 
 if systemctl --user is-active --quiet dotfiles-sync.timer 2>/dev/null; then
-    check_pass "Timer auto-sync actif"
+    NEXT_RUN=$(systemctl --user list-timers dotfiles-sync.timer --no-legend 2>/dev/null | awk '{print $1, $2, $3}' | head -n1)
+    check_pass "Timer auto-sync actif (prochain: $NEXT_RUN)"
+elif systemctl --user is-enabled --quiet dotfiles-sync.timer 2>/dev/null; then
+    check_warn "Timer auto-sync activé mais arrêté"
+    echo "  → Solution: systemctl --user start dotfiles-sync.timer"
 else
-    check_warn "Timer auto-sync non actif (optionnel)"
+    check_warn "Timer auto-sync non configuré"
+    echo "  → Solution: setup.sh option 12 (Installation auto-sync Git)"
 fi
 
 if systemctl is-active --quiet docker 2>/dev/null; then
@@ -137,7 +142,9 @@ if command -v docker &> /dev/null; then
     if docker ps &> /dev/null; then
         check_pass "Permissions Docker OK (utilisateur dans groupe docker)"
     else
-        check_fail "Permissions Docker refusées (ajoutez l'utilisateur au groupe docker: sudo usermod -aG docker \$USER)"
+        check_fail "Permissions Docker refusées"
+        echo "  → Solution: sudo usermod -aG docker \$USER"
+        echo "  → Puis: déconnectez-vous et reconnectez-vous"
     fi
 fi
 
@@ -181,6 +188,9 @@ if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
     check_pass "Connexion GitHub SSH OK"
 else
     check_warn "Connexion GitHub SSH non vérifiée"
+    echo "  → Vérifiez que votre clé SSH est ajoutée sur GitHub"
+    echo "  → URL: https://github.com/settings/keys"
+    echo "  → Test manuel: ssh -T git@github.com"
 fi
 
 ################################################################################
@@ -314,15 +324,21 @@ if [ $FAILED -eq 0 ]; then
     echo -e "${GREEN}✅ Setup validé avec succès!${NC}"
     if [ $WARNINGS -gt 0 ]; then
         echo -e "${YELLOW}⚠️ $WARNINGS avertissements (non critiques)${NC}"
+        echo ""
+        echo "Pour corriger les avertissements:"
+        echo "  - Utilisez setup.sh option 50 (Installer tout ce qui manque)"
+        echo "  - Ou installez manuellement les composants manquants"
     fi
     exit 0
 else
-    echo -e "${YELLOW}⚠️ $FAILED problème(s) détecté(s) (non critiques)${NC}"
+    echo -e "${RED}❌ $FAILED problème(s) critique(s) détecté(s)${NC}"
     echo ""
     echo "Solutions suggérées:"
-    echo "  1. Relancez setup.sh pour installer les composants manquants"
-    echo "  2. Rechargez votre shell: exec zsh"
-    echo "  3. Vérifiez les logs pour plus de détails"
+    echo "  1. Utilisez setup.sh option 50 (Installer tout ce qui manque)"
+    echo "  2. Ou installez manuellement les composants manquants via le menu"
+    echo "  3. Rechargez votre shell: exec zsh"
+    echo "  4. Relancez la validation: setup.sh option 23"
+    echo ""
     # Ne pas faire échouer le script, juste afficher les problèmes
     exit 0
 fi

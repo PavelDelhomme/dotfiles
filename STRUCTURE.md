@@ -263,14 +263,42 @@ zsh/functions/
 │
 ├── git/                     # Fonctions Git
 │   └── git_functions.sh
-├── dev/                     # Fonctions développement
-│   ├── cyna.sh, weedlyweb.sh
-├── misc/                    # Fonctions diverses
-│   ├── colorpasswd.sh, copy_file.sh, copy_tree.sh
-│   ├── create_backup.sh, decrypt_file.sh, encrypt_file.sh
-│   ├── extract.sh, gen_password.sh, reload_shell.sh
-│   ├── system_info.sh, usb_test_functions.zsh
-│   └── ...
+│
+├── dev/                     # Fonctions développement & DevOps
+│   ├── go.sh                # Go: build, test, run, mod, fmt, vet, clean, bench
+│   ├── c.sh                 # C/C++: compile, debug, clean, check
+│   ├── docker.sh            # Docker: build, push, cleanup, logs, exec, stats
+│   ├── make.sh              # Make: targets, clean, help, build, test, install
+│   └── projects/            # Projets spécifiques
+│       ├── cyna.sh          # Fonctions spécifiques projet CYNA
+│       └── weedlyweb.sh     # Fonctions spécifiques projet WeedlyWeb
+│
+├── misc/                    # Fonctions diverses (organisées en sous-dossiers)
+│   ├── clipboard/           # Copie presse-papier
+│   │   ├── file.sh          # copy_file
+│   │   ├── command_output.sh # copy_last_command_output
+│   │   ├── tree.sh          # copy_tree
+│   │   ├── path.sh          # copy_path, copy_filename, copy_parent
+│   │   └── text.sh          # copy_text, copy_pwd, copy_cmd
+│   │
+│   ├── security/            # Sécurité & chiffrement
+│   │   ├── encrypt_file.sh  # encrypt_file
+│   │   ├── decrypt_file.sh  # decrypt_file
+│   │   ├── password.sh      # gen_password
+│   │   └── colorpasswd.sh   # colorpasswd
+│   │
+│   ├── files/               # Gestion fichiers & archives
+│   │   └── archive.sh       # extract, archive, file_size, find_large_files, find_duplicates
+│   │
+│   ├── system/              # Système & processus
+│   │   ├── system_info.sh   # system_info
+│   │   ├── disk.sh          # disk_usage, system_clean, top_processes, disk_space, watch_directory
+│   │   ├── process.sh       # kill_process, kill_port, port_process, watch_process
+│   │   ├── reload_shell.sh  # reload_shell
+│   │   └── usb.sh           # usb_test_functions
+│   │
+│   └── backup/              # Sauvegardes
+│       └── create_backup.sh # create_backup
 └── network/                 # Fonctions réseau (utiliser netman)
 ```
 

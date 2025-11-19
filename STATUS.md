@@ -599,5 +599,49 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.4.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc)
+**Version :** 2.5.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/)
+
+---
+
+## 🚀 PHASE 18 : Réorganisation dev/ et misc/ avec nouvelles fonctions
+
+### Réorganisation dev/
+- ✅ **Projets spécifiques déplacés** : `dev/projects/` pour cyna.sh et weedlyweb.sh
+- ✅ **Nouvelles fonctions génériques** :
+  - `go.sh` - Build, test, run, mod, fmt, vet, clean, bench, release (10 fonctions)
+  - `c.sh` - Compile C/C++, debug, clean, check (6 fonctions)
+  - `docker.sh` - Build, push, cleanup, logs, exec, stats, compose (14 fonctions)
+  - `make.sh` - Targets, clean, help, build, test, install (6 fonctions)
+- ✅ **Structure claire** : Projets spécifiques séparés des fonctions génériques
+
+### Réorganisation misc/
+- ✅ **Organisation en sous-dossiers logiques** :
+  - `clipboard/` - Copie presse-papier (5 fonctions: file, command_output, tree, path, text)
+  - `security/` - Sécurité & chiffrement (4 fonctions: encrypt, decrypt, password, colorpasswd)
+  - `files/` - Gestion fichiers & archives (5 fonctions: extract, archive, file_size, find_large_files, find_duplicates)
+  - `system/` - Système & processus (8 fonctions: system_info, disk_usage, system_clean, top_processes, disk_space, watch_directory, kill_process, kill_port, port_process, watch_process)
+  - `backup/` - Sauvegardes (1 fonction: create_backup)
+- ✅ **Fichiers renommés** : Noms plus cohérents (file.sh au lieu de copy_file.sh, etc.)
+- ✅ **Nouvelles fonctions ajoutées** :
+  - `clipboard/path.sh` - copy_path, copy_filename, copy_parent
+  - `clipboard/text.sh` - copy_text, copy_pwd, copy_cmd
+  - `files/archive.sh` - archive, file_size, find_large_files, find_duplicates
+  - `system/disk.sh` - disk_usage, system_clean, top_processes, disk_space, watch_directory
+  - `system/process.sh` - kill_process, kill_port, port_process, watch_process
+
+### Fichiers créés/modifiés
+- ✅ `dev/go.sh` - 10 fonctions Go
+- ✅ `dev/c.sh` - 6 fonctions C/C++
+- ✅ `dev/docker.sh` - 14 fonctions Docker
+- ✅ `dev/make.sh` - 6 fonctions Make
+- ✅ `dev/projects/cyna.sh` - Déplacé depuis dev/
+- ✅ `dev/projects/weedlyweb.sh` - Déplacé depuis dev/
+- ✅ `misc/clipboard/*.sh` - 5 fichiers réorganisés
+- ✅ `misc/security/*.sh` - 4 fichiers réorganisés
+- ✅ `misc/files/archive.sh` - Nouveau (extract + nouvelles fonctions)
+- ✅ `misc/system/disk.sh` - Nouveau (system_info + nouvelles fonctions)
+- ✅ `misc/system/process.sh` - Nouveau
+- ✅ `misc/clipboard/path.sh` - Nouveau
+- ✅ `misc/clipboard/text.sh` - Nouveau
+- ✅ `STRUCTURE.md` - Documentation mise à jour
 

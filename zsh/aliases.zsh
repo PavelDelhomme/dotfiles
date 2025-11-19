@@ -45,9 +45,7 @@ alias cd_promanage="cd /home/pactivisme/Documents/Projets/Perso/Promanage/"
 alias logs_cyna_backend="docker logs cyna_backend -f"
 alias cyna_restart="docker compose down && docker compose up --build"
 alias yays="yay -S"
-
 alias run_cyna="cd ~/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_backend/cyna_backend && docker compose up -d 2342f041cbc6 sleep 3 && docker compose logs -f 2342f041cbc6"
-
 alias cd_cyna="cd /home/pactivisme/Documents/Dev/Travail/SupDeVinci/CYNA"
 alias cd_cyna_frontend="cd /home/pactivisme/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_front"
 alias cd_cyna_backend="cd /home/pactivisme/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_backend"
