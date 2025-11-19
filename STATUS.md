@@ -439,7 +439,7 @@ make clean            # Nettoyer fichiers temporaires
 
 ### Nettoyage des dossiers obsolètes
 - ✅ Suppression des dossiers obsolètes (`path_manager/`, `alias_manager/`, `network/`, `search_manager/`, `dot_files_manager/`)
-- ✅ Déplacement des backups dans `zsh/functions/_backups/` pour centralisation
+- ✅ Suppression des backups obsolètes (`zsh/backup/` et `zsh/functions/_backups/`)
 - ✅ Mise à jour de `zshrc_custom` pour retirer les références aux anciens chemins
 
 ### Migration Fish ↔ Zsh
@@ -456,7 +456,6 @@ make clean            # Nettoyer fichiers temporaires
 - ✅ `bootstrap.sh` - Ajout menu choix shell
 - ✅ `setup.sh` - Ajout options migration et changement shell
 - ✅ `zsh/zshrc_custom` - Nettoyage références obsolètes
-- ✅ `zsh/functions/_backups/` - Centralisation des backups
 
 ---
 

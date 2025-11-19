@@ -246,11 +246,7 @@ zsh/functions/
 ├── git/                     # Fonctions Git
 ├── dev/                     # Fonctions développement
 ├── misc/                    # Fonctions diverses
-├── network/                 # Fonctions réseau (utiliser netman)
-└── _backups/                # Sauvegardes anciennes structures
-    ├── path_manager_backup_*/
-    ├── alias_manager_backup_*/
-    └── network_backup_*/
+└── network/                 # Fonctions réseau (utiliser netman)
 ```
 
 ### Gestionnaires (*man.zsh)

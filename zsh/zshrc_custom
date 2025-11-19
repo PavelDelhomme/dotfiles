@@ -31,7 +31,6 @@ echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" && echo -e "${GREEN}  ✔️ CYBERMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ CYBERMAN introuvable${NC}"
 
 # Les anciennes fonctions sont maintenant dans les gestionnaires (*man.zsh)
-# Les backups sont conservés dans zsh/functions/_backups pour référence
 
 # =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
