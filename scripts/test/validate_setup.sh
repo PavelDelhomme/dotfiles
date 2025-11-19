@@ -19,6 +19,17 @@ source "$SCRIPT_DIR/lib/common.sh" || {
     exit 1
 }
 
+# Initialiser les compteurs
+PASSED=0
+FAILED=0
+WARNINGS=0
+
+check_pass() {
+    echo -e "${GREEN}✅${NC} $1"
+    ((PASSED++))
+}
+
+check_fail() {
     echo -e "${RED}❌${NC} $1"
     ((FAILED++))
 }

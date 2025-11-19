@@ -264,7 +264,20 @@ if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
     git pull origin main || git pull origin master || true
     cd ~
     log_info "✓ Repository à jour"
-    # IMPORTANT: Continuer vers la section suivante (symlinks puis Makefile)
+    # Passer directement au menu interactif si dotfiles existe déjà
+    log_info "Passage direct au menu interactif..."
+    log_info "✅ Dotfiles présents, lancement du menu interactif..."
+    echo ""
+    
+    if [ -f "$DOTFILES_DIR/setup.sh" ]; then
+        cd "$DOTFILES_DIR" || {
+            log_error "Impossible de se déplacer dans $DOTFILES_DIR"
+            exit 1
+        }
+        bash "$DOTFILES_DIR/setup.sh"
+        exit $?
+    fi
+    # IMPORTANT: Continuer vers la section suivante si setup.sh n'existe pas
 elif [ -d "$DOTFILES_DIR" ]; then
     # Dossier existe mais n'est pas un repo git
     log_warn "Dossier $DOTFILES_DIR existe mais n'est pas un repository Git"

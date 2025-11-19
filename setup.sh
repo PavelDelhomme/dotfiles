@@ -200,22 +200,26 @@ show_menu() {
     echo "11. Configuration complète QEMU (tout)"
     echo ""
     echo "12. Configuration auto-sync Git (systemd timer)"
-    echo "13. Tester synchronisation manuellement"
-    echo "14. Afficher statut auto-sync"
+    echo "13. Activer/Désactiver auto-sync Git"
+    echo "14. Tester synchronisation manuellement"
+    echo "15. Afficher statut auto-sync"
     echo ""
-    echo "15. Installation Docker & Docker Compose"
-    echo "16. Installation Docker Desktop (optionnel)"
-    echo "17. Installation Brave Browser (optionnel)"
-    echo "18. Installation yay (AUR - Arch Linux)"
-    echo "19. Installation Go"
+    echo "16. Installation Docker & Docker Compose"
+    echo "17. Installation Docker Desktop (optionnel)"
+    echo "18. Installation Brave Browser (optionnel)"
+    echo "19. Installation yay (AUR - Arch Linux)"
+    echo "20. Installation Go"
     echo ""
-    echo "20. Recharger configuration ZSH"
-    echo "21. Installer fonctions USB test"
-    echo "22. Validation complète du setup"
-    echo "23. Créer symlinks (centraliser configuration)"
+    echo "21. Recharger configuration ZSH"
+    echo "22. Installer fonctions USB test"
+    echo "23. Validation complète du setup (détaillé)"
+    echo "24. Créer symlinks (centraliser configuration)"
+    echo "25. Sauvegarde manuelle (commit + push Git)"
     echo ""
-    echo "24. Migration shell (Fish <-> Zsh)"
-    echo "25. Changer shell par défaut"
+    echo "26. Migration shell (Fish <-> Zsh)"
+    echo "27. Changer shell par défaut"
+    echo ""
+    echo "50. INSTALLER TOUT CE QUI MANQUE (automatique)"
     echo ""
     echo "99. ROLLBACK - Désinstaller tout (ATTENTION!)"
     echo "98. RÉINITIALISATION - Remise à zéro complète (ATTENTION!)"
@@ -380,15 +384,77 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         13)
-            run_script "$SCRIPT_DIR/sync/git_auto_sync.sh" "Test synchronisation manuelle"
+            log_section "Activer/Désactiver auto-sync Git"
+            if systemctl --user is-active --quiet dotfiles-sync.timer 2>/dev/null; then
+                log_info "Auto-sync Git est actuellement ACTIF"
+                echo ""
+                echo "1. Désactiver auto-sync"
+                echo "2. Arrêter temporairement (démarre au reboot)"
+                echo "0. Annuler"
+                echo ""
+                printf "Choix: "
+                read -r sync_choice
+                case "$sync_choice" in
+                    1)
+                        systemctl --user stop dotfiles-sync.timer
+                        systemctl --user disable dotfiles-sync.timer
+                        log_info "✓ Auto-sync désactivé"
+                        ;;
+                    2)
+                        systemctl --user stop dotfiles-sync.timer
+                        log_info "✓ Auto-sync arrêté (redémarrera au reboot)"
+                        ;;
+                    0)
+                        log_info "Opération annulée"
+                        ;;
+                esac
+            else
+                log_warn "Auto-sync Git est actuellement INACTIF"
+                echo ""
+                echo "1. Activer auto-sync"
+                echo "2. Installer et activer (si non installé)"
+                echo "0. Annuler"
+                echo ""
+                printf "Choix: "
+                read -r sync_choice
+                case "$sync_choice" in
+                    1)
+                        if systemctl --user list-unit-files | grep -q "dotfiles-sync.timer"; then
+                            systemctl --user start dotfiles-sync.timer
+                            systemctl --user enable dotfiles-sync.timer
+                            log_info "✓ Auto-sync activé"
+                        else
+                            log_error "Timer non installé, utilisez l'option 12 pour l'installer"
+                        fi
+                        ;;
+                    2)
+                        run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Installation auto-sync Git"
+                        ;;
+                    0)
+                        log_info "Opération annulée"
+                        ;;
+                esac
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         14)
-            log_section "Statut auto-sync"
-            systemctl --user status dotfiles-sync.timer --no-pager -l || log_warn "Timer non configuré"
+            run_script "$SCRIPT_DIR/sync/git_auto_sync.sh" "Test synchronisation manuelle"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         15)
+            log_section "Statut auto-sync"
+            if systemctl --user is-active --quiet dotfiles-sync.timer 2>/dev/null; then
+                log_info "✅ Timer actif"
+                systemctl --user status dotfiles-sync.timer --no-pager -l
+            elif systemctl --user is-enabled --quiet dotfiles-sync.timer 2>/dev/null; then
+                log_warn "⚠️ Timer activé mais arrêté"
+                systemctl --user status dotfiles-sync.timer --no-pager -l
+            else
+                log_warn "❌ Timer non configuré (option 12 pour installer)"
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        16)
             run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Installation Docker & Docker Compose"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
@@ -404,16 +470,16 @@ while true; do
             run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "Installation yay (AUR)"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        19)
+        20)
             run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Installation Go"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        20)
+        21)
             log_section "Rechargement configuration ZSH"
             log_info "Rechargement de la configuration ZSH..."
             exec zsh
             ;;
-        21)
+        22)
             log_section "Installation fonctions USB test"
             USB_FUNCTIONS="$DOTFILES_DIR/zsh/functions/misc/usb_test_functions.zsh"
             if [ -f "$USB_FUNCTIONS" ]; then
@@ -434,21 +500,47 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        22)
+        23)
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        23)
+        24)
             log_section "Création des symlinks"
             run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création symlinks"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        24)
+        25)
+            log_section "Sauvegarde manuelle (Git commit + push)"
+            if [ -d "$DOTFILES_DIR/.git" ]; then
+                cd "$DOTFILES_DIR" || exit 1
+                if [ -n "$(git status --porcelain)" ]; then
+                    log_info "Modifications détectées, ajout au commit..."
+                    git add -A
+                    COMMIT_MSG="Manual backup: $(date '+%Y-%m-%d %H:%M:%S')"
+                    if git commit -m "$COMMIT_MSG"; then
+                        log_info "✓ Commit créé: $COMMIT_MSG"
+                        if git push origin main 2>/dev/null || git push origin master 2>/dev/null; then
+                            log_info "✓ Push réussi vers GitHub"
+                        else
+                            log_warn "⚠️ Push échoué (vérifiez votre connexion)"
+                        fi
+                    else
+                        log_warn "⚠️ Aucun changement à committer"
+                    fi
+                else
+                    log_info "✓ Aucune modification à sauvegarder"
+                fi
+            else
+                log_error "Ce n'est pas un dépôt Git!"
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        26)
             log_section "Migration shell (Fish <-> Zsh)"
             run_script "$SCRIPT_DIR/migrate_shell.sh" "Migration shell"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        25)
+        27)
             log_section "Changer shell par défaut"
             CURRENT_SHELL=$(basename "$SHELL" 2>/dev/null || echo "unknown")
             log_info "Shell actuel: $CURRENT_SHELL"
@@ -489,6 +581,54 @@ while true; do
             esac
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
+        50)
+            log_section "INSTALLER TOUT CE QUI MANQUE"
+            log_info "Installation automatique des composants manquants..."
+            echo ""
+            
+            # Paquets de base
+            if ! command -v git &> /dev/null || ! command -v curl &> /dev/null || ! command -v zsh &> /dev/null; then
+                log_info "Installation des paquets de base..."
+                run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            fi
+            
+            # Gestionnaires
+            if [ -f /etc/arch-release ] && ! command -v yay &> /dev/null; then
+                log_info "Installation de yay..."
+                run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "yay"
+            fi
+            
+            # Applications
+            if ! command -v cursor &> /dev/null && [ ! -f /opt/cursor.appimage ]; then
+                log_info "Installation de Cursor..."
+                run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Cursor"
+            fi
+            
+            if ! command -v docker &> /dev/null; then
+                log_info "Installation de Docker..."
+                run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Docker"
+            fi
+            
+            if ! command -v go &> /dev/null; then
+                log_info "Installation de Go..."
+                run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Go"
+            fi
+            
+            # Auto-sync
+            if ! systemctl --user is-active --quiet dotfiles-sync.timer 2>/dev/null; then
+                log_info "Installation de l'auto-sync Git..."
+                run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Auto-sync Git"
+            fi
+            
+            # Symlinks
+            if [ ! -L "$HOME/.zshrc" ] || [[ $(readlink "$HOME/.zshrc") != *"dotfiles"* ]]; then
+                log_info "Création des symlinks..."
+                run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Symlinks"
+            fi
+            
+            log_info "✓ Installation automatique terminée"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
         99)
             log_section "ROLLBACK - Désinstallation complète"
             log_warn "⚠️  ATTENTION : Cette option va désinstaller TOUT"
@@ -520,7 +660,7 @@ while true; do
         *)
             # Ce cas ne devrait jamais être atteint grâce à la validation avant
             log_error "Choix invalide: '$choice'"
-            log_info "Veuillez entrer un nombre entre 0 et 23"
+            log_info "Veuillez entrer un nombre valide (0-27, 50, 98-99)"
             sleep 2
             ;;
     esac
