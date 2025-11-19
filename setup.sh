@@ -214,6 +214,9 @@ show_menu() {
     echo "22. Validation complète du setup"
     echo "23. Créer symlinks (centraliser configuration)"
     echo ""
+    echo "24. Migration shell (Fish <-> Zsh)"
+    echo "25. Changer shell par défaut"
+    echo ""
     echo "99. ROLLBACK - Désinstaller tout (ATTENTION!)"
     echo "98. RÉINITIALISATION - Remise à zéro complète (ATTENTION!)"
     echo ""
@@ -438,6 +441,52 @@ while true; do
         23)
             log_section "Création des symlinks"
             run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création symlinks"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        24)
+            log_section "Migration shell (Fish <-> Zsh)"
+            run_script "$SCRIPT_DIR/migrate_shell.sh" "Migration shell"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        25)
+            log_section "Changer shell par défaut"
+            CURRENT_SHELL=$(basename "$SHELL" 2>/dev/null || echo "unknown")
+            log_info "Shell actuel: $CURRENT_SHELL"
+            echo ""
+            echo "1. Changer vers Zsh"
+            echo "2. Changer vers Fish"
+            echo "0. Annuler"
+            echo ""
+            printf "Choix: "
+            read -r chsh_choice
+            case "$chsh_choice" in
+                1)
+                    ZSH_PATH=$(which zsh 2>/dev/null || command -v zsh)
+                    if [ -n "$ZSH_PATH" ]; then
+                        chsh -s "$ZSH_PATH"
+                        log_info "✓ Shell par défaut changé vers Zsh"
+                        log_warn "⚠️ Déconnectez-vous et reconnectez-vous pour appliquer"
+                    else
+                        log_error "Zsh non trouvé. Installez-le d'abord."
+                    fi
+                    ;;
+                2)
+                    FISH_PATH=$(which fish 2>/dev/null || command -v fish)
+                    if [ -n "$FISH_PATH" ]; then
+                        chsh -s "$FISH_PATH"
+                        log_info "✓ Shell par défaut changé vers Fish"
+                        log_warn "⚠️ Déconnectez-vous et reconnectez-vous pour appliquer"
+                    else
+                        log_error "Fish non trouvé. Installez-le d'abord."
+                    fi
+                    ;;
+                0)
+                    log_info "Opération annulée"
+                    ;;
+                *)
+                    log_error "Choix invalide"
+                    ;;
+            esac
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         99)

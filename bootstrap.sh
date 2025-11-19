@@ -313,7 +313,57 @@ fi
 log_info "Continuation vers la création des symlinks..."
 
 ################################################################################
-# 4. CRÉER LES SYMLINKS (CENTRALISATION CONFIGURATION)
+# 4. CHOIX DU SHELL (FISH OU ZSH)
+################################################################################
+log_section "Choix du shell"
+
+CURRENT_SHELL=$(basename "$SHELL" 2>/dev/null || echo "unknown")
+DEFAULT_SHELL="zsh"
+
+echo ""
+log_info "Shell actuel détecté: $CURRENT_SHELL"
+echo ""
+echo "Quel shell souhaitez-vous configurer?"
+echo "  1. Zsh (recommandé)"
+echo "  2. Fish"
+echo "  3. Les deux (Fish et Zsh)"
+echo "  0. Passer cette étape"
+echo ""
+
+SELECTED_SHELL=""
+while [ -z "$SELECTED_SHELL" ]; do
+    printf "Votre choix [défaut: 1]: "
+    IFS= read -r shell_choice </dev/tty 2>/dev/null || read -r shell_choice
+    shell_choice=${shell_choice:-1}
+    
+    case "$shell_choice" in
+        1)
+            SELECTED_SHELL="zsh"
+            log_info "Zsh sélectionné"
+            ;;
+        2)
+            SELECTED_SHELL="fish"
+            log_info "Fish sélectionné"
+            ;;
+        3)
+            SELECTED_SHELL="both"
+            log_info "Les deux shells sélectionnés"
+            ;;
+        0)
+            SELECTED_SHELL="skip"
+            log_warn "Configuration shell ignorée"
+            ;;
+        *)
+            log_error "Choix invalide, veuillez entrer 1, 2, 3 ou 0"
+            ;;
+    esac
+done
+
+# Stocker le choix dans une variable pour setup.sh
+export SELECTED_SHELL_FOR_SETUP="$SELECTED_SHELL"
+
+################################################################################
+# 5. CRÉER LES SYMLINKS (CENTRALISATION CONFIGURATION)
 ################################################################################
 log_section "Création des symlinks pour centraliser la configuration"
 
@@ -323,7 +373,22 @@ if [ -f "$DOTFILES_DIR/scripts/config/create_symlinks.sh" ]; then
     create_symlinks=${create_symlinks:-o}
     if [[ "$create_symlinks" =~ ^[oO]$ ]]; then
         log_info "Création des symlinks..."
-        bash "$DOTFILES_DIR/scripts/config/create_symlinks.sh"
+        # Créer les symlinks selon le shell choisi
+        if [ "$SELECTED_SHELL" = "zsh" ] || [ "$SELECTED_SHELL" = "both" ]; then
+            bash "$DOTFILES_DIR/scripts/config/create_symlinks.sh"
+        fi
+        if [ "$SELECTED_SHELL" = "fish" ] || [ "$SELECTED_SHELL" = "both" ]; then
+            # Créer le symlink pour fish
+            FISH_CONFIG_DIR="$HOME/.config/fish"
+            mkdir -p "$FISH_CONFIG_DIR"
+            if [ ! -L "$FISH_CONFIG_DIR/config.fish" ]; then
+                if [ -f "$DOTFILES_DIR/fish/config.fish" ]; then
+                    [ -f "$FISH_CONFIG_DIR/config.fish" ] && mv "$FISH_CONFIG_DIR/config.fish" "$FISH_CONFIG_DIR/config.fish.backup"
+                    ln -s "$DOTFILES_DIR/fish/config.fish" "$FISH_CONFIG_DIR/config.fish" 2>/dev/null || ln -s "$DOTFILES_DIR/fish/config_custom.fish" "$FISH_CONFIG_DIR/config.fish"
+                    log_info "✓ Symlink config.fish créé pour Fish"
+                fi
+            fi
+        fi
     else
         log_warn "Création des symlinks ignorée"
     fi
@@ -336,7 +401,7 @@ fi
 log_info "Continuation vers le lancement du menu interactif..."
 
 ################################################################################
-# 5. LANCER AUTOMATIQUEMENT LE MENU INTERACTIF
+# 6. LANCER AUTOMATIQUEMENT LE MENU INTERACTIF
 ################################################################################
 log_section "Installation des dotfiles"
 
@@ -354,6 +419,9 @@ if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/setup.sh" ]; then
         log_error "Impossible de se déplacer dans $DOTFILES_DIR"
         exit 1
     }
+    
+    # Passer le shell sélectionné à setup.sh via variable d'environnement
+    export SELECTED_SHELL_FOR_SETUP
     
     # Lancer directement setup.sh
     bash "$DOTFILES_DIR/setup.sh"

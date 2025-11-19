@@ -29,16 +29,8 @@ echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh" && echo -e "${GREEN}  ✔️ MISCMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ MISCMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo -e "${GREEN}  ✔️ SEARCHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ SEARCHMAN introuvable${NC}"
 
-# Charger les fonctions utilitaires depuis les backups si disponibles
-if [ -f "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/add_to_path.sh" ]; then
-    source "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/add_to_path.sh"
-    source "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/clean_path.sh"
-    source "$DOTFILES_ZSH_PATH/functions/path_manager/backup_20250923_211933/ensure_path_log.sh" 2>/dev/null || true
-fi
-
-if [ -f "$DOTFILES_ZSH_PATH/functions/alias_manager/backup_202509_211846/add_alias.sh" ]; then
-    source "$DOTFILES_ZSH_PATH/functions/alias_manager/backup_202509_211846/add_alias.sh"
-fi
+# Les anciennes fonctions sont maintenant dans les gestionnaires (*man.zsh)
+# Les backups sont conservés dans zsh/functions/_backups pour référence
 
 # =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
