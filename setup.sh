@@ -215,6 +215,7 @@ show_menu() {
     echo "23. Validation complète du setup (détaillé)"
     echo "24. Créer symlinks (centraliser configuration)"
     echo "25. Sauvegarde manuelle (commit + push Git)"
+    echo "28. Restaurer depuis Git (annuler modifications locales)"
     echo ""
     echo "26. Migration shell (Fish <-> Zsh)"
     echo "27. Changer shell par défaut"
@@ -535,6 +536,52 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
+        28)
+            log_section "Restaurer depuis Git"
+            echo ""
+            echo "Cette option permet de restaurer l'état du repo depuis GitHub"
+            echo "et d'annuler toutes les modifications locales."
+            echo ""
+            echo "1. Restaurer tous les fichiers modifiés"
+            echo "2. Restaurer un fichier spécifique (ex: zsh/path_log.txt)"
+            echo "3. Reset hard vers origin/main (ATTENTION: supprime tout)"
+            echo "0. Annuler"
+            echo ""
+            printf "Choix: "
+            read -r restore_choice
+            case "$restore_choice" in
+                1)
+                    run_script "$SCRIPT_DIR/sync/restore_from_git.sh" "Restauration depuis Git"
+                    ;;
+                2)
+                    echo ""
+                    printf "Chemin du fichier à restaurer (ex: zsh/path_log.txt): "
+                    read -r file_path
+                    if [[ -n "$file_path" ]]; then
+                        run_script "$SCRIPT_DIR/sync/restore_from_git.sh $file_path" "Restauration fichier: $file_path"
+                    else
+                        log_warn "Chemin non fourni"
+                    fi
+                    ;;
+                3)
+                    log_warn "⚠️  ATTENTION: Cette opération va supprimer TOUTES les modifications locales"
+                    printf "Confirmer reset hard? (tapez 'OUI' en majuscules): "
+                    read -r confirm_reset
+                    if [ "$confirm_reset" = "OUI" ]; then
+                        run_script "$SCRIPT_DIR/sync/restore_from_git.sh" "Reset hard Git"
+                    else
+                        log_info "Reset hard annulé"
+                    fi
+                    ;;
+                0)
+                    log_info "Opération annulée"
+                    ;;
+                *)
+                    log_error "Choix invalide"
+                    ;;
+            esac
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
         26)
             log_section "Migration shell (Fish <-> Zsh)"
             run_script "$SCRIPT_DIR/migrate_shell.sh" "Migration shell"
@@ -660,7 +707,7 @@ while true; do
         *)
             # Ce cas ne devrait jamais être atteint grâce à la validation avant
             log_error "Choix invalide: '$choice'"
-            log_info "Veuillez entrer un nombre valide (0-27, 50, 98-99)"
+            log_info "Veuillez entrer un nombre valide (0-27, 28, 50, 98-99)"
             sleep 2
             ;;
     esac

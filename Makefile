@@ -117,6 +117,9 @@ git-remote: ## Configurer remote Git (SSH/HTTPS)
 auto-sync: ## Configurer auto-sync Git (systemd timer)
 	@bash "$(SCRIPT_DIR)/sync/install_auto_sync.sh"
 
+restore: ## Restaurer depuis Git (annuler modifications locales)
+	@bash "$(SCRIPT_DIR)/sync/restore_from_git.sh"
+
 # Installations spécifiques
 install-docker: ## Installer Docker & Docker Compose
 	@bash "$(SCRIPT_DIR)/install/dev/install_docker.sh"
