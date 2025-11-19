@@ -7,11 +7,13 @@
 
 set +e  # Ne pas arrêter sur erreurs pour continuer toutes les vérifications
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 
 # Charger la bibliothèque commune
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/common.sh" || {
+    echo "Erreur: Impossible de charger la bibliothèque commune"
+    exit 1
+}
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
     exit 1
