@@ -55,26 +55,62 @@ if [ "$SKIP_CHECK" = false ]; then
 fi
 
 ################################################################################
-# ÉTAPE 2: Téléchargement Cursor AppImage
+# ÉTAPE 2: Vérification dernière version et téléchargement Cursor AppImage
 ################################################################################
 echo ""
 echo "═══════════════════════════════════"
-echo "2. Téléchargement Cursor AppImage"
+echo "2. Vérification version et téléchargement Cursor AppImage"
 echo "═══════════════════════════════════"
 
+# Vérifier la connexion internet d'abord
+if ! curl -s --head --fail "https://cursor.com" > /dev/null 2>&1; then
+    log_error "Impossible de se connecter à cursor.com"
+    log_warn "Vérifiez votre connexion internet et votre résolution DNS"
+    exit 1
+fi
+
+log_info "Vérification de la dernière version disponible sur cursor.com..."
+
+# Télécharger la page cursor.com et chercher la version "Latest"
+# On cherche dans le HTML le badge "Latest" ou les informations de version
+CURSOR_VERSION=""
+TEMP_HTML=$(mktemp)
+
+# Télécharger la page cursor.com
+if curl -s -L "https://cursor.com" -o "$TEMP_HTML" 2>/dev/null; then
+    # Chercher le badge "Latest" ou une indication de version
+    # On peut aussi chercher dans les meta tags ou les données structurées
+    CURSOR_VERSION=$(grep -oP '(?<=Latest|latest|version|Version)[^<]*[0-9]+\.[0-9]+\.[0-9]+' "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
+    
+    # Alternative: chercher dans le texte "Download for Linux" ou similaire
+    if [ -z "$CURSOR_VERSION" ]; then
+        CURSOR_VERSION=$(grep -iE "(version|v)[\s:]+[0-9]+\.[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
+    fi
+fi
+
+rm -f "$TEMP_HTML"
+
+if [ -n "$CURSOR_VERSION" ]; then
+    log_info "Dernière version détectée: $CURSOR_VERSION"
+else
+    log_warn "Impossible de détecter la version, utilisation de la version par défaut"
+fi
+
+# URL de téléchargement pour Linux AppImage x64
 CURSOR_URL="https://downloader.cursor.sh/linux/appImage/x64"
 
 log_info "Téléchargement depuis: $CURSOR_URL"
 
-# Vérifier la connexion internet d'abord
+# Vérifier que downloader.cursor.sh est accessible
 if ! curl -s --head --fail "https://downloader.cursor.sh" > /dev/null 2>&1; then
     log_error "Impossible de se connecter à downloader.cursor.sh"
     log_warn "Vérifiez votre connexion internet et votre résolution DNS"
-    log_warn "Vous pouvez essayer: ping downloader.cursor.sh"
     exit 1
 fi
 
-if ! sudo curl -L -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
+# Télécharger l'AppImage
+log_info "Téléchargement en cours..."
+if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
     log_error "Erreur lors du téléchargement de Cursor"
     log_warn "Vérifiez votre connexion internet et réessayez"
     exit 1
@@ -83,6 +119,9 @@ fi
 sudo chmod +x /opt/cursor.appimage
 
 log_info "✓ AppImage téléchargée: /opt/cursor.appimage"
+if [ -n "$CURSOR_VERSION" ]; then
+    log_info "✓ Version installée: $CURSOR_VERSION"
+fi
 
 if [ "$UPDATE_ONLY" = true ]; then
     log_info "✓ Cursor mis à jour avec succès"
@@ -91,21 +130,36 @@ if [ "$UPDATE_ONLY" = true ]; then
 fi
 
 ################################################################################
-# ÉTAPE 3: Téléchargement icône
+# ÉTAPE 3: Vérification icône
 ################################################################################
 if [ "$NO_DESKTOP" = false ]; then
     echo ""
     echo "═══════════════════════════════════"
-    echo "3. Téléchargement icône"
+    echo "3. Configuration icône"
     echo "═══════════════════════════════════"
 
-    mkdir -p ~/.local/share/icons
-
-    curl -L -o ~/.local/share/icons/cursor.png "https://www.cursor.com/favicon.png" 2>/dev/null || \
-        curl -L -o ~/.local/share/icons/cursor.png "https://cursor.sh/favicon.ico" 2>/dev/null || \
-        log_warn "Téléchargement icône échoué (optionnel)"
-
-    log_info "✓ Icône téléchargée"
+    # Utiliser l'icône depuis le dossier dotfiles/images/icons/
+    CURSOR_ICON_SOURCE="$DOTFILES_DIR/images/icons/cursor.png"
+    CURSOR_ICON_TARGET="$HOME/.local/share/icons/cursor.png"
+    
+    mkdir -p "$(dirname "$CURSOR_ICON_TARGET")"
+    
+    if [ -f "$CURSOR_ICON_SOURCE" ]; then
+        # Copier l'icône depuis dotfiles vers ~/.local/share/icons/
+        cp "$CURSOR_ICON_SOURCE" "$CURSOR_ICON_TARGET"
+        log_info "✓ Icône copiée depuis dotfiles: $CURSOR_ICON_SOURCE"
+    else
+        log_warn "Icône non trouvée dans $CURSOR_ICON_SOURCE"
+        log_warn "Tentative de téléchargement depuis cursor.com..."
+        
+        # Fallback: télécharger l'icône si elle n'existe pas dans dotfiles
+        if curl -L -s -o "$CURSOR_ICON_TARGET" "https://www.cursor.com/favicon.png" 2>/dev/null || \
+           curl -L -s -o "$CURSOR_ICON_TARGET" "https://cursor.sh/favicon.ico" 2>/dev/null; then
+            log_info "✓ Icône téléchargée depuis cursor.com"
+        else
+            log_warn "⚠ Téléchargement icône échoué, fichier .desktop utilisera l'icône par défaut"
+        fi
+    fi
 fi
 
 ################################################################################
@@ -119,11 +173,22 @@ if [ "$NO_DESKTOP" = false ]; then
 
     mkdir -p ~/.local/share/applications
 
+    # Utiliser l'icône depuis dotfiles si disponible, sinon depuis ~/.local/share/icons/
+    CURSOR_ICON=""
+    if [ -f "$DOTFILES_DIR/images/icons/cursor.png" ]; then
+        CURSOR_ICON="$DOTFILES_DIR/images/icons/cursor.png"
+    elif [ -f "$HOME/.local/share/icons/cursor.png" ]; then
+        CURSOR_ICON="$HOME/.local/share/icons/cursor.png"
+    else
+        # Pas d'icône trouvée, laisser vide pour utiliser l'icône par défaut
+        CURSOR_ICON="cursor"
+    fi
+
     cat > ~/.local/share/applications/cursor.desktop <<EOF
 [Desktop Entry]
 Name=Cursor
 Exec=/opt/cursor.appimage --no-sandbox %U
-Icon=$HOME/.local/share/icons/cursor.png
+Icon=$CURSOR_ICON
 Type=Application
 Categories=Development;IDE;TextEditor;
 Comment=AI-powered code editor
@@ -149,12 +214,47 @@ mkdir -p ~/.local/bin
 
 cat > ~/.local/bin/update-cursor <<'UPDATESCRIPT'
 #!/bin/bash
-echo "🔄 Mise à jour de Cursor..."
+# Charger la bibliothèque commune si disponible
+SCRIPT_DIR="$HOME/dotfiles/scripts"
+if [ -f "$SCRIPT_DIR/lib/common.sh" ]; then
+    source "$SCRIPT_DIR/lib/common.sh"
+fi
+
+log_section "Mise à jour de Cursor"
+
+# Vérifier la dernière version
+log_info "Vérification de la dernière version..."
+
+TEMP_HTML=$(mktemp)
+CURSOR_VERSION=""
+
+if curl -s -L "https://cursor.com" -o "$TEMP_HTML" 2>/dev/null; then
+    CURSOR_VERSION=$(grep -oP '(?<=Latest|latest|version|Version)[^<]*[0-9]+\.[0-9]+\.[0-9]+' "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
+    if [ -z "$CURSOR_VERSION" ]; then
+        CURSOR_VERSION=$(grep -iE "(version|v)[\s:]+[0-9]+\.[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
+    fi
+fi
+rm -f "$TEMP_HTML"
+
+if [ -n "$CURSOR_VERSION" ]; then
+    log_info "Dernière version disponible: $CURSOR_VERSION"
+fi
+
+# Télécharger la dernière version
 CURSOR_URL="https://downloader.cursor.sh/linux/appImage/x64"
-sudo curl -L -o /opt/cursor.appimage "$CURSOR_URL"
-sudo chmod +x /opt/cursor.appimage
-echo "✅ Cursor mis à jour!"
-echo "Relancez Cursor pour utiliser la nouvelle version"
+log_info "Téléchargement depuis: $CURSOR_URL"
+
+if sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
+    sudo chmod +x /opt/cursor.appimage
+    log_info "✅ Cursor mis à jour!"
+    if [ -n "$CURSOR_VERSION" ]; then
+        log_info "Version installée: $CURSOR_VERSION"
+    fi
+    echo "Relancez Cursor pour utiliser la nouvelle version"
+else
+    log_error "❌ Erreur lors de la mise à jour"
+    exit 1
+fi
 UPDATESCRIPT
 
 chmod +x ~/.local/bin/update-cursor
