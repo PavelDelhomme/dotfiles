@@ -12,6 +12,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
 log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
@@ -21,6 +22,16 @@ log_section() { echo -e "\n${BLUE}═══════════════�
 
 DOTFILES_DIR="$HOME/dotfiles"
 SCRIPT_DIR="$DOTFILES_DIR/scripts"
+
+# Charger les bibliothèques
+source "$SCRIPT_DIR/lib/common.sh" 2>/dev/null || true
+source "$SCRIPT_DIR/lib/install_logger.sh" 2>/dev/null || {
+    # Fallback si install_logger.sh n'existe pas
+    log_install_action() {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $@" >> "$DOTFILES_DIR/install.log"
+    }
+}
+source "$SCRIPT_DIR/lib/check_missing.sh" 2>/dev/null || true
 
 ################################################################################
 # FONCTIONS UTILITAIRES
@@ -143,6 +154,9 @@ run_script() {
     local full_path="$1"
     local name="$2"
     
+    # Logger le début de l'exécution
+    log_install_action "run" "$name" "info" "Exécution: $full_path"
+    
     # Séparer le script et les arguments si présents
     local script="${full_path%% *}"  # Prendre tout jusqu'au premier espace
     local args="${full_path#* }"      # Prendre tout après le premier espace
@@ -156,14 +170,20 @@ run_script() {
         log_info "Exécution: $name"
         # Ne pas faire échouer setup.sh si un script échoue (certains scripts peuvent avoir des erreurs non critiques)
         if [ -n "$args" ]; then
-            bash "$script" $args || {
+            bash "$script" $args && {
+                log_install_action "run" "$name" "success" "Exécution réussie: $script $args"
+            } || {
                 log_error "Erreur lors de l'exécution de: $name"
+                log_install_action "run" "$name" "failed" "Exécution échouée: $script $args"
                 log_warn "Le script a rencontré une erreur, mais le menu continue"
                 return 1
             }
         else
-            bash "$script" || {
+            bash "$script" && {
+                log_install_action "run" "$name" "success" "Exécution réussie: $script"
+            } || {
                 log_error "Erreur lors de l'exécution de: $name"
+                log_install_action "run" "$name" "failed" "Exécution échouée: $script"
                 log_warn "Le script a rencontré une erreur, mais le menu continue"
                 return 1
             }
@@ -220,7 +240,13 @@ show_menu() {
     echo "26. Migration shell (Fish <-> Zsh)"
     echo "27. Changer shell par défaut"
     echo ""
-    echo "50. INSTALLER TOUT CE QUI MANQUE (automatique)"
+    echo "════════════════════════════════════════════════"
+    echo "INSTALLATION & DÉTECTION"
+    echo "════════════════════════════════════════════════"
+    echo "50. Afficher ce qui manque (état)"
+    echo "51. Installer éléments manquants (un par un)"
+    echo "52. Installer tout ce qui manque (automatique)"
+    echo "53. Afficher logs d'installation"
     echo ""
     echo "════════════════════════════════════════════════"
     echo "DÉSINSTALLATION INDIVIDUELLE"
@@ -644,7 +670,159 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         50)
-            log_section "INSTALLER TOUT CE QUI MANQUE"
+            log_section "État des composants manquants"
+            show_missing_components
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        51)
+            log_section "Installation éléments manquants (un par un)"
+            detect_missing_components
+            
+            if [ ${#MISSING_ITEMS[@]} -eq 0 ]; then
+                log_info "✅ Tous les composants sont installés!"
+                printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+                continue
+            fi
+            
+            log_info "${#MISSING_ITEMS[@]} élément(s) manquant(s) détecté(s)"
+            echo ""
+            
+            local index=1
+            for item in "${MISSING_ITEMS[@]}"; do
+                IFS=':' read -r type name action <<< "$item"
+                echo "$index. $name ($action)"
+                ((index++))
+            done
+            echo "0. Retour au menu principal"
+            echo ""
+            printf "Choisir un élément à installer [1-${#MISSING_ITEMS[@]}]: "
+            read -r choice
+            
+            if [ "$choice" = "0" ] || [ -z "$choice" ]; then
+                log_info "Retour au menu principal"
+                printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+                continue
+            fi
+            
+            if [ "$choice" -ge 1 ] && [ "$choice" -le ${#MISSING_ITEMS[@]} ]; then
+                selected_item="${MISSING_ITEMS[$((choice-1))]}"
+                IFS=':' read -r type name action <<< "$selected_item"
+                
+                log_info "Installation: $name (via $action)"
+                log_install_action "install" "$name" "info" "Début installation via menu"
+                
+                case "$action" in
+                    install_base_packages)
+                        run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via packages_base.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_yay)
+                        run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "yay"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_yay.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_package_managers)
+                        run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via package_managers.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_cursor)
+                        run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Cursor"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_cursor.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_brave)
+                        run_script "$SCRIPT_DIR/install/apps/install_brave.sh" "Brave"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_brave.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_docker)
+                        run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Docker"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_docker.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_go)
+                        run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Go"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_go.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    config_git)
+                        run_script "$SCRIPT_DIR/config/git_config.sh" "Configuration Git"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "config" "$name" "success" "Configuration via git_config.sh"
+                        else
+                            log_install_action "config" "$name" "failed" "Échec configuration"
+                        fi
+                        ;;
+                    config_git_remote)
+                        run_script "$SCRIPT_DIR/config/git_remote.sh" "Remote Git"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "config" "$name" "success" "Configuration via git_remote.sh"
+                        else
+                            log_install_action "config" "$name" "failed" "Échec configuration"
+                        fi
+                        ;;
+                    install_auto_sync)
+                        run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Auto-sync Git"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_auto_sync.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    create_symlinks)
+                        run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Symlinks"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "config" "$name" "success" "Création via create_symlinks.sh"
+                        else
+                            log_install_action "config" "$name" "failed" "Échec création"
+                        fi
+                        ;;
+                    *)
+                        log_warn "Action non reconnue: $action"
+                        log_install_action "install" "$name" "failed" "Action inconnue: $action"
+                        ;;
+                esac
+            else
+                log_error "Choix invalide"
+            fi
+            
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        52)
+            log_section "INSTALLER TOUT CE QUI MANQUE (automatique)"
+            log_warn "⚠️  Cette opération va installer tous les composants manquants automatiquement"
+            printf "Continuer? (o/n): "
+            read -r confirm
+            if [[ ! "$confirm" =~ ^[oO]$ ]]; then
+                log_info "Installation annulée"
+                printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+                continue
+            fi
+            
+            log_install_action "install" "auto_all" "info" "Début installation automatique de tous les composants"
             log_info "Installation automatique des composants manquants..."
             echo ""
             
@@ -652,43 +830,156 @@ while true; do
             if ! command -v git &> /dev/null || ! command -v curl &> /dev/null || ! command -v zsh &> /dev/null; then
                 log_info "Installation des paquets de base..."
                 run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+                if [ $? -eq 0 ]; then
+                    log_install_action "install" "packages_base" "success" "Installation automatique via packages_base.sh"
+                else
+                    log_install_action "install" "packages_base" "failed" "Échec installation automatique"
+                fi
+            else
+                log_install_action "install" "packages_base" "skipped" "Déjà installés"
             fi
             
             # Gestionnaires
             if [ -f /etc/arch-release ] && ! command -v yay &> /dev/null; then
                 log_info "Installation de yay..."
                 run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "yay"
+                if [ $? -eq 0 ]; then
+                    log_install_action "install" "yay" "success" "Installation automatique via install_yay.sh"
+                else
+                    log_install_action "install" "yay" "failed" "Échec installation automatique"
+                fi
+            else
+                log_install_action "install" "yay" "skipped" "Non requis ou déjà installé"
             fi
             
             # Applications
             if ! command -v cursor &> /dev/null && [ ! -f /opt/cursor.appimage ]; then
                 log_info "Installation de Cursor..."
                 run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Cursor"
+                if [ $? -eq 0 ]; then
+                    log_install_action "install" "cursor" "success" "Installation automatique via install_cursor.sh"
+                else
+                    log_install_action "install" "cursor" "failed" "Échec installation automatique"
+                fi
+            else
+                log_install_action "install" "cursor" "skipped" "Déjà installé"
             fi
             
             if ! command -v docker &> /dev/null; then
                 log_info "Installation de Docker..."
                 run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Docker"
+                if [ $? -eq 0 ]; then
+                    log_install_action "install" "docker" "success" "Installation automatique via install_docker.sh"
+                else
+                    log_install_action "install" "docker" "failed" "Échec installation automatique"
+                fi
+            else
+                log_install_action "install" "docker" "skipped" "Déjà installé"
             fi
             
             if ! command -v go &> /dev/null; then
                 log_info "Installation de Go..."
                 run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Go"
+                if [ $? -eq 0 ]; then
+                    log_install_action "install" "go" "success" "Installation automatique via install_go.sh"
+                else
+                    log_install_action "install" "go" "failed" "Échec installation automatique"
+                fi
+            else
+                log_install_action "install" "go" "skipped" "Déjà installé"
             fi
             
             # Auto-sync
             if ! systemctl --user is-active --quiet dotfiles-sync.timer 2>/dev/null; then
                 log_info "Installation de l'auto-sync Git..."
                 run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Auto-sync Git"
+                if [ $? -eq 0 ]; then
+                    log_install_action "install" "auto_sync" "success" "Installation automatique via install_auto_sync.sh"
+                else
+                    log_install_action "install" "auto_sync" "failed" "Échec installation automatique"
+                fi
+            else
+                log_install_action "install" "auto_sync" "skipped" "Déjà configuré"
             fi
             
             # Symlinks
             if [ ! -L "$HOME/.zshrc" ] || [[ $(readlink "$HOME/.zshrc") != *"dotfiles"* ]]; then
                 log_info "Création des symlinks..."
                 run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Symlinks"
+                if [ $? -eq 0 ]; then
+                    log_install_action "config" "symlinks" "success" "Création automatique via create_symlinks.sh"
+                else
+                    log_install_action "config" "symlinks" "failed" "Échec création automatique"
+                fi
+            else
+                log_install_action "config" "symlinks" "skipped" "Déjà créés"
             fi
             
             log_info "✓ Installation automatique terminée"
+            log_install_action "install" "auto_all" "success" "Installation automatique terminée"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        53)
+            log_section "Logs d'installation"
+            if [ -f "$DOTFILES_DIR/install.log" ]; then
+                echo ""
+                echo "Options d'affichage:"
+                echo "1. Dernières 50 lignes"
+                echo "2. Dernières 100 lignes"
+                echo "3. Toutes les lignes"
+                echo "4. Filtrer par action (install, config, uninstall, etc.)"
+                echo "5. Filtrer par composant"
+                echo "6. Résumé (statistiques)"
+                echo "0. Retour"
+                echo ""
+                printf "Choix: "
+                read -r log_choice
+                
+                case "$log_choice" in
+                    1)
+                        tail -50 "$DOTFILES_DIR/install.log" | less -R
+                        ;;
+                    2)
+                        tail -100 "$DOTFILES_DIR/install.log" | less -R
+                        ;;
+                    3)
+                        less -R "$DOTFILES_DIR/install.log"
+                        ;;
+                    4)
+                        printf "Action à filtrer (install/config/uninstall/test): "
+                        read -r filter_action
+                        grep -i "\[$filter_action\]" "$DOTFILES_DIR/install.log" | less -R
+                        ;;
+                    5)
+                        printf "Composant à filtrer: "
+                        read -r filter_component
+                        grep -i "$filter_component" "$DOTFILES_DIR/install.log" | less -R
+                        ;;
+                    6)
+                        if command -v get_install_summary &> /dev/null; then
+                            get_install_summary
+                        else
+                            total=$(wc -l < "$DOTFILES_DIR/install.log" 2>/dev/null || echo "0")
+                            success=$(grep -c "\[success\]" "$DOTFILES_DIR/install.log" 2>/dev/null || echo "0")
+                            failed=$(grep -c "\[failed\]" "$DOTFILES_DIR/install.log" 2>/dev/null || echo "0")
+                            skipped=$(grep -c "\[skipped\]" "$DOTFILES_DIR/install.log" 2>/dev/null || echo "0")
+                            echo "Résumé des installations:"
+                            echo "  Total d'actions: $total"
+                            echo "  Réussies: $success"
+                            echo "  Échouées: $failed"
+                            echo "  Ignorées: $skipped"
+                        fi
+                        ;;
+                    0)
+                        log_info "Retour au menu"
+                        ;;
+                    *)
+                        log_error "Choix invalide"
+                        ;;
+                esac
+            else
+                log_warn "Aucun log d'installation trouvé"
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         60)
@@ -766,7 +1057,7 @@ while true; do
         *)
             # Ce cas ne devrait jamais être atteint grâce à la validation avant
             log_error "Choix invalide: '$choice'"
-            log_info "Veuillez entrer un nombre valide (0-27, 28, 50, 60-70, 98-99)"
+            log_info "Veuillez entrer un nombre valide (0-27, 28, 50-53, 60-70, 98-99)"
             sleep 2
             ;;
     esac
