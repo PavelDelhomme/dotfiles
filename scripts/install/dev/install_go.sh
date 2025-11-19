@@ -7,9 +7,6 @@
 
 set -e
 
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 
 # Charger la bibliothèque commune
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -18,8 +15,6 @@ source "$SCRIPT_DIR/lib/common.sh" || {
     exit 1
 }
 
-log_error() { echo -e "${RED}[✗]${NC} $1"; }
-log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
 
 GO_VERSION="1.23.3"  # Dernière version stable
 GO_INSTALL_DIR="/usr/local"
