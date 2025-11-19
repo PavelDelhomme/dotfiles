@@ -222,6 +222,21 @@ show_menu() {
     echo ""
     echo "50. INSTALLER TOUT CE QUI MANQUE (automatique)"
     echo ""
+    echo "════════════════════════════════════════════════"
+    echo "DÉSINSTALLATION INDIVIDUELLE"
+    echo "════════════════════════════════════════════════"
+    echo "60. Désinstaller configuration Git"
+    echo "61. Désinstaller configuration remote Git"
+    echo "62. Désinstaller paquets de base"
+    echo "63. Désinstaller gestionnaires de paquets (yay, snap, flatpak)"
+    echo "64. Désinstaller Brave Browser"
+    echo "65. Désinstaller Cursor IDE"
+    echo "66. Désinstaller Docker & Docker Compose"
+    echo "67. Désinstaller Go (Golang)"
+    echo "68. Désinstaller yay (AUR helper)"
+    echo "69. Désinstaller auto-sync Git"
+    echo "70. Désinstaller symlinks"
+    echo ""
     echo "99. ROLLBACK - Désinstaller tout (ATTENTION!)"
     echo "98. RÉINITIALISATION - Remise à zéro complète (ATTENTION!)"
     echo ""
@@ -676,6 +691,50 @@ while true; do
             log_info "✓ Installation automatique terminée"
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
+        60)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_git_config.sh" "Désinstallation configuration Git"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        61)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_git_remote.sh" "Désinstallation configuration remote Git"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        62)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_base_packages.sh" "Désinstallation paquets de base"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        63)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_package_managers.sh" "Désinstallation gestionnaires de paquets"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        64)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_brave.sh" "Désinstallation Brave Browser"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        65)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_cursor.sh" "Désinstallation Cursor IDE"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        66)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_docker.sh" "Désinstallation Docker"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        67)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_go.sh" "Désinstallation Go"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        68)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_yay.sh" "Désinstallation yay"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        69)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_auto_sync.sh" "Désinstallation auto-sync Git"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        70)
+            run_script "$SCRIPT_DIR/uninstall/uninstall_symlinks.sh" "Désinstallation symlinks"
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
         99)
             log_section "ROLLBACK - Désinstallation complète"
             log_warn "⚠️  ATTENTION : Cette option va désinstaller TOUT"
@@ -707,7 +766,7 @@ while true; do
         *)
             # Ce cas ne devrait jamais être atteint grâce à la validation avant
             log_error "Choix invalide: '$choice'"
-            log_info "Veuillez entrer un nombre valide (0-27, 28, 50, 98-99)"
+            log_info "Veuillez entrer un nombre valide (0-27, 28, 50, 60-70, 98-99)"
             sleep 2
             ;;
     esac
