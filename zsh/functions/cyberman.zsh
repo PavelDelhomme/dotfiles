@@ -58,16 +58,16 @@ cyberman() {
         printf "Choix: "
         read -r choice
         case "$choice" in
-            1) source "$CYBER_DIR/domain_whois.sh" && domain_whois ;;
-            2) source "$CYBER_DIR/dns_lookup.sh" && dns_lookup ;;
-            3) source "$CYBER_DIR/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan ;;
-            4) source "$CYBER_DIR/find_subdomains.sh" && find_subdomains ;;
-            5) source "$CYBER_DIR/recon_domain.sh" && ensure_tool theHarvester && recon_domain ;;
-            6) source "$CYBER_DIR/enhanced_traceroute.sh" && enhanced_traceroute ;;
-            7) source "$CYBER_DIR/network_map.sh" && network_map ;;
-            8) source "$CYBER_DIR/get_http_headers.sh" && get_http_headers ;;
-            9) source "$CYBER_DIR/analyze_headers.sh" && analyze_headers ;;
-            10) source "$CYBER_DIR/get_robots_txt.sh" && get_robots_txt ;;
+            1) source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois ;;
+            2) source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup ;;
+            3) source "$CYBER_DIR/reconnaissance/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan ;;
+            4) source "$CYBER_DIR/reconnaissance/find_subdomains.sh" && find_subdomains ;;
+            5) source "$CYBER_DIR/reconnaissance/recon_domain.sh" && ensure_tool theHarvester && recon_domain ;;
+            6) source "$CYBER_DIR/reconnaissance/enhanced_traceroute.sh" && enhanced_traceroute ;;
+            7) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
+            8) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
+            9) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
+            10) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -94,15 +94,15 @@ cyberman() {
         printf "Choix: "
         read -r choice
         case "$choice" in
-            1) source "$CYBER_DIR/port_scan.sh" && ensure_tool nmap && port_scan ;;
-            2) source "$CYBER_DIR/scan_ports.sh" && ensure_tool nmap && scan_ports ;;
-            3) source "$CYBER_DIR/web_port_scan.sh" && ensure_tool nmap && web_port_scan ;;
-            4) source "$CYBER_DIR/scan_web_ports.sh" && ensure_tool nmap && scan_web_ports ;;
-            5) source "$CYBER_DIR/enum_dirs.sh" && enum_dirs ;;
-            6) source "$CYBER_DIR/enum_shares.sh" && enum_shares ;;
-            7) source "$CYBER_DIR/enumerate_users.sh" && enumerate_users ;;
-            8) source "$CYBER_DIR/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
-            9) source "$CYBER_DIR/network_map.sh" && network_map ;;
+            1) source "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan ;;
+            2) source "$CYBER_DIR/scanning/scan_ports.sh" && ensure_tool nmap && scan_ports ;;
+            3) source "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan ;;
+            4) source "$CYBER_DIR/scanning/scan_web_ports.sh" && ensure_tool nmap && scan_web_ports ;;
+            5) source "$CYBER_DIR/scanning/enum_dirs.sh" && enum_dirs ;;
+            6) source "$CYBER_DIR/scanning/enum_shares.sh" && enum_shares ;;
+            7) source "$CYBER_DIR/scanning/enumerate_users.sh" && enumerate_users ;;
+            8) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
+            9) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -128,14 +128,14 @@ cyberman() {
         printf "Choix: "
         read -r choice
         case "$choice" in
-            1) source "$CYBER_DIR/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan ;;
-            2) source "$CYBER_DIR/vuln_scan.sh" && vuln_scan ;;
-            3) source "$CYBER_DIR/scan_vulns.sh" && scan_vulns ;;
-            4) source "$CYBER_DIR/nikto_scan.sh" && ensure_tool nikto && nikto_scan ;;
-            5) source "$CYBER_DIR/web_vuln_scan.sh" && web_vuln_scan ;;
-            6) source "$CYBER_DIR/check_ssl.sh" && check_ssl ;;
-            7) source "$CYBER_DIR/check_ssl_cert.sh" && check_ssl_cert ;;
-            8) source "$CYBER_DIR/check_heartbleed.sh" && check_heartbleed ;;
+            1) source "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan ;;
+            2) source "$CYBER_DIR/vulnerability/vuln_scan.sh" && vuln_scan ;;
+            3) source "$CYBER_DIR/vulnerability/scan_vulns.sh" && scan_vulns ;;
+            4) source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan ;;
+            5) source "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan ;;
+            6) source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl ;;
+            7) source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert ;;
+            8) source "$CYBER_DIR/vulnerability/check_heartbleed.sh" && check_heartbleed ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -158,11 +158,11 @@ cyberman() {
         printf "Choix: "
         read -r choice
         case "$choice" in
-            1) source "$CYBER_DIR/arp_spoof.sh" && ensure_tool arpspoof && arp_spoof ;;
-            2) source "$CYBER_DIR/brute_ssh.sh" && ensure_tool hydra && brute_ssh ;;
-            3) source "$CYBER_DIR/password_crack.sh" && password_crack ;;
-            4) source "$CYBER_DIR/deauth_attack.sh" && ensure_tool aireplay-ng && deauth_attack ;;
-            5) source "$CYBER_DIR/web_traceroute.sh" && web_traceroute ;;
+            1) source "$CYBER_DIR/attacks/arp_spoof.sh" && ensure_tool arpspoof && arp_spoof ;;
+            2) source "$CYBER_DIR/attacks/brute_ssh.sh" && ensure_tool hydra && brute_ssh ;;
+            3) source "$CYBER_DIR/attacks/password_crack.sh" && password_crack ;;
+            4) source "$CYBER_DIR/attacks/deauth_attack.sh" && ensure_tool aireplay-ng && deauth_attack ;;
+            5) source "$CYBER_DIR/attacks/web_traceroute.sh" && web_traceroute ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -182,8 +182,8 @@ cyberman() {
         printf "Choix: "
         read -r choice
         case "$choice" in
-            1) source "$CYBER_DIR/sniff_traffic.sh" && ensure_tool tcpdump && sniff_traffic ;;
-            2) source "$CYBER_DIR/wifi_scan.sh" && wifi_scan ;;
+            1) source "$CYBER_DIR/analysis/sniff_traffic.sh" && ensure_tool tcpdump && sniff_traffic ;;
+            2) source "$CYBER_DIR/analysis/wifi_scan.sh" && wifi_scan ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -204,9 +204,9 @@ cyberman() {
         printf "Choix: "
         read -r choice
         case "$choice" in
-            1) source "$CYBER_DIR/start_tor.sh" && ensure_tool tor && start_tor ;;
-            2) source "$CYBER_DIR/stop_tor.sh" && stop_tor ;;
-            3) source "$CYBER_DIR/proxycmd.sh" && ensure_tool proxychains && proxycmd ;;
+            1) source "$CYBER_DIR/privacy/start_tor.sh" && ensure_tool tor && start_tor ;;
+            2) source "$CYBER_DIR/privacy/stop_tor.sh" && stop_tor ;;
+            3) source "$CYBER_DIR/privacy/proxycmd.sh" && ensure_tool proxychains && proxycmd ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac

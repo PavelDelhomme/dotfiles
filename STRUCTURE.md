@@ -236,20 +236,41 @@ zsh/functions/
 │   ├── searchman.zsh       # Gestionnaire recherche
 │   └── cyberman.zsh        # Gestionnaire cybersécurité (NOUVEAU)
 │
-├── cyber/                   # Fonctions cybersécurité
-│   ├── arp_spoof.sh        # ARP spoofing
-│   ├── brute_ssh.sh        # Brute force SSH
-│   ├── nmap_vuln_scan.sh   # Scan vulnérabilités Nmap
-│   ├── nikto_scan.sh       # Scan Nikto
-│   ├── sniff_traffic.sh    # Capture trafic
-│   └── ... (36 fonctions totales)
+├── cyber/                   # Fonctions cybersécurité (réorganisé en sous-dossiers)
+│   ├── reconnaissance/     # Information gathering
+│   │   ├── domain_whois.sh, dns_lookup.sh, dnsenum_scan.sh
+│   │   ├── find_subdomains.sh, recon_domain.sh, enhanced_traceroute.sh
+│   │   ├── network_map.sh, get_http_headers.sh, analyze_headers.sh
+│   │   └── get_robots_txt.sh
+│   ├── scanning/           # Port scanning & enumeration
+│   │   ├── port_scan.sh, scan_ports.sh, web_port_scan.sh, scan_web_ports.sh
+│   │   ├── enum_dirs.sh, enum_shares.sh, enumerate_users.sh
+│   │   └── web_dir_enum.sh
+│   ├── vulnerability/      # Vulnerability assessment
+│   │   ├── nmap_vuln_scan.sh, vuln_scan.sh, scan_vulns.sh
+│   │   ├── nikto_scan.sh, web_vuln_scan.sh
+│   │   └── check_ssl.sh, check_ssl_cert.sh, check_heartbleed.sh
+│   ├── attacks/            # Network attacks & exploitation
+│   │   ├── arp_spoof.sh, brute_ssh.sh, password_crack.sh
+│   │   ├── deauth_attack.sh, web_traceroute.sh
+│   ├── analysis/           # Network analysis & monitoring
+│   │   ├── sniff_traffic.sh, wifi_scan.sh
+│   └── privacy/            # Privacy & anonymity
+│       ├── start_tor.sh, stop_tor.sh, proxycmd.sh
 │
 ├── utils/                   # Utilitaires partagés
-│   └── ensure_tool.sh      # Vérification/installation outils (NOUVEAU)
+│   └── ensure_tool.sh      # Vérification/installation outils
 │
 ├── git/                     # Fonctions Git
+│   └── git_functions.sh
 ├── dev/                     # Fonctions développement
+│   ├── cyna.sh, weedlyweb.sh
 ├── misc/                    # Fonctions diverses
+│   ├── colorpasswd.sh, copy_file.sh, copy_tree.sh
+│   ├── create_backup.sh, decrypt_file.sh, encrypt_file.sh
+│   ├── extract.sh, gen_password.sh, reload_shell.sh
+│   ├── system_info.sh, usb_test_functions.zsh
+│   └── ...
 └── network/                 # Fonctions réseau (utiliser netman)
 ```
 

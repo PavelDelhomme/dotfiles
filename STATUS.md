@@ -505,6 +505,33 @@ make clean            # Nettoyer fichiers temporaires
 
 ---
 
+## 🚀 PHASE 17 : Réorganisation structure cyber/ et simplification zshrc
+
+### Réorganisation cyber/
+- ✅ **Réorganisation complète** : `zsh/functions/cyber/` organisé en 6 sous-dossiers logiques
+  - `reconnaissance/` - Information gathering (10 scripts)
+  - `scanning/` - Port scanning & enumeration (8 scripts)
+  - `vulnerability/` - Vulnerability assessment (8 scripts)
+  - `attacks/` - Network attacks & exploitation (5 scripts)
+  - `analysis/` - Network analysis & monitoring (2 scripts)
+  - `privacy/` - Privacy & anonymity (3 scripts)
+- ✅ **cyberman.zsh mis à jour** : Tous les chemins mis à jour pour les nouveaux sous-dossiers
+- ✅ **Navigation améliorée** : Structure claire et compréhensible, plus facile à naviguer
+
+### Simplification zshrc
+- ✅ **Wrapper intelligent** : `zshrc` à la racine détecte le shell actif (ZSH/Fish) et source la bonne config
+- ✅ **Ordre de chargement clarifié** : Commentaires ajoutés expliquant pourquoi les gestionnaires doivent être chargés AVANT env.sh
+- ✅ **Dépendances documentées** : env.sh utilise `add_to_path()` de pathman.zsh, ordre de chargement vérifié
+
+### Fichiers modifiés
+- ✅ `zsh/functions/cyber/` - Réorganisation en 6 sous-dossiers (39 scripts réorganisés)
+- ✅ `zsh/functions/cyberman.zsh` - Chemins mis à jour pour nouveaux sous-dossiers
+- ✅ `zsh/zshrc_custom` - Ordre de chargement clarifié avec commentaires explicatifs
+- ✅ `zshrc` - Wrapper intelligent avec détection shell
+- ✅ `scripts/config/create_symlinks.sh` - Support du nouveau wrapper zshrc
+
+---
+
 ## 🚀 PROCHAINES ÉTAPES POSSIBLES
 
 ### Améliorations futures
@@ -572,5 +599,5 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.3.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool)
+**Version :** 2.4.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc)
 

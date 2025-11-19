@@ -33,7 +33,10 @@ log_info "Vérification symlink .zshrc..."
 
 if [ -L "$HOME/.zshrc" ]; then
     CURRENT_LINK=$(readlink "$HOME/.zshrc")
-    if [ "$CURRENT_LINK" = "$DOTFILES_DIR/.zshrc" ] || [ "$CURRENT_LINK" = "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
+    # Accepter les deux chemins : .zshrc (wrapper) ou zsh/zshrc_custom (direct)
+    if [ "$CURRENT_LINK" = "$DOTFILES_DIR/zshrc" ] || \
+       [ "$CURRENT_LINK" = "$DOTFILES_DIR/.zshrc" ] || \
+       [ "$CURRENT_LINK" = "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
         log_info "Symlink .zshrc déjà configuré: $CURRENT_LINK"
     else
         log_warn "Symlink .zshrc existe mais pointe vers: $CURRENT_LINK"
@@ -41,7 +44,12 @@ if [ -L "$HOME/.zshrc" ]; then
         read -r replace_zshrc
         if [[ "$replace_zshrc" =~ ^[oO]$ ]]; then
             rm "$HOME/.zshrc"
-            ln -s "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc" 2>/dev/null || ln -s "$DOTFILES_DIR/zsh/zshrc_custom" "$HOME/.zshrc"
+            # Préférer le wrapper zshrc qui détecte le shell
+            if [ -f "$DOTFILES_DIR/zshrc" ]; then
+                ln -s "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
+            else
+                ln -s "$DOTFILES_DIR/zsh/zshrc_custom" "$HOME/.zshrc"
+            fi
             log_info "✓ Symlink .zshrc créé"
         fi
     fi
@@ -55,29 +63,22 @@ elif [ -f "$HOME/.zshrc" ]; then
         cp "$HOME/.zshrc" "$BACKUP_DIR/.zshrc"
         log_info "✓ Backup créé: $BACKUP_DIR/.zshrc"
         rm "$HOME/.zshrc"
-        if [ -f "$DOTFILES_DIR/.zshrc" ]; then
-            ln -s "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+        # Préférer le wrapper zshrc qui détecte le shell
+        if [ -f "$DOTFILES_DIR/zshrc" ]; then
+            ln -s "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
         else
             ln -s "$DOTFILES_DIR/zsh/zshrc_custom" "$HOME/.zshrc"
         fi
         log_info "✓ Symlink .zshrc créé"
     fi
 else
-    # Créer le fichier .zshrc dans dotfiles s'il n'existe pas
-    if [ ! -f "$DOTFILES_DIR/.zshrc" ]; then
-        if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
-            # Créer un .zshrc qui source zshrc_custom
-            cat > "$DOTFILES_DIR/.zshrc" << 'EOF'
-# Dotfiles - Configuration ZSH
-# Source: zshrc_custom
-if [ -f "$HOME/dotfiles/zsh/zshrc_custom" ]; then
-    source "$HOME/dotfiles/zsh/zshrc_custom"
-fi
-EOF
-            log_info "✓ Fichier .zshrc créé dans dotfiles"
-        fi
+    # Créer le symlink directement vers zshrc (wrapper avec détection shell)
+    if [ -f "$DOTFILES_DIR/zshrc" ]; then
+        ln -s "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
+    else
+        # Fallback vers zshrc_custom si zshrc n'existe pas
+        ln -s "$DOTFILES_DIR/zsh/zshrc_custom" "$HOME/.zshrc"
     fi
-    ln -s "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc" 2>/dev/null || ln -s "$DOTFILES_DIR/zsh/zshrc_custom" "$HOME/.zshrc"
     log_info "✓ Symlink .zshrc créé"
 fi
 

@@ -20,6 +20,8 @@ NC='\033[0m'
 
 # =============================================================================
 # ÉTAPE 1 : CHARGEMENT DES GESTIONNAIRES (*MAN) EN PREMIER
+# IMPORTANT: Ces gestionnaires doivent être chargés AVANT env.sh
+# car env.sh utilise add_to_path() qui est définie dans pathman.zsh
 # =============================================================================
 echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 
@@ -30,10 +32,10 @@ echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo -e "${GREEN}  ✔️ SEARCHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ SEARCHMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" && echo -e "${GREEN}  ✔️ CYBERMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ CYBERMAN introuvable${NC}"
 
-# Les anciennes fonctions sont maintenant dans les gestionnaires (*man.zsh)
-
 # =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
+# IMPORTANT: env.sh doit être chargé APRÈS les gestionnaires car il utilise
+# add_to_path() définie dans pathman.zsh pour ajouter des chemins au PATH
 # =============================================================================
 echo -e "${CYAN}📦 ÉTAPE 2/4 : Chargement des variables d'environnement...${NC}"
 if [ -f "$ENV_FILE" ]; then
@@ -45,14 +47,21 @@ fi
 
 # =============================================================================
 # ÉTAPE 3 : CHARGEMENT DES FONCTIONS INDIVIDUELLES
+# Charge toutes les fonctions depuis les sous-dossiers organisés :
+# - cyber/ (réorganisé en reconnaissance/, scanning/, vulnerability/, attacks/, analysis/, privacy/)
+# - dev/, git/, misc/, network/, utils/
 # =============================================================================
 echo -e "${CYAN}🔧 ÉTAPE 3/4 : Chargement des fonctions individuelles...${NC}"
 if [ -d "$FUNCTIONS_DIR" ]; then
     local loaded_count=0
     local error_count=0
+    # Charger récursivement tous les scripts .sh et .zsh
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        # Ignore les gestionnaires déjà chargés et les backups
-        if [[ "$func_file" != *"man.zsh" ]] && [[ "$func_file" != *"backup"* ]] && [ -f "$func_file" ]; then
+        # Ignore les gestionnaires déjà chargés, les backups et les sous-dossiers de cyber
+        if [[ "$func_file" != *"man.zsh" ]] && \
+           [[ "$func_file" != *"backup"* ]] && \
+           [[ "$func_file" != *"/cyber/"*.zsh ]] && \
+           [ -f "$func_file" ]; then
             if source "$func_file" 2>/dev/null; then
                 ((loaded_count++))
             else

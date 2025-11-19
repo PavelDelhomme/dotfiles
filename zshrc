@@ -1,75 +1,23 @@
-USE_POWERLINE="true"
-HAS_WIDECHARS="false"
-# Source manjaro-zsh-configuration
-if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
-  source /usr/share/zsh/manjaro-zsh-config
+# =============================================================================
+# DOTFILES - Configuration Shell
+# =============================================================================
+# Ce fichier détecte le shell actif et source la configuration appropriée
+# Usage: Symlink ~/.zshrc -> ~/dotfiles/zshrc
+# =============================================================================
+
+# Détection du shell
+if [ -n "$ZSH_VERSION" ]; then
+    # Configuration ZSH
+    if [ -f "$HOME/dotfiles/zsh/zshrc_custom" ]; then
+        source "$HOME/dotfiles/zsh/zshrc_custom"
+    else
+        echo "⚠️  Fichier $HOME/dotfiles/zsh/zshrc_custom introuvable."
+    fi
+elif [ -n "$FISH_VERSION" ]; then
+    # Configuration Fish (ce fichier est normalement dans .config/fish/config.fish)
+    if [ -f "$HOME/dotfiles/fish/config_custom.fish" ]; then
+        source "$HOME/dotfiles/fish/config_custom.fish"
+    else
+        echo "⚠️  Fichier $HOME/dotfiles/fish/config_custom.fish introuvable."
+    fi
 fi
-# Use manjaro zsh prompt
-if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
-  source /usr/share/zsh/manjaro-zsh-prompt
-fi
-
-# Source custom configurations
-if [ -f "$HOME/dotfiles/zsh/zshrc_custom" ]; then
-	source "$HOME/dotfiles/zsh/zshrc_custom"
-	echo "File $HOME/dotfiles/zsh/zshrc_custom sourced"
-else
-	echo "⚠️  File '$HOME'/dotfiles/zsh/zshrc_custom not found."
-fi
-
-# Load function files
-#for func_file in ~/dotfiles/zsh/functions/**/*.sh; do
-#	source "$func_file"
-#done
-
-# Source aliases and environment variables
-[ -f ~/dotfiles/zsh/aliases.zsh ] && source ~/dotfiles/zsh/aliases.zsh
-[ -f ~/dotfiles/zsh/env.sh ] && source ~/dotfiles/zsh/env.sh
-# Test modification
-
-# Historique optimisé
-HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000000   # Nombre de commandes chargées en mémoire
-SAVEHIST=10000000   # Nombre de commandes sauvegardées dans le fichier d'historique
-# Options pour optimiser l'historique
-setopt HIST_EXPIRE_DUPS_FIRST    # Supprime les doublons en premier lors de l'élagage
-setopt HIST_IGNORE_DUPS          # Ne sauvegarde pas les commandes dupliquées consécutives
-setopt HIST_IGNORE_SPACE         # Ignore les commandes commençant par un espace
-setopt HIST_VERIFY               # Affiche la commande étendue avant de l'exécuter
-setopt SHARE_HISTORY             # Partage l'historique entre les sessions
-setopt EXTENDED_HISTORY          # Enregistre le timestamp pour chaque entrée
-
-# Compression de l'historique
-zshaddhistory() {
-    print -sr -- ${1%%$'\n'}
-    fc -p
-}
-
-# Fonction pour nettoyer l'historique des doublons
-clean_history() {
-    local HISTFILE_TMP=$(mktemp)
-    fc -W $HISTFILE_TMP
-    awk '!seen[$0]++' $HISTFILE_TMP > $HISTFILE
-    fc -R $HISTFILE
-    rm $HISTFILE_TMP
-}
-
-# Fonction pour changer de remote git facilement
-#function git-switch-identity() {
-#    local target_host=$1
-##    if [[ "$target_host" == "piter" ]]; then
-#        git remote set-url origin github-piter:$(git remote show origin | grep -o "[^:]*\/[^ ]*")
-#        echo "Remote origin basculé sur l'identité Piter (clé pro)"
-#    elif [[ "$target_host" == "perso" ]]; then
-#        git remote set-url origin github.com:$(git remote show origin | grep -o "[^:]*\/[^ ]*")
-#        echo "Remote origin basculé sur l'identité perso"
-#    else
-#        echo "Usage : git-switch-identity [piter|perso]"
-#    fi
-#}
-
-
-# Nettoyage automatique de l'historique à chaque 1000 commandes
-#if (( $HISTCMD % $SAVEHIST == 0 )); then
-#    clean_history
-#fi
