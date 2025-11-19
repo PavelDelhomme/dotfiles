@@ -10,11 +10,14 @@ set +e  # Ne pas arrêter sur erreurs pour mieux gérer les interruptions
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-RED='\033[0;31m'
-NC='\033[0m'
 
-log_info() { echo -e "${GREEN}[✓]${NC} $1"; }
-log_warn() { echo -e "${YELLOW}[!]${NC} $1"; }
+# Charger la bibliothèque commune
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/lib/common.sh" || {
+    echo "Erreur: Impossible de charger la bibliothèque commune"
+    exit 1
+}
+
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
 
@@ -351,4 +354,3 @@ echo "  docker run hello-world         # Tester Docker"
 echo "  docker-compose up              # Lancer avec docker-compose"
 echo "  docker compose up              # Lancer avec docker compose (plugin)"
 echo ""
-

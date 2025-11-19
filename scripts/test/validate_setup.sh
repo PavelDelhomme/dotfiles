@@ -9,20 +9,14 @@ set +e  # Ne pas arrêter sur erreurs pour continuer toutes les vérifications
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-NC='\033[0m'
 
-PASSED=0
-FAILED=0
-WARNINGS=0
-
-check_pass() {
-    echo -e "${GREEN}✅${NC} $1"
-    ((PASSED++))
+# Charger la bibliothèque commune
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/common.sh" || {
+    echo "Erreur: Impossible de charger la bibliothèque commune"
+    exit 1
 }
 
-check_fail() {
     echo -e "${RED}❌${NC} $1"
     ((FAILED++))
 }
@@ -319,4 +313,3 @@ else
     # Ne pas faire échouer le script, juste afficher les problèmes
     exit 0
 fi
-

@@ -8,17 +8,23 @@
 
 set -e
 
-DOTFILES_DIR="$HOME/dotfiles"
+# Charger la bibliothèque commune (juste les couleurs, on redéfinit les fonctions de log)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/common.sh" 2>/dev/null || {
+    # Fallback si common.sh n'est pas disponible
+    export RED='\033[0;31m'
+    export GREEN='\033[0;32m'
+    export YELLOW='\033[1;33m'
+    export BLUE='\033[0;34m'
+    export NC='\033[0m'
+}
+
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 LOG_FILE="$DOTFILES_DIR/auto_sync.log"
 LOCK_FILE="/tmp/dotfiles_auto_sync.lock"
 SYNC_INTERVAL=3600  # 1 heure en secondes
 
-# Couleurs pour logs
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
+# Fonctions de log personnalisées avec tee (pour écrire dans le fichier et afficher)
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }

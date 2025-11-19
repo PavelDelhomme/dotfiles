@@ -7,16 +7,12 @@
 
 set +e  # Ne pas arrêter sur erreurs pour mieux gérer les problèmes de dépendances
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
-log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
-log_error() { echo -e "${RED}[✗]${NC} $1"; }
-log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
+# Charger la bibliothèque commune
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$SCRIPT_DIR/lib/common.sh" || {
+    echo "Erreur: Impossible de charger la bibliothèque commune"
+    exit 1
+}
 
 log_section "Installation paquets QEMU/KVM"
 

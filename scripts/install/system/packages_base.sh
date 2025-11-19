@@ -6,18 +6,11 @@
 
 set -e
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
-log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
-log_skip()  { echo -e "${BLUE}[→]${NC} $1"; }
-
-is_package_installed() {
-    pacman -Q "$1" >/dev/null 2>&1
+# Charger la bibliothèque commune
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "$SCRIPT_DIR/lib/common.sh" || {
+    echo "Erreur: Impossible de charger la bibliothèque commune"
+    exit 1
 }
 
 log_info "Installation paquets de base..."
@@ -33,4 +26,3 @@ for tool in "${base_tools[@]}"; do
 done
 
 log_info "✓ Paquets de base installés"
-
