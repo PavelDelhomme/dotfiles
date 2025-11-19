@@ -89,14 +89,23 @@ scripts/
 
 | Script | Description | Options menu |
 |--------|-------------|--------------|
-| `git_auto_sync.sh` | Synchronisation automatique Git (pull/push). Gestion des conflits. | Option 13 |
-| `install_auto_sync.sh` | Installation systemd timer pour auto-sync toutes les heures | Option 12 |
+| `sync/git_auto_sync.sh` | Synchronisation automatique Git (pull/push). Gestion des conflits. | Option 14 |
+| `sync/install_auto_sync.sh` | Installation systemd timer pour auto-sync toutes les heures | Option 12 |
+| `sync/restore_from_git.sh` | Restaurer depuis Git (annuler modifications locales, restaurer fichiers supprimés) | Option 28 |
 
 ### Scripts de test (scripts/test/)
 
 | Script | Description | Options menu |
 |--------|-------------|--------------|
 | `test/validate_setup.sh` | Validation complète du setup (117+ vérifications exhaustives). Vérifie structure, scripts, fonctions, PATH, services, Git, outils, symlinks, NVIDIA. | Option 23 |
+
+### Bibliothèques communes (scripts/lib/)
+
+| Script | Description | Usage |
+|--------|-------------|-------|
+| `lib/common.sh` | Fonctions communes (logging, couleurs). Source par tous les scripts. | Source automatique |
+| `lib/install_logger.sh` | Système de logs d'installation. Logger toutes les actions (install/config/uninstall/test) avec timestamp, statut, détails. Fichier: `~/dotfiles/install.log` | Source par setup.sh |
+| `lib/check_missing.sh` | Détection éléments manquants. Vérifie tous les composants installables et retourne ce qui manque. Groupement par catégories. | Source par setup.sh |
 
 ### Scripts de désinstallation (scripts/uninstall/)
 
@@ -121,7 +130,7 @@ scripts/
 
 | Script | Description | Options menu |
 |--------|-------------|--------------|
-| `create_symlinks.sh` | Créer symlinks pour centraliser la configuration (.zshrc, .gitconfig, .ssh/) | Option 23 |
+| `config/create_symlinks.sh` | Créer symlinks pour centraliser la configuration (.zshrc, .gitconfig, .ssh/) | Option 24 |
 | `migrate_existing_user.sh` | Migrer configuration existante vers structure dotfiles centralisée | - |
 
 ## Interface Makefile (recommandé)
