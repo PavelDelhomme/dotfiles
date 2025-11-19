@@ -2,3 +2,7 @@
 #!.zshrc
 #!.zshenv
 #!.zsh/
+
+# Logs d'installation
+install.log
+*.log
