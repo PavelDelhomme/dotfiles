@@ -37,9 +37,7 @@ if ! command -v virt-manager >/dev/null 2>&1; then
     log_info "Installation..."
 
     DOTFILES_DIR="$HOME/dotfiles"
-    if [ -f "$DOTFILES_DIR/scripts/install/tools/install_qemu_simple.sh" ]; then
-        bash "$DOTFILES_DIR/scripts/install/tools/install_qemu_simple.sh"
-    elif [ -f "$DOTFILES_DIR/scripts/install/tools/install_qemu_full.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/install/tools/install_qemu_full.sh" ]; then
         bash "$DOTFILES_DIR/scripts/install/tools/install_qemu_full.sh"
     else
         sudo pacman -S --noconfirm qemu-desktop libvirt virt-manager virt-viewer

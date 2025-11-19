@@ -31,7 +31,9 @@ scripts/
 │   │   ├── install_docker_tools.sh # Outils build (make, gcc, cmake)
 │   │   └── install_go.sh      # Go (Golang)
 │   └── tools/                 # Outils système
-│       └── install_yay.sh    # yay AUR helper
+│       ├── install_yay.sh    # yay AUR helper
+│       ├── install_qemu_full.sh  # Installation complète QEMU/KVM
+│       └── verify_network.sh     # Vérification réseau QEMU/KVM
 │
 ├── sync/                       # Synchronisation Git
 │   ├── git_auto_sync.sh        # Script de synchronisation (pull/push)
@@ -63,6 +65,8 @@ scripts/
 | `dev/install_docker_tools.sh` | Installation outils de build (base-devel, make, gcc, pkg-config, cmake) pour Arch Linux | - |
 | `dev/install_go.sh` | Installation Go (Golang). Détection version actuelle. Utilise add_to_path si disponible. | Option 19 |
 | `tools/install_yay.sh` | Installation yay AUR helper depuis source. Configuration automatique. | Option 18 |
+| `tools/install_qemu_full.sh` | Installation complète QEMU/KVM avec virt-manager, snapshots, etc. | Option 11 (via scripts/config/) |
+| `tools/verify_network.sh` | Vérification configuration réseau QEMU/KVM (NAT, libvirt, etc.) | - |
 
 ### Scripts de synchronisation (scripts/sync/)
 

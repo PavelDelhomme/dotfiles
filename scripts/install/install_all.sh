@@ -117,12 +117,12 @@ fi
 if [ "$SKIP_QEMU" = false ]; then
     log_section "Installation QEMU/KVM"
     
-    if [ -f "$SCRIPT_DIR/install_qemu_simple.sh" ]; then
-        bash "$SCRIPT_DIR/install_qemu_simple.sh"
+    if [ -f "$SCRIPT_DIR/tools/install_qemu_full.sh" ]; then
+        bash "$SCRIPT_DIR/tools/install_qemu_full.sh"
         log_info "✓ QEMU/KVM installé"
         log_warn "⚠ IMPORTANT: Déconnectez-vous et reconnectez-vous pour que le groupe libvirt soit actif"
     else
-        log_error "Script install_qemu_simple.sh non trouvé"
+        log_error "Script install_qemu_full.sh non trouvé"
     fi
 else
     log_warn "Installation QEMU ignorée (--skip-qemu)"

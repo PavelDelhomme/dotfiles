@@ -223,7 +223,7 @@ Refactorisation complète du système de dotfiles avec :
 - `install_docker_tools.sh` → `scripts/install/dev/install_docker_tools.sh`
 - `install_go.sh` → `scripts/install/dev/install_go.sh`
 - `install_yay.sh` → `scripts/install/tools/install_yay.sh`
-- `install_qemu_simple.sh` → `scripts/install/tools/install_qemu_simple.sh`
+- `install_qemu.sh` → `scripts/install/tools/install_qemu_full.sh`
 
 ---
 
@@ -234,9 +234,11 @@ Refactorisation complète du système de dotfiles avec :
 - ✅ `install_cursor.sh` (doublon à la racine)
 - ✅ `install_go.sh` (doublon à la racine)
 - ✅ `scripts/install/install_qemu_simple_ancient.sh` (obsolète)
+- ✅ `scripts/install/tools/install_qemu_simple.sh` (redondant avec install_qemu_full.sh)
 
 ### Fichiers déplacés/archivés
 - ✅ `install_qemu.sh` → `scripts/install/tools/install_qemu_full.sh`
+- ✅ `scripts/install/verify_network.sh` → `scripts/install/tools/verify_network.sh`
 - ✅ `manjaro_setup_final.sh` → `scripts/install/archive_manjaro_setup_final.sh`
 
 ### Références mises à jour

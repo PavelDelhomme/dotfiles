@@ -16,12 +16,13 @@ scripts/
 │   │   ├── install_docker_tools.sh # Outils build (Arch)
 │   │   └── install_go.sh          # Go (Golang)
 │   ├── tools/                     # Outils système
-│   │   └── install_yay.sh         # yay (AUR helper)
+│   │   ├── install_yay.sh         # yay (AUR helper)
+│   │   ├── install_qemu_full.sh   # Installation complète QEMU/KVM
+│   │   └── verify_network.sh      # Vérification réseau QEMU/KVM
 │   ├── system/                    # Paquets système
 │   │   ├── packages_base.sh       # Paquets de base
 │   │   └── package_managers.sh    # Gestionnaires (yay, snap, flatpak)
-│   ├── install_all.sh             # Installation complète
-│   └── install_qemu_simple.sh     # Installation QEMU/KVM
+│   └── install_all.sh             # Installation complète
 │
 ├── sync/            # Scripts de synchronisation Git
 │   ├── git_auto_sync.sh            # Script de synchronisation automatique
@@ -56,8 +57,16 @@ bash ~/dotfiles/scripts/install/dev/install_docker.sh
 # Outils système
 bash ~/dotfiles/scripts/install/tools/install_yay.sh
 
-# QEMU/KVM
-bash ~/dotfiles/scripts/install/install_qemu_simple.sh
+# QEMU/KVM (installation complète)
+bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh
+
+# Ou installation modulaire via scripts/config/ :
+bash ~/dotfiles/scripts/config/qemu_packages.sh   # Paquets uniquement
+bash ~/dotfiles/scripts/config/qemu_network.sh    # Réseau uniquement
+bash ~/dotfiles/scripts/config/qemu_libvirt.sh    # Libvirt uniquement
+
+# Vérification réseau
+bash ~/dotfiles/scripts/install/tools/verify_network.sh
 ```
 
 ## Synchronisation automatique Git

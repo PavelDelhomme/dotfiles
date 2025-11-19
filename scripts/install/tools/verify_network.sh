@@ -6,7 +6,7 @@
 ################################################################################
 
 # Charger la bibliothèque commune
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
     exit 1
@@ -111,7 +111,8 @@ else
     log_warn "⚠ Configuration incomplète - Vérifiez les points ci-dessus"
     echo ""
     echo "Pour corriger:"
-    echo "  bash ~/dotfiles/scripts/install/install_qemu_simple.sh"
+    echo "  bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh"
+    echo "  ou via setup.sh option 11 (Configuration complète QEMU)"
 fi
 
 echo ""
