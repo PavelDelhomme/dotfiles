@@ -220,12 +220,134 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 7. **setup.sh option 12** → Configurer auto-sync Git
 8. **setup.sh option 22** → Valider le setup
 
+## Structure zsh/functions/
+
+```
+zsh/functions/
+├── *man.zsh                 # Gestionnaires interactifs
+│   ├── pathman.zsh         # Gestionnaire PATH
+│   ├── netman.zsh          # Gestionnaire réseau
+│   ├── aliaman.zsh         # Gestionnaire alias
+│   ├── miscman.zsh         # Gestionnaire divers
+│   ├── searchman.zsh       # Gestionnaire recherche
+│   └── cyberman.zsh        # Gestionnaire cybersécurité (NOUVEAU)
+│
+├── cyber/                   # Fonctions cybersécurité
+│   ├── arp_spoof.sh        # ARP spoofing
+│   ├── brute_ssh.sh        # Brute force SSH
+│   ├── nmap_vuln_scan.sh   # Scan vulnérabilités Nmap
+│   ├── nikto_scan.sh       # Scan Nikto
+│   ├── sniff_traffic.sh    # Capture trafic
+│   └── ... (36 fonctions totales)
+│
+├── utils/                   # Utilitaires partagés
+│   └── ensure_tool.sh      # Vérification/installation outils (NOUVEAU)
+│
+├── git/                     # Fonctions Git
+├── dev/                     # Fonctions développement
+├── misc/                    # Fonctions diverses
+├── network/                 # Fonctions réseau (utiliser netman)
+└── _backups/                # Sauvegardes anciennes structures
+    ├── path_manager_backup_*/
+    ├── alias_manager_backup_*/
+    └── network_backup_*/
+```
+
+### Gestionnaires (*man.zsh)
+
+| Gestionnaire | Description | Fonctions |
+|--------------|-------------|-----------|
+| `pathman` | Gestion du PATH | Ajout, retrait, nettoyage, sauvegarde |
+| `netman` | Gestion réseau | Ports, connexions, DNS, routing |
+| `aliaman` | Gestion alias | Ajout, modification, suppression, recherche |
+| `miscman` | Outils divers | Backup, cryptage, génération mots de passe |
+| `searchman` | Recherche | Historique, fonctions, fichiers |
+| `cyberman` | Cybersécurité | 36+ fonctions organisées par catégories |
+
+### CYBERMAN - Gestionnaire cybersécurité
+
+**Organisation par catégories :**
+
+1. **🔍 Reconnaissance & Information Gathering**
+   - WHOIS, DNS lookup, DNSEnum, subdomains, reconnaissance domaine
+   - HTTP headers, robots.txt, network mapping
+
+2. **🔎 Scanning & Enumeration**
+   - Port scanning (nmap), énumération répertoires (dirb, gobuster)
+   - Énumération partages, utilisateurs, web directories
+
+3. **🛡️ Vulnerability Assessment**
+   - Scans de vulnérabilités (nmap, nikto)
+   - Vérification SSL/TLS, Heartbleed
+
+4. **⚔️ Network Attacks & Exploitation**
+   - ARP spoofing, brute force SSH
+   - Désauthentification Wi-Fi, password cracking
+
+5. **📡 Network Analysis & Monitoring**
+   - Capture trafic (tcpdump), scan Wi-Fi
+
+6. **🔒 Privacy & Anonymity**
+   - Tor, proxychains
+
+**Utilisation :**
+```bash
+cyberman              # Menu interactif complet
+cyberman recon        # Menu reconnaissance
+cyberman scan         # Menu scanning
+cyberman vuln         # Menu vulnérabilités
+cyberman attack       # Menu attaques
+cyberman analysis     # Menu analyse
+cyberman privacy      # Menu anonymat
+cyberman help         # Aide
+cm                    # Alias court
+```
+
+### Fonction utilitaire ensure_tool
+
+**Description :** Vérifie si un outil est installé et propose de l'installer automatiquement si nécessaire.
+
+**Fonctionnalités :**
+- ✅ Détection automatique distribution (Arch, Debian, Fedora, Gentoo)
+- ✅ Mapping outils → paquets pour chaque distribution
+- ✅ Installation automatique via gestionnaire approprié
+- ✅ Support AUR (yay) pour Arch Linux
+- ✅ Proposition interactive avant installation
+
+**Utilisation :**
+```bash
+# Dans un script
+source "$HOME/dotfiles/zsh/functions/utils/ensure_tool.sh"
+ensure_tool nmap           # Vérifie/installe nmap
+ensure_tool hydra          # Vérifie/installe hydra
+ensure_tool arpspoof       # Vérifie/installe dsniff (package pour arpspoof)
+
+# Vérifier plusieurs outils
+ensure_tools nmap nikto hydra
+```
+
+**Mapping outils → paquets :**
+- `arpspoof` → `dsniff` (Arch/Debian/Fedora)
+- `hydra` → `hydra`
+- `nmap` → `nmap`
+- `nikto` → `nikto`
+- `gobuster` → `gobuster`
+- `aireplay-ng` → `aircrack-ng`
+- Et bien d'autres...
+
+**Détection distribution :**
+- Arch Linux : `/etc/arch-release`
+- Debian/Ubuntu : `/etc/debian_version`
+- Fedora : `/etc/fedora-release`
+- Gentoo : `/etc/gentoo-release` ou `/etc/portage/make.conf`
+
 ## Notes importantes
 
 - **auto_sync_dotfiles.sh** (racine) a été supprimé → Utiliser `scripts/sync/git_auto_sync.sh`
 - **install_go.sh** (racine) a été déplacé → Utiliser `scripts/install/dev/install_go.sh`
 - Les scripts sont organisés par catégorie : `apps/`, `dev/`, `tools/`, `system/`
 - Les scripts utilisent `add_alias` et `add_to_path` si disponibles
+- Les scripts cyber utilisent maintenant `ensure_tool` pour vérification automatique d'outils
 - Fallback manuel si les fonctions ne sont pas chargées
 
 ## Utilisation rapide

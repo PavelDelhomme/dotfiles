@@ -435,18 +435,89 @@ make clean            # Nettoyer fichiers temporaires
 
 ---
 
+## 🚀 PHASE 15 : Nettoyage structure et migration shell
+
+### Nettoyage des dossiers obsolètes
+- ✅ Suppression des dossiers obsolètes (`path_manager/`, `alias_manager/`, `network/`, `search_manager/`, `dot_files_manager/`)
+- ✅ Déplacement des backups dans `zsh/functions/_backups/` pour centralisation
+- ✅ Mise à jour de `zshrc_custom` pour retirer les références aux anciens chemins
+
+### Migration Fish ↔ Zsh
+- ✅ Création script `scripts/migrate_shell.sh` pour migration entre Fish et Zsh
+- ✅ Migration automatique des alias, variables d'environnement et sauvegardes PATH
+- ✅ Configuration automatique des symlinks selon le shell choisi
+
+### Améliorations Bootstrap et Setup
+- ✅ `bootstrap.sh` : Menu de choix du shell (Zsh, Fish, ou les deux)
+- ✅ `setup.sh` : Option 24 (migration shell) et option 25 (changer shell par défaut)
+- ✅ Passage du choix shell via variable d'environnement
+
+### Fichiers modifiés
+- ✅ `bootstrap.sh` - Ajout menu choix shell
+- ✅ `setup.sh` - Ajout options migration et changement shell
+- ✅ `zsh/zshrc_custom` - Nettoyage références obsolètes
+- ✅ `zsh/functions/_backups/` - Centralisation des backups
+
+---
+
+## 🔒 PHASE 16 : CYBERMAN et vérification automatique d'outils
+
+### Nouveau gestionnaire cyberman.zsh
+- ✅ Création `zsh/functions/cyberman.zsh` pour regrouper toutes les fonctions cyber
+- ✅ Organisation par catégories : Reconnaissance, Scanning, Vulnerability Assessment, Attacks, Analysis, Privacy
+- ✅ Menu interactif avec sous-menus pour chaque catégorie
+- ✅ Support arguments rapides : `cyberman recon`, `cyberman scan`, etc.
+- ✅ Intégration dans `zshrc_custom` (chargement automatique)
+
+### Fonction utilitaire ensure_tool
+- ✅ Création `zsh/functions/utils/ensure_tool.sh` pour vérification/installation automatique d'outils
+- ✅ Détection automatique de la distribution (Arch, Debian, Fedora, Gentoo)
+- ✅ Mapping outils → paquets pour chaque distribution
+- ✅ Installation automatique via le gestionnaire de paquets approprié
+- ✅ Support AUR (yay) pour Arch Linux
+- ✅ Proposition interactive à l'utilisateur avant installation
+
+### Modification scripts cyber
+- ✅ `arp_spoof.sh` - Vérification/installation arpspoof (dsniff)
+- ✅ `brute_ssh.sh` - Vérification/installation hydra
+- ✅ `nmap_vuln_scan.sh` - Vérification/installation nmap
+- ✅ `nikto_scan.sh` - Vérification/installation nikto
+- ✅ `sniff_traffic.sh` - Vérification/installation tcpdump
+- ✅ `deauth_attack.sh` - Vérification/installation aircrack-ng
+- ✅ Tous les autres scripts cyber utilisent maintenant `ensure_tool` via cyberman
+
+### Fonctionnalités ensure_tool
+- ✅ Détection distribution : Arch, Debian, Fedora, Gentoo
+- ✅ Mapping complet outils → paquets (dsniff, hydra, nmap, nikto, gobuster, etc.)
+- ✅ Installation via pacman, apt, dnf, emerge
+- ✅ Support AUR avec yay automatique
+- ✅ Proposition interactive avant installation
+- ✅ Fonction `ensure_tools()` pour vérifier plusieurs outils en une fois
+
+### Nouveaux fichiers créés
+- ✅ `zsh/functions/cyberman.zsh` - Gestionnaire cyber complet
+- ✅ `zsh/functions/utils/ensure_tool.sh` - Utilitaire vérification/installation outils
+
+### Fichiers modifiés
+- ✅ `zsh/zshrc_custom` - Ajout chargement cyberman
+- ✅ `zsh/functions/cyber/*.sh` - Ajout vérification outils (6 fichiers modifiés)
+
+---
+
 ## 🚀 PROCHAINES ÉTAPES POSSIBLES
 
 ### Améliorations futures
 - [ ] Ajouter support pour d'autres identités Git (si besoin)
 - [ ] Ajouter plus de scripts d'installation (selon besoins)
 - [ ] Tests automatisés
+- [ ] Étendre ensure_tool à d'autres catégories d'outils
 
 ---
 
 ## 📝 NOTES
 
 - Tous les scripts utilisent `add_alias` et `add_to_path` avec fallback manuel
+- Les scripts cyber utilisent maintenant `ensure_tool` pour vérification automatique
 - La structure est maintenant modulaire et extensible
 - La documentation est complète et à jour
 - Tous les chemins ont été mis à jour après réorganisation
@@ -500,5 +571,5 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.2.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié)
+**Version :** 2.3.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool)
 

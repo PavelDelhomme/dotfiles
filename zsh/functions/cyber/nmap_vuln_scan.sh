@@ -1,6 +1,12 @@
-
 # Nouvelle fonction pour effectuer un scan de vulnérabilités avec Nmap
 function nmap_vuln_scan() {
+    # Vérifier et installer nmap si nécessaire
+    UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh"
+        ensure_tool nmap || return 1
+    fi
+    
     if [ $# -eq 0 ]; then
         echo "Usage: nmap_vuln_scan <target>"
         echo "Effectue un scan de vulnérabilités avec Nmap."
