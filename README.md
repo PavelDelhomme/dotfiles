@@ -107,17 +107,12 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
-
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
-
-## 🚀 Installation rapide (nouvelle machine)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🚀 Installation rapide (nouvelle machine)
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation en une seule commande
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation en une seule commande
 
 **UNE SEULE LIGNE** pour tout installer et configurer :
 
@@ -183,9 +178,8 @@ Le menu interactif affiche :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Après l'installation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Après l'installation
 
 Une fois le menu lancé, vous pouvez :
 - **Option 50** : Afficher ce qui manque (état détaillé, scrollable)
@@ -200,9 +194,8 @@ Une fois le menu lancé, vous pouvez :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Commandes utiles après installation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes utiles après installation
 
 Aller dans le dossier dotfiles :
 
@@ -236,9 +229,8 @@ make help
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation manuelle (alternative)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation manuelle (alternative)
 
 Installer git :
 
@@ -274,19 +266,17 @@ Le script `scripts/setup.sh` propose un menu interactif avec toutes les options 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🔄 Réinstallation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Réinstallation
 
 Différentes méthodes pour réinstaller les dotfiles selon votre situation.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Réinstallation complète (tout réinstaller)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation complète (tout réinstaller)
 
 **Si vous voulez tout désinstaller puis tout réinstaller depuis zéro :**
 
@@ -322,9 +312,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Réinstallation partielle (éléments spécifiques)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation partielle (éléments spécifiques)
 
 **Si vous voulez réinstaller seulement certains éléments :**
 
@@ -364,9 +353,8 @@ bash scripts/install/apps/install_brave.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Réinstallation automatique (détection et installation)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation automatique (détection et installation)
 
 **Si vous voulez réinstaller automatiquement tout ce qui manque :**
 
@@ -388,9 +376,8 @@ Choisir **Option 52** : Installer tout ce qui manque (automatique)
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Réinstallation après bootstrap (déjà installé)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation après bootstrap (déjà installé)
 
 **Si vous avez déjà exécuté bootstrap.sh mais que le projet n'est pas complet :**
 
@@ -420,9 +407,8 @@ Utiliser :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Réinstallation d'un composant spécifique
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation d'un composant spécifique
 
 **Désinstaller puis réinstaller un composant :**
 
@@ -444,9 +430,8 @@ bash ~/dotfiles/scripts/install/dev/install_docker.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Réinitialisation complète (cas extrême)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinitialisation complète (cas extrême)
 
 **Si vous avez des problèmes graves et voulez repartir de zéro :**
 
@@ -467,9 +452,8 @@ Puis proposer de réinstaller automatiquement.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Vérifier l'état après réinstallation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifier l'état après réinstallation
 
 Après une réinstallation, valider le setup :
 
@@ -487,11 +471,10 @@ Ou via le menu (Option 23) pour un rapport détaillé.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📁 Structure du repository
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📁 Structure du repository
 
 Voir `STRUCTURE.md` pour la structure complète et détaillée.
 
@@ -522,17 +505,15 @@ Structure principale :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🔧 Fichiers de configuration
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔧 Fichiers de configuration
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### `.env` - Variables d'environnement
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### `.env` - Variables d'environnement
 
 Contient toutes les variables PATH nécessaires :
 - Java (pour Flutter/Android)
@@ -544,9 +525,8 @@ Contient toutes les variables PATH nécessaires :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### `aliases.zsh` - Aliases
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### `aliases.zsh` - Aliases
 
 Raccourcis pratiques pour :
 - Navigation (`..`, `...`)
@@ -557,9 +537,8 @@ Raccourcis pratiques pour :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### `functions.zsh` - Fonctions
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### `functions.zsh` - Fonctions
 
 Fonctions utiles :
 - `mkcd` - Créer dossier et y aller
@@ -575,28 +554,25 @@ Fonctions utiles :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🖥️ Installation complète du système
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🖥️ Installation complète du système
 
 Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer automatiquement :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Gestionnaires de paquets
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Gestionnaires de paquets
 - ✅ yay (AUR helper)
 - ✅ snap
 - ✅ flatpak + flathub
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Applications
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Applications
 - ✅ Brave Browser
 - ✅ Cursor IDE (AppImage + .desktop)
 - ✅ Discord
@@ -608,9 +584,8 @@ Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Environnement de développement
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Environnement de développement
 - ✅ Flutter SDK
 - ✅ Android Studio & SDK
 - ✅ Node.js & npm
@@ -619,9 +594,8 @@ Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Matériel
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Matériel
 - ✅ Pilotes NVIDIA RTX 3060
 - ✅ Configuration Xorg pour GPU principal
 - ✅ nvidia-prime pour gestion hybride
@@ -634,17 +608,15 @@ Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📝 Fonctionnalités intelligentes
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📝 Fonctionnalités intelligentes
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Vérifications avant installation
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications avant installation
 Le script vérifie **toujours** si un paquet est déjà installé avant de l'installer :
 - Évite les installations redondantes
 - Messages clairs (installé/ignoré)
@@ -652,9 +624,8 @@ Le script vérifie **toujours** si un paquet est déjà installé avant de l'ins
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Backup automatique
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Backup automatique
 Lors du setup, les fichiers de config existants sont sauvegardés dans :
 ```
 ~/.dotfiles_backup_YYYYMMDD_HHMMSS/
@@ -662,9 +633,8 @@ Lors du setup, les fichiers de config existants sont sauvegardés dans :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Mise à jour de Cursor
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Mise à jour de Cursor
 Un script dédié est créé :
 ```bash
 update-cursor.sh
@@ -678,17 +648,15 @@ update-cursor.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🎯 Usage quotidien
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🎯 Usage quotidien
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Commandes Makefile (recommandé)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes Makefile (recommandé)
 
 Aller dans le dossier dotfiles :
 
@@ -800,9 +768,8 @@ make clean
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Recharger la configuration
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Recharger la configuration
 
 Méthode 1 :
 
@@ -818,9 +785,8 @@ exec zsh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Mettre à jour les dotfiles
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Mettre à jour les dotfiles
 
 Aller dans le dossier dotfiles :
 
@@ -848,9 +814,8 @@ bash scripts/setup.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Vérifications système
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications système
 ```bash
 flutter doctor          # Flutter
 docker --version        # Docker
@@ -860,11 +825,10 @@ android-studio         # Android Studio
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🔐 Configuration GitHub SSH
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔐 Configuration GitHub SSH
 
 Le script génère automatiquement une clé SSH ED25519 et :
 1. Copie la clé publique dans le presse-papier
@@ -881,17 +845,15 @@ Clé stockée dans : `~/.ssh/id_ed25519`
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🐳 Docker
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🐳 Docker
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation
 
 Installation complète via le menu scripts/setup.sh (option 15) :
 - Docker Engine
@@ -911,9 +873,8 @@ bash ~/dotfiles/scripts/install/dev/install_docker.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Configuration BuildKit
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Configuration BuildKit
 
 BuildKit est automatiquement activé dans `~/.docker/daemon.json` :
 ```json
@@ -926,9 +887,8 @@ BuildKit est automatiquement activé dans `~/.docker/daemon.json` :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Docker Desktop (optionnel)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Docker Desktop (optionnel)
 
 Installation via option 16 du menu ou :
 ```bash
@@ -937,9 +897,8 @@ bash ~/dotfiles/scripts/install/dev/install_docker.sh --desktop-only
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Login Docker Hub
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Login Docker Hub
 
 Le script propose automatiquement de se connecter à Docker Hub :
 - Support 2FA (utilisez un Personal Access Token)
@@ -953,9 +912,8 @@ docker run hello-world
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Commandes utiles
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes utiles
 
 ```bash
 docker --version              # Vérifier la version
@@ -966,19 +924,17 @@ docker compose up             # Lancer avec docker compose (plugin)
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🔄 Auto-Synchronisation Git
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Auto-Synchronisation Git
 
 Système de synchronisation automatique des dotfiles toutes les heures via systemd timer.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation
 
 Via le menu scripts/setup.sh (option 12) ou directement :
 ```bash
@@ -987,9 +943,8 @@ bash ~/dotfiles/scripts/sync/install_auto_sync.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Fonctionnement
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Fonctionnement
 
 - **Timer systemd** : Exécution toutes les heures
 - **Pull automatique** : Récupère les modifications distantes
@@ -998,9 +953,8 @@ bash ~/dotfiles/scripts/sync/install_auto_sync.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Commandes utiles
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes utiles
 
 ```bash
 # Vérifier le statut
@@ -1022,9 +976,8 @@ bash ~/dotfiles/scripts/sync/git_auto_sync.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Configuration
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Configuration
 
 Le timer est configuré pour :
 - Démarrer 5 minutes après le boot
@@ -1039,19 +992,17 @@ Le timer est configuré pour :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🌐 Brave Browser
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🌐 Brave Browser
 
 Installation optionnelle du navigateur Brave.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation
 
 Via le menu scripts/setup.sh (option 17) ou directement :
 ```bash
@@ -1060,9 +1011,8 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Support
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Support
 
 - **Arch Linux** : Installation via yay (brave-bin)
 - **Debian/Ubuntu** : Dépôt officiel Brave
@@ -1077,17 +1027,15 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📊 Options principales du menu (setup.sh)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📊 Options principales du menu (setup.sh)
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation & Détection (50-53)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation & Détection (50-53)
 - **50** : Afficher ce qui manque (état, scrollable via less)
 - **51** : Installer éléments manquants (un par un, menu interactif)
 - **52** : Installer tout ce qui manque (automatique, avec logs)
@@ -1095,9 +1043,8 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Désinstallation individuelle (60-70)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Désinstallation individuelle (60-70)
 - **60** : Désinstaller configuration Git
 - **61** : Désinstaller configuration remote Git
 - **62** : Désinstaller paquets de base
@@ -1112,9 +1059,8 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Autres options importantes
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Autres options importantes
 - **23** : Validation complète du setup (117+ vérifications exhaustives)
 - **28** : Restaurer depuis Git (annuler modifications locales, restaurer fichiers supprimés)
 - **26-27** : Migration shell (Fish ↔ Zsh), Changer shell par défaut
@@ -1127,11 +1073,10 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📝 Système de logs d'installation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📝 Système de logs d'installation
 
 Toutes les installations et configurations sont automatiquement tracées dans `~/dotfiles/logs/install.log` :
 
@@ -1154,11 +1099,10 @@ less ~/dotfiles/logs/install.log
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📦 Scripts Modulaires
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 📦 Scripts Modulaires
 
 Structure organisée des scripts dans `scripts/` :
 
@@ -1213,9 +1157,8 @@ scripts/
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Tableau des scripts
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Tableau des scripts
 
 | Fichier | Description | Usage |
 |---------|-------------|-------|
@@ -1236,19 +1179,17 @@ scripts/
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## ✅ Validation du Setup
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## ✅ Validation du Setup
 
 Script de validation complète pour vérifier toutes les installations et configurations.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Utilisation
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Utilisation
 
 Via le menu scripts/setup.sh (option 23) ou directement :
 ```bash
@@ -1257,9 +1198,8 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Vérifications effectuées (117+ vérifications)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications effectuées (117+ vérifications)
 
 **Structure dotfiles** :
 - ✅ Fichiers racine (bootstrap.sh, Makefile, README.md, zshrc)
@@ -1291,9 +1231,8 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Rapport
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Rapport
 
 Le script affiche un rapport avec :
 - ✅ Réussis (vert)
@@ -1308,17 +1247,15 @@ Le script affiche un rapport avec :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📱 Flutter & Android
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📱 Flutter & Android
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Variables d'environnement (dans `.env`)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Variables d'environnement (dans `.env`)
 
 Définir JAVA_HOME :
 
@@ -1334,9 +1271,8 @@ export ANDROID_SDK_ROOT='/opt/android-sdk'
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Première utilisation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Première utilisation
 
 Vérifier l'installation Flutter :
 
@@ -1358,17 +1294,15 @@ android-studio
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🎮 NVIDIA RTX 3060
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🎮 NVIDIA RTX 3060
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Configuration automatique
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Configuration automatique
 - Pilotes propriétaires installés
 - Xorg configuré (PrimaryGPU)
 - GRUB optimisé (nomodeset)
@@ -1376,9 +1310,8 @@ android-studio
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Vérifications
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications
 
 Vérifier l'état du GPU :
 
@@ -1394,9 +1327,8 @@ prime-run <app>
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Important
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Important
 1. Branchez l'écran sur la **carte NVIDIA** (pas carte mère)
 2. Dans le BIOS : `Primary Display` = `PCI-E` ou `Discrete`
 3. Redémarrez après installation
@@ -1409,17 +1341,15 @@ prime-run <app>
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🛠️ Maintenance
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🛠️ Maintenance
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Mettre à jour le système
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Mettre à jour le système
 
 **Mise à jour intelligente (détection automatique) :**
 
@@ -1481,9 +1411,8 @@ yayup
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Nettoyer Docker
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Nettoyer Docker
 
 Nettoyer Docker :
 
@@ -1495,9 +1424,8 @@ docker-cleanup
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Mettre à jour Cursor
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Mettre à jour Cursor
 
 Mettre à jour Cursor :
 
@@ -1513,11 +1441,10 @@ update-cursor.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📦 Structure recommandée après installation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📦 Structure recommandée après installation
 
 Les symlinks sont créés automatiquement lors de l'installation pour centraliser la configuration :
 
@@ -1546,17 +1473,15 @@ Les symlinks sont créés automatiquement lors de l'installation pour centralise
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🚨 Troubleshooting
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🚨 Troubleshooting
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Flutter pas dans le PATH
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Flutter pas dans le PATH
 
 Vérifiez que `~/dotfiles/.env` est sourcé dans `.zshrc` et contient :
 
@@ -1566,9 +1491,8 @@ export PATH=$PATH:/opt/flutter/bin
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Docker : permission denied
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Docker : permission denied
 
 Ajouter votre utilisateur au groupe docker :
 
@@ -1580,9 +1504,8 @@ Puis redémarrer la session.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### NVIDIA : écran noir au boot
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### NVIDIA : écran noir au boot
 
 Éditer le fichier GRUB :
 
@@ -1604,9 +1527,8 @@ sudo update-grub
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Dotfiles non sourcés
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Dotfiles non sourcés
 
 Vérifier si dotfiles est sourcé dans `.zshrc` :
 
@@ -1624,17 +1546,15 @@ Si absent, relancez `scripts/setup.sh`.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🔄 Workflow complet (nouvelle machine)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Workflow complet (nouvelle machine)
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Méthode automatique (recommandée)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Méthode automatique (recommandée)
 
 **Une seule commande** pour tout faire :
 
@@ -1654,9 +1574,8 @@ Cette commande fait automatiquement :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Dans le menu scripts/setup.sh
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Dans le menu scripts/setup.sh
 
 1. **Voir ce qui manque** : Option 50
 2. **Installer individuellement** : Option 51 (un par un) ou Option 52 (tout automatique)
@@ -1666,9 +1585,8 @@ Cette commande fait automatiquement :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Après installation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Après installation
 
 - **Redémarrer** pour appliquer toutes les configurations
 - **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
@@ -1683,17 +1601,15 @@ Cette commande fait automatiquement :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🔄 Rollback / Désinstallation
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Rollback / Désinstallation
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Rollback complet (tout désinstaller)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Rollback complet (tout désinstaller)
 
 Pour désinstaller **TOUT** ce qui a été installé et configuré :
 
@@ -1727,9 +1643,8 @@ Le script va :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Rollback Git uniquement
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Rollback Git uniquement
 
 Pour revenir à une version précédente des dotfiles (sans désinstaller les applications) :
 
@@ -1744,9 +1659,8 @@ Options disponibles :
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Rollback Git manuel
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Rollback Git manuel
 
 Aller dans le dossier dotfiles :
 
@@ -1780,19 +1694,17 @@ git reset --hard origin/main
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 🖥️ Gestion des VM (Tests en environnement isolé)
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🖥️ Gestion des VM (Tests en environnement isolé)
 
 Système complet de gestion de VM en ligne de commande pour tester les dotfiles dans un environnement complètement isolé.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Installation QEMU/KVM
+[🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation QEMU/KVM
 
 Via le menu `scripts/setup.sh` (option 11) ou directement :
 ```bash
@@ -1801,9 +1713,8 @@ bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Utilisation rapide
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Utilisation rapide
 
 **Via Makefile (recommandé) :**
 ```bash
@@ -1828,9 +1739,8 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Workflow de test recommandé
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Workflow de test recommandé
 
 1. **Créer la VM :**
    ```bash
@@ -1864,9 +1774,8 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Commandes Makefile disponibles
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes Makefile disponibles
 
 | Commande | Description |
 |----------|-------------|
@@ -1884,9 +1793,8 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Avantages
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Avantages
 
 - ✅ **100% en ligne de commande** : Pas besoin de virt-manager GUI
 - ✅ **Tests en environnement isolé** : Votre machine reste propre
@@ -1896,9 +1804,8 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-### Documentation complète
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Documentation complète
 
 Voir `scripts/vm/README.md` pour la documentation complète avec tous les exemples.
 
@@ -1910,21 +1817,19 @@ Voir `scripts/vm/README.md` pour la documentation complète avec tous les exempl
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 📄 Licence
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📄 Licence
 
 Configuration personnelle - libre d'utilisation et modification.
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
 
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
 
-## 👤 Auteur
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 👤 Auteur
 
 **PavelDelhomme**
 - GitHub: [@PavelDelhomme](https://github.com/PavelDelhomme)
@@ -1932,6 +1837,4 @@ Configuration personnelle - libre d'utilisation et modification.
 ---
 
 *Dernière mise à jour : Décembre 2024*
-[🔝 Retour en haut](#dotfiles---paveldelhomme)
-
 [🔝 Retour en haut](#dotfiles---paveldelhomme)
