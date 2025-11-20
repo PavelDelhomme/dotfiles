@@ -105,7 +105,6 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
      INSTALLATION RAPIDE (NOUVELLE MACHINE)
      ============================================================================= -->
 
-[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🚀 Installation rapide (nouvelle machine)
 
 ### Installation en une seule commande
 
