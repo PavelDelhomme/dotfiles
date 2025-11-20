@@ -566,11 +566,17 @@ Structure principale :
 
 ### Configuration Git via .env
 
-**📝 IMPORTANT : Le fichier `.env` se crée APRÈS le clonage du repository**
+**📝 IMPORTANT : Le fichier `.env` est créé AUTOMATIQUEMENT après le clonage**
 
 Le fichier `.env` permet de stocker vos informations personnelles de manière sécurisée (jamais commité dans Git) pour éviter de les saisir à chaque installation.
 
-**⚠️ Note :** Vous ne pouvez créer le fichier `.env` qu'**après avoir cloné le repository** (étape 4 du processus d'installation). Lors de la première installation avec `curl ... | bash`, le script vous demandera interactivement vos informations.
+**✅ Création automatique :** Lors de l'installation avec `curl ... | bash`, le script :
+1. Vous demande interactivement vos informations (Nom Git, Email Git)
+2. Clone le repository
+3. **Crée automatiquement le fichier `.env`** avec les informations que vous avez fournies
+4. Vous n'avez plus besoin de créer `.env` manuellement !
+
+**⚠️ Note :** Si vous voulez modifier le fichier `.env` après l'installation, vous pouvez le faire manuellement.
 
 **Créer le fichier `.env` (après le clonage) :**
 
