@@ -202,9 +202,9 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 9. ✅ Met à jour si repo existe déjà (`git pull`)
 10. ✅ Demande choix du shell (Zsh/Fish/Les deux)
 11. ✅ Crée symlinks si demandé
-12. ✅ Lance automatiquement setup.sh (menu interactif)
+12. ✅ Lance automatiquement scripts/setup.sh (menu interactif)
 
-### 2. Menu interactif (setup.sh)
+### 2. Menu interactif (scripts/setup.sh)
 
 **Options principales (70+ options) :**
 - 1-2 : Configuration Git
@@ -273,20 +273,20 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 ## Ordre d'exécution recommandé
 
 1. **bootstrap.sh** → Installation Git + Configuration Git + Test SSH GitHub + Clone repo + Lancement menu
-2. **setup.sh option 50** → Voir ce qui manque (état détaillé)
-3. **setup.sh option 52** → Installer tout ce qui manque automatiquement (OU option 51 pour installer un par un)
-4. **setup.sh option 23** → Valider le setup complet (117+ vérifications)
-5. **setup.sh option 53** → Consulter les logs d'installation (voir ce qui a été fait)
+2. **scripts/setup.sh option 50** → Voir ce qui manque (état détaillé)
+3. **scripts/setup.sh option 52** → Installer tout ce qui manque automatiquement (OU option 51 pour installer un par un)
+4. **scripts/setup.sh option 23** → Valider le setup complet (117+ vérifications)
+5. **scripts/setup.sh option 53** → Consulter les logs d'installation (`logs/install.log`)
 
 **Ou manuellement :**
 1. **bootstrap.sh** → Configuration Git + Clone repo + Lancement menu
-2. **setup.sh option 3-4** → Paquets de base + Gestionnaires
-3. **setup.sh option 18** → Installer yay (si Arch)
-4. **setup.sh option 16** → Installer Docker
-5. **setup.sh option 8-9** → Installer Cursor + PortProton
-6. **setup.sh option 19** → Installer Go
-7. **setup.sh option 12** → Configurer auto-sync Git
-8. **setup.sh option 23** → Valider le setup
+2. **scripts/setup.sh option 3-4** → Paquets de base + Gestionnaires
+3. **scripts/setup.sh option 18** → Installer yay (si Arch)
+4. **scripts/setup.sh option 16** → Installer Docker
+5. **scripts/setup.sh option 8-9** → Installer Cursor + PortProton
+6. **scripts/setup.sh option 19** → Installer Go
+7. **scripts/setup.sh option 12** → Configurer auto-sync Git
+8. **scripts/setup.sh option 23** → Valider le setup
 
 ## Structure zsh/functions/
 
