@@ -117,6 +117,7 @@ Méthode 1 : Pipe (peut avoir des problèmes dans certains environnements)
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
 ```
+
 Méthode 2 : Process substitution (recommandé si méthode 1 ne fonctionne pas)
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
@@ -127,22 +128,66 @@ Méthode 3 : Téléchargement puis exécution (si les deux autres ne fonctionnen
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh -o /tmp/bootstrap.sh && bash /tmp/bootstrap.sh
 ```
 
+**📝 Préparation recommandée (optionnel mais recommandé) :**
+
+Pour éviter de saisir vos informations à chaque fois, créez d'abord le fichier `.env` :
+
+```bash
+cd ~/dotfiles
+```
+
+Copier le template :
+
+```bash
+cp .env.example .env
+```
+
+Éditer `.env` avec vos valeurs :
+
+```bash
+nano .env
+```
+
+Remplir avec vos valeurs personnelles :
+- `GIT_USER_NAME="VotreNomGit"` - Votre nom d'utilisateur Git (ex: `PavelDelhomme`)
+- `GIT_USER_EMAIL="votre.email@example.com"` - Votre email Git (ex: `dev@delhomme.ovh`)
+- `GITHUB_REPO_URL="https://github.com/VotreNom/dotfiles.git"` - URL de votre repository (optionnel)
+
+**⚠️ Important :** Le fichier `.env` n'est jamais commité dans Git (il est dans `.gitignore`).
+
+Voir [Configuration Git via .env](#configuration-git-via-env) pour plus de détails.
+
+**🔄 Processus d'installation automatique :**
+
 Cette commande va automatiquement exécuter les étapes suivantes :
 
 **1. Vérification et installation de Git**
 - Détection automatique du gestionnaire de paquets (pacman/apt/dnf)
 - Installation automatique si Git n'est pas présent
 
-**2. Configuration Git (nom et email)**
-- Utilise la configuration existante si déjà configurée
-- Sinon, demande interactivement avec valeurs par défaut
-- Support des variables d'environnement `.env` (GIT_USER_NAME, GIT_USER_EMAIL)
+**2. Configuration Git (nom et email)** ⚠️ **INTERACTIF**
+- **Si Git est déjà configuré** : Utilise la configuration existante (aucune demande)
+- **Si le fichier `.env` existe** : Charge `GIT_USER_NAME` et `GIT_USER_EMAIL` depuis `.env`
+- **Sinon, le script vous demandera interactivement** :
+  ```
+  Configuration Git nécessaire
+  Aucune information personnelle ne sera utilisée par défaut
+  Nom Git (obligatoire): [vous devez entrer votre nom]
+  Email Git (obligatoire): [vous devez entrer votre email]
+  ```
+  ⚠️ **Vous devez connaître ces informations avant de lancer la commande** :
+  - **Nom Git** : Le nom d'utilisateur que vous voulez utiliser pour vos commits Git (ex: `PavelDelhomme`, `VotreNom`)
+  - **Email Git** : L'adresse email associée à votre compte GitHub/GitLab (ex: `dev@delhomme.ovh`, `votre.email@example.com`)
+  - Validation automatique du format d'email
 - Configuration du credential helper (cache pour 15 minutes)
 
-**3. Génération clé SSH ED25519** (si absente)
-- Utilise l'email Git configuré pour la clé
+**3. Génération clé SSH ED25519** (si absente) ⚠️ **INTERACTIF**
+- Utilise l'email Git configuré précédemment pour la clé
 - Copie la clé publique dans le presse-papier automatiquement
-- Ouvre GitHub dans le navigateur pour ajouter la clé SSH
+- **Ouvre GitHub dans le navigateur** pour que vous ajoutiez la clé SSH
+- ⚠️ **Action requise** : Vous devez copier la clé SSH dans votre compte GitHub
+  - Aller dans GitHub → Settings → SSH and GPG keys → New SSH key
+  - Coller la clé publique
 - Test de la connexion GitHub SSH (`ssh -T git@github.com`)
 
 **4. Clonage ou mise à jour du repository dotfiles**
@@ -152,12 +197,21 @@ Cette commande va automatiquement exécuter les étapes suivantes :
 - Utilise l'URL par défaut si `.env` non configuré
 - Si le dossier existe mais n'est pas un repo Git, demande confirmation pour le supprimer
 
-**5. Choix du shell** (Zsh/Fish/Les deux)
-- Sélection interactive du shell à configurer
+**5. Choix du shell** (Zsh/Fish/Les deux) ⚠️ **INTERACTIF**
+- Menu interactif :
+  ```
+  Quel shell souhaitez-vous configurer?
+    1. Zsh (recommandé)
+    2. Fish
+    3. Les deux (Fish et Zsh)
+    0. Passer cette étape
+  ```
+- Sélection du shell à configurer
 - Support de plusieurs shells simultanés
 - Passage de la sélection au menu `setup.sh`
 
-**6. Création des symlinks** (si demandé)
+**6. Création des symlinks** (si demandé) ⚠️ **INTERACTIF**
+- Demande : `Créer les symlinks pour centraliser la configuration? (o/n)`
 - Centralisation de la configuration
 - Backup automatique des fichiers existants
 - Création selon le shell sélectionné
@@ -166,6 +220,15 @@ Cette commande va automatiquement exécuter les étapes suivantes :
 - Menu `scripts/setup.sh` avec toutes les options
 - État de l'installation affiché en haut du menu
 - Variable `SELECTED_SHELL_FOR_SETUP` passée au menu
+
+**📋 Ce que vous devez savoir avant de lancer la commande :**
+
+1. ✅ **Nom Git** : Le nom que vous voulez utiliser pour vos commits (ex: `PavelDelhomme`)
+2. ✅ **Email Git** : L'email de votre compte GitHub/GitLab (ex: `dev@delhomme.ovh`)
+3. ✅ **Accès GitHub** : Vous devrez ajouter la clé SSH manuellement sur GitHub
+4. ⚙️ **Recommandé** : Créer le fichier `.env` au préalable pour éviter les saisies répétées
+
+**💡 Astuce :** Pour éviter de répondre aux questions interactives, créez le fichier `.env` **avant** de lancer la commande (voir [Configuration Git via .env](#configuration-git-via-env) ci-dessous).
 
 Le menu interactif affiche :
 - 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
@@ -486,9 +549,62 @@ Structure principale :
 
 ## 🔧 Fichiers de configuration
 
-### `.env` - Variables d'environnement
+### Configuration Git via .env
 
-Contient toutes les variables PATH nécessaires :
+**📝 IMPORTANT : Créer le fichier `.env` avant la première installation**
+
+Le fichier `.env` permet de stocker vos informations personnelles de manière sécurisée (jamais commité dans Git).
+
+**Créer le fichier `.env` :**
+
+Aller dans le dossier dotfiles (après clonage) :
+
+```bash
+cd ~/dotfiles
+```
+
+Copier le template :
+
+```bash
+cp .env.example .env
+```
+
+Éditer avec vos valeurs :
+
+```bash
+nano .env
+```
+
+**Variables à remplir :**
+
+```bash
+# Nom d'utilisateur Git (pour les commits)
+GIT_USER_NAME="VotreNomGit"
+
+# Email Git (pour les commits) - Doit correspondre à votre compte GitHub
+GIT_USER_EMAIL="votre.email@example.com"
+
+# URL du repository GitHub (optionnel)
+GITHUB_REPO_URL="https://github.com/VotreNom/dotfiles.git"
+```
+
+**Exemples de valeurs :**
+- `GIT_USER_NAME="PavelDelhomme"`
+- `GIT_USER_EMAIL="dev@delhomme.ovh"`
+- `GITHUB_REPO_URL="https://github.com/PavelDelhomme/dotfiles.git"`
+
+**✅ Avantages :**
+- Pas de saisie interactive lors de l'installation
+- Vos valeurs sont chargées automatiquement
+- Sécurisé : `.env` est dans `.gitignore` et n'est jamais commité
+
+**⚠️ Sans `.env` :**
+- Le script vous demandera interactivement votre nom et email Git
+- Vous devrez répondre aux questions pendant l'installation
+
+### `.env` - Variables d'environnement (autres)
+
+Le fichier `.env` peut aussi contenir d'autres variables PATH nécessaires :
 - Java (pour Flutter/Android)
 - Android SDK
 - Flutter
@@ -496,7 +612,7 @@ Contient toutes les variables PATH nécessaires :
 - Cargo (Rust)
 - Binaires locaux
 
-  [🔝 Retour en haut](#dotfiles---paveldelhomme)
+---
 
 ### `aliases.zsh` - Aliases
 
