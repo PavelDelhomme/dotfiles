@@ -664,14 +664,12 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 → Questions multiples → Choix entre make install / make setup / bash setup.sh → Confusion sur quelle méthode utiliser
 
 **Maintenant :**
+
 ```bash
-curl | bash bootstrap.sh
-# → Configuration Git automatique
-# → Clonage dotfiles
-# → Menu interactif lancé automatiquement
-# → État d'installation affiché en haut du menu
-# → Choix clair des options à installer
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
 ```
+
+→ Configuration Git automatique → Clonage dotfiles → Menu interactif lancé automatiquement → État d'installation affiché en haut du menu → Choix clair des options à installer
 
 ### Avantages
 - ✅ **Workflow linéaire** : Une seule commande, tout est automatique
