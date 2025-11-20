@@ -173,16 +173,19 @@ if [ ! -f "$SSH_KEY" ]; then
     log_info "Génération de la clé SSH ED25519..."
     
     # S'assurer que git_email contient bien la valeur réelle
-    # Si git_email contient encore des variables non résolues, utiliser la valeur par défaut
+    # Si git_email contient encore des variables non résolues, erreur
     if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]] || [[ "$git_email" == *"git_email"* ]]; then
-        git_email="dev@delhomme.ovh"
-        log_warn "Email invalide détecté, utilisation de la valeur par défaut pour la clé SSH"
+        log_error "Erreur: L'email Git n'est pas valide pour la génération de la clé SSH."
+        log_warn "Veuillez configurer Git correctement avant de continuer."
+        exit 1
     fi
     
     # Générer la clé avec l'email correct (vérifier une dernière fois)
     SSH_EMAIL="$git_email"
-    if [ -z "$SSH_EMAIL" ]; then
-        SSH_EMAIL="dev@delhomme.ovh"
+    if [ -z "$SSH_EMAIL" ] || [[ ! "$SSH_EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+        log_error "Erreur: Impossible de déterminer un email valide pour la clé SSH."
+        log_warn "Veuillez configurer Git correctement avant de continuer."
+        exit 1
     fi
     
     ssh-keygen -t ed25519 -C "$SSH_EMAIL" -f "$SSH_KEY" -N "" 2>/dev/null
