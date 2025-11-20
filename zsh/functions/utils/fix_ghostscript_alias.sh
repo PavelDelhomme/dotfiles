@@ -6,21 +6,22 @@
 # S'exécute à chaque ouverture de terminal
 ################################################################################
 
-# Vérifier si ghostscript est installé (en utilisant command pour bypasser les alias)
-if command -v gs >/dev/null 2>&1; then
-    # Obtenir le chemin réel de gs (bypass alias)
-    GS_PATH=$(command -v gs 2>/dev/null)
-    
-    # Vérifier que c'est bien un exécutable (ghostscript) et pas un alias
-    if [ -n "$GS_PATH" ] && [ -x "$GS_PATH" ]; then
-        # Vérifier que gs n'est pas déjà un alias pour git status
-        GS_ALIAS=$(alias gs 2>/dev/null | grep -o "git status" || echo "")
-        
-        # Si gs n'est pas encore un alias pour git status, on configure
-        if [ -z "$GS_ALIAS" ]; then
-            # S'assurer que gs pointe vers git status
-            alias gs="git status"
-        fi
+# Vérifier si ghostscript est installé en cherchant directement dans le PATH système
+# On utilise 'whence -p' ou 'which' pour bypasser les alias et fonctions
+GS_BINARY=""
+if whence -p gs >/dev/null 2>&1; then
+    GS_BINARY=$(whence -p gs)
+elif which gs >/dev/null 2>&1; then
+    GS_BINARY=$(which gs)
+fi
+
+# Si on trouve un binaire gs et que c'est un exécutable
+if [ -n "$GS_BINARY" ] && [ -x "$GS_BINARY" ]; then
+    # Vérifier que c'est bien ghostscript (pas un autre binaire)
+    # Ghostscript se trouve généralement dans /usr/bin/gs
+    if [ -f "$GS_BINARY" ]; then
+        # S'assurer que gs pointe vers git status (priorité sur le binaire)
+        alias gs="git status" 2>/dev/null || true
         
         # Créer l'alias ghs pour ghostscript si pas déjà défini
         if ! alias ghs >/dev/null 2>&1; then
