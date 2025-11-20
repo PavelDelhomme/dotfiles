@@ -2,7 +2,7 @@
 
 Ce fichier documente toutes les modifications apportées aux dotfiles depuis le début de la refactorisation complète.
 
-**Version :** 2.2.0  
+**Version :** 2.11.0  
 **Date de création :** Décembre 2024  
 **Dernière mise à jour :** Décembre 2024
 
@@ -1120,4 +1120,70 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
   * Log succès/échec après exécution
 - ✅ Toutes les installations via setup.sh sont loggées
 - ✅ Format clair permettant de tracer: QUOI, QUAND, POURQUOI, RÉSULTAT
+
+---
+
+## 🎯 PHASE 25 : Gestion Ctrl+C et améliorations bootstrap
+
+### Modifications
+- ✅ Gestion complète de Ctrl+C (SIGINT) dans `bootstrap.sh` et `setup.sh`
+- ✅ Messages informatifs lors de l'interruption
+- ✅ Instructions pour reprendre l'installation
+- ✅ Gestion dans `run_script()` pour tous les sous-scripts
+- ✅ Retour propre au menu après interruption
+
+### Fichiers créés/modifiés
+- ✅ `bootstrap.sh` - Gestionnaire trap pour SIGINT/SIGTERM
+- ✅ `scripts/setup.sh` - Gestionnaire trap et gestion dans run_script()
+- ✅ Messages informatifs avec état actuel affiché
+
+### Avantages
+- ✅ Arrêt propre et informatif lors de Ctrl+C
+- ✅ Pas de messages d'erreur confus
+- ✅ Instructions claires pour reprendre
+- ✅ Expérience utilisateur fluide
+
+---
+
+## 🎯 PHASE 26 : Amélioration documentation et .env automatique
+
+### Modifications
+- ✅ Documentation README.md complètement réécrite pour utilisateurs ligne de commande uniquement
+- ✅ Explications détaillées de chaque étape interactive
+- ✅ Création automatique du fichier `.env` après le clonage
+- ✅ Gestion environnement sans interface graphique pour clé SSH
+- ✅ Instructions manuelles pour ajout clé SSH si pas de navigateur
+
+### Fichiers créés/modifiés
+- ✅ `README.md` - Documentation complètement améliorée
+- ✅ `bootstrap.sh` - Création automatique .env, gestion ligne de commande uniquement
+- ✅ `.env.example` - Template mis à jour
+- ✅ Messages interactifs améliorés avec exemples
+
+### Avantages
+- ✅ Documentation réaliste et complète
+- ✅ Fonctionne sur Arch Linux fresh install (ligne de commande uniquement)
+- ✅ .env créé automatiquement - plus besoin de le créer manuellement
+- ✅ Instructions claires pour tous les environnements
+
+---
+
+## 🎯 PHASE 27 : Résolution conflit ghostscript/gs
+
+### Modifications
+- ✅ Script automatique de détection ghostscript
+- ✅ Création automatique alias `ghs` pour ghostscript
+- ✅ Alias `gs` reste pour `git status` (priorité)
+- ✅ Détection à chaque ouverture de terminal
+
+### Fichiers créés/modifiés
+- ✅ `zsh/functions/utils/fix_ghostscript_alias.sh` - Script de détection et correction
+- ✅ `zsh/zshrc_custom` - Intégration script (étape 6)
+- ✅ `zsh/aliases.zsh` - Alias ghs ajouté
+
+### Avantages
+- ✅ Résout automatiquement le conflit sur toutes les machines
+- ✅ Fonctionne dès l'ouverture du terminal
+- ✅ Informe l'utilisateur de la configuration
+- ✅ Solution permanente et automatique
 

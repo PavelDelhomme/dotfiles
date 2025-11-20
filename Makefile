@@ -46,11 +46,13 @@ help: ## Afficher cette aide
 	@echo "  make auto-sync         - Configurer auto-sync Git (systemd timer)"
 	@echo ""
 	@echo "$(GREEN)Installations spécifiques:$(NC)"
-	@echo "  make install-docker   - Installer Docker & Docker Compose"
-	@echo "  make install-go       - Installer Go (Golang)"
-	@echo "  make install-cursor   - Installer Cursor IDE"
-	@echo "  make install-brave    - Installer Brave Browser"
-	@echo "  make install-yay      - Installer yay (AUR helper - Arch Linux)"
+	@echo "  make install APP=docker   - Installer Docker & Docker Compose"
+	@echo "  make install APP=go       - Installer Go (Golang)"
+	@echo "  make install APP=cursor   - Installer Cursor IDE"
+	@echo "  make install APP=brave    - Installer Brave Browser"
+	@echo "  make install APP=yay      - Installer yay (AUR helper - Arch Linux)"
+	@echo ""
+	@echo "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
 	@echo ""
 	@echo "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-menu          - Menu interactif de gestion des VM"
@@ -68,7 +70,7 @@ help: ## Afficher cette aide
 	@echo "$(YELLOW)Pour plus d'options, utilisez: make setup$(NC)"
 	@echo ""
 
-install: ## Installation complète depuis zéro (bootstrap)
+install-all: ## Installation complète depuis zéro (bootstrap)
 	@echo "$(BLUE)🚀 Installation complète des dotfiles...$(NC)"
 	@if [ -f "$(DOTFILES_DIR)/bootstrap.sh" ]; then \
 		bash "$(DOTFILES_DIR)/bootstrap.sh"; \
@@ -76,6 +78,9 @@ install: ## Installation complète depuis zéro (bootstrap)
 		echo "$(YELLOW)⚠️  bootstrap.sh non trouvé, clonage depuis GitHub...$(NC)"; \
 		curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash; \
 	fi
+
+# Alias pour compatibilité
+install: install-all ## Alias pour install-all (ou make install APP=... pour installer une app)
 
 setup: ## Lancer le menu interactif setup.sh
 	@echo "$(BLUE)📋 Menu interactif setup.sh...$(NC)"
