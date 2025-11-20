@@ -351,39 +351,75 @@ while true; do
     case "$choice" in
         1)
             run_script "$SCRIPT_DIR/config/git_config.sh" "Configuration Git"
+            # Si Ctrl+C a été pressé dans run_script, retourner au menu sans demander Entrée
+            if [ $? -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "
             read -r dummy
             ;;
         2)
             run_script "$SCRIPT_DIR/config/git_remote.sh" "Configuration remote Git"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         3)
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         4)
             run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires de paquets"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         5)
             run_script "$SCRIPT_DIR/config/qemu_packages.sh" "Installation QEMU/KVM"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         6)
             run_script "$SCRIPT_DIR/config/qemu_network.sh" "Configuration réseau QEMU"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         7)
             run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Configuration libvirt"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         8)
             run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Installation Cursor"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         9)
             run_script "$SCRIPT_DIR/install/apps/install_portproton.sh" "Installation PortProton"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         10)
@@ -430,6 +466,10 @@ while true; do
             [ "$install_docker_desktop" = "o" ] && echo "  ✓ Docker Desktop"
             [ "$install_brave" = "o" ] && echo "  ✓ Brave"
             [ "$install_autosync" = "o" ] && echo "  ✓ Auto-sync Git"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         11)
@@ -439,10 +479,18 @@ while true; do
             run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Libvirt"
             log_info "✓ Configuration QEMU complète terminée"
             log_warn "⚠ Déconnectez-vous et reconnectez-vous pour groupe libvirt"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         12)
             run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Configuration auto-sync Git"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         13)
@@ -497,10 +545,18 @@ while true; do
                         ;;
                 esac
             fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         14)
             run_script "$SCRIPT_DIR/sync/git_auto_sync.sh" "Test synchronisation manuelle"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         15)
@@ -514,26 +570,50 @@ while true; do
             else
                 log_warn "❌ Timer non configuré (option 12 pour installer)"
             fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         16)
             run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Installation Docker & Docker Compose"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         16)
             run_script "$SCRIPT_DIR/install/dev/install_docker.sh --desktop-only" "Installation Docker Desktop"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         17)
             run_script "$SCRIPT_DIR/install/apps/install_brave.sh" "Installation Brave Browser"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         18)
             run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "Installation yay (AUR)"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         20)
             run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Installation Go"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         21)
@@ -560,15 +640,27 @@ while true; do
             else
                 log_error "Fichier non trouvé: $USB_FUNCTIONS"
             fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         23)
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         24)
             log_section "Création des symlinks"
             run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création symlinks"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         25)
@@ -594,6 +686,10 @@ while true; do
                 fi
             else
                 log_error "Ce n'est pas un dépôt Git!"
+            fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
@@ -641,11 +737,19 @@ while true; do
                     log_error "Choix invalide"
                     ;;
             esac
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         26)
             log_section "Migration shell (Fish <-> Zsh)"
             run_script "$SCRIPT_DIR/migrate_shell.sh" "Migration shell"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         27)
@@ -687,11 +791,19 @@ while true; do
                     log_error "Choix invalide"
                     ;;
             esac
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         50)
             log_section "État des composants manquants"
             show_missing_components
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         51)
@@ -700,7 +812,11 @@ while true; do
             
             if [ ${#MISSING_ITEMS[@]} -eq 0 ]; then
                 log_info "✅ Tous les composants sont installés!"
-                printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+                run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
                 continue
             fi
             
@@ -720,7 +836,11 @@ while true; do
             
             if [ "$choice" = "0" ] || [ -z "$choice" ]; then
                 log_info "Retour au menu principal"
-                printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+                run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
                 continue
             fi
             
@@ -829,6 +949,10 @@ while true; do
                 log_error "Choix invalide"
             fi
             
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         52)
@@ -838,7 +962,11 @@ while true; do
             read -r confirm
             if [[ ! "$confirm" =~ ^[oO]$ ]]; then
                 log_info "Installation annulée"
-                printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+                run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
                 continue
             fi
             
@@ -937,6 +1065,10 @@ while true; do
             
             log_info "✓ Installation automatique terminée"
             log_install_action "install" "auto_all" "success" "Installation automatique terminée"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         53)
@@ -1000,50 +1132,98 @@ while true; do
             else
                 log_warn "Aucun log d'installation trouvé"
             fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         60)
             run_script "$SCRIPT_DIR/uninstall/uninstall_git_config.sh" "Désinstallation configuration Git"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         61)
             run_script "$SCRIPT_DIR/uninstall/uninstall_git_remote.sh" "Désinstallation configuration remote Git"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         62)
             run_script "$SCRIPT_DIR/uninstall/uninstall_base_packages.sh" "Désinstallation paquets de base"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         63)
             run_script "$SCRIPT_DIR/uninstall/uninstall_package_managers.sh" "Désinstallation gestionnaires de paquets"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         64)
             run_script "$SCRIPT_DIR/uninstall/uninstall_brave.sh" "Désinstallation Brave Browser"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         65)
             run_script "$SCRIPT_DIR/uninstall/uninstall_cursor.sh" "Désinstallation Cursor IDE"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         66)
             run_script "$SCRIPT_DIR/uninstall/uninstall_docker.sh" "Désinstallation Docker"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         67)
             run_script "$SCRIPT_DIR/uninstall/uninstall_go.sh" "Désinstallation Go"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         68)
             run_script "$SCRIPT_DIR/uninstall/uninstall_yay.sh" "Désinstallation yay"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         69)
             run_script "$SCRIPT_DIR/uninstall/uninstall_auto_sync.sh" "Désinstallation auto-sync Git"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         70)
             run_script "$SCRIPT_DIR/uninstall/uninstall_symlinks.sh" "Désinstallation symlinks"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         99)
@@ -1056,6 +1236,10 @@ while true; do
             else
                 log_info "Rollback annulé"
             fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         98)
@@ -1067,6 +1251,10 @@ while true; do
                 run_script "$SCRIPT_DIR/uninstall/reset_all.sh" "Réinitialisation complète"
             else
                 log_info "Réinitialisation annulée"
+            fi
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
