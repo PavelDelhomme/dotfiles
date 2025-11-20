@@ -108,6 +108,10 @@ else
     # Git n'est pas configuré, demander la configuration
     log_info "Configuration Git nécessaire"
     log_warn "Aucune information personnelle ne sera utilisée par défaut"
+    echo ""
+    log_info "Le nom Git est le nom qui apparaîtra dans vos commits Git (visible dans git log, GitHub, etc.)"
+    log_info "Exemples : PavelDelhomme, Jean Dupont, John Doe"
+    echo ""
     
     # Demander le nom Git (obligatoire)
     while [ -z "$git_name" ]; do
@@ -124,6 +128,12 @@ else
             log_error "Le nom Git est obligatoire. Veuillez entrer un nom."
         fi
     done
+    
+    echo ""
+    log_info "L'email Git doit correspondre à l'email de votre compte GitHub/GitLab"
+    log_info "Pour GitHub, vous pouvez utiliser username@users.noreply.github.com pour garder votre email privé"
+    log_info "Exemples : dev@delhomme.ovh, votre.email@example.com"
+    echo ""
     
     # Demander l'email Git (obligatoire)
     while [ -z "$git_email" ]; do

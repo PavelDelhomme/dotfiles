@@ -128,32 +128,17 @@ Méthode 3 : Téléchargement puis exécution (si les deux autres ne fonctionnen
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh -o /tmp/bootstrap.sh && bash /tmp/bootstrap.sh
 ```
 
-**📝 Préparation recommandée (optionnel mais recommandé) :**
+**📝 Note importante sur le fichier `.env` :**
 
-Pour éviter de saisir vos informations à chaque fois, créez d'abord le fichier `.env` :
+Le fichier `.env` permet d'éviter de saisir vos informations Git à chaque installation. Cependant, **vous ne pouvez le créer qu'APRÈS avoir cloné le repository** (étape 4). 
+
+Si vous voulez créer le fichier `.env` pour éviter les questions interactives lors des prochaines installations, vous pourrez le faire après le clonage :
 
 ```bash
 cd ~/dotfiles
-```
-
-Copier le template :
-
-```bash
 cp .env.example .env
+nano .env  # ou votre éditeur préféré (vim, code, etc.)
 ```
-
-Éditer `.env` avec vos valeurs :
-
-```bash
-nano .env
-```
-
-Remplir avec vos valeurs personnelles :
-- `GIT_USER_NAME="VotreNomGit"` - Votre nom d'utilisateur Git (ex: `PavelDelhomme`)
-- `GIT_USER_EMAIL="votre.email@example.com"` - Votre email Git (ex: `dev@delhomme.ovh`)
-- `GITHUB_REPO_URL="https://github.com/VotreNom/dotfiles.git"` - URL de votre repository (optionnel)
-
-**⚠️ Important :** Le fichier `.env` n'est jamais commité dans Git (il est dans `.gitignore`).
 
 Voir [Configuration Git via .env](#configuration-git-via-env) pour plus de détails.
 
@@ -167,17 +152,28 @@ Cette commande va automatiquement exécuter les étapes suivantes :
 
 **2. Configuration Git (nom et email)** ⚠️ **INTERACTIF**
 - **Si Git est déjà configuré** : Utilise la configuration existante (aucune demande)
-- **Si le fichier `.env` existe** : Charge `GIT_USER_NAME` et `GIT_USER_EMAIL` depuis `.env`
+- **Si le fichier `.env` existe** (après le clonage) : Charge `GIT_USER_NAME` et `GIT_USER_EMAIL` depuis `.env`
 - **Sinon, le script vous demandera interactivement** :
   ```
   Configuration Git nécessaire
   Aucune information personnelle ne sera utilisée par défaut
-  Nom Git (obligatoire): [vous devez entrer votre nom]
-  Email Git (obligatoire): [vous devez entrer votre email]
+  
+  Nom Git (obligatoire): 
   ```
-  ⚠️ **Vous devez connaître ces informations avant de lancer la commande** :
-  - **Nom Git** : Le nom d'utilisateur que vous voulez utiliser pour vos commits Git (ex: `PavelDelhomme`, `VotreNom`)
-  - **Email Git** : L'adresse email associée à votre compte GitHub/GitLab (ex: `dev@delhomme.ovh`, `votre.email@example.com`)
+  ⚠️ **Explication : Nom Git**
+  - C'est le **nom qui apparaîtra dans vos commits Git** (visible dans `git log`, GitHub, GitLab, etc.)
+  - Exemples : `PavelDelhomme`, `Jean Dupont`, `John Doe`
+  - Ce nom sera utilisé pour identifier l'auteur de vos commits
+  - Vous pouvez utiliser votre vrai nom, un pseudonyme, ou votre nom d'utilisateur GitHub
+  
+  ```
+  Email Git (obligatoire): 
+  ```
+  ⚠️ **Explication : Email Git**
+  - C'est l'**adresse email associée à votre compte GitHub/GitLab**
+  - Cette email doit correspondre à celle de votre compte GitHub/GitLab pour que vos commits soient liés à votre profil
+  - Exemples : `dev@delhomme.ovh`, `votre.email@example.com`, `username@users.noreply.github.com`
+  - ⚠️ **Important** : Si vous utilisez GitHub, vous pouvez utiliser l'email `username@users.noreply.github.com` pour garder votre email privé (visible dans les paramètres GitHub)
   - Validation automatique du format d'email
 - Configuration du credential helper (cache pour 15 minutes)
 
@@ -223,12 +219,21 @@ Cette commande va automatiquement exécuter les étapes suivantes :
 
 **📋 Ce que vous devez savoir avant de lancer la commande :**
 
-1. ✅ **Nom Git** : Le nom que vous voulez utiliser pour vos commits (ex: `PavelDelhomme`)
-2. ✅ **Email Git** : L'email de votre compte GitHub/GitLab (ex: `dev@delhomme.ovh`)
-3. ✅ **Accès GitHub** : Vous devrez ajouter la clé SSH manuellement sur GitHub
-4. ⚙️ **Recommandé** : Créer le fichier `.env` au préalable pour éviter les saisies répétées
+1. ✅ **Nom Git** : Le nom qui apparaîtra dans vos commits Git
+   - Exemples : `PavelDelhomme`, `Jean Dupont`, `John Doe`
+   - Ce nom sera visible dans l'historique Git et sur GitHub/GitLab
+   - Vous pouvez utiliser votre vrai nom, un pseudonyme, ou votre nom d'utilisateur GitHub
 
-**💡 Astuce :** Pour éviter de répondre aux questions interactives, créez le fichier `.env` **avant** de lancer la commande (voir [Configuration Git via .env](#configuration-git-via-env) ci-dessous).
+2. ✅ **Email Git** : L'email associé à votre compte GitHub/GitLab
+   - Exemples : `dev@delhomme.ovh`, `votre.email@example.com`
+   - ⚠️ **Important** : Cette email doit correspondre à celle de votre compte GitHub/GitLab
+   - Pour GitHub, vous pouvez utiliser `username@users.noreply.github.com` pour garder votre email privé (visible dans GitHub → Settings → Emails)
+
+3. ✅ **Accès GitHub** : Vous devrez ajouter la clé SSH manuellement sur GitHub
+   - Le script ouvrira automatiquement GitHub dans votre navigateur
+   - Vous devrez copier la clé SSH affichée et l'ajouter dans GitHub → Settings → SSH and GPG keys
+
+4. ⚙️ **Optionnel** : Après le clonage, vous pourrez créer le fichier `.env` pour éviter les saisies lors des prochaines installations (voir [Configuration Git via .env](#configuration-git-via-env)).
 
 Le menu interactif affiche :
 - 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
