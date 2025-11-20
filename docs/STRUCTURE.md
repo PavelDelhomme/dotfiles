@@ -97,6 +97,14 @@ scripts/
 | `vm/create_test_vm.sh` | Création VM de test (ancien, utilise virt-manager GUI) | - |
 | `vm/README.md` | Documentation complète de gestion des VM | - |
 
+### Scripts de gestion VM (scripts/vm/)
+
+| Script | Description | Usage |
+|--------|-------------|-------|
+| `vm/vm_manager.sh` | Gestionnaire complet de VM en ligne de commande. Création, démarrage, arrêt, snapshots, rollback, tests. Fonctions: `create_vm()`, `start_vm()`, `stop_vm()`, `create_snapshot()`, `restore_snapshot()`, `test_dotfiles_in_vm()`. Menu interactif disponible. | Via Makefile ou directement |
+| `vm/create_test_vm.sh` | Création VM de test (ancien, utilise virt-manager GUI) | - |
+| `vm/README.md` | Documentation complète de gestion des VM | - |
+
 ### Scripts de synchronisation (scripts/sync/)
 
 | Script | Description | Options menu |
