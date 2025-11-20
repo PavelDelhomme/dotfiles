@@ -6,12 +6,12 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 ## 📑 Table des matières
 
-- [🚀 Installation rapide (nouvelle machine)](#installation-rapide-nouvelle-machine)
+- [🚀 Installation rapide (nouvelle machine)](#-installation-rapide-nouvelle-machine)
   - [Installation en une seule commande](#installation-en-une-seule-commande)
   - [Après l'installation](#après-linstallation)
   - [Commandes utiles après installation](#commandes-utiles-après-installation)
   - [Installation manuelle (alternative)](#installation-manuelle-alternative)
-- [🔄 Réinstallation](#réinstallation)
+- [🔄 Réinstallation](#-réinstallation)
   - [Réinstallation complète (tout réinstaller)](#réinstallation-complète-tout-réinstaller)
   - [Réinstallation partielle (éléments spécifiques)](#réinstallation-partielle-éléments-spécifiques)
   - [Réinstallation automatique (détection et installation)](#réinstallation-automatique-détection-et-installation)
@@ -19,85 +19,85 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Réinstallation d'un composant spécifique](#réinstallation-dun-composant-spécifique)
   - [Réinitialisation complète (cas extrême)](#réinitialisation-complète-cas-extrême)
   - [Vérifier l'état après réinstallation](#vérifier-létat-après-réinstallation)
-- [📁 Structure du repository](#structure-du-repository)
-- [🔧 Fichiers de configuration](#fichiers-de-configuration)
+- [📁 Structure du repository](#-structure-du-repository)
+- [🔧 Fichiers de configuration](#-fichiers-de-configuration)
   - [`.env` - Variables d'environnement](#env---variables-denvironnement)
   - [`aliases.zsh` - Aliases](#aliaseszsh---aliases)
   - [`functions.zsh` - Fonctions](#functionszsh---fonctions)
-- [🖥️ Installation complète du système](#installation-complète-du-système)
+- [🖥️ Installation complète du système](#️-installation-complète-du-système)
   - [Gestionnaires de paquets](#gestionnaires-de-paquets)
   - [Applications](#applications)
   - [Environnement de développement](#environnement-de-développement)
   - [Matériel](#matériel)
-- [📝 Fonctionnalités intelligentes](#fonctionnalités-intelligentes)
+- [📝 Fonctionnalités intelligentes](#-fonctionnalités-intelligentes)
   - [Vérifications avant installation](#vérifications-avant-installation)
   - [Backup automatique](#backup-automatique)
   - [Mise à jour de Cursor](#mise-à-jour-de-cursor)
-- [🎯 Usage quotidien](#usage-quotidien)
+- [🎯 Usage quotidien](#-usage-quotidien)
   - [Commandes Makefile (recommandé)](#commandes-makefile-recommandé)
   - [Recharger la configuration](#recharger-la-configuration)
   - [Mettre à jour les dotfiles](#mettre-à-jour-les-dotfiles)
   - [Vérifications système](#vérifications-système)
-- [🔐 Configuration GitHub SSH](#configuration-github-ssh)
-- [🐳 Docker](#docker)
+- [🔐 Configuration GitHub SSH](#-configuration-github-ssh)
+- [🐳 Docker](#-docker)
   - [Installation](#installation)
   - [Configuration BuildKit](#configuration-buildkit)
   - [Docker Desktop (optionnel)](#docker-desktop-optionnel)
   - [Login Docker Hub](#login-docker-hub)
   - [Commandes utiles](#commandes-utiles)
-- [🔄 Auto-Synchronisation Git](#auto-synchronisation-git)
+- [🔄 Auto-Synchronisation Git](#-auto-synchronisation-git)
   - [Installation](#installation-1)
   - [Fonctionnement](#fonctionnement)
   - [Commandes utiles](#commandes-utiles-1)
   - [Configuration](#configuration)
-- [🌐 Brave Browser](#brave-browser)
+- [🌐 Brave Browser](#-brave-browser)
   - [Installation](#installation-2)
   - [Support](#support)
-- [📊 Options principales du menu (setup.sh)](#options-principales-du-menu-setupsh)
+- [📊 Options principales du menu (setup.sh)](#-options-principales-du-menu-setupsh)
   - [Installation & Détection (50-53)](#installation--détection-50-53)
   - [Désinstallation individuelle (60-70)](#désinstallation-individuelle-60-70)
   - [Autres options importantes](#autres-options-importantes)
-- [📝 Système de logs d'installation](#système-de-logs-dinstallation)
-- [📦 Scripts Modulaires](#scripts-modulaires)
+- [📝 Système de logs d'installation](#-système-de-logs-dinstallation)
+- [📦 Scripts Modulaires](#-scripts-modulaires)
   - [Tableau des scripts](#tableau-des-scripts)
-- [✅ Validation du Setup](#validation-du-setup)
+- [✅ Validation du Setup](#-validation-du-setup)
   - [Utilisation](#utilisation)
   - [Vérifications effectuées (117+ vérifications)](#vérifications-effectuées-117-vérifications)
   - [Rapport](#rapport)
-- [📱 Flutter & Android](#flutter--android)
+- [📱 Flutter & Android](#-flutter--android)
   - [Variables d'environnement (dans `.env`)](#variables-denvironnement-dans-env)
   - [Première utilisation](#première-utilisation)
-- [🎮 NVIDIA RTX 3060](#nvidia-rtx-3060)
+- [🎮 NVIDIA RTX 3060](#-nvidia-rtx-3060)
   - [Configuration automatique](#configuration-automatique)
   - [Vérifications](#vérifications)
   - [Important](#important)
-- [🛠️ Maintenance](#maintenance)
+- [🛠️ Maintenance](#️-maintenance)
   - [Mettre à jour le système](#mettre-à-jour-le-système)
   - [Nettoyer Docker](#nettoyer-docker)
   - [Mettre à jour Cursor](#mettre-à-jour-cursor)
-- [📦 Structure recommandée après installation](#structure-recommandée-après-installation)
-- [🚨 Troubleshooting](#troubleshooting)
+- [📦 Structure recommandée après installation](#-structure-recommandée-après-installation)
+- [🚨 Troubleshooting](#-troubleshooting)
   - [Flutter pas dans le PATH](#flutter-pas-dans-le-path)
   - [Docker : permission denied](#docker--permission-denied)
   - [NVIDIA : écran noir au boot](#nvidia--écran-noir-au-boot)
   - [Dotfiles non sourcés](#dotfiles-non-sourcés)
-- [🔄 Workflow complet (nouvelle machine)](#workflow-complet-nouvelle-machine)
+- [🔄 Workflow complet (nouvelle machine)](#-workflow-complet-nouvelle-machine)
   - [Méthode automatique (recommandée)](#méthode-automatique-recommandée)
   - [Dans le menu scripts/setup.sh](#dans-le-menu-scriptssetupsh)
   - [Après installation](#après-installation)
-- [🔄 Rollback / Désinstallation](#rollback--désinstallation)
+- [🔄 Rollback / Désinstallation](#-rollback--désinstallation)
   - [Rollback complet (tout désinstaller)](#rollback-complet-tout-désinstaller)
   - [Rollback Git uniquement](#rollback-git-uniquement)
   - [Rollback Git manuel](#rollback-git-manuel)
-- [🖥️ Gestion des VM (Tests en environnement isolé)](#gestion-des-vm-tests-en-environnement-isolé)
+- [🖥️ Gestion des VM (Tests en environnement isolé)](#️-gestion-des-vm-tests-en-environnement-isolé)
   - [Installation QEMU/KVM](#installation-qemukvm)
   - [Utilisation rapide](#utilisation-rapide)
   - [Workflow de test recommandé](#workflow-de-test-recommandé)
   - [Commandes Makefile disponibles](#commandes-makefile-disponibles)
   - [Avantages](#avantages)
   - [Documentation complète](#documentation-complète)
-- [📄 Licence](#licence)
-- [👤 Auteur](#auteur)
+- [📄 Licence](#-licence)
+- [👤 Auteur](#-auteur)
 
 ---
 
@@ -105,6 +105,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
      INSTALLATION RAPIDE (NOUVELLE MACHINE)
      ============================================================================= -->
 
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🚀 Installation rapide (nouvelle machine)
 
 ### Installation en une seule commande
 
@@ -170,6 +171,8 @@ Le menu interactif affiche :
 - ✅ **Indications claires** sur quelle option choisir pour chaque composant
 - 📋 **Logs d'installation** pour tracer toutes les actions
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Après l'installation
+
 Une fois le menu lancé, vous pouvez :
 - **Option 50** : Afficher ce qui manque (état détaillé, scrollable)
 - **Option 51** : Installer éléments manquants un par un (menu interactif)
@@ -180,6 +183,8 @@ Une fois le menu lancé, vous pouvez :
 - Utiliser l'option **23** pour valider complètement votre setup (validation exhaustive 117+ vérifications)
 - Utiliser l'option **28** pour restaurer depuis Git (annuler modifications locales)
 - Utiliser l'option **0** pour quitter (vous pouvez relancer `cd ~/dotfiles && bash scripts/setup.sh` plus tard)
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes utiles après installation
 
 Aller dans le dossier dotfiles :
 
@@ -210,6 +215,8 @@ Voir toutes les commandes disponibles :
 ```bash
 make help
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Installation manuelle (alternative)
 
 Installer git :
 
@@ -243,7 +250,11 @@ Le script `scripts/setup.sh` propose un menu interactif avec toutes les options 
      RÉINSTALLATION
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Réinstallation
+
 Différentes méthodes pour réinstaller les dotfiles selon votre situation.
+
+### Réinstallation complète (tout réinstaller)
 
 **Si vous voulez tout désinstaller puis tout réinstaller depuis zéro :**
 
@@ -276,6 +287,8 @@ Puis réinstaller :
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation partielle (éléments spécifiques)
 
 **Si vous voulez réinstaller seulement certains éléments :**
 
@@ -313,6 +326,8 @@ bash scripts/install/dev/install_docker.sh
 bash scripts/install/apps/install_brave.sh
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation automatique (détection et installation)
+
 **Si vous voulez réinstaller automatiquement tout ce qui manque :**
 
 Aller dans le dossier dotfiles :
@@ -330,6 +345,8 @@ bash scripts/setup.sh
 Choisir **Option 52** : Installer tout ce qui manque (automatique)
 
 **Ou installer éléments manquants un par un (Option 51)** pour un contrôle plus précis.
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation après bootstrap (déjà installé)
 
 **Si vous avez déjà exécuté bootstrap.sh mais que le projet n'est pas complet :**
 
@@ -357,6 +374,8 @@ Utiliser :
 - **Option 52** : Installer tout ce qui manque automatiquement
 - **Option 23** : Valider complètement le setup (détecte les problèmes)
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinstallation d'un composant spécifique
+
 **Désinstaller puis réinstaller un composant :**
 
 Exemple pour Docker :
@@ -375,6 +394,8 @@ bash ~/dotfiles/scripts/install/dev/install_docker.sh
 
 **Ou via le menu (Options 60-70 pour désinstaller, puis 1-27 pour installer).**
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Réinitialisation complète (cas extrême)
+
 **Si vous avez des problèmes graves et voulez repartir de zéro :**
 
 ```bash
@@ -392,6 +413,8 @@ Cette commande va :
 
 Puis proposer de réinstaller automatiquement.
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifier l'état après réinstallation
+
 Après une réinstallation, valider le setup :
 
 ```bash
@@ -405,6 +428,8 @@ Ou via le menu (Option 23) pour un rapport détaillé.
 <!-- =============================================================================
      STRUCTURE DU REPOSITORY
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📁 Structure du repository
 
 Voir `STRUCTURE.md` pour la structure complète et détaillée.
 
@@ -433,6 +458,10 @@ Structure principale :
      FICHIERS DE CONFIGURATION
      ============================================================================= -->
 
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔧 Fichiers de configuration
+
+### `.env` - Variables d'environnement
+
 Contient toutes les variables PATH nécessaires :
 - Java (pour Flutter/Android)
 - Android SDK
@@ -441,12 +470,16 @@ Contient toutes les variables PATH nécessaires :
 - Cargo (Rust)
 - Binaires locaux
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### `aliases.zsh` - Aliases
+
 Raccourcis pratiques pour :
 - Navigation (`..`, `...`)
 - Git (`gs`, `ga`, `gc`, `gp`)
 - Docker (`dc`, `dps`)
 - Système (`update`, `install`)
 - Flutter (`fl`, `fld`, `flr`)
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### `functions.zsh` - Fonctions
 
 Fonctions utiles :
 - `mkcd` - Créer dossier et y aller
@@ -460,12 +493,16 @@ Fonctions utiles :
      INSTALLATION COMPLÈTE DU SYSTÈME
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🖥️ Installation complète du système
+
 Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer automatiquement :
 
+### Gestionnaires de paquets
 - ✅ yay (AUR helper)
 - ✅ snap
 - ✅ flatpak + flathub
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Applications
 - ✅ Brave Browser
 - ✅ Cursor IDE (AppImage + .desktop)
 - ✅ Discord
@@ -475,12 +512,14 @@ Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer 
 - ✅ PortProton (jeux Windows)
 - ✅ Session Desktop
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Environnement de développement
 - ✅ Flutter SDK
 - ✅ Android Studio & SDK
 - ✅ Node.js & npm
 - ✅ Git & GitHub SSH
 - ✅ Outils de build (make, cmake, gcc)
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Matériel
 - ✅ Pilotes NVIDIA RTX 3060
 - ✅ Configuration Xorg pour GPU principal
 - ✅ nvidia-prime pour gestion hybride
@@ -491,16 +530,21 @@ Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer 
      FONCTIONNALITÉS INTELLIGENTES
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📝 Fonctionnalités intelligentes
+
+### Vérifications avant installation
 Le script vérifie **toujours** si un paquet est déjà installé avant de l'installer :
 - Évite les installations redondantes
 - Messages clairs (installé/ignoré)
 - Gère les conflits automatiquement
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Backup automatique
 Lors du setup, les fichiers de config existants sont sauvegardés dans :
 ```
 ~/.dotfiles_backup_YYYYMMDD_HHMMSS/
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Mise à jour de Cursor
 Un script dédié est créé :
 ```bash
 update-cursor.sh
@@ -511,6 +555,10 @@ update-cursor.sh
 <!-- =============================================================================
      USAGE QUOTIDIEN
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🎯 Usage quotidien
+
+### Commandes Makefile (recommandé)
 
 Aller dans le dossier dotfiles :
 
@@ -620,6 +668,8 @@ Nettoyer fichiers temporaires :
 make clean
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Recharger la configuration
+
 Méthode 1 :
 
 ```bash
@@ -631,6 +681,8 @@ Méthode 2 :
 ```bash
 exec zsh
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Mettre à jour les dotfiles
 
 Aller dans le dossier dotfiles :
 
@@ -656,12 +708,15 @@ Ou :
 bash scripts/setup.sh
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications système
 ```bash
 flutter doctor          # Flutter
 docker --version        # Docker
 nvidia-smi             # NVIDIA
 android-studio         # Android Studio
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔐 Configuration GitHub SSH
 
 Le script génère automatiquement une clé SSH ED25519 et :
 1. Copie la clé publique dans le presse-papier
@@ -675,6 +730,10 @@ Clé stockée dans : `~/.ssh/id_ed25519`
 <!-- =============================================================================
      DOCKER
      ============================================================================= -->
+
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🐳 Docker
+
+### Installation
 
 Installation complète via le menu scripts/setup.sh (option 15) :
 - Docker Engine
@@ -692,6 +751,8 @@ bash ~/dotfiles/scripts/setup.sh
 bash ~/dotfiles/scripts/install/dev/install_docker.sh
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Configuration BuildKit
+
 BuildKit est automatiquement activé dans `~/.docker/daemon.json` :
 ```json
 {
@@ -701,10 +762,14 @@ BuildKit est automatiquement activé dans `~/.docker/daemon.json` :
 }
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Docker Desktop (optionnel)
+
 Installation via option 16 du menu ou :
 ```bash
 bash ~/dotfiles/scripts/install/dev/install_docker.sh --desktop-only
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Login Docker Hub
 
 Le script propose automatiquement de se connecter à Docker Hub :
 - Support 2FA (utilisez un Personal Access Token)
@@ -716,6 +781,8 @@ docker login
 docker run hello-world
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes utiles
+
 ```bash
 docker --version              # Vérifier la version
 docker ps                     # Lister les conteneurs
@@ -723,17 +790,25 @@ docker-compose up             # Lancer avec docker-compose
 docker compose up             # Lancer avec docker compose (plugin)
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Auto-Synchronisation Git
+
 Système de synchronisation automatique des dotfiles toutes les heures via systemd timer.
+
+### Installation
 
 Via le menu scripts/setup.sh (option 12) ou directement :
 ```bash
 bash ~/dotfiles/scripts/sync/install_auto_sync.sh
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Fonctionnement
+
 - **Timer systemd** : Exécution toutes les heures
 - **Pull automatique** : Récupère les modifications distantes
 - **Push automatique** : Envoie les modifications locales (si changements)
 - **Logs** : Disponibles dans `~/dotfiles/logs/auto_sync.log`
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes utiles
 
 ```bash
 # Vérifier le statut
@@ -753,6 +828,8 @@ journalctl --user -u dotfiles-sync.service
 bash ~/dotfiles/scripts/sync/git_auto_sync.sh
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Configuration
+
 Le timer est configuré pour :
 - Démarrer 5 minutes après le boot
 - S'exécuter toutes les heures
@@ -764,12 +841,18 @@ Le timer est configuré pour :
      BRAVE BROWSER
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🌐 Brave Browser
+
 Installation optionnelle du navigateur Brave.
+
+### Installation
 
 Via le menu scripts/setup.sh (option 17) ou directement :
 ```bash
 bash ~/dotfiles/scripts/install/apps/install_brave.sh
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Support
 
 - **Arch Linux** : Installation via yay (brave-bin)
 - **Debian/Ubuntu** : Dépôt officiel Brave
@@ -782,11 +865,15 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
      OPTIONS PRINCIPALES DU MENU (SETUP.SH)
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📊 Options principales du menu (setup.sh)
+
+### Installation & Détection (50-53)
 - **50** : Afficher ce qui manque (état, scrollable via less)
 - **51** : Installer éléments manquants (un par un, menu interactif)
 - **52** : Installer tout ce qui manque (automatique, avec logs)
 - **53** : Afficher logs d'installation (filtres, statistiques, scrollable)
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Désinstallation individuelle (60-70)
 - **60** : Désinstaller configuration Git
 - **61** : Désinstaller configuration remote Git
 - **62** : Désinstaller paquets de base
@@ -799,6 +886,7 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 - **69** : Désinstaller auto-sync Git
 - **70** : Désinstaller symlinks
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Autres options importantes
 - **23** : Validation complète du setup (117+ vérifications exhaustives)
 - **28** : Restaurer depuis Git (annuler modifications locales, restaurer fichiers supprimés)
 - **26-27** : Migration shell (Fish ↔ Zsh), Changer shell par défaut
@@ -808,6 +896,8 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 <!-- =============================================================================
      SYSTÈME DE LOGS D'INSTALLATION
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📝 Système de logs d'installation
 
 Toutes les installations et configurations sont automatiquement tracées dans `~/dotfiles/logs/install.log` :
 
@@ -827,6 +917,8 @@ less ~/dotfiles/logs/install.log
 <!-- =============================================================================
      SCRIPTS MODULAIRES
      ============================================================================= -->
+
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 📦 Scripts Modulaires
 
 Structure organisée des scripts dans `scripts/` :
 
@@ -879,6 +971,8 @@ scripts/
     └── create_test_vm.sh          # Création VM de test
 ```
 
+### Tableau des scripts
+
 | Fichier | Description | Usage |
 |---------|-------------|-------|
 | `apps/install_brave.sh` | Installation Brave Browser | Option 17 du menu |
@@ -896,12 +990,18 @@ scripts/
      VALIDATION DU SETUP
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## ✅ Validation du Setup
+
 Script de validation complète pour vérifier toutes les installations et configurations.
+
+### Utilisation
 
 Via le menu scripts/setup.sh (option 23) ou directement :
 ```bash
 bash ~/dotfiles/scripts/test/validate_setup.sh
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications effectuées (117+ vérifications)
 
 **Structure dotfiles** :
 - ✅ Fichiers racine (bootstrap.sh, Makefile, README.md, zshrc)
@@ -931,6 +1031,8 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Répertoires (zsh/functions, dev/, misc/, cyber/, scripts/*)
 - ✅ Symlinks (.zshrc, .gitconfig)
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Rapport
+
 Le script affiche un rapport avec :
 - ✅ Réussis (vert)
 - ❌ Échecs (rouge)
@@ -941,6 +1043,10 @@ Le script affiche un rapport avec :
 <!-- =============================================================================
      FLUTTER & ANDROID
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📱 Flutter & Android
+
+### Variables d'environnement (dans `.env`)
 
 Définir JAVA_HOME :
 
@@ -953,6 +1059,8 @@ Définir ANDROID_SDK_ROOT :
 ```bash
 export ANDROID_SDK_ROOT='/opt/android-sdk'
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Première utilisation
 
 Vérifier l'installation Flutter :
 
@@ -972,10 +1080,15 @@ android-studio
      NVIDIA RTX 3060
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🎮 NVIDIA RTX 3060
+
+### Configuration automatique
 - Pilotes propriétaires installés
 - Xorg configuré (PrimaryGPU)
 - GRUB optimisé (nomodeset)
 - nvidia-prime installé
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Vérifications
 
 Vérifier l'état du GPU :
 
@@ -989,6 +1102,7 @@ Forcer une application à utiliser NVIDIA :
 prime-run <app>
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Important
 1. Branchez l'écran sur la **carte NVIDIA** (pas carte mère)
 2. Dans le BIOS : `Primary Display` = `PCI-E` ou `Discrete`
 3. Redémarrez après installation
@@ -998,6 +1112,10 @@ prime-run <app>
 <!-- =============================================================================
      MAINTENANCE
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🛠️ Maintenance
+
+### Mettre à jour le système
 
 **Mise à jour intelligente (détection automatique) :**
 
@@ -1057,6 +1175,8 @@ yayup
 
 ---
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Nettoyer Docker
+
 Nettoyer Docker :
 
 ```bash
@@ -1064,6 +1184,8 @@ docker-cleanup
 ```
 
 ---
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Mettre à jour Cursor
 
 Mettre à jour Cursor :
 
@@ -1076,6 +1198,8 @@ update-cursor.sh
 <!-- =============================================================================
      STRUCTURE RECOMMANDÉE APRÈS INSTALLATION
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📦 Structure recommandée après installation
 
 Les symlinks sont créés automatiquement lors de l'installation pour centraliser la configuration :
 
@@ -1102,11 +1226,17 @@ Les symlinks sont créés automatiquement lors de l'installation pour centralise
      TROUBLESHOOTING
      ============================================================================= -->
 
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 🚨 Troubleshooting
+
+### Flutter pas dans le PATH
+
 Vérifiez que `~/dotfiles/.env` est sourcé dans `.zshrc` et contient :
 
 ```bash
 export PATH=$PATH:/opt/flutter/bin
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Docker : permission denied
 
 Ajouter votre utilisateur au groupe docker :
 
@@ -1115,6 +1245,8 @@ sudo usermod -aG docker $USER
 ```
 
 Puis redémarrer la session.
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### NVIDIA : écran noir au boot
 
 Éditer le fichier GRUB :
 
@@ -1134,6 +1266,8 @@ Mettre à jour GRUB :
 sudo update-grub
 ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Dotfiles non sourcés
+
 Vérifier si dotfiles est sourcé dans `.zshrc` :
 
 ```bash
@@ -1147,6 +1281,10 @@ Si absent, relancez `scripts/setup.sh`.
 <!-- =============================================================================
      WORKFLOW COMPLET (NOUVELLE MACHINE)
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Workflow complet (nouvelle machine)
+
+### Méthode automatique (recommandée)
 
 **Une seule commande** pour tout faire :
 
@@ -1164,11 +1302,15 @@ Cette commande fait automatiquement :
 7. ✅ Création symlinks (optionnel)
 8. ✅ Lancement menu interactif `scripts/setup.sh`
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Dans le menu scripts/setup.sh
+
 1. **Voir ce qui manque** : Option 50
 2. **Installer individuellement** : Option 51 (un par un) ou Option 52 (tout automatique)
 3. **Suivre les logs** : Option 53 pour voir ce qui est fait
 4. **Valider installation** : Option 23 (validation exhaustive)
 5. **Configurer auto-sync** : Option 12 (synchronisation automatique Git)
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Après installation
 
 - **Redémarrer** pour appliquer toutes les configurations
 - **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
@@ -1180,6 +1322,10 @@ Cette commande fait automatiquement :
 <!-- =============================================================================
      ROLLBACK / DÉSINSTALLATION
      ============================================================================= -->
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🔄 Rollback / Désinstallation
+
+### Rollback complet (tout désinstaller)
 
 Pour désinstaller **TOUT** ce qui a été installé et configuré :
 
@@ -1211,6 +1357,8 @@ Le script va :
 
 **⚠️ Double confirmation requise** : Taper "OUI" en majuscules pour confirmer.
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Rollback Git uniquement
+
 Pour revenir à une version précédente des dotfiles (sans désinstaller les applications) :
 
 ```bash
@@ -1221,6 +1369,8 @@ Options disponibles :
 - Revenir au commit précédent (HEAD~1)
 - Revenir à un commit spécifique (par hash)
 - Revenir à origin/main (dernière version distante)
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Rollback Git manuel
 
 Aller dans le dossier dotfiles :
 
@@ -1252,12 +1402,18 @@ git reset --hard origin/main
      GESTION DES VM (TESTS EN ENVIRONNEMENT ISOLÉ)
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 🖥️ Gestion des VM (Tests en environnement isolé)
+
 Système complet de gestion de VM en ligne de commande pour tester les dotfiles dans un environnement complètement isolé.
+
+### Installation QEMU/KVM
 
 Via le menu `scripts/setup.sh` (option 11) ou directement :
 ```bash
 bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Utilisation rapide
 
 **Via Makefile (recommandé) :**
 ```bash
@@ -1279,6 +1435,8 @@ make vm-test VM=test-dotfiles
 # Si problème, rollback
 make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 ```
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Workflow de test recommandé
 
 1. **Créer la VM :**
    ```bash
@@ -1310,6 +1468,8 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
    make vm-rollback VM=test-dotfiles SNAPSHOT=clean
    ```
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Commandes Makefile disponibles
+
 | Commande | Description |
 |----------|-------------|
 | `make vm-menu` | Menu interactif de gestion des VM |
@@ -1324,11 +1484,15 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 | `make vm-test` | Tester dotfiles dans VM (VM=name) |
 | `make vm-delete` | Supprimer une VM (VM=name) |
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Avantages
+
 - ✅ **100% en ligne de commande** : Pas besoin de virt-manager GUI
 - ✅ **Tests en environnement isolé** : Votre machine reste propre
 - ✅ **Rollback rapide** : Snapshots pour revenir en arrière instantanément
 - ✅ **Workflow automatisé** : `make vm-test` gère tout automatiquement
 - ✅ **Intégration Makefile** : Commandes simples et mémorisables
+
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)### Documentation complète
 
 Voir `scripts/vm/README.md` pour la documentation complète avec tous les exemples.
 
@@ -1338,7 +1502,11 @@ Voir `scripts/vm/README.md` pour la documentation complète avec tous les exempl
      LICENCE & AUTEUR
      ============================================================================= -->
 
+  [🔝 Retour en haut](#dotfiles---paveldelhomme)## 📄 Licence
+
 Configuration personnelle - libre d'utilisation et modification.
+
+[🔝 Retour en haut](#dotfiles---paveldelhomme)## 👤 Auteur
 
 **PavelDelhomme**
 - GitHub: [@PavelDelhomme](https://github.com/PavelDelhomme)
@@ -1346,4 +1514,4 @@ Configuration personnelle - libre d'utilisation et modification.
 ---
 
 *Dernière mise à jour : Décembre 2024*
-  [🔝 Retour en haut](#dotfiles---paveldelhomme)
+[🔝 Retour en haut](#dotfiles---paveldelhomme)
