@@ -550,7 +550,16 @@ zsh/functions/
 - **Détection automatique** de la distribution Linux (Arch, Debian, Ubuntu, Fedora, Gentoo, NixOS, openSUSE, Alpine, RHEL/CentOS)
 - **Adaptation automatique** au gestionnaire de paquets approprié
 - **Commande unique** : `update` ou `upgrade` fonctionne sur toutes les distributions
+- **Mode sans confirmation** : Paramètre `--nc` ou `--no-confirm` pour éviter les prompts interactifs
 - **Support complet** : pacman, apt, dnf, emerge, nix, zypper, apk, yum
+
+**Exemples d'utilisation :**
+```bash
+update              # Mise à jour avec confirmations
+update --nc         # Mise à jour sans confirmation
+upgrade             # Mise à jour complète avec confirmations
+upgrade --no-confirm  # Mise à jour complète sans confirmation
+```
 
 ### CYBERMAN - Gestionnaire cybersécurité
 

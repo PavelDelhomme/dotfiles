@@ -10,3 +10,11 @@ logs/
 # Documentation générée
 zsh/functions_doc.json
 zsh/aliases_doc.json
+
+# Fichier d'environnement avec informations sensibles
+.env
+
+# Fichiers de sauvegarde
+*.save
+*.bak
+*.backup

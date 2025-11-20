@@ -24,12 +24,25 @@ log_section() { echo -e "\n${BLUE}═══════════════�
 ################################################################################
 # CONFIGURATION PAR DÉFAUT
 ################################################################################
-DEFAULT_GIT_NAME="PavelDelhomme"
-DEFAULT_GIT_EMAIL="dev@delhomme.ovh"
-DOTFILES_REPO="https://github.com/PavelDelhomme/dotfiles.git"
 DOTFILES_DIR="$HOME/dotfiles"
 
-log_section "Bootstrap Installation - Dotfiles Pactivisme"
+# Charger le fichier .env s'il existe, sinon utiliser les valeurs par défaut
+if [ -f "$DOTFILES_DIR/.env" ]; then
+    source "$DOTFILES_DIR/.env"
+elif [ -f "$HOME/.env_dotfiles" ]; then
+    # Fallback: chercher dans le home directory
+    source "$HOME/.env_dotfiles"
+fi
+
+# Valeurs par défaut si non définies dans .env
+DEFAULT_GIT_NAME="${GIT_USER_NAME:-PavelDelhomme}"
+DEFAULT_GIT_EMAIL="${GIT_USER_EMAIL:-dev@delhomme.ovh}"
+DOTFILES_REPO="${GITHUB_REPO_URL:-https://github.com/PavelDelhomme/dotfiles.git}"
+
+log_section "Bootstrap Installation - Dotfiles"
+
+# Créer le fichier .env depuis .env.example si nécessaire (après le clonage)
+# Cette partie sera exécutée plus tard dans le script
 
 ################################################################################
 # 1. VÉRIFIER ET INSTALLER GIT

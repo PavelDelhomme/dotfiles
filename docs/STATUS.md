@@ -1079,8 +1079,13 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 - ✅ **Adaptation automatique** : Utilise le bon gestionnaire selon la distribution
 - ✅ **Mise à jour des paquets** : `update` synchronise les dépôts sans installer
 - ✅ **Mise à jour complète** : `upgrade` met à jour tous les paquets
+- ✅ **Mode sans confirmation** : Paramètre `--nc` ou `--no-confirm` pour éviter les prompts
 - ✅ **Messages clairs** : Affiche la distribution détectée et la commande utilisée
 - ✅ **Logs automatiques** : Enregistre les actions dans `logs/actions.log`
+
+### Utilisation avec paramètres
+- `update` ou `update --nc` : Mise à jour des paquets (avec ou sans confirmation)
+- `upgrade` ou `upgrade --nc` : Mise à jour complète (avec ou sans confirmation)
 
 ### Intégration
 - ✅ **zshrc_custom** : Chargement prioritaire de `update_system.sh`

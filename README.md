@@ -800,10 +800,34 @@ Mettre à jour les paquets :
 update
 ```
 
+Mettre à jour les paquets sans confirmation :
+
+```bash
+update --nc
+```
+
+Ou :
+
+```bash
+update --no-confirm
+```
+
 Mettre à jour complètement le système :
 
 ```bash
 upgrade
+```
+
+Mettre à jour complètement le système sans confirmation :
+
+```bash
+upgrade --nc
+```
+
+Ou :
+
+```bash
+upgrade --no-confirm
 ```
 
 **Distributions supportées :**

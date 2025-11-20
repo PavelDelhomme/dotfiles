@@ -123,41 +123,87 @@ end
 
 ################################################################################
 # DESC: Met à jour les paquets (sans upgrade)
-# USAGE: update
+# USAGE: update [--nc|--no-confirm]
+#        --nc ou --no-confirm: Mode sans confirmation (évite les prompts)
+# EXAMPLES:
+#   update          # Mise à jour avec confirmations
+#   update --nc     # Mise à jour sans confirmation
+#   update --no-confirm  # Même chose que --nc
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 function update
     set -l distro (detect_distro)
     set -l cmd ""
+    set -l no_confirm false
+    
+    # Vérifier si le paramètre --nc ou --no-confirm est passé
+    if test "$argv[1]" = "--nc"; or test "$argv[1]" = "--no-confirm"
+        set no_confirm true
+    end
     
     echo -e "$BLUE🔄 Mise à jour des paquets...$NC"
     echo -e "$CYANDistribution détectée: $YELLOW$distro$NC"
+    if test "$no_confirm" = true
+        echo -e "$YELLOWMode sans confirmation activé$NC"
+    end
     echo ""
     
     switch "$distro"
         case "arch" "manjaro" "endeavouros"
-            set cmd "sudo pacman -Sy"
+            if test "$no_confirm" = true
+                set cmd "sudo pacman -Sy --noconfirm"
+            else
+                set cmd "sudo pacman -Sy"
+            end
             echo -e "$GREENUtilisation de: $CYANpacman$NC"
         case "debian" "ubuntu" "mint" "kali" "parrot"
-            set cmd "sudo apt update"
+            if test "$no_confirm" = true
+                set cmd "sudo apt update -y"
+            else
+                set cmd "sudo apt update"
+            end
             echo -e "$GREENUtilisation de: $CYANapt$NC"
         case "fedora"
-            set cmd "sudo dnf check-update; or sudo dnf makecache"
+            if test "$no_confirm" = true
+                set cmd "sudo dnf check-update -y; or sudo dnf makecache -y"
+            else
+                set cmd "sudo dnf check-update; or sudo dnf makecache"
+            end
             echo -e "$GREENUtilisation de: $CYANdnf$NC"
         case "gentoo"
             set cmd "sudo emerge --sync"
-            echo -e "$GREENUtilisation de: $CYANemerge$NC"
+            if test "$no_confirm" = true
+                echo -e "$GREENUtilisation de: $CYANemerge$NC (note: --sync ne nécessite pas de confirmation)"
+            else
+                echo -e "$GREENUtilisation de: $CYANemerge$NC"
+            end
         case "nixos"
             set cmd "sudo nix-channel --update"
-            echo -e "$GREENUtilisation de: $CYANnix-channel$NC"
+            if test "$no_confirm" = true
+                echo -e "$GREENUtilisation de: $CYANnix-channel$NC (note: pas de confirmation nécessaire)"
+            else
+                echo -e "$GREENUtilisation de: $CYANnix-channel$NC"
+            end
         case "opensuse"
-            set cmd "sudo zypper refresh"
+            if test "$no_confirm" = true
+                set cmd "sudo zypper refresh -y"
+            else
+                set cmd "sudo zypper refresh"
+            end
             echo -e "$GREENUtilisation de: $CYANzypper$NC"
         case "alpine"
-            set cmd "sudo apk update"
+            if test "$no_confirm" = true
+                set cmd "sudo apk update --no-progress"
+            else
+                set cmd "sudo apk update"
+            end
             echo -e "$GREENUtilisation de: $CYANapk$NC"
         case "rhel" "centos"
-            set cmd "sudo yum check-update; or sudo yum makecache"
+            if test "$no_confirm" = true
+                set cmd "sudo yum check-update -y; or sudo yum makecache -y"
+            else
+                set cmd "sudo yum check-update; or sudo yum makecache"
+            end
             echo -e "$GREENUtilisation de: $CYANyum$NC"
         case '*'
             echo -e "$RED❌ Distribution non supportée: $distro$NC"
@@ -184,38 +230,72 @@ end
 
 ################################################################################
 # DESC: Met à jour complètement le système (upgrade)
-# USAGE: upgrade
+# USAGE: upgrade [--nc|--no-confirm]
+#        --nc ou --no-confirm: Mode sans confirmation (évite les prompts)
+# EXAMPLES:
+#   upgrade          # Mise à jour complète avec confirmations
+#   upgrade --nc     # Mise à jour complète sans confirmation
+#   upgrade --no-confirm  # Même chose que --nc
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 function upgrade
     set -l distro (detect_distro)
     set -l cmd ""
+    set -l no_confirm false
+    
+    # Vérifier si le paramètre --nc ou --no-confirm est passé
+    if test "$argv[1]" = "--nc"; or test "$argv[1]" = "--no-confirm"
+        set no_confirm true
+    end
     
     echo -e "$BLUE🚀 Mise à jour complète du système...$NC"
     echo -e "$CYANDistribution détectée: $YELLOW$distro$NC"
+    if test "$no_confirm" = true
+        echo -e "$YELLOWMode sans confirmation activé$NC"
+    end
     echo ""
     
     switch "$distro"
         case "arch" "manjaro" "endeavouros"
-            set cmd "sudo pacman -Syu"
+            if test "$no_confirm" = true
+                set cmd "sudo pacman -Syu --noconfirm"
+            else
+                set cmd "sudo pacman -Syu"
+            end
             echo -e "$GREENUtilisation de: $CYANpacman$NC"
         case "debian" "ubuntu" "mint" "kali" "parrot"
-            set cmd "sudo apt update; and sudo apt upgrade -y"
+            if test "$no_confirm" = true
+                set cmd "sudo apt update -y; and sudo apt upgrade -y"
+            else
+                set cmd "sudo apt update; and sudo apt upgrade -y"
+            end
             echo -e "$GREENUtilisation de: $CYANapt$NC"
         case "fedora"
             set cmd "sudo dnf upgrade -y"
             echo -e "$GREENUtilisation de: $CYANdnf$NC"
         case "gentoo"
-            set cmd "sudo emerge -auDN @world"
+            if test "$no_confirm" = true
+                set cmd "sudo emerge -auDN @world --autounmask-continue=y"
+            else
+                set cmd "sudo emerge -auDN @world"
+            end
             echo -e "$GREENUtilisation de: $CYANemerge$NC"
         case "nixos"
             set cmd "sudo nixos-rebuild switch --upgrade"
-            echo -e "$GREENUtilisation de: $CYANnixos-rebuild$NC"
+            if test "$no_confirm" = true
+                echo -e "$GREENUtilisation de: $CYANnixos-rebuild$NC (note: pas de confirmation interactive)"
+            else
+                echo -e "$GREENUtilisation de: $CYANnixos-rebuild$NC"
+            end
         case "opensuse"
             set cmd "sudo zypper update -y"
             echo -e "$GREENUtilisation de: $CYANzypper$NC"
         case "alpine"
-            set cmd "sudo apk update; and sudo apk upgrade"
+            if test "$no_confirm" = true
+                set cmd "sudo apk update --no-progress; and sudo apk upgrade --no-progress"
+            else
+                set cmd "sudo apk update; and sudo apk upgrade"
+            end
             echo -e "$GREENUtilisation de: $CYANapk$NC"
         case "rhel" "centos"
             set cmd "sudo yum update -y"

@@ -124,48 +124,95 @@ detect_distro() {
 
 ################################################################################
 # DESC: Met à jour les paquets (sans upgrade)
-# USAGE: update
+# USAGE: update [--nc|--no-confirm]
+#        --nc ou --no-confirm: Mode sans confirmation (évite les prompts)
+# EXAMPLES:
+#   update          # Mise à jour avec confirmations
+#   update --nc     # Mise à jour sans confirmation
+#   update --no-confirm  # Même chose que --nc
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 update() {
     local distro=$(detect_distro)
     local cmd=""
+    local no_confirm=false
+    
+    # Vérifier si le paramètre --nc ou --no-confirm est passé
+    if [[ "$1" == "--nc" ]] || [[ "$1" == "--no-confirm" ]]; then
+        no_confirm=true
+    fi
     
     echo -e "${BLUE}🔄 Mise à jour des paquets...${NC}"
     echo -e "${CYAN}Distribution détectée: ${YELLOW}$distro${NC}"
+    if [ "$no_confirm" = true ]; then
+        echo -e "${YELLOW}Mode sans confirmation activé${NC}"
+    fi
     echo ""
     
     case "$distro" in
         arch|manjaro|endeavouros)
-            cmd="sudo pacman -Sy"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo pacman -Sy --noconfirm"
+            else
+                cmd="sudo pacman -Sy"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}pacman${NC}"
             ;;
         debian|ubuntu|mint|kali|parrot)
-            cmd="sudo apt update"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo apt update -y"
+            else
+                cmd="sudo apt update"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}apt${NC}"
             ;;
         fedora)
-            cmd="sudo dnf check-update || sudo dnf makecache"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo dnf check-update -y || sudo dnf makecache -y"
+            else
+                cmd="sudo dnf check-update || sudo dnf makecache"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}dnf${NC}"
             ;;
         gentoo)
+            # emerge n'a pas d'option de confirmation par défaut pour --sync
             cmd="sudo emerge --sync"
-            echo -e "${GREEN}Utilisation de: ${CYAN}emerge${NC}"
+            if [ "$no_confirm" = true ]; then
+                echo -e "${GREEN}Utilisation de: ${CYAN}emerge${NC} (note: --sync ne nécessite pas de confirmation)"
+            else
+                echo -e "${GREEN}Utilisation de: ${CYAN}emerge${NC}"
+            fi
             ;;
         nixos)
             cmd="sudo nix-channel --update"
-            echo -e "${GREEN}Utilisation de: ${CYAN}nix-channel${NC}"
+            if [ "$no_confirm" = true ]; then
+                echo -e "${GREEN}Utilisation de: ${CYAN}nix-channel${NC} (note: pas de confirmation nécessaire)"
+            else
+                echo -e "${GREEN}Utilisation de: ${CYAN}nix-channel${NC}"
+            fi
             ;;
         opensuse)
-            cmd="sudo zypper refresh"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo zypper refresh -y"
+            else
+                cmd="sudo zypper refresh"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}zypper${NC}"
             ;;
         alpine)
-            cmd="sudo apk update"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo apk update --no-progress"
+            else
+                cmd="sudo apk update"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}apk${NC}"
             ;;
         rhel|centos)
-            cmd="sudo yum check-update || sudo yum makecache"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo yum check-update -y || sudo yum makecache -y"
+            else
+                cmd="sudo yum check-update || sudo yum makecache"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}yum${NC}"
             ;;
         *)
@@ -197,24 +244,46 @@ update() {
 
 ################################################################################
 # DESC: Met à jour complètement le système (upgrade)
-# USAGE: upgrade
+# USAGE: upgrade [--nc|--no-confirm]
+#        --nc ou --no-confirm: Mode sans confirmation (évite les prompts)
+# EXAMPLES:
+#   upgrade          # Mise à jour complète avec confirmations
+#   upgrade --nc     # Mise à jour complète sans confirmation
+#   upgrade --no-confirm  # Même chose que --nc
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 upgrade() {
     local distro=$(detect_distro)
     local cmd=""
+    local no_confirm=false
+    
+    # Vérifier si le paramètre --nc ou --no-confirm est passé
+    if [[ "$1" == "--nc" ]] || [[ "$1" == "--no-confirm" ]]; then
+        no_confirm=true
+    fi
     
     echo -e "${BLUE}🚀 Mise à jour complète du système...${NC}"
     echo -e "${CYAN}Distribution détectée: ${YELLOW}$distro${NC}"
+    if [ "$no_confirm" = true ]; then
+        echo -e "${YELLOW}Mode sans confirmation activé${NC}"
+    fi
     echo ""
     
     case "$distro" in
         arch|manjaro|endeavouros)
-            cmd="sudo pacman -Syu"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo pacman -Syu --noconfirm"
+            else
+                cmd="sudo pacman -Syu"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}pacman${NC}"
             ;;
         debian|ubuntu|mint|kali|parrot)
-            cmd="sudo apt update && sudo apt upgrade -y"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo apt update -y && sudo apt upgrade -y"
+            else
+                cmd="sudo apt update && sudo apt upgrade -y"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}apt${NC}"
             ;;
         fedora)
@@ -222,19 +291,31 @@ upgrade() {
             echo -e "${GREEN}Utilisation de: ${CYAN}dnf${NC}"
             ;;
         gentoo)
-            cmd="sudo emerge -auDN @world"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo emerge -auDN @world --autounmask-continue=y"
+            else
+                cmd="sudo emerge -auDN @world"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}emerge${NC}"
             ;;
         nixos)
             cmd="sudo nixos-rebuild switch --upgrade"
-            echo -e "${GREEN}Utilisation de: ${CYAN}nixos-rebuild${NC}"
+            if [ "$no_confirm" = true ]; then
+                echo -e "${GREEN}Utilisation de: ${CYAN}nixos-rebuild${NC} (note: pas de confirmation interactive)"
+            else
+                echo -e "${GREEN}Utilisation de: ${CYAN}nixos-rebuild${NC}"
+            fi
             ;;
         opensuse)
             cmd="sudo zypper update -y"
             echo -e "${GREEN}Utilisation de: ${CYAN}zypper${NC}"
             ;;
         alpine)
-            cmd="sudo apk update && sudo apk upgrade"
+            if [ "$no_confirm" = true ]; then
+                cmd="sudo apk update --no-progress && sudo apk upgrade --no-progress"
+            else
+                cmd="sudo apk update && sudo apk upgrade"
+            fi
             echo -e "${GREEN}Utilisation de: ${CYAN}apk${NC}"
             ;;
         rhel|centos)
