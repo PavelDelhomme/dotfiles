@@ -138,20 +138,25 @@ auto-sync: ## Configurer auto-sync Git (systemd timer)
 restore: ## Restaurer depuis Git (annuler modifications locales)
 	@bash "$(SCRIPT_DIR)/sync/restore_from_git.sh"
 
-# Installations spécifiques
-install-docker: ## Installer Docker & Docker Compose
+# Alias pour compatibilité (déprécié, utiliser make install APP=...)
+install-docker: ## [DÉPRÉCIÉ] Installer Docker (utiliser: make install APP=docker)
+	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=docker$(NC)"
 	@bash "$(SCRIPT_DIR)/install/dev/install_docker.sh"
 
-install-go: ## Installer Go (Golang)
+install-go: ## [DÉPRÉCIÉ] Installer Go (utiliser: make install APP=go)
+	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=go$(NC)"
 	@bash "$(SCRIPT_DIR)/install/dev/install_go.sh"
 
-install-cursor: ## Installer Cursor IDE
+install-cursor: ## [DÉPRÉCIÉ] Installer Cursor (utiliser: make install APP=cursor)
+	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=cursor$(NC)"
 	@bash "$(SCRIPT_DIR)/install/apps/install_cursor.sh"
 
-install-brave: ## Installer Brave Browser
+install-brave: ## [DÉPRÉCIÉ] Installer Brave (utiliser: make install APP=brave)
+	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=brave$(NC)"
 	@bash "$(SCRIPT_DIR)/install/apps/install_brave.sh"
 
-install-yay: ## Installer yay (AUR helper - Arch Linux)
+install-yay: ## [DÉPRÉCIÉ] Installer yay (utiliser: make install APP=yay)
+	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=yay$(NC)"
 	@bash "$(SCRIPT_DIR)/install/tools/install_yay.sh"
 
 # Gestion des VM

@@ -75,26 +75,35 @@ def fix_readme_anchors(filepath):
                     # Correspondance exacte
                     if heading_normalized == link_normalized:
                         score = 100
-                    # Le texte du lien est dans le titre
+                    # Le texte du lien est dans le titre (et représente au moins 70% du titre)
                     elif link_normalized in heading_normalized:
-                        score = len(link_normalized) / len(heading_normalized) * 80
-                    # Le titre est dans le texte du lien
+                        ratio = len(link_normalized) / len(heading_normalized) if heading_normalized else 0
+                        if ratio >= 0.7:
+                            score = ratio * 90
+                    # Le titre est dans le texte du lien (et représente au moins 70% du lien)
                     elif heading_normalized in link_normalized:
-                        score = len(heading_normalized) / len(link_normalized) * 80
+                        ratio = len(heading_normalized) / len(link_normalized) if link_normalized else 0
+                        if ratio >= 0.7:
+                            score = ratio * 90
                     # Correspondance partielle (mots communs)
                     else:
                         link_words = set(link_normalized.split())
                         heading_words = set(heading_normalized.split())
-                        common_words = link_words & heading_words
-                        if common_words:
-                            score = len(common_words) / max(len(link_words), len(heading_words)) * 60
+                        if link_words and heading_words:
+                            common_words = link_words & heading_words
+                            if common_words:
+                                # Score basé sur le nombre de mots communs
+                                score = (len(common_words) / max(len(link_words), len(heading_words))) * 70
+                                # Bonus si tous les mots du lien sont dans le titre
+                                if link_words.issubset(heading_words):
+                                    score = 85
                     
                     if score > best_score:
                         best_score = score
                         best_match = (heading, correct_anchor)
                 
-                # Si on a trouvé une bonne correspondance (score > 50)
-                if best_match and best_score > 50:
+                # Si on a trouvé une bonne correspondance (score > 60)
+                if best_match and best_score > 60:
                     return f"[{link_text}](#{best_match[1]})"
                 
                 # Sinon, générer l'ancre depuis le texte du lien

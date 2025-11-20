@@ -21,7 +21,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Vérifier l'état après réinstallation](#vrifier-ltat-aprs-rinstallation)
 - [📁 Structure du repository](#structure-du-repository)
 - [🔧 Fichiers de configuration](#fichiers-de-configuration)
-  - [`.env` - Variables d'environnement](#env-variables-denvironnement-autres)
+  - [`.env` - Variables d'environnement](#variables-denvironnement-dans-env)
   - [`aliases.zsh` - Aliases](#aliaseszsh-aliases)
   - [`functions.zsh` - Fonctions](#functionszsh-fonctions)
 - [🖥️ Installation complète du système](#installation-complte-du-systme)
