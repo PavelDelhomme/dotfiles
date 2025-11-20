@@ -136,7 +136,7 @@ Aller dans le dossier dotfiles :
 
 ```bash
 cd ~/dotfiles
-```aeqdwcxsz
+```
 
 Relancer le menu interactif :
 
@@ -602,6 +602,12 @@ Le timer est configuré pour :
 - S'exécuter toutes les heures
 - Précision de 1 minute
 
+---
+
+<!-- =============================================================================
+     BRAVE BROWSER
+     ============================================================================= -->
+
 ## 🌐 Brave Browser
 
 Installation optionnelle du navigateur Brave.
@@ -619,6 +625,12 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 - **Debian/Ubuntu** : Dépôt officiel Brave
 - **Fedora** : Dépôt officiel Brave
 - **Autres** : Installation manuelle ou Flatpak
+
+---
+
+<!-- =============================================================================
+     OPTIONS PRINCIPALES DU MENU (SETUP.SH)
+     ============================================================================= -->
 
 ## 📊 Options principales du menu (setup.sh)
 
@@ -664,7 +676,7 @@ Toutes les installations et configurations sont automatiquement tracées dans `~
 
 Consulter les logs via **Option 53** du menu ou directement :
 ```bash
-less ~/dotfiles/install.log
+less ~/dotfiles/logs/install.log
 ```
 
 ---
@@ -739,6 +751,12 @@ scripts/
 | `tools/install_yay.sh` | Installation yay AUR helper | Option 18 du menu |
 | `test/validate_setup.sh` | Validation complète | Option 22 du menu |
 
+---
+
+<!-- =============================================================================
+     VALIDATION DU SETUP
+     ============================================================================= -->
+
 ## ✅ Validation du Setup
 
 Script de validation complète pour vérifier toutes les installations et configurations.
@@ -786,6 +804,12 @@ Le script affiche un rapport avec :
 - ✅ Réussis (vert)
 - ❌ Échecs (rouge)
 - ⚠️ Avertissements (jaune)
+
+---
+
+<!-- =============================================================================
+     FLUTTER & ANDROID
+     ============================================================================= -->
 
 ## 📱 Flutter & Android
 
