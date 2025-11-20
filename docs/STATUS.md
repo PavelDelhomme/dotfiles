@@ -599,7 +599,7 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.8.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète + Réorganisation structure fichiers)
+**Version :** 2.9.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète + Réorganisation structure fichiers + Système complet de gestion de VM)
 
 ---
 
@@ -902,6 +902,74 @@ curl | bash bootstrap.sh
 - ✅ **Organisation claire** : Documentation, logs, scripts séparés
 - ✅ **Maintenabilité** : Plus facile de trouver et organiser les fichiers
 - ✅ **Évolutivité** : Structure extensible pour futurs ajouts
+
+---
+
+## 🚀 PHASE 22 : Système complet de gestion de VM en ligne de commande
+
+### Système de gestion de VM (vm_manager.sh)
+- ✅ **Nouveau fichier** : `scripts/vm/vm_manager.sh`
+  - Gestionnaire complet de VM en ligne de commande
+  - 100% en CLI (pas besoin de virt-manager GUI)
+  - Toutes les opérations via fonctions ou menu interactif
+- ✅ **Fonctionnalités principales** :
+  - `create_vm()` - Créer une VM complètement en CLI (avec ou sans ISO)
+  - `start_vm()` - Démarrer une VM
+  - `stop_vm()` - Arrêter une VM (normal ou forcé)
+  - `show_vm_info()` - Afficher infos complètes d'une VM
+  - `delete_vm()` - Supprimer complètement une VM
+  - `list_vms()` - Lister toutes les VM (actives ou toutes)
+- ✅ **Gestion des snapshots** :
+  - `create_snapshot()` - Créer un snapshot avec description
+  - `list_snapshots()` - Lister tous les snapshots d'une VM
+  - `restore_snapshot()` - Restaurer un snapshot (rollback rapide)
+  - `delete_snapshot()` - Supprimer un snapshot
+- ✅ **Tests automatisés** :
+  - `test_dotfiles_in_vm()` - Workflow complet de test des dotfiles
+    * Démarre la VM si nécessaire
+    * Crée snapshot 'before-test' automatiquement
+    * Donne instructions pour tester dans la VM
+    * Permet rollback rapide en cas d'erreur
+- ✅ **Menu interactif** :
+  - `vm_manager_menu()` - Menu complet avec toutes les options
+  - Navigation intuitive pour toutes les opérations
+
+### Intégration Makefile
+- ✅ **Nouvelles commandes Makefile** :
+  - `make vm-menu` - Menu interactif de gestion des VM
+  - `make vm-list` - Lister toutes les VM
+  - `make vm-create` - Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path)
+  - `make vm-start` - Démarrer une VM (VM=name)
+  - `make vm-stop` - Arrêter une VM (VM=name)
+  - `make vm-info` - Afficher infos d'une VM (VM=name)
+  - `make vm-snapshot` - Créer snapshot (VM=name NAME=snap DESC="desc")
+  - `make vm-snapshots` - Lister snapshots (VM=name)
+  - `make vm-rollback` - Restaurer snapshot (VM=name SNAPSHOT=name)
+  - `make vm-test` - Tester dotfiles dans VM (VM=name)
+  - `make vm-delete` - Supprimer une VM (VM=name)
+- ✅ **Documentation Makefile** : Section "Gestion des VM" ajoutée dans `make help`
+
+### Documentation
+- ✅ **Nouveau fichier** : `scripts/vm/README.md`
+  - Documentation complète du système de gestion de VM
+  - Workflow de test recommandé
+  - Exemples d'utilisation
+  - Dépannage et notes importantes
+
+### Fichiers créés/modifiés
+- ✅ `scripts/vm/vm_manager.sh` - Gestionnaire complet de VM
+- ✅ `scripts/vm/README.md` - Documentation complète
+- ✅ `Makefile` - Commandes VM ajoutées
+- ✅ `README.md` - Section VM ajoutée
+- ✅ `docs/STATUS.md` - PHASE 22 documentée
+
+### Avantages du système
+- ✅ **Tests en environnement isolé** : Votre machine reste propre
+- ✅ **Rollback rapide** : Snapshots pour revenir en arrière instantanément
+- ✅ **100% en ligne de commande** : Pas besoin d'interface graphique
+- ✅ **Workflow automatisé** : `make vm-test` gère tout automatiquement
+- ✅ **Intégration Makefile** : Commandes simples et mémorisables
+- ✅ **Snapshots automatiques** : Création automatique avant chaque test
 - ✅ `STATUS.md` - Documentation mise à jour
 
 ### Intégration système de logs

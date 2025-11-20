@@ -60,6 +60,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Rollback complet (tout désinstaller)](#rollback-complet-tout-désinstaller)
   - [Rollback Git uniquement](#rollback-git-uniquement)
   - [Rollback Git manuel](#rollback-git-manuel)
+- [🖥️ Gestion des VM (Tests en environnement isolé)](#️-gestion-des-vm-tests-en-environnement-isolé)
 - [📄 Licence](#-licence)
 - [👤 Auteur](#-auteur)
 
@@ -71,14 +72,17 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 **UNE SEULE LIGNE** pour tout installer et configurer :
 
+Méthode 1 : Pipe (peut avoir des problèmes dans certains environnements)
 ```bash
-# Méthode 1 : Pipe (peut avoir des problèmes dans certains environnements)
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
-
-# Méthode 2 : Process substitution (recommandé si méthode 1 ne fonctionne pas)
+```
+Méthode 2 : Process substitution (recommandé si méthode 1 ne fonctionne pas)
+```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
+```
 
-# Méthode 3 : Téléchargement puis exécution (si les deux autres ne fonctionnent pas)
+Méthode 3 : Téléchargement puis exécution (si les deux autres ne fonctionnent pas)
+```bash
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh -o /tmp/bootstrap.sh && bash /tmp/bootstrap.sh
 ```
 
@@ -776,6 +780,100 @@ git reset --hard <commit_hash> # Revenir à un commit
 # ou
 git reset --hard origin/main   # Revenir à la version distante
 ```
+
+## 🖥️ Gestion des VM (Tests en environnement isolé)
+
+Système complet de gestion de VM en ligne de commande pour tester les dotfiles dans un environnement complètement isolé.
+
+### Installation QEMU/KVM
+
+Via le menu `scripts/setup.sh` (option 11) ou directement :
+```bash
+bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh
+```
+
+### Utilisation rapide
+
+**Via Makefile (recommandé) :**
+```bash
+# Menu interactif
+make vm-menu
+
+# Créer une VM de test
+make vm-create VM=test-dotfiles MEMORY=2048 VCPUS=2 DISK=20
+
+# Démarrer la VM
+make vm-start VM=test-dotfiles
+
+# Créer un snapshot avant test
+make vm-snapshot VM=test-dotfiles NAME=clean DESC="Installation propre"
+
+# Tester les dotfiles dans la VM
+make vm-test VM=test-dotfiles
+
+# Si problème, rollback
+make vm-rollback VM=test-dotfiles SNAPSHOT=clean
+```
+
+### Workflow de test recommandé
+
+1. **Créer la VM :**
+   ```bash
+   make vm-create VM=test-dotfiles MEMORY=2048 VCPUS=2 DISK=20
+   ```
+
+2. **Démarrer et installer OS :**
+   ```bash
+   make vm-start VM=test-dotfiles
+   virt-viewer test-dotfiles  # Installer une distribution Linux
+   ```
+
+3. **Créer snapshot "clean" après installation :**
+   ```bash
+   make vm-snapshot VM=test-dotfiles NAME=clean DESC="Installation propre"
+   ```
+
+4. **Tester les dotfiles :**
+   ```bash
+   make vm-test VM=test-dotfiles
+   ```
+   Dans la VM, exécutez :
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+   ```
+
+5. **Si problème, rollback rapide :**
+   ```bash
+   make vm-rollback VM=test-dotfiles SNAPSHOT=clean
+   ```
+
+### Commandes Makefile disponibles
+
+| Commande | Description |
+|----------|-------------|
+| `make vm-menu` | Menu interactif de gestion des VM |
+| `make vm-list` | Lister toutes les VM |
+| `make vm-create` | Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path) |
+| `make vm-start` | Démarrer une VM (VM=name) |
+| `make vm-stop` | Arrêter une VM (VM=name) |
+| `make vm-info` | Afficher infos d'une VM (VM=name) |
+| `make vm-snapshot` | Créer snapshot (VM=name NAME=snap DESC="desc") |
+| `make vm-snapshots` | Lister snapshots (VM=name) |
+| `make vm-rollback` | Restaurer snapshot (VM=name SNAPSHOT=name) |
+| `make vm-test` | Tester dotfiles dans VM (VM=name) |
+| `make vm-delete` | Supprimer une VM (VM=name) |
+
+### Avantages
+
+- ✅ **100% en ligne de commande** : Pas besoin de virt-manager GUI
+- ✅ **Tests en environnement isolé** : Votre machine reste propre
+- ✅ **Rollback rapide** : Snapshots pour revenir en arrière instantanément
+- ✅ **Workflow automatisé** : `make vm-test` gère tout automatiquement
+- ✅ **Intégration Makefile** : Commandes simples et mémorisables
+
+### Documentation complète
+
+Voir `scripts/vm/README.md` pour la documentation complète avec tous les exemples.
 
 ## 📄 Licence
 
