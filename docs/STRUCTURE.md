@@ -224,9 +224,13 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 - 50 : Afficher ce qui manque (état détaillé, scrollable via less)
 - 51 : Installer éléments manquants un par un (menu interactif)
 - 52 : Installer tout ce qui manque automatiquement (avec logs)
-- 53 : Afficher logs d'installation (voir ce qui a été fait, quand, pourquoi)
+- 53 : Afficher logs d'installation (voir ce qui a été fait, quand, pourquoi) - `logs/install.log`
 - 60-70 : Désinstallation individuelle (config Git, remote Git, paquets base, gestionnaires, Brave, Cursor, Docker, Go, yay, auto-sync, symlinks)
 - 98-99 : RÉINITIALISATION complète, ROLLBACK complet
+
+**Utilisation:**
+- `bash scripts/setup.sh` - Lancer le menu interactif
+- `make setup` - Alternative via Makefile
 
 ### 3. Cas d'usage
 
