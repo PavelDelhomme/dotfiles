@@ -90,26 +90,45 @@ Méthode 3 : Téléchargement puis exécution (si les deux autres ne fonctionnen
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh -o /tmp/bootstrap.sh && bash /tmp/bootstrap.sh
 ```
 
-Cette commande va automatiquement :
+Cette commande va automatiquement exécuter les étapes suivantes :
 
-1. ✅ **Vérifier et installer Git** si nécessaire (détection automatique : pacman/apt/dnf)
-2. ✅ **Configurer Git** (nom et email) :
-   - Utilise la configuration existante si déjà configurée
-   - Sinon, demande interactivement (avec valeurs par défaut)
-   - Support des variables d'environnement `.env` (GIT_USER_NAME, GIT_USER_EMAIL)
-3. ✅ **Configurer credential helper** (cache pour 15 minutes)
-4. ✅ **Générer clé SSH ED25519** si absente :
-   - Utilise l'email Git configuré pour la clé
-   - Copie la clé publique dans le presse-papier automatiquement
-   - Ouvre GitHub dans le navigateur pour ajouter la clé
-5. ✅ **Tester connexion GitHub SSH** (vérifie `ssh -T git@github.com`)
-6. ✅ **Cloner le repository dotfiles** dans `~/dotfiles` si inexistant :
-   - Support des variables d'environnement `.env` (GITHUB_REPO_URL)
-   - Utilise l'URL par défaut si `.env` non configuré
-7. ✅ **Mettre à jour** si repo existe déjà (`git pull`)
-8. ✅ **Demander choix du shell** (Zsh/Fish/Les deux)
-9. ✅ **Créer symlinks** si demandé (centralisation de la configuration)
-10. ✅ **Lancer automatiquement le menu interactif d'installation** (`scripts/setup.sh`)
+**1. Vérification et installation de Git**
+- Détection automatique du gestionnaire de paquets (pacman/apt/dnf)
+- Installation automatique si Git n'est pas présent
+
+**2. Configuration Git (nom et email)**
+- Utilise la configuration existante si déjà configurée
+- Sinon, demande interactivement avec valeurs par défaut
+- Support des variables d'environnement `.env` (GIT_USER_NAME, GIT_USER_EMAIL)
+- Configuration du credential helper (cache pour 15 minutes)
+
+**3. Génération clé SSH ED25519** (si absente)
+- Utilise l'email Git configuré pour la clé
+- Copie la clé publique dans le presse-papier automatiquement
+- Ouvre GitHub dans le navigateur pour ajouter la clé SSH
+- Test de la connexion GitHub SSH (`ssh -T git@github.com`)
+
+**4. Clonage ou mise à jour du repository dotfiles**
+- Cloner dans `~/dotfiles` si inexistant
+- Mettre à jour (`git pull`) si repo existe déjà
+- Support des variables d'environnement `.env` (GITHUB_REPO_URL)
+- Utilise l'URL par défaut si `.env` non configuré
+- Si le dossier existe mais n'est pas un repo Git, demande confirmation pour le supprimer
+
+**5. Choix du shell** (Zsh/Fish/Les deux)
+- Sélection interactive du shell à configurer
+- Support de plusieurs shells simultanés
+- Passage de la sélection au menu `setup.sh`
+
+**6. Création des symlinks** (si demandé)
+- Centralisation de la configuration
+- Backup automatique des fichiers existants
+- Création selon le shell sélectionné
+
+**7. Lancement automatique du menu interactif d'installation**
+- Menu `scripts/setup.sh` avec toutes les options
+- État de l'installation affiché en haut du menu
+- Variable `SELECTED_SHELL_FOR_SETUP` passée au menu
 
 Le menu interactif affiche :
 - 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
