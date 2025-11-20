@@ -402,24 +402,107 @@ dotfiles/
 - ✅ `STATUS.md` - Documentation des nouvelles modifications
 
 ### Commandes Makefile disponibles
+
+Aide complète :
+
 ```bash
-make help             # Aide complète
-make install          # Installation complète
-make setup            # Menu interactif
-make validate         # Validation setup
-make symlinks         # Créer symlinks
-make migrate          # Migrer config existante
-make install-docker   # Installer Docker
-make install-go       # Installer Go
-make install-cursor   # Installer Cursor
-make install-brave    # Installer Brave
-make install-yay      # Installer yay
-make git-config       # Config Git
-make git-remote       # Config remote Git
-make auto-sync        # Config auto-sync
-make rollback         # Rollback complet
-make reset            # Réinitialisation complète
-make clean            # Nettoyer fichiers temporaires
+make help
+```
+
+Installation complète :
+
+```bash
+make install
+```
+
+Menu interactif :
+
+```bash
+make setup
+```
+
+Validation setup :
+
+```bash
+make validate
+```
+
+Créer symlinks :
+
+```bash
+make symlinks
+```
+
+Migrer config existante :
+
+```bash
+make migrate
+```
+
+Installer Docker :
+
+```bash
+make install-docker
+```
+
+Installer Go :
+
+```bash
+make install-go
+```
+
+Installer Cursor :
+
+```bash
+make install-cursor
+```
+
+Installer Brave :
+
+```bash
+make install-brave
+```
+
+Installer yay :
+
+```bash
+make install-yay
+```
+
+Config Git :
+
+```bash
+make git-config
+```
+
+Config remote Git :
+
+```bash
+make git-remote
+```
+
+Config auto-sync :
+
+```bash
+make auto-sync
+```
+
+Rollback complet :
+
+```bash
+make rollback
+```
+
+Réinitialisation complète :
+
+```bash
+make reset
+```
+
+Nettoyer fichiers temporaires :
+
+```bash
+make clean
 ```
 
 ### Corrections techniques
@@ -573,12 +656,12 @@ make clean            # Nettoyer fichiers temporaires
 ### Workflow simplifié
 
 **Avant :**
+
 ```bash
-curl | bash bootstrap.sh
-# → Questions multiples
-# → Choix entre make install / make setup / bash setup.sh
-# → Confusion sur quelle méthode utiliser
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
 ```
+
+→ Questions multiples → Choix entre make install / make setup / bash setup.sh → Confusion sur quelle méthode utiliser
 
 **Maintenant :**
 ```bash

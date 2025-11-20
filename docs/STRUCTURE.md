@@ -157,25 +157,112 @@ scripts/
 
 Le Makefile fournit une interface standardisée et simple pour toutes les opérations :
 
+Aller dans le dossier dotfiles :
+
 ```bash
 cd ~/dotfiles
-make help             # Voir toutes les commandes disponibles
-make install          # Installation complète
-make setup            # Menu interactif
-make validate         # Valider le setup
-make symlinks         # Créer symlinks
-make migrate          # Migrer config existante
-make install-docker   # Installer Docker
-make install-go       # Installer Go
-make install-cursor   # Installer Cursor
-make install-brave    # Installer Brave
-make install-yay      # Installer yay
-make git-config       # Config Git
-make git-remote       # Config remote Git
-make auto-sync        # Config auto-sync
-make rollback         # Rollback complet
-make reset            # Réinitialisation complète
-make clean            # Nettoyer fichiers temporaires
+```
+
+Voir toutes les commandes disponibles :
+
+```bash
+make help
+```
+
+Installation complète :
+
+```bash
+make install
+```
+
+Menu interactif :
+
+```bash
+make setup
+```
+
+Valider le setup :
+
+```bash
+make validate
+```
+
+Créer symlinks :
+
+```bash
+make symlinks
+```
+
+Migrer config existante :
+
+```bash
+make migrate
+```
+
+Installer Docker :
+
+```bash
+make install-docker
+```
+
+Installer Go :
+
+```bash
+make install-go
+```
+
+Installer Cursor :
+
+```bash
+make install-cursor
+```
+
+Installer Brave :
+
+```bash
+make install-brave
+```
+
+Installer yay :
+
+```bash
+make install-yay
+```
+
+Config Git :
+
+```bash
+make git-config
+```
+
+Config remote Git :
+
+```bash
+make git-remote
+```
+
+Config auto-sync :
+
+```bash
+make auto-sync
+```
+
+Rollback complet :
+
+```bash
+make rollback
+```
+
+Réinitialisation complète :
+
+```bash
+make reset
+```
+
+Nettoyer fichiers temporaires :
+
+```bash
+make clean
 ```
 
 **Avantages :**
@@ -261,12 +348,26 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 Répondre aux prompts → Choisir option 10 pour installation complète.
 
 #### Mise à jour dotfiles
+
+Aller dans le dossier dotfiles :
+
 ```bash
 cd ~/dotfiles
-git pull
-bash setup.sh
-# Choisir les options nécessaires
 ```
+
+Récupérer les modifications :
+
+```bash
+git pull
+```
+
+Relancer le setup :
+
+```bash
+bash scripts/setup.sh
+```
+
+Choisir les options nécessaires.
 
 #### Validation setup
 Lancer la validation :
