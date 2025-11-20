@@ -34,9 +34,10 @@ elif [ -f "$HOME/.env_dotfiles" ]; then
     source "$HOME/.env_dotfiles"
 fi
 
-# Valeurs par défaut si non définies dans .env
-DEFAULT_GIT_NAME="${GIT_USER_NAME:-PavelDelhomme}"
-DEFAULT_GIT_EMAIL="${GIT_USER_EMAIL:-dev@delhomme.ovh}"
+# Charger les variables depuis .env si disponibles
+# PAS de valeurs par défaut hardcodées pour protéger la vie privée
+DEFAULT_GIT_NAME="${GIT_USER_NAME:-}"
+DEFAULT_GIT_EMAIL="${GIT_USER_EMAIL:-}"
 DOTFILES_REPO="${GITHUB_REPO_URL:-https://github.com/PavelDelhomme/dotfiles.git}"
 
 log_section "Bootstrap Installation - Dotfiles"
@@ -69,10 +70,6 @@ fi
 ################################################################################
 log_section "Configuration Git globale"
 
-# Configuration par défaut (compte perso)
-DEFAULT_GIT_NAME="PavelDelhomme"
-DEFAULT_GIT_EMAIL="dev@delhomme.ovh"
-
 # Vérifier si Git est déjà configuré
 CURRENT_GIT_NAME=$(git config --global user.name 2>/dev/null)
 CURRENT_GIT_EMAIL=$(git config --global user.email 2>/dev/null)
@@ -86,29 +83,53 @@ if [ -n "$CURRENT_GIT_NAME" ] && [ -n "$CURRENT_GIT_EMAIL" ]; then
 else
     # Git n'est pas configuré, demander la configuration
     log_info "Configuration Git nécessaire"
-    printf "Nom Git (défaut: %s): " "$DEFAULT_GIT_NAME"
-    IFS= read -r git_name </dev/tty 2>/dev/null || read -r git_name
-    if [ -z "$git_name" ]; then
-        git_name="$DEFAULT_GIT_NAME"
-    fi
+    log_warn "Aucune information personnelle ne sera utilisée par défaut"
     
-    printf "Email Git (défaut: %s): " "$DEFAULT_GIT_EMAIL"
-    IFS= read -r git_email </dev/tty 2>/dev/null || read -r git_email
-    if [ -z "$git_email" ]; then
-        git_email="$DEFAULT_GIT_EMAIL"
-    fi
+    # Demander le nom Git (obligatoire)
+    while [ -z "$git_name" ]; do
+        if [ -n "$DEFAULT_GIT_NAME" ]; then
+            printf "Nom Git [défaut depuis .env: %s]: " "$DEFAULT_GIT_NAME"
+        else
+            printf "Nom Git (obligatoire): "
+        fi
+        IFS= read -r git_name </dev/tty 2>/dev/null || read -r git_name
+        if [ -z "$git_name" ] && [ -n "$DEFAULT_GIT_NAME" ]; then
+            git_name="$DEFAULT_GIT_NAME"
+        fi
+        if [ -z "$git_name" ]; then
+            log_error "Le nom Git est obligatoire. Veuillez entrer un nom."
+        fi
+    done
+    
+    # Demander l'email Git (obligatoire)
+    while [ -z "$git_email" ]; do
+        if [ -n "$DEFAULT_GIT_EMAIL" ]; then
+            printf "Email Git [défaut depuis .env: %s]: " "$DEFAULT_GIT_EMAIL"
+        else
+            printf "Email Git (obligatoire): "
+        fi
+        IFS= read -r git_email </dev/tty 2>/dev/null || read -r git_email
+        if [ -z "$git_email" ] && [ -n "$DEFAULT_GIT_EMAIL" ]; then
+            git_email="$DEFAULT_GIT_EMAIL"
+        fi
+        if [ -z "$git_email" ]; then
+            log_error "L'email Git est obligatoire. Veuillez entrer un email valide."
+        elif [[ ! "$git_email" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+            log_warn "Format d'email invalide. Veuillez entrer un email valide."
+            git_email=""
+        fi
+    done
 fi
 
-# Vérifier que git_email est bien défini (sécurité)
-if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]] || [[ "$git_email" == *"git_email"* ]]; then
-    git_email="$DEFAULT_GIT_EMAIL"
-    log_warn "Email invalide détecté, utilisation de la valeur par défaut"
+# Vérifier que les valeurs sont bien définies (sécurité finale)
+if [ -z "$git_email" ] || [[ "$git_email" == *"\$"* ]] || [[ "$git_email" == *"DEFAULT"* ]]; then
+    log_error "Erreur: L'email Git n'est pas valide. Configuration annulée."
+    exit 1
 fi
 
-# Vérifier que git_name est bien défini
-if [ -z "$git_name" ] || [[ "$git_name" == *"\$"* ]] || [[ "$git_name" == *"DEFAULT"* ]] || [[ "$git_name" == *"git_name"* ]]; then
-    git_name="$DEFAULT_GIT_NAME"
-    log_warn "Nom invalide détecté, utilisation de la valeur par défaut"
+if [ -z "$git_name" ] || [[ "$git_name" == *"\$"* ]] || [[ "$git_name" == *"DEFAULT"* ]]; then
+    log_error "Erreur: Le nom Git n'est pas valide. Configuration annulée."
+    exit 1
 fi
 
 # Configurer Git (même si déjà configuré, pour s'assurer que tout est à jour)

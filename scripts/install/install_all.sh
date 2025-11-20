@@ -65,13 +65,10 @@ if [ "$SKIP_GIT" = false ]; then
     
     # Configuration Git si pas déjà configuré
     if [ -z "$(git config --global user.name 2>/dev/null)" ]; then
-        log_info "Configuration Git globale..."
-        git config --global user.name "Pactivisme"
-        git config --global user.email "dev@delhomme.ovh"
-        git config --global init.defaultBranch main
-        git config --global core.editor vim
-        git config --global color.ui auto
-        log_info "✓ Git configuré"
+        log_warn "Configuration Git nécessaire mais non fournie"
+        log_warn "Utilisez 'bash ~/dotfiles/scripts/config/git_config.sh' pour configurer Git"
+        log_warn "Ou configurez les variables GIT_USER_NAME et GIT_USER_EMAIL dans .env"
+        log_warn "Installation Git ignorée - configuration requise manuellement"
     else
         log_info "Git déjà configuré: $(git config --global user.name)"
     fi
