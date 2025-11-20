@@ -66,6 +66,10 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 ---
 
+<!-- =============================================================================
+     INSTALLATION RAPIDE (NOUVELLE MACHINE)
+     ============================================================================= -->
+
 ## 🚀 Installation rapide (nouvelle machine)
 
 ### Installation en une seule commande
@@ -87,18 +91,25 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 ```
 
 Cette commande va automatiquement :
-1. ✅ **Vérifier et installer Git** si nécessaire (pacman/apt/dnf)
-2. ✅ **Configurer Git** (nom et email) avec valeurs par défaut ou interactif
+
+1. ✅ **Vérifier et installer Git** si nécessaire (détection automatique : pacman/apt/dnf)
+2. ✅ **Configurer Git** (nom et email) :
+   - Utilise la configuration existante si déjà configurée
+   - Sinon, demande interactivement (avec valeurs par défaut)
+   - Support des variables d'environnement `.env` (GIT_USER_NAME, GIT_USER_EMAIL)
 3. ✅ **Configurer credential helper** (cache pour 15 minutes)
-4. ✅ **Générer clé SSH ED25519** si absente (avec email configuré)
-5. ✅ **Copier clé publique** dans presse-papier automatiquement
-6. ✅ **Ouvrir GitHub** pour ajouter la clé SSH
-7. ✅ **Tester connexion GitHub SSH** (vérifie `ssh -T git@github.com`)
-8. ✅ **Cloner le repository dotfiles** dans `~/dotfiles` si inexistant
-9. ✅ **Mettre à jour** si repo existe déjà (`git pull`)
-10. ✅ **Demander choix du shell** (Zsh/Fish/Les deux)
-11. ✅ **Créer symlinks** si demandé
-12. ✅ **Lancer automatiquement le menu interactif d'installation** (`scripts/setup.sh`)
+4. ✅ **Générer clé SSH ED25519** si absente :
+   - Utilise l'email Git configuré pour la clé
+   - Copie la clé publique dans le presse-papier automatiquement
+   - Ouvre GitHub dans le navigateur pour ajouter la clé
+5. ✅ **Tester connexion GitHub SSH** (vérifie `ssh -T git@github.com`)
+6. ✅ **Cloner le repository dotfiles** dans `~/dotfiles` si inexistant :
+   - Support des variables d'environnement `.env` (GITHUB_REPO_URL)
+   - Utilise l'URL par défaut si `.env` non configuré
+7. ✅ **Mettre à jour** si repo existe déjà (`git pull`)
+8. ✅ **Demander choix du shell** (Zsh/Fish/Les deux)
+9. ✅ **Créer symlinks** si demandé (centralisation de la configuration)
+10. ✅ **Lancer automatiquement le menu interactif d'installation** (`scripts/setup.sh`)
 
 Le menu interactif affiche :
 - 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
@@ -125,7 +136,7 @@ Aller dans le dossier dotfiles :
 
 ```bash
 cd ~/dotfiles
-```
+```aeqdwcxsz
 
 Relancer le menu interactif :
 
@@ -179,6 +190,12 @@ bash scripts/setup.sh
 
 Le script `scripts/setup.sh` propose un menu interactif avec toutes les options d'installation.
 
+---
+
+<!-- =============================================================================
+     STRUCTURE DU REPOSITORY
+     ============================================================================= -->
+
 ## 📁 Structure du repository
 
 Voir `STRUCTURE.md` pour la structure complète et détaillée.
@@ -201,6 +218,12 @@ Structure principale :
     ├── test/                   # Validation & tests
     └── vm/                     # Gestion VM
 ```
+
+---
+
+<!-- =============================================================================
+     FICHIERS DE CONFIGURATION
+     ============================================================================= -->
 
 ## 🔧 Fichiers de configuration
 
@@ -230,6 +253,12 @@ Fonctions utiles :
 - `gclone` - Git clone et cd
 - `docker-cleanup` - Nettoyage Docker
 - `backup` - Backup rapide avec timestamp
+
+---
+
+<!-- =============================================================================
+     INSTALLATION COMPLÈTE DU SYSTÈME
+     ============================================================================= -->
 
 ## 🖥️ Installation complète du système
 
@@ -262,6 +291,12 @@ Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer 
 - ✅ Configuration Xorg pour GPU principal
 - ✅ nvidia-prime pour gestion hybride
 
+---
+
+<!-- =============================================================================
+     FONCTIONNALITÉS INTELLIGENTES
+     ============================================================================= -->
+
 ## 📝 Fonctionnalités intelligentes
 
 ### Vérifications avant installation
@@ -281,6 +316,12 @@ Un script dédié est créé :
 ```bash
 update-cursor.sh
 ```
+
+---
+
+<!-- =============================================================================
+     USAGE QUOTIDIEN
+     ============================================================================= -->
 
 ## 🎯 Usage quotidien
 
@@ -451,6 +492,12 @@ Le script génère automatiquement une clé SSH ED25519 et :
 
 Clé stockée dans : `~/.ssh/id_ed25519`
 
+---
+
+<!-- =============================================================================
+     DOCKER
+     ============================================================================= -->
+
 ## 🐳 Docker
 
 ### Installation
@@ -599,6 +646,12 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 - **28** : Restaurer depuis Git (annuler modifications locales, restaurer fichiers supprimés)
 - **26-27** : Migration shell (Fish ↔ Zsh), Changer shell par défaut
 
+---
+
+<!-- =============================================================================
+     SYSTÈME DE LOGS D'INSTALLATION
+     ============================================================================= -->
+
 ## 📝 Système de logs d'installation
 
 Toutes les installations et configurations sont automatiquement tracées dans `~/dotfiles/logs/install.log` :
@@ -613,6 +666,12 @@ Consulter les logs via **Option 53** du menu ou directement :
 ```bash
 less ~/dotfiles/install.log
 ```
+
+---
+
+<!-- =============================================================================
+     SCRIPTS MODULAIRES
+     ============================================================================= -->
 
 ## 📦 Scripts Modulaires
 
@@ -758,6 +817,12 @@ Premier lancement d'Android Studio pour configurer le SDK :
 android-studio
 ```
 
+---
+
+<!-- =============================================================================
+     NVIDIA RTX 3060
+     ============================================================================= -->
+
 ## 🎮 NVIDIA RTX 3060
 
 ### Configuration automatique
@@ -785,6 +850,11 @@ prime-run <app>
 2. Dans le BIOS : `Primary Display` = `PCI-E` ou `Discrete`
 3. Redémarrez après installation
 
+---
+
+<!-- =============================================================================
+     MAINTENANCE
+     ============================================================================= -->
 
 ## 🛠️ Maintenance
 
@@ -846,6 +916,8 @@ upgrade --no-confirm
 yayup
 ```
 
+---
+
 ### Nettoyer Docker
 
 Nettoyer Docker :
@@ -854,6 +926,8 @@ Nettoyer Docker :
 docker-cleanup
 ```
 
+---
+
 ### Mettre à jour Cursor
 
 Mettre à jour Cursor :
@@ -861,6 +935,12 @@ Mettre à jour Cursor :
 ```bash
 update-cursor.sh
 ```
+
+---
+
+<!-- =============================================================================
+     STRUCTURE RECOMMANDÉE APRÈS INSTALLATION
+     ============================================================================= -->
 
 ## 📦 Structure recommandée après installation
 
@@ -882,6 +962,12 @@ Les symlinks sont créés automatiquement lors de l'installation pour centralise
 ```
 
 **Note :** Les symlinks sont proposés automatiquement lors de l'installation via `bootstrap.sh` ou `scripts/setup.sh`.
+
+---
+
+<!-- =============================================================================
+     TROUBLESHOOTING
+     ============================================================================= -->
 
 ## 🚨 Troubleshooting
 
@@ -933,6 +1019,12 @@ grep "source ~/dotfiles" ~/.zshrc
 
 Si absent, relancez `scripts/setup.sh`.
 
+---
+
+<!-- =============================================================================
+     WORKFLOW COMPLET (NOUVELLE MACHINE)
+     ============================================================================= -->
+
 ## 🔄 Workflow complet (nouvelle machine)
 
 ### Méthode automatique (recommandée)
@@ -967,6 +1059,12 @@ Cette commande fait automatiquement :
 - **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
 - **Configuration apps** : Cursor login, Proton Pass
 - **Consulter logs** : Option 53 ou `less ~/dotfiles/logs/install.log`
+
+---
+
+<!-- =============================================================================
+     ROLLBACK / DÉSINSTALLATION
+     ============================================================================= -->
 
 ## 🔄 Rollback / Désinstallation
 
@@ -1040,6 +1138,12 @@ Ou revenir à la version distante :
 ```bash
 git reset --hard origin/main
 ```
+
+---
+
+<!-- =============================================================================
+     GESTION DES VM (TESTS EN ENVIRONNEMENT ISOLÉ)
+     ============================================================================= -->
 
 ## 🖥️ Gestion des VM (Tests en environnement isolé)
 
@@ -1134,6 +1238,12 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 ### Documentation complète
 
 Voir `scripts/vm/README.md` pour la documentation complète avec tous les exemples.
+
+---
+
+<!-- =============================================================================
+     LICENCE & AUTEUR
+     ============================================================================= -->
 
 ## 📄 Licence
 
