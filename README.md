@@ -121,25 +121,59 @@ Une fois le menu lancé, vous pouvez :
 
 ### Commandes utiles après installation
 
+Aller dans le dossier dotfiles :
+
 ```bash
 cd ~/dotfiles
-bash scripts/setup.sh          # Relancer le menu interactif
-make setup              # Alternative avec Makefile
-make validate           # Valider le setup complet
-make help               # Voir toutes les commandes disponibles
+```
+
+Relancer le menu interactif :
+
+```bash
+bash scripts/setup.sh
+```
+
+Alternative avec Makefile :
+
+```bash
+make setup
+```
+
+Valider le setup complet :
+
+```bash
+make validate
+```
+
+Voir toutes les commandes disponibles :
+
+```bash
+make help
 ```
 
 ### Installation manuelle (alternative)
 
+Installer git :
+
 ```bash
-# 1. Installer git
 sudo pacman -S git
+```
 
-# 2. Cloner ce repo
+Cloner ce repo :
+
+```bash
 git clone git@github.com:PavelDelhomme/dotfiles.git ~/dotfiles
+```
 
-# 3. Lancer le setup
+Aller dans le dossier dotfiles et lancer le setup :
+
+```bash
 cd ~/dotfiles
+```
+
+Lancer le setup :
+
+```bash
 bash scripts/setup.sh
 ```
 
@@ -252,51 +286,152 @@ update-cursor.sh
 
 ### Commandes Makefile (recommandé)
 
+Aller dans le dossier dotfiles :
+
 ```bash
 cd ~/dotfiles
+```
 
-# Voir toutes les commandes disponibles
+Voir toutes les commandes disponibles :
+
+```bash
 make help
+```
 
-# Installation et configuration
-make install          # Installation complète
-make setup             # Menu interactif
-make symlinks          # Créer symlinks
-make migrate           # Migrer config existante
+Installation complète :
 
-# Validation
-make validate          # Valider le setup
+```bash
+make install
+```
 
-# Installations spécifiques
-make install-docker    # Installer Docker
-make install-go        # Installer Go
-make install-cursor    # Installer Cursor
-make install-brave     # Installer Brave
-make install-yay       # Installer yay (Arch)
+Menu interactif :
 
-# Configuration
-make git-config        # Configurer Git
-make git-remote        # Configurer remote Git
-make auto-sync         # Configurer auto-sync
+```bash
+make setup
+```
 
-# Maintenance
-make rollback          # Rollback complet
-make reset             # Réinitialisation complète
-make clean             # Nettoyer fichiers temporaires
+Créer symlinks :
+
+```bash
+make symlinks
+```
+
+Migrer config existante :
+
+```bash
+make migrate
+```
+
+Valider le setup :
+
+```bash
+make validate
+```
+
+Installer Docker :
+
+```bash
+make install-docker
+```
+
+Installer Go :
+
+```bash
+make install-go
+```
+
+Installer Cursor :
+
+```bash
+make install-cursor
+```
+
+Installer Brave :
+
+```bash
+make install-brave
+```
+
+Installer yay (Arch Linux) :
+
+```bash
+make install-yay
+```
+
+Configurer Git :
+
+```bash
+make git-config
+```
+
+Configurer remote Git :
+
+```bash
+make git-remote
+```
+
+Configurer auto-sync :
+
+```bash
+make auto-sync
+```
+
+Rollback complet :
+
+```bash
+make rollback
+```
+
+Réinitialisation complète :
+
+```bash
+make reset
+```
+
+Nettoyer fichiers temporaires :
+
+```bash
+make clean
 ```
 
 ### Recharger la configuration
+
+Méthode 1 :
+
 ```bash
 source ~/.zshrc
-# ou
+```
+
+Méthode 2 :
+
+```bash
 exec zsh
 ```
 
 ### Mettre à jour les dotfiles
+
+Aller dans le dossier dotfiles :
+
 ```bash
 cd ~/dotfiles
+```
+
+Récupérer les modifications :
+
+```bash
 git pull
-make setup             # Ou: bash scripts/setup.sh
+```
+
+Relancer le setup :
+
+```bash
+make setup
+```
+
+Ou :
+
+```bash
+bash scripts/setup.sh
 ```
 
 ### Vérifications système
@@ -596,15 +731,31 @@ Le script affiche un rapport avec :
 ## 📱 Flutter & Android
 
 ### Variables d'environnement (dans `.env`)
+
+Définir JAVA_HOME :
+
 ```bash
 export JAVA_HOME='/usr/lib/jvm/java-11-openjdk'
+```
+
+Définir ANDROID_SDK_ROOT :
+
+```bash
 export ANDROID_SDK_ROOT='/opt/android-sdk'
 ```
 
 ### Première utilisation
+
+Vérifier l'installation Flutter :
+
 ```bash
 flutter doctor
-android-studio  # Premier lancement pour config SDK
+```
+
+Premier lancement d'Android Studio pour configurer le SDK :
+
+```bash
+android-studio
 ```
 
 ## 🎮 NVIDIA RTX 3060
@@ -616,9 +767,17 @@ android-studio  # Premier lancement pour config SDK
 - nvidia-prime installé
 
 ### Vérifications
+
+Vérifier l'état du GPU :
+
 ```bash
-nvidia-smi              # État GPU
-prime-run <app>         # Forcer app sur NVIDIA
+nvidia-smi
+```
+
+Forcer une application à utiliser NVIDIA :
+
+```bash
+prime-run <app>
 ```
 
 ### Important
@@ -630,17 +789,31 @@ prime-run <app>         # Forcer app sur NVIDIA
 ## 🛠️ Maintenance
 
 ### Mettre à jour le système
+
+Mettre à jour avec pacman :
+
 ```bash
-update          # alias pour sudo pacman -Syu
-yayup           # alias pour yay -Syu
+update
+```
+
+Mettre à jour avec yay :
+
+```bash
+yayup
 ```
 
 ### Nettoyer Docker
+
+Nettoyer Docker :
+
 ```bash
-docker-cleanup  # fonction custom
+docker-cleanup
 ```
 
 ### Mettre à jour Cursor
+
+Mettre à jour Cursor :
+
 ```bash
 update-cursor.sh
 ```
@@ -669,30 +842,52 @@ Les symlinks sont créés automatiquement lors de l'installation pour centralise
 ## 🚨 Troubleshooting
 
 ### Flutter pas dans le PATH
+
 Vérifiez que `~/dotfiles/.env` est sourcé dans `.zshrc` et contient :
+
 ```bash
 export PATH=$PATH:/opt/flutter/bin
 ```
 
 ### Docker : permission denied
+
+Ajouter votre utilisateur au groupe docker :
+
 ```bash
 sudo usermod -aG docker $USER
-# Puis redémarrer la session
 ```
 
+Puis redémarrer la session.
+
 ### NVIDIA : écran noir au boot
-Vérifiez GRUB :
+
+Éditer le fichier GRUB :
+
 ```bash
 sudo nano /etc/default/grub
-# GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nomodeset"
+```
+
+Ajouter `nomodeset` dans `GRUB_CMDLINE_LINUX_DEFAULT` :
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nomodeset"
+```
+
+Mettre à jour GRUB :
+
+```bash
 sudo update-grub
 ```
 
 ### Dotfiles non sourcés
+
+Vérifier si dotfiles est sourcé dans `.zshrc` :
+
 ```bash
 grep "source ~/dotfiles" ~/.zshrc
-# Si absent, relancez scripts/setup.sh
 ```
+
+Si absent, relancez `scripts/setup.sh`.
 
 ## 🔄 Workflow complet (nouvelle machine)
 
@@ -736,12 +931,17 @@ Cette commande fait automatiquement :
 Pour désinstaller **TOUT** ce qui a été installé et configuré :
 
 **Via le menu setup.sh :**
+
+Lancer le menu :
+
 ```bash
 bash ~/dotfiles/scripts/setup.sh
-# Choisir option 99
 ```
 
+Choisir option 99.
+
 **Ou directement :**
+
 ```bash
 bash ~/dotfiles/scripts/uninstall/rollback_all.sh
 ```

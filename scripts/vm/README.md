@@ -21,47 +21,101 @@ bash scripts/install/tools/install_qemu_full.sh
 
 ### Via Makefile (recommandé)
 
+Menu interactif :
+
 ```bash
-# Menu interactif
 make vm-menu
+```
 
-# Créer une VM de test
+Créer une VM de test :
+
+```bash
 make vm-create VM=test-dotfiles MEMORY=2048 VCPUS=2 DISK=20
+```
 
-# Démarrer la VM
+Démarrer la VM :
+
+```bash
 make vm-start VM=test-dotfiles
+```
 
-# Créer un snapshot avant test
+Créer un snapshot avant test :
+
+```bash
 make vm-snapshot VM=test-dotfiles NAME=clean DESC="Installation propre"
+```
 
-# Tester les dotfiles dans la VM
+Tester les dotfiles dans la VM :
+
+```bash
 make vm-test VM=test-dotfiles
+```
 
-# Si problème, rollback
+Si problème, rollback :
+
+```bash
 make vm-rollback VM=test-dotfiles SNAPSHOT=clean
+```
 
-# Lister les VM
+Lister les VM :
+
+```bash
 make vm-list
+```
 
-# Lister les snapshots
+Lister les snapshots :
+
+```bash
 make vm-snapshots VM=test-dotfiles
+```
 
-# Arrêter la VM
+Arrêter la VM :
+
+```bash
 make vm-stop VM=test-dotfiles
 ```
 
 ### Via script directement
 
-```bash
-# Menu interactif
-bash scripts/vm/vm_manager.sh
+Menu interactif :
 
-# Ou utiliser les fonctions directement
+```bash
+bash scripts/vm/vm_manager.sh
+```
+
+Ou utiliser les fonctions directement :
+
+```bash
 source scripts/vm/vm_manager.sh
+```
+
+Créer une VM :
+
+```bash
 create_vm "test-dotfiles" 2048 2 20
+```
+
+Démarrer la VM :
+
+```bash
 start_vm "test-dotfiles"
+```
+
+Créer un snapshot :
+
+```bash
 create_snapshot "test-dotfiles" "clean" "Installation propre"
+```
+
+Tester les dotfiles dans la VM :
+
+```bash
 test_dotfiles_in_vm "test-dotfiles"
+```
+
+Restaurer un snapshot :
+
+```bash
 restore_snapshot "test-dotfiles" "clean"
 ```
 
@@ -101,8 +155,15 @@ restore_snapshot "test-dotfiles" "clean"
    ```
 
 7. **Créer des snapshots intermédiaires:**
+   Créer snapshot après bootstrap :
+
    ```bash
    make vm-snapshot VM=test-dotfiles NAME=after-bootstrap DESC="Après bootstrap"
+   ```
+
+   Créer snapshot après setup.sh :
+
+   ```bash
    make vm-snapshot VM=test-dotfiles NAME=after-setup DESC="Après setup.sh"
    ```
 
@@ -129,40 +190,75 @@ restore_snapshot "test-dotfiles" "clean"
 
 ### Créer et tester rapidement
 
+Créer la VM :
+
 ```bash
-# 1. Créer la VM
 make vm-create VM=test-dotfiles
+```
 
-# 2. Démarrer et installer OS (via virt-viewer)
+Démarrer et installer OS (via virt-viewer) :
+
+```bash
 make vm-start VM=test-dotfiles
+```
+
+```bash
 virt-viewer test-dotfiles
+```
 
-# 3. Après installation, créer snapshot
+Après installation, créer snapshot :
+
+```bash
 make vm-snapshot VM=test-dotfiles NAME=clean
+```
 
-# 4. Tester dotfiles
+Tester dotfiles :
+
+```bash
 make vm-test VM=test-dotfiles
+```
 
-# 5. Si erreur, rollback
+Si erreur, rollback :
+
+```bash
 make vm-rollback VM=test-dotfiles SNAPSHOT=clean
 ```
 
 ### Workflow avec plusieurs snapshots
 
+Snapshot initial :
+
 ```bash
-# Snapshot initial
 make vm-snapshot VM=test-dotfiles NAME=clean
+```
 
-# Test bootstrap
+Test bootstrap :
+
+```bash
 make vm-test VM=test-dotfiles
-# ... tester dans la VM ...
+```
+
+... tester dans la VM ...
+
+Snapshot après bootstrap :
+
+```bash
 make vm-snapshot VM=test-dotfiles NAME=after-bootstrap
+```
 
-# Test setup.sh
-# ... tester dans la VM ...
+Test setup.sh :
+
+... tester dans la VM ...
+
+Snapshot après setup.sh :
+
+```bash
 make vm-snapshot VM=test-dotfiles NAME=after-setup
+```
 
-# Si problème à une étape, rollback
+Si problème à une étape, rollback :
+
+```bash
 make vm-rollback VM=test-dotfiles SNAPSHOT=after-bootstrap
 ```
 
@@ -182,12 +278,21 @@ make vm-rollback VM=test-dotfiles SNAPSHOT=after-bootstrap
 ## 🔧 Dépannage
 
 ### VM ne démarre pas
-```bash
-# Vérifier le service libvirtd
-sudo systemctl status libvirtd
-sudo systemctl start libvirtd
+Vérifier le service libvirtd :
 
-# Vérifier les permissions
+```bash
+sudo systemctl status libvirtd
+```
+
+Démarrer le service libvirtd :
+
+```bash
+sudo systemctl start libvirtd
+```
+
+Vérifier les permissions :
+
+```bash
 groups | grep libvirt
 ```
 
@@ -196,11 +301,15 @@ groups | grep libvirt
 - Les snapshots nécessitent que la VM soit arrêtée
 
 ### Accès à la VM
-```bash
-# Console graphique
-virt-viewer test-dotfiles
+Console graphique :
 
-# Console texte
+```bash
+virt-viewer test-dotfiles
+```
+
+Console texte :
+
+```bash
 virsh console test-dotfiles
 ```
 

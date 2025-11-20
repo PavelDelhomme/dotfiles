@@ -42,30 +42,65 @@ bash ~/dotfiles/scripts/install/install_all.sh
 
 Ou installer individuellement :
 
+Applications :
+
 ```bash
-# Git (déjà installé normalement)
-
-# Applications
 bash ~/dotfiles/scripts/install/apps/install_cursor.sh
+```
+
+```bash
 bash ~/dotfiles/scripts/install/apps/install_brave.sh
+```
+
+```bash
 bash ~/dotfiles/scripts/install/apps/install_portproton.sh
+```
 
-# Outils de développement
+Outils de développement :
+
+```bash
 bash ~/dotfiles/scripts/install/dev/install_go.sh
+```
+
+```bash
 bash ~/dotfiles/scripts/install/dev/install_docker.sh
+```
 
-# Outils système
+Outils système :
+
+```bash
 bash ~/dotfiles/scripts/install/tools/install_yay.sh
+```
 
-# QEMU/KVM (installation complète)
+QEMU/KVM (installation complète) :
+
+```bash
 bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh
+```
 
-# Ou installation modulaire via scripts/config/ :
-bash ~/dotfiles/scripts/config/qemu_packages.sh   # Paquets uniquement
-bash ~/dotfiles/scripts/config/qemu_network.sh    # Réseau uniquement
-bash ~/dotfiles/scripts/config/qemu_libvirt.sh    # Libvirt uniquement
+Ou installation modulaire via scripts/config/ :
 
-# Vérification réseau
+Paquets uniquement :
+
+```bash
+bash ~/dotfiles/scripts/config/qemu_packages.sh
+```
+
+Réseau uniquement :
+
+```bash
+bash ~/dotfiles/scripts/config/qemu_network.sh
+```
+
+Libvirt uniquement :
+
+```bash
+bash ~/dotfiles/scripts/config/qemu_libvirt.sh
+```
+
+Vérification réseau :
+
+```bash
 bash ~/dotfiles/scripts/install/tools/verify_network.sh
 ```
 
@@ -86,18 +121,33 @@ Cela configure un timer systemd qui s'exécute toutes les heures.
 
 ### Commandes utiles
 
+Vérifier le statut :
+
 ```bash
-# Vérifier le statut
 systemctl --user status dotfiles-sync.timer
+```
 
-# Voir tous les timers
+Voir tous les timers :
+
+```bash
 systemctl --user list-timers
+```
 
-# Arrêter/démarrer
+Arrêter le timer :
+
+```bash
 systemctl --user stop dotfiles-sync.timer
-systemctl --user start dotfiles-sync.timer
+```
 
-# Voir les logs
+Démarrer le timer :
+
+```bash
+systemctl --user start dotfiles-sync.timer
+```
+
+Voir les logs :
+
+```bash
 journalctl --user -u dotfiles-sync.service -f
 ```
 
