@@ -172,7 +172,7 @@ Cette commande va automatiquement exécuter les étapes suivantes :
   ⚠️ **Explication : Email Git**
   - C'est l'**adresse email associée à votre compte GitHub/GitLab**
   - Cette email doit correspondre à celle de votre compte GitHub/GitLab pour que vos commits soient liés à votre profil
-  - Exemples : `dev@delhomme.ovh`, `votre.email@example.com`, `username@users.noreply.github.com`
+  - Exemples : `votre.email@example.com`, `username@users.noreply.github.com`
   - ⚠️ **Important** : Si vous utilisez GitHub, vous pouvez utiliser l'email `username@users.noreply.github.com` pour garder votre email privé (visible dans les paramètres GitHub)
   - Validation automatique du format d'email
 - Configuration du credential helper (cache pour 15 minutes)
@@ -235,7 +235,7 @@ Cette commande va automatiquement exécuter les étapes suivantes :
    - Vous pouvez utiliser votre vrai nom, un pseudonyme, ou votre nom d'utilisateur GitHub
 
 2. ✅ **Email Git** : L'email associé à votre compte GitHub/GitLab
-   - Exemples : `dev@delhomme.ovh`, `votre.email@example.com`
+   - Exemples : `github@email.com`, `votre.email@example.com`
    - ⚠️ **Important** : Cette email doit correspondre à celle de votre compte GitHub/GitLab
    - Pour GitHub, vous pouvez utiliser `username@users.noreply.github.com` pour garder votre email privé (visible dans GitHub → Settings → Emails)
 

@@ -64,8 +64,6 @@ alias playwright_test_web_interface="npx playwright test --ui-port=4020"
 alias cd_jobbingtrack="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrack"
 alias gca="git commit -a -m"
 
-# Fonction gs() pour prendre la priorité sur ghostscript
-# Les fonctions ont la priorité sur les commandes système
-gs() {
-    git status "$@"
-}
+# Alias ghs pour ghostscript (la commande système gs)
+# L'alias gs="git status" ci-dessus a la priorité sur la commande système
+alias ghs="command gs"
