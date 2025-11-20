@@ -376,7 +376,7 @@ Puis réinstaller :
 bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
 ```
 
-### Réinstallation partielle (éléments spécifiques)   [🔝 Retour en haut](#retour-en-haut)
+### Réinstallation partielle (éléments spécifiques)
 
 **Si vous voulez réinstaller seulement certains éléments :**
 
