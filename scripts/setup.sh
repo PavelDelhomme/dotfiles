@@ -20,6 +20,26 @@ log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
 
+################################################################################
+# GESTION DE L'INTERRUPTION (Ctrl+C)
+################################################################################
+cleanup_on_interrupt() {
+    echo ""
+    echo ""
+    log_warn "⚠️  Menu interrompu par l'utilisateur (Ctrl+C)"
+    echo ""
+    log_info "Vous pouvez relancer le menu avec :"
+    echo "  cd ~/dotfiles && bash scripts/setup.sh"
+    echo ""
+    log_info "Ou utiliser le Makefile :"
+    echo "  cd ~/dotfiles && make setup"
+    echo ""
+    exit 130  # Code de sortie standard pour SIGINT
+}
+
+# Capturer Ctrl+C (SIGINT) et SIGTERM
+trap cleanup_on_interrupt SIGINT SIGTERM
+
 DOTFILES_DIR="$HOME/dotfiles"
 SCRIPT_DIR="$DOTFILES_DIR/scripts"
 

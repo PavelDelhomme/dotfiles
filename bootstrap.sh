@@ -22,6 +22,30 @@ log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
 
 ################################################################################
+# GESTION DE L'INTERRUPTION (Ctrl+C)
+################################################################################
+cleanup_on_interrupt() {
+    echo ""
+    echo ""
+    log_warn "⚠️  Installation interrompue par l'utilisateur (Ctrl+C)"
+    echo ""
+    log_info "État actuel :"
+    echo "  - Git : $(git config --global user.name 2>/dev/null || echo 'Non configuré')"
+    echo "  - Dossier dotfiles : $([ -d "$HOME/dotfiles" ] && echo 'Présent' || echo 'Absent')"
+    echo ""
+    log_info "Vous pouvez relancer l'installation plus tard avec :"
+    echo "  curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash"
+    echo ""
+    log_info "Ou si dotfiles est déjà cloné :"
+    echo "  cd ~/dotfiles && bash scripts/setup.sh"
+    echo ""
+    exit 130  # Code de sortie standard pour SIGINT
+}
+
+# Capturer Ctrl+C (SIGINT) et SIGTERM
+trap cleanup_on_interrupt SIGINT SIGTERM
+
+################################################################################
 # CONFIGURATION PAR DÉFAUT
 ################################################################################
 DOTFILES_DIR="$HOME/dotfiles"
