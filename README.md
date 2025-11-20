@@ -973,12 +973,28 @@ Options disponibles :
 
 ### Rollback Git manuel
 
+Aller dans le dossier dotfiles :
+
 ```bash
 cd ~/dotfiles
-git log --oneline -10          # Voir les commits
-git reset --hard <commit_hash> # Revenir à un commit
-# ou
-git reset --hard origin/main   # Revenir à la version distante
+```
+
+Voir les commits :
+
+```bash
+git log --oneline -10
+```
+
+Revenir à un commit :
+
+```bash
+git reset --hard <commit_hash>
+```
+
+Ou revenir à la version distante :
+
+```bash
+git reset --hard origin/main
 ```
 
 ## 🖥️ Gestion des VM (Tests en environnement isolé)
