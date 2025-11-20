@@ -556,13 +556,15 @@ Structure principale :
 
 ### Configuration Git via .env
 
-**📝 IMPORTANT : Créer le fichier `.env` avant la première installation**
+**📝 IMPORTANT : Le fichier `.env` se crée APRÈS le clonage du repository**
 
-Le fichier `.env` permet de stocker vos informations personnelles de manière sécurisée (jamais commité dans Git).
+Le fichier `.env` permet de stocker vos informations personnelles de manière sécurisée (jamais commité dans Git) pour éviter de les saisir à chaque installation.
 
-**Créer le fichier `.env` :**
+**⚠️ Note :** Vous ne pouvez créer le fichier `.env` qu'**après avoir cloné le repository** (étape 4 du processus d'installation). Lors de la première installation avec `curl ... | bash`, le script vous demandera interactivement vos informations.
 
-Aller dans le dossier dotfiles (après clonage) :
+**Créer le fichier `.env` (après le clonage) :**
+
+Aller dans le dossier dotfiles :
 
 ```bash
 cd ~/dotfiles
@@ -574,38 +576,51 @@ Copier le template :
 cp .env.example .env
 ```
 
-Éditer avec vos valeurs :
+Éditer avec vos valeurs (en ligne de commande, sans interface graphique) :
 
 ```bash
 nano .env
 ```
 
+Ou avec vim :
+
+```bash
+vim .env
+```
+
 **Variables à remplir :**
 
 ```bash
-# Nom d'utilisateur Git (pour les commits)
+# Nom Git : Le nom qui apparaîtra dans vos commits Git
+# Exemples : PavelDelhomme, Jean Dupont, John Doe
 GIT_USER_NAME="VotreNomGit"
 
-# Email Git (pour les commits) - Doit correspondre à votre compte GitHub
+# Email Git : L'email associé à votre compte GitHub/GitLab
+# Doit correspondre à l'email de votre compte GitHub/GitLab
+# Pour GitHub, vous pouvez utiliser username@users.noreply.github.com pour garder votre email privé
+# Exemples : dev@delhomme.ovh, votre.email@example.com
 GIT_USER_EMAIL="votre.email@example.com"
 
 # URL du repository GitHub (optionnel)
+# Format HTTPS : https://github.com/USERNAME/dotfiles.git
+# Format SSH : git@github.com:USERNAME/dotfiles.git
 GITHUB_REPO_URL="https://github.com/VotreNom/dotfiles.git"
 ```
 
 **Exemples de valeurs :**
-- `GIT_USER_NAME="PavelDelhomme"`
-- `GIT_USER_EMAIL="dev@delhomme.ovh"`
-- `GITHUB_REPO_URL="https://github.com/PavelDelhomme/dotfiles.git"`
+- `GIT_USER_NAME="PavelDelhomme"` - Le nom qui apparaîtra dans vos commits
+- `GIT_USER_EMAIL="dev@delhomme.ovh"` - L'email de votre compte GitHub/GitLab
+- `GITHUB_REPO_URL="https://github.com/PavelDelhomme/dotfiles.git"` - URL de votre repository
 
 **✅ Avantages :**
-- Pas de saisie interactive lors de l'installation
-- Vos valeurs sont chargées automatiquement
-- Sécurisé : `.env` est dans `.gitignore` et n'est jamais commité
+- Pas de saisie interactive lors des prochaines installations
+- Vos valeurs sont chargées automatiquement depuis `.env`
+- Sécurisé : `.env` est dans `.gitignore` et n'est jamais commité dans Git
 
-**⚠️ Sans `.env` :**
+**⚠️ Sans `.env` (première installation) :**
 - Le script vous demandera interactivement votre nom et email Git
 - Vous devrez répondre aux questions pendant l'installation
+- Les explications seront affichées pour chaque champ demandé
 
 ### `.env` - Variables d'environnement (autres)
 
