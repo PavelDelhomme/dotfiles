@@ -38,11 +38,20 @@ set -g ALIASES_FILE "$DOTFILES_FISH_PATH/aliases.fish"
 set -g FUNCTIONS_DIR "$DOTFILES_FISH_PATH/functions"
 
 
+# Charger update_system.fish en premier pour remplacer les alias update/upgrade
+if test -f $FUNCTIONS_DIR/update_system.fish
+    source $FUNCTIONS_DIR/update_system.fish
+    echo "✔ Chargé : update_system.fish"
+end
+
 for func_dir in $FUNCTIONS_DIR/*
     if test -d $func_dir
         for func_file in $func_dir/*.fish
-		source $func_file
-		echo "✔ Chargé : $func_file"
+            # Ignorer update_system.fish déjà chargé
+            if not test "$func_file" = "$FUNCTIONS_DIR/update_system.fish"
+                source $func_file
+                echo "✔ Chargé : $func_file"
+            end
         end
     end
 end

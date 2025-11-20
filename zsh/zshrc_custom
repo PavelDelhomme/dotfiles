@@ -53,16 +53,26 @@ fi
 # - dev/, git/, misc/, network/, utils/
 # =============================================================================
 echo -e "${CYAN}🔧 ÉTAPE 3/4 : Chargement des fonctions individuelles...${NC}"
+
+# Charger update_system.sh en premier pour remplacer les alias update/upgrade
+# Supprimer les alias s'ils existent avant de charger la fonction
+if [ -f "$FUNCTIONS_DIR/misc/system/update_system.sh" ]; then
+    unalias update 2>/dev/null || true
+    unalias upgrade 2>/dev/null || true
+    source "$FUNCTIONS_DIR/misc/system/update_system.sh" 2>/dev/null && echo -e "${GREEN}  ✔️ update_system chargé${NC}" || echo -e "${YELLOW}  ⚠️ update_system introuvable${NC}"
+fi
+
 if [ -d "$FUNCTIONS_DIR" ]; then
     local loaded_count=0
     local error_count=0
     # Charger récursivement tous les scripts .sh et .zsh
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        # Ignore les gestionnaires déjà chargés, les backups et les sous-dossiers de cyber
+        # Ignore les gestionnaires déjà chargés, les backups, les sous-dossiers de cyber, alias_utils, et update_system (déjà chargé)
         if [[ "$func_file" != *"man.zsh" ]] && \
            [[ "$func_file" != *"backup"* ]] && \
            [[ "$func_file" != *"/cyber/"*.zsh ]] && \
            [[ "$func_file" != *"alias_utils.zsh" ]] && \
+           [[ "$func_file" != *"update_system.sh" ]] && \
            [ -f "$func_file" ]; then
             if source "$func_file" 2>/dev/null; then
                 ((loaded_count++))

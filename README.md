@@ -790,13 +790,33 @@ prime-run <app>
 
 ### Mettre à jour le système
 
-Mettre à jour avec pacman :
+**Mise à jour intelligente (détection automatique) :**
+
+La commande `update` détecte automatiquement votre distribution Linux et utilise le bon gestionnaire de paquets :
+
+Mettre à jour les paquets :
 
 ```bash
 update
 ```
 
-Mettre à jour avec yay :
+Mettre à jour complètement le système :
+
+```bash
+upgrade
+```
+
+**Distributions supportées :**
+- **Arch-based** (Arch, Manjaro, EndeavourOS) → `pacman`
+- **Debian-based** (Debian, Ubuntu, Mint, Kali, Parrot) → `apt`
+- **Fedora-based** (Fedora) → `dnf`
+- **Gentoo** → `emerge`
+- **NixOS** → `nix-channel` / `nixos-rebuild`
+- **openSUSE** → `zypper`
+- **Alpine** → `apk`
+- **RHEL/CentOS** → `yum`
+
+**Mise à jour avec yay (AUR helper - Arch uniquement) :**
 
 ```bash
 yayup

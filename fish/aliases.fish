@@ -88,11 +88,10 @@ alias pacmans 'sudo pacman -S --noconfirm'
 # DESC: Suppression de paquets sans confirmation
 alias pacmanr 'sudo pacman -Rns --noconfirm'
 
-# DESC: Lance la mise à jour des paquets
-alias update 'sudo pacman -Sy --noconfirm'
-
-# DESC: Lance la mise à jour du système
-alias upgrade 'sudo pacman -Syu --noconfirm'
+# update et upgrade sont maintenant des fonctions intelligentes
+# Voir: fish/functions/update_system.fish
+# Elles détectent automatiquement la distribution et utilisent le bon gestionnaire
+# (pacman pour Arch, apt pour Debian/Ubuntu, dnf pour Fedora, etc.)
 
 # DESC: Commande pacman sans confirmation
 alias pacmann 'sudo pacman --noconfirm'

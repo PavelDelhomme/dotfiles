@@ -30,8 +30,10 @@ alias debug_build_simplebrowser="weedlyweb_debug_build"
 alias debug_simplebrowser="weedlyweb_debug"
 alias lscopy="ls | xclip -selection clipboard"
 alias sdkmanager="/home/pactivisme/Android/Sdk/cmdline-tools/latest/bin/sdkmanager"
-alias update="sudo pacman -Sy --noconfirm"
-alias upgrade="sudo pacman -Syu --noconfirm"
+# update et upgrade sont maintenant des fonctions intelligentes
+# Voir: zsh/functions/misc/system/update_system.sh
+# Elles détectent automatiquement la distribution et utilisent le bon gestionnaire
+# (pacman pour Arch, apt pour Debian/Ubuntu, dnf pour Fedora, etc.)
 alias zshrc="zsh"
 alias dc="docker-compose"
 alias pacmann="sudo pacman --noconfirm "
