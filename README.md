@@ -7,13 +7,32 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 ## 📑 Table des matières
 
 - [🚀 Installation rapide (nouvelle machine)](#-installation-rapide-nouvelle-machine)
-  - [Méthode 1 : Makefile (recommandé)](#méthode-1--makefile-recommandé)
-  - [Méthode 2 : Scripts bash (alternative)](#méthode-2--scripts-bash-alternative)
+  - [Installation en une seule commande](#installation-en-une-seule-commande)
+  - [Après l'installation](#après-linstallation)
+  - [Commandes utiles après installation](#commandes-utiles-après-installation)
   - [Installation manuelle (alternative)](#installation-manuelle-alternative)
+- [🔄 Réinstallation](#-réinstallation)
+  - [Réinstallation complète (tout réinstaller)](#réinstallation-complète-tout-réinstaller)
+  - [Réinstallation partielle (éléments spécifiques)](#réinstallation-partielle-éléments-spécifiques)
+  - [Réinstallation automatique (détection et installation)](#réinstallation-automatique-détection-et-installation)
+  - [Réinstallation après bootstrap (déjà installé)](#réinstallation-après-bootstrap-déjà-installé)
+  - [Réinstallation d'un composant spécifique](#réinstallation-dun-composant-spécifique)
+  - [Réinitialisation complète (cas extrême)](#réinitialisation-complète-cas-extrême)
+  - [Vérifier l'état après réinstallation](#vérifier-létat-après-réinstallation)
 - [📁 Structure du repository](#-structure-du-repository)
 - [🔧 Fichiers de configuration](#-fichiers-de-configuration)
+  - [`.env` - Variables d'environnement](#env---variables-denvironnement)
+  - [`aliases.zsh` - Aliases](#aliaseszsh---aliases)
+  - [`functions.zsh` - Fonctions](#functionszsh---fonctions)
 - [🖥️ Installation complète du système](#️-installation-complète-du-système)
+  - [Gestionnaires de paquets](#gestionnaires-de-paquets)
+  - [Applications](#applications)
+  - [Environnement de développement](#environnement-de-développement)
+  - [Matériel](#matériel)
 - [📝 Fonctionnalités intelligentes](#-fonctionnalités-intelligentes)
+  - [Vérifications avant installation](#vérifications-avant-installation)
+  - [Backup automatique](#backup-automatique)
+  - [Mise à jour de Cursor](#mise-à-jour-de-cursor)
 - [🎯 Usage quotidien](#-usage-quotidien)
   - [Commandes Makefile (recommandé)](#commandes-makefile-recommandé)
   - [Recharger la configuration](#recharger-la-configuration)
@@ -34,13 +53,20 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 - [🌐 Brave Browser](#-brave-browser)
   - [Installation](#installation-2)
   - [Support](#support)
+- [📊 Options principales du menu (setup.sh)](#-options-principales-du-menu-setupsh)
+  - [Installation & Détection (50-53)](#installation--détection-50-53)
+  - [Désinstallation individuelle (60-70)](#désinstallation-individuelle-60-70)
+  - [Autres options importantes](#autres-options-importantes)
+- [📝 Système de logs d'installation](#-système-de-logs-dinstallation)
 - [📦 Scripts Modulaires](#-scripts-modulaires)
   - [Tableau des scripts](#tableau-des-scripts)
 - [✅ Validation du Setup](#-validation-du-setup)
   - [Utilisation](#utilisation)
-  - [Vérifications effectuées](#vérifications-effectuées)
+  - [Vérifications effectuées (117+ vérifications)](#vérifications-effectuées-117-vérifications)
   - [Rapport](#rapport)
 - [📱 Flutter & Android](#-flutter--android)
+  - [Variables d'environnement (dans `.env`)](#variables-denvironnement-dans-env)
+  - [Première utilisation](#première-utilisation)
 - [🎮 NVIDIA RTX 3060](#-nvidia-rtx-3060)
   - [Configuration automatique](#configuration-automatique)
   - [Vérifications](#vérifications)
@@ -56,11 +82,20 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [NVIDIA : écran noir au boot](#nvidia--écran-noir-au-boot)
   - [Dotfiles non sourcés](#dotfiles-non-sourcés)
 - [🔄 Workflow complet (nouvelle machine)](#-workflow-complet-nouvelle-machine)
+  - [Méthode automatique (recommandée)](#méthode-automatique-recommandée)
+  - [Dans le menu scripts/setup.sh](#dans-le-menu-scriptssetupsh)
+  - [Après installation](#après-installation)
 - [🔄 Rollback / Désinstallation](#-rollback--désinstallation)
   - [Rollback complet (tout désinstaller)](#rollback-complet-tout-désinstaller)
   - [Rollback Git uniquement](#rollback-git-uniquement)
   - [Rollback Git manuel](#rollback-git-manuel)
 - [🖥️ Gestion des VM (Tests en environnement isolé)](#️-gestion-des-vm-tests-en-environnement-isolé)
+  - [Installation QEMU/KVM](#installation-qemukvm)
+  - [Utilisation rapide](#utilisation-rapide)
+  - [Workflow de test recommandé](#workflow-de-test-recommandé)
+  - [Commandes Makefile disponibles](#commandes-makefile-disponibles)
+  - [Avantages](#avantages)
+  - [Documentation complète](#documentation-complète)
 - [📄 Licence](#-licence)
 - [👤 Auteur](#-auteur)
 
@@ -208,6 +243,185 @@ bash scripts/setup.sh
 ```
 
 Le script `scripts/setup.sh` propose un menu interactif avec toutes les options d'installation.
+
+---
+
+<!-- =============================================================================
+     RÉINSTALLATION
+     ============================================================================= -->
+
+## 🔄 Réinstallation
+
+Différentes méthodes pour réinstaller les dotfiles selon votre situation.
+
+### Réinstallation complète (tout réinstaller)
+
+**Si vous voulez tout désinstaller puis tout réinstaller depuis zéro :**
+
+```bash
+bash ~/dotfiles/scripts/uninstall/reset_all.sh
+```
+
+Cette commande va :
+1. Désinstaller tous les composants (Git config, paquets, applications, etc.)
+2. Supprimer le dossier dotfiles (si confirmé)
+3. Proposer de réinstaller automatiquement via bootstrap.sh
+
+**Ou manuellement :**
+
+Aller dans le dossier dotfiles :
+
+```bash
+cd ~/dotfiles
+```
+
+Lancer le rollback complet (option 98 du menu) :
+
+```bash
+bash scripts/setup.sh
+# Choisir option 98
+```
+
+Puis réinstaller :
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
+```
+
+### Réinstallation partielle (éléments spécifiques)
+
+**Si vous voulez réinstaller seulement certains éléments :**
+
+Aller dans le dossier dotfiles :
+
+```bash
+cd ~/dotfiles
+```
+
+Lancer le menu interactif :
+
+```bash
+bash scripts/setup.sh
+```
+
+Puis choisir les options correspondantes :
+- **Option 1** : Réinstaller configuration Git
+- **Option 3** : Réinstaller paquets de base
+- **Option 8** : Réinstaller Cursor
+- **Option 15** : Réinstaller Docker
+- **Option 17** : Réinstaller Brave Browser
+- **Option 19** : Réinstaller Go
+- **Option 24** : Recréer les symlinks
+
+**Ou directement les scripts d'installation :**
+
+```bash
+# Réinstaller Cursor
+bash scripts/install/apps/install_cursor.sh
+
+# Réinstaller Docker
+bash scripts/install/dev/install_docker.sh
+
+# Réinstaller Brave
+bash scripts/install/apps/install_brave.sh
+```
+
+### Réinstallation automatique (détection et installation)
+
+**Si vous voulez réinstaller automatiquement tout ce qui manque :**
+
+Aller dans le dossier dotfiles :
+
+```bash
+cd ~/dotfiles
+```
+
+Lancer le menu interactif :
+
+```bash
+bash scripts/setup.sh
+```
+
+Choisir **Option 52** : Installer tout ce qui manque (automatique)
+
+**Ou installer éléments manquants un par un (Option 51)** pour un contrôle plus précis.
+
+### Réinstallation après bootstrap (déjà installé)
+
+**Si vous avez déjà exécuté bootstrap.sh mais que le projet n'est pas complet :**
+
+Aller dans le dossier dotfiles :
+
+```bash
+cd ~/dotfiles
+```
+
+Mettre à jour le repository :
+
+```bash
+git pull
+```
+
+Relancer le menu interactif :
+
+```bash
+bash scripts/setup.sh
+```
+
+Utiliser :
+- **Option 50** : Voir ce qui manque
+- **Option 51** : Installer éléments manquants un par un
+- **Option 52** : Installer tout ce qui manque automatiquement
+- **Option 23** : Valider complètement le setup (détecte les problèmes)
+
+### Réinstallation d'un composant spécifique
+
+**Désinstaller puis réinstaller un composant :**
+
+Exemple pour Docker :
+
+Désinstaller Docker :
+
+```bash
+bash ~/dotfiles/scripts/uninstall/uninstall_docker.sh
+```
+
+Réinstaller Docker :
+
+```bash
+bash ~/dotfiles/scripts/install/dev/install_docker.sh
+```
+
+**Ou via le menu (Options 60-70 pour désinstaller, puis 1-27 pour installer).**
+
+### Réinitialisation complète (cas extrême)
+
+**Si vous avez des problèmes graves et voulez repartir de zéro :**
+
+```bash
+bash ~/dotfiles/scripts/uninstall/reset_all.sh
+```
+
+Cette commande va :
+1. Tout désinstaller
+2. Supprimer le dossier dotfiles
+3. Nettoyer la configuration Git
+4. Supprimer les clés SSH
+5. Arrêter les services systemd
+6. Supprimer les symlinks
+7. Nettoyer `.zshrc` (si confirmé)
+
+Puis proposer de réinstaller automatiquement.
+
+### Vérifier l'état après réinstallation
+
+Après une réinstallation, valider le setup :
+
+```bash
+bash ~/dotfiles/scripts/test/validate_setup.sh
+```
+
+Ou via le menu (Option 23) pour un rapport détaillé.
 
 ---
 
