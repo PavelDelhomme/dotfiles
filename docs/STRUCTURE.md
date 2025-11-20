@@ -201,8 +201,9 @@ make validate         # Valider le setup
 ```
 
 **Méthode 2 : Scripts bash (alternative)**
+Une seule ligne :
+
 ```bash
-# Une seule ligne
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
 ```
 
@@ -251,11 +252,13 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 ### 3. Cas d'usage
 
 #### Nouvelle machine
+Lancer le bootstrap :
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
-# Répondre aux prompts
-# Choisir option 10 pour installation complète
 ```
+
+Répondre aux prompts → Choisir option 10 pour installation complète.
 
 #### Mise à jour dotfiles
 ```bash
@@ -266,10 +269,13 @@ bash setup.sh
 ```
 
 #### Validation setup
+Lancer la validation :
+
 ```bash
 bash ~/dotfiles/scripts/test/validate_setup.sh
-# Ou via menu : option 22
 ```
+
+Ou via menu : option 23.
 
 #### Installation spécifique
 ```bash
