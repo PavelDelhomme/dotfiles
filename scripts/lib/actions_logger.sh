@@ -8,7 +8,7 @@
 # =============================================================================
 
 # Fichier de log principal
-ACTIONS_LOG_FILE="${ACTIONS_LOG_FILE:-$HOME/dotfiles/actions.log}"
+ACTIONS_LOG_FILE="${ACTIONS_LOG_FILE:-$HOME/dotfiles/logs/actions.log}"
 
 # Couleurs
 RED='\033[0;31m'

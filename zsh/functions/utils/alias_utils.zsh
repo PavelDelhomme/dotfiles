@@ -13,7 +13,7 @@ export ALIASES_DOC_FILE="${ALIASES_DOC_FILE:-$HOME/dotfiles/zsh/aliases_doc.json
 
 # Charger le système de logs
 source "$HOME/dotfiles/scripts/lib/actions_logger.sh" 2>/dev/null || {
-    log_alias_action() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [alias] [$2] [$3] $1 | $4" >> "$HOME/dotfiles/actions.log"; }
+    log_alias_action() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [alias] [$2] [$3] $1 | $4" >> "$HOME/dotfiles/logs/actions.log"; }
 }
 
 ################################################################################

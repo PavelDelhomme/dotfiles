@@ -66,7 +66,7 @@ install: ## Installation complète depuis zéro (bootstrap)
 
 setup: ## Lancer le menu interactif setup.sh
 	@echo "$(BLUE)📋 Menu interactif setup.sh...$(NC)"
-	@bash "$(DOTFILES_DIR)/setup.sh"
+	@bash "$(SCRIPT_DIR)/setup.sh"
 
 validate: ## Valider le setup complet
 	@echo "$(BLUE)✅ Validation du setup...$(NC)"
@@ -94,7 +94,7 @@ reset: ## Réinitialisation complète (remise à zéro)
 
 clean: ## Nettoyer les fichiers temporaires
 	@echo "$(BLUE)🧹 Nettoyage des fichiers temporaires...$(NC)"
-	@rm -f "$(DOTFILES_DIR)/auto_sync.log" 2>/dev/null || true
+	@rm -f "$(DOTFILES_DIR)/logs/auto_sync.log" 2>/dev/null || true
 	@rm -f /tmp/dotfiles_auto_sync.lock 2>/dev/null || true
 	@rm -f /tmp/auto_backup_dotfiles.pid 2>/dev/null || true
 	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"

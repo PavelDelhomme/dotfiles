@@ -5,7 +5,7 @@
 # Trace toutes les installations, configurations et actions
 ################################################################################
 
-INSTALL_LOG_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/install.log"
+INSTALL_LOG_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/logs/install.log"
 
 # Fonction pour logger une action
 log_install_action() {

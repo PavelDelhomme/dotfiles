@@ -103,7 +103,7 @@ journalctl --user -u dotfiles-sync.service -f
 
 ### Logs
 
-Les logs sont disponibles dans : `~/dotfiles/auto_sync.log`
+Les logs sont disponibles dans : `~/dotfiles/logs/auto_sync.log`
 
 ## VM de test
 

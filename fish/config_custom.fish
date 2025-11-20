@@ -50,7 +50,7 @@ end
 # === Auto-backup ===
 function auto_backup_dotfiles
     set dotfiles_dir "$HOME/dotfiles"
-    set log_file "$dotfiles_dir/auto_backup.log"
+    set log_file "$dotfiles_dir/logs/auto_backup.log"
     cd $dotfiles_dir
 
     if test (git status --porcelain | wc -l) -gt 0

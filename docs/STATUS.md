@@ -599,7 +599,7 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.7.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète)
+**Version :** 2.8.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète + Réorganisation structure fichiers)
 
 ---
 
@@ -845,9 +845,63 @@ curl | bash bootstrap.sh
 
 ### Améliorations système
 - ✅ **Documentation standardisée** : Toutes les fonctions utilisent le format `# DESC:`, `# USAGE:`, `# EXAMPLES:`, `# RETURNS:`
-- ✅ **Logs centralisés** : Toutes les actions sont automatiquement loggées dans `actions.log`
+- ✅ **Logs centralisés** : Toutes les actions sont automatiquement loggées dans `logs/actions.log`
 - ✅ **Navigation interactive** : Interface claire pour naviguer dans toute la documentation
 - ✅ **Export disponible** : Export Markdown de toute la documentation
+
+---
+
+## 🚀 PHASE 21 : Réorganisation complète de la structure des fichiers
+
+### Nouvelle organisation
+- ✅ **Racine épurée** : Seuls les fichiers essentiels à la racine
+  - `Makefile` - Interface standardisée
+  - `bootstrap.sh` - Installation depuis zéro
+  - `README.md` - Documentation principale
+  - `zshrc` - Configuration shell
+- ✅ **Dossier `docs/`** : Toute la documentation
+  - `STATUS.md` - Historique des modifications
+  - `STRUCTURE.md` - Structure complète
+- ✅ **Dossier `logs/`** : Tous les logs centralisés
+  - `install.log` - Logs d'installation
+  - `actions.log` - Logs d'actions utilisateur
+  - `auto_backup.log` - Logs de sauvegarde
+  - `auto_sync.log` - Logs de synchronisation Git
+- ✅ **Dossier `scripts/`** : Tous les scripts organisés
+  - `setup.sh` - Menu interactif (déplacé depuis la racine)
+  - `install/` - Scripts d'installation
+  - `config/` - Scripts de configuration
+  - `sync/` - Scripts de synchronisation
+  - `test/` - Scripts de validation
+  - `uninstall/` - Scripts de désinstallation
+  - `lib/` - Bibliothèques communes
+  - `vm/` - Scripts de gestion VM
+
+### Fichiers déplacés
+- ✅ `STATUS.md` → `docs/STATUS.md`
+- ✅ `STRUCTURE.md` → `docs/STRUCTURE.md`
+- ✅ `setup.sh` → `scripts/setup.sh`
+- ✅ `install.log` → `logs/install.log`
+- ✅ `auto_backup.log` → `logs/auto_backup.log`
+
+### Chemins mis à jour
+- ✅ **bootstrap.sh** : Références vers `scripts/setup.sh`
+- ✅ **Makefile** : Références vers `scripts/setup.sh`
+- ✅ **install_logger.sh** : Chemin vers `logs/install.log`
+- ✅ **actions_logger.sh** : Chemin vers `logs/actions.log`
+- ✅ **git_auto_sync.sh** : Chemin vers `logs/auto_sync.log`
+- ✅ **dotfiles_doc.sh** : Chemins vers `docs/`, `logs/`
+- ✅ **validate_setup.sh** : Chemins vers `docs/`, `scripts/`
+- ✅ **alias_utils.zsh** : Chemin vers `logs/actions.log`
+- ✅ **fish/config_custom.fish** : Chemin vers `logs/auto_backup.log`
+- ✅ **README.md** : Toutes les références mises à jour
+- ✅ **.gitignore** : Exclusion de `logs/` complet
+
+### Avantages de la nouvelle structure
+- ✅ **Racine propre** : Seuls les fichiers essentiels
+- ✅ **Organisation claire** : Documentation, logs, scripts séparés
+- ✅ **Maintenabilité** : Plus facile de trouver et organiser les fichiers
+- ✅ **Évolutivité** : Structure extensible pour futurs ajouts
 - ✅ `STATUS.md` - Documentation mise à jour
 
 ### Intégration système de logs

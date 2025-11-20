@@ -94,7 +94,7 @@ Cette commande va automatiquement :
 9. ✅ **Mettre à jour** si repo existe déjà (`git pull`)
 10. ✅ **Demander choix du shell** (Zsh/Fish/Les deux)
 11. ✅ **Créer symlinks** si demandé
-12. ✅ **Lancer automatiquement le menu interactif d'installation** (`setup.sh`)
+12. ✅ **Lancer automatiquement le menu interactif d'installation** (`scripts/setup.sh`)
 
 Le menu interactif affiche :
 - 📊 **L'état actuel de votre installation** (ce qui est installé, ce qui manque)
@@ -113,13 +113,13 @@ Une fois le menu lancé, vous pouvez :
 - Désinstaller individuellement (options 60-70)
 - Utiliser l'option **23** pour valider complètement votre setup (validation exhaustive 117+ vérifications)
 - Utiliser l'option **28** pour restaurer depuis Git (annuler modifications locales)
-- Utiliser l'option **0** pour quitter (vous pouvez relancer `cd ~/dotfiles && bash setup.sh` plus tard)
+- Utiliser l'option **0** pour quitter (vous pouvez relancer `cd ~/dotfiles && bash scripts/setup.sh` plus tard)
 
 ### Commandes utiles après installation
 
 ```bash
 cd ~/dotfiles
-bash setup.sh          # Relancer le menu interactif
+bash scripts/setup.sh          # Relancer le menu interactif
 make setup              # Alternative avec Makefile
 make validate           # Valider le setup complet
 make help               # Voir toutes les commandes disponibles
@@ -136,10 +136,10 @@ git clone git@github.com:PavelDelhomme/dotfiles.git ~/dotfiles
 
 # 3. Lancer le setup
 cd ~/dotfiles
-bash setup.sh
+bash scripts/setup.sh
 ```
 
-Le script `setup.sh` propose un menu interactif avec toutes les options d'installation.
+Le script `scripts/setup.sh` propose un menu interactif avec toutes les options d'installation.
 
 ## 📁 Structure du repository
 
@@ -149,7 +149,6 @@ Structure principale :
 ```
 ~/dotfiles/
 ├── bootstrap.sh                 # Installation en une ligne (curl)
-├── setup.sh                     # Menu interactif modulaire
 ├── zsh/
 │   ├── zshrc_custom            # Configuration ZSH principale
 │   ├── env.sh                  # Variables d'environnement
@@ -196,7 +195,7 @@ Fonctions utiles :
 
 ## 🖥️ Installation complète du système
 
-Le script `setup.sh` (menu interactif) permet d'installer et configurer automatiquement :
+Le script `scripts/setup.sh` (menu interactif) permet d'installer et configurer automatiquement :
 
 ### Gestionnaires de paquets
 - ✅ yay (AUR helper)
@@ -293,7 +292,7 @@ exec zsh
 ```bash
 cd ~/dotfiles
 git pull
-make setup             # Ou: bash setup.sh
+make setup             # Ou: bash scripts/setup.sh
 ```
 
 ### Vérifications système
@@ -317,7 +316,7 @@ Clé stockée dans : `~/.ssh/id_ed25519`
 
 ### Installation
 
-Installation complète via le menu setup.sh (option 15) :
+Installation complète via le menu scripts/setup.sh (option 15) :
 - Docker Engine
 - Docker Compose
 - BuildKit activé par défaut
@@ -326,7 +325,7 @@ Installation complète via le menu setup.sh (option 15) :
 
 ```bash
 # Via le menu
-bash ~/dotfiles/setup.sh
+bash ~/dotfiles/scripts/setup.sh
 # Choisir option 15
 
 # Ou directement
@@ -378,7 +377,7 @@ Système de synchronisation automatique des dotfiles toutes les heures via syste
 
 ### Installation
 
-Via le menu setup.sh (option 12) ou directement :
+Via le menu scripts/setup.sh (option 12) ou directement :
 ```bash
 bash ~/dotfiles/scripts/sync/install_auto_sync.sh
 ```
@@ -388,7 +387,7 @@ bash ~/dotfiles/scripts/sync/install_auto_sync.sh
 - **Timer systemd** : Exécution toutes les heures
 - **Pull automatique** : Récupère les modifications distantes
 - **Push automatique** : Envoie les modifications locales (si changements)
-- **Logs** : Disponibles dans `~/dotfiles/auto_sync.log`
+- **Logs** : Disponibles dans `~/dotfiles/logs/auto_sync.log`
 
 ### Commandes utiles
 
@@ -423,7 +422,7 @@ Installation optionnelle du navigateur Brave.
 
 ### Installation
 
-Via le menu setup.sh (option 17) ou directement :
+Via le menu scripts/setup.sh (option 17) ou directement :
 ```bash
 bash ~/dotfiles/scripts/install/apps/install_brave.sh
 ```
@@ -463,7 +462,7 @@ bash ~/dotfiles/scripts/install/apps/install_brave.sh
 
 ## 📝 Système de logs d'installation
 
-Toutes les installations et configurations sont automatiquement tracées dans `~/dotfiles/install.log` :
+Toutes les installations et configurations sont automatiquement tracées dans `~/dotfiles/logs/install.log` :
 
 - ✅ **Format** : `[timestamp] [action] [status] component | details`
 - ✅ **Actions tracées** : install, config, uninstall, test, run
@@ -548,7 +547,7 @@ Script de validation complète pour vérifier toutes les installations et config
 
 ### Utilisation
 
-Via le menu setup.sh (option 22) ou directement :
+Via le menu scripts/setup.sh (option 23) ou directement :
 ```bash
 bash ~/dotfiles/scripts/test/validate_setup.sh
 ```
@@ -556,7 +555,9 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 ### Vérifications effectuées (117+ vérifications)
 
 **Structure dotfiles** :
-- ✅ Fichiers racine (bootstrap.sh, setup.sh, Makefile, README, STATUS, STRUCTURE, zshrc)
+- ✅ Fichiers racine (bootstrap.sh, Makefile, README.md, zshrc)
+- ✅ Fichiers documentation (docs/STATUS.md, docs/STRUCTURE.md)
+- ✅ Scripts (scripts/setup.sh, scripts/*)
 - ✅ Bibliothèque commune (lib/common.sh, lib/install_logger.sh, lib/check_missing.sh)
 - ✅ Structure ZSH/Fish complète (zshrc_custom, env.sh, aliases.zsh, path_log.txt, PATH_SAVE)
 
@@ -659,7 +660,7 @@ Les symlinks sont créés automatiquement lors de l'installation pour centralise
     └── config -> ~/dotfiles/.ssh/config              # Symlink
 ```
 
-**Note :** Les symlinks sont proposés automatiquement lors de l'installation via `bootstrap.sh` ou `setup.sh`.
+**Note :** Les symlinks sont proposés automatiquement lors de l'installation via `bootstrap.sh` ou `scripts/setup.sh`.
 
 ## 🚨 Troubleshooting
 
@@ -686,7 +687,7 @@ sudo update-grub
 ### Dotfiles non sourcés
 ```bash
 grep "source ~/dotfiles" ~/.zshrc
-# Si absent, relancez setup.sh
+# Si absent, relancez scripts/setup.sh
 ```
 
 ## 🔄 Workflow complet (nouvelle machine)
@@ -707,9 +708,9 @@ Cette commande fait automatiquement :
 5. ✅ Clone repository dotfiles (ou `git pull` si existe déjà)
 6. ✅ Choix du shell (Zsh/Fish/Les deux)
 7. ✅ Création symlinks (optionnel)
-8. ✅ Lancement menu interactif `setup.sh`
+8. ✅ Lancement menu interactif `scripts/setup.sh`
 
-### Dans le menu setup.sh
+### Dans le menu scripts/setup.sh
 
 1. **Voir ce qui manque** : Option 50
 2. **Installer individuellement** : Option 51 (un par un) ou Option 52 (tout automatique)
@@ -722,7 +723,7 @@ Cette commande fait automatiquement :
 - **Redémarrer** pour appliquer toutes les configurations
 - **Vérifications** : `flutter doctor`, `docker login`, `nvidia-smi`
 - **Configuration apps** : Cursor login, Proton Pass
-- **Consulter logs** : Option 53 ou `less ~/dotfiles/install.log`
+- **Consulter logs** : Option 53 ou `less ~/dotfiles/logs/install.log`
 
 ## 🔄 Rollback / Désinstallation
 
@@ -732,7 +733,7 @@ Pour désinstaller **TOUT** ce qui a été installé et configuré :
 
 **Via le menu setup.sh :**
 ```bash
-bash ~/dotfiles/setup.sh
+bash ~/dotfiles/scripts/setup.sh
 # Choisir option 99
 ```
 

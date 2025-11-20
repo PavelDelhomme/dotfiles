@@ -261,11 +261,11 @@ log_section "Vérifications structure dotfiles"
 # Fichiers principaux racine
 ROOT_FILES=(
     "$DOTFILES_DIR/bootstrap.sh:bootstrap.sh"
-    "$DOTFILES_DIR/setup.sh:setup.sh"
+    "$DOTFILES_DIR/scripts/setup.sh:scripts/setup.sh"
     "$DOTFILES_DIR/Makefile:Makefile"
     "$DOTFILES_DIR/README.md:README.md"
-    "$DOTFILES_DIR/STATUS.md:STATUS.md"
-    "$DOTFILES_DIR/STRUCTURE.md:STRUCTURE.md"
+    "$DOTFILES_DIR/docs/STATUS.md:docs/STATUS.md"
+    "$DOTFILES_DIR/docs/STRUCTURE.md:docs/STRUCTURE.md"
     "$DOTFILES_DIR/zshrc:zshrc (shell detector)"
 )
 

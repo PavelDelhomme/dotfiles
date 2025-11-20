@@ -4,7 +4,8 @@
 
 - `Makefile` - **Interface standardisée** avec `make` pour toutes les opérations (recommandé)
 - `bootstrap.sh` - Script principal pour installer depuis zéro (curl) - **Configuration Git automatique + Test SSH GitHub + Clone repo + Lancement menu**
-- `setup.sh` - Menu interactif modulaire pour installer/configurer - **70+ options disponibles**
+- `README.md` - Documentation complète du projet
+- `zshrc` - Configuration shell principale (détection Zsh/Fish)
 
 ## Structure scripts/
 

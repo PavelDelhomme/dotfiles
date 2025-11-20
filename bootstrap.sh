@@ -269,12 +269,12 @@ if [ -d "$DOTFILES_DIR" ] && [ -d "$DOTFILES_DIR/.git" ]; then
     log_info "✅ Dotfiles présents, lancement du menu interactif..."
     echo ""
     
-    if [ -f "$DOTFILES_DIR/setup.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/setup.sh" ]; then
         cd "$DOTFILES_DIR" || {
             log_error "Impossible de se déplacer dans $DOTFILES_DIR"
             exit 1
         }
-        bash "$DOTFILES_DIR/setup.sh"
+        bash "$DOTFILES_DIR/scripts/setup.sh"
         exit $?
     fi
     # IMPORTANT: Continuer vers la section suivante si setup.sh n'existe pas
@@ -421,23 +421,23 @@ log_section "Installation des dotfiles"
 # Cette section doit TOUJOURS être atteinte si dotfiles existe
 # Lancer automatiquement le menu interactif setup.sh
 
-if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/setup.sh" ]; then
-    log_info "✅ Dotfiles clonés avec succès dans: $DOTFILES_DIR"
-    echo ""
-    log_info "Lancement du menu interactif d'installation..."
-    echo ""
-    
-    # Changer dans le répertoire dotfiles
-    cd "$DOTFILES_DIR" || {
-        log_error "Impossible de se déplacer dans $DOTFILES_DIR"
-        exit 1
-    }
-    
-    # Passer le shell sélectionné à setup.sh via variable d'environnement
-    export SELECTED_SHELL_FOR_SETUP
-    
-    # Lancer directement setup.sh
-    bash "$DOTFILES_DIR/setup.sh"
+    if [ -d "$DOTFILES_DIR" ] && [ -f "$DOTFILES_DIR/scripts/setup.sh" ]; then
+        log_info "✅ Dotfiles clonés avec succès dans: $DOTFILES_DIR"
+        echo ""
+        log_info "Lancement du menu interactif d'installation..."
+        echo ""
+        
+        # Changer dans le répertoire dotfiles
+        cd "$DOTFILES_DIR" || {
+            log_error "Impossible de se déplacer dans $DOTFILES_DIR"
+            exit 1
+        }
+        
+        # Passer le shell sélectionné à setup.sh via variable d'environnement
+        export SELECTED_SHELL_FOR_SETUP
+        
+        # Lancer directement setup.sh
+        bash "$DOTFILES_DIR/scripts/setup.sh"
     
     EXIT_CODE=$?
     if [ $EXIT_CODE -eq 0 ]; then

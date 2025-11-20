@@ -20,7 +20,7 @@ source "$SCRIPT_DIR/lib/common.sh" 2>/dev/null || {
 }
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-LOG_FILE="$DOTFILES_DIR/auto_sync.log"
+LOG_FILE="$DOTFILES_DIR/logs/auto_sync.log"
 LOCK_FILE="/tmp/dotfiles_auto_sync.lock"
 SYNC_INTERVAL=3600  # 1 heure en secondes
 

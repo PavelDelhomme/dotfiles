@@ -226,7 +226,7 @@ fi
 ################################################################################
 log_section "7. Nettoyage fichiers logs"
 
-rm -f "$HOME/dotfiles/auto_sync.log" 2>/dev/null || true
+rm -f "$HOME/dotfiles/logs/auto_sync.log" 2>/dev/null || true
 rm -f /tmp/dotfiles_auto_sync.lock 2>/dev/null || true
 log_info "✓ Logs supprimés"
 

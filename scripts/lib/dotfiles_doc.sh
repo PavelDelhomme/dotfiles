@@ -9,7 +9,8 @@
 
 # Variables
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-ACTIONS_LOG_FILE="$DOTFILES_DIR/actions.log"
+ACTIONS_LOG_FILE="$DOTFILES_DIR/logs/actions.log"
+INSTALL_LOG_FILE="$DOTFILES_DIR/logs/install.log"
 FUNCTION_DOC_FILE="$DOTFILES_DIR/zsh/functions_doc.json"
 ALIASES_FILE="$DOTFILES_DIR/zsh/aliases.zsh"
 
@@ -494,16 +495,16 @@ show_doc_files() {
                 fi
                 ;;
             2)
-                if [[ -f "$DOTFILES_DIR/STATUS.md" ]]; then
-                    less -R "$DOTFILES_DIR/STATUS.md"
+                if [[ -f "$DOTFILES_DIR/docs/STATUS.md" ]]; then
+                    less -R "$DOTFILES_DIR/docs/STATUS.md"
                 else
                     echo -e "${RED}❌ STATUS.md non trouvé${RESET}"
                     sleep 2
                 fi
                 ;;
             3)
-                if [[ -f "$DOTFILES_DIR/STRUCTURE.md" ]]; then
-                    less -R "$DOTFILES_DIR/STRUCTURE.md"
+                if [[ -f "$DOTFILES_DIR/docs/STRUCTURE.md" ]]; then
+                    less -R "$DOTFILES_DIR/docs/STRUCTURE.md"
                 else
                     echo -e "${RED}❌ STRUCTURE.md non trouvé${RESET}"
                     sleep 2
@@ -629,8 +630,8 @@ dotfiles_doc() {
                 fi
                 ;;
             9)
-                if [[ -f "$DOTFILES_DIR/install.log" ]]; then
-                    less -R "$DOTFILES_DIR/install.log"
+                if [[ -f "$INSTALL_LOG_FILE" ]]; then
+                    less -R "$INSTALL_LOG_FILE"
                 else
                     echo -e "${RED}❌ install.log non trouvé${RESET}"
                     sleep 2
@@ -649,8 +650,8 @@ dotfiles_doc() {
                 export_documentation
                 ;;
             12)
-                if [[ -f "$DOTFILES_DIR/STRUCTURE.md" ]]; then
-                    less -R "$DOTFILES_DIR/STRUCTURE.md"
+                if [[ -f "$DOTFILES_DIR/docs/STRUCTURE.md" ]]; then
+                    less -R "$DOTFILES_DIR/docs/STRUCTURE.md"
                 else
                     echo -e "${RED}❌ STRUCTURE.md non trouvé${RESET}"
                     sleep 2
