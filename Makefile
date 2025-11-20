@@ -52,6 +52,19 @@ help: ## Afficher cette aide
 	@echo "  make install-brave    - Installer Brave Browser"
 	@echo "  make install-yay      - Installer yay (AUR helper - Arch Linux)"
 	@echo ""
+	@echo "$(GREEN)Gestion des VM (tests):$(NC)"
+	@echo "  make vm-menu          - Menu interactif de gestion des VM"
+	@echo "  make vm-list          - Lister toutes les VM"
+	@echo "  make vm-create        - Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path)"
+	@echo "  make vm-start         - Démarrer une VM (VM=name)"
+	@echo "  make vm-stop          - Arrêter une VM (VM=name)"
+	@echo "  make vm-info          - Infos d'une VM (VM=name)"
+	@echo "  make vm-snapshot      - Créer snapshot (VM=name NAME=snap DESC=\"desc\")"
+	@echo "  make vm-snapshots     - Lister snapshots (VM=name)"
+	@echo "  make vm-rollback      - Restaurer snapshot (VM=name SNAPSHOT=name)"
+	@echo "  make vm-test          - Tester dotfiles dans VM (VM=name)"
+	@echo "  make vm-delete        - Supprimer une VM (VM=name)"
+	@echo ""
 	@echo "$(YELLOW)Pour plus d'options, utilisez: make setup$(NC)"
 	@echo ""
 
@@ -135,6 +148,40 @@ install-brave: ## Installer Brave Browser
 
 install-yay: ## Installer yay (AUR helper - Arch Linux)
 	@bash "$(SCRIPT_DIR)/install/tools/install_yay.sh"
+
+# Gestion des VM
+vm-list: ## Lister toutes les VM
+	@bash "$(SCRIPT_DIR)/vm/vm_manager.sh" && bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && list_vms --all"
+
+vm-create: ## Créer une VM de test (usage: make vm-create VM=test-dotfiles MEMORY=2048 VCPUS=2 DISK=20 ISO=/path/to.iso)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && create_vm '$(VM)' '$(MEMORY)' '$(VCPUS)' '$(DISK)' '$(ISO)'"
+
+vm-start: ## Démarrer une VM (usage: make vm-start VM=test-dotfiles)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && start_vm '$(VM)'"
+
+vm-stop: ## Arrêter une VM (usage: make vm-stop VM=test-dotfiles)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && stop_vm '$(VM)'"
+
+vm-info: ## Afficher infos d'une VM (usage: make vm-info VM=test-dotfiles)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && show_vm_info '$(VM)'"
+
+vm-snapshot: ## Créer un snapshot (usage: make vm-snapshot VM=test-dotfiles NAME=clean DESC="Installation propre")
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && create_snapshot '$(VM)' '$(NAME)' '$(DESC)'"
+
+vm-snapshots: ## Lister les snapshots (usage: make vm-snapshots VM=test-dotfiles)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && list_snapshots '$(VM)'"
+
+vm-rollback: ## Restaurer un snapshot (usage: make vm-rollback VM=test-dotfiles SNAPSHOT=clean)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && restore_snapshot '$(VM)' '$(SNAPSHOT)'"
+
+vm-test: ## Tester dotfiles dans une VM (usage: make vm-test VM=test-dotfiles)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && test_dotfiles_in_vm '$(VM)'"
+
+vm-delete: ## Supprimer une VM (usage: make vm-delete VM=test-dotfiles)
+	@bash -c "source $(SCRIPT_DIR)/vm/vm_manager.sh && delete_vm '$(VM)'"
+
+vm-menu: ## Menu interactif de gestion des VM
+	@bash "$(SCRIPT_DIR)/vm/vm_manager.sh"
 
 # Alias pour compatibilité
 all: install ## Alias pour install
