@@ -98,12 +98,19 @@ echo -e "${CYAN}📝 ÉTAPE 4/5 : Chargement des utilitaires...${NC}"
 # =============================================================================
 # ÉTAPE 5 : CHARGEMENT DES ALIASES
 # =============================================================================
-echo -e "${CYAN}📝 ÉTAPE 5/5 : Chargement des alias...${NC}"
+echo -e "${CYAN}📝 ÉTAPE 5/6 : Chargement des alias...${NC}"
 if [ -f "$ALIASES_FILES" ]; then
     source "$ALIASES_FILES"
     echo -e "${GREEN}  ✔️ Alias chargés${NC}"
 else
     echo -e "${YELLOW}  ⚠️ Fichier $ALIASES_FILES introuvable${NC}"
+fi
+
+# =============================================================================
+# ÉTAPE 6 : CORRECTION AUTOMATIQUE DU CONFLIT GHOSTSCRIPT
+# =============================================================================
+if [ -f "$DOTFILES_ZSH_PATH/functions/utils/fix_ghostscript_alias.sh" ]; then
+    source "$DOTFILES_ZSH_PATH/functions/utils/fix_ghostscript_alias.sh" 2>/dev/null || true
 fi
 
 # =============================================================================
