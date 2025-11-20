@@ -31,6 +31,7 @@ echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh" && echo -e "${GREEN}  ✔️ MISCMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ MISCMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo -e "${GREEN}  ✔️ SEARCHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ SEARCHMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" && echo -e "${GREEN}  ✔️ CYBERMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ CYBERMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/manman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/manman.zsh" && echo -e "${GREEN}  ✔️ MANMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ MANMAN introuvable${NC}"
 
 # =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
@@ -61,6 +62,7 @@ if [ -d "$FUNCTIONS_DIR" ]; then
         if [[ "$func_file" != *"man.zsh" ]] && \
            [[ "$func_file" != *"backup"* ]] && \
            [[ "$func_file" != *"/cyber/"*.zsh ]] && \
+           [[ "$func_file" != *"alias_utils.zsh" ]] && \
            [ -f "$func_file" ]; then
             if source "$func_file" 2>/dev/null; then
                 ((loaded_count++))
@@ -77,9 +79,16 @@ else
 fi
 
 # =============================================================================
-# ÉTAPE 4 : CHARGEMENT DES ALIASES
+# ÉTAPE 4 : CHARGEMENT DES UTILITAIRES (alias, logs, documentation)
 # =============================================================================
-echo -e "${CYAN}📝 ÉTAPE 4/4 : Chargement des alias...${NC}"
+echo -e "${CYAN}📝 ÉTAPE 4/5 : Chargement des utilitaires...${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" && echo -e "${GREEN}  ✔️ Alias utils chargés${NC}" || echo -e "${YELLOW}  ⚠️ Alias utils introuvable${NC}"
+[ -f "$DOTFILES_PATH/scripts/lib/actions_logger.sh" ] && source "$DOTFILES_PATH/scripts/lib/actions_logger.sh" && echo -e "${GREEN}  ✔️ Actions logger chargé${NC}" || echo -e "${YELLOW}  ⚠️ Actions logger introuvable${NC}"
+
+# =============================================================================
+# ÉTAPE 5 : CHARGEMENT DES ALIASES
+# =============================================================================
+echo -e "${CYAN}📝 ÉTAPE 5/5 : Chargement des alias...${NC}"
 if [ -f "$ALIASES_FILES" ]; then
     source "$ALIASES_FILES"
     echo -e "${GREEN}  ✔️ Alias chargés${NC}"

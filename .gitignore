@@ -3,6 +3,11 @@
 #!.zshenv
 #!.zsh/
 
-# Logs d'installation
+# Logs d'installation et actions
 install.log
+actions.log
 *.log
+
+# Documentation générée
+functions_doc.json
+aliases_doc.json
