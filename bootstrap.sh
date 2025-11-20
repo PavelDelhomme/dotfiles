@@ -297,7 +297,59 @@ else
     if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
         log_info "✅ Connexion GitHub OK"
     else
-        log_warn "⚠️ Connexion GitHub échouée, vérifiez la clé SSH"
+        log_warn "⚠️ Connexion GitHub échouée"
+        
+        # Vérifier si on a un environnement graphique
+        HAS_DISPLAY=false
+        if [ -n "$DISPLAY" ] || command -v xdg-open >/dev/null 2>&1 || command -v firefox >/dev/null 2>&1 || command -v chromium >/dev/null 2>&1; then
+            HAS_DISPLAY=true
+        fi
+        
+        if [ "$HAS_DISPLAY" = true ]; then
+            # Environnement graphique disponible - ouvrir GitHub
+            log_info "Ouverture de GitHub dans le navigateur..."
+            if command -v xdg-open >/dev/null 2>&1; then
+                xdg-open "https://github.com/settings/ssh/new" 2>/dev/null || true
+            elif command -v firefox >/dev/null 2>&1; then
+                firefox "https://github.com/settings/ssh/new" 2>/dev/null || true
+            elif command -v chromium >/dev/null 2>&1; then
+                chromium "https://github.com/settings/ssh/new" 2>/dev/null || true
+            fi
+            log_info "Veuillez ajouter la clé SSH dans GitHub"
+        else
+            # Pas d'environnement graphique - afficher les instructions manuelles
+            echo ""
+            log_section "Instructions pour ajouter la clé SSH manuellement"
+            log_info "Vous êtes en ligne de commande uniquement (pas d'interface graphique)"
+            echo ""
+            log_info "1. Copiez la clé SSH publique ci-dessous :"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            cat "$SSH_KEY.pub"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            log_info "2. Connectez-vous à GitHub sur une autre machine avec un navigateur :"
+            echo "   https://github.com/settings/ssh/new"
+            echo ""
+            log_info "3. Ou utilisez GitHub CLI si installé :"
+            echo "   gh auth login"
+            echo "   gh ssh-key add $SSH_KEY.pub --title 'Dotfiles SSH Key'"
+            echo ""
+            log_info "4. Une fois la clé ajoutée, testez la connexion avec :"
+            echo "   ssh -T git@github.com"
+            echo ""
+            printf "Appuyez sur Entrée une fois la clé SSH ajoutée sur GitHub... "
+            read -r dummy </dev/tty 2>/dev/null || read -r dummy
+        fi
+        
+        # Tester à nouveau après l'ajout manuel
+        log_info "Test de la connexion GitHub..."
+        if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+            log_info "✅ Connexion GitHub OK"
+        else
+            log_warn "⚠️ Connexion GitHub toujours échouée"
+            log_warn "Vous pourrez configurer la clé SSH plus tard"
+        fi
     fi
 fi
 
@@ -370,6 +422,70 @@ if [ ! -d "$DOTFILES_DIR" ]; then
     log_info "Clonage de $DOTFILES_REPO dans $DOTFILES_DIR..."
     if git clone "$DOTFILES_REPO" "$DOTFILES_DIR" 2>&1; then
         log_info "✓ Dotfiles clonés avec succès"
+        
+        # Créer le fichier .env automatiquement avec les valeurs fournies
+        if [ -n "$SAVED_GIT_NAME" ] && [ -n "$SAVED_GIT_EMAIL" ]; then
+            log_info "Création automatique du fichier .env..."
+            ENV_FILE="$DOTFILES_DIR/.env"
+            
+            # Créer .env depuis .env.example si disponible, sinon créer un nouveau fichier
+            if [ -f "$DOTFILES_DIR/.env.example" ]; then
+                cp "$DOTFILES_DIR/.env.example" "$ENV_FILE"
+            else
+                # Créer un fichier .env basique
+                cat > "$ENV_FILE" << EOF
+# =============================================================================
+# FICHIER DE CONFIGURATION D'ENVIRONNEMENT
+# =============================================================================
+# Ce fichier contient vos variables d'environnement personnelles.
+# 
+# IMPORTANT: Ce fichier est dans .gitignore et ne sera JAMAIS commité.
+# Il contient des informations personnelles sensibles.
+# =============================================================================
+
+# =============================================================================
+# CONFIGURATION GIT
+# =============================================================================
+# Nom d'utilisateur Git (pour les commits)
+GIT_USER_NAME=""
+
+# Email Git (pour les commits)
+GIT_USER_EMAIL=""
+
+# =============================================================================
+# CONFIGURATION GITHUB
+# =============================================================================
+# URL du repository GitHub (par défaut, peut être changé)
+GITHUB_REPO_URL=""
+EOF
+            fi
+            
+            # Remplacer les valeurs dans .env
+            if [ -f "$ENV_FILE" ]; then
+                # Utiliser sed pour remplacer les valeurs (compatible avec tous les systèmes)
+                if command -v sed >/dev/null 2>&1; then
+                    # Échapper les caractères spéciaux pour sed
+                    ESCAPED_NAME=$(echo "$SAVED_GIT_NAME" | sed 's/[\/&]/\\&/g')
+                    ESCAPED_EMAIL=$(echo "$SAVED_GIT_EMAIL" | sed 's/[\/&]/\\&/g')
+                    ESCAPED_REPO=$(echo "$DOTFILES_REPO" | sed 's/[\/&]/\\&/g')
+                    
+                    # Remplacer les valeurs
+                    sed -i "s/^GIT_USER_NAME=.*/GIT_USER_NAME=\"$ESCAPED_NAME\"/" "$ENV_FILE" 2>/dev/null || \
+                    sed -i '' "s/^GIT_USER_NAME=.*/GIT_USER_NAME=\"$ESCAPED_NAME\"/" "$ENV_FILE" 2>/dev/null || true
+                    
+                    sed -i "s/^GIT_USER_EMAIL=.*/GIT_USER_EMAIL=\"$ESCAPED_EMAIL\"/" "$ENV_FILE" 2>/dev/null || \
+                    sed -i '' "s/^GIT_USER_EMAIL=.*/GIT_USER_EMAIL=\"$ESCAPED_EMAIL\"/" "$ENV_FILE" 2>/dev/null || true
+                    
+                    sed -i "s|^GITHUB_REPO_URL=.*|GITHUB_REPO_URL=\"$ESCAPED_REPO\"|" "$ENV_FILE" 2>/dev/null || \
+                    sed -i '' "s|^GITHUB_REPO_URL=.*|GITHUB_REPO_URL=\"$ESCAPED_REPO\"|" "$ENV_FILE" 2>/dev/null || true
+                fi
+                
+                log_info "✓ Fichier .env créé avec vos informations"
+                log_info "  GIT_USER_NAME=\"$SAVED_GIT_NAME\""
+                log_info "  GIT_USER_EMAIL=\"$SAVED_GIT_EMAIL\""
+                log_info "  GITHUB_REPO_URL=\"$DOTFILES_REPO\""
+            fi
+        fi
     else
         log_error "Erreur lors du clonage des dotfiles"
         log_warn "Vérifiez votre connexion internet et réessayez"

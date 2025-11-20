@@ -179,11 +179,17 @@ Cette commande va automatiquement exécuter les étapes suivantes :
 
 **3. Génération clé SSH ED25519** (si absente) ⚠️ **INTERACTIF**
 - Utilise l'email Git configuré précédemment pour la clé
-- Copie la clé publique dans le presse-papier automatiquement
-- **Ouvre GitHub dans le navigateur** pour que vous ajoutiez la clé SSH
-- ⚠️ **Action requise** : Vous devez copier la clé SSH dans votre compte GitHub
-  - Aller dans GitHub → Settings → SSH and GPG keys → New SSH key
-  - Coller la clé publique
+- **Si environnement graphique disponible** :
+  - Copie la clé publique dans le presse-papier automatiquement
+  - Ouvre GitHub dans le navigateur pour ajouter la clé SSH
+- **Si ligne de commande uniquement (pas d'interface graphique)** :
+  - Affiche la clé SSH publique à l'écran
+  - Donne les instructions pour l'ajouter manuellement sur GitHub
+  - Instructions pour utiliser GitHub CLI si disponible
+  - Attend confirmation une fois la clé ajoutée
+- ⚠️ **Action requise** : Vous devez ajouter la clé SSH dans votre compte GitHub
+  - **Avec navigateur** : Aller dans GitHub → Settings → SSH and GPG keys → New SSH key → Coller la clé
+  - **Sans navigateur** : Utiliser une autre machine ou GitHub CLI (`gh ssh-key add`)
 - Test de la connexion GitHub SSH (`ssh -T git@github.com`)
 
 **4. Clonage ou mise à jour du repository dotfiles**
@@ -192,6 +198,10 @@ Cette commande va automatiquement exécuter les étapes suivantes :
 - Support des variables d'environnement `.env` (GITHUB_REPO_URL)
 - Utilise l'URL par défaut si `.env` non configuré
 - Si le dossier existe mais n'est pas un repo Git, demande confirmation pour le supprimer
+- ✅ **Création automatique du fichier `.env`** avec les informations fournies (Nom Git, Email Git, URL repository)
+  - Le fichier `.env` est créé automatiquement après le clonage
+  - Contient vos informations pour éviter de les redemander lors des prochaines installations
+  - Vous pouvez le modifier plus tard si nécessaire
 
 **5. Choix du shell** (Zsh/Fish/Les deux) ⚠️ **INTERACTIF**
 - Menu interactif :
