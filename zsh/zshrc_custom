@@ -97,6 +97,19 @@ else
 fi
 
 # =============================================================================
+# FONCTION DOCUMENTATION INTERACTIVE
+# =============================================================================
+dotfiles_doc() {
+    if [[ -f "$DOTFILES_PATH/scripts/lib/dotfiles_doc.sh" ]]; then
+        bash "$DOTFILES_PATH/scripts/lib/dotfiles_doc.sh"
+    else
+        echo "❌ Script dotfiles_doc.sh non trouvé"
+    fi
+}
+alias ddoc='dotfiles_doc'
+alias doc-dotfiles='dotfiles_doc'
+
+# =============================================================================
 # FONCTION BACKUP DOTFILES
 # =============================================================================
 backup_dotfiles() {
