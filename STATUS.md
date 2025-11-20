@@ -599,7 +599,7 @@ curl | bash bootstrap.sh
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.6.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git)
+**Version :** 2.7.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète)
 
 ---
 
@@ -746,6 +746,108 @@ curl | bash bootstrap.sh
 - ✅ `scripts/test/validate_setup.sh` - Validation exhaustive (117+ vérifications)
 - ✅ `.gitignore` - Ajout install.log
 - ✅ `README.md` - Documentation mise à jour
+
+---
+
+## 🚀 PHASE 20 : Système de gestion des *man, alias avec documentation et documentation interactive
+
+### Système de gestion des *man (manman.zsh)
+- ✅ **Nouveau fichier** : `zsh/functions/manman.zsh`
+  - Gestionnaire centralisé pour tous les gestionnaires (*man.zsh)
+  - Menu interactif pour accéder à tous les gestionnaires
+  - Détection automatique des gestionnaires disponibles
+  - Alias: `mmg`, `managers`
+- ✅ **Gestionnaires disponibles** : pathman, netman, aliaman, miscman, searchman, cyberman
+- ✅ **Intégration** : Chargé dans `zshrc_custom` après les autres gestionnaires
+
+### Système d'alias avec documentation (alias_utils.zsh)
+- ✅ **Nouveau fichier** : `zsh/functions/utils/alias_utils.zsh`
+  - Fonctions standalone pour gestion des alias :
+    - `add_alias()` - Ajouter un alias avec documentation (description, usage, exemples)
+    - `remove_alias()` - Supprimer un alias
+    - `change_alias()` - Modifier un alias existant
+    - `list_alias()` - Lister tous les alias avec descriptions
+    - `search_alias()` - Rechercher un alias par nom/commande/description
+    - `get_alias_doc()` - Afficher documentation complète d'un alias
+    - `browse_alias_doc()` - Navigation interactive dans la documentation (less)
+- ✅ **Système de documentation** :
+  - Format: `# DESC:`, `# USAGE:`, `# EXAMPLES:` dans `aliases.zsh`
+  - Extraction automatique de la documentation
+  - Navigation via less pour listes longues
+- ✅ **Intégration** : Chargé dans `zshrc_custom` (Étape 4/5)
+
+### Système de logs centralisé (actions_logger.sh)
+- ✅ **Nouveau fichier** : `scripts/lib/actions_logger.sh`
+  - Log toutes les actions utilisateur (alias, fonctions, PATH, config)
+  - Format: `[timestamp] [type] [action] [status] component | details`
+  - Fonctions :
+    - `log_action()` - Logger toutes les actions
+    - `log_alias_action()` - Logger actions d'alias
+    - `log_function_action()` - Logger actions de fonctions
+    - `log_path_action()` - Logger actions PATH
+    - `log_config_action()` - Logger actions de configuration
+    - `show_actions_log()` - Afficher logs avec filtres (pagination via less)
+    - `get_actions_summary()` - Statistiques (réussies/échouées/ignorées)
+    - `search_actions_log()` - Rechercher dans les logs
+    - `get_recent_actions()` - Dernières actions
+    - `get_actions_stats()` - Statistiques par type d'action
+- ✅ **Fichier de log** : `~/dotfiles/actions.log`
+- ✅ **Intégration** : Utilisé par `alias_utils.zsh` pour logger toutes les actions
+
+### Système de documentation automatique (function_doc.sh)
+- ✅ **Nouveau fichier** : `scripts/lib/function_doc.sh`
+  - Extrait automatiquement la documentation depuis les fichiers
+  - Format standard: `# DESC:`, `# USAGE:`, `# EXAMPLES:`, `# RETURNS:`
+  - Fonctions :
+    - `extract_function_doc()` - Extraire documentation depuis fichiers
+    - `generate_all_function_docs()` - Génère `functions_doc.json` avec toute la documentation
+    - `show_function_doc()` - Affiche documentation d'une fonction
+    - `search_function_doc()` - Recherche dans la documentation
+    - `list_all_functions()` - Liste toutes les fonctions documentées
+- ✅ **Fichier JSON** : `~/dotfiles/zsh/functions_doc.json` (généré automatiquement)
+
+### Système de documentation interactive complète (dotfiles_doc.sh)
+- ✅ **Nouveau fichier** : `scripts/lib/dotfiles_doc.sh`
+  - Menu interactif complet avec 12 options
+  - Navigation dans toute la documentation des dotfiles
+  - Fonctionnalités :
+    1. Documentation des fonctions (liste, recherche, voir doc, par catégorie)
+    2. Documentation des alias (liste, recherche, voir doc, statistiques)
+    3. Documentation des scripts (liste, recherche, voir doc, par catégorie)
+    4. Structure du projet (affichage complet via tree/find)
+    5. Fichiers de documentation (README, STATUS, STRUCTURE, scripts/README)
+    6. Recherche globale dans toute la documentation
+    7. Statistiques du projet (totaux, par catégorie)
+    8. Logs d'actions (`actions.log`)
+    9. Logs d'installation (`install.log`)
+    10. Générer/Actualiser documentation
+    11. Exporter documentation (Markdown → `DOCUMENTATION_COMPLETE.md`)
+    12. Voir structure complète (`STRUCTURE.md`)
+- ✅ **Intégration** :
+  - Fonction `dotfiles_doc()` dans `zshrc_custom`
+  - Alias: `ddoc`, `doc-dotfiles`
+- ✅ **Interface** :
+  - Menus interactifs clairs
+  - Navigation via less pour listes longues
+  - Recherche dans toute la documentation
+  - Export Markdown pour partage
+
+### Fichiers créés/modifiés
+- ✅ `zsh/functions/manman.zsh` - Gestionnaire centralisé des *man
+- ✅ `zsh/functions/utils/alias_utils.zsh` - Fonctions standalone pour alias
+- ✅ `scripts/lib/actions_logger.sh` - Système de logs centralisé
+- ✅ `scripts/lib/function_doc.sh` - Documentation automatique des fonctions
+- ✅ `scripts/lib/dotfiles_doc.sh` - Documentation interactive complète
+- ✅ `zsh/zshrc_custom` - Chargement de manman et alias_utils
+- ✅ `.gitignore` - Exclusion de `actions.log`, `functions_doc.json`, `aliases_doc.json`
+- ✅ `STATUS.md` - Documentation mise à jour
+- ✅ `STRUCTURE.md` - Documentation mise à jour
+
+### Améliorations système
+- ✅ **Documentation standardisée** : Toutes les fonctions utilisent le format `# DESC:`, `# USAGE:`, `# EXAMPLES:`, `# RETURNS:`
+- ✅ **Logs centralisés** : Toutes les actions sont automatiquement loggées dans `actions.log`
+- ✅ **Navigation interactive** : Interface claire pour naviguer dans toute la documentation
+- ✅ **Export disponible** : Export Markdown de toute la documentation
 - ✅ `STATUS.md` - Documentation mise à jour
 
 ### Intégration système de logs

@@ -46,7 +46,10 @@ scripts/
 ├── lib/                        # Bibliothèques communes
 │   ├── common.sh               # Fonctions communes (logging, couleurs)
 │   ├── install_logger.sh       # Système de logs d'installation
-│   └── check_missing.sh        # Détection éléments manquants
+│   ├── check_missing.sh        # Détection éléments manquants
+│   ├── actions_logger.sh       # Système de logs centralisé (actions utilisateur)
+│   ├── function_doc.sh         # Documentation automatique des fonctions
+│   └── dotfiles_doc.sh         # Documentation interactive complète (menu interactif)
 │
 ├── uninstall/                  # Désinstallation et rollback
 │   ├── rollback_all.sh         # Rollback complet (désinstaller tout) - Option 99
@@ -282,6 +285,40 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 
 ## Structure zsh/functions/
 
+### Gestionnaires (*man.zsh)
+
+| Gestionnaire | Description | Fichier |
+|--------------|-------------|---------|
+| `pathman` | Gestionnaire PATH | `pathman.zsh` |
+| `netman` | Gestionnaire réseau | `netman.zsh` |
+| `aliaman` | Gestionnaire alias (interactif) | `aliaman.zsh` |
+| `miscman` | Gestionnaire divers | `miscman.zsh` |
+| `searchman` | Gestionnaire recherche | `searchman.zsh` |
+| `cyberman` | Gestionnaire cybersécurité | `cyberman.zsh` |
+| `manman` | Gestionnaire centralisé (menu pour tous les *man) | `manman.zsh` |
+
+**Utilisation:**
+- `manman` (ou `mmg`, `managers`) - Menu interactif pour accéder à tous les gestionnaires
+- Chaque gestionnaire a son propre menu interactif
+
+### Utilitaires (utils/)
+
+| Utilitaire | Description | Fichier |
+|------------|-------------|---------|
+| `ensure_tool.sh` | Vérification et installation automatique d'outils | `utils/ensure_tool.sh` |
+| `alias_utils.zsh` | Fonctions standalone pour gestion des alias | `utils/alias_utils.zsh` |
+
+**Fonctions alias_utils:**
+- `add_alias()` - Ajouter un alias avec documentation
+- `remove_alias()` - Supprimer un alias
+- `change_alias()` - Modifier un alias
+- `list_alias()` - Lister tous les alias avec descriptions
+- `search_alias()` - Rechercher un alias
+- `get_alias_doc()` - Documentation complète d'un alias
+- `browse_alias_doc()` - Navigation interactive dans la documentation
+
+## Structure zsh/functions/ (détaillée)
+
 ```
 zsh/functions/
 ├── *man.zsh                 # Gestionnaires interactifs
@@ -407,6 +444,138 @@ cyberman privacy      # Menu anonymat
 cyberman help         # Aide
 cm                    # Alias court
 ```
+
+### Gestionnaire centralisé (manman.zsh)
+
+**Description:** Gestionnaire centralisé pour tous les gestionnaires (*man.zsh).
+
+**Utilisation:**
+```bash
+manman          # Menu interactif pour accéder à tous les gestionnaires
+mmg            # Alias pour manman
+managers       # Alias pour manman
+```
+
+**Fonctionnalités:**
+- Détection automatique des gestionnaires disponibles
+- Menu interactif avec numérotation
+- Lance directement le gestionnaire sélectionné
+
+**Gestionnaires disponibles:**
+- pathman (📁 Gestionnaire PATH)
+- netman (🌐 Gestionnaire réseau)
+- aliaman (📝 Gestionnaire alias)
+- miscman (🔧 Gestionnaire divers)
+- searchman (🔍 Gestionnaire recherche)
+- cyberman (🛡️ Gestionnaire cybersécurité)
+
+### Utilitaires alias (alias_utils.zsh)
+
+**Description:** Fonctions standalone pour gestion des alias avec documentation complète.
+
+**Utilisation:**
+```bash
+# Ajouter un alias avec documentation
+add_alias ll "ls -lah" "Liste détaillée" "ll" "ll -R"
+
+# Lister tous les alias avec descriptions
+list_alias
+
+# Rechercher un alias
+search_alias "git"
+
+# Voir documentation complète
+get_alias_doc ll
+
+# Navigation interactive dans la documentation
+browse_alias_doc
+```
+
+**Format documentation dans aliases.zsh:**
+```bash
+# DESC: Description de l'alias
+# USAGE: Usage de l'alias
+# EXAMPLES: Exemples d'utilisation
+alias name="command"
+```
+
+**Fonctions disponibles:**
+- `add_alias()` - Ajouter un alias avec documentation
+- `remove_alias()` - Supprimer un alias
+- `change_alias()` - Modifier un alias existant
+- `list_alias()` - Lister tous les alias avec descriptions
+- `search_alias()` - Rechercher un alias par nom/commande/description
+- `get_alias_doc()` - Afficher documentation complète d'un alias
+- `browse_alias_doc()` - Navigation interactive dans la documentation (less)
+
+**Intégration logs:**
+- Toutes les actions sont automatiquement loggées dans `actions.log` via `actions_logger.sh`
+
+### Documentation interactive (dotfiles_doc.sh)
+
+**Description:** Système de documentation interactive complète des dotfiles.
+
+**Utilisation:**
+```bash
+dotfiles_doc    # Menu interactif complet
+ddoc           # Alias pour dotfiles_doc
+doc-dotfiles   # Alias pour dotfiles_doc
+```
+
+**Menu principal (12 options):**
+
+1. **📖 Documentation des fonctions**
+   - Lister toutes les fonctions
+   - Rechercher une fonction
+   - Voir documentation complète
+   - Fonctions par catégorie
+
+2. **📝 Documentation des alias**
+   - Lister tous les alias
+   - Rechercher un alias
+   - Voir documentation complète
+   - Statistiques des alias
+
+3. **🔧 Documentation des scripts**
+   - Lister tous les scripts
+   - Rechercher un script
+   - Voir documentation d'un script
+   - Scripts par catégorie
+
+4. **📁 Structure du projet**
+   - Affichage de la structure complète
+
+5. **📋 Fichiers de documentation**
+   - README.md
+   - STATUS.md
+   - STRUCTURE.md
+   - scripts/README.md
+
+6. **🔎 Recherche globale**
+   - Recherche dans toute la documentation
+
+7. **📊 Statistiques du projet**
+   - Total de fichiers, scripts, fonctions, alias
+   - Structure par catégorie
+
+8. **📜 Logs d'actions**
+   - Voir `actions.log`
+
+9. **📝 Logs d'installation**
+   - Voir `install.log`
+
+10. **🔄 Générer/Actualiser documentation**
+    - Génère `functions_doc.json`
+
+11. **📤 Exporter documentation**
+    - Exporte `DOCUMENTATION_COMPLETE.md`
+
+12. **🗂️ Voir structure complète**
+    - Affiche `STRUCTURE.md`
+
+**Fichiers générés:**
+- `~/dotfiles/zsh/functions_doc.json` - Documentation JSON des fonctions
+- `~/dotfiles/DOCUMENTATION_COMPLETE.md` - Export Markdown complet
 
 ### Fonction utilitaire ensure_tool
 
