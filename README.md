@@ -2,7 +2,7 @@
 
 Configuration personnelle pour Manjaro Linux avec installation automatisée complète.
 
-**Version :** 2.9.0
+**Version :** 2.10.0
 
 ## 📑 Table des matières
 
