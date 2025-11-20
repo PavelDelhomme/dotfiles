@@ -513,6 +513,7 @@ zsh/functions/
 │   │
 │   ├── system/              # Système & processus
 │   │   ├── system_info.sh   # system_info
+│   │   ├── update_system.sh # update, upgrade (détection automatique distribution)
 │   │   ├── disk.sh          # disk_usage, system_clean, top_processes, disk_space, watch_directory
 │   │   ├── process.sh       # kill_process, kill_port, port_process, watch_process
 │   │   ├── reload_shell.sh  # reload_shell
@@ -533,6 +534,23 @@ zsh/functions/
 | `miscman` | Outils divers | Backup, cryptage, génération mots de passe |
 | `searchman` | Recherche | Historique, fonctions, fichiers |
 | `cyberman` | Cybersécurité | 36+ fonctions organisées par catégories |
+
+### Fonctions système (misc/system/)
+
+| Fonction | Description | Usage |
+|----------|-------------|-------|
+| `system_info` | Affiche informations système | `system_info` |
+| `update` | Mise à jour intelligente des paquets (détection auto distribution) | `update` |
+| `upgrade` | Mise à jour complète du système (détection auto distribution) | `upgrade` |
+| `disk_usage`, `system_clean`, `top_processes` | Gestion disque et système | `disk_usage`, `system_clean` |
+| `kill_process`, `kill_port`, `port_process` | Gestion processus | `kill_port 8080` |
+| `reload_shell` | Recharger la configuration shell | `reload_shell` |
+
+**Fonctions update/upgrade intelligentes :**
+- **Détection automatique** de la distribution Linux (Arch, Debian, Ubuntu, Fedora, Gentoo, NixOS, openSUSE, Alpine, RHEL/CentOS)
+- **Adaptation automatique** au gestionnaire de paquets approprié
+- **Commande unique** : `update` ou `upgrade` fonctionne sur toutes les distributions
+- **Support complet** : pacman, apt, dnf, emerge, nix, zypper, apk, yum
 
 ### CYBERMAN - Gestionnaire cybersécurité
 

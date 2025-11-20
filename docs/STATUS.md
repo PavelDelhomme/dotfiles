@@ -680,7 +680,7 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 ---
 
 **Dernière mise à jour :** Décembre 2024  
-**Version :** 2.9.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète + Réorganisation structure fichiers + Système complet de gestion de VM)
+**Version :** 2.10.0 (Refactorisation complète + Centralisation symlinks + Makefile + Workflow simplifié + Migration shell + CYBERMAN + ensure_tool + Réorganisation cyber/ + Simplification zshrc + Réorganisation dev/ & misc/ + Système de logs + Désinstallation individuelle + Détection éléments manquants + Restaurer depuis Git + Système de gestion des *man + Système d'alias avec documentation + Documentation interactive complète + Réorganisation structure fichiers + Système complet de gestion de VM + Fonctions update/upgrade intelligentes avec détection automatique de distribution)
 
 ---
 
@@ -1051,6 +1051,62 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 - ✅ **Workflow automatisé** : `make vm-test` gère tout automatiquement
 - ✅ **Intégration Makefile** : Commandes simples et mémorisables
 - ✅ **Snapshots automatiques** : Création automatique avant chaque test
+
+---
+
+## 🚀 PHASE 23 : Fonctions update/upgrade intelligentes avec détection automatique
+
+### Système de détection de distribution (update_system.sh)
+- ✅ **Nouveau fichier** : `zsh/functions/misc/system/update_system.sh`
+  - Fonction `detect_distro()` - Détection automatique de la distribution Linux
+  - Fonction `update()` - Mise à jour intelligente des paquets
+  - Fonction `upgrade()` - Mise à jour complète du système
+- ✅ **Nouveau fichier** : `fish/functions/update_system.fish`
+  - Version Fish de la détection et mise à jour intelligente
+
+### Distributions supportées
+- ✅ **Arch-based** : Arch, Manjaro, EndeavourOS → `pacman`
+- ✅ **Debian-based** : Debian, Ubuntu, Mint, Kali, Parrot → `apt`
+- ✅ **Fedora-based** : Fedora → `dnf`
+- ✅ **Gentoo** → `emerge`
+- ✅ **NixOS** → `nix-channel` / `nixos-rebuild`
+- ✅ **openSUSE** → `zypper`
+- ✅ **Alpine** → `apk`
+- ✅ **RHEL/CentOS** → `yum`
+
+### Fonctionnalités
+- ✅ **Détection automatique** : Détecte la distribution via `/etc/os-release`, `/etc/*-release`, etc.
+- ✅ **Adaptation automatique** : Utilise le bon gestionnaire selon la distribution
+- ✅ **Mise à jour des paquets** : `update` synchronise les dépôts sans installer
+- ✅ **Mise à jour complète** : `upgrade` met à jour tous les paquets
+- ✅ **Messages clairs** : Affiche la distribution détectée et la commande utilisée
+- ✅ **Logs automatiques** : Enregistre les actions dans `logs/actions.log`
+
+### Intégration
+- ✅ **zshrc_custom** : Chargement prioritaire de `update_system.sh`
+  * Suppression des alias `update`/`upgrade` avant chargement
+  * Fonctions remplacent les alias
+- ✅ **zsh/aliases.zsh** : Alias `update`/`upgrade` supprimés
+  * Commentaires expliquant l'utilisation des fonctions
+- ✅ **fish/aliases.fish** : Alias `update`/`upgrade` supprimés
+  * Commentaires expliquant l'utilisation des fonctions
+- ✅ **fish/config_custom.fish** : Chargement prioritaire de `update_system.fish`
+
+### Fichiers créés/modifiés
+- ✅ `zsh/functions/misc/system/update_system.sh` - Fonction ZSH
+- ✅ `fish/functions/update_system.fish` - Fonction Fish
+- ✅ `zsh/aliases.zsh` - Alias supprimés, commentaires ajoutés
+- ✅ `fish/aliases.fish` - Alias supprimés, commentaires ajoutés
+- ✅ `zsh/zshrc_custom` - Chargement prioritaire de update_system.sh
+- ✅ `fish/config_custom.fish` - Chargement prioritaire de update_system.fish
+- ✅ `README.md` - Section mise à jour avec détails
+
+### Avantages
+- ✅ **Universalité** : Fonctionne sur toutes les distributions majeures
+- ✅ **Simplicité** : Une seule commande `update` ou `upgrade` pour toutes les distros
+- ✅ **Intelligence** : Détection et adaptation automatiques
+- ✅ **Maintenabilité** : Plus besoin de modifier les alias selon la distribution
+- ✅ **Cohérence** : Même interface sur toutes les machines, quelle que soit la distribution
 - ✅ `STATUS.md` - Documentation mise à jour
 
 ### Intégration système de logs
