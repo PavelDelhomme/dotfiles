@@ -247,28 +247,37 @@ TOOLS_TO_CHECK=(
 
 for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
     IFS=':' read -r tool name <<< "$tool_entry"
+    
+    # Vérification spéciale pour Cursor AppImage (vérifier d'abord le fichier)
+    if [ "$tool" = "cursor" ]; then
+        CURSOR_APPIMAGE="$HOME/Applications/cursor.AppImage"
+        if [ -f "$CURSOR_APPIMAGE" ]; then
+            # Vérifier si le fichier est exécutable
+            if [ -x "$CURSOR_APPIMAGE" ]; then
+                # Essayer d'obtenir la version si possible
+                CURSOR_VERSION=$("$CURSOR_APPIMAGE" --version 2>/dev/null | head -n1 || echo "AppImage présent")
+                check_pass "Cursor IDE: $CURSOR_VERSION ($CURSOR_APPIMAGE)"
+            else
+                check_warn "Cursor IDE: AppImage présent mais non exécutable ($CURSOR_APPIMAGE)"
+                echo "  → Solution: chmod +x $CURSOR_APPIMAGE"
+            fi
+            continue  # Passer au suivant, on a déjà vérifié Cursor
+        fi
+    fi
+    
+    # Vérification standard pour les autres outils
     if command -v "$tool" &> /dev/null; then
         VERSION=$($tool --version 2>/dev/null | head -n1 || echo "version inconnue")
         check_pass "$name: $VERSION"
     else
-        # Vérification spéciale pour Cursor AppImage
-        if [ "$tool" = "cursor" ]; then
-            CURSOR_APPIMAGE="$HOME/Applications/cursor.AppImage"
-            if [ -f "$CURSOR_APPIMAGE" ]; then
-                # Vérifier si le fichier est exécutable
-                if [ -x "$CURSOR_APPIMAGE" ]; then
-                    check_pass "Cursor IDE: AppImage présent et exécutable ($CURSOR_APPIMAGE)"
-                else
-                    check_warn "Cursor IDE: AppImage présent mais non exécutable ($CURSOR_APPIMAGE)"
-                    echo "  → Solution: chmod +x $CURSOR_APPIMAGE"
-                fi
-            else
-                check_warn "Cursor IDE non installé (optionnel)"
-                echo "  → Emplacement attendu: $CURSOR_APPIMAGE"
-            fi
-        elif [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
+        if [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
             # yay n'est applicable que sur Arch
             continue
+        fi
+        # Pour Cursor, si command -v ne le trouve pas et que l'AppImage n'existe pas
+        if [ "$tool" = "cursor" ]; then
+            check_warn "Cursor IDE non installé (optionnel)"
+            echo "  → Emplacement attendu: $HOME/Applications/cursor.AppImage"
         else
             check_warn "$name non installé (optionnel)"
         fi
