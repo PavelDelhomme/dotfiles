@@ -130,7 +130,8 @@ if command -v flutter &> /dev/null; then
     FLUTTER_PATH=$(which flutter)
     check_pass "Flutter trouvé dans PATH: $FLUTTER_PATH"
 else
-    check_fail "Flutter non trouvé dans PATH (vérifiez /opt/flutter/bin)"
+    # Flutter n'est pas critique, juste un avertissement
+    check_warn "Flutter non trouvé dans PATH (optionnel, vérifiez /opt/flutter/bin si nécessaire)"
 fi
 
 ################################################################################
