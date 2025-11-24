@@ -40,28 +40,36 @@ show_config_menu() {
     
     case "$choice" in
         1)
-            run_script "$SCRIPT_DIR/config/git_config.sh" "Configuration Git"
+            log_section "Configuration Git"
+            bash "$SCRIPT_DIR/config/git_config.sh"
             ;;
         2)
-            run_script "$SCRIPT_DIR/config/git_remote.sh" "Configuration remote Git"
+            log_section "Configuration remote Git"
+            bash "$SCRIPT_DIR/config/git_remote.sh"
             ;;
         3)
-            run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création des symlinks"
+            log_section "Création des symlinks"
+            bash "$SCRIPT_DIR/config/create_symlinks.sh"
             ;;
         4)
-            run_script "$SCRIPT_DIR/config/shell_manager.sh" "Gestionnaire de shell" "menu"
+            log_section "Gestionnaire de shell"
+            bash "$SCRIPT_DIR/config/shell_manager.sh" "menu"
             ;;
         5)
-            run_script "$SCRIPT_DIR/sync/install_auto_sync.sh" "Configuration auto-sync"
+            log_section "Configuration auto-sync"
+            bash "$SCRIPT_DIR/sync/install_auto_sync.sh"
             ;;
         6)
-            run_script "$SCRIPT_DIR/config/qemu_network.sh" "Configuration réseau QEMU"
+            log_section "Configuration réseau QEMU"
+            bash "$SCRIPT_DIR/config/qemu_network.sh"
             ;;
         7)
-            run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Configuration libvirt QEMU"
+            log_section "Configuration libvirt QEMU"
+            bash "$SCRIPT_DIR/config/qemu_libvirt.sh"
             ;;
         8)
-            run_script "$SCRIPT_DIR/config/qemu_packages.sh" "Packages QEMU"
+            log_section "Packages QEMU"
+            bash "$SCRIPT_DIR/config/qemu_packages.sh"
             ;;
         0)
             return 0

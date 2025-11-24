@@ -39,31 +39,40 @@ show_install_menu() {
     
     case "$choice" in
         1)
-            run_script "$SCRIPT_DIR/install/dev/install_docker.sh" "Installation Docker"
+            log_section "Installation Docker"
+            bash "$SCRIPT_DIR/install/dev/install_docker.sh"
             ;;
         2)
-            run_script "$SCRIPT_DIR/install/dev/install_go.sh" "Installation Go"
+            log_section "Installation Go"
+            bash "$SCRIPT_DIR/install/dev/install_go.sh"
             ;;
         3)
-            run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Installation Cursor"
+            log_section "Installation Cursor"
+            bash "$SCRIPT_DIR/install/apps/install_cursor.sh"
             ;;
         4)
-            run_script "$SCRIPT_DIR/install/apps/install_brave.sh" "Installation Brave"
+            log_section "Installation Brave"
+            bash "$SCRIPT_DIR/install/apps/install_brave.sh"
             ;;
         5)
-            run_script "$SCRIPT_DIR/install/tools/install_yay.sh" "Installation yay"
+            log_section "Installation yay"
+            bash "$SCRIPT_DIR/install/tools/install_yay.sh"
             ;;
         6)
-            run_script "$SCRIPT_DIR/install/tools/install_nvm.sh" "Installation NVM"
+            log_section "Installation NVM"
+            bash "$SCRIPT_DIR/install/tools/install_nvm.sh"
             ;;
         7)
-            run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Installation packages de base"
+            log_section "Installation packages de base"
+            bash "$SCRIPT_DIR/install/system/packages_base.sh"
             ;;
         8)
-            run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Installation gestionnaires de paquets"
+            log_section "Installation gestionnaires de paquets"
+            bash "$SCRIPT_DIR/install/system/package_managers.sh"
             ;;
         9)
-            run_script "$SCRIPT_DIR/install/tools/install_qemu_full.sh" "Installation QEMU/KVM"
+            log_section "Installation QEMU/KVM"
+            bash "$SCRIPT_DIR/install/tools/install_qemu_full.sh"
             ;;
         0)
             return 0
