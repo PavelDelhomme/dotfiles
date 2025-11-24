@@ -47,11 +47,19 @@ fix_exec_scripts() {
     log_section "Fix: Rendre les scripts exécutables"
     
     # S'assurer que DOTFILES_DIR est défini
+    # Si DOTFILES_DIR contient déjà "scripts", ne pas l'ajouter deux fois
     local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
     
+    # Nettoyer le chemin pour éviter les doubles "scripts"
+    dotfiles_dir="${dotfiles_dir%/scripts}"
+    dotfiles_dir="${dotfiles_dir%/}"
+    
     # Vérifier que le répertoire existe
-    if [ ! -d "$dotfiles_dir/scripts" ]; then
-        log_error "Répertoire scripts non trouvé: $dotfiles_dir/scripts"
+    local scripts_dir="$dotfiles_dir/scripts"
+    if [ ! -d "$scripts_dir" ]; then
+        log_error "Répertoire scripts non trouvé: $scripts_dir"
+        log_info "DOTFILES_DIR actuel: ${DOTFILES_DIR:-non défini}"
+        log_info "dotfiles_dir calculé: $dotfiles_dir"
         return 1
     fi
     
@@ -62,7 +70,7 @@ fix_exec_scripts() {
     # Trouver tous les scripts .sh non-exécutables
     # Utiliser find avec ! -perm pour trouver directement les fichiers sans permission d'exécution
     local non_exec_scripts
-    non_exec_scripts=$(find "$dotfiles_dir/scripts" -type f -name "*.sh" ! -perm -111 2>/dev/null)
+    non_exec_scripts=$(find "$scripts_dir" -type f -name "*.sh" ! -perm -111 2>/dev/null)
     
     if [ -n "$non_exec_scripts" ]; then
         # Traiter chaque script trouvé
@@ -84,7 +92,7 @@ fix_exec_scripts() {
     if [ $count -eq 0 ]; then
         # Utiliser un tableau pour gérer correctement les espaces dans les noms
         local scripts_array
-        mapfile -t scripts_array < <(find "$dotfiles_dir/scripts" -type f -name "*.sh" 2>/dev/null | sort)
+        mapfile -t scripts_array < <(find "$scripts_dir" -type f -name "*.sh" 2>/dev/null | sort)
         
         for script in "${scripts_array[@]}"; do
             # Vérifier si le fichier existe et n'a pas la permission d'exécution
@@ -102,7 +110,7 @@ fix_exec_scripts() {
     fi
     
     # Vérifier aussi les scripts de migration à la racine
-    for script in "$dotfiles_dir/scripts/migrate_shell.sh" "$dotfiles_dir/scripts/migrate_existing_user.sh"; do
+    for script in "$scripts_dir/migrate_shell.sh" "$scripts_dir/migrate_existing_user.sh"; do
         if [ -f "$script" ] && ! test -x "$script"; then
             ((count++))
             if chmod +x "$script" 2>/dev/null; then
