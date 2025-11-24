@@ -48,24 +48,48 @@ fix_exec_scripts() {
     
     local count=0
     local fixed=0
+    local errors=0
     
     # Trouver tous les scripts .sh non-exécutables
+    # Utiliser find avec -perm pour détecter les fichiers sans permission d'exécution
     while IFS= read -r script; do
+        if [ -f "$script" ]; then
+            # Vérifier si le fichier n'a pas la permission d'exécution
+            if [ ! -x "$script" ]; then
+                ((count++))
+                if chmod +x "$script" 2>/dev/null; then
+                    log_info "✓ Rendu exécutable: $script"
+                    ((fixed++))
+                else
+                    log_error "✗ Erreur lors du chmod: $script"
+                    ((errors++))
+                fi
+            fi
+        fi
+    done < <(find "$DOTFILES_DIR/scripts" -type f -name "*.sh" 2>/dev/null | sort)
+    
+    # Vérifier aussi les scripts de migration à la racine
+    for script in "$DOTFILES_DIR/scripts/migrate_shell.sh" "$DOTFILES_DIR/scripts/migrate_existing_user.sh"; do
         if [ -f "$script" ] && [ ! -x "$script" ]; then
             ((count++))
             if chmod +x "$script" 2>/dev/null; then
                 log_info "✓ Rendu exécutable: $script"
                 ((fixed++))
             else
-                log_error "✗ Erreur: $script"
+                log_error "✗ Erreur lors du chmod: $script"
+                ((errors++))
             fi
         fi
-    done < <(find "$DOTFILES_DIR/scripts" -type f -name "*.sh" 2>/dev/null)
+    done
     
     if [ $count -eq 0 ]; then
         log_info "✓ Tous les scripts sont déjà exécutables"
     else
-        log_info "✓ $fixed/$count scripts rendus exécutables"
+        if [ $errors -gt 0 ]; then
+            log_warn "⚠️ $fixed/$count scripts rendus exécutables ($errors erreurs)"
+        else
+            log_info "✓ $fixed/$count scripts rendus exécutables"
+        fi
     fi
 }
 
