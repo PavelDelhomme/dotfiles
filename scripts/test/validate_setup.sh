@@ -270,9 +270,10 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
         VERSION=$($tool --version 2>/dev/null | head -n1 || echo "version inconnue")
         check_pass "$name: $VERSION"
     else
-        # Vérification spéciale pour cmake (peut être installé mais pas dans PATH)
-        # Chercher dans plusieurs emplacements communs
-        if [ "$tool" = "cmake" ]; then
+        # Vérification spéciale pour cmake (COMMENTÉ - décommenter si nécessaire)
+        # Chercher dans plusieurs emplacements communs: /usr, /opt, /var, ~/.local, ~, etc.
+        # if [ "$tool" = "cmake" ]; then
+        if false && [ "$tool" = "cmake" ]; then
             CMAKE_FOUND=0
             CMAKE_PATH=""
             CMAKE_VERSION=""
@@ -344,6 +345,7 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
             else
                 check_warn "cmake non installé (optionnel)"
             fi
+        # fi  # Fin de la vérification cmake (décommenter si nécessaire)
         elif [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
             # yay n'est applicable que sur Arch
             continue
