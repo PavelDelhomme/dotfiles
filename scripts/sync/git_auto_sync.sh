@@ -6,7 +6,7 @@
 # Usage: À exécuter via cron ou systemd timer
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter en cas d'erreur pour gérer les conflits
 
 # Charger la bibliothèque commune (juste les couleurs, on redéfinit les fonctions de log)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -73,7 +73,7 @@ log "═════════════════════════
 log "Début synchronisation automatique dotfiles"
 log "════════════════════════════════════════════════"
 
-# 1. PULL - Récupérer les modifications distantes
+# 1. PULL - Récupérer les modifications distantes (priorité à la version distante)
 log "Récupération des modifications distantes..."
 BRANCH=$(git branch --show-current)
 REMOTE="origin"
@@ -84,18 +84,46 @@ if ! git remote get-url "$REMOTE" >/dev/null 2>&1; then
     exit 0
 fi
 
-# Pull avec rebase pour éviter les merges inutiles
+# Fetch pour récupérer les modifications distantes
 if git fetch "$REMOTE" "$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
     LOCAL=$(git rev-parse HEAD)
     REMOTE_REF=$(git rev-parse "$REMOTE/$BRANCH" 2>/dev/null || echo "")
     
     if [ -n "$REMOTE_REF" ] && [ "$LOCAL" != "$REMOTE_REF" ]; then
-        log_info "Modifications distantes détectées, pull en cours..."
+        log_info "Modifications distantes détectées, synchronisation en cours..."
+        log_warn "⚠️ Priorité donnée à la version distante en cas de conflit"
+        
+        # Sauvegarder l'état actuel avant de modifier
+        LOCAL_BEFORE="$LOCAL"
+        
+        # Essayer d'abord un pull avec rebase (plus propre)
         if git pull --rebase "$REMOTE" "$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
-            log_info "✓ Pull réussi"
+            log_info "✓ Pull réussi (rebase)"
         else
-            log_error "✗ Erreur lors du pull (conflits possibles)"
-            # En cas de conflit, on ne force pas, on laisse l'utilisateur gérer
+            # En cas de conflit ou d'erreur, annuler le rebase et privilégier la version distante
+            log_warn "⚠️ Conflit détecté lors du rebase, annulation..."
+            
+            # Annuler le rebase en cours s'il y en a un
+            if [ -d ".git/rebase-apply" ] || [ -d ".git/rebase-merge" ]; then
+                git rebase --abort 2>/dev/null || true
+                log_info "Rebase annulé"
+            fi
+            
+            # Sauvegarder les modifications locales non commitées si elles existent
+            if [ -n "$(git status --porcelain)" ]; then
+                log_warn "⚠️ Modifications locales non commitées détectées, elles seront écrasées par la version distante"
+                git reset --hard HEAD 2>/dev/null || true
+                git clean -fd 2>/dev/null || true
+            fi
+            
+            # Forcer la synchronisation avec la version distante
+            log_info "Synchronisation avec la version distante (reset --hard)..."
+            if git reset --hard "$REMOTE/$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
+                log_info "✓ Synchronisation réussie (version distante appliquée)"
+                log_warn "⚠️ Les modifications locales ont été remplacées par la version distante"
+            else
+                log_error "✗ Erreur lors de la synchronisation avec la version distante"
+            fi
         fi
     else
         log_info "✓ Déjà à jour avec le remote"
@@ -104,29 +132,50 @@ else
     log_warn "Impossible de fetch (pas de connexion?)"
 fi
 
-# 2. PUSH - Envoyer les modifications locales
+# 2. PUSH - Envoyer les modifications locales (seulement si pas de conflit)
 log "Vérification des modifications locales..."
 
 # Vérifier s'il y a des modifications non commitées
 if [ -n "$(git status --porcelain)" ]; then
     log_info "Modifications détectées, commit automatique..."
     
-    # Ajouter tous les fichiers modifiés
-    git add -A
+    # Vérifier si on est toujours synchronisé avec le remote après le pull
+    LOCAL=$(git rev-parse HEAD)
+    REMOTE_REF=$(git rev-parse "$REMOTE/$BRANCH" 2>/dev/null || echo "")
     
-    # Commit avec timestamp
-    COMMIT_MSG="Auto-sync: $(date '+%Y-%m-%d %H:%M:%S')"
-    if git commit -m "$COMMIT_MSG" 2>&1 | tee -a "$LOG_FILE"; then
-        log_info "✓ Commit créé: $COMMIT_MSG"
-        
-        # Push vers le remote
-        if git push "$REMOTE" "$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
-            log_info "✓ Push réussi vers $REMOTE/$BRANCH"
-        else
-            log_error "✗ Erreur lors du push"
-        fi
+    if [ -n "$REMOTE_REF" ] && [ "$LOCAL" != "$REMOTE_REF" ]; then
+        log_warn "⚠️ Le dépôt local n'est pas à jour avec le remote après le pull"
+        log_warn "Les modifications locales ne seront pas poussées pour éviter les conflits"
     else
-        log_warn "Aucun changement à committer (peut-être déjà commité?)"
+        # Ajouter tous les fichiers modifiés
+        git add -A
+        
+        # Commit avec timestamp
+        COMMIT_MSG="Auto-sync: $(date '+%Y-%m-%d %H:%M:%S')"
+        if git commit -m "$COMMIT_MSG" 2>&1 | tee -a "$LOG_FILE"; then
+            log_info "✓ Commit créé: $COMMIT_MSG"
+            
+            # Push vers le remote
+            if git push "$REMOTE" "$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
+                log_info "✓ Push réussi vers $REMOTE/$BRANCH"
+            else
+                log_error "✗ Erreur lors du push"
+                # En cas d'erreur de push (ex: remote en avance), faire un pull d'abord
+                log_info "Tentative de pull avant push..."
+                if git pull --rebase "$REMOTE" "$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
+                    if git push "$REMOTE" "$BRANCH" 2>&1 | tee -a "$LOG_FILE"; then
+                        log_info "✓ Push réussi après pull"
+                    else
+                        log_error "✗ Push toujours en échec après pull"
+                    fi
+                else
+                    log_warn "⚠️ Conflit lors du pull, priorité donnée au remote"
+                    git reset --hard "$REMOTE/$BRANCH" 2>/dev/null || true
+                fi
+            fi
+        else
+            log_warn "Aucun changement à committer (peut-être déjà commité?)"
+        fi
     fi
 else
     log_info "✓ Aucune modification locale"
