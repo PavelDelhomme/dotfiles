@@ -59,22 +59,28 @@ fix_exec_scripts() {
     local fixed=0
     local errors=0
     
-    # Trouver tous les scripts .sh et vérifier leurs permissions
-    # Utiliser find avec -perm pour trouver directement les fichiers non-exécutables
-    while IFS= read -r -d '' script; do
-        if [ -f "$script" ]; then
-            ((count++))
-            if chmod +x "$script" 2>/dev/null; then
-                log_info "✓ Rendu exécutable: $script"
-                ((fixed++))
-            else
-                log_error "✗ Erreur lors du chmod: $script"
-                ((errors++))
-            fi
-        fi
-    done < <(find "$dotfiles_dir/scripts" -type f -name "*.sh" ! -perm -111 -print0 2>/dev/null)
+    # Trouver tous les scripts .sh non-exécutables
+    # Utiliser find avec ! -perm pour trouver directement les fichiers sans permission d'exécution
+    local non_exec_scripts
+    non_exec_scripts=$(find "$dotfiles_dir/scripts" -type f -name "*.sh" ! -perm -111 2>/dev/null)
     
-    # Si find avec -perm ne fonctionne pas, utiliser l'approche alternative
+    if [ -n "$non_exec_scripts" ]; then
+        # Traiter chaque script trouvé
+        while IFS= read -r script; do
+            if [ -f "$script" ]; then
+                ((count++))
+                if chmod +x "$script" 2>/dev/null; then
+                    log_info "✓ Rendu exécutable: $script"
+                    ((fixed++))
+                else
+                    log_error "✗ Erreur lors du chmod: $script"
+                    ((errors++))
+                fi
+            fi
+        done <<< "$non_exec_scripts"
+    fi
+    
+    # Fallback: utiliser l'approche alternative si find -perm ne trouve rien
     if [ $count -eq 0 ]; then
         # Utiliser un tableau pour gérer correctement les espaces dans les noms
         local scripts_array
