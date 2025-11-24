@@ -241,7 +241,7 @@ TOOLS_TO_CHECK=(
     "yay:yay (AUR)"
     "make:make"
     "gcc:gcc"
-    "cmake:cmake"
+    # "cmake:cmake"  # Commenté - vérification spéciale en dessous si nécessaire
     "pkg-config:pkg-config"
 )
 
