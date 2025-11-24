@@ -270,12 +270,31 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
         VERSION=$($tool --version 2>/dev/null | head -n1 || echo "version inconnue")
         check_pass "$name: $VERSION"
     else
-        if [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
+        # Vérification spéciale pour cmake (peut être installé mais pas dans PATH)
+        if [ "$tool" = "cmake" ]; then
+            # Vérifier si le package est installé (Arch Linux)
+            if [ -f /etc/arch-release ]; then
+                if pacman -Q cmake &>/dev/null 2>&1 || yay -Q cmake &>/dev/null 2>&1; then
+                    CMAKE_PATH=$(find /usr -name cmake -type f 2>/dev/null | head -1)
+                    if [ -n "$CMAKE_PATH" ]; then
+                        CMAKE_VERSION=$("$CMAKE_PATH" --version 2>/dev/null | head -n1 || echo "installé mais non accessible")
+                        check_warn "cmake installé mais non dans PATH: $CMAKE_VERSION"
+                        echo "  → Chemin trouvé: $CMAKE_PATH"
+                        echo "  → Solution: ajouter au PATH ou créer un symlink"
+                    else
+                        check_warn "cmake non installé (optionnel)"
+                    fi
+                else
+                    check_warn "cmake non installé (optionnel)"
+                fi
+            else
+                check_warn "cmake non installé (optionnel)"
+            fi
+        elif [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
             # yay n'est applicable que sur Arch
             continue
-        fi
         # Pour Cursor, si command -v ne le trouve pas et que l'AppImage n'existe pas
-        if [ "$tool" = "cursor" ]; then
+        elif [ "$tool" = "cursor" ]; then
             check_warn "Cursor IDE non installé (optionnel)"
             echo "  → Emplacement attendu: $HOME/Applications/cursor.AppImage"
         else
