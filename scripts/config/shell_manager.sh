@@ -140,13 +140,16 @@ configure_shell() {
                     fi
                 fi
                 
-                # Créer le symlink vers zshrc (wrapper avec détection shell)
-                if [ -f "$DOTFILES_DIR/zshrc" ]; then
+                # Créer le symlink vers .zshrc (wrapper unifié)
+                if [ -f "$DOTFILES_DIR/.zshrc" ]; then
+                    ln -s "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
+                    log_info "✓ Symlink .zshrc créé (config unifiée)"
+                elif [ -f "$DOTFILES_DIR/zshrc" ]; then
                     ln -s "$DOTFILES_DIR/zshrc" "$HOME/.zshrc"
-                    log_info "✓ Symlink .zshrc créé"
+                    log_info "✓ Symlink .zshrc créé (legacy)"
                 elif [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
                     ln -s "$DOTFILES_DIR/zsh/zshrc_custom" "$HOME/.zshrc"
-                    log_info "✓ Symlink .zshrc créé"
+                    log_info "✓ Symlink .zshrc créé (custom)"
                 fi
             else
                 log_info "✓ .zshrc déjà configuré"
@@ -173,10 +176,13 @@ configure_shell() {
                     fi
                 fi
                 
-                # Créer le symlink
-                if [ -f "$DOTFILES_DIR/fish/config_custom.fish" ]; then
+                # Créer le symlink (priorité au wrapper unifié)
+                if [ -f "$DOTFILES_DIR/.config/fish/config.fish" ]; then
+                    ln -s "$DOTFILES_DIR/.config/fish/config.fish" "$FISH_CONFIG_DIR/config.fish"
+                    log_info "✓ Symlink config.fish créé (config unifiée)"
+                elif [ -f "$DOTFILES_DIR/fish/config_custom.fish" ]; then
                     ln -s "$DOTFILES_DIR/fish/config_custom.fish" "$FISH_CONFIG_DIR/config.fish"
-                    log_info "✓ Symlink config.fish créé"
+                    log_info "✓ Symlink config.fish créé (custom)"
                 fi
             else
                 log_info "✓ config.fish déjà configuré"
@@ -200,11 +206,14 @@ configure_shell() {
                     fi
                 fi
                 
-                # Créer un fichier bashrc basique qui source les dotfiles
-                if [ -f "$DOTFILES_DIR/zshrc" ]; then
+                # Créer le symlink vers .bashrc (wrapper unifié)
+                if [ -f "$DOTFILES_DIR/.bashrc" ]; then
+                    ln -s "$DOTFILES_DIR/.bashrc" "$HOME/.bashrc"
+                    log_info "✓ Symlink .bashrc créé (config unifiée)"
+                elif [ -f "$DOTFILES_DIR/zshrc" ]; then
                     # Le wrapper zshrc détecte aussi bash
                     ln -s "$DOTFILES_DIR/zshrc" "$HOME/.bashrc"
-                    log_info "✓ Symlink .bashrc créé (utilise le wrapper zshrc)"
+                    log_info "✓ Symlink .bashrc créé (legacy wrapper)"
                 fi
             else
                 log_info "✓ .bashrc déjà configuré"
