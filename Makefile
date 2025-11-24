@@ -64,8 +64,16 @@ help: ## Afficher cette aide
 	@echo ""
 	@echo "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
 	@echo ""
+	@echo "$(GREEN)Menus interactifs:$(NC)"
+	@echo "  make menu            - Menu principal (tous les menus)"
+	@echo "  make install-menu    - Menu d'installation (applications, outils)"
+	@echo "  make config-menu     - Menu de configuration (Git, shell, symlinks)"
+	@echo "  make shell-menu      - Menu de gestion des shells (zsh/fish/bash)"
+	@echo "  make vm-menu         - Menu interactif de gestion des VM"
+	@echo "  make fix-menu        - Menu de corrections automatiques"
+	@echo "  make validate-menu   - Afficher la validation du setup"
+	@echo ""
 	@echo "$(GREEN)Gestion des VM (tests):$(NC)"
-	@echo "  make vm-menu          - Menu interactif de gestion des VM"
 	@echo "  make vm-list          - Lister toutes les VM"
 	@echo "  make vm-create        - Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path)"
 	@echo "  make vm-start         - Démarrer une VM (VM=name)"
@@ -221,4 +229,23 @@ vm-menu: ## Menu interactif de gestion des VM
 all: install ## Alias pour install
 setup-menu: setup ## Alias pour setup
 check: validate ## Alias pour validate
+
+# Menus interactifs
+menu: ## Menu principal (tous les menus)
+	@bash "$(SCRIPT_DIR)/menu/main_menu.sh"
+
+install-menu: ## Menu d'installation (applications, outils)
+	@bash "$(SCRIPT_DIR)/menu/install_menu.sh"
+
+config-menu: ## Menu de configuration (Git, shell, symlinks)
+	@bash "$(SCRIPT_DIR)/menu/config_menu.sh"
+
+shell-menu: ## Menu de gestion des shells (zsh/fish/bash)
+	@bash "$(SCRIPT_DIR)/config/shell_manager.sh" "menu"
+
+fix-menu: ## Menu de corrections automatiques
+	@bash "$(SCRIPT_DIR)/fix/fix_manager.sh"
+
+validate-menu: ## Menu de validation (affiche le résultat de validate)
+	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"
 
