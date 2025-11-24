@@ -50,36 +50,56 @@ log_section "Vérifications fonctions ZSH"
 
 # Note: Les fonctions ZSH ne sont disponibles que dans un shell ZSH interactif
 # Dans un script bash, elles ne seront pas disponibles - c'est normal
-# On vérifie si on est dans un shell ZSH ou si les fonctions sont chargées
+# On vérifie si les fichiers sources existent et sont correctement chargés
 
+# Vérifier add_alias (définie dans alias_utils.zsh)
 if type add_alias &> /dev/null; then
     check_pass "add_alias disponible"
 else
-    # C'est normal si on est dans un script bash, vérifier si zshrc_custom est sourcé
-    if [ -n "$ZSH_VERSION" ] || grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
-        check_warn "add_alias non disponible (normal dans script bash, sera disponible après 'exec zsh')"
+    # Vérifier si le fichier source existe et est chargé dans zshrc_custom
+    if [ -f "$DOTFILES_DIR/zsh/functions/utils/alias_utils.zsh" ]; then
+        if grep -q "alias_utils.zsh" "$DOTFILES_DIR/zsh/zshrc_custom" 2>/dev/null || \
+           grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
+            check_pass "add_alias configuré (disponible dans ZSH interactif)"
+        else
+            check_warn "add_alias: fichier présent mais non chargé dans zshrc_custom"
+        fi
     else
-        check_warn "add_alias non disponible (zshrc_custom non sourcé)"
+        check_warn "add_alias: fichier source manquant (alias_utils.zsh)"
     fi
 fi
 
+# Vérifier add_to_path (définie dans pathman.zsh, utilisée dans env.sh)
 if type add_to_path &> /dev/null; then
     check_pass "add_to_path disponible"
 else
-    if [ -n "$ZSH_VERSION" ] || grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
-        check_warn "add_to_path non disponible (normal dans script bash, sera disponible après 'exec zsh')"
+    # Vérifier si pathman.zsh existe et est chargé, et si env.sh l'utilise
+    if [ -f "$DOTFILES_DIR/zsh/functions/pathman.zsh" ]; then
+        if grep -q "pathman.zsh" "$DOTFILES_DIR/zsh/zshrc_custom" 2>/dev/null && \
+           grep -q "add_to_path" "$DOTFILES_DIR/zsh/env.sh" 2>/dev/null; then
+            check_pass "add_to_path configuré (disponible dans ZSH interactif via pathman)"
+        else
+            check_warn "add_to_path: pathman.zsh présent mais configuration incomplète"
+        fi
     else
-        check_warn "add_to_path non disponible (zshrc_custom non sourcé)"
+        check_warn "add_to_path: fichier source manquant (pathman.zsh)"
     fi
 fi
 
+# Vérifier clean_path (définie dans pathman.zsh, utilisée dans env.sh)
 if type clean_path &> /dev/null; then
     check_pass "clean_path disponible"
 else
-    if [ -n "$ZSH_VERSION" ] || grep -q "zshrc_custom\|dotfiles" "$HOME/.zshrc" 2>/dev/null; then
-        check_warn "clean_path non disponible (normal dans script bash, sera disponible après 'exec zsh')"
+    # Vérifier si pathman.zsh existe et est chargé, et si env.sh l'utilise
+    if [ -f "$DOTFILES_DIR/zsh/functions/pathman.zsh" ]; then
+        if grep -q "pathman.zsh" "$DOTFILES_DIR/zsh/zshrc_custom" 2>/dev/null && \
+           grep -q "clean_path" "$DOTFILES_DIR/zsh/env.sh" 2>/dev/null; then
+            check_pass "clean_path configuré (disponible dans ZSH interactif via pathman)"
+        else
+            check_warn "clean_path: pathman.zsh présent mais configuration incomplète"
+        fi
     else
-        check_warn "clean_path non disponible (zshrc_custom non sourcé)"
+        check_warn "clean_path: fichier source manquant (pathman.zsh)"
     fi
 fi
 

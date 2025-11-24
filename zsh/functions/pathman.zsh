@@ -214,6 +214,43 @@ EOF
     echo -e "${GREEN}Bye bye !${RESET}"
 }
 
+# Exporter les fonctions pour qu'elles soient disponibles globalement
+# (utilisées par env.sh)
+add_to_path() {
+    local dir="${1%/}"
+    if [[ -z "$dir" ]]; then 
+        echo "❌ Usage: add_to_path <directory>"
+        return 1
+    fi
+    if [[ ! -d "$dir" ]]; then
+        echo "❌ Répertoire '$dir' inexistant."
+        return 1
+    fi
+    if [[ ":$PATH:" != *":$dir:"* ]]; then
+        export PATH="$dir:$PATH"
+        echo "✅ Ajouté au PATH: $dir"
+    else
+        echo "⚠️  Déjà présent dans PATH: $dir"
+    fi
+}
+
+clean_path() {
+    local old_IFS="$IFS"
+    IFS=':'
+    local arr=($PATH)
+    IFS="$old_IFS"
+    local new_path=""
+    local seen=()
+    for dir in "${arr[@]}"; do
+        [[ -n "$dir" && -d "$dir" && -z "${seen[$dir]}" ]] && { 
+            new_path="$new_path:$dir"
+            seen[$dir]=1
+        }
+    done
+    export PATH="${new_path#:}"
+    echo "✅ PATH nettoyé"
+}
+
 alias pm='pathman'
 alias path-manager='pathman'
 
