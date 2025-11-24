@@ -51,6 +51,7 @@ help: ## Afficher cette aide
 	@echo "  make install APP=cursor   - Installer Cursor IDE"
 	@echo "  make install APP=brave    - Installer Brave Browser"
 	@echo "  make install APP=yay      - Installer yay (AUR helper - Arch Linux)"
+	@echo "  make install APP=nvm      - Installer NVM (Node Version Manager)"
 	@echo ""
 	@echo "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
 	@echo ""
@@ -158,6 +159,10 @@ install-brave: ## [DÉPRÉCIÉ] Installer Brave (utiliser: make install APP=brav
 install-yay: ## [DÉPRÉCIÉ] Installer yay (utiliser: make install APP=yay)
 	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=yay$(NC)"
 	@bash "$(SCRIPT_DIR)/install/tools/install_yay.sh"
+
+install-nvm: ## [DÉPRÉCIÉ] Installer NVM (utiliser: make install APP=nvm)
+	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=nvm$(NC)"
+	@bash "$(SCRIPT_DIR)/install/tools/install_nvm.sh"
 
 # Gestion des VM
 vm-list: ## Lister toutes les VM

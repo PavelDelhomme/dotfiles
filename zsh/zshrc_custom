@@ -11,6 +11,26 @@ ENV_FILE="$DOTFILES_ZSH_PATH/env.sh"
 ALIASES_FILES="$DOTFILES_ZSH_PATH/aliases.zsh"
 FUNCTIONS_DIR="$DOTFILES_ZSH_PATH/functions/"
 
+# =============================================================================
+# CONFIGURATION NVM (Node Version Manager)
+# IMPORTANT: Cette configuration doit être placée AVANT l'activation d'Oh-My-Zsh
+# pour éviter les bugs d'accès. Utilise le lazy-loading pour accélérer le démarrage.
+# =============================================================================
+export NVM_DIR="$HOME/.nvm"
+
+# Lazy-loading NVM (ne charge NVM que quand on utilise node/npm/nvm/npx)
+lazynvm() {
+  unset -f nvm node npm npx
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+}
+
+# Wrappers pour lazy-loading
+nvm() { lazynvm; nvm "$@"; }
+node() { lazynvm; node "$@"; }
+npm()  { lazynvm; npm  "$@"; }
+npx()  { lazynvm; npx  "$@"; }
+
 # Couleurs pour messages
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

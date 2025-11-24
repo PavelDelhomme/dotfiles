@@ -249,6 +249,7 @@ show_menu() {
     echo "18. Installation Brave Browser (optionnel)"
     echo "19. Installation yay (AUR - Arch Linux)"
     echo "20. Installation Go"
+    echo "21. Installation NVM (Node Version Manager)"
     echo ""
     echo "21. Recharger configuration ZSH"
     echo "22. Installer fonctions USB test"
@@ -617,11 +618,19 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         21)
+            run_script "$SCRIPT_DIR/install/tools/install_nvm.sh" "Installation NVM"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        22)
             log_section "Rechargement configuration ZSH"
             log_info "Rechargement de la configuration ZSH..."
             exec zsh
             ;;
-        22)
+        23)
             log_section "Installation fonctions USB test"
             USB_FUNCTIONS="$DOTFILES_DIR/zsh/functions/misc/usb_test_functions.zsh"
             if [ -f "$USB_FUNCTIONS" ]; then
@@ -646,7 +655,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        23)
+        24)
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -654,7 +663,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        24)
+        25)
             log_section "Création des symlinks"
             run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création symlinks"
             run_script_exit_code=$?
@@ -663,7 +672,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        25)
+        26)
             log_section "Sauvegarde manuelle (Git commit + push)"
             if [ -d "$DOTFILES_DIR/.git" ]; then
                 cd "$DOTFILES_DIR" || exit 1
@@ -693,7 +702,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        28)
+        27)
             log_section "Restaurer depuis Git"
             echo ""
             echo "Cette option permet de restaurer l'état du repo depuis GitHub"
@@ -743,7 +752,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        26)
+        28)
             log_section "Migration shell (Fish <-> Zsh)"
             run_script "$SCRIPT_DIR/migrate_shell.sh" "Migration shell"
             run_script_exit_code=$?
@@ -752,7 +761,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        27)
+        29)
             log_section "Changer shell par défaut"
             CURRENT_SHELL=$(basename "$SHELL" 2>/dev/null || echo "unknown")
             log_info "Shell actuel: $CURRENT_SHELL"
