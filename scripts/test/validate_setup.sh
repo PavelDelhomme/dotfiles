@@ -10,7 +10,20 @@ set +e  # Ne pas arrêter sur erreurs pour continuer toutes les vérifications
 
 # Charger la bibliothèque commune
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# S'assurer que DOTFILES_DIR pointe vers la racine du dépôt
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+# Si SCRIPT_DIR contient "scripts", alors DOTFILES_DIR est le parent
+if [[ "$SCRIPT_DIR" == *"/scripts" ]]; then
+    DOTFILES_DIR="${SCRIPT_DIR%/scripts}"
+elif [ -z "$DOTFILES_DIR" ] || [ ! -d "$DOTFILES_DIR" ]; then
+    # Essayer de détecter depuis le script
+    DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+# Vérification finale
+if [ ! -d "$DOTFILES_DIR" ]; then
+    echo "Erreur: Impossible de déterminer DOTFILES_DIR" >&2
+    exit 1
+fi
 
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
