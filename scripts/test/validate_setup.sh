@@ -698,9 +698,9 @@ log_section "Rapport final"
 TOTAL=$((PASSED + FAILED + WARNINGS))
 echo ""
 echo "Résultats:"
-echo "  ${GREEN}✅ Réussis: $PASSED${NC}"
-echo "  ${RED}❌ Échecs: $FAILED${NC}"
-echo "  ${YELLOW}⚠️ Avertissements: $WARNINGS${NC}"
+echo -e "  ${GREEN}✅ Réussis: $PASSED${NC}"
+echo -e "  ${RED}❌ Échecs: $FAILED${NC}"
+echo -e "  ${YELLOW}⚠️ Avertissements: $WARNINGS${NC}"
 echo "  Total: $TOTAL vérifications"
 echo ""
 
