@@ -142,6 +142,11 @@ fix_exec_scripts() {
 fix_timer_auto_sync() {
     log_section "Fix: Configuration timer auto-sync"
     
+    # S'assurer que DOTFILES_DIR est défini
+    local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+    dotfiles_dir="${dotfiles_dir%/scripts}"
+    dotfiles_dir="${dotfiles_dir%/}"
+    
     # Vérifier si déjà configuré
     if systemctl --user is-enabled dotfiles-sync.timer &>/dev/null 2>&1; then
         if systemctl --user is-active dotfiles-sync.timer &>/dev/null 2>&1; then
@@ -158,12 +163,19 @@ fix_timer_auto_sync() {
     fi
     
     # Installer le timer
-    if [ -f "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" ]; then
+    local install_script="$dotfiles_dir/scripts/sync/install_auto_sync.sh"
+    if [ -f "$install_script" ]; then
         log_info "Installation du timer auto-sync..."
-        bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh"
+        bash "$install_script"
     else
-        log_error "Script install_auto_sync.sh non trouvé"
-        return 1
+        log_error "Script install_auto_sync.sh non trouvé: $install_script"
+        log_info "Recherche alternative..."
+        if [ -f "$HOME/dotfiles/scripts/sync/install_auto_sync.sh" ]; then
+            bash "$HOME/dotfiles/scripts/sync/install_auto_sync.sh"
+        else
+            log_error "Script non trouvé dans les emplacements attendus"
+            return 1
+        fi
     fi
 }
 
