@@ -254,9 +254,9 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
         if [ -f "$CURSOR_APPIMAGE" ]; then
             # Vérifier si le fichier est exécutable
             if [ -x "$CURSOR_APPIMAGE" ]; then
-                # Essayer d'obtenir la version si possible
-                CURSOR_VERSION=$("$CURSOR_APPIMAGE" --version 2>/dev/null | head -n1 || echo "AppImage présent")
-                check_pass "Cursor IDE: $CURSOR_VERSION ($CURSOR_APPIMAGE)"
+                # Ne pas exécuter l'AppImage pour obtenir la version (cela lance Cursor)
+                # Vérifier juste la présence et l'exécutabilité
+                check_pass "Cursor IDE: AppImage présent et exécutable ($CURSOR_APPIMAGE)"
             else
                 check_warn "Cursor IDE: AppImage présent mais non exécutable ($CURSOR_APPIMAGE)"
                 echo "  → Solution: chmod +x $CURSOR_APPIMAGE"
