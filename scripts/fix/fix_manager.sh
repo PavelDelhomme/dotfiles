@@ -51,11 +51,11 @@ fix_exec_scripts() {
     local errors=0
     
     # Trouver tous les scripts .sh non-exécutables
-    # Utiliser une boucle for au lieu de while pour éviter les problèmes de process substitution
-    local scripts_list
-    scripts_list=$(find "$DOTFILES_DIR/scripts" -type f -name "*.sh" 2>/dev/null | sort)
+    # Utiliser un tableau pour gérer correctement les espaces dans les noms
+    local scripts_array
+    mapfile -t scripts_array < <(find "$DOTFILES_DIR/scripts" -type f -name "*.sh" 2>/dev/null | sort)
     
-    for script in $scripts_list; do
+    for script in "${scripts_array[@]}"; do
         # Vérifier si le fichier existe et n'a pas la permission d'exécution
         if [ -f "$script" ] && ! test -x "$script"; then
             ((count++))
