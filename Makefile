@@ -73,6 +73,10 @@ help: ## Afficher cette aide
 	@echo "  make fix-menu        - Menu de corrections automatiques"
 	@echo "  make validate-menu   - Afficher la validation du setup"
 	@echo ""
+	@echo "$(GREEN)Outils:$(NC)"
+	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
+	@echo "  make convert-zsh-to-sh - Convertir fonctions Zsh en Sh compatible"
+	@echo ""
 	@echo "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-list          - Lister toutes les VM"
 	@echo "  make vm-create        - Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path)"
@@ -248,4 +252,24 @@ fix-menu: ## Menu de corrections automatiques
 
 validate-menu: ## Menu de validation (affiche le résultat de validate)
 	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"
+
+# Outils de conversion
+convert-zsh-to-sh: ## Convertir les fonctions Zsh en Sh compatible
+	@bash "$(SCRIPT_DIR)/tools/convert_zsh_to_sh.sh"
+
+# Détection du shell actuel
+detect-shell: ## Détecter et afficher le shell actuel
+	@echo "$(BLUE)Shell actuel:$(NC)"
+	@echo "  Shell: $$SHELL"
+	@echo "  Nom: $$(basename "$$SHELL")"
+	@echo "  Version: $$($$SHELL --version 2>/dev/null | head -n1 || echo "non disponible")"
+	@echo ""
+	@echo "$(BLUE)Shells disponibles:$(NC)"
+	@for shell in zsh bash fish sh; do \
+		if command -v $$shell >/dev/null 2>&1; then \
+			echo "  ✓ $$shell: $$(which $$shell)"; \
+		else \
+			echo "  ✗ $$shell: non installé"; \
+		fi \
+	done
 
