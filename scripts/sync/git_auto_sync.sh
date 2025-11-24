@@ -20,9 +20,13 @@ source "$SCRIPT_DIR/lib/common.sh" 2>/dev/null || {
 }
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-LOG_FILE="$DOTFILES_DIR/logs/auto_sync.log"
+LOG_DIR="$DOTFILES_DIR/logs"
+LOG_FILE="$LOG_DIR/auto_sync.log"
 LOCK_FILE="/tmp/dotfiles_auto_sync.lock"
 SYNC_INTERVAL=3600  # 1 heure en secondes
+
+# Créer le dossier logs s'il n'existe pas
+mkdir -p "$LOG_DIR"
 
 # Fonctions de log personnalisées avec tee (pour écrire dans le fichier et afficher)
 log() {
