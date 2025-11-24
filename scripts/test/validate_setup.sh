@@ -173,10 +173,20 @@ if command -v docker &> /dev/null; then
     fi
 fi
 
+# Vérification SSH agent
 if pgrep -x ssh-agent > /dev/null; then
     check_pass "SSH agent actif"
 else
-    check_warn "SSH agent non actif (peut être normal)"
+    # Vérifier si le socket systemd est configuré (démarre automatiquement)
+    if systemctl --user is-enabled ssh-agent.socket &>/dev/null 2>&1; then
+        check_pass "SSH agent configuré via systemd socket (démarre automatiquement)"
+    elif systemctl --user list-unit-files | grep -q "ssh-agent" 2>/dev/null; then
+        check_warn "SSH agent non actif mais disponible via systemd (optionnel, démarre à la demande)"
+        echo "  → Solution: make fix FIX=ssh-agent"
+    else
+        check_warn "SSH agent non actif (peut être normal, démarre à la demande)"
+        echo "  → Solution: make fix FIX=ssh-agent"
+    fi
 fi
 
 ################################################################################

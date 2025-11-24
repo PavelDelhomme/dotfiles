@@ -31,8 +31,13 @@ FIX_SCRIPTS["exec"]="fix_exec_scripts"
 
 # Fix: Timer auto-sync
 FIXES["timer-auto-sync"]="Configurer le timer auto-sync Git"
-FIX_DESCRIPTIONS["timer-auto-sync"]="Installe et active le timer systemd pour la synchronisation automatique Git"
+FIX_DESCRIPTIONS["timer-auto-sync"]="Installe et active le timer systemd pour la synchronisation automatique Git (toutes les heures)"
 FIX_SCRIPTS["timer-auto-sync"]="fix_timer_auto_sync"
+
+# Fix: SSH agent
+FIXES["ssh-agent"]="Configurer et démarrer le SSH agent"
+FIX_DESCRIPTIONS["ssh-agent"]="Configure et démarre le SSH agent systemd pour gérer automatiquement les clés SSH"
+FIX_SCRIPTS["ssh-agent"]="fix_ssh_agent"
 
 # Fix: Symlink .gitconfig
 FIXES["symlink-gitconfig"]="Créer le symlink .gitconfig"
@@ -137,12 +142,92 @@ fix_exec_scripts() {
 fix_timer_auto_sync() {
     log_section "Fix: Configuration timer auto-sync"
     
+    # Vérifier si déjà configuré
+    if systemctl --user is-enabled dotfiles-sync.timer &>/dev/null 2>&1; then
+        if systemctl --user is-active dotfiles-sync.timer &>/dev/null 2>&1; then
+            log_info "✓ Timer auto-sync déjà configuré et actif"
+            systemctl --user status dotfiles-sync.timer --no-pager -l | head -5
+            return 0
+        else
+            log_info "Timer configuré mais inactif, démarrage..."
+            systemctl --user start dotfiles-sync.timer
+            systemctl --user enable dotfiles-sync.timer
+            log_info "✓ Timer auto-sync démarré et activé"
+            return 0
+        fi
+    fi
+    
+    # Installer le timer
     if [ -f "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" ]; then
         log_info "Installation du timer auto-sync..."
         bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh"
     else
         log_error "Script install_auto_sync.sh non trouvé"
         return 1
+    fi
+}
+
+fix_ssh_agent() {
+    log_section "Fix: Configuration SSH agent"
+    
+    # Vérifier si ssh-agent est déjà actif
+    if pgrep -x ssh-agent > /dev/null 2>&1; then
+        log_info "✓ SSH agent déjà actif (PID: $(pgrep -x ssh-agent))"
+        return 0
+    fi
+    
+    # Vérifier si le service systemd ssh-agent est disponible
+    if systemctl --user list-unit-files | grep -q "ssh-agent" 2>/dev/null; then
+        log_info "Configuration du SSH agent via systemd..."
+        
+        # Activer le socket ssh-agent (démarre automatiquement le service quand nécessaire)
+        if systemctl --user enable ssh-agent.socket &>/dev/null 2>&1; then
+            log_info "✓ Socket ssh-agent activé"
+        fi
+        
+        if systemctl --user start ssh-agent.socket &>/dev/null 2>&1; then
+            log_info "✓ Socket ssh-agent démarré"
+        fi
+        
+        # Vérifier si le service est maintenant actif
+        sleep 1
+        if pgrep -x ssh-agent > /dev/null 2>&1; then
+            log_info "✓ SSH agent démarré via systemd"
+        else
+            log_warn "⚠️ SSH agent configuré mais pas encore actif"
+            log_info "Le SSH agent démarrera automatiquement lors de la prochaine utilisation de SSH"
+        fi
+        
+        # Ajouter les clés SSH si elles existent
+        if [ -f "$HOME/.ssh/id_ed25519" ]; then
+            log_info "Ajout de la clé SSH au agent..."
+            if [ -n "$SSH_AUTH_SOCK" ]; then
+                ssh-add "$HOME/.ssh/id_ed25519" 2>/dev/null && log_info "✓ Clé SSH ajoutée" || log_warn "⚠️ Impossible d'ajouter la clé (agent pas encore prêt)"
+            else
+                log_warn "⚠️ SSH_AUTH_SOCK non défini, l'agent démarrera à la prochaine connexion SSH"
+            fi
+        fi
+        
+        return 0
+    else
+        # Fallback: démarrer ssh-agent manuellement
+        log_info "Démarrage manuel du SSH agent..."
+        eval "$(ssh-agent -s)" > /dev/null 2>&1
+        
+        if [ -n "$SSH_AUTH_SOCK" ]; then
+            log_info "✓ SSH agent démarré manuellement"
+            
+            # Ajouter les clés SSH si elles existent
+            if [ -f "$HOME/.ssh/id_ed25519" ]; then
+                ssh-add "$HOME/.ssh/id_ed25519" 2>/dev/null && log_info "✓ Clé SSH ajoutée" || log_warn "⚠️ Impossible d'ajouter la clé"
+            fi
+            
+            log_warn "⚠️ Note: Ce démarrage manuel est temporaire"
+            log_info "Pour un démarrage permanent, configurez ssh-agent dans votre .zshrc ou via systemd"
+        else
+            log_error "✗ Impossible de démarrer le SSH agent"
+            return 1
+        fi
     fi
 }
 
@@ -194,8 +279,18 @@ detect_fixes_needed() {
     fi
     
     # Détecter timer auto-sync non configuré
-    if ! systemctl --user is-enabled dotfiles-sync.timer &>/dev/null 2>&1; then
+    if ! systemctl --user is-enabled dotfiles-sync.timer &>/dev/null 2>&1 || \
+       ! systemctl --user is-active dotfiles-sync.timer &>/dev/null 2>&1; then
         fixes_needed+=("timer-auto-sync")
+    fi
+    
+    # Détecter SSH agent non actif (mais seulement si nécessaire)
+    # Le SSH agent peut être normalement inactif si géré par systemd socket
+    if ! pgrep -x ssh-agent > /dev/null 2>&1; then
+        # Vérifier si le socket systemd est configuré
+        if ! systemctl --user is-enabled ssh-agent.socket &>/dev/null 2>&1; then
+            fixes_needed+=("ssh-agent")
+        fi
     fi
     
     # Détecter .gitconfig non symlink
