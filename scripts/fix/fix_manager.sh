@@ -49,18 +49,20 @@ fix_exec_scripts() {
     # S'assurer que DOTFILES_DIR est défini
     local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
     
+    # Vérifier que le répertoire existe
+    if [ ! -d "$dotfiles_dir/scripts" ]; then
+        log_error "Répertoire scripts non trouvé: $dotfiles_dir/scripts"
+        return 1
+    fi
+    
     local count=0
     local fixed=0
     local errors=0
     
-    # Trouver tous les scripts .sh non-exécutables
-    # Utiliser un tableau pour gérer correctement les espaces dans les noms
-    local scripts_array
-    mapfile -t scripts_array < <(find "$dotfiles_dir/scripts" -type f -name "*.sh" 2>/dev/null | sort)
-    
-    for script in "${scripts_array[@]}"; do
-        # Vérifier si le fichier existe et n'a pas la permission d'exécution
-        if [ -f "$script" ] && ! test -x "$script"; then
+    # Trouver tous les scripts .sh et vérifier leurs permissions
+    # Utiliser find avec -perm pour trouver directement les fichiers non-exécutables
+    while IFS= read -r -d '' script; do
+        if [ -f "$script" ]; then
             ((count++))
             if chmod +x "$script" 2>/dev/null; then
                 log_info "✓ Rendu exécutable: $script"
@@ -70,7 +72,28 @@ fix_exec_scripts() {
                 ((errors++))
             fi
         fi
-    done
+    done < <(find "$dotfiles_dir/scripts" -type f -name "*.sh" ! -perm -111 -print0 2>/dev/null)
+    
+    # Si find avec -perm ne fonctionne pas, utiliser l'approche alternative
+    if [ $count -eq 0 ]; then
+        # Utiliser un tableau pour gérer correctement les espaces dans les noms
+        local scripts_array
+        mapfile -t scripts_array < <(find "$dotfiles_dir/scripts" -type f -name "*.sh" 2>/dev/null | sort)
+        
+        for script in "${scripts_array[@]}"; do
+            # Vérifier si le fichier existe et n'a pas la permission d'exécution
+            if [ -f "$script" ] && ! test -x "$script"; then
+                ((count++))
+                if chmod +x "$script" 2>/dev/null; then
+                    log_info "✓ Rendu exécutable: $script"
+                    ((fixed++))
+                else
+                    log_error "✗ Erreur lors du chmod: $script"
+                    ((errors++))
+                fi
+            fi
+        done
+    fi
     
     # Vérifier aussi les scripts de migration à la racine
     for script in "$dotfiles_dir/scripts/migrate_shell.sh" "$dotfiles_dir/scripts/migrate_existing_user.sh"; do
