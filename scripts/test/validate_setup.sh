@@ -251,11 +251,27 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
         VERSION=$($tool --version 2>/dev/null | head -n1 || echo "version inconnue")
         check_pass "$name: $VERSION"
     else
-        if [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
+        # Vérification spéciale pour Cursor AppImage
+        if [ "$tool" = "cursor" ]; then
+            CURSOR_APPIMAGE="$HOME/Applications/cursor.AppImage"
+            if [ -f "$CURSOR_APPIMAGE" ]; then
+                # Vérifier si le fichier est exécutable
+                if [ -x "$CURSOR_APPIMAGE" ]; then
+                    check_pass "Cursor IDE: AppImage présent et exécutable ($CURSOR_APPIMAGE)"
+                else
+                    check_warn "Cursor IDE: AppImage présent mais non exécutable ($CURSOR_APPIMAGE)"
+                    echo "  → Solution: chmod +x $CURSOR_APPIMAGE"
+                fi
+            else
+                check_warn "Cursor IDE non installé (optionnel)"
+                echo "  → Emplacement attendu: $CURSOR_APPIMAGE"
+            fi
+        elif [ "$tool" = "yay" ] && [ ! -f /etc/arch-release ]; then
             # yay n'est applicable que sur Arch
             continue
+        else
+            check_warn "$name non installé (optionnel)"
         fi
-        check_warn "$name non installé (optionnel)"
     fi
 done
 
