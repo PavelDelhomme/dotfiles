@@ -22,6 +22,10 @@ PASSED=0
 FAILED=0
 WARNINGS=0
 
+# Tableaux pour stocker les messages
+FAILED_ITEMS=()
+WARNED_ITEMS=()
+
 check_pass() {
     echo -e "${GREEN}✅${NC} $1"
     ((PASSED++))
@@ -30,11 +34,13 @@ check_pass() {
 check_fail() {
     echo -e "${RED}❌${NC} $1"
     ((FAILED++))
+    FAILED_ITEMS+=("$1")
 }
 
 check_warn() {
     echo -e "${YELLOW}⚠️${NC} $1"
     ((WARNINGS++))
+    WARNED_ITEMS+=("$1")
 }
 
 log_section() {
@@ -704,10 +710,32 @@ echo -e "  ${YELLOW}⚠️ Avertissements: $WARNINGS${NC}"
 echo "  Total: $TOTAL vérifications"
 echo ""
 
+# Afficher les détails des échecs si présents
+if [ $FAILED -gt 0 ]; then
+    echo -e "${RED}════════════════════════════════════════════════════════════${NC}"
+    echo -e "${RED}❌ ÉCHECS DÉTECTÉS ($FAILED):${NC}"
+    echo -e "${RED}════════════════════════════════════════════════════════════${NC}"
+    for item in "${FAILED_ITEMS[@]}"; do
+        echo -e "  ${RED}❌${NC} $item"
+    done
+    echo ""
+fi
+
+# Afficher les détails des avertissements si présents
+if [ $WARNINGS -gt 0 ]; then
+    echo -e "${YELLOW}════════════════════════════════════════════════════════════${NC}"
+    echo -e "${YELLOW}⚠️ AVERTISSEMENTS DÉTECTÉS ($WARNINGS):${NC}"
+    echo -e "${YELLOW}════════════════════════════════════════════════════════════${NC}"
+    for item in "${WARNED_ITEMS[@]}"; do
+        echo -e "  ${YELLOW}⚠️${NC} $item"
+    done
+    echo ""
+fi
+
 if [ $FAILED -eq 0 ]; then
     echo -e "${GREEN}✅ Setup validé avec succès!${NC}"
     if [ $WARNINGS -gt 0 ]; then
-        echo -e "${YELLOW}⚠️ $WARNINGS avertissements (non critiques)${NC}"
+        echo -e "${YELLOW}⚠️ $WARNINGS avertissement(s) (non critiques)${NC}"
         echo ""
         echo "Pour corriger les avertissements:"
         echo "  - Utilisez setup.sh option 50 (Installer tout ce qui manque)"
