@@ -33,25 +33,47 @@ export EMACSDIR="$HOME/.emacs.d/bin"
 export DOTNET_PATH="$HOME/.dotnet/tools"
 
 # === Ajout des chemins au PATH ===
-if type add_to_path &> /dev/null; then
-    add_to_path "/usr/lib/jvm/java-17-openjdk/bin"
-    add_to_path "$CMDLINE_TOOLS"
-    add_to_path "$PLATFORM_TOOLS"
-    add_to_path "$ANDROID_TOOLS"
-    add_to_path "$PUB_FLUTTER_BIN"
-    add_to_path "/opt/flutter/bin"
-    add_to_path "$EMACSDIR"
-    add_to_path "$DOTNET_PATH"
+# Vérifier si add_to_path est disponible (fonction définie dans pathman.zsh)
+if command -v add_to_path >/dev/null 2>&1 || type add_to_path >/dev/null 2>&1 || declare -f add_to_path >/dev/null 2>&1; then
+    add_to_path "/usr/lib/jvm/java-17-openjdk/bin" 2>/dev/null || true
+    add_to_path "$CMDLINE_TOOLS" 2>/dev/null || true
+    add_to_path "$PLATFORM_TOOLS" 2>/dev/null || true
+    add_to_path "$ANDROID_TOOLS" 2>/dev/null || true
+    add_to_path "$PUB_FLUTTER_BIN" 2>/dev/null || true
+    add_to_path "/opt/flutter/bin" 2>/dev/null || true
+    add_to_path "$EMACSDIR" 2>/dev/null || true
+    add_to_path "$DOTNET_PATH" 2>/dev/null || true
 else
-    echo "❌ La fonction add_to_path n'est pas disponible."
+    # Fallback: ajouter directement au PATH si la fonction n'est pas disponible
+    for dir in "/usr/lib/jvm/java-17-openjdk/bin" "$CMDLINE_TOOLS" "$PLATFORM_TOOLS" "$ANDROID_TOOLS" "$PUB_FLUTTER_BIN" "/opt/flutter/bin" "$EMACSDIR" "$DOTNET_PATH"; do
+        if [ -d "$dir" ] && [[ ":$PATH:" != *":$dir:"* ]]; then
+            export PATH="$dir:$PATH"
+        fi
+    done
 fi
 export ADDED_FLUTTER_PATH="/opt/flutter/bin"
 
 # Nettoyage du PATH
-if type clean_path &> /dev/null; then
-	clean_path
+if command -v clean_path >/dev/null 2>&1 || type clean_path >/dev/null 2>&1 || declare -f clean_path >/dev/null 2>&1; then
+    clean_path 2>/dev/null || true
 else
-	echo "❌ La fonction clean_path n'est pas disponible."
+    # Fallback: nettoyage basique du PATH
+    # Supprimer les doublons et les chemins invalides
+    local old_IFS="$IFS"
+    IFS=':'
+    local path_array=($PATH)
+    IFS="$old_IFS"
+    local new_path=""
+    local seen=""
+    for dir in "${path_array[@]}"; do
+        if [ -n "$dir" ] && [ -d "$dir" ]; then
+            if [[ ":$seen:" != *":$dir:"* ]]; then
+                new_path="$new_path:$dir"
+                seen="$seen:$dir"
+            fi
+        fi
+    done
+    export PATH="${new_path#:}"
 fi
 
 export PATH="$PATH:$PATH_ORIGINAL:$ADDED_FLUTTER_PATH"
