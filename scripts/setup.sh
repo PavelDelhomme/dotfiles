@@ -761,45 +761,17 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
+        27)
+            run_script "$SCRIPT_DIR/config/shell_manager.sh" "Gestionnaire de shell" "menu"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
         29)
-            log_section "Changer shell par défaut"
-            CURRENT_SHELL=$(basename "$SHELL" 2>/dev/null || echo "unknown")
-            log_info "Shell actuel: $CURRENT_SHELL"
-            echo ""
-            echo "1. Changer vers Zsh"
-            echo "2. Changer vers Fish"
-            echo "0. Annuler"
-            echo ""
-            printf "Choix: "
-            read -r chsh_choice
-            case "$chsh_choice" in
-                1)
-                    ZSH_PATH=$(which zsh 2>/dev/null || command -v zsh)
-                    if [ -n "$ZSH_PATH" ]; then
-                        chsh -s "$ZSH_PATH"
-                        log_info "✓ Shell par défaut changé vers Zsh"
-                        log_warn "⚠️ Déconnectez-vous et reconnectez-vous pour appliquer"
-                    else
-                        log_error "Zsh non trouvé. Installez-le d'abord."
-                    fi
-                    ;;
-                2)
-                    FISH_PATH=$(which fish 2>/dev/null || command -v fish)
-                    if [ -n "$FISH_PATH" ]; then
-                        chsh -s "$FISH_PATH"
-                        log_info "✓ Shell par défaut changé vers Fish"
-                        log_warn "⚠️ Déconnectez-vous et reconnectez-vous pour appliquer"
-                    else
-                        log_error "Fish non trouvé. Installez-le d'abord."
-                    fi
-                    ;;
-                0)
-                    log_info "Opération annulée"
-                    ;;
-                *)
-                    log_error "Choix invalide"
-                    ;;
-            esac
+            # Option 29 conservée pour compatibilité (redirige vers shell_manager)
+            run_script "$SCRIPT_DIR/config/shell_manager.sh" "Gestionnaire de shell" "menu"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
