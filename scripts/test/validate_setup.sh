@@ -295,14 +295,14 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
             for search_path in "${SEARCH_PATHS[@]}"; do
                 # Gérer les wildcards
                 if [[ "$search_path" == *"*"* ]]; then
-                    # Chercher dans les sous-dossiers
-                    for found_path in $search_path 2>/dev/null; do
+                    # Chercher dans les sous-dossiers (utiliser find pour les wildcards)
+                    while IFS= read -r found_path; do
                         if [ -f "$found_path" ] && [ -x "$found_path" ]; then
                             CMAKE_PATH="$found_path"
                             CMAKE_FOUND=1
-                            break
+                            break 2  # Break de la boucle for et while
                         fi
-                    done
+                    done < <(find /opt -path "*/bin/cmake" -type f 2>/dev/null)
                 else
                     if [ -f "$search_path" ] && [ -x "$search_path" ]; then
                         CMAKE_PATH="$search_path"
