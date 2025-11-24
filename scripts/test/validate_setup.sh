@@ -271,22 +271,76 @@ for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
         check_pass "$name: $VERSION"
     else
         # Vérification spéciale pour cmake (peut être installé mais pas dans PATH)
+        # Chercher dans plusieurs emplacements communs
         if [ "$tool" = "cmake" ]; then
-            # Vérifier si le package est installé (Arch Linux)
-            if [ -f /etc/arch-release ]; then
-                if pacman -Q cmake &>/dev/null 2>&1 || yay -Q cmake &>/dev/null 2>&1; then
-                    CMAKE_PATH=$(find /usr -name cmake -type f 2>/dev/null | head -1)
-                    if [ -n "$CMAKE_PATH" ]; then
-                        CMAKE_VERSION=$("$CMAKE_PATH" --version 2>/dev/null | head -n1 || echo "installé mais non accessible")
-                        check_warn "cmake installé mais non dans PATH: $CMAKE_VERSION"
-                        echo "  → Chemin trouvé: $CMAKE_PATH"
-                        echo "  → Solution: ajouter au PATH ou créer un symlink"
-                    else
-                        check_warn "cmake non installé (optionnel)"
-                    fi
+            CMAKE_FOUND=0
+            CMAKE_PATH=""
+            CMAKE_VERSION=""
+            
+            # Liste des emplacements à vérifier
+            SEARCH_PATHS=(
+                "/usr/bin/cmake"
+                "/usr/local/bin/cmake"
+                "/opt/cmake/bin/cmake"
+                "/opt/*/bin/cmake"
+                "$HOME/.local/bin/cmake"
+                "$HOME/bin/cmake"
+                "$HOME/Applications/cmake"
+                "/var/cache/cmake"
+                "/var/lib/cmake"
+            )
+            
+            # Chercher dans les chemins standards
+            for search_path in "${SEARCH_PATHS[@]}"; do
+                # Gérer les wildcards
+                if [[ "$search_path" == *"*"* ]]; then
+                    # Chercher dans les sous-dossiers
+                    for found_path in $search_path 2>/dev/null; do
+                        if [ -f "$found_path" ] && [ -x "$found_path" ]; then
+                            CMAKE_PATH="$found_path"
+                            CMAKE_FOUND=1
+                            break
+                        fi
+                    done
                 else
-                    check_warn "cmake non installé (optionnel)"
+                    if [ -f "$search_path" ] && [ -x "$search_path" ]; then
+                        CMAKE_PATH="$search_path"
+                        CMAKE_FOUND=1
+                        break
+                    fi
                 fi
+            done
+            
+            # Si pas trouvé, chercher avec find dans les emplacements communs
+            if [ $CMAKE_FOUND -eq 0 ]; then
+                for search_dir in "/usr" "/usr/local" "/opt" "$HOME/.local" "$HOME" "/var"; do
+                    if [ -d "$search_dir" ]; then
+                        CMAKE_PATH=$(find "$search_dir" -name "cmake" -type f -executable 2>/dev/null | head -1)
+                        if [ -n "$CMAKE_PATH" ]; then
+                            CMAKE_FOUND=1
+                            break
+                        fi
+                    fi
+                done
+            fi
+            
+            # Vérifier aussi si le package est installé (Arch Linux)
+            if [ $CMAKE_FOUND -eq 0 ] && [ -f /etc/arch-release ]; then
+                if pacman -Q cmake &>/dev/null 2>&1 || yay -Q cmake &>/dev/null 2>&1; then
+                    # Package installé mais binaire non trouvé
+                    CMAKE_FOUND=2  # Code spécial pour package installé mais non accessible
+                fi
+            fi
+            
+            # Afficher le résultat
+            if [ $CMAKE_FOUND -eq 1 ] && [ -n "$CMAKE_PATH" ]; then
+                CMAKE_VERSION=$("$CMAKE_PATH" --version 2>/dev/null | head -n1 || echo "installé mais version non accessible")
+                check_warn "cmake trouvé mais non dans PATH: $CMAKE_VERSION"
+                echo "  → Chemin trouvé: $CMAKE_PATH"
+                echo "  → Solution: ajouter au PATH ou créer un symlink"
+            elif [ $CMAKE_FOUND -eq 2 ]; then
+                check_warn "cmake: package installé mais binaire non accessible"
+                echo "  → Solution: réinstaller cmake ou vérifier l'installation"
             else
                 check_warn "cmake non installé (optionnel)"
             fi
