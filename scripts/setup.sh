@@ -259,7 +259,7 @@ show_menu() {
     echo "28. Restaurer depuis Git (annuler modifications locales)"
     echo ""
     echo "26. Migration shell (Fish <-> Zsh)"
-    echo "27. Changer shell par défaut"
+    echo "27. Gestionnaire de shell (installer/configurer/définir zsh/fish/bash)"
     echo ""
     echo "════════════════════════════════════════════════"
     echo "INSTALLATION & DÉTECTION"
