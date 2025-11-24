@@ -148,8 +148,14 @@ restore: ## Restaurer depuis Git (annuler modifications locales)
 	@bash "$(SCRIPT_DIR)/sync/restore_from_git.sh"
 
 # Fix Manager - Corrections automatiques
-fix: ## Afficher les fixes disponibles ou appliquer un fix (usage: make fix=<nom>)
+# Supporte: make fix FIX=<nom> ou make fix=<nom>
+ifdef FIX
+fix: ## Afficher les fixes disponibles ou appliquer un fix (usage: make fix FIX=<nom>)
 	@bash "$(SCRIPT_DIR)/fix/fix_manager.sh" "$(FIX)"
+else
+fix: ## Afficher les fixes disponibles ou appliquer un fix (usage: make fix FIX=<nom>)
+	@bash "$(SCRIPT_DIR)/fix/fix_manager.sh"
+endif
 
 # Alias pour compatibilité (déprécié, utiliser make install APP=...)
 install-docker: ## [DÉPRÉCIÉ] Installer Docker (utiliser: make install APP=docker)
