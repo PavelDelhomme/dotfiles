@@ -19,7 +19,12 @@ source "$SCRIPT_DIR/lib/common.sh" 2>/dev/null || {
     export NC='\033[0m'
 }
 
+# Définir DOTFILES_DIR (parent du dossier scripts)
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+# S'assurer que DOTFILES_DIR pointe vers la racine du dépôt, pas vers scripts
+if [[ "$DOTFILES_DIR" == *"/scripts" ]]; then
+    DOTFILES_DIR="${DOTFILES_DIR%/scripts}"
+fi
 LOG_DIR="$DOTFILES_DIR/logs"
 LOG_FILE="$LOG_DIR/auto_sync.log"
 LOCK_FILE="/tmp/dotfiles_auto_sync.lock"
