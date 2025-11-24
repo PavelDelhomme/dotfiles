@@ -158,6 +158,9 @@ backup_dotfiles() {
 # =============================================================================
 # FIN DU CHARGEMENT
 # =============================================================================
-neofetch
+# Neofetch (si installé)
+if command -v neofetch >/dev/null 2>&1; then
+    neofetch
+fi
 echo "🎉 Configuration ZSH personnalisée chargée avec succès"
 

@@ -258,9 +258,16 @@ check_and_install_tool() {
 }
 
 # Exporter les fonctions pour utilisation dans d'autres scripts
-export -f ensure_tool
-export -f ensure_tools
-export -f detect_distro
-export -f get_package_name
-export -f install_package
+# Note: export -f ne fonctionne qu'en Bash, en Zsh on utilise des alias ou on source le fichier
+if [ -n "$BASH_VERSION" ]; then
+    export -f ensure_tool
+    export -f ensure_tools
+    export -f detect_distro
+    export -f get_package_name
+    export -f install_package
+else
+    # En Zsh/Fish, les fonctions sont déjà disponibles après le source
+    # Pas besoin d'export -f
+    :
+fi
 

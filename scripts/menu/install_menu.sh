@@ -30,11 +30,12 @@ show_install_menu() {
     echo "  7. Packages de base (Arch Linux)"
     echo "  8. Gestionnaires de paquets"
     echo "  9. QEMU/KVM complet"
+    echo " 10. Neofetch (affichage système)"
     echo ""
     echo "  0. Retour au menu principal"
     echo ""
     
-    printf "Votre choix [0-9]: "
+    printf "Votre choix [0-10]: "
     read -r choice
     
     case "$choice" in
@@ -73,6 +74,26 @@ show_install_menu() {
         9)
             log_section "Installation QEMU/KVM"
             bash "$SCRIPT_DIR/install/tools/install_qemu_full.sh"
+            ;;
+        10)
+            log_section "Installation Neofetch"
+            if command -v pacman >/dev/null 2>&1; then
+                log_info "Installation via pacman..."
+                sudo pacman -S --noconfirm neofetch
+            elif command -v apt-get >/dev/null 2>&1; then
+                log_info "Installation via apt-get..."
+                sudo apt-get install -y neofetch
+            elif command -v yum >/dev/null 2>&1; then
+                log_info "Installation via yum..."
+                sudo yum install -y neofetch
+            else
+                log_error "Gestionnaire de paquets non supporté"
+            fi
+            if command -v neofetch >/dev/null 2>&1; then
+                log_info "✓ Neofetch installé avec succès"
+            else
+                log_error "✗ Erreur lors de l'installation de Neofetch"
+            fi
             ;;
         0)
             return 0

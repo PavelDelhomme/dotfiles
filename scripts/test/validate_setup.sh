@@ -256,6 +256,7 @@ TOOLS_TO_CHECK=(
     "gcc:gcc"
     # "cmake:cmake"  # Commenté - vérification spéciale en dessous si nécessaire
     "pkg-config:pkg-config"
+    "neofetch:neofetch"
 )
 
 for tool_entry in "${TOOLS_TO_CHECK[@]}"; do
