@@ -51,8 +51,11 @@ fix_exec_scripts() {
     local errors=0
     
     # Trouver tous les scripts .sh non-exécutables
-    # Utiliser find avec ! -perm pour détecter les fichiers sans permission d'exécution
-    while IFS= read -r script; do
+    # Utiliser une boucle for au lieu de while pour éviter les problèmes de process substitution
+    local scripts_list
+    scripts_list=$(find "$DOTFILES_DIR/scripts" -type f -name "*.sh" 2>/dev/null | sort)
+    
+    for script in $scripts_list; do
         # Vérifier si le fichier existe et n'a pas la permission d'exécution
         if [ -f "$script" ] && ! test -x "$script"; then
             ((count++))
@@ -64,7 +67,7 @@ fix_exec_scripts() {
                 ((errors++))
             fi
         fi
-    done < <(find "$DOTFILES_DIR/scripts" -type f -name "*.sh" 2>/dev/null | sort)
+    done
     
     # Vérifier aussi les scripts de migration à la racine
     for script in "$DOTFILES_DIR/scripts/migrate_shell.sh" "$DOTFILES_DIR/scripts/migrate_existing_user.sh"; do
