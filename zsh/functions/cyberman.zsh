@@ -36,9 +36,18 @@ cyberman() {
     
     local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
     
-    # Charger le gestionnaire de cibles si pas déjà chargé
+    # Charger tous les gestionnaires
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
         source "$CYBER_DIR/target_manager.sh"
+    fi
+    if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+        source "$CYBER_DIR/environment_manager.sh"
+    fi
+    if [ -f "$CYBER_DIR/workflow_manager.sh" ]; then
+        source "$CYBER_DIR/workflow_manager.sh"
+    fi
+    if [ -f "$CYBER_DIR/report_manager.sh" ]; then
+        source "$CYBER_DIR/report_manager.sh"
     fi
     
     # Fonction pour afficher le header
@@ -429,6 +438,9 @@ cyberman() {
         echo "5. 📡 Network Analysis & Monitoring"
         echo "6. 🔒 Privacy & Anonymity"
         echo "7. 🎯 Gestion des cibles"
+        echo "8. 🌍 Gestion des environnements"
+        echo "9. 🔄 Gestion des workflows"
+        echo "10. 📊 Gestion des rapports"
         echo ""
         echo "h. Aide"
         echo "q. Quitter"
@@ -500,6 +512,9 @@ EOF
             5) show_analysis_menu ;;
             6) show_privacy_menu ;;
             7) show_target_menu ;;
+            8) show_environment_menu ;;
+            9) show_workflow_menu ;;
+            10) show_report_menu ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
