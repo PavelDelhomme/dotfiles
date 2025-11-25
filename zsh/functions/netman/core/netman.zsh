@@ -307,6 +307,9 @@ netman() {
     }
     
     # Fonction pour afficher la table de routage
+    # DESC: Affiche la table de routage complète (IPv4/IPv6) avec passerelles et métriques
+    # USAGE: show_routing
+    # EXAMPLE: show_routing
     show_routing() {
         show_header
         echo -e "${YELLOW}🛣️  Table de routage${RESET}"
@@ -384,6 +387,9 @@ netman() {
     }
     
     # Fonction pour scanner un port spécifique
+    # DESC: Scanne un port unique ou une plage de ports sur un hôte spécifique
+    # USAGE: scan_port
+    # EXAMPLE: scan_port
     scan_port() {
         show_header
         echo -e "${YELLOW}🔍 Scanner de port${RESET}"
@@ -489,6 +495,9 @@ netman() {
     }
     
     # Fonction pour afficher les statistiques réseau
+    # DESC: Affiche les statistiques réseau détaillées avec surveillance temps réel de la bande passante
+    # USAGE: show_network_stats
+    # EXAMPLE: show_network_stats
     show_network_stats() {
         show_header
         echo -e "${YELLOW}📊 Statistiques réseau${RESET}"
@@ -532,6 +541,9 @@ netman() {
     }
     
     # Fonction pour exporter la configuration réseau
+    # DESC: Exporte la configuration réseau complète (interfaces, routes, DNS, ports, connexions, firewall) dans un fichier texte
+    # USAGE: export_network_config
+    # EXAMPLE: export_network_config
     export_network_config() {
         show_header
         echo -e "${YELLOW}💾 Export de la configuration réseau${RESET}"

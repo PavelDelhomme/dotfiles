@@ -266,6 +266,9 @@ searchman() {
     }
     
     # Recherche dans les logs système
+    # DESC: Recherche dans différents types de logs système (journal, auth, kernel, applications, personnalisés)
+    # USAGE: search_logs
+    # EXAMPLE: search_logs
     search_logs() {
         show_header
         echo -e "${YELLOW}📜 Recherche dans les logs${RESET}"
@@ -385,6 +388,9 @@ searchman() {
     }
     
     # Statistiques de recherche
+    # DESC: Affiche des statistiques détaillées sur l'historique, fichiers, processus et utilisateurs
+    # USAGE: search_statistics
+    # EXAMPLE: search_statistics
     search_statistics() {
         show_header
         echo -e "${YELLOW}📊 Statistiques de recherche${RESET}"
