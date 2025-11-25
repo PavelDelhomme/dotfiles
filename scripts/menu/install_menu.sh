@@ -111,6 +111,14 @@ show_install_menu() {
             log_section "Installation dépendances cyberman"
             bash "$SCRIPT_DIR/tools/install_cyberman_deps.sh"
             ;;
+        13)
+            log_section "Vérification et configuration des managers"
+            verify_and_configure_managers
+            ;;
+        14)
+            log_section "Installation dépendances managers"
+            install_managers_dependencies
+            ;;
         0)
             return 0
             ;;
