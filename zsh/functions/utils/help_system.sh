@@ -146,46 +146,78 @@ create_man_page() {
         return 1
     fi
     
+    # Configurer l'encodage UTF-8
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
+    
     # Essayer différentes méthodes d'affichage selon les outils disponibles
     
-    # Méthode 1: pandoc pour convertir en format man puis groff
-    if command -v pandoc >/dev/null 2>&1 && command -v groff >/dev/null 2>&1; then
-        pandoc -s -f markdown -t man "$man_file" | groff -T utf8 -man | less -R
-        return 0
-    fi
-    
-    # Méthode 2: bat pour afficher avec coloration Markdown
+    # Méthode 1: bat pour afficher avec coloration Markdown (MEILLEUR CHOIX)
     if command -v bat >/dev/null 2>&1; then
+        # bat supporte nativement UTF-8 et Markdown avec couleurs
+        bat --style=plain --color=always --language=markdown "$man_file" 2>/dev/null || \
         bat --plain --language=markdown "$man_file"
         return 0
     fi
     
-    # Méthode 3: mdcat pour afficher Markdown (si disponible)
-    if command -v mdcat >/dev/null 2>&1; then
-        mdcat "$man_file"
-        return 0
-    fi
-    
-    # Méthode 4: glow pour afficher Markdown (si disponible)
+    # Méthode 2: glow pour afficher Markdown (excellent pour UTF-8 et couleurs)
     if command -v glow >/dev/null 2>&1; then
-        glow "$man_file"
+        glow "$man_file" 2>/dev/null
         return 0
     fi
     
-    # Méthode 5: less avec coloration si disponible
+    # Méthode 3: mdcat pour afficher Markdown (bon support UTF-8)
+    if command -v mdcat >/dev/null 2>&1; then
+        mdcat "$man_file" 2>/dev/null
+        return 0
+    fi
+    
+    # Méthode 4: pandoc + groff avec support UTF-8
+    if command -v pandoc >/dev/null 2>&1 && command -v groff >/dev/null 2>&1; then
+        # Forcer UTF-8 dans la conversion
+        pandoc -s -f markdown -t man "$man_file" 2>/dev/null | \
+        groff -T utf8 -man -P -c 2>/dev/null | \
+        less -R -r
+        return 0
+    fi
+    
+    # Méthode 5: pygmentize avec less pour coloration et UTF-8
+    if command -v pygmentize >/dev/null 2>&1 && command -v less >/dev/null 2>&1; then
+        # Forcer UTF-8 et coloration
+        export PYTHONIOENCODING=utf-8
+        pygmentize -l markdown -f terminal256 -O style=monokai "$man_file" 2>/dev/null | \
+        less -R -r || \
+        pygmentize -l markdown "$man_file" 2>/dev/null | less -R -r
+        return 0
+    fi
+    
+    # Méthode 6: source-highlight avec less
+    if command -v source-highlight >/dev/null 2>&1 && command -v less >/dev/null 2>&1; then
+        source-highlight -s md -f esc256 -i "$man_file" 2>/dev/null | less -R -r
+        return 0
+    fi
+    
+    # Méthode 7: Script Python personnalisé (fallback avec UTF-8 et couleurs)
+    local python_viewer="$DOTFILES_DIR/zsh/functions/utils/markdown_viewer.py"
+    if [ -f "$python_viewer" ] && command -v python3 >/dev/null 2>&1; then
+        python3 "$python_viewer" "$man_file" 2>/dev/null
+        return 0
+    fi
+    
+    # Méthode 8: less avec UTF-8 forcé
     if command -v less >/dev/null 2>&1; then
-        # Essayer avec source-highlight ou pygmentize pour coloration
-        if command -v pygmentize >/dev/null 2>&1; then
-            pygmentize -l markdown "$man_file" | less -R
-        elif command -v source-highlight >/dev/null 2>&1; then
-            source-highlight -s md -f esc256 -i "$man_file" | less -R
-        else
-            less "$man_file"
-        fi
+        # Forcer UTF-8 et couleurs si disponibles
+        export LESSCHARSET=utf-8
+        export LESS=-R
+        less "$man_file" 2>/dev/null || \
+        LESSCHARSET=utf-8 less "$man_file"
         return 0
     fi
     
-    # Méthode 6: cat simple en dernier recours
+    # Méthode 9: cat avec UTF-8 (dernier recours)
+    # Forcer UTF-8 dans l'environnement
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
     cat "$man_file"
 }
 
