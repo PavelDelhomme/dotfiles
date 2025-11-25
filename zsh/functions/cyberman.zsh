@@ -52,6 +52,9 @@ cyberman() {
     if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
         source "$CYBER_DIR/anonymity_manager.sh"
     fi
+    if [ -f "$CYBER_DIR/management_menu.sh" ]; then
+        source "$CYBER_DIR/management_menu.sh"
+    fi
     
     # Fonction pour afficher le header
     show_header() {
@@ -523,22 +526,17 @@ cyberman() {
         echo ""
         
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
-        echo "1.  🌍 Gestion des environnements"
-        echo "2.  🎯 Gestion des cibles"
-        echo "3.  🔒 Gestion de l'anonymat"
-        echo "4.  🔄 Gestion des workflows"
-        echo "5.  🔍 Reconnaissance & Information Gathering"
-        echo "6.  🔎 Scanning & Enumeration"
-        echo "7.  🛡️  Vulnerability Assessment & Session"
-        echo "8.  🌐 Web Security & Testing"
-        echo "9.  📡 Network Tools (Analysis, Attacks, Devices)"
-        echo "10. 📱 IoT Devices & Embedded Systems"
-        echo "11. 🔧 Advanced Tools (Metasploit, Custom Scripts)"
-        echo "12. 📊 Gestion des rapports"
-        echo "13. 🚀 Assistant de test complet"
-        echo "14. 📊 Voir les informations récoltées (environnement actif)"
-        echo "15. 📝 Ajouter une note rapide (environnement actif)"
-        echo "16. ✅ Gérer les TODOs (environnement actif)"
+        echo "1.  ⚙️  Gestion & Configuration (environnements, cibles, workflows, rapports, anonymat)"
+        echo ""
+        echo "2.  🔍 Reconnaissance & Information Gathering"
+        echo "3.  🔎 Scanning & Enumeration"
+        echo "4.  🛡️  Vulnerability Assessment & Session"
+        echo "5.  🌐 Web Security & Testing"
+        echo "6.  📡 Network Tools (Analysis, Attacks, Devices)"
+        echo "7.  📱 IoT Devices & Embedded Systems"
+        echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
+        echo ""
+        echo "9.  🚀 Assistant de test complet"
         echo ""
         echo "h.  Aide"
         echo "q.  Quitter"
@@ -1148,33 +1146,24 @@ EOF
         # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
-            1) show_environment_menu ;;
-            2) show_target_menu ;;
-            3) show_anonymity_menu ;;
-            4) show_workflow_menu ;;
-            5) show_recon_menu ;;
-            6) show_scan_menu ;;
-            7) show_vuln_menu ;;
-            8) show_analysis_menu ;;
-            9) show_attack_menu ;;
-            10) show_web_menu ;;
-            11) show_iot_menu ;;
-            12) show_network_devices_menu ;;
-            13) show_report_menu ;;
-            14) show_assistant_menu ;;
-            15)
-                if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
-                    source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
-                    if has_active_environment 2>/dev/null; then
-                        local current_env=$(get_current_environment 2>/dev/null)
-                        load_infos "$current_env"
-                    else
-                        echo "❌ Aucun environnement actif"
-                        echo "💡 Chargez d'abord un environnement (Option 1)"
-                        sleep 2
-                    fi
+            1)
+                # Menu de gestion et configuration
+                if [ -f "$CYBER_DIR/management_menu.sh" ]; then
+                    source "$CYBER_DIR/management_menu.sh"
+                    show_management_menu
+                else
+                    echo "❌ Menu de gestion non disponible"
+                    sleep 1
                 fi
                 ;;
+            2) show_recon_menu ;;
+            3) show_scan_menu ;;
+            4) show_vuln_menu ;;
+            5) show_web_menu ;;
+            6) show_network_tools_menu ;;
+            7) show_iot_menu ;;
+            8) show_advanced_tools_menu ;;
+            9) show_assistant_menu ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
