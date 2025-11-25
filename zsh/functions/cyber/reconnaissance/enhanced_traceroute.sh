@@ -1,5 +1,8 @@
 
 # Fonction pour effectuer un traceroute avec des informations détaillées
+# DESC: Effectue un traceroute amélioré vers une cible avec des informations détaillées sur chaque saut réseau.
+# USAGE: enhanced_traceroute <target>
+# EXAMPLE: enhanced_traceroute example.com
 function enhanced_traceroute() {
     if [ $# -eq 0 ]; then
         echo "Usage: enhanced_traceroute <target>"

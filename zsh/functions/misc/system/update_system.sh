@@ -33,6 +33,7 @@ fi
 ################################################################################
 # DESC: Détecte la distribution Linux
 # USAGE: detect_distro
+# EXAMPLE: detect_distro
 # RETURNS: Nom de la distribution (arch, debian, ubuntu, fedora, gentoo, nixos, opensuse, etc.)
 ################################################################################
 detect_distro() {
@@ -126,10 +127,9 @@ detect_distro() {
 # DESC: Met à jour les paquets (sans upgrade)
 # USAGE: update [--nc|--no-confirm]
 #        --nc ou --no-confirm: Mode sans confirmation (évite les prompts)
-# EXAMPLES:
-#   update          # Mise à jour avec confirmations
-#   update --nc     # Mise à jour sans confirmation
-#   update --no-confirm  # Même chose que --nc
+# EXAMPLE: update
+# EXAMPLE: update --nc
+# EXAMPLE: update --no-confirm
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 update() {
@@ -246,10 +246,9 @@ update() {
 # DESC: Met à jour complètement le système (upgrade)
 # USAGE: upgrade [--nc|--no-confirm]
 #        --nc ou --no-confirm: Mode sans confirmation (évite les prompts)
-# EXAMPLES:
-#   upgrade          # Mise à jour complète avec confirmations
-#   upgrade --nc     # Mise à jour complète sans confirmation
-#   upgrade --no-confirm  # Même chose que --nc
+# EXAMPLE: upgrade
+# EXAMPLE: upgrade --nc
+# EXAMPLE: upgrade --no-confirm
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 upgrade() {

@@ -19,6 +19,9 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # Détection de la distribution
+# DESC: Détecte automatiquement la distribution Linux en cours d'exécution (Arch, Debian, Fedora, etc.).
+# USAGE: detect_distro
+# EXAMPLE: detect_distro
 detect_distro() {
     if [ -f /etc/arch-release ]; then
         echo "arch"
@@ -138,6 +141,9 @@ get_package_name() {
 }
 
 # Installation d'un paquet selon la distribution
+# DESC: Installe un paquet en utilisant le gestionnaire de paquets approprié selon la distribution.
+# USAGE: install_package <package_name>
+# EXAMPLE: install_package docker
 install_package() {
     local package="$1"
     local distro="$2"
@@ -189,6 +195,9 @@ install_package() {
 }
 
 # Fonction principale: ensure_tool
+# DESC: Vérifie si un outil est installé et propose de l'installer automatiquement si absent.
+# USAGE: ensure_tool <tool_name> [package_name]
+# EXAMPLE: ensure_tool docker
 ensure_tool() {
     local tool="$1"
     local package_name="$2"  # Nom de paquet optionnel (si différent du nom de l'outil)
@@ -239,6 +248,9 @@ ensure_tool() {
 }
 
 # Fonction pour vérifier plusieurs outils en une fois
+# DESC: Vérifie et installe plusieurs outils en une seule commande.
+# USAGE: ensure_tools <tool1> <tool2> ...
+# EXAMPLE: ensure_tools docker git
 ensure_tools() {
     local tools=("$@")
     local failed=0

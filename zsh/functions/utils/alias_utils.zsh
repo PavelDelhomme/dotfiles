@@ -19,8 +19,7 @@ source "$HOME/dotfiles/scripts/lib/actions_logger.sh" 2>/dev/null || {
 ################################################################################
 # DESC: Ajoute un nouvel alias avec documentation optionnelle
 # USAGE: add_alias <name> <command> [description] [usage] [examples]
-# EXAMPLES:
-#   add_alias ll "ls -lah" "Liste détaillée" "ll" "ll -R"
+# EXAMPLE: add_alias ll "ls -lah" "Liste détaillée" "ll" "ll -R"
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 add_alias() {
@@ -72,8 +71,7 @@ add_alias() {
 ################################################################################
 # DESC: Supprime un alias
 # USAGE: remove_alias <name>
-# EXAMPLES:
-#   remove_alias ll
+# EXAMPLE: remove_alias ll
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 remove_alias() {

@@ -1,4 +1,7 @@
 # Fonction pour énumérer les répertoires avec Gobuster
+# DESC: Énumère les répertoires et fichiers d'un site web en utilisant des wordlists pour découvrir du contenu caché.
+# USAGE: enum_dirs <url>
+# EXAMPLE: enum_dirs https://example.com
 function enum_dirs() {
     if [ $# -eq 0 ]; then
         echo "Usage: enum_dirs <url> [wordlist]"

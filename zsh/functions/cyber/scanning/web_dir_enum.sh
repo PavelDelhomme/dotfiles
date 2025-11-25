@@ -1,3 +1,6 @@
+# DESC: Énumération complète des répertoires web d'une URL pour découvrir des fichiers et dossiers non indexés.
+# USAGE: web_dir_enum <url>
+# EXAMPLE: web_dir_enum https://example.com
 web_dir_enum() {
     if [ $# -eq 0 ]; then
         echo "Usage: web_dir_enum <url> [wordlist]"

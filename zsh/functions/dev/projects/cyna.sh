@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+# DESC: Lance le projet Cyna avec les paramètres par défaut.
+# USAGE: run_cyna
+# EXAMPLE: run_cyna
 run_cyna () {
   # 1) Le sous-dossier qui contient docker-compose.yml
   local proj_dir="$HOME/Documents/Dev/Travail/SupDeVinci/CYNA/cyna_backend/cyna_backend"
@@ -20,6 +23,9 @@ run_cyna () {
   docker logs -f cyna_backend
 }
 
+# DESC: Effectue un push Git vers la branche backend du projet Cyna.
+# USAGE: cyna_push_back
+# EXAMPLE: cyna_push_back
 cyna_push_back () {
   docker build -t paveldelhomme/cyna_backend:latest ./cyna_backend
   docker push paveldelhomme/cyna_backend:latest

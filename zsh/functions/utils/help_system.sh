@@ -26,6 +26,9 @@ MAN_DIR="$DOTFILES_DIR/docs/man"
 mkdir -p "$DOC_DIR" "$MAN_DIR"
 
 # Fonction générique pour afficher l'aide d'une fonction
+# DESC: Affiche l'aide détaillée pour une fonction spécifique en extrayant la documentation depuis les commentaires.
+# USAGE: show_function_help <function_name>
+# EXAMPLE: show_function_help extract
 show_function_help() {
     local func_name="$1"
     local func_file=""
@@ -80,6 +83,9 @@ show_function_help() {
 }
 
 # Fonction pour lister toutes les fonctions disponibles
+# DESC: Liste toutes les fonctions personnalisées disponibles avec leurs descriptions.
+# USAGE: list_functions
+# EXAMPLE: list_functions
 list_functions() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📋 FONCTIONS DISPONIBLES"
@@ -110,6 +116,9 @@ list_functions() {
 }
 
 # Fonction help principale
+# DESC: Système d'aide principal. Liste toutes les fonctions ou affiche l'aide pour une fonction spécifique.
+# USAGE: help [function_name]
+# EXAMPLE: help extract
 help() {
     if [ -z "$1" ]; then
         list_functions
@@ -138,6 +147,9 @@ create_man_page() {
 }
 
 # Alias man pour les fonctions personnalisées
+# DESC: Affiche la page man pour une fonction personnalisée ou utilise le man système pour les commandes standards.
+# USAGE: man <function_or_command>
+# EXAMPLE: man extract
 man() {
     local cmd="$1"
     

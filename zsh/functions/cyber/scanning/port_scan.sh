@@ -1,4 +1,7 @@
 # Fonction pour scanner les ports ouverts sur une adresse IP
+# DESC: Effectue un scan de ports sur une cible pour découvrir les ports ouverts et les services en cours d'exécution.
+# USAGE: port_scan <target> [ports]
+# EXAMPLE: port_scan 192.168.1.1
 function port_scan() {
     if [ $# -eq 0 ]; then
         echo "Usage: port_scan <target> [start_port] [end_port]"

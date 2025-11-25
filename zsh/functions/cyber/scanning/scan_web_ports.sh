@@ -1,4 +1,7 @@
 # Fonction pour scanner les ports ouverts d'un site web
+# DESC: Scanne les ports web courants (80, 443, 8080, etc.) sur une cible pour identifier les services web.
+# USAGE: scan_web_ports <target>
+# EXAMPLE: scan_web_ports example.com
 function scan_web_ports() {
     if [ $# -eq 0 ]; then
         echo "Usage: scan_web_ports <target> [start_port] [end_port]"

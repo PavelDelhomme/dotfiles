@@ -2,6 +2,9 @@
 
 WEEDLYWEB_DIR="/home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb"
 
+# DESC: Lance le projet WeedlyWeb en mode développement.
+# USAGE: weedlyweb_run
+# EXAMPLE: weedlyweb_run
 weedlyweb_run() {
     cd "$WEEDLYWEB_DIR" && \
     mkdir -p build && cd build && \
@@ -22,6 +25,9 @@ weedlyweb_debug() {
     gdb ./bin/weedlyweb
 }
 
+# DESC: Nettoie les fichiers de build et les artefacts de compilation du projet WeedlyWeb.
+# USAGE: weedlyweb_clean
+# EXAMPLE: weedlyweb_clean
 weedlyweb_clean() {
     cd "$WEEDLYWEB_DIR"
     local current_dir=$(pwd)
