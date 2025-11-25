@@ -180,6 +180,7 @@ prompt_target() {
             return 0
         elif [ "$choice" = "n" ] || [ "$choice" = "N" ]; then
             # Continuer pour demander une nouvelle cible
+            :
         else
             echo "❌ Choix invalide"
             return 1
