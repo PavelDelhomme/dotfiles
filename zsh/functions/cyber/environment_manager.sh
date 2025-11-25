@@ -30,7 +30,7 @@ save_environment() {
     # Charger les cibles actuelles
     local CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
-        source "$CYBER_DIR/target_manager.sh"
+        source "$CYBER_DIR/target_manager.sh" 2>/dev/null
     fi
     
     # S'assurer que CYBER_TARGETS est défini
@@ -391,16 +391,32 @@ show_environment_menu() {
         echo -e "${RESET}"
         echo ""
         
+        # Afficher l'état actuel
+        echo -e "${YELLOW}📊 État actuel:${RESET}"
+        if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+            source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+            if has_targets 2>/dev/null; then
+                show_targets 2>/dev/null
+            else
+                echo "  ⚠️  Aucune cible configurée"
+            fi
+        else
+            echo "  ⚠️  Gestionnaire de cibles non disponible"
+        fi
+        echo ""
+        
         list_environments
         echo ""
         echo "1.  Sauvegarder l'environnement actuel"
-        echo "2.  Charger un environnement"
-        echo "3.  Restaurer un environnement"
-        echo "4.  Afficher les détails d'un environnement"
-        echo "5.  Supprimer un environnement"
-        echo "6.  Exporter un environnement"
-        echo "7.  Importer un environnement"
-        echo "8.  Lister tous les environnements"
+        echo "2.  Créer un nouvel environnement (avec gestion de cibles)"
+        echo "3.  Charger un environnement"
+        echo "4.  Restaurer un environnement"
+        echo "5.  Afficher les détails d'un environnement"
+        echo "6.  Supprimer un environnement"
+        echo "7.  Exporter un environnement"
+        echo "8.  Importer un environnement"
+        echo "9.  Gérer les cibles (ajouter/modifier)"
+        echo "10. Lister tous les environnements"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -409,6 +425,24 @@ show_environment_menu() {
         
         case "$choice" in
             1)
+                echo ""
+                # Vérifier si des cibles sont configurées
+                if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+                    source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+                    if ! has_targets 2>/dev/null; then
+                        echo "⚠️  Aucune cible configurée actuellement"
+                        printf "Voulez-vous ajouter des cibles maintenant? (O/n): "
+                        read -r add_now
+                        if [ "$add_now" != "n" ] && [ "$add_now" != "N" ]; then
+                            echo ""
+                            printf "🎯 Entrez les cibles (séparées par des espaces): "
+                            read -r targets_input
+                            if [ -n "$targets_input" ]; then
+                                add_target $targets_input 2>/dev/null
+                            fi
+                        fi
+                    fi
+                fi
                 echo ""
                 printf "📝 Nom de l'environnement: "
                 read -r name
@@ -422,6 +456,78 @@ show_environment_menu() {
                 ;;
             2)
                 echo ""
+                echo "📝 Création d'un nouvel environnement"
+                echo ""
+                printf "📝 Nom de l'environnement: "
+                read -r name
+                if [ -z "$name" ]; then
+                    echo "❌ Nom requis"
+                    sleep 1
+                    continue
+                fi
+                printf "📝 Description (optionnel): "
+                read -r desc
+                echo ""
+                echo "🎯 Gestion des cibles:"
+                echo "  1. Ajouter des cibles maintenant"
+                echo "  2. Utiliser les cibles actuelles (si disponibles)"
+                echo "  3. Créer sans cibles (vide)"
+                printf "Choix: "
+                read -r target_choice
+                echo ""
+                
+                # Charger le gestionnaire de cibles
+                if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+                    source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+                    
+                    case "$target_choice" in
+                        1)
+                            printf "🎯 Entrez les cibles (séparées par des espaces): "
+                            read -r targets_input
+                            if [ -n "$targets_input" ]; then
+                                # Sauvegarder les cibles actuelles temporairement
+                                local old_targets=("${CYBER_TARGETS[@]}")
+                                clear_targets 2>/dev/null
+                                add_target $targets_input 2>/dev/null
+                                save_environment "$name" "$desc"
+                                # Restaurer les anciennes cibles
+                                CYBER_TARGETS=("${old_targets[@]}")
+                                _save_targets_to_file 2>/dev/null
+                            else
+                                echo "❌ Aucune cible fournie"
+                            fi
+                            ;;
+                        2)
+                            if has_targets 2>/dev/null; then
+                                save_environment "$name" "$desc"
+                            else
+                                echo "⚠️  Aucune cible actuelle. Création d'environnement vide."
+                                local old_targets=("${CYBER_TARGETS[@]}")
+                                CYBER_TARGETS=()
+                                save_environment "$name" "$desc"
+                                CYBER_TARGETS=("${old_targets[@]}")
+                                _save_targets_to_file 2>/dev/null
+                            fi
+                            ;;
+                        3)
+                            local old_targets=("${CYBER_TARGETS[@]}")
+                            CYBER_TARGETS=()
+                            save_environment "$name" "$desc"
+                            CYBER_TARGETS=("${old_targets[@]}")
+                            _save_targets_to_file 2>/dev/null
+                            ;;
+                        *)
+                            echo "❌ Choix invalide"
+                            ;;
+                    esac
+                else
+                    echo "❌ Gestionnaire de cibles non disponible"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
                 list_environments
                 echo ""
                 printf "📂 Nom de l'environnement à charger: "
@@ -432,7 +538,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            3)
+            4)
                 echo ""
                 list_environments
                 echo ""
@@ -444,7 +550,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            4)
+            5)
                 echo ""
                 list_environments
                 echo ""
@@ -456,7 +562,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            5)
+            6)
                 echo ""
                 list_environments
                 echo ""
@@ -468,7 +574,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            6)
+            7)
                 echo ""
                 list_environments
                 echo ""
@@ -482,7 +588,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            7)
+            8)
                 echo ""
                 printf "📥 Chemin du fichier JSON à importer: "
                 read -r input_file
@@ -494,7 +600,18 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            8)
+            9)
+                echo ""
+                if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+                    source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+                    show_target_menu
+                else
+                    echo "❌ Gestionnaire de cibles non disponible"
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                fi
+                ;;
+            10)
                 list_environments
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
