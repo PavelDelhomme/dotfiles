@@ -194,8 +194,10 @@ extract() {
 	esac
 }
 
-# DESC: Crée une archive compressée
+# DESC: Crée une archive compressée d'un fichier ou répertoire. Supporte plusieurs formats de compression.
 # USAGE: archive <file_or_dir> [format: tar.gz|tar.bz2|zip|7z]
+# EXAMPLE: archive ~/Documents
+# EXAMPLE: archive file.txt zip
 archive() {
 	local source="$1"
 	local format="${2:-tar.gz}"
@@ -231,8 +233,10 @@ archive() {
 	esac
 }
 
-# DESC: Affiche la taille d'un fichier ou répertoire
+# DESC: Affiche la taille d'un fichier ou répertoire de manière lisible (KB, MB, GB).
 # USAGE: file_size <file_or_dir>
+# EXAMPLE: file_size ~/Documents
+# EXAMPLE: file_size file.txt
 file_size() {
 	local target="$1"
 	
@@ -248,8 +252,10 @@ file_size() {
 	fi
 }
 
-# DESC: Trouve les fichiers les plus volumineux
+# DESC: Trouve les fichiers les plus volumineux dans un répertoire. Par défaut recherche les fichiers > 100M.
 # USAGE: find_large_files [directory] [size]
+# EXAMPLE: find_large_files ~
+# EXAMPLE: find_large_files /var/log 50M
 find_large_files() {
 	local dir="${1:-.}"
 	local size="${2:-100M}"
@@ -258,8 +264,10 @@ find_large_files() {
 	find "$dir" -type f -size +"$size" -exec ls -lh {} \; 2>/dev/null | awk '{print $5, $9}' | sort -hr
 }
 
-# DESC: Trouve les fichiers dupliqués
+# DESC: Trouve les fichiers dupliqués dans un répertoire en utilisant md5sum pour comparer les fichiers.
 # USAGE: find_duplicates [directory]
+# EXAMPLE: find_duplicates ~/Downloads
+# EXAMPLE: find_duplicates .
 find_duplicates() {
 	local dir="${1:-.}"
 	

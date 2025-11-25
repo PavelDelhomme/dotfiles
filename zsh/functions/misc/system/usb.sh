@@ -1,5 +1,6 @@
-# Fonction pour tester la vraie capacité d'une clé USB
-# Usage: test-usb-capacity /dev/sdX
+# DESC: Teste la vraie capacité d'une clé USB en écrivant et vérifiant des données. ATTENTION: Efface toutes les données du périphérique!
+# USAGE: test-usb-capacity <device>
+# EXAMPLE: test-usb-capacity /dev/sdb
 test-usb-capacity() {
     if [ $# -lt 1 ]; then
         echo "Usage: test-usb-capacity <device>"
@@ -66,7 +67,9 @@ test-usb-capacity() {
     echo "✅ Test terminé!"
 }
 
-# Fonction rapide pour vérifier taille annoncée vs réelle
+# DESC: Vérifie rapidement la taille annoncée d'une clé USB et affiche les informations des partitions.
+# USAGE: check-usb-size <device>
+# EXAMPLE: check-usb-size /dev/sdb
 check-usb-size() {
     if [ $# -lt 1 ]; then
         echo "Usage: check-usb-size /dev/sdX"
