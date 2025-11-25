@@ -8,8 +8,9 @@
 #   make rollback         - Rollback complet
 #   make reset            - Réinitialisation complète
 #   make help             - Afficher l'aide
+#   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -39,6 +40,10 @@ help: ## Afficher cette aide
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
 	@echo "  make reset             - Réinitialisation complète (remise à zéro)"
 	@echo "  make clean             - Nettoyer les fichiers temporaires"
+	@echo "  make generate-man      - Générer les pages man pour toutes les fonctions"
+	@echo ""
+	@echo "$(GREEN)Documentation:$(NC)"
+	@echo "  make generate-man      - Générer les pages man pour toutes les fonctions"
 	@echo ""
 	@echo "$(GREEN)Configuration:$(NC)"
 	@echo "  make git-config        - Configurer Git (nom, email)"
@@ -273,3 +278,5 @@ detect-shell: ## Détecter et afficher le shell actuel
 		fi \
 	done
 
+generate-man: ## Générer les pages man pour toutes les fonctions
+	@bash $(SCRIPT_DIR)/tools/generate_man_pages.sh
