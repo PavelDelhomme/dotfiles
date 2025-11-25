@@ -374,122 +374,125 @@ else
         log_info "Testez manuellement avec: ssh -T git@github.com"
     fi
 else
-    log_info "✓ Clé SSH déjà présente: $SSH_KEY"
-    
-    # Démarrer ssh-agent si nécessaire et ajouter la clé
-    if [ -z "$SSH_AUTH_SOCK" ] || ! ssh-add -l &>/dev/null; then
-        log_info "Démarrage de ssh-agent..."
-        eval "$(ssh-agent -s)" > /dev/null
-        ssh-add "$SSH_KEY" 2>/dev/null || log_warn "Impossible d'ajouter la clé au ssh-agent"
-        log_info "✓ Clé ajoutée au ssh-agent"
-        # Attendre un peu pour que ssh-agent soit prêt
-        sleep 2
-    fi
-    
-    # Tester la connexion existante
-    log_info "Test de la connexion GitHub..."
-    if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-        log_info "✅ Connexion GitHub OK"
-    else
-        log_warn "⚠️ Connexion GitHub échouée"
+        log_info "✓ Clé SSH déjà présente: $SSH_KEY"
         
-        # Vérifier si on a un environnement graphique
-        HAS_DISPLAY=false
-        if [ -n "$DISPLAY" ] || command -v xdg-open >/dev/null 2>&1 || command -v firefox >/dev/null 2>&1 || command -v chromium >/dev/null 2>&1; then
-            HAS_DISPLAY=true
-        fi
-        
-        if [ "$HAS_DISPLAY" = true ]; then
-            # Environnement graphique disponible - ouvrir GitHub
-            log_info "Ouverture de GitHub dans le navigateur..."
-            if command -v xdg-open >/dev/null 2>&1; then
-                xdg-open "https://github.com/settings/ssh/new" 2>/dev/null || true
-            elif command -v firefox >/dev/null 2>&1; then
-                firefox "https://github.com/settings/ssh/new" 2>/dev/null || true
-            elif command -v chromium >/dev/null 2>&1; then
-                chromium "https://github.com/settings/ssh/new" 2>/dev/null || true
-            fi
-            log_info "Veuillez ajouter la clé SSH dans GitHub"
-            echo ""
-            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
-            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo ""
-            log_info "1. Copiez la clé SSH publique ci-dessous :"
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            cat "$SSH_KEY.pub"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo ""
-            log_info "2. Allez sur: https://github.com/settings/keys"
-            log_info "3. Cliquez sur 'New SSH key'"
-            log_info "4. Collez la clé et donnez-lui un titre (ex: 'Dotfiles SSH Key')"
-            log_info "5. Cliquez sur 'Add SSH key'"
-            echo ""
-            log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
-            echo ""
-            
-            # Attendre explicitement que l'utilisateur appuie sur Entrée
-            while true; do
-                printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
-                if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
-                    break
-                fi
-                sleep 0.5
-            done
+        # Démarrer ssh-agent si nécessaire et ajouter la clé
+        if [ -z "$SSH_AUTH_SOCK" ] || ! ssh-add -l &>/dev/null; then
+            log_info "Démarrage de ssh-agent..."
+            eval "$(ssh-agent -s)" > /dev/null 2>&1 || true
+            ssh-add "$SSH_KEY" 2>/dev/null || log_warn "Impossible d'ajouter la clé au ssh-agent"
+            log_info "✓ Clé ajoutée au ssh-agent"
+            # Attendre un peu pour que ssh-agent soit prêt
+            sleep 1
         else
-            # Pas d'environnement graphique - afficher les instructions manuelles
-            echo ""
-            log_section "Instructions pour ajouter la clé SSH manuellement"
-            log_info "Vous êtes en ligne de commande uniquement (pas d'interface graphique)"
-            echo ""
-            log_info "1. Copiez la clé SSH publique ci-dessous :"
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            cat "$SSH_KEY.pub"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo ""
-            log_info "2. Connectez-vous à GitHub sur une autre machine avec un navigateur :"
-            echo "   https://github.com/settings/ssh/new"
-            echo ""
-            log_info "3. Ou utilisez GitHub CLI si installé :"
-            echo "   gh auth login"
-            echo "   gh ssh-key add $SSH_KEY.pub --title 'Dotfiles SSH Key'"
-            echo ""
-            log_info "4. Une fois la clé ajoutée, testez la connexion avec :"
-            echo "   ssh -T git@github.com"
-            echo ""
-            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
-            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo ""
-            log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
-            echo ""
-            
-            # Attendre explicitement que l'utilisateur appuie sur Entrée
-            while true; do
-                printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
-                if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
-                    break
-                fi
-                sleep 0.5
-            done
+            log_info "✓ Clé SSH déjà dans ssh-agent"
         fi
         
-        echo ""
-        log_info "Vérification de la connexion GitHub..."
-        
-        # Attendre un peu pour que GitHub propage la clé
-        log_info "Attente de 5 secondes pour la propagation de la clé sur GitHub..."
-        sleep 5
-        
-        # Tester à nouveau après l'ajout manuel
+        # Tester la connexion existante
         log_info "Test de la connexion GitHub..."
         if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
             log_info "✅ Connexion GitHub OK"
         else
-            log_warn "⚠️ Connexion GitHub toujours échouée"
-            log_warn "Vous pourrez configurer la clé SSH plus tard"
+            log_warn "⚠️ Connexion GitHub échouée"
+            
+            # Vérifier si on a un environnement graphique
+            HAS_DISPLAY=false
+            if [ -n "$DISPLAY" ] || command -v xdg-open >/dev/null 2>&1 || command -v firefox >/dev/null 2>&1 || command -v chromium >/dev/null 2>&1; then
+                HAS_DISPLAY=true
+            fi
+            
+            if [ "$HAS_DISPLAY" = true ]; then
+                # Environnement graphique disponible - ouvrir GitHub
+                log_info "Ouverture de GitHub dans le navigateur..."
+                if command -v xdg-open >/dev/null 2>&1; then
+                    xdg-open "https://github.com/settings/ssh/new" 2>/dev/null || true
+                elif command -v firefox >/dev/null 2>&1; then
+                    firefox "https://github.com/settings/ssh/new" 2>/dev/null || true
+                elif command -v chromium >/dev/null 2>&1; then
+                    chromium "https://github.com/settings/ssh/new" 2>/dev/null || true
+                fi
+                log_info "Veuillez ajouter la clé SSH dans GitHub"
+                echo ""
+                log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
+                log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo ""
+                log_info "1. Copiez la clé SSH publique ci-dessous :"
+                echo ""
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                cat "$SSH_KEY.pub"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo ""
+                log_info "2. Allez sur: https://github.com/settings/keys"
+                log_info "3. Cliquez sur 'New SSH key'"
+                log_info "4. Collez la clé et donnez-lui un titre (ex: 'Dotfiles SSH Key')"
+                log_info "5. Cliquez sur 'Add SSH key'"
+                echo ""
+                log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
+                echo ""
+                
+                # Attendre explicitement que l'utilisateur appuie sur Entrée
+                while true; do
+                    printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
+                    if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
+                        break
+                    fi
+                    sleep 0.5
+                done
+            else
+                # Pas d'environnement graphique - afficher les instructions manuelles
+                echo ""
+                log_section "Instructions pour ajouter la clé SSH manuellement"
+                log_info "Vous êtes en ligne de commande uniquement (pas d'interface graphique)"
+                echo ""
+                log_info "1. Copiez la clé SSH publique ci-dessous :"
+                echo ""
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                cat "$SSH_KEY.pub"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo ""
+                log_info "2. Connectez-vous à GitHub sur une autre machine avec un navigateur :"
+                echo "   https://github.com/settings/ssh/new"
+                echo ""
+                log_info "3. Ou utilisez GitHub CLI si installé :"
+                echo "   gh auth login"
+                echo "   gh ssh-key add $SSH_KEY.pub --title 'Dotfiles SSH Key'"
+                echo ""
+                log_info "4. Une fois la clé ajoutée, testez la connexion avec :"
+                echo "   ssh -T git@github.com"
+                echo ""
+                log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
+                log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo ""
+                log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
+                echo ""
+                
+                # Attendre explicitement que l'utilisateur appuie sur Entrée
+                while true; do
+                    printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
+                    if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
+                        break
+                    fi
+                    sleep 0.5
+                done
+            fi
+            
+            echo ""
+            log_info "Vérification de la connexion GitHub..."
+            
+            # Attendre un peu pour que GitHub propage la clé
+            log_info "Attente de 5 secondes pour la propagation de la clé sur GitHub..."
+            sleep 5
+            
+            # Tester à nouveau après l'ajout manuel
+            log_info "Test de la connexion GitHub..."
+            if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+                log_info "✅ Connexion GitHub OK"
+            else
+                log_warn "⚠️ Connexion GitHub toujours échouée"
+                log_warn "Vous pourrez configurer la clé SSH plus tard"
+            fi
         fi
     fi
     # Fin du if [ ! -f "$SSH_KEY" ]
