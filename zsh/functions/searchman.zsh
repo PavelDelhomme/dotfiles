@@ -36,6 +36,9 @@ searchman() {
     }
     
     # Recherche dans l'historique ZSH avec filtres avancés
+    # DESC: Recherche avancée dans l'historique ZSH avec filtres
+    # USAGE: search_history_advanced
+    # EXAMPLE: search_history_advanced
     search_history_advanced() {
         show_header
         echo -e "${YELLOW}🔍 Recherche avancée dans l'historique${RESET}"
@@ -99,6 +102,9 @@ searchman() {
     }
     
     # Recherche de fichiers avec critères multiples
+    # DESC: Recherche avancée dans les fichiers avec options
+    # USAGE: search_files_advanced
+    # EXAMPLE: search_files_advanced
     search_files_advanced() {
         show_header
         echo -e "${YELLOW}📁 Recherche avancée de fichiers${RESET}"
@@ -198,6 +204,9 @@ searchman() {
     }
     
     # Recherche de processus
+    # DESC: Recherche dans les processus en cours d'exécution
+    # USAGE: search_processes
+    # EXAMPLE: search_processes
     search_processes() {
         show_header
         echo -e "${YELLOW}⚙️ Recherche de processus${RESET}"
@@ -317,6 +326,9 @@ searchman() {
     }
     
     # Recherche de fonctions et commandes ZSH
+    # DESC: Recherche dans les fonctions ZSH définies
+    # USAGE: search_zsh_functions
+    # EXAMPLE: search_zsh_functions
     search_zsh_functions() {
         show_header
         echo -e "${YELLOW}🔧 Recherche de fonctions ZSH${RESET}"

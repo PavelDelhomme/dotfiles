@@ -45,6 +45,9 @@ aliaman() {
     }
     
     # Fonction pour afficher le header
+    # DESC: Affiche l'en-tête du gestionnaire aliaman
+    # USAGE: show_header
+    # EXAMPLE: show_header
     show_header() {
         clear
         echo -e "${CYAN}${BOLD}"
@@ -67,6 +70,9 @@ aliaman() {
     }
     
     # Fonction pour parser les alias du fichier
+    # DESC: Parse et retourne les alias depuis le fichier de configuration
+    # USAGE: parse_aliases [search_pattern]
+    # EXAMPLE: parse_aliases git
     parse_aliases() {
         ensure_aliases_file
         local search_pattern="${1:-}"
@@ -79,6 +85,9 @@ aliaman() {
     }
     
     # Fonction pour afficher la liste des alias avec pagination
+    # DESC: Affiche la liste paginée des alias avec recherche
+    # USAGE: show_aliases_list
+    # EXAMPLE: show_aliases_list
     show_aliases_list() {
         show_header
         echo -e "${YELLOW}📋 Liste des alias${RESET}"
@@ -489,6 +498,9 @@ aliaman() {
     }
     
     # Fonction pour ajouter un nouvel alias
+    # DESC: Ajoute un nouvel alias de manière interactive
+    # USAGE: add_new_alias
+    # EXAMPLE: add_new_alias
     add_new_alias() {
         show_header
         echo -e "${YELLOW}➕ Ajouter un nouvel alias${RESET}"
@@ -542,6 +554,9 @@ aliaman() {
     }
     
     # Fonction pour recharger les alias
+    # DESC: Recharge les alias depuis le fichier de configuration
+    # USAGE: reload_aliases
+    # EXAMPLE: reload_aliases
     reload_aliases() {
         ensure_aliases_file
         source "$ALIASES_FILE"

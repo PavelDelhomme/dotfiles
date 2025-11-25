@@ -40,6 +40,9 @@ netman() {
     }
     
     # Fonction pour afficher les ports en écoute avec interface interactive
+    # DESC: Gère les ports réseau de manière interactive (liste, kill, monitoring)
+    # USAGE: manage_ports
+    # EXAMPLE: manage_ports
     manage_ports() {
         local SELECTED_ITEMS=""
         while true; do
@@ -196,6 +199,9 @@ netman() {
     }
     
     # Fonction pour afficher les connexions actives
+    # DESC: Affiche les connexions réseau actives
+    # USAGE: show_connections
+    # EXAMPLE: show_connections
     show_connections() {
         show_header
         echo -e "${YELLOW}🔗 Connexions réseau actives${RESET}"
@@ -227,6 +233,9 @@ netman() {
     }
     
     # Fonction pour afficher les informations IP
+    # DESC: Affiche les informations IP du système
+    # USAGE: show_ip_info
+    # EXAMPLE: show_ip_info
     show_ip_info() {
         show_header
         echo -e "${YELLOW}🌐 Informations IP${RESET}"
@@ -264,6 +273,9 @@ netman() {
     }
     
     # Fonction pour afficher les informations DNS
+    # DESC: Affiche la configuration DNS
+    # USAGE: show_dns_info
+    # EXAMPLE: show_dns_info
     show_dns_info() {
         show_header
         echo -e "${YELLOW}🔍 Configuration DNS${RESET}"
@@ -323,6 +335,9 @@ netman() {
     }
     
     # Fonction pour afficher les interfaces réseau
+    # DESC: Affiche les interfaces réseau disponibles
+    # USAGE: show_interfaces
+    # EXAMPLE: show_interfaces
     show_interfaces() {
         show_header
         echo -e "${YELLOW}🖧  Interfaces réseau${RESET}"
@@ -416,6 +431,9 @@ netman() {
     }
     
     # Fonction pour kill un port spécifique
+    # DESC: Tue rapidement un processus sur un port spécifique
+    # USAGE: kill_port_quick <port>
+    # EXAMPLE: kill_port_quick 8080
     kill_port_quick() {
         show_header
         echo -e "${YELLOW}💀 Kill rapide de port${RESET}"

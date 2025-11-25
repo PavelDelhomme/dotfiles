@@ -44,6 +44,9 @@ cyberman() {
     # =========================================================================
     # CATÉGORIE 1: RECONNAISSANCE & INFORMATION GATHERING
     # =========================================================================
+    # DESC: Affiche le menu de reconnaissance et information gathering
+    # USAGE: show_recon_menu
+    # EXAMPLE: show_recon_menu
     show_recon_menu() {
         show_header
         echo -e "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET}"
@@ -81,6 +84,9 @@ cyberman() {
     # =========================================================================
     # CATÉGORIE 2: SCANNING & ENUMERATION
     # =========================================================================
+    # DESC: Affiche le menu de scanning réseau
+    # USAGE: show_scan_menu
+    # EXAMPLE: show_scan_menu
     show_scan_menu() {
         show_header
         echo -e "${YELLOW}🔎 SCANNING & ENUMERATION${RESET}"
@@ -116,6 +122,9 @@ cyberman() {
     # =========================================================================
     # CATÉGORIE 3: VULNERABILITY ASSESSMENT
     # =========================================================================
+    # DESC: Affiche le menu de scan de vulnérabilités
+    # USAGE: show_vuln_menu
+    # EXAMPLE: show_vuln_menu
     show_vuln_menu() {
         show_header
         echo -e "${YELLOW}🛡️ VULNERABILITY ASSESSMENT${RESET}"
@@ -149,6 +158,9 @@ cyberman() {
     # =========================================================================
     # CATÉGORIE 4: NETWORK ATTACKS & EXPLOITATION
     # =========================================================================
+    # DESC: Affiche le menu d'attaques réseau
+    # USAGE: show_attack_menu
+    # EXAMPLE: show_attack_menu
     show_attack_menu() {
         show_header
         echo -e "${YELLOW}⚔️ NETWORK ATTACKS & EXPLOITATION${RESET}"
@@ -176,6 +188,9 @@ cyberman() {
     # =========================================================================
     # CATÉGORIE 5: NETWORK ANALYSIS & MONITORING
     # =========================================================================
+    # DESC: Affiche le menu d'analyse réseau
+    # USAGE: show_analysis_menu
+    # EXAMPLE: show_analysis_menu
     show_analysis_menu() {
         show_header
         echo -e "${YELLOW}📡 NETWORK ANALYSIS & MONITORING${RESET}"
@@ -197,6 +212,9 @@ cyberman() {
     # =========================================================================
     # CATÉGORIE 6: PRIVACY & ANONYMITY
     # =========================================================================
+    # DESC: Affiche le menu de privacy et anonymisation
+    # USAGE: show_privacy_menu
+    # EXAMPLE: show_privacy_menu
     show_privacy_menu() {
         show_header
         echo -e "${YELLOW}🔒 PRIVACY & ANONYMITY${RESET}"
@@ -220,6 +238,9 @@ cyberman() {
     # =========================================================================
     # MENU PRINCIPAL
     # =========================================================================
+    # DESC: Affiche le menu principal de cyberman
+    # USAGE: show_main_menu
+    # EXAMPLE: show_main_menu
     show_main_menu() {
         show_header
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
