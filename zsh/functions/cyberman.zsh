@@ -462,8 +462,34 @@ cyberman() {
         # Afficher l'environnement actif
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
             source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+            
+            # Vérifier si un environnement est actif
+            local current_env=""
             if has_active_environment 2>/dev/null; then
-                local current_env=$(get_current_environment 2>/dev/null)
+                current_env=$(get_current_environment 2>/dev/null)
+            fi
+            
+            # Si pas d'environnement actif mais des cibles chargées, vérifier si elles viennent d'un environnement
+            if [ -z "$current_env" ] && has_targets 2>/dev/null; then
+                # Chercher dans les fichiers d'environnement pour trouver celui qui correspond aux cibles actuelles
+                local env_dir="${HOME}/.cyberman/environments"
+                if [ -d "$env_dir" ] && command -v jq >/dev/null 2>&1; then
+                    for env_file in "$env_dir"/*.json; do
+                        if [ -f "$env_file" ]; then
+                            local env_targets=$(jq -r '.targets[]?' "$env_file" 2>/dev/null | sort)
+                            local current_targets=$(printf '%s\n' "${CYBER_TARGETS[@]}" | sort)
+                            if [ "$env_targets" = "$current_targets" ] && [ -n "$env_targets" ]; then
+                                current_env=$(basename "$env_file" .json)
+                                # Définir l'environnement actif
+                                CYBER_CURRENT_ENV="$current_env"
+                                break
+                            fi
+                        fi
+                    done
+                fi
+            fi
+            
+            if [ -n "$current_env" ]; then
                 echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
                 
                 # Afficher les statistiques de l'environnement actif
@@ -477,6 +503,8 @@ cyberman() {
             else
                 echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
             fi
+        else
+            echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
         fi
         
         # Afficher les cibles configurées
