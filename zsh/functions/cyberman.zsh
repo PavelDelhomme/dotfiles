@@ -101,7 +101,8 @@ cyberman() {
             8) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
             9) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
             10) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
-            11)
+            11) source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet ;;
+            12)
                 if has_targets; then
                     echo "🔄 Reconnaissance sur toutes les cibles..."
                     for target in "${CYBER_TARGETS[@]}"; do
@@ -142,7 +143,8 @@ cyberman() {
         echo "7.  Enumerate users           (Énumération utilisateurs)"
         echo "8.  Web dir enum              (Énumération répertoires web)"
         echo "9.  Network map               (Cartographie réseau)"
-        echo "10. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
+        echo "10. Check Telnet              (Vérifier si telnet est actif)"
+        echo "11. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -159,7 +161,8 @@ cyberman() {
             7) source "$CYBER_DIR/scanning/enumerate_users.sh" && enumerate_users ;;
             8) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
             9) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
-            10)
+            10) source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet ;;
+            11)
                 if has_targets; then
                     echo "🔄 Scan complet sur toutes les cibles..."
                     for target in "${CYBER_TARGETS[@]}"; do
