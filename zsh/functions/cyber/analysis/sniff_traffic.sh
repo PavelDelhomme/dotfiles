@@ -1,5 +1,6 @@
 # DESC: Capture le trafic réseau sur une interface spécifiée
 # USAGE: sniff_traffic <interface>
+# EXAMPLE: sniff_traffic wlan0
 sniff_traffic() {
     # Vérifier et installer tcpdump si nécessaire
     UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"

@@ -1,5 +1,6 @@
 # DESC: Tente de brute force SSH sur une cible
 # USAGE: brute_ssh <target_ip> <user_list> <password_list>
+# EXAMPLE: brute_ssh example.com
 brute_ssh() {
     # Vérifier et installer hydra si nécessaire
     UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"

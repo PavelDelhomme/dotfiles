@@ -1,5 +1,6 @@
 # DESC: Tente de cracker un mot de passe hashé avec John the Ripper
 # USAGE: password_crack <hash_file>
+# EXAMPLE: password_crack ~/file.txt
 password_crack() {
 	local hash_file="$1"
 	if [[ -f "$hash_file" ]]; then

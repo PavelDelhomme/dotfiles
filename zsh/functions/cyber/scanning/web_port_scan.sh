@@ -1,5 +1,6 @@
 # DESC: Exécute un scan de ports avancé sur une URL cible
 # USAGE: web_port_scan <url> [options]
+# EXAMPLE: web_port_scan example.com
 web_port_scan() {
     local target="$1"
     shift

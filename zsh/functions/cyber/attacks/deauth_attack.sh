@@ -1,5 +1,6 @@
 # DESC: Lance une attaque de désauthentification sur un réseau Wi-Fi cible
 # USAGE: deauth_attack <interface> <cible_mac> <bssid>
+# EXAMPLE: deauth_attack wlan0
 deauth_attack() {
     # Vérifier et installer aircrack-ng si nécessaire
     UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"

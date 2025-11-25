@@ -1,5 +1,6 @@
 # DESC: Lance une attaque ARP spoofing entre deux cibles
 # USAGE: arp_spoof <interface> <ip_cible_1> <ip_cible_2>
+# EXAMPLE: arp_spoof wlan0
 arp_spoof() {
     # Vérifier et installer arpspoof si nécessaire
     UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"

@@ -1,5 +1,6 @@
 # DESC: Déchiffre un fichier chiffré avec OpenSSL
 # USAGE: decrypt_file <file_path> <password>
+# EXAMPLE: decrypt_file ~/file.txt
 decrypt_file() {
 	local file="$1"
 	local password="$2"
