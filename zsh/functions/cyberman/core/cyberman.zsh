@@ -15,7 +15,7 @@ fi
 
 # Répertoires de base
 CYBERMAN_DIR="${CYBERMAN_DIR:-$HOME/dotfiles/zsh/functions/cyberman}"
-CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
 
 # Charger le gestionnaire de cibles
 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
