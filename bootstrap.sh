@@ -264,12 +264,36 @@ if [ ! -f "$SSH_KEY" ]; then
         xdg-open "https://github.com/settings/keys" 2>/dev/null || true
     fi
     
-    printf "\nAppuyez sur Entrée après avoir ajouté la clé sur GitHub... "
-    read -r dummy
+    echo ""
+    log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
+    log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    log_info "1. Copiez la clé SSH ci-dessus (déjà dans le presse-papier si xclip/wl-copy disponible)"
+    log_info "2. Allez sur: https://github.com/settings/keys"
+    log_info "3. Cliquez sur 'New SSH key'"
+    log_info "4. Collez la clé et donnez-lui un titre (ex: 'Dotfiles SSH Key')"
+    log_info "5. Cliquez sur 'Add SSH key'"
+    echo ""
+    log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
+    echo ""
+    
+    # Attendre explicitement que l'utilisateur appuie sur Entrée
+    # Utiliser /dev/tty pour forcer la lecture depuis le terminal même dans un pipe
+    while true; do
+        printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
+        if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
+            break
+        fi
+        sleep 0.5
+    done
+    
+    echo ""
+    log_info "Vérification de la connexion GitHub..."
     
     # Attendre un peu pour que GitHub propage la clé
-    log_info "Attente de 3 secondes pour la propagation de la clé sur GitHub..."
-    sleep 3
+    log_info "Attente de 5 secondes pour la propagation de la clé sur GitHub..."
+    sleep 5
     
     # Tester la connexion
     log_info "Test de la connexion GitHub..."
@@ -316,6 +340,33 @@ else
                 chromium "https://github.com/settings/ssh/new" 2>/dev/null || true
             fi
             log_info "Veuillez ajouter la clé SSH dans GitHub"
+            echo ""
+            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
+            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            log_info "1. Copiez la clé SSH publique ci-dessous :"
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            cat "$SSH_KEY.pub"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            log_info "2. Allez sur: https://github.com/settings/keys"
+            log_info "3. Cliquez sur 'New SSH key'"
+            log_info "4. Collez la clé et donnez-lui un titre (ex: 'Dotfiles SSH Key')"
+            log_info "5. Cliquez sur 'Add SSH key'"
+            echo ""
+            log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
+            echo ""
+            
+            # Attendre explicitement que l'utilisateur appuie sur Entrée
+            while true; do
+                printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
+                if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
+                    break
+                fi
+                sleep 0.5
+            done
         else
             # Pas d'environnement graphique - afficher les instructions manuelles
             echo ""
@@ -338,9 +389,29 @@ else
             log_info "4. Une fois la clé ajoutée, testez la connexion avec :"
             echo "   ssh -T git@github.com"
             echo ""
-            printf "Appuyez sur Entrée une fois la clé SSH ajoutée sur GitHub... "
-            read -r dummy </dev/tty 2>/dev/null || read -r dummy
+            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            log_warn "⚠️  IMPORTANT: Ajoutez la clé SSH sur GitHub avant de continuer"
+            log_warn "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            log_warn "Une fois la clé ajoutée sur GitHub, appuyez sur Entrée pour continuer..."
+            echo ""
+            
+            # Attendre explicitement que l'utilisateur appuie sur Entrée
+            while true; do
+                printf "${YELLOW}Appuyez sur Entrée après avoir ajouté la clé sur GitHub... ${NC}"
+                if IFS= read -r dummy </dev/tty 2>/dev/null || IFS= read -r dummy; then
+                    break
+                fi
+                sleep 0.5
+            done
         fi
+        
+        echo ""
+        log_info "Vérification de la connexion GitHub..."
+        
+        # Attendre un peu pour que GitHub propage la clé
+        log_info "Attente de 5 secondes pour la propagation de la clé sur GitHub..."
+        sleep 5
         
         # Tester à nouveau après l'ajout manuel
         log_info "Test de la connexion GitHub..."
