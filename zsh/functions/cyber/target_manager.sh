@@ -234,7 +234,7 @@ for_each_target() {
         echo ""
         
         # Exécuter la fonction avec la cible et les arguments supplémentaires
-        if command -v "$func_name" >/dev/null 2>&1; then
+        if command -v "$func_name" >/dev/null 2>&1 || type "$func_name" >/dev/null 2>&1; then
             $func_name "$target" $args
         else
             echo "❌ Fonction '$func_name' non trouvée"

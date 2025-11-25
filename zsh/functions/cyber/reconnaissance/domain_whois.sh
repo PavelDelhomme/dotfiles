@@ -23,11 +23,21 @@ function domain_whois() {
         if [ "$use_all" != "n" ] && [ "$use_all" != "N" ]; then
             # Utiliser toutes les cibles
             for t in "${CYBER_TARGETS[@]}"; do
+                # Extraire le domaine si c'est une URL
+                local domain="$t"
+                if [[ "$t" =~ ^https?:// ]]; then
+                    domain=$(echo "$t" | sed -E 's|^https?://||' | sed 's|/.*||')
+                fi
                 echo ""
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                echo "🎯 WHOIS: $t"
+                echo "🎯 WHOIS: $domain"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                whois "$t"
+                if command -v whois >/dev/null 2>&1; then
+                    whois "$domain"
+                else
+                    echo "❌ whois non installé"
+                    echo "💡 Installez-le: sudo pacman -S whois"
+                fi
             done
             return 0
         else
@@ -43,5 +53,20 @@ function domain_whois() {
         fi
     fi
     
-    whois "$target"
+    # Extraire le domaine si c'est une URL
+    local domain="$target"
+    if [[ "$target" =~ ^https?:// ]]; then
+        domain=$(echo "$target" | sed -E 's|^https?://||' | sed 's|/.*||')
+    fi
+    
+    echo "🔍 WHOIS pour: $domain"
+    echo ""
+    
+    if command -v whois >/dev/null 2>&1; then
+        whois "$domain"
+    else
+        echo "❌ whois non installé"
+        echo "💡 Installez-le: sudo pacman -S whois"
+        return 1
+    fi
 }

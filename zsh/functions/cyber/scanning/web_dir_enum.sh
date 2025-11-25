@@ -39,12 +39,12 @@ web_dir_enum() {
                 return 1
             fi
         fi
-    else
-        url=$(prompt_target "🎯 Entrez l'URL cible: ")
-        if [ -z "$url" ]; then
-            return 1
+        else
+            url=$(prompt_target "🎯 Entrez l'URL cible: ")
+            if [ -z "$url" ]; then
+                return 1
+            fi
         fi
-    }
 
     if [ ! -f "$wordlist" ]; then
         echo "❌ Wordlist non trouvée : $wordlist"
