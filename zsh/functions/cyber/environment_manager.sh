@@ -604,6 +604,22 @@ show_environment_menu() {
                 echo ""
                 list_environments
                 echo ""
+                echo "📝 Entrez les noms des environnements à supprimer (séparés par des espaces):"
+                echo "   Exemple: env1 env2 env3"
+                printf "Environnements: "
+                read -r env_names
+                if [ -n "$env_names" ]; then
+                    delete_environments $env_names
+                else
+                    echo "❌ Aucun nom d'environnement spécifié"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            8)
+                echo ""
+                list_environments
+                echo ""
                 printf "📤 Nom de l'environnement à exporter: "
                 read -r name
                 if [ -n "$name" ]; then
@@ -614,7 +630,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            8)
+            9)
                 echo ""
                 printf "📥 Chemin du fichier JSON à importer: "
                 read -r input_file
@@ -626,7 +642,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            9)
+            10)
                 echo ""
                 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
                     source "$CYBER_DIR/target_manager.sh" 2>/dev/null
@@ -637,7 +653,7 @@ show_environment_menu() {
                     read -k 1 "?Appuyez sur une touche pour continuer..."
                 fi
                 ;;
-            10)
+            11)
                 list_environments
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
