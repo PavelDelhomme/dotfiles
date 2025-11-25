@@ -88,6 +88,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois ;;
             2) source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup ;;
@@ -145,6 +147,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) source "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan ;;
             2) source "$CYBER_DIR/scanning/scan_ports.sh" && ensure_tool nmap && scan_ports ;;
@@ -199,6 +203,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) source "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan ;;
             2) source "$CYBER_DIR/vulnerability/vuln_scan.sh" && vuln_scan ;;
@@ -251,6 +257,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) source "$CYBER_DIR/attacks/arp_spoof.sh" && ensure_tool arpspoof && arp_spoof ;;
             2) source "$CYBER_DIR/attacks/brute_ssh.sh" && ensure_tool hydra && brute_ssh ;;
@@ -278,6 +286,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) source "$CYBER_DIR/analysis/sniff_traffic.sh" && ensure_tool tcpdump && sniff_traffic ;;
             2) source "$CYBER_DIR/analysis/wifi_scan.sh" && wifi_scan ;;
@@ -303,6 +313,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) source "$CYBER_DIR/privacy/start_tor.sh" && ensure_tool tor && start_tor ;;
             2) source "$CYBER_DIR/privacy/stop_tor.sh" && stop_tor ;;
@@ -340,6 +352,8 @@ cyberman() {
         echo ""
         printf "Choix: "
         read -r choice
+        # Nettoyer le choix
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 echo ""
@@ -509,7 +523,7 @@ EOF
         printf "Choix: "
         read -r choice
         # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
-        choice=$(echo "$choice" | tr -d '[:space:]')
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) show_recon_menu ;;
             2) show_scan_menu ;;
@@ -521,6 +535,8 @@ EOF
             8) show_environment_menu ;;
             9) show_workflow_menu ;;
             10) show_report_menu ;;
+            11) show_anonymity_menu ;;
+            12) show_assistant_menu ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
