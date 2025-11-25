@@ -1,6 +1,6 @@
 #!/bin/zsh
 # =============================================================================
-# MISCMAN WRAPPER - Wrapper de compatibilité pour miscman
+# DEVMAN WRAPPER - Wrapper de compatibilité pour devman
 # =============================================================================
 # Description: Wrapper pour maintenir la compatibilité avec l'ancien chemin
 # Author: Paul Delhomme
@@ -8,11 +8,12 @@
 # =============================================================================
 
 # Charger le script principal depuis la nouvelle structure
-MISCMAN_CORE="$HOME/dotfiles/zsh/functions/miscman/core/miscman.zsh"
+DEVMAN_CORE="$HOME/dotfiles/zsh/functions/devman/core/devman.zsh"
 
-if [ -f "$MISCMAN_CORE" ]; then
-    source "$MISCMAN_CORE"
+if [ -f "$DEVMAN_CORE" ]; then
+    source "$DEVMAN_CORE"
 else
-    echo "❌ Erreur: miscman core non trouvé: $MISCMAN_CORE"
+    echo "❌ Erreur: devman core non trouvé: $DEVMAN_CORE"
     return 1
 fi
+
