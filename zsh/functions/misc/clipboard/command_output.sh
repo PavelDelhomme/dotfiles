@@ -1,5 +1,6 @@
-# DESC: Execute la dernière commande et capture la sortie
+# DESC: Exécute la dernière commande de l'historique et copie sa sortie dans le presse-papier. Utile pour récupérer rapidement le résultat d'une commande précédente.
 # USAGE: copy_last_command_output
+# EXAMPLE: copy_last_command_output
 copy_last_command_output() {
     local last_command="$(fc -ln -1)"
     

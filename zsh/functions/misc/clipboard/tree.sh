@@ -1,5 +1,7 @@
-# DESC: Copie l'arborescence d'un répertoire
+# DESC: Copie l'arborescence complète d'un répertoire dans le presse-papier. Exclut les fichiers cachés par défaut.
 # USAGE: copy_tree <directory_path>
+# EXAMPLE: copy_tree ~/Documents
+# EXAMPLE: copy_tree .
 copy_tree() {
 	local dir="${1:-.}"  # Par défaut, le répertoire actuel
 	if [[ ! -d "$dir" ]]; then

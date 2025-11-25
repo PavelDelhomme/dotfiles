@@ -3,8 +3,10 @@
 # Fonctions utilitaires pour la gestion des processus
 # =============================================================================
 
-# DESC: Tue un processus par nom
+# DESC: Tue un processus par nom. Recherche tous les processus correspondant au nom et les arrête proprement.
 # USAGE: kill_process <process_name>
+# EXAMPLE: kill_process firefox
+# EXAMPLE: kill_process "python script.py"
 kill_process() {
 	local process="$1"
 	
@@ -26,8 +28,10 @@ kill_process() {
 	done
 }
 
-# DESC: Tue un processus par port
+# DESC: Tue le processus utilisant un port spécifique. Utile pour libérer un port occupé.
 # USAGE: kill_port <port>
+# EXAMPLE: kill_port 8080
+# EXAMPLE: kill_port 3000
 kill_port() {
 	local port="$1"
 	
@@ -47,8 +51,10 @@ kill_port() {
 	kill "$pid" && echo "✅ Processus arrêté" || echo "❌ Échec"
 }
 
-# DESC: Affiche les processus par port
+# DESC: Affiche les processus utilisant des ports réseau. Sans argument, liste tous les ports en écoute.
 # USAGE: port_process [port]
+# EXAMPLE: port_process
+# EXAMPLE: port_process 8080
 port_process() {
 	local port="$1"
 	
@@ -60,8 +66,10 @@ port_process() {
 	fi
 }
 
-# DESC: Surveille un processus
+# DESC: Surveille un processus en temps réel avec mise à jour périodique. Affiche les informations du processus à intervalles réguliers.
 # USAGE: watch_process <process_name> [interval]
+# EXAMPLE: watch_process python
+# EXAMPLE: watch_process node 2
 watch_process() {
 	local process="$1"
 	local interval="${2:-1}"

@@ -1,5 +1,7 @@
-# DESC: Copie le contenu d'un fichier dans le presse-papier
+# DESC: Copie le contenu complet d'un fichier dans le presse-papier système. Supporte xclip (X11) et wl-copy (Wayland).
 # USAGE: copy_file <file_path>
+# EXAMPLE: copy_file ~/.zshrc
+# EXAMPLE: copy_file config.txt
 copy_file() {
 	local file="$1"
 	if [[ -f "$file" ]]; then

@@ -3,8 +3,9 @@
 # Fonctions utilitaires pour le système (disque, RAM, CPU)
 # =============================================================================
 
-# DESC: Affiche des informations sur le système
+# DESC: Affiche un résumé complet des informations système : OS, utilisateur, uptime, espace disque, RAM et CPU.
 # USAGE: system_info
+# EXAMPLE: system_info
 system_info() {
 	echo "📊 Informations sur le système :"
 	echo "─────────────────────────────────"
@@ -22,16 +23,19 @@ system_info() {
 	echo "  $(nproc) core(s)"
 }
 
-# DESC: Affiche l'utilisation du disque par répertoire
+# DESC: Affiche les 10 plus gros répertoires/fichiers dans un répertoire donné, triés par taille. Sans argument, utilise le répertoire courant.
 # USAGE: disk_usage [directory]
+# EXAMPLE: disk_usage ~
+# EXAMPLE: disk_usage /var/log
 disk_usage() {
 	local dir="${1:-.}"
 	echo "💾 Utilisation disque: $dir"
 	du -sh "$dir"/* 2>/dev/null | sort -hr | head -10
 }
 
-# DESC: Nettoie les fichiers temporaires système
+# DESC: Nettoie les caches système (pacman, apt, pip, npm) et les fichiers temporaires. Détecte automatiquement le gestionnaire de paquets utilisé.
 # USAGE: system_clean
+# EXAMPLE: system_clean
 system_clean() {
 	echo "🧹 Nettoyage système..."
 	
@@ -67,8 +71,10 @@ system_clean() {
 	echo "✅ Nettoyage terminé"
 }
 
-# DESC: Affiche les processus les plus gourmands en ressources
+# DESC: Affiche les processus les plus gourmands en CPU et RAM. Par défaut affiche les 10 premiers.
 # USAGE: top_processes [count]
+# EXAMPLE: top_processes
+# EXAMPLE: top_processes 20
 top_processes() {
 	local count="${1:-10}"
 	echo "🔝 Top $count processus (CPU):"
@@ -78,8 +84,10 @@ top_processes() {
 	ps aux --sort=-%mem | head -n $((count + 1)) | awk '{printf "  %6.1f%%  %s\n", $4, $11}'
 }
 
-# DESC: Affiche l'espace disque disponible
+# DESC: Affiche l'espace disque disponible sur un point de montage. Par défaut affiche l'espace sur la racine (/).
 # USAGE: disk_space [mount_point]
+# EXAMPLE: disk_space
+# EXAMPLE: disk_space /home
 disk_space() {
 	local mount="${1:-/}"
 	echo "💾 Espace disque: $mount"
@@ -89,8 +97,10 @@ disk_space() {
 	}'
 }
 
-# DESC: Surveille les modifications de fichiers dans un répertoire
+# DESC: Surveille en temps réel les modifications de fichiers dans un répertoire (création, suppression, modification, déplacement). Nécessite inotify-tools.
 # USAGE: watch_directory <directory>
+# EXAMPLE: watch_directory ~/Documents
+# EXAMPLE: watch_directory /var/log
 watch_directory() {
 	local dir="$1"
 	

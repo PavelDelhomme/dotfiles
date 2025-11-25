@@ -3,8 +3,10 @@
 # Fonctions utilitaires pour copier du texte
 # =============================================================================
 
-# DESC: Copie du texte dans le presse-papier
+# DESC: Copie du texte directement dans le presse-papier système. Supporte xclip (X11) et wl-copy (Wayland).
 # USAGE: copy_text <text>
+# EXAMPLE: copy_text "Hello World"
+# EXAMPLE: copy_text $(date)
 copy_text() {
 	local text="$*"
 	
@@ -20,8 +22,9 @@ copy_text() {
 	echo "📋 Texte copié: ${text:0:50}..."
 }
 
-# DESC: Copie le chemin actuel dans le presse-papier
+# DESC: Copie le chemin absolu du répertoire de travail actuel dans le presse-papier.
 # USAGE: copy_pwd
+# EXAMPLE: copy_pwd
 copy_pwd() {
 	local pwd=$(pwd)
 	echo -n "$pwd" | xclip -selection clipboard 2>/dev/null || \
@@ -31,8 +34,10 @@ copy_pwd() {
 	echo "📋 Chemin copié: $pwd"
 }
 
-# DESC: Copie le résultat d'une commande
+# DESC: Exécute une commande et copie sa sortie dans le presse-papier. Utile pour capturer rapidement des résultats.
 # USAGE: copy_cmd <command>
+# EXAMPLE: copy_cmd "ls -la"
+# EXAMPLE: copy_cmd "git log --oneline -5"
 copy_cmd() {
 	if [[ -z "$*" ]]; then
 		echo "❌ Usage: copy_cmd <command>"
