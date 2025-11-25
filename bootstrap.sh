@@ -272,13 +272,8 @@ else
     # Continuer avec la configuration SSH
     SSH_KEY="$HOME/.ssh/id_ed25519"
     SSH_PUB_KEY="$SSH_KEY.pub"
-    
+
     if [ ! -f "$SSH_KEY" ]; then
-
-SSH_KEY="$HOME/.ssh/id_ed25519"
-SSH_PUB_KEY="$SSH_KEY.pub"
-
-if [ ! -f "$SSH_KEY" ]; then
     log_info "Génération de la clé SSH ED25519..."
     
     # S'assurer que git_email contient bien la valeur réelle
