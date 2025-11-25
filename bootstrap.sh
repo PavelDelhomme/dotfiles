@@ -274,7 +274,7 @@ else
     SSH_PUB_KEY="$SSH_KEY.pub"
 
     if [ ! -f "$SSH_KEY" ]; then
-    log_info "Génération de la clé SSH ED25519..."
+        log_info "Génération de la clé SSH ED25519..."
     
     # S'assurer que git_email contient bien la valeur réelle
     # Si git_email contient encore des variables non résolues, erreur
