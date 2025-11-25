@@ -353,6 +353,9 @@ cyberman() {
                             source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl "$target"
                         fi
                     done
+                    echo ""
+                    echo "✅ Scan de vulnérabilités terminé sur toutes les cibles"
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
                 else
                     echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
                     sleep 2
