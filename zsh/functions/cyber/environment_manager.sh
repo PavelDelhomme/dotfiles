@@ -413,6 +413,24 @@ has_active_environment() {
     [ -n "$CYBER_CURRENT_ENV" ]
 }
 
+# DESC: Désactive l'environnement actif
+# USAGE: deactivate_environment
+# EXAMPLE: deactivate_environment
+deactivate_environment() {
+    if [ -z "$CYBER_CURRENT_ENV" ]; then
+        echo "⚠️  Aucun environnement actif à désactiver"
+        return 1
+    fi
+    
+    local env_name="$CYBER_CURRENT_ENV"
+    CYBER_CURRENT_ENV=""
+    rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
+    
+    echo "✅ Environnement désactivé: $env_name"
+    echo "💡 Les cibles actuelles ne sont pas supprimées"
+    return 0
+}
+
 # DESC: Exporte un environnement vers un fichier JSON
 # USAGE: export_environment <name> [output_file]
 # EXAMPLE: export_environment "pentest_example_com" ~/backup_env.json

@@ -660,12 +660,15 @@ cyberman() {
         echo ""
         echo "9.  🚀 Assistant de test complet"
         
-        # Afficher l'option d'accès rapide aux notes si un environnement est actif
+        # Afficher les options rapides si un environnement est actif
         if has_active_environment 2>/dev/null; then
             local current_env=$(get_current_environment 2>/dev/null)
             echo ""
             echo -e "${GREEN}📝 Environnement actif: $current_env${RESET}"
             echo "10. 📝 Notes & Informations de l'environnement actif"
+            echo "11. 📊 Rapports (consulter, exporter)"
+            echo "12. 🔄 Workflows (créer, exécuter, gérer)"
+            echo "13. 🚫 Désactiver l'environnement actif"
         fi
         echo ""
         echo "h.  Aide"
@@ -1293,7 +1296,70 @@ EOF
             6) show_network_tools_menu ;;
             7) show_iot_menu ;;
             8) show_advanced_tools_menu ;;
-            9) show_assistant_menu ;;
+            9) show_utilities_menu ;;
+            10) show_assistant_menu ;;
+            11)
+                # Accès rapide aux notes de l'environnement actif
+                if has_active_environment 2>/dev/null; then
+                    local current_env=$(get_current_environment 2>/dev/null)
+                    if [ -f "$CYBER_DIR/management_menu.sh" ]; then
+                        source "$CYBER_DIR/management_menu.sh"
+                        show_environment_info_menu
+                    elif [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+                        source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+                        load_infos "$current_env"
+                    else
+                        echo "❌ Gestionnaire d'environnements non disponible"
+                        sleep 1
+                    fi
+                else
+                    echo "❌ Aucun environnement actif"
+                    echo "💡 Chargez d'abord un environnement (Option 1 > Environnements)"
+                    sleep 2
+                fi
+                ;;
+            12)
+                # Accès rapide aux rapports
+                if has_active_environment 2>/dev/null; then
+                    show_report_menu
+                else
+                    echo "❌ Aucun environnement actif"
+                    echo "💡 Chargez d'abord un environnement (Option 1 > Environnements)"
+                    sleep 2
+                fi
+                ;;
+            13)
+                # Accès rapide aux workflows
+                if has_active_environment 2>/dev/null; then
+                    show_workflow_menu
+                else
+                    echo "❌ Aucun environnement actif"
+                    echo "💡 Chargez d'abord un environnement (Option 1 > Environnements)"
+                    sleep 2
+                fi
+                ;;
+            14)
+                # Désactiver l'environnement actif
+                if has_active_environment 2>/dev/null; then
+                    local current_env=$(get_current_environment 2>/dev/null)
+                    if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+                        source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+                        printf "⚠️  Voulez-vous désactiver l'environnement '$current_env'? (o/N): "
+                        read -r confirm
+                        if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
+                            deactivate_environment
+                            echo ""
+                            read -k 1 "?Appuyez sur une touche pour continuer..."
+                        fi
+                    else
+                        echo "❌ Gestionnaire d'environnements non disponible"
+                        sleep 1
+                    fi
+                else
+                    echo "❌ Aucun environnement actif"
+                    sleep 1
+                fi
+                ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
