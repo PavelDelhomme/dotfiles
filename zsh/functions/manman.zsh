@@ -7,6 +7,9 @@
 # Version: 1.0
 # =============================================================================
 
+# DESC: Gestionnaire centralisé pour accéder à tous les gestionnaires interactifs (*man). Permet de lancer rapidement pathman, netman, aliaman, miscman, searchman et cyberman depuis un menu unique.
+# USAGE: manman
+# EXAMPLE: manman
 manman() {
     local RED='\033[0;31m'
     local GREEN='\033[0;32m'

@@ -7,6 +7,11 @@
 # Version: 1.0
 # =============================================================================
 
+# DESC: Gestionnaire interactif complet pour les outils divers et utilitaires système. Inclut génération de mots de passe, informations système, sauvegardes, extraction d'archives, chiffrement et nettoyage.
+# USAGE: miscman [command]
+# EXAMPLE: miscman
+# EXAMPLE: miscman genpass 20
+# EXAMPLE: miscman sysinfo
 miscman() {
     # Configuration des couleurs
     local RED='\033[0;31m'

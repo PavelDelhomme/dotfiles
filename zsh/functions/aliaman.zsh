@@ -7,6 +7,11 @@
 # Version: 1.0
 # =============================================================================
 
+# DESC: Gestionnaire interactif complet pour gérer les alias ZSH. Permet d'ajouter, modifier, supprimer, rechercher et organiser les alias avec une interface utilisateur conviviale.
+# USAGE: aliaman [command]
+# EXAMPLE: aliaman
+# EXAMPLE: aliaman add
+# EXAMPLE: aliaman search git
 aliaman() {
     # Configuration des couleurs
     local RED='\033[0;31m'

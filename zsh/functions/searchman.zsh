@@ -7,6 +7,11 @@
 # Version: 1.0
 # =============================================================================
 
+# DESC: Gestionnaire interactif complet pour la recherche et l'exploration. Permet de rechercher dans l'historique, les fichiers, le code source, et d'explorer le système de fichiers avec des filtres avancés.
+# USAGE: searchman [command]
+# EXAMPLE: searchman
+# EXAMPLE: searchman history git
+# EXAMPLE: searchman files "*.py"
 searchman() {
     # Configuration des couleurs
     local RED='\033[0;31m'

@@ -7,6 +7,11 @@
 # Version: 1.0
 # =============================================================================
 
+# DESC: Gestionnaire interactif complet pour gérer le PATH système. Permet d'ajouter, retirer, nettoyer et sauvegarder les répertoires du PATH avec une interface utilisateur conviviale.
+# USAGE: pathman [command] [args]
+# EXAMPLE: pathman
+# EXAMPLE: pathman add /usr/local/bin
+# EXAMPLE: pathman clean
 pathman() {
     local RED='\033[0;31m'
     local GREEN='\033[0;32m'

@@ -7,6 +7,11 @@
 # Version: 1.0
 # =============================================================================
 
+# DESC: Gestionnaire interactif complet pour la gestion réseau. Permet de gérer les ports, connexions, interfaces réseau, DNS, et obtenir des informations détaillées sur le réseau.
+# USAGE: netman [command]
+# EXAMPLE: netman
+# EXAMPLE: netman ports
+# EXAMPLE: netman connections
 netman() {
     # Configuration des couleurs
     local RED='\033[0;31m'

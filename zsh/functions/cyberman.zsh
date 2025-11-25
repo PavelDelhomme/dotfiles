@@ -13,6 +13,11 @@ if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
     source "$UTILS_DIR/ensure_tool.sh"
 fi
 
+# DESC: Gestionnaire interactif complet pour les outils de cybersécurité. Organise les outils en catégories : reconnaissance, scanning, vulnérabilités, attaques, analyse et privacy. Installe automatiquement les outils manquants.
+# USAGE: cyberman [category]
+# EXAMPLE: cyberman
+# EXAMPLE: cyberman recon
+# EXAMPLE: cyberman scan
 cyberman() {
     local RED='\033[0;31m'
     local GREEN='\033[0;32m'
