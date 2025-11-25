@@ -547,7 +547,24 @@ Structure principale :
 │   ├── env.sh                  # Variables d'environnement
 │   ├── aliases.zsh             # Aliases personnalisés
 │   └── functions/              # Fonctions shell
-│       ├── *man.zsh            # Gestionnaires (pathman, aliaman, etc.)
+│       ├── *man.zsh            # Gestionnaires (cyberman, devman, gitman, miscman, pathman, netman, aliaman, etc.)
+│       ├── cyberman/           # Cyberman - Structure modulaire
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules organisés (security, legacy, etc.)
+│       │   └── install/        # Scripts d'installation
+│       ├── devman/             # Devman - Structure modulaire
+│       │   ├── core/           # Script principal
+│       │   └── modules/        # Modules (legacy, etc.)
+│       ├── gitman/             # Gitman - Structure modulaire
+│       │   ├── core/           # Script principal
+│       │   └── modules/        # Modules (legacy, etc.)
+│       ├── miscman/            # Miscman - Structure modulaire
+│       │   ├── core/           # Script principal
+│       │   └── modules/        # Modules (legacy, etc.)
+│       ├── pathman/            # Pathman - Structure modulaire
+│       │   └── core/           # Script principal
+│       └── netman/             # Netman - Structure modulaire
+│           └── core/           # Script principal
 │       └── **/*.sh             # Fonctions individuelles
 └── scripts/
     ├── config/                 # Configurations unitaires

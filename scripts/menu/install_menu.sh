@@ -36,10 +36,14 @@ show_install_menu() {
     echo " 11. Outils de cybersécurité complets"
     echo " 12. Dépendances cyberman (jq pour workflows/rapports)"
     echo ""
+    echo "🛠️  Managers & Outils:"
+    echo " 13. Vérifier/Configurer tous les managers (cyberman, devman, gitman, etc.)"
+    echo " 14. Installer dépendances managers (jq, git, etc.)"
+    echo ""
     echo "  0. Retour au menu principal"
     echo ""
     
-    printf "Votre choix [0-12]: "
+    printf "Votre choix [0-14]: "
     read -r choice
     
     case "$choice" in
