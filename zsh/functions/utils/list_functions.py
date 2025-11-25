@@ -10,13 +10,35 @@ def truncate_desc(text, max_len):
     return text
 
 def get_category_from_path(file_path, funcs_dir):
-    relative_path = file_path.replace(funcs_dir + "/", "")
-    if "/" in relative_path:
-        parts = relative_path.split("/")
-        if len(parts) >= 3:
-            return f"{parts[0]}/{parts[1]}"
+    # Normaliser les chemins
+    funcs_dir = os.path.normpath(funcs_dir)
+    file_path = os.path.normpath(file_path)
+    
+    # Obtenir le chemin relatif
+    try:
+        relative_path = os.path.relpath(file_path, funcs_dir)
+    except:
+        relative_path = file_path.replace(funcs_dir + "/", "").replace(funcs_dir + "\\", "")
+    
+    # Gérer les fichiers à la racine (comme *man.zsh)
+    if "/" not in relative_path and "\\" not in relative_path:
+        if relative_path.endswith("man.zsh") or relative_path.endswith("man.sh"):
+            return "gestionnaires"
+        # Autres fichiers à la racine
+        return "utils"
+    
+    # Séparer le chemin
+    parts = relative_path.replace("\\", "/").split("/")
+    
+    # Si on a au moins 3 parties (ex: cyber/reconnaissance/domain_whois.sh)
+    if len(parts) >= 3:
+        return f"{parts[0]}/{parts[1]}"
+    # Si on a 2 parties (ex: misc/system/process.sh)
+    elif len(parts) == 2:
         return parts[0]
-    return "gestionnaires"
+    # Sinon, utils par défaut
+    else:
+        return "utils"
 
 def main():
     dotfiles_dir = os.environ.get("DOTFILES_DIR", os.path.expanduser("~/dotfiles"))
