@@ -269,6 +269,11 @@ done
 if [ "$CONFIGURE_SSH" = "false" ]; then
     log_info "Passage à l'étape suivante (clonage du repository)..."
 else
+    # Continuer avec la configuration SSH
+    SSH_KEY="$HOME/.ssh/id_ed25519"
+    SSH_PUB_KEY="$SSH_KEY.pub"
+    
+    if [ ! -f "$SSH_KEY" ]; then
 
 SSH_KEY="$HOME/.ssh/id_ed25519"
 SSH_PUB_KEY="$SSH_KEY.pub"
