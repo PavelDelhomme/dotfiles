@@ -167,50 +167,59 @@ def main():
         "utils": "🛠️  UTILITAIRES (Utils)"
     }
     
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("📋 FONCTIONS DISPONIBLES (organisées par catégories)")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print()
+    # Forcer le flush pour un affichage immédiat
+    import sys
+    sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, 'reconfigure') else None
+    
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
+    print("📋 FONCTIONS DISPONIBLES (organisées par catégories)", flush=True)
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
+    print(flush=True)
     
     # Afficher les catégories dans l'ordre défini
     displayed_cats = set()
     for cat in category_order:
-        if cat in categories and categories[cat]:
+        # Vérifier que la catégorie existe ET a des fonctions
+        if cat in categories and len(categories[cat]) > 0:
             displayed_cats.add(cat)
             display_name = display_names.get(cat, f"📂 {cat.replace('/', ' / ').upper()}")
-            print(display_name)
-            print("──────────────────────────────────────────────────────────────────────────")
             
+            # Afficher l'en-tête de catégorie
+            print(display_name, flush=True)
+            print("──────────────────────────────────────────────────────────────────────────", flush=True)
+            
+            # Afficher TOUTES les fonctions de cette catégorie immédiatement
             for func_name, desc in categories[cat]:
                 short_desc = truncate_desc(desc, desc_max_width) if desc else ""
                 if short_desc:
-                    print(f"  • {func_name:<30} - {short_desc}")
+                    print(f"  • {func_name:<30} - {short_desc}", flush=True)
                 else:
-                    print(f"  • {func_name:<30}")
+                    print(f"  • {func_name:<30}", flush=True)
             
-            print()
+            # Ligne vide après chaque catégorie
+            print(flush=True)
     
     # Afficher les catégories restantes
     for cat in sorted(categories.keys()):
-        if cat not in displayed_cats and categories[cat]:
+        if cat not in displayed_cats and len(categories[cat]) > 0:
             display_name = f"📂 {cat.replace('/', ' / ').upper()}"
-            print(display_name)
-            print("──────────────────────────────────────────────────────────────────────────")
+            print(display_name, flush=True)
+            print("──────────────────────────────────────────────────────────────────────────", flush=True)
             
             for func_name, desc in categories[cat]:
                 short_desc = truncate_desc(desc, desc_max_width) if desc else ""
                 if short_desc:
-                    print(f"  • {func_name:<30} - {short_desc}")
+                    print(f"  • {func_name:<30} - {short_desc}", flush=True)
                 else:
-                    print(f"  • {func_name:<30}")
+                    print(f"  • {func_name:<30}", flush=True)
             
-            print()
+            print(flush=True)
     
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print()
-    print("💡 Utilisez 'help <nom_fonction>' pour obtenir l'aide détaillée")
-    print("💡 Utilisez 'man <nom_fonction>' pour la documentation complète")
-    print()
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", flush=True)
+    print(flush=True)
+    print("💡 Utilisez 'help <nom_fonction>' pour obtenir l'aide détaillée", flush=True)
+    print("💡 Utilisez 'man <nom_fonction>' pour la documentation complète", flush=True)
+    print(flush=True)
 
 if __name__ == "__main__":
     main()
