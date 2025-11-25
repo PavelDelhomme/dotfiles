@@ -1349,6 +1349,9 @@ EOF
                         read -r confirm
                         if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
                             deactivate_environment
+                            # Forcer la mise à jour immédiate
+                            typeset -g CYBER_CURRENT_ENV=""
+                            rm -f "${HOME}/.cyberman/current_env.txt" 2>/dev/null
                             # Recharger le gestionnaire pour mettre à jour l'état
                             source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
                             echo ""
