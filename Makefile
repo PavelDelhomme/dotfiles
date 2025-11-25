@@ -42,9 +42,6 @@ help: ## Afficher cette aide
 	@echo "  make clean             - Nettoyer les fichiers temporaires"
 	@echo "  make generate-man      - Générer les pages man pour toutes les fonctions"
 	@echo ""
-	@echo "$(GREEN)Documentation:$(NC)"
-	@echo "  make generate-man      - Générer les pages man pour toutes les fonctions"
-	@echo ""
 	@echo "$(GREEN)Configuration:$(NC)"
 	@echo "  make git-config        - Configurer Git (nom, email)"
 	@echo "  make git-remote        - Configurer remote Git (SSH/HTTPS)"
@@ -81,6 +78,7 @@ help: ## Afficher cette aide
 	@echo "$(GREEN)Outils:$(NC)"
 	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
 	@echo "  make convert-zsh-to-sh - Convertir fonctions Zsh en Sh compatible"
+	@echo "  make generate-man     - Générer les pages man pour toutes les fonctions"
 	@echo ""
 	@echo "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-list          - Lister toutes les VM"
@@ -280,3 +278,7 @@ detect-shell: ## Détecter et afficher le shell actuel
 
 generate-man: ## Générer les pages man pour toutes les fonctions
 	@bash $(SCRIPT_DIR)/tools/generate_man_pages.sh
+
+# Génération de documentation
+generate-man: ## Générer les pages man pour toutes les fonctions
+	@bash "$(SCRIPT_DIR)/tools/generate_man_pages.sh"
