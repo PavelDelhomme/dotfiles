@@ -42,6 +42,15 @@ manman() {
     if [[ -f "$DOTFILES_FUNCTIONS_DIR/cyberman.zsh" ]]; then
         managers+=("cyberman:🛡️ Gestionnaire cybersécurité|cyberman")
     fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/devman.zsh" ]]; then
+        managers+=("devman:💻 Gestionnaire développement|devman")
+    fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/gitman.zsh" ]]; then
+        managers+=("gitman:📦 Gestionnaire Git|gitman")
+    fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/helpman.zsh" ]]; then
+        managers+=("helpman:📚 Gestionnaire aide/documentation|helpman")
+    fi
     
     clear
     echo -e "${CYAN}${BOLD}"

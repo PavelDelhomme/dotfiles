@@ -297,6 +297,19 @@ miscman() {
         fi
     }
     
+    # Charger les fonctions système depuis les modules
+    local MISC_DIR="${MISC_DIR:-$HOME/dotfiles/zsh/functions/miscman/modules/legacy}"
+    
+    # Charger les fonctions de gestion de processus
+    if [ -f "$MISC_DIR/system/process.sh" ]; then
+        source "$MISC_DIR/system/process.sh"
+    fi
+    
+    # Charger les fonctions système (system_info, etc.)
+    if [ -f "$MISC_DIR/system/system_info.sh" ]; then
+        source "$MISC_DIR/system/system_info.sh"
+    fi
+    
     # Nettoyage du système
     # DESC: Nettoie le système (caches, fichiers temporaires)
     # USAGE: system_cleanup
@@ -365,6 +378,12 @@ miscman() {
         echo "  ${BOLD}8${RESET}  📋 Copier la dernière sortie de commande"
         echo "  ${BOLD}9${RESET}  🧹 Nettoyage du système"
         echo
+        echo -e "${YELLOW}🔄 GESTION DES PROCESSUS:${RESET}"
+        echo "  ${BOLD}10${RESET} 👁️  Surveiller un processus (watch)"
+        echo "  ${BOLD}11${RESET} 🛑 Arrêter un processus par nom"
+        echo "  ${BOLD}12${RESET} 🛑 Arrêter un processus sur un port"
+        echo "  ${BOLD}13${RESET} 🔍 Lister les processus utilisant des ports"
+        echo
         echo "  ${BOLD}h${RESET}  📚 Aide"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
@@ -411,6 +430,65 @@ miscman() {
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             9) system_cleanup ;;
+            10)
+                read "process?Nom du processus à surveiller: "
+                read "interval?Intervalle en secondes (défaut: 1): "
+                if command -v watch_process >/dev/null 2>&1; then
+                    watch_process "$process" "${interval:-1}"
+                else
+                    echo -e "${RED}❌ Fonction watch_process non disponible${RESET}"
+                    echo "💡 Chargement du module process..."
+                    if [ -f "$MISC_DIR/system/process.sh" ]; then
+                        source "$MISC_DIR/system/process.sh"
+                        watch_process "$process" "${interval:-1}"
+                    fi
+                fi
+                ;;
+            11)
+                read "process?Nom du processus à arrêter: "
+                if command -v kill_process >/dev/null 2>&1; then
+                    kill_process "$process"
+                else
+                    echo -e "${RED}❌ Fonction kill_process non disponible${RESET}"
+                    echo "💡 Chargement du module process..."
+                    if [ -f "$MISC_DIR/system/process.sh" ]; then
+                        source "$MISC_DIR/system/process.sh"
+                        kill_process "$process"
+                    fi
+                fi
+                echo
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            12)
+                read "port?Port à libérer: "
+                if command -v kill_port >/dev/null 2>&1; then
+                    kill_port "$port"
+                else
+                    echo -e "${RED}❌ Fonction kill_port non disponible${RESET}"
+                    echo "💡 Chargement du module process..."
+                    if [ -f "$MISC_DIR/system/process.sh" ]; then
+                        source "$MISC_DIR/system/process.sh"
+                        kill_port "$port"
+                    fi
+                fi
+                echo
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            13)
+                read "port?Port spécifique (laissez vide pour tous): "
+                if command -v port_process >/dev/null 2>&1; then
+                    port_process "$port"
+                else
+                    echo -e "${RED}❌ Fonction port_process non disponible${RESET}"
+                    echo "💡 Chargement du module process..."
+                    if [ -f "$MISC_DIR/system/process.sh" ]; then
+                        source "$MISC_DIR/system/process.sh"
+                        port_process "$port"
+                    fi
+                fi
+                echo
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
             h|H)
                 show_header
                 echo -e "${CYAN}📚 Aide - MISCMAN${RESET}"
@@ -427,12 +505,21 @@ miscman() {
                 echo "  • Chiffrement/déchiffrement GPG"
                 echo "  • Gestion du presse-papier"
                 echo "  • Nettoyage système intelligent"
+                echo "  • Surveillance de processus (watch_process)"
+                echo "  • Arrêt de processus (kill_process, kill_port)"
+                echo "  • Gestion des ports réseau (port_process)"
                 echo
                 echo "Raccourcis:"
                 echo "  miscman                    - Lance le gestionnaire"
                 echo "  miscman genpass [length]   - Génère un mot de passe"
                 echo "  miscman sysinfo           - Infos système"
                 echo "  miscman cleanup           - Nettoyage"
+                echo
+                echo "Fonctions processus (disponibles directement):"
+                echo "  watch_process <name> [interval]  - Surveiller un processus"
+                echo "  kill_process <name>              - Arrêter un processus"
+                echo "  kill_port <port>                 - Libérer un port"
+                echo "  port_process [port]              - Lister processus sur ports"
                 echo
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
