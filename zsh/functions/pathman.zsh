@@ -247,6 +247,9 @@ EOF
 
 # Exporter les fonctions pour qu'elles soient disponibles globalement
 # (utilisées par env.sh)
+# DESC: Ajoute un répertoire au PATH de manière globale. Fonction exportée pour utilisation dans env.sh et autres scripts.
+# USAGE: add_to_path <directory>
+# EXAMPLE: add_to_path /usr/local/bin
 add_to_path() {
     local dir="${1%/}"
     if [[ -z "$dir" ]]; then 
@@ -265,6 +268,9 @@ add_to_path() {
     fi
 }
 
+# DESC: Nettoie le PATH en supprimant les doublons et répertoires invalides. Fonction exportée pour utilisation globale.
+# USAGE: clean_path
+# EXAMPLE: clean_path
 clean_path() {
     local old_IFS="$IFS"
     IFS=':'
