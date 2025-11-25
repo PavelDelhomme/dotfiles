@@ -94,6 +94,18 @@ list_functions() {
     fi
     local desc_max_width=$((term_width - 45))  # Réserver 45 caractères pour le nom de fonction
     
+    # Fonction pour tronquer une description
+    truncate_desc() {
+        local text="$1"
+        local max_len="$2"
+        local text_len=${#text}
+        if [ "$text_len" -gt "$max_len" ]; then
+            echo "${text:0:$((max_len - 3))}..."
+        else
+            echo "$text"
+        fi
+    }
+    
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📋 FONCTIONS DISPONIBLES (organisées par catégories)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -102,7 +114,7 @@ list_functions() {
     # Créer un fichier temporaire pour stocker les fonctions par catégorie
     local temp_file=$(mktemp)
     
-    # Parcourir tous les fichiers de fonctions
+    # Parcourir tous les fichiers de fonctions et collecter les données
     find "$DOTFILES_DIR/zsh/functions" -type f \( -name "*.sh" -o -name "*.zsh" \) 2>/dev/null | while read -r file; do
         # Déterminer la catégorie à partir du chemin du fichier
         local relative_path="${file#$DOTFILES_DIR/zsh/functions/}"
@@ -127,11 +139,11 @@ list_functions() {
         # Extraire les fonctions du fichier
         grep -E "^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)|^function [a-zA-Z_]" "$file" 2>/dev/null | while read -r line; do
             local func_name=$(echo "$line" | sed -E 's/^(function )?([a-zA-Z_][a-zA-Z0-9_]*)\(.*/\2/')
-            # Ignorer les fonctions système et les doublons
+            # Ignorer les fonctions système
             if [ -z "$func_name" ] || echo "$func_name" | grep -qE "^(if|for|while|case|function)$"; then
                 continue
             fi
-            # Extraire la description (première ligne DESC trouvée)
+            # Extraire la description (première ligne DESC trouvée pour cette fonction)
             local desc=$(grep -E "^#\s*DESC:" "$file" | head -1 | sed 's/^#\s*DESC:\s*//')
             
             if [ -n "$func_name" ]; then
@@ -140,23 +152,17 @@ list_functions() {
         done
     done
     
-    # Fonction pour tronquer une description
-    truncate_desc() {
-        local text="$1"
-        local max_len="$2"
-        if [ ${#text} -gt "$max_len" ]; then
-            echo "${text:0:$((max_len - 3))}..."
-        else
-            echo "$text"
-        fi
-    }
+    # Supprimer les doublons (même fonction dans plusieurs fichiers)
+    sort -t'|' -k2 -u "$temp_file" > "${temp_file}.sorted" && mv "${temp_file}.sorted" "$temp_file"
     
     # Définir l'ordre d'affichage des catégories avec sous-catégories cyber
     local category_order="gestionnaires misc/system misc/clipboard misc/files misc/backup misc/security dev/go dev/docker dev/c dev/make dev/projects cyber/reconnaissance cyber/scanning cyber/vulnerability cyber/attacks cyber/analysis cyber/privacy git utils"
     
     # Afficher les catégories dans l'ordre défini
     for cat in $category_order; do
-        local funcs_in_cat=$(grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2 -u)
+        # Extraire les fonctions de cette catégorie
+        local funcs_in_cat=$(grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2)
+        
         if [ -n "$funcs_in_cat" ]; then
             # Formater le nom de catégorie pour l'affichage
             local display_name="$cat"
@@ -228,6 +234,7 @@ list_functions() {
                     ;;
             esac
             
+            # Afficher l'en-tête de catégorie
             echo "$display_name"
             echo "──────────────────────────────────────────────────────────────────────────"
             
@@ -250,7 +257,7 @@ list_functions() {
             done
             
             echo ""
-            # Retirer cette catégorie du fichier temporaire
+            # Retirer cette catégorie du fichier temporaire pour éviter les doublons
             grep -v "^${cat}|" "$temp_file" > "${temp_file}.new" 2>/dev/null && mv "${temp_file}.new" "$temp_file" 2>/dev/null || true
         fi
     done
@@ -263,7 +270,7 @@ list_functions() {
             echo "📂 $display_cat"
             echo "──────────────────────────────────────────────────────────────────────────"
             
-            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 -u | while IFS='|' read -r cat_name func_name desc; do
+            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 | while IFS='|' read -r cat_name func_name desc; do
                 if [ -z "$func_name" ]; then
                     continue
                 fi
