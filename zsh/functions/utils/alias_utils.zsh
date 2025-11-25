@@ -299,9 +299,8 @@ get_alias_doc() {
 ################################################################################
 # DESC: Navigue dans la documentation des alias de manière interactive
 # USAGE: browse_alias_doc [category]
-# EXAMPLES:
-#   browse_alias_doc
-#   browse_alias_doc git
+# EXAMPLE: browse_alias_doc
+# EXAMPLE: browse_alias_doc git
 # RETURNS: 0
 ################################################################################
 browse_alias_doc() {
