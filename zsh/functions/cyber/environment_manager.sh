@@ -22,10 +22,15 @@ CYBER_CURRENT_ENV_FILE="${HOME}/.cyberman/current_env.txt"
 mkdir -p "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR" "$(dirname "$CYBER_CURRENT_ENV_FILE")"
 
 # Charger l'environnement actif depuis le fichier de persistance si disponible
+# Seulement si la variable n'est pas déjà définie ET si le fichier existe vraiment
 if [ -f "$CYBER_CURRENT_ENV_FILE" ] && [ -z "$CYBER_CURRENT_ENV" ]; then
     local saved_env=$(cat "$CYBER_CURRENT_ENV_FILE" 2>/dev/null | tr -d '\n' | head -c 100)
     if [ -n "$saved_env" ] && [ -f "$CYBER_ENV_DIR/${saved_env}.json" ]; then
-        CYBER_CURRENT_ENV="$saved_env"
+        typeset -g CYBER_CURRENT_ENV="$saved_env"
+    elif [ -z "$saved_env" ] || [ ! -f "$CYBER_ENV_DIR/${saved_env}.json" ]; then
+        # Si le fichier existe mais contient un environnement invalide, le supprimer
+        rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
+        typeset -g CYBER_CURRENT_ENV=""
     fi
 fi
 
