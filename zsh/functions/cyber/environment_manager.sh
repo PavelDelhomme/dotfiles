@@ -15,8 +15,19 @@ CYBER_WORKFLOWS_DIR="${CYBER_WORKFLOWS_DIR:-${HOME}/.cyberman/workflows}"
 # Variable globale pour stocker l'environnement actuellement chargé
 typeset -g CYBER_CURRENT_ENV=""
 
+# Fichier de persistance de l'environnement actif
+CYBER_CURRENT_ENV_FILE="${HOME}/.cyberman/current_env.txt"
+
 # Créer les répertoires si nécessaire
-mkdir -p "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR"
+mkdir -p "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR" "$(dirname "$CYBER_CURRENT_ENV_FILE")"
+
+# Charger l'environnement actif depuis le fichier de persistance si disponible
+if [ -f "$CYBER_CURRENT_ENV_FILE" ] && [ -z "$CYBER_CURRENT_ENV" ]; then
+    local saved_env=$(cat "$CYBER_CURRENT_ENV_FILE" 2>/dev/null | tr -d '\n' | head -c 100)
+    if [ -n "$saved_env" ] && [ -f "$CYBER_ENV_DIR/${saved_env}.json" ]; then
+        CYBER_CURRENT_ENV="$saved_env"
+    fi
+fi
 
 # DESC: Sauvegarde l'environnement actuel (cibles, configuration)
 # USAGE: save_environment <name> [description]
@@ -187,8 +198,9 @@ load_environment() {
         fi
     fi
     
-    # Définir l'environnement actuel
+    # Définir l'environnement actuel et le sauvegarder
     CYBER_CURRENT_ENV="$name"
+    echo "$name" > "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
     
     echo "✅ Environnement chargé: $name"
     echo "📝 Description: $desc"
@@ -289,6 +301,7 @@ delete_environment() {
         # Si l'environnement supprimé était l'environnement actif, le désactiver
         if [ "$CYBER_CURRENT_ENV" = "$name" ]; then
             CYBER_CURRENT_ENV=""
+            rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
         fi
         return 0
     else
@@ -363,6 +376,7 @@ delete_environments() {
                 # Si l'environnement supprimé était l'environnement actif, le désactiver
                 if [ "$CYBER_CURRENT_ENV" = "$name" ]; then
                     CYBER_CURRENT_ENV=""
+                    rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
                 fi
             else
                 echo "❌ Environnement non trouvé: $name"
