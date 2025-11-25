@@ -4,10 +4,13 @@
 # EXAMPLE: domain_whois example.com
 # EXAMPLE: domain_whois  # Utilise les cibles configurées
 function domain_whois() {
-    # Charger le gestionnaire de cibles
+    # Charger le gestionnaire de cibles et le helper d'enregistrement
     local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
         source "$CYBER_DIR/target_manager.sh"
+    fi
+    if [ -f "$CYBER_DIR/helpers/auto_save_helper.sh" ]; then
+        source "$CYBER_DIR/helpers/auto_save_helper.sh"
     fi
     
     local target=""
