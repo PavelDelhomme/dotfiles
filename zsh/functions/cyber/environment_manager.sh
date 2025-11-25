@@ -778,6 +778,282 @@ show_environment_results() {
     return 0
 }
 
+# DESC: Ajoute un TODO à un environnement
+# USAGE: add_environment_todo <env_name> <todo_text> [priority]
+# EXAMPLE: add_environment_todo "pentest_example" "Vérifier vulnérabilité SQLi" "high"
+add_environment_todo() {
+    local env_name="$1"
+    local todo_text="$2"
+    local priority="${3:-medium}"
+    
+    if [ -z "$env_name" ] || [ -z "$todo_text" ]; then
+        echo "❌ Usage: add_environment_todo <env_name> <todo_text> [priority: low|medium|high]"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour ajouter des TODOs"
+        return 1
+    fi
+    
+    # S'assurer que todos existe
+    local temp_check=$(mktemp)
+    jq '.todos //= []' "$env_file" > "$temp_check" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        mv "$temp_check" "$env_file"
+    else
+        rm -f "$temp_check"
+    fi
+    
+    # Ajouter le TODO avec timestamp
+    local temp_file=$(mktemp)
+    jq --arg todo "$todo_text" \
+       --arg priority "$priority" \
+       --arg timestamp "$(date -Iseconds)" \
+       '.todos += [{
+           text: $todo,
+           priority: $priority,
+           status: "pending",
+           timestamp: $timestamp,
+           author: env.USER
+       }] | .metadata.last_updated = $timestamp' \
+       "$env_file" > "$temp_file" 2>/dev/null
+    
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
+        echo "✅ TODO ajouté à l'environnement: $env_name"
+        return 0
+    else
+        rm -f "$temp_file"
+        echo "❌ Erreur lors de l'ajout du TODO"
+        return 1
+    fi
+}
+
+# DESC: Marque un TODO comme complété
+# USAGE: complete_environment_todo <env_name> <todo_index>
+# EXAMPLE: complete_environment_todo "pentest_example" 1
+complete_environment_todo() {
+    local env_name="$1"
+    local todo_index="$2"
+    
+    if [ -z "$env_name" ] || [ -z "$todo_index" ]; then
+        echo "❌ Usage: complete_environment_todo <env_name> <todo_index>"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis"
+        return 1
+    fi
+    
+    # Marquer le TODO comme complété (index 0-based)
+    local temp_file=$(mktemp)
+    jq --argjson index "$((todo_index - 1))" \
+       --arg timestamp "$(date -Iseconds)" \
+       '.todos[$index].status = "completed" | .todos[$index].completed_at = $timestamp | .metadata.last_updated = $timestamp' \
+       "$env_file" > "$temp_file" 2>/dev/null
+    
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
+        echo "✅ TODO marqué comme complété"
+        return 0
+    else
+        rm -f "$temp_file"
+        echo "❌ Erreur lors de la mise à jour du TODO"
+        return 1
+    fi
+}
+
+# DESC: Affiche les TODOs d'un environnement
+# USAGE: show_environment_todos <env_name>
+# EXAMPLE: show_environment_todos "pentest_example"
+show_environment_todos() {
+    local env_name="$1"
+    
+    if [ -z "$env_name" ]; then
+        echo "❌ Usage: show_environment_todos <env_name>"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis"
+        return 1
+    fi
+    
+    # S'assurer que todos existe
+    local temp_check=$(mktemp)
+    jq '.todos //= []' "$env_file" > "$temp_check" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        mv "$temp_check" "$env_file"
+    else
+        rm -f "$temp_check"
+    fi
+    
+    local todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
+    
+    if [ "$todos_count" -eq 0 ]; then
+        echo "📝 Aucun TODO pour l'environnement: $env_name"
+        return 0
+    fi
+    
+    echo "📝 TODOs de l'environnement: $env_name"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    local index=1
+    jq -r '.todos[] | "\(.status)|\(.priority)|\(.timestamp)|\(.text)"' "$env_file" 2>/dev/null | while IFS='|' read -r status priority timestamp text; do
+        local status_icon="⏳"
+        local priority_color=""
+        [ "$status" = "completed" ] && status_icon="✅"
+        [ "$priority" = "high" ] && priority_color="🔴"
+        [ "$priority" = "medium" ] && priority_color="🟡"
+        [ "$priority" = "low" ] && priority_color="🟢"
+        echo "  $index. $status_icon $priority_color [$priority] $text"
+        echo "     📅 $timestamp"
+        ((index++))
+    done
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    return 0
+}
+
+# DESC: Affiche le menu de gestion des TODOs
+# USAGE: show_todos_menu <env_name>
+# EXAMPLE: show_todos_menu "pentest_example"
+show_todos_menu() {
+    local env_name="$1"
+    
+    if [ -z "$env_name" ]; then
+        echo "❌ Usage: show_todos_menu <env_name>"
+        return 1
+    fi
+    
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║              GESTION DES TODOs - CYBERMAN                      ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        echo -e "${YELLOW}📋 Environnement: ${BOLD}${env_name}${RESET}"
+        echo ""
+        
+        show_environment_todos "$env_name"
+        echo ""
+        
+        echo -e "${BLUE}Menu:${RESET}"
+        echo "1.  Ajouter un TODO"
+        echo "2.  Marquer un TODO comme complété"
+        echo "3.  Voir les TODOs en attente"
+        echo "4.  Voir les TODOs complétés"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                echo ""
+                printf "📝 Texte du TODO: "
+                read -r todo_text
+                if [ -z "$todo_text" ]; then
+                    echo "❌ Texte requis"
+                    sleep 1
+                    continue
+                fi
+                echo ""
+                echo "Priorité:"
+                echo "  1. Basse (low)"
+                echo "  2. Moyenne (medium)"
+                echo "  3. Haute (high)"
+                printf "Choix (1-3, défaut: 2): "
+                read -r priority_choice
+                local priority="medium"
+                case "$priority_choice" in
+                    1) priority="low" ;;
+                    3) priority="high" ;;
+                    *) priority="medium" ;;
+                esac
+                add_environment_todo "$env_name" "$todo_text" "$priority"
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                show_environment_todos "$env_name"
+                echo ""
+                printf "📝 Index du TODO à marquer comme complété: "
+                read -r todo_index
+                if [ -n "$todo_index" ] && [ "$todo_index" -gt 0 ]; then
+                    complete_environment_todo "$env_name" "$todo_index"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                echo "📝 TODOs en attente:"
+                local env_file="$CYBER_ENV_DIR/${env_name}.json"
+                if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
+                    local index=1
+                    jq -r '.todos[] | select(.status == "pending") | "\(.priority)|\(.timestamp)|\(.text)"' "$env_file" 2>/dev/null | while IFS='|' read -r priority timestamp text; do
+                        local priority_color=""
+                        [ "$priority" = "high" ] && priority_color="🔴"
+                        [ "$priority" = "medium" ] && priority_color="🟡"
+                        [ "$priority" = "low" ] && priority_color="🟢"
+                        echo "  $index. $priority_color [$priority] $text"
+                        echo "     📅 $timestamp"
+                        ((index++))
+                    done
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                echo "✅ TODOs complétés:"
+                local env_file="$CYBER_ENV_DIR/${env_name}.json"
+                if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
+                    jq -r '.todos[] | select(.status == "completed") | "✅ \(.text)\n   📅 Complété: \(.completed_at // .timestamp)\n"' "$env_file" 2>/dev/null
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return 0 ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
+}
+
 # DESC: Charge et affiche toutes les informations d'un environnement de manière interactive
 # USAGE: load_infos <env_name>
 # EXAMPLE: load_infos "pentest_example"
@@ -989,7 +1265,9 @@ show_environment_menu() {
                 local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
                 local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
                 local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
-                echo -e "      📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count}"
+                local todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
+                local todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
+                echo -e "      📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count} | ✅ TODOs: ${todos_count} (${todos_pending} en attente)"
             fi
         else
             echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
