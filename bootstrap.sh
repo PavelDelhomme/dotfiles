@@ -205,9 +205,70 @@ else
 fi
 
 ################################################################################
-# 2.2. GÉNÉRATION CLÉ SSH (si absente)
+# 2.2. GÉNÉRATION CLÉ SSH (si absente) - OPTIONNEL
 ################################################################################
-log_section "Configuration SSH pour GitHub"
+log_section "Configuration SSH pour GitHub (optionnel)"
+
+# Demander si l'utilisateur veut configurer SSH pour GitHub
+echo ""
+log_info "Souhaitez-vous configurer SSH pour GitHub ?"
+log_info "Cela permet de cloner/pusher sans saisir vos identifiants."
+echo ""
+echo "  1. Oui, configurer SSH (recommandé)"
+echo "  2. Non, passer cette étape (vous pourrez cloner via HTTPS)"
+echo "  0. Vérifier si SSH est déjà configuré et fonctionne"
+echo ""
+while true; do
+    printf "Votre choix [défaut: 1]: "
+    IFS= read -r ssh_choice </dev/tty 2>/dev/null || read -r ssh_choice
+    ssh_choice=${ssh_choice:-1}
+    
+    case "$ssh_choice" in
+        1)
+            CONFIGURE_SSH=true
+            break
+            ;;
+        2)
+            CONFIGURE_SSH=false
+            log_warn "Configuration SSH ignorée. Vous pouvez continuer sans SSH."
+            log_info "Note: Vous devrez utiliser HTTPS pour cloner (avec authentification GitHub)."
+            break
+            ;;
+        0)
+            # Vérifier si SSH fonctionne déjà
+            log_info "Vérification de la configuration SSH existante..."
+            if [ -f "$HOME/.ssh/id_ed25519" ] || [ -f "$HOME/.ssh/id_rsa" ]; then
+                SSH_KEY="$HOME/.ssh/id_ed25519"
+                [ ! -f "$SSH_KEY" ] && SSH_KEY="$HOME/.ssh/id_rsa"
+                log_info "✓ Clé SSH trouvée: $SSH_KEY"
+                
+                # Tester la connexion
+                log_info "Test de la connexion GitHub..."
+                if ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+                    log_info "✅ Connexion GitHub SSH fonctionne déjà !"
+                    CONFIGURE_SSH=false
+                    break
+                else
+                    log_warn "⚠️ Clé SSH présente mais connexion GitHub échouée"
+                    log_info "Vous pouvez choisir de reconfigurer ou continuer sans SSH."
+                    echo ""
+                    continue
+                fi
+            else
+                log_warn "Aucune clé SSH trouvée."
+                echo ""
+                continue
+            fi
+            ;;
+        *)
+            log_error "Choix invalide. Entrez 1, 2 ou 0."
+            ;;
+    esac
+done
+
+if [ "$CONFIGURE_SSH" = "false" ]; then
+    log_info "Passage à l'étape suivante (clonage du repository)..."
+else
 
 SSH_KEY="$HOME/.ssh/id_ed25519"
 SSH_PUB_KEY="$SSH_KEY.pub"
@@ -431,6 +492,17 @@ else
             log_warn "Vous pourrez configurer la clé SSH plus tard"
         fi
     fi
+fi
+# Fin du bloc CONFIGURE_SSH
+
+################################################################################
+# VÉRIFICATION FINALE GIT AVANT CLONAGE
+################################################################################
+# S'assurer que Git est installé avant de cloner
+if ! command -v git >/dev/null 2>&1; then
+    log_error "Git n'est pas installé. Impossible de continuer."
+    log_info "Veuillez installer Git manuellement, puis relancez le script."
+    exit 1
 fi
 
 # IMPORTANT: Le script continue ici vers le clonage
