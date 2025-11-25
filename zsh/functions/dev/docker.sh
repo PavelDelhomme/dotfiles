@@ -5,6 +5,7 @@
 
 # DESC: Build une image Docker
 # USAGE: docker_build [tag] [dockerfile_path]
+# EXAMPLE: docker_build
 docker_build() {
     local tag="${1:-latest}"
     local dockerfile="${2:-Dockerfile}"
@@ -17,6 +18,7 @@ docker_build() {
 
 # DESC: Push une image Docker
 # USAGE: docker_push <image:tag>
+# EXAMPLE: docker_push
 docker_push() {
     local image="$1"
     
@@ -32,6 +34,7 @@ docker_push() {
 
 # DESC: Build et push une image Docker
 # USAGE: docker_build_push <image:tag> [dockerfile_path]
+# EXAMPLE: docker_build_push
 docker_build_push() {
     local image="$1"
     local dockerfile="${2:-Dockerfile}"
@@ -46,6 +49,7 @@ docker_build_push() {
 
 # DESC: Nettoie Docker (images, conteneurs, volumes non utilisés)
 # USAGE: docker_cleanup [--all]
+# EXAMPLE: docker_cleanup
 docker_cleanup() {
     local all="$1"
     
@@ -74,6 +78,7 @@ docker_cleanup() {
 
 # DESC: Affiche les logs d'un conteneur
 # USAGE: docker_logs <container_name> [--follow]
+# EXAMPLE: docker_logs mycontainer
 docker_logs() {
     local container="$1"
     local follow="$2"
@@ -92,6 +97,7 @@ docker_logs() {
 
 # DESC: Execute une commande dans un conteneur
 # USAGE: docker_exec <container_name> <command>
+# EXAMPLE: docker_exec mycontainer
 docker_exec() {
     local container="$1"
     shift
@@ -106,6 +112,7 @@ docker_exec() {
 
 # DESC: Affiche l'utilisation des ressources Docker
 # USAGE: docker_stats [container_name]
+# EXAMPLE: docker_stats
 docker_stats() {
     local container="$1"
     
@@ -118,6 +125,7 @@ docker_stats() {
 
 # DESC: Redémarre un conteneur
 # USAGE: docker_restart <container_name>
+# EXAMPLE: docker_restart mycontainer
 docker_restart() {
     local container="$1"
     
@@ -132,6 +140,7 @@ docker_restart() {
 
 # DESC: Docker Compose up -d
 # USAGE: docker_compose_up [compose_file]
+# EXAMPLE: docker_compose_up
 docker_compose_up() {
     local compose_file="${1:-docker-compose.yml}"
     
@@ -142,6 +151,7 @@ docker_compose_up() {
 
 # DESC: Docker Compose down
 # USAGE: docker_compose_down [compose_file]
+# EXAMPLE: docker_compose_down
 docker_compose_down() {
     local compose_file="${1:-docker-compose.yml}"
     
@@ -152,6 +162,7 @@ docker_compose_down() {
 
 # DESC: Docker Compose logs
 # USAGE: docker_compose_logs [service_name] [--follow]
+# EXAMPLE: docker_compose_logs
 docker_compose_logs() {
     local service="$1"
     local follow="$2"
@@ -170,6 +181,7 @@ docker_compose_logs() {
 
 # DESC: Liste les images Docker
 # USAGE: docker_images [filter]
+# EXAMPLE: docker_images
 docker_images() {
     local filter="$1"
     
@@ -182,6 +194,7 @@ docker_images() {
 
 # DESC: Liste les conteneurs Docker
 # USAGE: docker_ps [--all]
+# EXAMPLE: docker_ps
 docker_ps() {
     if [[ "$1" == "--all" ]] || [[ "$1" == "-a" ]]; then
         docker ps -a

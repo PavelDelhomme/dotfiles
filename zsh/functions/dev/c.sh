@@ -5,6 +5,7 @@
 
 # DESC: Compile un fichier C simple
 # USAGE: c_compile <file.c> [output_name]
+# EXAMPLE: c_compile ~/example.txt
 c_compile() {
     local file="$1"
     local output="${2:-${file%.c}}"
@@ -21,6 +22,7 @@ c_compile() {
 
 # DESC: Compile un fichier C++ simple
 # USAGE: cpp_compile <file.cpp> [output_name]
+# EXAMPLE: cpp_compile ~/example.txt
 cpp_compile() {
     local file="$1"
     local output="${2:-${file%.cpp}}"
@@ -37,6 +39,7 @@ cpp_compile() {
 
 # DESC: Compile C/C++ en mode debug
 # USAGE: c_debug_compile <file.c/cpp> [output_name]
+# EXAMPLE: c_debug_compile ~/example.txt
 c_debug_compile() {
     local file="$1"
     local output="${2:-${file%.*}}"
@@ -58,6 +61,7 @@ c_debug_compile() {
 
 # DESC: Lance gdb sur un exécutable
 # USAGE: c_debug <executable>
+# EXAMPLE: c_debug
 c_debug() {
     local exe="$1"
     
@@ -72,6 +76,7 @@ c_debug() {
 
 # DESC: Compile et exécute un fichier C/C++
 # USAGE: c_run <file.c/cpp>
+# EXAMPLE: c_run ~/example.txt
 c_run() {
     local file="$1"
     local output="${file%.*}"
@@ -95,6 +100,7 @@ c_run() {
 
 # DESC: Nettoie les fichiers compilés
 # USAGE: c_clean [directory]
+# EXAMPLE: c_clean
 c_clean() {
     local dir="${1:-.}"
     echo "🧹 Clean C/C++: $dir"
@@ -108,6 +114,7 @@ c_clean() {
 
 # DESC: Vérifie le code avec cppcheck (si installé)
 # USAGE: c_check <file.c/cpp>
+# EXAMPLE: c_check ~/example.txt
 c_check() {
     local file="$1"
     

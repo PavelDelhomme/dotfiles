@@ -5,6 +5,7 @@
 
 # DESC: Affiche tous les targets disponibles dans un Makefile
 # USAGE: make_targets [makefile_path]
+# EXAMPLE: make_targets
 make_targets() {
     local makefile="${1:-Makefile}"
     
@@ -21,6 +22,7 @@ make_targets() {
 
 # DESC: Nettoie les fichiers générés par make
 # USAGE: make_clean [makefile_path]
+# EXAMPLE: make_clean
 make_clean() {
     local makefile="${1:-Makefile}"
     
@@ -39,6 +41,7 @@ make_clean() {
 
 # DESC: Aide Make (si target help existe)
 # USAGE: make_help [makefile_path]
+# EXAMPLE: make_help
 make_help() {
     local makefile="${1:-Makefile}"
     
@@ -53,6 +56,7 @@ make_help() {
 
 # DESC: Build avec make
 # USAGE: make_build [target] [makefile_path]
+# EXAMPLE: make_build
 make_build() {
     local target="${1:-all}"
     local makefile="${2:-Makefile}"
@@ -64,6 +68,7 @@ make_build() {
 
 # DESC: Test avec make
 # USAGE: make_test [makefile_path]
+# EXAMPLE: make_test
 make_test() {
     local makefile="${1:-Makefile}"
     
@@ -74,6 +79,7 @@ make_test() {
 
 # DESC: Install avec make
 # USAGE: make_install [prefix] [makefile_path]
+# EXAMPLE: make_install
 make_install() {
     local prefix="${1:-/usr/local}"
     local makefile="${2:-Makefile}"

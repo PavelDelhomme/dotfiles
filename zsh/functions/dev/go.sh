@@ -5,6 +5,7 @@
 
 # DESC: Build un projet Go
 # USAGE: go_build [package_path]
+# EXAMPLE: go_build
 go_build() {
     local package="${1:-.}"
     echo "🔨 Build Go: $package"
@@ -14,6 +15,7 @@ go_build() {
 
 # DESC: Test un projet Go
 # USAGE: go_test [package_path] [flags]
+# EXAMPLE: go_test
 go_test() {
     local package="${1:-./...}"
     shift
@@ -24,6 +26,7 @@ go_test() {
 
 # DESC: Run un projet Go
 # USAGE: go_run [package_path] [args...]
+# EXAMPLE: go_run
 go_run() {
     local package="${1:-.}"
     shift
@@ -33,6 +36,7 @@ go_run() {
 
 # DESC: Format le code Go
 # USAGE: go_fmt [package_path]
+# EXAMPLE: go_fmt
 go_fmt() {
     local package="${1:-./...}"
     echo "✨ Format Go: $package"
@@ -41,6 +45,7 @@ go_fmt() {
 
 # DESC: Vérifie le code Go avec go vet
 # USAGE: go_vet [package_path]
+# EXAMPLE: go_vet
 go_vet() {
     local package="${1:-./...}"
     echo "🔍 Vet Go: $package"
@@ -49,6 +54,7 @@ go_vet() {
 
 # DESC: Nettoie les fichiers build Go
 # USAGE: go_clean
+# EXAMPLE: go_clean
 go_clean() {
     echo "🧹 Clean Go"
     go clean -cache -modcache -testcache -i -r 2>/dev/null
@@ -58,6 +64,7 @@ go_clean() {
 
 # DESC: Installe les dépendances Go
 # USAGE: go_mod_download
+# EXAMPLE: go_mod_download
 go_mod_download() {
     echo "📦 Download dépendances Go"
     go mod download && echo "✅ Dépendances téléchargées"
@@ -65,6 +72,7 @@ go_mod_download() {
 
 # DESC: Tidy le go.mod
 # USAGE: go_mod_tidy
+# EXAMPLE: go_mod_tidy
 go_mod_tidy() {
     echo "🧹 Tidy go.mod"
     go mod tidy && echo "✅ go.mod nettoyé"
@@ -72,6 +80,7 @@ go_mod_tidy() {
 
 # DESC: Mettre à jour les dépendances Go
 # USAGE: go_mod_update [module]
+# EXAMPLE: go_mod_update
 go_mod_update() {
     local module="${1:-all}"
     echo "⬆️  Update dépendances Go: $module"
@@ -80,6 +89,7 @@ go_mod_update() {
 
 # DESC: Voir les dépendances Go
 # USAGE: go_mod_graph
+# EXAMPLE: go_mod_graph
 go_mod_graph() {
     echo "📊 Graphique des dépendances Go"
     go mod graph | head -30
@@ -87,6 +97,7 @@ go_mod_graph() {
 
 # DESC: Build avec optimisations pour production
 # USAGE: go_build_release [package_path] [output_name]
+# EXAMPLE: go_build_release
 go_build_release() {
     local package="${1:-.}"
     local output="${2:-app}"
@@ -97,6 +108,7 @@ go_build_release() {
 
 # DESC: Benchmarks Go
 # USAGE: go_bench [package_path]
+# EXAMPLE: go_bench
 go_bench() {
     local package="${1:-./...}"
     echo "⚡ Benchmarks Go: $package"
