@@ -925,6 +925,128 @@ android-studio         # Android Studio
 
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
+## 📚 Système d'aide et documentation
+
+Ce système de dotfiles inclut un **système d'aide complet et unifié** pour toutes les fonctions personnalisées. Chaque fonction est documentée avec une description détaillée, la syntaxe d'utilisation et des exemples concrets.
+
+### Aide pour les fonctions
+
+**Liste toutes les fonctions disponibles :**
+```bash
+help
+```
+
+**Aide détaillée pour une fonction spécifique :**
+```bash
+help extract
+help docker_build
+help kill_process
+```
+
+La commande `help` affiche :
+- 📝 **Description** : Explication détaillée de ce que fait la fonction
+- 💻 **Usage** : Syntaxe complète avec tous les arguments
+- 📚 **Exemples** : Exemples concrets d'utilisation
+- 💡 **Astuces** : Conseils et informations supplémentaires
+
+**Exemple de sortie :**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📖 AIDE: extract
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Description:
+   Extrait automatiquement n'importe quel type d'archive dans le répertoire
+   courant. La fonction détecte automatiquement le format et utilise l'outil
+   approprié pour l'extraction.
+
+💻 Usage:
+   extract <fichier_archive>
+   extract                    # Affiche cette aide
+   extract --help            # Affiche cette aide
+
+📚 Exemples:
+   extract mon_archive.zip
+   extract backup.tar.gz
+   extract fichier.rar
+```
+
+### Pages man pour les fonctions
+
+**Afficher la documentation complète (page man) :**
+```bash
+man extract
+man docker_build
+```
+
+Les pages man sont au format Markdown et contiennent :
+- Description complète de la fonction
+- Tous les formats/options supportés
+- Exemples détaillés
+- Codes de retour
+- Prérequis et dépendances
+- Voir aussi (liens vers fonctions connexes)
+
+**Générer toutes les pages man :**
+```bash
+make generate-man
+```
+
+Cette commande génère automatiquement les pages man pour toutes les fonctions à partir des commentaires de documentation dans le code.
+
+### Génération automatique de documentation
+
+Le système extrait automatiquement la documentation depuis les commentaires dans les fichiers de fonctions :
+
+**Format standardisé :**
+```bash
+# DESC: Description détaillée de la fonction
+# USAGE: nom_fonction <arg1> [arg2]
+# EXAMPLE: nom_fonction exemple1
+# EXAMPLE: nom_fonction exemple2
+```
+
+**Scripts disponibles :**
+- `scripts/tools/generate_man_pages.sh` - Génère les pages man pour toutes les fonctions
+- `scripts/tools/add_missing_examples.sh` - Ajoute automatiquement des exemples manquants
+
+### Format de documentation
+
+Toutes les fonctions personnalisées suivent le même format de documentation :
+
+1. **DESC** : Description détaillée de ce que fait la fonction
+2. **USAGE** : Syntaxe complète avec tous les arguments (obligatoires `<>` et optionnels `[]`)
+3. **EXAMPLE** : Un ou plusieurs exemples concrets d'utilisation
+
+**Exemple dans le code :**
+```bash
+# DESC: Extrait automatiquement des fichiers d'archive dans le répertoire courant
+#       Supporte: tar, tar.gz, tar.bz2, tar.xz, zip, rar, 7z, gz, bz2, xz, deb, rpm, etc.
+# USAGE: extract [<file_path>] [--help|-h|help]
+# EXAMPLE: extract archive.zip
+# EXAMPLE: extract archive.tar.gz
+# EXAMPLE: extract  # Affiche l'aide si aucun argument
+extract() {
+    # ... code de la fonction
+}
+```
+
+**Fonctions documentées :**
+- ✅ **100+ fonctions** avec documentation complète
+- ✅ **misc/** : process, disk, clipboard, files, backup, security, system
+- ✅ **dev/** : go, docker, c, make
+- ✅ **cyber/** : reconnaissance, scanning, vulnerability, attacks, analysis, privacy
+- ✅ **git/** : toutes les fonctions Git personnalisées
+
+**Avantages :**
+- 📖 Documentation accessible directement depuis le terminal
+- 🔍 Recherche facile avec `help` pour lister toutes les fonctions
+- 📚 Pages man complètes pour chaque fonction
+- 🎯 Exemples concrets pour chaque fonction
+- 🔄 Génération automatique de documentation
+
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
 ## 🔐 Configuration GitHub SSH
 
 Le script génère automatiquement une clé SSH ED25519 et :
