@@ -28,9 +28,14 @@ save_environment() {
     fi
     
     # Charger les cibles actuelles
-    local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+    local CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
         source "$CYBER_DIR/target_manager.sh"
+    fi
+    
+    # S'assurer que CYBER_TARGETS est défini
+    if [ -z "${CYBER_TARGETS+x}" ]; then
+        typeset -g -a CYBER_TARGETS=()
     fi
     
     local env_file="$CYBER_ENV_DIR/${name}.json"
@@ -98,7 +103,7 @@ load_environment() {
     fi
     
     # Charger le gestionnaire de cibles
-    local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+    local CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
         source "$CYBER_DIR/target_manager.sh"
     fi
@@ -116,15 +121,26 @@ load_environment() {
         return 1
     fi
     
-    # Charger les cibles
-    CYBER_TARGETS=($(jq -r '.targets[]?' "$env_file" 2>/dev/null))
+    # Charger les cibles depuis le JSON
+    # Utiliser une méthode robuste pour charger le tableau
+    local targets_array=()
+    while IFS= read -r target; do
+        if [ -n "$target" ] && [ "$target" != "null" ]; then
+            targets_array+=("$target")
+        fi
+    done < <(jq -r '.targets[]?' "$env_file" 2>/dev/null)
+    
+    # Assigner les cibles à la variable globale
+    CYBER_TARGETS=("${targets_array[@]}")
+    
     local desc=$(jq -r '.description // "N/A"' "$env_file")
     local created=$(jq -r '.created // "N/A"' "$env_file")
     
     # Sauvegarder les cibles chargées dans le fichier de persistance
-    if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+    if typeset -f _save_targets_to_file >/dev/null 2>&1; then
+        _save_targets_to_file
+    elif [ -f "$CYBER_DIR/target_manager.sh" ]; then
         source "$CYBER_DIR/target_manager.sh"
-        # Appeler la fonction de sauvegarde si elle existe
         if typeset -f _save_targets_to_file >/dev/null 2>&1; then
             _save_targets_to_file
         fi
@@ -136,6 +152,8 @@ load_environment() {
     echo "🎯 Cibles chargées: ${#CYBER_TARGETS[@]}"
     if [ ${#CYBER_TARGETS[@]} -gt 0 ]; then
         show_targets
+    else
+        echo "⚠️  Aucune cible dans cet environnement"
     fi
     return 0
 }
