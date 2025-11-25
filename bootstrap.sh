@@ -492,8 +492,9 @@ else
             log_warn "Vous pourrez configurer la clé SSH plus tard"
         fi
     fi
+    # Fin du if [ ! -f "$SSH_KEY" ]
 fi
-# Fin du bloc CONFIGURE_SSH
+# Fin du bloc CONFIGURE_SSH=true
 
 ################################################################################
 # VÉRIFICATION FINALE GIT AVANT CLONAGE
