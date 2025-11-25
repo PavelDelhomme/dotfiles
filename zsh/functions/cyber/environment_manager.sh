@@ -294,6 +294,50 @@ restore_environment() {
     load_environment "$@"
 }
 
+# DESC: Supprime plusieurs environnements
+# USAGE: delete_environments <name1> [name2...]
+# EXAMPLE: delete_environments "env_test1" "env_test2"
+delete_environments() {
+    if [ $# -eq 0 ]; then
+        echo "❌ Usage: delete_environments <name1> [name2...]"
+        return 1
+    fi
+
+    local to_delete_names=("$@")
+    local deleted_count=0
+    local not_found_count=0
+
+    echo "⚠️  Vous êtes sur le point de supprimer les environnements suivants:"
+    for name in "${to_delete_names[@]}"; do
+        echo "   - $name"
+    done
+    printf "Confirmer la suppression de ces ${#to_delete_names[@]} environnement(s)? (o/N): "
+    read -r confirm
+
+    if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
+        for name in "${to_delete_names[@]}"; do
+            local env_file="$CYBER_ENV_DIR/${name}.json"
+            if [ -f "$env_file" ]; then
+                rm "$env_file"
+                echo "✅ Environnement supprimé: $name"
+                ((deleted_count++))
+                # Si l'environnement supprimé était l'environnement actif, le désactiver
+                if [ "$CYBER_CURRENT_ENV" = "$name" ]; then
+                    CYBER_CURRENT_ENV=""
+                fi
+            else
+                echo "❌ Environnement non trouvé: $name"
+                ((not_found_count++))
+            fi
+        done
+        echo "📋 Résumé: $deleted_count supprimé(s), $not_found_count introuvable(s)."
+        return 0
+    else
+        echo "❌ Suppression multiple annulée."
+        return 1
+    fi
+}
+
 # DESC: Obtient le nom de l'environnement actuellement chargé
 # USAGE: get_current_environment
 # EXAMPLE: get_current_environment
