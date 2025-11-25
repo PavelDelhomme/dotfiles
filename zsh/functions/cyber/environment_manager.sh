@@ -73,6 +73,7 @@ save_environment() {
     fi
     
     # Créer le JSON complet avec jq pour éviter les problèmes d'échappement
+    # Inclure les champs pour notes, historique et résultats
     jq -n \
         --arg name "$name" \
         --arg desc "$description" \
@@ -85,9 +86,13 @@ save_environment() {
             description: $desc,
             created: $created,
             targets: $targets,
+            notes: [],
+            history: [],
+            results: [],
             metadata: {
                 user: $user,
-                hostname: $hostname
+                hostname: $hostname,
+                last_updated: $created
             }
         }' > "$temp_file" 2>/dev/null
     
@@ -144,6 +149,16 @@ load_environment() {
         return 1
     fi
     
+    # S'assurer que les champs notes, history, results existent (pour compatibilité avec anciens environnements)
+    local temp_file=$(mktemp)
+    jq '.notes //= [] | .history //= [] | .results //= [] | .metadata.last_updated //= .created' \
+       "$env_file" > "$temp_file" 2>/dev/null
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
+    else
+        rm -f "$temp_file"
+    fi
+    
     # Charger les cibles depuis le JSON
     # Utiliser une méthode robuste pour charger le tableau
     local targets_array=()
@@ -158,6 +173,9 @@ load_environment() {
     
     local desc=$(jq -r '.description // "N/A"' "$env_file")
     local created=$(jq -r '.created // "N/A"' "$env_file")
+    local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
+    local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
+    local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
     
     # Sauvegarder les cibles chargées dans le fichier de persistance
     if typeset -f _save_targets_to_file >/dev/null 2>&1; then
@@ -176,6 +194,7 @@ load_environment() {
     echo "📝 Description: $desc"
     echo "📅 Créé: $created"
     echo "🎯 Cibles chargées: ${#CYBER_TARGETS[@]}"
+    echo "📌 Notes: $notes_count | 📜 Historique: $history_count | 📊 Résultats: $results_count"
     if [ ${#CYBER_TARGETS[@]} -gt 0 ]; then
         show_targets
     else
@@ -459,6 +478,266 @@ import_environment() {
     return 0
 }
 
+# DESC: Ajoute une note à un environnement
+# USAGE: add_environment_note <env_name> <note_text>
+# EXAMPLE: add_environment_note "pentest_example" "Découverte d'une vulnérabilité SQLi sur /login"
+add_environment_note() {
+    local env_name="$1"
+    local note_text="$2"
+    
+    if [ -z "$env_name" ] || [ -z "$note_text" ]; then
+        echo "❌ Usage: add_environment_note <env_name> <note_text>"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour ajouter des notes"
+        return 1
+    fi
+    
+    # Ajouter la note avec timestamp
+    local temp_file=$(mktemp)
+    jq --arg note "$note_text" \
+       --arg timestamp "$(date -Iseconds)" \
+       '.notes += [{
+           text: $note,
+           timestamp: $timestamp,
+           author: env.USER
+       }] | .metadata.last_updated = $timestamp' \
+       "$env_file" > "$temp_file" 2>/dev/null
+    
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
+        echo "✅ Note ajoutée à l'environnement: $env_name"
+        return 0
+    else
+        rm -f "$temp_file"
+        echo "❌ Erreur lors de l'ajout de la note"
+        return 1
+    fi
+}
+
+# DESC: Ajoute une action à l'historique d'un environnement
+# USAGE: add_environment_action <env_name> <action_type> <action_description> [result]
+# EXAMPLE: add_environment_action "pentest_example" "scan" "Scan de ports avec nmap" "Ports 80,443 ouverts"
+add_environment_action() {
+    local env_name="$1"
+    local action_type="$2"
+    local action_desc="$3"
+    local result="${4:-}"
+    
+    if [ -z "$env_name" ] || [ -z "$action_type" ] || [ -z "$action_desc" ]; then
+        echo "❌ Usage: add_environment_action <env_name> <action_type> <action_description> [result]"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour ajouter des actions"
+        return 1
+    fi
+    
+    # Ajouter l'action à l'historique
+    local temp_file=$(mktemp)
+    jq --arg type "$action_type" \
+       --arg desc "$action_desc" \
+       --arg result "$result" \
+       --arg timestamp "$(date -Iseconds)" \
+       '.history += [{
+           type: $type,
+           description: $desc,
+           result: $result,
+           timestamp: $timestamp,
+           user: env.USER
+       }] | .metadata.last_updated = $timestamp' \
+       "$env_file" > "$temp_file" 2>/dev/null
+    
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
+        return 0
+    else
+        rm -f "$temp_file"
+        echo "❌ Erreur lors de l'ajout de l'action"
+        return 1
+    fi
+}
+
+# DESC: Ajoute un résultat de test/analyse à un environnement
+# USAGE: add_environment_result <env_name> <test_name> <result_data> [status]
+# EXAMPLE: add_environment_result "pentest_example" "nmap_scan" "Ports 80,443 ouverts" "success"
+add_environment_result() {
+    local env_name="$1"
+    local test_name="$2"
+    local result_data="$3"
+    local status="${4:-completed}"
+    
+    if [ -z "$env_name" ] || [ -z "$test_name" ] || [ -z "$result_data" ]; then
+        echo "❌ Usage: add_environment_result <env_name> <test_name> <result_data> [status]"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour ajouter des résultats"
+        return 1
+    fi
+    
+    # Ajouter le résultat
+    local temp_file=$(mktemp)
+    jq --arg test "$test_name" \
+       --arg data "$result_data" \
+       --arg status "$status" \
+       --arg timestamp "$(date -Iseconds)" \
+       '.results += [{
+           test_name: $test,
+           result: $data,
+           status: $status,
+           timestamp: $timestamp,
+           user: env.USER
+       }] | .metadata.last_updated = $timestamp' \
+       "$env_file" > "$temp_file" 2>/dev/null
+    
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
+        echo "✅ Résultat ajouté à l'environnement: $env_name"
+        return 0
+    else
+        rm -f "$temp_file"
+        echo "❌ Erreur lors de l'ajout du résultat"
+        return 1
+    fi
+}
+
+# DESC: Affiche les notes d'un environnement
+# USAGE: show_environment_notes <env_name>
+# EXAMPLE: show_environment_notes "pentest_example"
+show_environment_notes() {
+    local env_name="$1"
+    
+    if [ -z "$env_name" ]; then
+        echo "❌ Usage: show_environment_notes <env_name>"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis"
+        return 1
+    fi
+    
+    local notes_count=$(jq '.notes | length' "$env_file")
+    
+    if [ "$notes_count" -eq 0 ]; then
+        echo "📝 Aucune note pour l'environnement: $env_name"
+        return 0
+    fi
+    
+    echo "📝 Notes de l'environnement: $env_name"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    jq -r '.notes[] | "📌 \(.timestamp) - \(.author)\n   \(.text)\n"' "$env_file"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    return 0
+}
+
+# DESC: Affiche l'historique des actions d'un environnement
+# USAGE: show_environment_history <env_name>
+# EXAMPLE: show_environment_history "pentest_example"
+show_environment_history() {
+    local env_name="$1"
+    
+    if [ -z "$env_name" ]; then
+        echo "❌ Usage: show_environment_history <env_name>"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis"
+        return 1
+    fi
+    
+    local history_count=$(jq '.history | length' "$env_file")
+    
+    if [ "$history_count" -eq 0 ]; then
+        echo "📜 Aucun historique pour l'environnement: $env_name"
+        return 0
+    fi
+    
+    echo "📜 Historique des actions - Environnement: $env_name"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    jq -r '.history[] | "🔹 [\(.type)] \(.timestamp) - \(.user)\n   \(.description)\n   \(if .result != "" then "   📊 Résultat: \(.result)" else "" end)\n"' "$env_file"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    return 0
+}
+
+# DESC: Affiche les résultats de tests d'un environnement
+# USAGE: show_environment_results <env_name>
+# EXAMPLE: show_environment_results "pentest_example"
+show_environment_results() {
+    local env_name="$1"
+    
+    if [ -z "$env_name" ]; then
+        echo "❌ Usage: show_environment_results <env_name>"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis"
+        return 1
+    fi
+    
+    local results_count=$(jq '.results | length' "$env_file")
+    
+    if [ "$results_count" -eq 0 ]; then
+        echo "📊 Aucun résultat pour l'environnement: $env_name"
+        return 0
+    fi
+    
+    echo "📊 Résultats de tests - Environnement: $env_name"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    jq -r '.results[] | "🧪 [\(.test_name)] \(.timestamp) - \(.status)\n   \(.result)\n"' "$env_file"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    return 0
+}
+
 # DESC: Affiche le menu interactif de gestion des environnements
 # USAGE: show_environment_menu
 # EXAMPLE: show_environment_menu
@@ -482,6 +761,25 @@ show_environment_menu() {
         
         # Afficher l'état actuel
         echo -e "${YELLOW}📊 État actuel:${RESET}"
+        
+        # Afficher l'environnement actif
+        if has_active_environment 2>/dev/null; then
+            local current_env=$(get_current_environment 2>/dev/null)
+            echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
+            
+            # Afficher les statistiques de l'environnement actif
+            local env_file="$CYBER_ENV_DIR/${current_env}.json"
+            if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
+                local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
+                local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
+                local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
+                echo -e "      📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count}"
+            fi
+        else
+            echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
+        fi
+        
+        # Afficher les cibles
         if [ -f "$CYBER_DIR/target_manager.sh" ]; then
             source "$CYBER_DIR/target_manager.sh" 2>/dev/null
             if has_targets 2>/dev/null; then
@@ -511,6 +809,10 @@ show_environment_menu() {
         echo "9.  Importer un environnement"
         echo "10. Gérer les cibles (ajouter/modifier)"
         echo "11. Lister tous les environnements"
+        echo "12. Ajouter une note à un environnement"
+        echo "13. Voir les notes d'un environnement"
+        echo "14. Voir l'historique des actions"
+        echo "15. Voir les résultats de tests"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -723,6 +1025,63 @@ show_environment_menu() {
                 ;;
             11)
                 list_environments
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            12)
+                echo ""
+                list_environments
+                echo ""
+                printf "📝 Nom de l'environnement: "
+                read -r env_name
+                if [ -n "$env_name" ]; then
+                    echo "💬 Entrez votre note (appuyez sur Entrée puis Ctrl+D pour terminer):"
+                    local note_text=$(cat)
+                    if [ -n "$note_text" ]; then
+                        add_environment_note "$env_name" "$note_text"
+                    else
+                        echo "❌ Note vide, annulé"
+                    fi
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            13)
+                echo ""
+                list_environments
+                echo ""
+                printf "📝 Nom de l'environnement: "
+                read -r env_name
+                if [ -n "$env_name" ]; then
+                    echo ""
+                    show_environment_notes "$env_name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            14)
+                echo ""
+                list_environments
+                echo ""
+                printf "📝 Nom de l'environnement: "
+                read -r env_name
+                if [ -n "$env_name" ]; then
+                    echo ""
+                    show_environment_history "$env_name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            15)
+                echo ""
+                list_environments
+                echo ""
+                printf "📝 Nom de l'environnement: "
+                read -r env_name
+                if [ -n "$env_name" ]; then
+                    echo ""
+                    show_environment_results "$env_name"
+                fi
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;

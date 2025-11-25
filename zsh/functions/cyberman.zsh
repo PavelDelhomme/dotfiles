@@ -465,6 +465,15 @@ cyberman() {
             if has_active_environment 2>/dev/null; then
                 local current_env=$(get_current_environment 2>/dev/null)
                 echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
+                
+                # Afficher les statistiques de l'environnement actif
+                local env_file="${HOME}/.cyberman/environments/${current_env}.json"
+                if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
+                    local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
+                    local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
+                    local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
+                    echo -e "      ${CYAN}📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count}${RESET}"
+                fi
             else
                 echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
             fi
