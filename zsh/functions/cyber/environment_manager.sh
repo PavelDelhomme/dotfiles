@@ -188,6 +188,8 @@ load_environment() {
     local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
     local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
     local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
+    local todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
+    local todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
     
     # Sauvegarder les cibles chargées dans le fichier de persistance
     if typeset -f _save_targets_to_file >/dev/null 2>&1; then

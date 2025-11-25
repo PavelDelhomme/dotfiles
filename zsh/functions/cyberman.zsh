@@ -809,6 +809,269 @@ EOF
     }
     
     # =========================================================================
+    # CATÉGORIE: NETWORK TOOLS (regroupe Analysis, Attacks, Devices)
+    # =========================================================================
+    # DESC: Affiche le menu regroupé pour les outils réseau
+    # USAGE: show_network_tools_menu
+    # EXAMPLE: show_network_tools_menu
+    show_network_tools_menu() {
+        show_header
+        echo -e "${YELLOW}📡 NETWORK TOOLS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  📊 Network Analysis & Monitoring"
+        echo "2.  ⚔️  Network Attacks & Exploitation"
+        echo "3.  🔌 Network Devices & Infrastructure"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1) show_analysis_menu ;;
+            2) show_attack_menu ;;
+            3) show_network_devices_menu ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
+    # CATÉGORIE: ADVANCED TOOLS (Metasploit, Custom Scripts)
+    # =========================================================================
+    # DESC: Affiche le menu pour les outils avancés
+    # USAGE: show_advanced_tools_menu
+    # EXAMPLE: show_advanced_tools_menu
+    show_advanced_tools_menu() {
+        show_header
+        echo -e "${YELLOW}🔧 ADVANCED TOOLS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  🎯 Metasploit Framework"
+        echo "2.  📜 Custom Nmap Scripts"
+        echo "3.  🔨 Custom Exploitation Scripts"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1) show_metasploit_menu ;;
+            2) show_custom_nmap_menu ;;
+            3) show_custom_exploit_menu ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # DESC: Affiche le menu Metasploit
+    # USAGE: show_metasploit_menu
+    show_metasploit_menu() {
+        show_header
+        echo -e "${YELLOW}🎯 METASPLOIT FRAMEWORK${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Lancer msfconsole"
+        echo "2.  Rechercher un exploit"
+        echo "3.  Rechercher un payload"
+        echo "4.  Rechercher un auxiliary"
+        echo "5.  Lister les exploits récents"
+        echo "6.  Générer un payload"
+        echo "0.  Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1)
+                if command -v msfconsole >/dev/null 2>&1; then
+                    msfconsole
+                else
+                    echo "❌ Metasploit non installé"
+                    echo "💡 Installez-le: sudo pacman -S metasploit"
+                    sleep 2
+                fi
+                ;;
+            2)
+                printf "🔍 Rechercher un exploit: "
+                read -r search_term
+                if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
+                    msfconsole -q -x "search exploit $search_term; exit"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                printf "🔍 Rechercher un payload: "
+                read -r search_term
+                if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
+                    msfconsole -q -x "search payload $search_term; exit"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                printf "🔍 Rechercher un auxiliary: "
+                read -r search_term
+                if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
+                    msfconsole -q -x "search auxiliary $search_term; exit"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                if command -v msfconsole >/dev/null 2>&1; then
+                    msfconsole -q -x "show exploits; exit" | head -50
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                echo "💡 Utilisez msfvenom pour générer des payloads"
+                if command -v msfvenom >/dev/null 2>&1; then
+                    echo "Exemple: msfvenom -p windows/meterpreter/reverse_tcp LHOST=IP LPORT=PORT -f exe > payload.exe"
+                else
+                    echo "❌ msfvenom non disponible"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # DESC: Affiche le menu Custom Nmap Scripts
+    # USAGE: show_custom_nmap_menu
+    show_custom_nmap_menu() {
+        show_header
+        echo -e "${YELLOW}📜 CUSTOM NMAP SCRIPTS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Lister les scripts nmap disponibles"
+        echo "2.  Exécuter un script nmap personnalisé"
+        echo "3.  Créer un script nmap personnalisé"
+        echo "4.  Scan avec scripts vuln"
+        echo "5.  Scan avec scripts exploit"
+        echo "0.  Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1)
+                if command -v nmap >/dev/null 2>&1; then
+                    local scripts_dir="/usr/share/nmap/scripts"
+                    if [ -d "$scripts_dir" ]; then
+                        echo "📜 Scripts nmap disponibles:"
+                        ls -1 "$scripts_dir"/*.nse 2>/dev/null | wc -l | xargs echo "   Total:"
+                        echo ""
+                        printf "Afficher la liste complète? (o/N): "
+                        read -r show_all
+                        if [ "$show_all" = "o" ] || [ "$show_all" = "O" ]; then
+                            ls -1 "$scripts_dir"/*.nse 2>/dev/null | head -50
+                        fi
+                    else
+                        echo "⚠️  Répertoire des scripts nmap non trouvé"
+                    fi
+                else
+                    echo "❌ nmap non installé"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                if has_targets; then
+                    printf "📜 Nom du script (sans .nse): "
+                    read -r script_name
+                    if [ -n "$script_name" ]; then
+                        for target in "${CYBER_TARGETS[@]}"; do
+                            echo "🎯 Scan avec script $script_name sur $target"
+                            nmap --script "$script_name" "$target"
+                        done
+                    fi
+                else
+                    echo "❌ Aucune cible configurée"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo "💡 Créez vos scripts dans ~/.nmap/scripts/"
+                echo "💡 Documentation: https://nmap.org/book/nse.html"
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                if has_targets; then
+                    for target in "${CYBER_TARGETS[@]}"; do
+                        echo "🎯 Scan vuln sur $target"
+                        nmap --script vuln "$target"
+                    done
+                else
+                    echo "❌ Aucune cible configurée"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                if has_targets; then
+                    for target in "${CYBER_TARGETS[@]}"; do
+                        echo "🎯 Scan exploit sur $target"
+                        nmap --script exploit "$target"
+                    done
+                else
+                    echo "❌ Aucune cible configurée"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # DESC: Affiche le menu Custom Exploitation Scripts
+    # USAGE: show_custom_exploit_menu
+    show_custom_exploit_menu() {
+        show_header
+        echo -e "${YELLOW}🔨 CUSTOM EXPLOITATION SCRIPTS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Lister les scripts personnalisés"
+        echo "2.  Exécuter un script personnalisé"
+        echo "3.  Créer un nouveau script"
+        echo "0.  Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1)
+                local scripts_dir="$HOME/.cyberman/scripts"
+                if [ -d "$scripts_dir" ]; then
+                    echo "📜 Scripts personnalisés:"
+                    ls -1 "$scripts_dir"/*.sh 2>/dev/null || echo "   Aucun script trouvé"
+                else
+                    echo "⚠️  Répertoire des scripts non trouvé: $scripts_dir"
+                    echo "💡 Créez-le: mkdir -p $scripts_dir"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                local scripts_dir="$HOME/.cyberman/scripts"
+                if [ -d "$scripts_dir" ]; then
+                    echo "📜 Scripts disponibles:"
+                    ls -1 "$scripts_dir"/*.sh 2>/dev/null | nl
+                    echo ""
+                    printf "📝 Nom du script: "
+                    read -r script_name
+                    if [ -n "$script_name" ] && [ -f "$scripts_dir/$script_name" ]; then
+                        bash "$scripts_dir/$script_name"
+                    else
+                        echo "❌ Script non trouvé"
+                    fi
+                else
+                    echo "❌ Répertoire des scripts non trouvé"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo "💡 Créez vos scripts dans ~/.cyberman/scripts/"
+                echo "💡 Les scripts peuvent utiliser les variables CYBER_TARGETS"
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
     # CATÉGORIE: NETWORK DEVICES & INFRASTRUCTURE
     # =========================================================================
     # DESC: Affiche le menu pour les appareils réseau et infrastructure
