@@ -57,28 +57,48 @@ save_environment() {
         fi
     fi
     
-    # Créer le JSON de l'environnement
-    local targets_json=$(printf '%s\n' "${CYBER_TARGETS[@]}" | jq -R . | jq -s .)
-    cat > "$env_file" <<EOF
-{
-  "name": "$name",
-  "description": "$description",
-  "created": "$(date -Iseconds)",
-  "targets": $targets_json,
-  "metadata": {
-    "user": "$USER",
-    "hostname": "$(hostname)"
-  }
-}
-EOF
+    # Créer le JSON de l'environnement de manière robuste avec jq
+    # Utiliser jq pour créer le JSON complet de manière sécurisée
+    local temp_file=$(mktemp)
+    local targets_json
     
-    if [ $? -eq 0 ]; then
+    # Générer le tableau JSON des cibles
+    if [ ${#CYBER_TARGETS[@]} -eq 0 ]; then
+        targets_json="[]"
+    else
+        targets_json=$(printf '%s\n' "${CYBER_TARGETS[@]}" | jq -R . | jq -s .)
+    fi
+    
+    # Créer le JSON complet avec jq pour éviter les problèmes d'échappement
+    jq -n \
+        --arg name "$name" \
+        --arg desc "$description" \
+        --arg created "$(date -Iseconds)" \
+        --arg user "$USER" \
+        --arg hostname "$(hostname)" \
+        --argjson targets "$targets_json" \
+        '{
+            name: $name,
+            description: $desc,
+            created: $created,
+            targets: $targets,
+            metadata: {
+                user: $user,
+                hostname: $hostname
+            }
+        }' > "$temp_file" 2>/dev/null
+    
+    # Vérifier que le JSON est valide et le déplacer
+    if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
+        mv "$temp_file" "$env_file"
         echo "✅ Environnement sauvegardé: $name"
         echo "📁 Fichier: $env_file"
         echo "🎯 Cibles sauvegardées: ${#CYBER_TARGETS[@]}"
         return 0
     else
-        echo "❌ Erreur lors de la sauvegarde"
+        rm -f "$temp_file"
+        echo "❌ Erreur lors de la génération du JSON"
+        echo "💡 Vérifiez que jq est installé: sudo pacman -S jq"
         return 1
     fi
 }
