@@ -478,6 +478,31 @@ import_environment() {
     return 0
 }
 
+# DESC: Enregistre automatiquement un résultat dans l'environnement actif (helper)
+# USAGE: _auto_save_result <action_type> <description> <result_data> [status]
+# EXAMPLE: _auto_save_result "whois" "WHOIS lookup" "Domain info..." "success"
+_auto_save_result() {
+    local action_type="$1"
+    local description="$2"
+    local result_data="$3"
+    local status="${4:-success}"
+    
+    if [ -z "$action_type" ] || [ -z "$description" ]; then
+        return 1
+    fi
+    
+    # Vérifier si un environnement est actif
+    if [ -z "${CYBER_CURRENT_ENV}" ]; then
+        return 0  # Pas d'erreur, juste pas d'environnement actif
+    fi
+    
+    # Enregistrer l'action et le résultat
+    add_environment_action "$CYBER_CURRENT_ENV" "$action_type" "$description" "$result_data" 2>/dev/null
+    add_environment_result "$CYBER_CURRENT_ENV" "${action_type}_$(date +%s)" "$result_data" "$status" 2>/dev/null
+    
+    return 0
+}
+
 # DESC: Ajoute une note à un environnement
 # USAGE: add_environment_note <env_name> <note_text>
 # EXAMPLE: add_environment_note "pentest_example" "Découverte d'une vulnérabilité SQLi sur /login"
@@ -736,6 +761,182 @@ show_environment_results() {
     jq -r '.results[] | "🧪 [\(.test_name)] \(.timestamp) - \(.status)\n   \(.result)\n"' "$env_file"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     return 0
+}
+
+# DESC: Charge et affiche toutes les informations d'un environnement de manière interactive
+# USAGE: load_infos <env_name>
+# EXAMPLE: load_infos "pentest_example"
+# EXAMPLE: cyberman load_infos pentest_example
+load_infos() {
+    local env_name="$1"
+    
+    if [ -z "$env_name" ]; then
+        echo "❌ Usage: load_infos <env_name>"
+        echo "💡 Exemple: load_infos pentest_example"
+        echo "💡 Ou: cyberman load_infos pentest_example"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${env_name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $env_name"
+        echo "💡 Liste des environnements disponibles:"
+        list_environments
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour afficher les informations"
+        return 1
+    fi
+    
+    # Charger l'environnement d'abord
+    load_environment "$env_name" 2>/dev/null || {
+        echo "⚠️  Impossible de charger l'environnement, mais affichage des informations..."
+    }
+    
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║           INFORMATIONS ENVIRONNEMENT - CYBERMAN                ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        
+        # Informations de base
+        local desc=$(jq -r '.description // "N/A"' "$env_file")
+        local created=$(jq -r '.created // "N/A"' "$env_file")
+        local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
+        local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
+        local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
+        local targets_count=$(jq '.targets | length' "$env_file" 2>/dev/null || echo "0")
+        
+        echo -e "${YELLOW}📋 Environnement: ${BOLD}${env_name}${RESET}"
+        echo -e "   📝 Description: $desc"
+        echo -e "   📅 Créé: $created"
+        echo ""
+        echo -e "${GREEN}📊 Statistiques:${RESET}"
+        echo -e "   🎯 Cibles: $targets_count"
+        echo -e "   📌 Notes: $notes_count"
+        echo -e "   📜 Actions: $history_count"
+        echo -e "   📊 Résultats: $results_count"
+        echo ""
+        
+        # Afficher les cibles
+        if [ "$targets_count" -gt 0 ]; then
+            echo -e "${CYAN}🎯 Cibles:${RESET}"
+            jq -r '.targets[]' "$env_file" | while IFS= read -r target; do
+                echo -e "   • $target"
+            done
+            echo ""
+        fi
+        
+        echo -e "${BLUE}Menu de navigation:${RESET}"
+        echo "1.  Voir toutes les notes"
+        echo "2.  Voir l'historique complet des actions"
+        echo "3.  Voir tous les résultats de tests"
+        echo "4.  Voir les détails complets (JSON)"
+        echo "5.  Rechercher dans les informations"
+        echo "6.  Exporter toutes les informations"
+        echo "0.  Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                echo ""
+                show_environment_notes "$env_name"
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                show_environment_history "$env_name"
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                show_environment_results "$env_name"
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                echo -e "${CYAN}📄 Détails complets (JSON):${RESET}"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                jq '.' "$env_file" | less -R
+                ;;
+            5)
+                echo ""
+                printf "🔍 Rechercher: "
+                read -r search_term
+                if [ -n "$search_term" ]; then
+                    echo ""
+                    echo -e "${CYAN}Résultats de recherche pour: ${BOLD}$search_term${RESET}"
+                    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                    # Rechercher dans les notes
+                    jq -r --arg term "$search_term" '.notes[] | select(.text | contains($term)) | "📌 Note: \(.text)\n   Date: \(.timestamp)\n"' "$env_file" 2>/dev/null
+                    # Rechercher dans l'historique
+                    jq -r --arg term "$search_term" '.history[] | select(.description | contains($term) or .result | contains($term)) | "📜 Action: \(.description)\n   Résultat: \(.result)\n   Date: \(.timestamp)\n"' "$env_file" 2>/dev/null
+                    # Rechercher dans les résultats
+                    jq -r --arg term "$search_term" '.results[] | select(.test_name | contains($term) or .result | contains($term)) | "🧪 Test: \(.test_name)\n   Résultat: \(.result)\n   Date: \(.timestamp)\n"' "$env_file" 2>/dev/null
+                    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                echo ""
+                local export_file="${env_name}_export_$(date +%Y%m%d_%H%M%S).txt"
+                {
+                    echo "════════════════════════════════════════════════════════════════"
+                    echo "EXPORT COMPLET - ENVIRONNEMENT: $env_name"
+                    echo "════════════════════════════════════════════════════════════════"
+                    echo ""
+                    echo "Description: $desc"
+                    echo "Créé: $created"
+                    echo ""
+                    echo "════════════════════════════════════════════════════════════════"
+                    echo "CIBLES"
+                    echo "════════════════════════════════════════════════════════════════"
+                    jq -r '.targets[]' "$env_file"
+                    echo ""
+                    echo "════════════════════════════════════════════════════════════════"
+                    echo "NOTES"
+                    echo "════════════════════════════════════════════════════════════════"
+                    jq -r '.notes[] | "\(.timestamp) - \(.author)\n\(.text)\n"' "$env_file"
+                    echo ""
+                    echo "════════════════════════════════════════════════════════════════"
+                    echo "HISTORIQUE DES ACTIONS"
+                    echo "════════════════════════════════════════════════════════════════"
+                    jq -r '.history[] | "[\(.type)] \(.timestamp) - \(.user)\n\(.description)\nRésultat: \(.result)\n"' "$env_file"
+                    echo ""
+                    echo "════════════════════════════════════════════════════════════════"
+                    echo "RÉSULTATS DE TESTS"
+                    echo "════════════════════════════════════════════════════════════════"
+                    jq -r '.results[] | "[\(.test_name)] \(.timestamp) - \(.status)\n\(.result)\n"' "$env_file"
+                } > "$export_file"
+                echo "✅ Export créé: $export_file"
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return 0 ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
 }
 
 # DESC: Affiche le menu interactif de gestion des environnements

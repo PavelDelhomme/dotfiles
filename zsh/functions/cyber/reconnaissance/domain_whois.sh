@@ -63,7 +63,23 @@ function domain_whois() {
     echo ""
     
     if command -v whois >/dev/null 2>&1; then
-        whois "$domain"
+        local whois_output=$(whois "$domain" 2>&1)
+        echo "$whois_output"
+        
+        # Enregistrer le résultat dans l'environnement actif si disponible
+        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+            if has_active_environment 2>/dev/null; then
+                local current_env=$(get_current_environment 2>/dev/null)
+                if [ -n "$current_env" ]; then
+                    # Enregistrer comme action et résultat
+                    add_environment_action "$current_env" "whois" "WHOIS lookup pour $domain" "$(echo "$whois_output" | head -20)" 2>/dev/null
+                    add_environment_result "$current_env" "whois_$domain" "$whois_output" "success" 2>/dev/null
+                fi
+            fi
+        fi
+        
+        return 0
     else
         echo "❌ whois non installé"
         echo "💡 Installez-le: sudo pacman -S whois"

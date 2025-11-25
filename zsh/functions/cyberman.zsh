@@ -498,6 +498,7 @@ cyberman() {
         echo "3.  🔒 Gestion de l'anonymat"
         echo "4.  🔄 Gestion des workflows"
         echo "5.  🔍 Reconnaissance & Information Gathering"
+        echo "15. 📊 Voir les informations récoltées (environnement actif)"
         echo "6.  🔎 Scanning & Enumeration"
         echo "7.  🛡️  Vulnerability Assessment & Session"
         echo "8.  📡 Network Analysis & Monitoring"
@@ -837,6 +838,13 @@ EOF
     if [[ "$1" == "iot" ]]; then show_iot_menu; return; fi
     if [[ "$1" == "network" ]]; then show_network_devices_menu; return; fi
     if [[ "$1" == "help" ]]; then show_help; return; fi
+    if [[ "$1" == "load_infos" && -n "$2" ]]; then
+        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+            load_infos "$2"
+        fi
+        return
+    fi
     
     # Menu interactif principal
     while true; do
@@ -860,6 +868,19 @@ EOF
             12) show_network_devices_menu ;;
             13) show_report_menu ;;
             14) show_assistant_menu ;;
+            15)
+                if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+                    source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+                    if has_active_environment 2>/dev/null; then
+                        local current_env=$(get_current_environment 2>/dev/null)
+                        load_infos "$current_env"
+                    else
+                        echo "❌ Aucun environnement actif"
+                        echo "💡 Chargez d'abord un environnement (Option 1)"
+                        sleep 2
+                    fi
+                fi
+                ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
