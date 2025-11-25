@@ -1348,6 +1348,8 @@ EOF
                         read -r confirm
                         if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
                             deactivate_environment
+                            # Recharger le gestionnaire pour mettre à jour l'état
+                            source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
                             echo ""
                             read -k 1 "?Appuyez sur une touche pour continuer..."
                         fi

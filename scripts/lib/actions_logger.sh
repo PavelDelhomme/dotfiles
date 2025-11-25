@@ -49,10 +49,10 @@ log_action() {
     local action_type="$1"
     local component="$2"
     local action="$3"
-    local status="$4"
+    local action_status="$4"  # Renommé pour éviter conflit avec variable système 'status'
     local details="$5"
     
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$action_type] [$action] [$status] $component | $details" >> "$ACTIONS_LOG_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$action_type] [$action] [$action_status] $component | $details" >> "$ACTIONS_LOG_FILE"
 }
 
 ################################################################################

@@ -423,12 +423,24 @@ deactivate_environment() {
     fi
     
     local env_name="$CYBER_CURRENT_ENV"
-    CYBER_CURRENT_ENV=""
+    
+    # Désactiver l'environnement
+    typeset -g CYBER_CURRENT_ENV=""
+    unset CYBER_CURRENT_ENV 2>/dev/null || true
+    typeset -g CYBER_CURRENT_ENV=""  # Réinitialiser après unset
+    
+    # Supprimer le fichier de persistance
     rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
     
-    echo "✅ Environnement désactivé: $env_name"
-    echo "💡 Les cibles actuelles ne sont pas supprimées"
-    return 0
+    # Vérifier que la désactivation a bien fonctionné
+    if [ -z "$CYBER_CURRENT_ENV" ]; then
+        echo "✅ Environnement désactivé: $env_name"
+        echo "💡 Les cibles actuelles ne sont pas supprimées"
+        return 0
+    else
+        echo "⚠️  Erreur lors de la désactivation de l'environnement"
+        return 1
+    fi
 }
 
 # DESC: Exporte un environnement vers un fichier JSON
