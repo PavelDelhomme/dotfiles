@@ -115,6 +115,7 @@ echo -e "${CYAN}📝 ÉTAPE 4/5 : Chargement des utilitaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" && echo -e "${GREEN}  ✔️ Alias utils chargés${NC}" || echo -e "${YELLOW}  ⚠️ Alias utils introuvable${NC}"
 [ -f "$DOTFILES_PATH/scripts/lib/actions_logger.sh" ] && source "$DOTFILES_PATH/scripts/lib/actions_logger.sh" && echo -e "${GREEN}  ✔️ Actions logger chargé${NC}" || echo -e "${YELLOW}  ⚠️ Actions logger introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/utils/help_system.sh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/help_system.sh" && echo -e "${GREEN}  ✔️ Système d'aide chargé${NC}" || echo -e "${YELLOW}  ⚠️ Système d'aide introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/utils/helpman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/helpman.zsh" && echo -e "${GREEN}  ✔️ HELPMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ HELPMAN introuvable${NC}"
 
 # =============================================================================
 # ÉTAPE 5 : CHARGEMENT DES ALIASES
