@@ -38,6 +38,9 @@ miscman() {
     # Fonctions intégrées depuis misc/
     
     # Génération de mots de passe
+    # DESC: Génère un mot de passe sécurisé de longueur spécifiée
+    # USAGE: gen_password [length]
+    # EXAMPLE: gen_password 20
     gen_password() {
         local length="${1:-16}"
         if [[ ! "$length" =~ ^[0-9]+$ ]] || [[ "$length" -lt 4 ]]; then
@@ -72,6 +75,9 @@ miscman() {
     }
     
     # Informations système
+    # DESC: Affiche des informations détaillées sur le système
+    # USAGE: show_system_info
+    # EXAMPLE: show_system_info
     show_system_info() {
         echo -e "${CYAN}💻 Informations système détaillées${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
@@ -143,6 +149,9 @@ miscman() {
     }
     
     # Sauvegarde intelligente
+    # DESC: Crée une sauvegarde intelligente d'un répertoire avec horodatage
+    # USAGE: create_smart_backup
+    # EXAMPLE: create_smart_backup
     create_smart_backup() {
         read "source_dir?Répertoire à sauvegarder: "
         
@@ -172,6 +181,9 @@ miscman() {
     }
     
     # Extraction intelligente d'archives
+    # DESC: Extrait une archive de manière interactive
+    # USAGE: extract_archive
+    # EXAMPLE: extract_archive
     extract_archive() {
         read "archive?Fichier d'archive à extraire: "
         
@@ -206,6 +218,9 @@ miscman() {
     }
     
     # Chiffrement/déchiffrement de fichiers
+    # DESC: Chiffre un fichier avec GPG
+    # USAGE: encrypt_file
+    # EXAMPLE: encrypt_file
     encrypt_file() {
         read "file?Fichier à chiffrer: "
         
@@ -232,6 +247,9 @@ miscman() {
         fi
     }
     
+    # DESC: Déchiffre un fichier GPG
+    # USAGE: decrypt_file
+    # EXAMPLE: decrypt_file
     decrypt_file() {
         read "file?Fichier à déchiffrer: "
         
@@ -253,6 +271,9 @@ miscman() {
     }
     
     # Copie de la dernière sortie de commande
+    # DESC: Copie la dernière sortie de commande dans le presse-papier
+    # USAGE: copy_last_output
+    # EXAMPLE: copy_last_output
     copy_last_output() {
         echo -e "${CYAN}📋 Copie de la dernière sortie de commande${RESET}"
         
@@ -277,6 +298,9 @@ miscman() {
     }
     
     # Nettoyage du système
+    # DESC: Nettoie le système (caches, fichiers temporaires)
+    # USAGE: system_cleanup
+    # EXAMPLE: system_cleanup
     system_cleanup() {
         echo -e "${CYAN}🧹 Nettoyage du système${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
