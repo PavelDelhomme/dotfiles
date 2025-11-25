@@ -1064,6 +1064,190 @@ extract() {
 
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
+## 🎯 Managers - Gestionnaires Interactifs
+
+Le projet inclut plusieurs gestionnaires interactifs organisés en structure modulaire pour faciliter l'utilisation et l'extension.
+
+### Structure Modulaire
+
+Tous les managers suivent la même structure :
+```
+zsh/functions/
+├── <manager>.zsh          # Wrapper de compatibilité
+└── <manager>/             # Répertoire du manager
+    ├── core/              # Script principal
+    │   └── <manager>.zsh
+    ├── modules/           # Modules organisés
+    │   ├── legacy/        # Anciens fichiers
+    │   └── ...            # Nouveaux modules
+    ├── utils/             # Utilitaires
+    ├── config/            # Configuration
+    └── install/           # Scripts d'installation
+```
+
+### 🔐 Cyberman - Gestionnaire Cybersécurité
+
+Gestionnaire complet pour les outils de cybersécurité et tests de sécurité.
+
+**Utilisation :**
+```bash
+cyberman                    # Menu interactif
+cyberman recon             # Reconnaissance
+cyberman scan              # Scanning
+cyberman web               # Web Security
+```
+
+**Fonctionnalités :**
+- Gestion des cibles et environnements
+- Workflows et rapports
+- Reconnaissance & Information Gathering
+- Scanning & Enumeration
+- Vulnerability Assessment
+- Network Analysis & Monitoring
+- Web Security (Nuclei, XSS, SQLMap, Fuzzer)
+- IoT Devices & Embedded Systems
+- Network Devices & Infrastructure
+- Advanced Tools (Metasploit, Custom Scripts)
+- Utilitaires (hash, encode/decode, etc.)
+
+**Installation :**
+```bash
+# Via menu d'installation
+make install-menu          # Option 11: Outils cybersécurité complets
+
+# Ou directement
+bash zsh/functions/cyberman/install/install_security_tools.sh
+```
+
+**Documentation :** `help cyberman` ou `man cyberman`
+
+### 💻 Devman - Gestionnaire Développement
+
+Gestionnaire pour les outils de développement.
+
+**Utilisation :**
+```bash
+devman                     # Menu interactif
+devman docker              # Gestion Docker
+devman go                  # Gestion Go
+devman make               # Gestion Make
+devman c                  # Compilation C/C++
+```
+
+**Fonctionnalités :**
+- Docker (gestion conteneurs)
+- Go (langage Go)
+- Make (gestion builds)
+- C/C++ (compilation)
+- Projets (gestion projets personnalisés)
+- Utilitaires dev
+
+**Documentation :** `help devman` ou `man devman`
+
+### 🔧 Gitman - Gestionnaire Git
+
+Gestionnaire complet pour les opérations Git.
+
+**Utilisation :**
+```bash
+gitman                     # Menu interactif
+gitman whoami              # Affiche l'identité Git (remplace whoami-git)
+gitman switch-identity     # Change l'identité Git (remplace switch-git-identity)
+gitman status              # Statut Git
+gitman commit 'message'    # Commit avec message
+gitman help                # Liste toutes les commandes
+```
+
+**Fonctionnalités :**
+- Identité Git (whoami, switch-identity, config)
+- État & Informations (status, log, branches, remotes)
+- Opérations (pull, push, commit, add-commit, diff)
+- Branches (create, checkout, list, delete)
+- Merge & Rebase
+- Nettoyage (clean, reset, stash)
+
+**Transformations :**
+- `whoami-git` → `gitman whoami`
+- `switch-git-identity` → `gitman switch-identity`
+
+**Documentation :** `help gitman` ou `man gitman`
+
+### 🛠️ Miscman - Gestionnaire Outils Divers
+
+Gestionnaire pour les outils divers et utilitaires système.
+
+**Utilisation :**
+```bash
+miscman                    # Menu interactif
+miscman genpass 20         # Génère un mot de passe
+miscman sysinfo            # Informations système
+```
+
+**Fonctionnalités :**
+- Génération de mots de passe
+- Informations système
+- Sauvegardes
+- Extraction d'archives
+- Chiffrement
+- Nettoyage
+
+**Documentation :** `help miscman` ou `man miscman`
+
+### 📁 Pathman - Gestionnaire PATH
+
+Gestionnaire interactif du PATH système.
+
+**Utilisation :**
+```bash
+pathman                    # Menu interactif
+pathman add /usr/local/bin # Ajouter un répertoire
+pathman clean              # Nettoyer le PATH
+```
+
+**Fonctionnalités :**
+- Ajouter/retirer des répertoires
+- Nettoyer le PATH
+- Sauvegarder/restaurer
+- Logs et statistiques
+
+**Documentation :** `help pathman` ou `man pathman`
+
+### 🌐 Netman - Gestionnaire Réseau
+
+Gestionnaire pour les ports, connexions et informations réseau.
+
+**Utilisation :**
+```bash
+netman                     # Menu interactif
+netman ports               # Gestion des ports
+netman connections         # Connexions réseau
+```
+
+**Fonctionnalités :**
+- Gestion des ports
+- Connexions réseau
+- Interfaces réseau
+- DNS
+- Informations réseau détaillées
+
+**Documentation :** `help netman` ou `man netman`
+
+### Installation des Managers
+
+**Vérification :**
+```bash
+make install-menu          # Option 13: Vérifier/Configurer tous les managers
+```
+
+**Dépendances :**
+```bash
+make install-menu          # Option 14: Installer dépendances managers
+```
+
+Les managers sont automatiquement chargés via `zshrc_custom` et disponibles dans votre shell.
+
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
 ## 🔐 Configuration GitHub SSH
 
 Le script génère automatiquement une clé SSH ED25519 et :
@@ -1401,7 +1585,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
 
 **Fonctions ZSH** :
-- ✅ Gestionnaires (6 : pathman, netman, aliaman, miscman, searchman, cyberman)
+- ✅ Gestionnaires (8 : cyberman, devman, gitman, miscman, pathman, netman, aliaman, searchman)
 - ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
 - ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
 - ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)
