@@ -49,6 +49,9 @@ cyberman() {
     if [ -f "$CYBER_DIR/report_manager.sh" ]; then
         source "$CYBER_DIR/report_manager.sh"
     fi
+    if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+        source "$CYBER_DIR/anonymity_manager.sh"
+    fi
     
     # Fonction pour afficher le header
     show_header() {
@@ -431,19 +434,21 @@ cyberman() {
         fi
         
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
-        echo "1. 🔍 Reconnaissance & Information Gathering"
-        echo "2. 🔎 Scanning & Enumeration"
-        echo "3. 🛡️  Vulnerability Assessment"
-        echo "4. ⚔️  Network Attacks & Exploitation"
-        echo "5. 📡 Network Analysis & Monitoring"
-        echo "6. 🔒 Privacy & Anonymity"
-        echo "7. 🎯 Gestion des cibles"
-        echo "8. 🌍 Gestion des environnements"
-        echo "9. 🔄 Gestion des workflows"
+        echo "1.  🔍 Reconnaissance & Information Gathering"
+        echo "2.  🔎 Scanning & Enumeration"
+        echo "3.  🛡️  Vulnerability Assessment"
+        echo "4.  ⚔️  Network Attacks & Exploitation"
+        echo "5.  📡 Network Analysis & Monitoring"
+        echo "6.  🔒 Privacy & Anonymity"
+        echo "7.  🎯 Gestion des cibles"
+        echo "8.  🌍 Gestion des environnements"
+        echo "9.  🔄 Gestion des workflows"
         echo "10. 📊 Gestion des rapports"
+        echo "11. 🔒 Gestion de l'anonymat"
+        echo "12. 🚀 Assistant de test complet"
         echo ""
-        echo "h. Aide"
-        echo "q. Quitter"
+        echo "h.  Aide"
+        echo "q.  Quitter"
         echo ""
     }
     
@@ -502,8 +507,9 @@ EOF
     while true; do
         show_main_menu
         printf "Choix: "
-        read -k 1 choice
-        echo
+        read -r choice
+        # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
+        choice=$(echo "$choice" | tr -d '[:space:]')
         case "$choice" in
             1) show_recon_menu ;;
             2) show_scan_menu ;;
