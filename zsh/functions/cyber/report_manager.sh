@@ -7,6 +7,12 @@
 # Version: 1.0
 # =============================================================================
 
+# Répertoire de stockage des rapports (défini si non défini)
+CYBER_REPORTS_DIR="${CYBER_REPORTS_DIR:-${HOME}/.cyberman/reports}"
+
+# Créer le répertoire si nécessaire
+mkdir -p "$CYBER_REPORTS_DIR"
+
 # DESC: Liste tous les rapports disponibles
 # USAGE: list_reports [--recent N]
 # EXAMPLE: list_reports

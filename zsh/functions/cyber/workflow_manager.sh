@@ -8,7 +8,15 @@
 # =============================================================================
 
 # Charger les dépendances
-CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
+
+# Répertoires de stockage
+CYBER_WORKFLOWS_DIR="${CYBER_WORKFLOWS_DIR:-${HOME}/.cyberman/workflows}"
+CYBER_REPORTS_DIR="${CYBER_REPORTS_DIR:-${HOME}/.cyberman/reports}"
+
+# Créer les répertoires si nécessaire
+mkdir -p "$CYBER_WORKFLOWS_DIR" "$CYBER_REPORTS_DIR"
+
 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
     source "$CYBER_DIR/target_manager.sh"
 fi

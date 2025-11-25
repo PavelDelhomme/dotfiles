@@ -10,6 +10,31 @@
 # Variable globale pour stocker les cibles
 typeset -g -a CYBER_TARGETS=()
 
+# Répertoire de stockage des cibles
+CYBER_TARGETS_FILE="${HOME}/.cyberman/targets.json"
+CYBER_TARGETS_DIR="${HOME}/.cyberman"
+
+# Créer le répertoire si nécessaire
+mkdir -p "$CYBER_TARGETS_DIR"
+
+# Charger les cibles sauvegardées au démarrage
+_load_targets_from_file() {
+    if [ -f "$CYBER_TARGETS_FILE" ] && command -v jq >/dev/null 2>&1; then
+        CYBER_TARGETS=($(jq -r '.targets[]?' "$CYBER_TARGETS_FILE" 2>/dev/null))
+    fi
+}
+
+# Sauvegarder les cibles dans un fichier
+_save_targets_to_file() {
+    if command -v jq >/dev/null 2>&1; then
+        local targets_json=$(printf '%s\n' "${CYBER_TARGETS[@]}" | jq -R . | jq -s .)
+        echo "{\"targets\": $targets_json, \"updated\": \"$(date -Iseconds)\"}" > "$CYBER_TARGETS_FILE"
+    fi
+}
+
+# Charger les cibles au démarrage
+_load_targets_from_file
+
 # DESC: Affiche les cibles actuellement configurées
 # USAGE: show_targets
 # EXAMPLE: show_targets
@@ -54,6 +79,7 @@ add_target() {
     
     if [ $added -gt 0 ]; then
         echo "📋 Total: ${#CYBER_TARGETS[@]} cible(s)"
+        _save_targets_to_file
     fi
     return 0
 }
@@ -80,6 +106,7 @@ remove_target() {
             CYBER_TARGETS=("${CYBER_TARGETS[@]:0:$index}" "${CYBER_TARGETS[@]:$((index+1))}")
             echo "✅ Cible supprimée: $removed"
             echo "📋 Total: ${#CYBER_TARGETS[@]} cible(s)"
+            _save_targets_to_file
             return 0
         else
             echo "❌ Index invalide: $arg"
@@ -101,6 +128,7 @@ remove_target() {
             CYBER_TARGETS=("${new_targets[@]}")
             echo "✅ Cible supprimée: $arg"
             echo "📋 Total: ${#CYBER_TARGETS[@]} cible(s)"
+            _save_targets_to_file
             return 0
         else
             echo "❌ Cible non trouvée: $arg"
@@ -115,6 +143,7 @@ remove_target() {
 clear_targets() {
     local count=${#CYBER_TARGETS[@]}
     CYBER_TARGETS=()
+    _save_targets_to_file
     echo "🗑️  Toutes les cibles ont été supprimées ($count cible(s))"
     return 0
 }
@@ -199,6 +228,7 @@ prompt_target() {
     # Ajouter automatiquement à la liste si elle n'existe pas
     if [[ ! " ${CYBER_TARGETS[@]} " =~ " ${target} " ]]; then
         CYBER_TARGETS+=("$target")
+        _save_targets_to_file
     fi
     
     echo "$target"
@@ -247,5 +277,133 @@ for_each_target() {
     
     echo "✅ Scan terminé pour toutes les cibles"
     return 0
+}
+
+# DESC: Affiche le menu interactif de gestion des cibles
+# USAGE: show_target_menu
+# EXAMPLE: show_target_menu
+show_target_menu() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║              GESTION DES CIBLES - CYBERMAN                     ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        
+        if has_targets; then
+            show_targets
+            echo ""
+        else
+            echo "⚠️  Aucune cible configurée"
+            echo ""
+        fi
+        
+        echo "1.  Ajouter une cible"
+        echo "2.  Ajouter plusieurs cibles"
+        echo "3.  Supprimer une cible"
+        echo "4.  Vider toutes les cibles"
+        echo "5.  Afficher les cibles"
+        echo "6.  Sauvegarder les cibles manuellement"
+        echo "7.  Charger les cibles depuis un fichier"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                echo ""
+                printf "🎯 Entrez la cible (IP, domaine ou URL): "
+                read -r target
+                if [ -n "$target" ]; then
+                    add_target "$target"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                echo "🎯 Entrez les cibles (séparées par des espaces): "
+                echo "Exemple: 192.168.1.1 192.168.1.2 example.com"
+                printf "Cibles: "
+                read -r targets
+                if [ -n "$targets" ]; then
+                    add_target $targets
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                if has_targets; then
+                    echo ""
+                    show_targets
+                    echo ""
+                    printf "🎯 Entrez l'index ou le nom de la cible à supprimer: "
+                    read -r target
+                    if [ -n "$target" ]; then
+                        remove_target "$target"
+                    fi
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                else
+                    echo "❌ Aucune cible à supprimer"
+                    sleep 1
+                fi
+                ;;
+            4)
+                if has_targets; then
+                    echo ""
+                    printf "⚠️  Êtes-vous sûr de vouloir supprimer toutes les cibles? (o/N): "
+                    read -r confirm
+                    if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
+                        clear_targets
+                    fi
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                else
+                    echo "❌ Aucune cible à supprimer"
+                    sleep 1
+                fi
+                ;;
+            5)
+                echo ""
+                show_targets
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                echo ""
+                _save_targets_to_file
+                echo "✅ Cibles sauvegardées dans: $CYBER_TARGETS_FILE"
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            7)
+                echo ""
+                if [ -f "$CYBER_TARGETS_FILE" ] && command -v jq >/dev/null 2>&1; then
+                    _load_targets_from_file
+                    echo "✅ Cibles chargées depuis: $CYBER_TARGETS_FILE"
+                    show_targets
+                else
+                    echo "❌ Aucun fichier de sauvegarde trouvé ou jq non installé"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
 }
 

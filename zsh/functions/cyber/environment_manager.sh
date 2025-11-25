@@ -8,9 +8,9 @@
 # =============================================================================
 
 # Répertoire de stockage des environnements
-CYBER_ENV_DIR="${HOME}/.cyberman/environments"
-CYBER_REPORTS_DIR="${HOME}/.cyberman/reports"
-CYBER_WORKFLOWS_DIR="${HOME}/.cyberman/workflows"
+CYBER_ENV_DIR="${CYBER_ENV_DIR:-${HOME}/.cyberman/environments}"
+CYBER_REPORTS_DIR="${CYBER_REPORTS_DIR:-${HOME}/.cyberman/reports}"
+CYBER_WORKFLOWS_DIR="${CYBER_WORKFLOWS_DIR:-${HOME}/.cyberman/workflows}"
 
 # Créer les répertoires si nécessaire
 mkdir -p "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR"
@@ -36,12 +36,30 @@ save_environment() {
     local env_file="$CYBER_ENV_DIR/${name}.json"
     
     # Créer le JSON de l'environnement
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour sauvegarder les environnements"
+        echo "💡 Installez jq: sudo pacman -S jq"
+        return 1
+    fi
+    
+    # Vérifier que les cibles sont chargées
+    if [ ${#CYBER_TARGETS[@]} -eq 0 ]; then
+        echo "⚠️  Aucune cible à sauvegarder"
+        printf "Continuer quand même? (o/N): "
+        read -r confirm
+        if [ "$confirm" != "o" ] && [ "$confirm" != "O" ]; then
+            return 1
+        fi
+    fi
+    
+    # Créer le JSON de l'environnement
+    local targets_json=$(printf '%s\n' "${CYBER_TARGETS[@]}" | jq -R . | jq -s .)
     cat > "$env_file" <<EOF
 {
   "name": "$name",
   "description": "$description",
   "created": "$(date -Iseconds)",
-  "targets": $(printf '%s\n' "${CYBER_TARGETS[@]}" | jq -R . | jq -s .),
+  "targets": $targets_json,
   "metadata": {
     "user": "$USER",
     "hostname": "$(hostname)"
@@ -49,9 +67,15 @@ save_environment() {
 }
 EOF
     
-    echo "✅ Environnement sauvegardé: $name"
-    echo "📁 Fichier: $env_file"
-    return 0
+    if [ $? -eq 0 ]; then
+        echo "✅ Environnement sauvegardé: $name"
+        echo "📁 Fichier: $env_file"
+        echo "🎯 Cibles sauvegardées: ${#CYBER_TARGETS[@]}"
+        return 0
+    else
+        echo "❌ Erreur lors de la sauvegarde"
+        return 1
+    fi
 }
 
 # DESC: Charge un environnement sauvegardé
@@ -80,22 +104,40 @@ load_environment() {
     fi
     
     # Parser le JSON et charger les cibles
-    if command -v jq >/dev/null 2>&1; then
-        CYBER_TARGETS=($(jq -r '.targets[]' "$env_file"))
-        local desc=$(jq -r '.description' "$env_file")
-        local created=$(jq -r '.created' "$env_file")
-        
-        echo "✅ Environnement chargé: $name"
-        echo "📝 Description: $desc"
-        echo "📅 Créé: $created"
-        echo "🎯 Cibles chargées: ${#CYBER_TARGETS[@]}"
-        show_targets
-        return 0
-    else
+    if ! command -v jq >/dev/null 2>&1; then
         echo "❌ jq requis pour charger les environnements"
         echo "💡 Installez jq: sudo pacman -S jq"
         return 1
     fi
+    
+    # Vérifier que le fichier est un JSON valide
+    if ! jq empty "$env_file" 2>/dev/null; then
+        echo "❌ Fichier JSON invalide: $env_file"
+        return 1
+    fi
+    
+    # Charger les cibles
+    CYBER_TARGETS=($(jq -r '.targets[]?' "$env_file" 2>/dev/null))
+    local desc=$(jq -r '.description // "N/A"' "$env_file")
+    local created=$(jq -r '.created // "N/A"' "$env_file")
+    
+    # Sauvegarder les cibles chargées dans le fichier de persistance
+    if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+        source "$CYBER_DIR/target_manager.sh"
+        # Appeler la fonction de sauvegarde si elle existe
+        if typeset -f _save_targets_to_file >/dev/null 2>&1; then
+            _save_targets_to_file
+        fi
+    fi
+    
+    echo "✅ Environnement chargé: $name"
+    echo "📝 Description: $desc"
+    echo "📅 Créé: $created"
+    echo "🎯 Cibles chargées: ${#CYBER_TARGETS[@]}"
+    if [ ${#CYBER_TARGETS[@]} -gt 0 ]; then
+        show_targets
+    fi
+    return 0
 }
 
 # DESC: Liste tous les environnements sauvegardés
@@ -201,6 +243,95 @@ show_environment() {
     return 0
 }
 
+# DESC: Restaure un environnement sauvegardé (alias de load_environment)
+# USAGE: restore_environment <name>
+# EXAMPLE: restore_environment "pentest_example_com"
+restore_environment() {
+    load_environment "$@"
+}
+
+# DESC: Exporte un environnement vers un fichier JSON
+# USAGE: export_environment <name> [output_file]
+# EXAMPLE: export_environment "pentest_example_com" ~/backup_env.json
+export_environment() {
+    local name="$1"
+    local output_file="${2:-${name}_export_$(date +%Y%m%d_%H%M%S).json}"
+    
+    if [ -z "$name" ]; then
+        echo "❌ Usage: export_environment <name> [output_file]"
+        return 1
+    fi
+    
+    local env_file="$CYBER_ENV_DIR/${name}.json"
+    
+    if [ ! -f "$env_file" ]; then
+        echo "❌ Environnement non trouvé: $name"
+        return 1
+    fi
+    
+    cp "$env_file" "$output_file"
+    echo "✅ Environnement exporté: $output_file"
+    return 0
+}
+
+# DESC: Importe un environnement depuis un fichier JSON
+# USAGE: import_environment <input_file> [new_name]
+# EXAMPLE: import_environment ~/backup_env.json "pentest_restored"
+import_environment() {
+    local input_file="$1"
+    local new_name="$2"
+    
+    if [ -z "$input_file" ]; then
+        echo "❌ Usage: import_environment <input_file> [new_name]"
+        return 1
+    fi
+    
+    if [ ! -f "$input_file" ]; then
+        echo "❌ Fichier non trouvé: $input_file"
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "❌ jq requis pour importer les environnements"
+        return 1
+    fi
+    
+    # Vérifier que c'est un JSON valide
+    if ! jq empty "$input_file" 2>/dev/null; then
+        echo "❌ Fichier JSON invalide: $input_file"
+        return 1
+    fi
+    
+    # Si un nouveau nom est fourni, modifier le nom dans le JSON
+    if [ -n "$new_name" ]; then
+        local env_file="$CYBER_ENV_DIR/${new_name}.json"
+        jq ".name = \"$new_name\"" "$input_file" > "$env_file"
+        echo "✅ Environnement importé avec le nom: $new_name"
+    else
+        # Utiliser le nom du fichier source
+        local name=$(jq -r '.name' "$input_file")
+        if [ -z "$name" ] || [ "$name" = "null" ]; then
+            name=$(basename "$input_file" .json)
+        fi
+        local env_file="$CYBER_ENV_DIR/${name}.json"
+        
+        # Demander confirmation si l'environnement existe déjà
+        if [ -f "$env_file" ]; then
+            printf "⚠️  L'environnement '$name' existe déjà. Remplacer? (o/N): "
+            read -r confirm
+            if [ "$confirm" != "o" ] && [ "$confirm" != "O" ]; then
+                echo "❌ Import annulé"
+                return 1
+            fi
+        fi
+        
+        cp "$input_file" "$env_file"
+        echo "✅ Environnement importé: $name"
+    fi
+    
+    return 0
+}
+
 # DESC: Affiche le menu interactif de gestion des environnements
 # USAGE: show_environment_menu
 # EXAMPLE: show_environment_menu
@@ -226,9 +357,12 @@ show_environment_menu() {
         echo ""
         echo "1.  Sauvegarder l'environnement actuel"
         echo "2.  Charger un environnement"
-        echo "3.  Afficher les détails d'un environnement"
-        echo "4.  Supprimer un environnement"
-        echo "5.  Lister tous les environnements"
+        echo "3.  Restaurer un environnement"
+        echo "4.  Afficher les détails d'un environnement"
+        echo "5.  Supprimer un environnement"
+        echo "6.  Exporter un environnement"
+        echo "7.  Importer un environnement"
+        echo "8.  Lister tous les environnements"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -264,6 +398,18 @@ show_environment_menu() {
                 echo ""
                 list_environments
                 echo ""
+                printf "📂 Nom de l'environnement à restaurer: "
+                read -r name
+                if [ -n "$name" ]; then
+                    restore_environment "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                list_environments
+                echo ""
                 printf "📋 Nom de l'environnement: "
                 read -r name
                 if [ -n "$name" ]; then
@@ -272,7 +418,7 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            4)
+            5)
                 echo ""
                 list_environments
                 echo ""
@@ -284,7 +430,33 @@ show_environment_menu() {
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
-            5)
+            6)
+                echo ""
+                list_environments
+                echo ""
+                printf "📤 Nom de l'environnement à exporter: "
+                read -r name
+                if [ -n "$name" ]; then
+                    printf "📄 Fichier de sortie (optionnel): "
+                    read -r output_file
+                    export_environment "$name" "$output_file"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            7)
+                echo ""
+                printf "📥 Chemin du fichier JSON à importer: "
+                read -r input_file
+                if [ -n "$input_file" ]; then
+                    printf "📝 Nouveau nom (optionnel, laisse vide pour garder le nom original): "
+                    read -r new_name
+                    import_environment "$input_file" "$new_name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            8)
                 list_environments
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."

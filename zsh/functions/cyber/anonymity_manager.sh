@@ -267,3 +267,107 @@ run_workflow_anonymized() {
     run_workflow "$workflow_name" "$env_name"
 }
 
+# DESC: Affiche le menu interactif de gestion de l'anonymat
+# USAGE: show_anonymity_menu
+# EXAMPLE: show_anonymity_menu
+show_anonymity_menu() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║           GESTION DE L'ANONYMAT - CYBERMAN                      ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        
+        show_anonymity_info
+        echo ""
+        echo "1.  Vérifier l'anonymat"
+        echo "2.  Afficher les informations d'anonymat"
+        echo "3.  Exécuter une commande avec anonymat"
+        echo "4.  Configurer l'usurpation d'IP (IP spoofing)"
+        echo "5.  Supprimer l'usurpation d'IP"
+        echo "6.  Exécuter un workflow avec anonymat"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                echo ""
+                check_anonymity
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                show_anonymity_info
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                printf "🔒 Commande à exécuter avec anonymat: "
+                read -r cmd
+                if [ -n "$cmd" ]; then
+                    run_with_anonymity $cmd
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                printf "🔧 IP à usurper: "
+                read -r fake_ip
+                if [ -n "$fake_ip" ]; then
+                    setup_ip_spoofing "$fake_ip"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                echo ""
+                printf "🔧 IP usurpée à supprimer: "
+                read -r fake_ip
+                if [ -n "$fake_ip" ]; then
+                    remove_ip_spoofing "$fake_ip"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                echo ""
+                local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+                if [ -f "$CYBER_DIR/workflow_manager.sh" ]; then
+                    source "$CYBER_DIR/workflow_manager.sh"
+                    list_workflows
+                    echo ""
+                    printf "📝 Nom du workflow à exécuter avec anonymat: "
+                    read -r wf_name
+                    if [ -n "$wf_name" ]; then
+                        printf "🌍 Nom de l'environnement à charger (optionnel): "
+                        read -r env_name
+                        run_workflow_anonymized "$wf_name" "$env_name"
+                    fi
+                else
+                    echo "❌ Gestionnaire de workflows non disponible"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
+}
+
