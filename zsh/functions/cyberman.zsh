@@ -602,22 +602,19 @@ cyberman() {
         # Ne plus détecter automatiquement l'environnement basé sur les cibles
         # Cela causait des problèmes de réactivation automatique après désactivation
         # L'environnement actif est maintenant uniquement déterminé par CYBER_CURRENT_ENV et le fichier de persistance
+        
+        if [ -n "$current_env" ]; then
+            echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
             
-            if [ -n "$current_env" ]; then
-                echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
-                
-                # Afficher les statistiques de l'environnement actif
-                local env_file="${HOME}/.cyberman/environments/${current_env}.json"
-                if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
-                    local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
-                    local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
-                    local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
-                    local todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
-                    local todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
-                    echo -e "      ${CYAN}📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count} | ✅ TODOs: ${todos_count} (${todos_pending} en attente)${RESET}"
-                fi
-            else
-                echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
+            # Afficher les statistiques de l'environnement actif
+            local env_file="${HOME}/.cyberman/environments/${current_env}.json"
+            if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
+                local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
+                local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
+                local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
+                local todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
+                local todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
+                echo -e "      ${CYAN}📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count} | ✅ TODOs: ${todos_count} (${todos_pending} en attente)${RESET}"
             fi
         else
             echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
