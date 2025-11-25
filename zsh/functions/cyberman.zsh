@@ -585,18 +585,23 @@ cyberman() {
         echo -e "${CYAN}${BOLD}État actuel:${RESET}"
         
         # Afficher l'environnement actif
-        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+        # IMPORTANT: Utiliser directement la variable globale si elle existe
+        # Ne pas recharger systématiquement car cela pourrait réactiver un environnement désactivé
+        local current_env=""
+        if [ -n "$CYBER_CURRENT_ENV" ]; then
+            # Utiliser directement la variable globale
+            current_env="$CYBER_CURRENT_ENV"
+        elif [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            # Charger seulement si la variable n'est pas définie (première fois)
             source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
-            
-            # Vérifier si un environnement est actif
-            local current_env=""
             if has_active_environment 2>/dev/null; then
                 current_env=$(get_current_environment 2>/dev/null)
             fi
-            
-            # Ne plus détecter automatiquement l'environnement basé sur les cibles
-            # Cela causait des problèmes de réactivation automatique après désactivation
-            # L'environnement actif est maintenant uniquement déterminé par CYBER_CURRENT_ENV et le fichier de persistance
+        fi
+        
+        # Ne plus détecter automatiquement l'environnement basé sur les cibles
+        # Cela causait des problèmes de réactivation automatique après désactivation
+        # L'environnement actif est maintenant uniquement déterminé par CYBER_CURRENT_ENV et le fichier de persistance
             
             if [ -n "$current_env" ]; then
                 echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
