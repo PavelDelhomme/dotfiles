@@ -188,7 +188,16 @@ load_environment() {
 # USAGE: list_environments
 # EXAMPLE: list_environments
 list_environments() {
-    if [ ! -d "$CYBER_ENV_DIR" ] || [ -z "$(ls -A "$CYBER_ENV_DIR" 2>/dev/null)" ]; then
+    # Vérifier si le répertoire existe et contient des fichiers JSON
+    if [ ! -d "$CYBER_ENV_DIR" ]; then
+        echo "⚠️  Aucun environnement sauvegardé"
+        return 1
+    fi
+    
+    # Compter les fichiers JSON sans utiliser de glob qui pourrait échouer
+    local json_count=$(find "$CYBER_ENV_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | wc -l)
+    
+    if [ "$json_count" -eq 0 ]; then
         echo "⚠️  Aucun environnement sauvegardé"
         return 1
     fi
@@ -198,12 +207,19 @@ list_environments() {
     
     if command -v jq >/dev/null 2>&1; then
         local count=1
-        for env_file in "$CYBER_ENV_DIR"/*.json; do
+        # Utiliser find pour éviter les problèmes de glob pattern en Zsh
+        while IFS= read -r env_file; do
             if [ -f "$env_file" ]; then
-                local name=$(jq -r '.name' "$env_file")
-                local desc=$(jq -r '.description' "$env_file")
-                local created=$(jq -r '.created' "$env_file")
-                local targets_count=$(jq -r '.targets | length' "$env_file")
+                local name=$(jq -r '.name' "$env_file" 2>/dev/null)
+                local desc=$(jq -r '.description' "$env_file" 2>/dev/null)
+                local created=$(jq -r '.created' "$env_file" 2>/dev/null)
+                local targets_count=$(jq -r '.targets | length' "$env_file" 2>/dev/null)
+                
+                # Vérifier que les valeurs ne sont pas "null"
+                [ "$name" = "null" ] && name=$(basename "$env_file" .json)
+                [ "$desc" = "null" ] && desc="Pas de description"
+                [ "$created" = "null" ] && created="Date inconnue"
+                [ "$targets_count" = "null" ] && targets_count=0
                 
                 echo "  $count. $name"
                 echo "     📝 $desc"
@@ -212,17 +228,17 @@ list_environments() {
                 echo ""
                 ((count++))
             fi
-        done
+        done < <(find "$CYBER_ENV_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | sort)
     else
         # Fallback sans jq
         local count=1
-        for env_file in "$CYBER_ENV_DIR"/*.json; do
+        while IFS= read -r env_file; do
             if [ -f "$env_file" ]; then
                 local basename=$(basename "$env_file" .json)
                 echo "  $count. $basename"
                 ((count++))
             fi
-        done
+        done < <(find "$CYBER_ENV_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | sort)
     fi
     
     return 0
@@ -478,7 +494,11 @@ show_environment_menu() {
         fi
         echo ""
         
-        list_environments
+        # Lister les environnements (peut retourner 1 si aucun environnement)
+        if ! list_environments 2>/dev/null; then
+            # Si aucun environnement, afficher un message mais continuer
+            echo ""
+        fi
         echo ""
         echo "1.  Sauvegarder l'environnement actuel"
         echo "2.  Créer un nouvel environnement (avec gestion de cibles)"
