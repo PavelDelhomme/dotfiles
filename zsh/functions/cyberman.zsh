@@ -498,7 +498,9 @@ cyberman() {
                     local notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
                     local history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
                     local results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
-                    echo -e "      ${CYAN}📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count}${RESET}"
+                    local todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
+                    local todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
+                    echo -e "      ${CYAN}📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count} | ✅ TODOs: ${todos_count} (${todos_pending} en attente)${RESET}"
                 fi
             else
                 echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
