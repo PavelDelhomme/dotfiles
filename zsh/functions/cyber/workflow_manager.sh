@@ -36,7 +36,7 @@ create_workflow() {
         return 1
     fi
     
-    local workflow_file="$CYBER_WORKFLOWS_DIR/${name}.json"
+    local workflow_file="${CYBER_WORKFLOWS_DIR}/${name}.json"
     
     if [ -f "$workflow_file" ]; then
         printf "⚠️  Le workflow '$name' existe déjà. Remplacer? (o/N): "
@@ -278,7 +278,7 @@ show_workflow() {
         return 1
     fi
     
-    local workflow_file="$CYBER_WORKFLOWS_DIR/${name}.json"
+    local workflow_file="${CYBER_WORKFLOWS_DIR}/${name}.json"
     
     if [ ! -f "$workflow_file" ]; then
         echo "❌ Workflow non trouvé: $name"
@@ -307,7 +307,7 @@ delete_workflow() {
         return 1
     fi
     
-    local workflow_file="$CYBER_WORKFLOWS_DIR/${name}.json"
+    local workflow_file="${CYBER_WORKFLOWS_DIR}/${name}.json"
     
     if [ ! -f "$workflow_file" ]; then
         echo "❌ Workflow non trouvé: $name"
