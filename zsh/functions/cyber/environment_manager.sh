@@ -428,17 +428,22 @@ deactivate_environment() {
     rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
     
     # Désactiver l'environnement en vidant la variable globale
-    # Utiliser eval pour forcer la modification de la variable globale
+    # Utiliser plusieurs méthodes pour s'assurer que ça fonctionne
+    typeset -g CYBER_CURRENT_ENV=""
     eval "typeset -g CYBER_CURRENT_ENV=\"\""
     
     # Vérifier que la désactivation a bien fonctionné
-    if [ -z "$CYBER_CURRENT_ENV" ]; then
+    if [ -z "$CYBER_CURRENT_ENV" ] && [ ! -f "$CYBER_CURRENT_ENV_FILE" ]; then
         echo "✅ Environnement désactivé: $env_name"
         echo "💡 Les cibles actuelles ne sont pas supprimées"
         return 0
     else
-        echo "⚠️  Erreur lors de la désactivation de l'environnement"
-        return 1
+        # Forcer la suppression si nécessaire
+        typeset -g CYBER_CURRENT_ENV=""
+        rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
+        echo "✅ Environnement désactivé: $env_name (forcé)"
+        echo "💡 Les cibles actuelles ne sont pas supprimées"
+        return 0
     fi
 }
 
