@@ -849,40 +849,86 @@ EOF
         show_header
         echo -e "${YELLOW}🌐 WEB SECURITY & TESTING${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        echo "1.  Web dir enum              (Énumération répertoires web)"
-        echo "2.  Web port scan             (Scan ports web)"
-        echo "3.  Web vuln scan             (Scan vulnérabilités web)"
-        echo "4.  Get HTTP headers          (En-têtes HTTP)"
-        echo "5.  Analyze headers           (Analyse en-têtes)"
-        echo "6.  Get robots.txt            (Récupération robots.txt)"
-        echo "7.  Check SSL                 (Vérification SSL)"
-        echo "8.  Check SSL cert            (Vérification certificat SSL)"
-        echo "9.  Nikto scan                (Scan Nikto)"
-        echo "10. SQL Injection test         (Test injection SQL)"
-        echo "11. XSS test                  (Test XSS)"
-        echo "12. CSRF test                 (Test CSRF)"
-        echo "13. Web app fingerprint       (Empreinte application web)"
-        echo "14. CMS detection             (Détection CMS)"
+        echo "🔍 SCANNERS DE VULNÉRABILITÉS:"
+        echo "1.  Nuclei Scanner             (Scanner complet de vulnérabilités)"
+        echo "2.  XSS Scanner                 (XSStrike, Dalfox, Nuclei XSS)"
+        echo "3.  SQL Injection (SQLMap)      (Test injection SQL)"
+        echo "4.  Web Fuzzer                  (ffuf, wfuzz)"
+        echo ""
+        echo "📊 RECONNAISSANCE WEB:"
+        echo "5.  Web dir enum                (Énumération répertoires web)"
+        echo "6.  Web port scan               (Scan ports web)"
+        echo "7.  Get HTTP headers            (En-têtes HTTP)"
+        echo "8.  Analyze headers             (Analyse en-têtes)"
+        echo "9.  Get robots.txt              (Récupération robots.txt)"
+        echo ""
+        echo "🔒 SÉCURITÉ SSL/TLS:"
+        echo "10. Check SSL                   (Vérification SSL)"
+        echo "11. Check SSL cert              (Vérification certificat SSL)"
+        echo ""
+        echo "🛡️  AUTRES SCANS:"
+        echo "12. Nikto scan                  (Scan Nikto)"
+        echo "13. Web vuln scan               (Scan vulnérabilités web)"
+        echo "14. Web app fingerprint         (Empreinte application web)"
+        echo "15. CMS detection               (Détection CMS)"
+        echo ""
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
         read -r choice
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        # Charger les modules de sécurité
+        local CYBERMAN_DIR="$HOME/dotfiles/zsh/functions/cyberman"
+        
         case "$choice" in
-            1) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
-            2) source "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan ;;
-            3) source "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan ;;
-            4) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
-            5) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
-            6) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
-            7) source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl ;;
-            8) source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert ;;
-            9) source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan ;;
-            10) echo "⚠️  Fonction SQL Injection test à implémenter" ; sleep 2 ;;
-            11) echo "⚠️  Fonction XSS test à implémenter" ; sleep 2 ;;
-            12) echo "⚠️  Fonction CSRF test à implémenter" ; sleep 2 ;;
-            13) echo "⚠️  Fonction Web app fingerprint à implémenter" ; sleep 2 ;;
-            14) echo "⚠️  Fonction CMS detection à implémenter" ; sleep 2 ;;
+            1)
+                if [ -f "$CYBERMAN_DIR/modules/security/nuclei_module.sh" ]; then
+                    source "$CYBERMAN_DIR/modules/security/nuclei_module.sh"
+                    show_nuclei_menu
+                else
+                    echo "❌ Module Nuclei non disponible"
+                    sleep 2
+                fi
+                ;;
+            2)
+                if [ -f "$CYBERMAN_DIR/modules/security/xss_scanner.sh" ]; then
+                    source "$CYBERMAN_DIR/modules/security/xss_scanner.sh"
+                    show_xss_menu
+                else
+                    echo "❌ Module XSS Scanner non disponible"
+                    sleep 2
+                fi
+                ;;
+            3)
+                if [ -f "$CYBERMAN_DIR/modules/security/sqlmap_module.sh" ]; then
+                    source "$CYBERMAN_DIR/modules/security/sqlmap_module.sh"
+                    show_sqlmap_menu
+                else
+                    echo "❌ Module SQLMap non disponible"
+                    sleep 2
+                fi
+                ;;
+            4)
+                if [ -f "$CYBERMAN_DIR/modules/security/fuzzer_module.sh" ]; then
+                    source "$CYBERMAN_DIR/modules/security/fuzzer_module.sh"
+                    show_fuzzer_menu
+                else
+                    echo "❌ Module Fuzzer non disponible"
+                    sleep 2
+                fi
+                ;;
+            5) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
+            6) source "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan ;;
+            7) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
+            8) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
+            9) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
+            10) source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl ;;
+            11) source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert ;;
+            12) source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan ;;
+            13) source "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan ;;
+            14) echo "⚠️  Fonction Web app fingerprint à implémenter" ; sleep 2 ;;
+            15) echo "⚠️  Fonction CMS detection à implémenter" ; sleep 2 ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
