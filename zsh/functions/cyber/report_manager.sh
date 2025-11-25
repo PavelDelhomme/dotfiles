@@ -35,7 +35,12 @@ list_reports() {
     
     if command -v jq >/dev/null 2>&1; then
         local count=1
-        local files=($(ls -t "$CYBER_REPORTS_DIR"/*.json 2>/dev/null))
+        # Utiliser find pour éviter les problèmes de glob pattern en Zsh
+        local files=($(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | cut -d' ' -f2-))
+        # Fallback si find -printf n'est pas disponible
+        if [ ${#files[@]} -eq 0 ]; then
+            files=($(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | xargs ls -t 2>/dev/null))
+        fi
         
         if [ $recent_count -gt 0 ]; then
             files=(${files[@]:0:$recent_count})
@@ -63,13 +68,14 @@ list_reports() {
         done
     else
         local count=1
-        for report_file in "$CYBER_REPORTS_DIR"/*.json; do
+        # Utiliser find pour éviter les problèmes de glob pattern en Zsh
+        while IFS= read -r report_file; do
             if [ -f "$report_file" ]; then
                 local basename=$(basename "$report_file" .json)
                 echo "  $count. $basename"
                 ((count++))
             fi
-        done
+        done < <(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | sort)
     fi
     
     return 0

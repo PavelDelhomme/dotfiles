@@ -104,7 +104,8 @@ save_environment() {
                 user: $user,
                 hostname: $hostname,
                 last_updated: $created
-            }
+            },
+            todos: []
         }' > "$temp_file" 2>/dev/null
     
     # Vérifier que le JSON est valide et le déplacer
@@ -160,9 +161,9 @@ load_environment() {
         return 1
     fi
     
-    # S'assurer que les champs notes, history, results existent (pour compatibilité avec anciens environnements)
+    # S'assurer que les champs notes, history, results, todos existent (pour compatibilité avec anciens environnements)
     local temp_file=$(mktemp)
-    jq '.notes //= [] | .history //= [] | .results //= [] | .metadata.last_updated //= .created' \
+    jq '.notes //= [] | .history //= [] | .results //= [] | .todos //= [] | .metadata.last_updated //= .created' \
        "$env_file" > "$temp_file" 2>/dev/null
     if [ $? -eq 0 ] && jq empty "$temp_file" 2>/dev/null; then
         mv "$temp_file" "$env_file"
@@ -206,7 +207,7 @@ load_environment() {
     echo "📝 Description: $desc"
     echo "📅 Créé: $created"
     echo "🎯 Cibles chargées: ${#CYBER_TARGETS[@]}"
-    echo "📌 Notes: $notes_count | 📜 Historique: $history_count | 📊 Résultats: $results_count"
+    echo "📌 Notes: $notes_count | 📜 Historique: $history_count | 📊 Résultats: $results_count | ✅ TODOs: $todos_count ($todos_pending en attente)"
     if [ ${#CYBER_TARGETS[@]} -gt 0 ]; then
         show_targets
     else
