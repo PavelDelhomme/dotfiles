@@ -94,17 +94,61 @@ cyberman() {
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
-            1) source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois ;;
-            2) source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup ;;
-            3) source "$CYBER_DIR/reconnaissance/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan ;;
-            4) source "$CYBER_DIR/reconnaissance/find_subdomains.sh" && find_subdomains ;;
-            5) source "$CYBER_DIR/reconnaissance/recon_domain.sh" && ensure_tool theHarvester && recon_domain ;;
-            6) source "$CYBER_DIR/reconnaissance/enhanced_traceroute.sh" && enhanced_traceroute ;;
-            7) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
-            8) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
-            9) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
-            10) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
-            11) source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet ;;
+            1) 
+                source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2) 
+                source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3) 
+                source "$CYBER_DIR/reconnaissance/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4) 
+                source "$CYBER_DIR/reconnaissance/find_subdomains.sh" && find_subdomains
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5) 
+                source "$CYBER_DIR/reconnaissance/recon_domain.sh" && ensure_tool theHarvester && recon_domain
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6) 
+                source "$CYBER_DIR/reconnaissance/enhanced_traceroute.sh" && enhanced_traceroute
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            7) 
+                source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            8) 
+                source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            9) 
+                source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            10) 
+                source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            11) 
+                source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
             12)
                 if has_targets; then
                     echo "🔄 Reconnaissance sur toutes les cibles..."
@@ -117,6 +161,9 @@ cyberman() {
                         source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup "$target"
                         source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers "$target"
                     done
+                    echo ""
+                    echo "✅ Reconnaissance terminée sur toutes les cibles"
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
                 else
                     echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
                     sleep 2
@@ -155,16 +202,56 @@ cyberman() {
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
-            1) source "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan ;;
-            2) source "$CYBER_DIR/scanning/scan_ports.sh" && ensure_tool nmap && scan_ports ;;
-            3) source "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan ;;
-            4) source "$CYBER_DIR/scanning/scan_web_ports.sh" && ensure_tool nmap && scan_web_ports ;;
-            5) source "$CYBER_DIR/scanning/enum_dirs.sh" && enum_dirs ;;
-            6) source "$CYBER_DIR/scanning/enum_shares.sh" && enum_shares ;;
-            7) source "$CYBER_DIR/scanning/enumerate_users.sh" && enumerate_users ;;
-            8) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
-            9) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
-            10) source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet ;;
+            1) 
+                source "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2) 
+                source "$CYBER_DIR/scanning/scan_ports.sh" && ensure_tool nmap && scan_ports
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3) 
+                source "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4) 
+                source "$CYBER_DIR/scanning/scan_web_ports.sh" && ensure_tool nmap && scan_web_ports
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5) 
+                source "$CYBER_DIR/scanning/enum_dirs.sh" && enum_dirs
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6) 
+                source "$CYBER_DIR/scanning/enum_shares.sh" && enum_shares
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            7) 
+                source "$CYBER_DIR/scanning/enumerate_users.sh" && enumerate_users
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            8) 
+                source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            9) 
+                source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            10) 
+                source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
             11)
                 if has_targets; then
                     echo "🔄 Scan complet sur toutes les cibles..."
@@ -212,14 +299,46 @@ cyberman() {
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
-            1) source "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan ;;
-            2) source "$CYBER_DIR/vulnerability/vuln_scan.sh" && vuln_scan ;;
-            3) source "$CYBER_DIR/vulnerability/scan_vulns.sh" && scan_vulns ;;
-            4) source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan ;;
-            5) source "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan ;;
-            6) source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl ;;
-            7) source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert ;;
-            8) source "$CYBER_DIR/vulnerability/check_heartbleed.sh" && check_heartbleed ;;
+            1) 
+                source "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2) 
+                source "$CYBER_DIR/vulnerability/vuln_scan.sh" && vuln_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3) 
+                source "$CYBER_DIR/vulnerability/scan_vulns.sh" && scan_vulns
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4) 
+                source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5) 
+                source "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6) 
+                source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            7) 
+                source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            8) 
+                source "$CYBER_DIR/vulnerability/check_heartbleed.sh" && check_heartbleed
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
             9)
                 if has_targets; then
                     echo "🔄 Scan de vulnérabilités sur toutes les cibles..."
@@ -537,6 +656,14 @@ cyberman() {
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
         echo ""
         echo "9.  🚀 Assistant de test complet"
+        
+        # Afficher l'option d'accès rapide aux notes si un environnement est actif
+        if has_active_environment 2>/dev/null; then
+            local current_env=$(get_current_environment 2>/dev/null)
+            echo ""
+            echo -e "${GREEN}📝 Environnement actif: $current_env${RESET}"
+            echo "10. 📝 Notes & Informations de l'environnement actif"
+        fi
         echo ""
         echo "h.  Aide"
         echo "q.  Quitter"
