@@ -91,22 +91,31 @@ gitman() {
         case "$choice" in
             1)
                 echo ""
+                # Charger les fonctions depuis legacy si nécessaire
+                if [ -f "$GIT_DIR/git_functions.sh" ]; then
+                    source "$GIT_DIR/git_functions.sh" 2>/dev/null
+                fi
                 if command -v whoami-git >/dev/null 2>&1; then
                     whoami-git
                 else
-                    echo "📧 Email: $(git config user.email 2>/dev/null || echo 'Non configuré')"
-                    echo "👤 Nom: $(git config user.name 2>/dev/null || echo 'Non configuré')"
+                    echo "📧 Email: $(git config --global user.email 2>/dev/null || echo 'Non configuré')"
+                    echo "👤 Nom: $(git config --global user.name 2>/dev/null || echo 'Non configuré')"
+                    echo "📁 Répertoire courant: $PWD"
                 fi
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             2)
                 echo ""
+                # Charger les fonctions depuis legacy si nécessaire
+                if [ -f "$GIT_DIR/git_functions.sh" ]; then
+                    source "$GIT_DIR/git_functions.sh" 2>/dev/null
+                fi
                 if command -v switch-git-identity >/dev/null 2>&1; then
                     switch-git-identity
                 else
                     echo "⚠️  Fonction switch-git-identity non disponible"
-                    echo "💡 Utilisez: git config user.name 'Nom' && git config user.email 'email@example.com'"
+                    echo "💡 Utilisez: gitman config"
                 fi
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
@@ -383,14 +392,23 @@ gitman() {
         # Commandes directes
         case "$1" in
             whoami)
+                # Charger les fonctions depuis legacy si nécessaire
+                if [ -f "$GIT_DIR/git_functions.sh" ]; then
+                    source "$GIT_DIR/git_functions.sh" 2>/dev/null
+                fi
                 if command -v whoami-git >/dev/null 2>&1; then
                     whoami-git
                 else
-                    echo "📧 Email: $(git config user.email 2>/dev/null || echo 'Non configuré')"
-                    echo "👤 Nom: $(git config user.name 2>/dev/null || echo 'Non configuré')"
+                    echo "📧 Email: $(git config --global user.email 2>/dev/null || echo 'Non configuré')"
+                    echo "👤 Nom: $(git config --global user.name 2>/dev/null || echo 'Non configuré')"
+                    echo "📁 Répertoire courant: $PWD"
                 fi
                 ;;
             switch-identity|switch)
+                # Charger les fonctions depuis legacy si nécessaire
+                if [ -f "$GIT_DIR/git_functions.sh" ]; then
+                    source "$GIT_DIR/git_functions.sh" 2>/dev/null
+                fi
                 if command -v switch-git-identity >/dev/null 2>&1; then
                     shift
                     switch-git-identity "$@"
