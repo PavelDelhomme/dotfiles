@@ -87,12 +87,13 @@ if [ -d "$FUNCTIONS_DIR" ]; then
     local error_count=0
     # Charger récursivement tous les scripts .sh et .zsh
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        # Ignore les gestionnaires déjà chargés, les backups, les sous-dossiers de cyber, alias_utils, et update_system (déjà chargé)
+        # Ignore les gestionnaires déjà chargés, les backups, les sous-dossiers de cyber, alias_utils, update_system, et les scripts d'installation
         if [[ "$func_file" != *"man.zsh" ]] && \
            [[ "$func_file" != *"backup"* ]] && \
            [[ "$func_file" != *"/cyber/"*.zsh ]] && \
            [[ "$func_file" != *"alias_utils.zsh" ]] && \
            [[ "$func_file" != *"update_system.sh" ]] && \
+           [[ "$func_file" != *"/install/"* ]] && \
            [ -f "$func_file" ]; then
             if source "$func_file" 2>/dev/null; then
                 ((loaded_count++))

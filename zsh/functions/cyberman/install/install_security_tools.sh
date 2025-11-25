@@ -4,8 +4,12 @@
 # =============================================================================
 # Description: Installe tous les outils de sécurité nécessaires
 # Author: Paul Delhomme
-# Version: 1.0
+# Version: 1.1 - Ajout vérification si outils déjà installés
 # =============================================================================
+
+# Ne pas exécuter automatiquement si sourcé depuis zshrc_custom
+# Ce script doit être appelé explicitement
+[ -z "$CYBERMAN_INSTALL_MODE" ] && return 0 2>/dev/null || true
 
 set -e
 
@@ -17,6 +21,26 @@ RESET='\033[0m'
 
 echo -e "${CYAN}🛡️  Installation des outils de sécurité Cyberman${RESET}"
 echo ""
+
+# Fonction pour vérifier si un outil est installé
+check_tool_installed() {
+    local tool="$1"
+    if command -v "$tool" >/dev/null 2>&1; then
+        return 0  # Installé
+    else
+        return 1  # Non installé
+    fi
+}
+
+# Fonction pour vérifier si un paquet est installé (pacman)
+check_package_installed_pacman() {
+    local package="$1"
+    if pacman -Qi "$package" >/dev/null 2>&1; then
+        return 0  # Installé
+    else
+        return 1  # Non installé
+    fi
+}
 
 # Détecter le gestionnaire de paquets
 if command -v pacman >/dev/null 2>&1; then
@@ -44,44 +68,56 @@ if [ "$PKG_MANAGER" = "pacman" ] && ! command -v yay >/dev/null 2>&1; then
 fi
 
 # Outils disponibles via pacman/apt
-echo -e "${CYAN}📦 Installation des outils de base...${RESET}"
+# Vérifier d'abord quels outils manquent
+missing_tools=()
 if [ "$PKG_MANAGER" = "pacman" ]; then
-    sudo pacman -S --noconfirm \
-        burpsuite \
-        nikto \
-        sqlmap \
-        nmap \
-        wireshark-cli \
-        metasploit \
-        whois \
-        dnsutils \
-        jq || true
+    tools_base=("burpsuite" "nikto" "sqlmap" "nmap" "wireshark-cli" "metasploit" "whois" "dnsutils" "jq")
+    for tool in "${tools_base[@]}"; do
+        if ! check_package_installed_pacman "$tool" 2>/dev/null; then
+            missing_tools+=("$tool")
+        fi
+    done
+    
+    if [ ${#missing_tools[@]} -gt 0 ]; then
+        echo -e "${CYAN}📦 Installation des outils de base manquants (${#missing_tools[@]} sur ${#tools_base[@]})...${RESET}"
+        sudo pacman -S --noconfirm "${missing_tools[@]}" || true
+    else
+        echo -e "${GREEN}✅ Tous les outils de base sont déjà installés${RESET}"
+    fi
 elif [ "$PKG_MANAGER" = "apt" ]; then
-    sudo apt update
-    sudo apt install -y \
-        burpsuite \
-        nikto \
-        sqlmap \
-        nmap \
-        tshark \
-        metasploit-framework \
-        whois \
-        dnsutils \
-        jq || true
+    tools_base=("burpsuite" "nikto" "sqlmap" "nmap" "tshark" "metasploit-framework" "whois" "dnsutils" "jq")
+    for tool in "${tools_base[@]}"; do
+        if ! dpkg -l | grep -q "^ii.*$tool " 2>/dev/null; then
+            missing_tools+=("$tool")
+        fi
+    done
+    
+    if [ ${#missing_tools[@]} -gt 0 ]; then
+        echo -e "${CYAN}📦 Installation des outils de base manquants (${#missing_tools[@]} sur ${#tools_base[@]})...${RESET}"
+        sudo apt update -qq
+        sudo apt install -y "${missing_tools[@]}" || true
+    else
+        echo -e "${GREEN}✅ Tous les outils de base sont déjà installés${RESET}"
+    fi
 fi
 
 # Outils AUR (Arch seulement)
 if [ "$PKG_MANAGER" = "pacman" ] && command -v yay >/dev/null 2>&1; then
-    echo -e "${CYAN}📦 Installation des outils AUR...${RESET}"
-    yay -S --noconfirm \
-        xsstrike \
-        dalfox \
-        nuclei \
-        ffuf \
-        wfuzz \
-        commix \
-        subfinder \
-        theharvester || true
+    tools_aur=("xsstrike" "dalfox" "nuclei" "ffuf" "wfuzz" "commix" "subfinder" "theharvester")
+    missing_aur=()
+    
+    for tool in "${tools_aur[@]}"; do
+        if ! check_package_installed_pacman "$tool" 2>/dev/null; then
+            missing_aur+=("$tool")
+        fi
+    done
+    
+    if [ ${#missing_aur[@]} -gt 0 ]; then
+        echo -e "${CYAN}📦 Installation des outils AUR manquants (${#missing_aur[@]} sur ${#tools_aur[@]})...${RESET}"
+        yay -S --noconfirm "${missing_aur[@]}" || true
+    else
+        echo -e "${GREEN}✅ Tous les outils AUR sont déjà installés${RESET}"
+    fi
 fi
 
 # Créer les répertoires nécessaires
