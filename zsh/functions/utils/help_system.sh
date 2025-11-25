@@ -133,23 +133,60 @@ help() {
     fi
 }
 
-# Fonction pour créer une page man depuis la documentation
+# Fonction pour afficher une page man depuis un fichier Markdown
 create_man_page() {
     local func_name="$1"
     local man_file="$MAN_DIR/${func_name}.md"
     
-    if [ -f "$man_file" ]; then
-        # Afficher avec less ou cat
-        if command -v less >/dev/null 2>&1; then
-            less "$man_file"
-        else
-            cat "$man_file"
-        fi
-    else
+    if [ ! -f "$man_file" ]; then
         echo "❌ Page man pour '$func_name' non trouvée"
         echo ""
         echo "💡 Documentation disponible via: help $func_name"
+        echo "💡 Générer la page man: make generate-man"
+        return 1
     fi
+    
+    # Essayer différentes méthodes d'affichage selon les outils disponibles
+    
+    # Méthode 1: pandoc pour convertir en format man puis groff
+    if command -v pandoc >/dev/null 2>&1 && command -v groff >/dev/null 2>&1; then
+        pandoc -s -f markdown -t man "$man_file" | groff -T utf8 -man | less -R
+        return 0
+    fi
+    
+    # Méthode 2: bat pour afficher avec coloration Markdown
+    if command -v bat >/dev/null 2>&1; then
+        bat --plain --language=markdown "$man_file"
+        return 0
+    fi
+    
+    # Méthode 3: mdcat pour afficher Markdown (si disponible)
+    if command -v mdcat >/dev/null 2>&1; then
+        mdcat "$man_file"
+        return 0
+    fi
+    
+    # Méthode 4: glow pour afficher Markdown (si disponible)
+    if command -v glow >/dev/null 2>&1; then
+        glow "$man_file"
+        return 0
+    fi
+    
+    # Méthode 5: less avec coloration si disponible
+    if command -v less >/dev/null 2>&1; then
+        # Essayer avec source-highlight ou pygmentize pour coloration
+        if command -v pygmentize >/dev/null 2>&1; then
+            pygmentize -l markdown "$man_file" | less -R
+        elif command -v source-highlight >/dev/null 2>&1; then
+            source-highlight -s md -f esc256 -i "$man_file" | less -R
+        else
+            less "$man_file"
+        fi
+        return 0
+    fi
+    
+    # Méthode 6: cat simple en dernier recours
+    cat "$man_file"
 }
 
 # Alias man pour les fonctions personnalisées
@@ -158,6 +195,15 @@ create_man_page() {
 # EXAMPLE: man extract
 man() {
     local cmd="$1"
+    
+    if [ -z "$cmd" ]; then
+        echo "❌ Usage: man <function_or_command>"
+        echo ""
+        echo "💡 Exemples:"
+        echo "  man extract       - Documentation de la fonction extract"
+        echo "  man ls            - Page man système pour ls"
+        return 1
+    fi
     
     # Vérifier si c'est une fonction personnalisée
     if [ -f "$MAN_DIR/${cmd}.md" ]; then
