@@ -251,6 +251,10 @@ delete_environment() {
     if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
         rm "$env_file"
         echo "✅ Environnement supprimé: $name"
+        # Si l'environnement supprimé était l'environnement actif, le désactiver
+        if [ "$CYBER_CURRENT_ENV" = "$name" ]; then
+            CYBER_CURRENT_ENV=""
+        fi
         return 0
     else
         echo "❌ Suppression annulée"
