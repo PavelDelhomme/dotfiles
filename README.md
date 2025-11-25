@@ -182,7 +182,23 @@ Cette commande va automatiquement exécuter les étapes suivantes :
   - Validation automatique du format d'email
 - Configuration du credential helper (cache pour 15 minutes)
 
-**3. Génération clé SSH ED25519** (si absente) ⚠️ **INTERACTIF**
+**3. Configuration SSH pour GitHub** ⚠️ **OPTIONNEL - PEUT ÊTRE BYPASSÉE**
+
+**⚠️ IMPORTANT : Cette étape est optionnelle ! Vous pouvez choisir de la passer.**
+
+Le script vous propose un menu interactif avec 3 options :
+
+```
+Souhaitez-vous configurer SSH pour GitHub ?
+Cela permet de cloner/pusher sans saisir vos identifiants.
+
+  1. Oui, configurer SSH (recommandé)
+  2. Non, passer cette étape (vous pourrez cloner via HTTPS)  ⚠️ BYPASS
+  0. Vérifier si SSH est déjà configuré et fonctionne
+```
+
+**Option 1 : Oui, configurer SSH (recommandé)**
+- Génération automatique de la clé SSH ED25519 (si absente)
 - Utilise l'email Git configuré précédemment pour la clé
 - **Si environnement graphique disponible** :
   - Copie la clé publique dans le presse-papier automatiquement
@@ -191,13 +207,27 @@ Cette commande va automatiquement exécuter les étapes suivantes :
   - Affiche la clé SSH publique à l'écran
   - Donne les instructions pour l'ajouter manuellement sur GitHub
   - Instructions pour utiliser GitHub CLI si disponible
-  - Attend confirmation une fois la clé ajoutée
 - ⚠️ **Action requise** : Vous devez ajouter la clé SSH dans votre compte GitHub
   - **Avec navigateur** : Aller dans GitHub → Settings → SSH and GPG keys → New SSH key → Coller la clé
   - **Sans navigateur** : Utiliser une autre machine ou GitHub CLI (`gh ssh-key add`)
+- Le script attend que vous appuyiez sur Entrée après avoir ajouté la clé
 - Test de la connexion GitHub SSH (`ssh -T git@github.com`)
 
+**Option 2 : Non, passer cette étape (BYPASS)** ⚠️ **VOUS POUVEZ CHOISIR ÇA**
+- ⚠️ **Passe complètement la configuration SSH**
+- Vous devrez utiliser HTTPS pour cloner (avec authentification GitHub lors du clonage)
+- Utile si vous voulez juste installer rapidement sans configurer SSH
+- Vous pourrez configurer SSH plus tard si nécessaire
+
+**Option 0 : Vérifier si SSH est déjà configuré**
+- Vérifie automatiquement si une clé SSH existe
+- Teste la connexion GitHub SSH
+- Si SSH fonctionne déjà : propose automatiquement de passer cette étape
+- Si SSH ne fonctionne pas : vous pouvez choisir de reconfigurer ou bypasser
+
 **4. Clonage ou mise à jour du repository dotfiles**
+- **Si SSH configuré (option 1)** : Clone depuis GitHub via SSH (méthode recommandée, pas besoin de saisir identifiants)
+- **Si SSH bypassé (option 2)** : Clone depuis GitHub via HTTPS (vous devrez vous authentifier avec votre token GitHub lors du clonage)
 - Cloner dans `~/dotfiles` si inexistant
 - Mettre à jour (`git pull`) si repo existe déjà
 - Support des variables d'environnement `.env` (GITHUB_REPO_URL)
@@ -244,9 +274,11 @@ Cette commande va automatiquement exécuter les étapes suivantes :
    - ⚠️ **Important** : Cette email doit correspondre à celle de votre compte GitHub/GitLab
    - Pour GitHub, vous pouvez utiliser `username@users.noreply.github.com` pour garder votre email privé (visible dans GitHub → Settings → Emails)
 
-3. ✅ **Accès GitHub** : Vous devrez ajouter la clé SSH manuellement sur GitHub
-   - Le script ouvrira automatiquement GitHub dans votre navigateur
-   - Vous devrez copier la clé SSH affichée et l'ajouter dans GitHub → Settings → SSH and GPG keys
+3. ✅ **Configuration SSH GitHub** (⚠️ **OPTIONNEL - PEUT ÊTRE BYPASSÉE**)
+   - **Option 1 (recommandé)** : Le script génère une clé SSH, ouvre GitHub dans le navigateur, vous ajoutez la clé
+   - **Option 2 (BYPASS)** : ⚠️ **Vous pouvez choisir de passer cette étape** et utiliser HTTPS pour cloner
+   - **Option 0** : Vérifie si SSH fonctionne déjà et propose de passer si OK
+   - Si vous choisissez de bypasser SSH, vous devrez utiliser HTTPS pour cloner (avec authentification GitHub/token)
 
 4. ⚙️ **Optionnel** : Après le clonage, vous pourrez créer le fichier `.env` pour éviter les saisies lors des prochaines installations (voir [Configuration Git via .env](#configuration-git-via-env)).
 
