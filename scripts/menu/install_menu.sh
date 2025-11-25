@@ -32,10 +32,14 @@ show_install_menu() {
     echo "  9. QEMU/KVM complet"
     echo " 10. Neofetch (affichage système)"
     echo ""
+    echo "Cybersécurité (cyberman):"
+    echo " 11. Outils de cybersécurité complets"
+    echo " 12. Dépendances cyberman (jq pour workflows/rapports)"
+    echo ""
     echo "  0. Retour au menu principal"
     echo ""
     
-    printf "Votre choix [0-10]: "
+    printf "Votre choix [0-12]: "
     read -r choice
     
     case "$choice" in
@@ -94,6 +98,14 @@ show_install_menu() {
             else
                 log_error "✗ Erreur lors de l'installation de Neofetch"
             fi
+            ;;
+        11)
+            log_section "Installation outils de cybersécurité"
+            bash "$SCRIPT_DIR/install/cyber/install_cyber_tools.sh"
+            ;;
+        12)
+            log_section "Installation dépendances cyberman"
+            bash "$SCRIPT_DIR/tools/install_cyberman_deps.sh"
             ;;
         0)
             return 0
