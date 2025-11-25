@@ -33,9 +33,22 @@ def get_category_from_path(file_path, funcs_dir):
     # Si on a au moins 3 parties (ex: cyber/reconnaissance/domain_whois.sh)
     if len(parts) >= 3:
         return f"{parts[0]}/{parts[1]}"
-    # Si on a 2 parties (ex: misc/system/process.sh)
+    # Si on a 2 parties (ex: misc/system/process.sh ou dev/go.sh)
     elif len(parts) == 2:
-        return parts[0]
+        # Cas spécial : fichiers dans dev/ (go.sh, docker.sh, etc.)
+        if parts[0] == "dev":
+            # Extraire le nom de la catégorie depuis le nom du fichier
+            filename = parts[1].replace(".sh", "").replace(".zsh", "")
+            # Mapping des noms de fichiers vers catégories
+            dev_mapping = {
+                "go": "dev/go",
+                "docker": "dev/docker",
+                "c": "dev/c",
+                "make": "dev/make"
+            }
+            return dev_mapping.get(filename, f"dev/{filename}")
+        # Autres cas (misc/system, etc.)
+        return f"{parts[0]}/{parts[1]}"
     # Sinon, utils par défaut
     else:
         return "utils"
