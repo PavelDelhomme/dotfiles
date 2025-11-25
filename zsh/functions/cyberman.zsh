@@ -657,18 +657,19 @@ cyberman() {
         echo "6.  📡 Network Tools (Analysis, Attacks, Devices)"
         echo "7.  📱 IoT Devices & Embedded Systems"
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
+        echo "9.  🛠️  Utilitaires (hash, encode/decode, etc.)"
         echo ""
-        echo "9.  🚀 Assistant de test complet"
+        echo "10. 🚀 Assistant de test complet"
         
         # Afficher les options rapides si un environnement est actif
         if has_active_environment 2>/dev/null; then
             local current_env=$(get_current_environment 2>/dev/null)
             echo ""
             echo -e "${GREEN}📝 Environnement actif: $current_env${RESET}"
-            echo "10. 📝 Notes & Informations de l'environnement actif"
-            echo "11. 📊 Rapports (consulter, exporter)"
-            echo "12. 🔄 Workflows (créer, exécuter, gérer)"
-            echo "13. 🚫 Désactiver l'environnement actif"
+            echo "11. 📝 Notes & Informations de l'environnement actif"
+            echo "12. 📊 Rapports (consulter, exporter)"
+            echo "13. 🔄 Workflows (créer, exécuter, gérer)"
+            echo "14. 🚫 Désactiver l'environnement actif"
         fi
         echo ""
         echo "h.  Aide"
