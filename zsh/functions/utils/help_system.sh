@@ -88,31 +88,149 @@ show_function_help() {
 # EXAMPLE: list_functions
 list_functions() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📋 FONCTIONS DISPONIBLES"
+    echo "📋 FONCTIONS DISPONIBLES (organisées par catégories)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
-    # Lister toutes les fonctions dans zsh/functions
-    find "$DOTFILES_DIR/zsh/functions" -type f -name "*.sh" -o -name "*.zsh" 2>/dev/null | while read -r file; do
+    # Créer un fichier temporaire pour stocker les fonctions par catégorie
+    local temp_file=$(mktemp)
+    
+    # Parcourir tous les fichiers de fonctions
+    find "$DOTFILES_DIR/zsh/functions" -type f \( -name "*.sh" -o -name "*.zsh" \) 2>/dev/null | while read -r file; do
+        # Déterminer la catégorie à partir du chemin du fichier
+        local relative_path="${file#$DOTFILES_DIR/zsh/functions/}"
+        local category=""
+        
+        # Extraire la catégorie (dossier/sous-dossier)
+        if echo "$relative_path" | grep -q "/"; then
+            # Extraire le premier niveau (dossier)
+            category=$(echo "$relative_path" | cut -d'/' -f1)
+            # Si c'est un sous-dossier, inclure le sous-dossier aussi
+            if echo "$relative_path" | grep -qE "^[^/]+/[^/]+/"; then
+                category=$(echo "$relative_path" | cut -d'/' -f1-2)
+            fi
+        else
+            # Fichiers à la racine (comme les *man.zsh)
+            category="gestionnaires"
+        fi
+        
+        # Nettoyer le nom de catégorie
+        category=$(echo "$category" | sed 's/\.zsh$//' | sed 's/\.sh$//')
+        
+        # Extraire les fonctions du fichier
         grep -E "^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)|^function [a-zA-Z_]" "$file" 2>/dev/null | while read -r line; do
             local func_name=$(echo "$line" | sed -E 's/^(function )?([a-zA-Z_][a-zA-Z0-9_]*)\(.*/\2/')
             local desc=$(grep -E "^#\s*DESC:" "$file" | head -1 | sed 's/^#\s*DESC:\s*//')
             
             if [ -n "$func_name" ]; then
-                printf "  • %-25s" "$func_name"
+                echo "$category|$func_name|$desc" >> "$temp_file"
+            fi
+        done
+    done
+    
+    # Définir l'ordre d'affichage des catégories
+    local category_order="gestionnaires misc/system misc/clipboard misc/files misc/backup misc/security dev/go dev/docker dev/c dev/make dev/projects cyber git utils"
+    
+    # Afficher les catégories dans l'ordre défini
+    for cat in $category_order; do
+        local funcs_in_cat=$(grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2)
+        if [ -n "$funcs_in_cat" ]; then
+            # Formater le nom de catégorie pour l'affichage
+            local display_name="$cat"
+            case "$cat" in
+                "gestionnaires")
+                    display_name="🎛️  GESTIONNAIRES (Managers)"
+                    ;;
+                "misc/system")
+                    display_name="💻 SYSTÈME (System)"
+                    ;;
+                "misc/clipboard")
+                    display_name="📋 PRESSE-PAPIER (Clipboard)"
+                    ;;
+                "misc/files")
+                    display_name="📁 FICHIERS (Files)"
+                    ;;
+                "misc/backup")
+                    display_name="💾 SAUVEGARDE (Backup)"
+                    ;;
+                "misc/security")
+                    display_name="🔒 SÉCURITÉ (Security)"
+                    ;;
+                "dev/go")
+                    display_name="🐹 GO (Go Language)"
+                    ;;
+                "dev/docker")
+                    display_name="🐳 DOCKER (Docker)"
+                    ;;
+                "dev/c")
+                    display_name="⚙️  C/C++ (C/C++)"
+                    ;;
+                "dev/make")
+                    display_name="🔨 MAKE (Make)"
+                    ;;
+                "dev/projects")
+                    display_name="📦 PROJETS (Projects)"
+                    ;;
+                "cyber")
+                    display_name="🛡️  CYBERSÉCURITÉ (Cybersecurity)"
+                    ;;
+                "git")
+                    display_name="🔀 GIT (Git)"
+                    ;;
+                "utils")
+                    display_name="🛠️  UTILITAIRES (Utils)"
+                    ;;
+                *)
+                    display_name="📂 $(echo "$cat" | tr '[:lower:]' '[:upper:]')"
+                    ;;
+            esac
+            
+            echo "$display_name"
+            echo "──────────────────────────────────────────────────────────────────────────"
+            
+            # Afficher les fonctions de cette catégorie
+            echo "$funcs_in_cat" | while IFS='|' read -r cat_name func_name desc; do
+                printf "  • %-30s" "$func_name"
                 if [ -n "$desc" ]; then
                     echo " - $desc"
                 else
                     echo ""
                 fi
-            fi
-        done
+            done
+            
+            echo ""
+            # Retirer cette catégorie du fichier temporaire
+            grep -v "^${cat}|" "$temp_file" > "${temp_file}.new" && mv "${temp_file}.new" "$temp_file"
+        fi
     done
     
+    # Afficher les catégories restantes (non listées dans l'ordre)
+    if [ -s "$temp_file" ]; then
+        local remaining_cats=$(cut -d'|' -f1 "$temp_file" | sort -u)
+        for cat in $remaining_cats; do
+            echo "📂 $(echo "$cat" | tr '[:lower:]' '[:upper:]')"
+            echo "──────────────────────────────────────────────────────────────────────────"
+            
+            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 | while IFS='|' read -r cat_name func_name desc; do
+                printf "  • %-30s" "$func_name"
+                if [ -n "$desc" ]; then
+                    echo " - $desc"
+                else
+                    echo ""
+                fi
+            done
+            
+            echo ""
+        done
+    fi
+    
+    rm -f "$temp_file"
+    
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     echo "💡 Utilisez 'help <nom_fonction>' pour obtenir l'aide détaillée"
     echo "💡 Utilisez 'man <nom_fonction>' pour la documentation complète"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
 }
 
 # Fonction help principale
