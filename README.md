@@ -1246,6 +1246,42 @@ make install-menu          # Option 14: Installer dépendances managers
 
 Les managers sont automatiquement chargés via `zshrc_custom` et disponibles dans votre shell.
 
+### 📚 Helpman - Gestionnaire Documentation
+
+Gestionnaire complet pour le système d'aide et documentation.
+
+**Utilisation :**
+```bash
+helpman                    # Menu interactif du guide d'aide
+help <fonction>           # Aide rapide sur une fonction
+man <fonction>            # Documentation complète
+help --list               # Liste toutes les fonctions
+help --search <mot>        # Rechercher des fonctions
+```
+
+**Fonctionnalités :**
+- Guide interactif pour comprendre `man` et `help`
+- Système d'aide unifié pour toutes les fonctions
+- Génération automatique de pages man (Markdown)
+- Recherche de fonctions
+- Liste organisée par catégories
+
+**Documentation :** `help helpman` ou `man helpman`
+
+### Installation des Managers
+
+**Vérification :**
+```bash
+make install-menu          # Option 13: Vérifier/Configurer tous les managers
+```
+
+**Dépendances :**
+```bash
+make install-menu          # Option 14: Installer dépendances managers
+```
+
+Les managers sont automatiquement chargés via `zshrc_custom` et disponibles dans votre shell.
+
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
 ## 🔐 Configuration GitHub SSH
@@ -1585,7 +1621,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
 
 **Fonctions ZSH** :
-- ✅ Gestionnaires (8 : cyberman, devman, gitman, miscman, pathman, netman, aliaman, searchman)
+- ✅ Gestionnaires (9 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman)
 - ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
 - ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
 - ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)

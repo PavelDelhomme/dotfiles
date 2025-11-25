@@ -145,6 +145,7 @@ verify_and_configure_managers() {
         "miscman:Miscman - Gestionnaire outils divers"
         "pathman:Pathman - Gestionnaire PATH"
         "netman:Netman - Gestionnaire réseau"
+        "helpman:Helpman - Gestionnaire documentation"
     )
     
     local all_ok=true
@@ -172,6 +173,7 @@ verify_and_configure_managers() {
         echo "  - miscman     : Gestionnaire outils divers"
         echo "  - pathman     : Gestionnaire PATH"
         echo "  - netman      : Gestionnaire réseau"
+        echo "  - helpman     : Gestionnaire documentation"
     else
         log_warn "⚠️  Certains managers sont manquants"
         log_info "Vérifiez que les fichiers sont présents dans zsh/functions/"
