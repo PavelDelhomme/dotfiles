@@ -37,6 +37,9 @@ detect_distro() {
 }
 
 # Mapping outils -> paquets pour chaque distribution
+# DESC: Retourne le nom du paquet approprié pour un outil selon la distribution détectée.
+# USAGE: get_package_name <tool_name> <distro> [package_name]
+# EXAMPLE: get_package_name docker arch
 get_package_name() {
     local tool="$1"
     local distro="$2"
@@ -265,6 +268,9 @@ ensure_tools() {
 }
 
 # Alias pour compatibilité
+# DESC: Alias pour ensure_tool. Vérifie et installe un outil si nécessaire.
+# USAGE: check_and_install_tool <tool_name> [package_name]
+# EXAMPLE: check_and_install_tool docker
 check_and_install_tool() {
     ensure_tool "$@"
 }

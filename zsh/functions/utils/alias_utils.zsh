@@ -112,8 +112,7 @@ remove_alias() {
 ################################################################################
 # DESC: Modifie un alias existant
 # USAGE: change_alias <name> <new_command> [new_description] [new_usage] [new_examples]
-# EXAMPLES:
-#   change_alias ll "ls -lahR" "Liste détaillée récursive"
+# EXAMPLE: change_alias ll "ls -lahR" "Liste détaillée récursive"
 # RETURNS: 0 si succès, 1 si erreur
 ################################################################################
 change_alias() {
@@ -168,9 +167,8 @@ change_alias() {
 ################################################################################
 # DESC: Liste tous les alias avec leurs descriptions
 # USAGE: list_alias [search_term]
-# EXAMPLES:
-#   list_alias
-#   list_alias git
+# EXAMPLE: list_alias
+# EXAMPLE: list_alias git
 # RETURNS: 0 si succès
 ################################################################################
 list_alias() {
@@ -227,9 +225,8 @@ list_alias() {
 ################################################################################
 # DESC: Recherche un alias par nom, commande ou description
 # USAGE: search_alias <search_term>
-# EXAMPLES:
-#   search_alias git
-#   search_alias "liste détaillée"
+# EXAMPLE: search_alias git
+# EXAMPLE: search_alias "liste détaillée"
 # RETURNS: 0 si trouvé, 1 si non trouvé
 ################################################################################
 search_alias() {
@@ -246,8 +243,7 @@ search_alias() {
 ################################################################################
 # DESC: Affiche la documentation complète d'un alias
 # USAGE: get_alias_doc <name>
-# EXAMPLES:
-#   get_alias_doc ll
+# EXAMPLE: get_alias_doc ll
 # RETURNS: 0 si trouvé, 1 si non trouvé
 ################################################################################
 get_alias_doc() {

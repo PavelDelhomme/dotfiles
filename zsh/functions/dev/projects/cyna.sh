@@ -31,6 +31,9 @@ cyna_push_back () {
   docker push paveldelhomme/cyna_backend:latest
 }
 
+# DESC: Effectue un push Git vers la branche frontend du projet Cyna.
+# USAGE: cyna_push_front
+# EXAMPLE: cyna_push_front
 cyna_push_front() {
   docker build -t paveldelhomme/cyna_frontend:latest ./cyna_front/cyna_front
   docker push paveldelhomme/cyna_front:latest

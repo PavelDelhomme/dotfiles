@@ -13,6 +13,9 @@ weedlyweb_run() {
     ./bin/weedlyweb
 }
 
+# DESC: Compile le projet WeedlyWeb en mode debug avec les symboles de débogage.
+# USAGE: weedlyweb_debug_build
+# EXAMPLE: weedlyweb_debug_build
 weedlyweb_debug_build() {
     cd "$WEEDLYWEB_DIR" && \
     mkdir -p build && cd build && \
@@ -20,6 +23,9 @@ weedlyweb_debug_build() {
     make -j$(nproc)
 }
 
+# DESC: Lance le projet WeedlyWeb en mode debug avec un débogueur attaché.
+# USAGE: weedlyweb_debug
+# EXAMPLE: weedlyweb_debug
 weedlyweb_debug() {
     cd "$WEEDLYWEB_DIR/build" && \
     gdb ./bin/weedlyweb
@@ -38,6 +44,9 @@ weedlyweb_clean() {
     echo "Build directory cleaned."
 }
 
+# DESC: Nettoie et recompile complètement le projet WeedlyWeb depuis zéro.
+# USAGE: weedlyweb_rebuild
+# EXAMPLE: weedlyweb_rebuild
 weedlyweb_rebuild() {
     weedlyweb_clean && weedlyweb_run
 }
