@@ -90,9 +90,32 @@ manman() {
         
         echo -e "${GREEN}Lancement de $description...${RESET}"
         echo
+        sleep 1
         
-        # Lancer le gestionnaire sélectionné
-        eval "$command"
+        # S'assurer que le gestionnaire est chargé
+        local manager_file="$DOTFILES_FUNCTIONS_DIR/${name}.zsh"
+        if [[ -f "$manager_file" ]]; then
+            # Source le fichier si nécessaire (s'il n'est pas déjà chargé)
+            source "$manager_file" 2>/dev/null || true
+        fi
+        
+        # Appeler directement la fonction du gestionnaire
+        # Utiliser "$command" directement plutôt que eval pour éviter les problèmes
+        if command -v "$command" >/dev/null 2>&1; then
+            "$command"
+        else
+            # Si la fonction n'existe pas, essayer avec eval en dernier recours
+            eval "$command" 2>/dev/null || {
+                echo -e "${RED}❌ Erreur: Impossible de lancer $name${RESET}"
+                echo "💡 Assurez-vous que le gestionnaire est correctement chargé"
+                sleep 2
+            }
+        fi
+        
+        # Retourner au menu manman après avoir quitté le gestionnaire
+        echo
+        read -k 1 "?Appuyez sur une touche pour retourner au menu..."
+        manman
     else
         echo -e "${RED}Choix invalide${RESET}"
         sleep 2
