@@ -83,7 +83,7 @@ show_function_help() {
 }
 
 # Fonction pour lister toutes les fonctions disponibles
-# DESC: Liste toutes les fonctions personnalisées disponibles avec leurs descriptions.
+# DESC: Liste toutes les fonctions personnalisées disponibles avec leurs descriptions, organisées par catégories.
 # USAGE: list_functions
 # EXAMPLE: list_functions
 list_functions() {
@@ -111,13 +111,14 @@ list_functions() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
     
-    # Créer un fichier temporaire pour stocker les fonctions par catégorie
+    # Créer un fichier temporaire pour stocker toutes les fonctions
     local temp_file=$(mktemp)
+    local funcs_dir="$DOTFILES_DIR/zsh/functions"
     
-    # Parcourir tous les fichiers de fonctions et collecter les données
-    find "$DOTFILES_DIR/zsh/functions" -type f \( -name "*.sh" -o -name "*.zsh" \) 2>/dev/null | while read -r file; do
+    # Collecter toutes les fonctions avec leurs catégories
+    find "$funcs_dir" -type f \( -name "*.sh" -o -name "*.zsh" \) 2>/dev/null | while read -r file; do
         # Déterminer la catégorie à partir du chemin du fichier
-        local relative_path="${file#$DOTFILES_DIR/zsh/functions/}"
+        local relative_path="${file#$funcs_dir/}"
         local category=""
         
         # Extraire la catégorie (dossier/sous-dossier)
@@ -160,10 +161,11 @@ list_functions() {
     
     # Afficher les catégories dans l'ordre défini
     for cat in $category_order; do
-        # Extraire les fonctions de cette catégorie
-        local funcs_in_cat=$(grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2)
+        # Créer un fichier temporaire pour cette catégorie
+        local cat_file=$(mktemp)
+        grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2 > "$cat_file"
         
-        if [ -n "$funcs_in_cat" ]; then
+        if [ -s "$cat_file" ]; then
             # Formater le nom de catégorie pour l'affichage
             local display_name="$cat"
             case "$cat" in
@@ -239,7 +241,7 @@ list_functions() {
             echo "──────────────────────────────────────────────────────────────────────────"
             
             # Afficher les fonctions de cette catégorie
-            echo "$funcs_in_cat" | while IFS='|' read -r cat_name func_name desc; do
+            while IFS='|' read -r cat_name func_name desc; do
                 if [ -z "$func_name" ]; then
                     continue
                 fi
@@ -254,39 +256,48 @@ list_functions() {
                 else
                     echo ""
                 fi
-            done
+            done < "$cat_file"
             
             echo ""
-            # Retirer cette catégorie du fichier temporaire pour éviter les doublons
+            # Retirer cette catégorie du fichier temporaire principal
             grep -v "^${cat}|" "$temp_file" > "${temp_file}.new" 2>/dev/null && mv "${temp_file}.new" "$temp_file" 2>/dev/null || true
         fi
+        
+        rm -f "$cat_file"
     done
     
     # Afficher les catégories restantes (non listées dans l'ordre)
     if [ -s "$temp_file" ]; then
         local remaining_cats=$(cut -d'|' -f1 "$temp_file" | sort -u)
         for cat in $remaining_cats; do
-            local display_cat=$(echo "$cat" | sed 's|/| / |g' | tr '[:lower:]' '[:upper:]')
-            echo "📂 $display_cat"
-            echo "──────────────────────────────────────────────────────────────────────────"
+            local cat_file=$(mktemp)
+            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 > "$cat_file"
             
-            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 | while IFS='|' read -r cat_name func_name desc; do
-                if [ -z "$func_name" ]; then
-                    continue
-                fi
-                local short_desc=""
-                if [ -n "$desc" ]; then
-                    short_desc=$(truncate_desc "$desc" "$desc_max_width")
-                fi
-                printf "  • %-30s" "$func_name"
-                if [ -n "$short_desc" ]; then
-                    echo " - $short_desc"
-                else
-                    echo ""
-                fi
-            done
+            if [ -s "$cat_file" ]; then
+                local display_cat=$(echo "$cat" | sed 's|/| / |g' | tr '[:lower:]' '[:upper:]')
+                echo "📂 $display_cat"
+                echo "──────────────────────────────────────────────────────────────────────────"
+                
+                while IFS='|' read -r cat_name func_name desc; do
+                    if [ -z "$func_name" ]; then
+                        continue
+                    fi
+                    local short_desc=""
+                    if [ -n "$desc" ]; then
+                        short_desc=$(truncate_desc "$desc" "$desc_max_width")
+                    fi
+                    printf "  • %-30s" "$func_name"
+                    if [ -n "$short_desc" ]; then
+                        echo " - $short_desc"
+                    else
+                        echo ""
+                    fi
+                done < "$cat_file"
+                
+                echo ""
+            fi
             
-            echo ""
+            rm -f "$cat_file"
         done
     fi
     
@@ -345,4 +356,3 @@ man() {
         command man "$@"
     fi
 }
-
