@@ -1286,12 +1286,65 @@ Les managers sont automatiquement chargés via `zshrc_custom` et disponibles dan
 
 ## 🔐 Configuration GitHub SSH
 
+### ⚠️ IMPORTANT : Cette étape est optionnelle !
+
+Lors de l'installation via `bootstrap.sh`, vous pouvez **choisir de bypasser complètement la configuration SSH**.
+
+**Menu proposé par bootstrap.sh :**
+```
+Souhaitez-vous configurer SSH pour GitHub ?
+Cela permet de cloner/pusher sans saisir vos identifiants.
+
+  1. Oui, configurer SSH (recommandé)
+  2. Non, passer cette étape (vous pourrez cloner via HTTPS)  ⚠️ BYPASS
+  0. Vérifier si SSH est déjà configuré et fonctionne
+```
+
+### Option 1 : Configuration SSH (recommandé)
+
 Le script génère automatiquement une clé SSH ED25519 et :
 1. Copie la clé publique dans le presse-papier
 2. Attend que vous l'ajoutiez sur GitHub
 3. Teste la connexion
 
 Clé stockée dans : `~/.ssh/id_ed25519`
+
+**Avantages :**
+- Clonage/push sans saisir identifiants
+- Plus sécurisé
+- Plus rapide pour les opérations Git
+
+### Option 2 : Bypasser la configuration SSH ⚠️
+
+Si vous choisissez cette option :
+- ✅ Le script passe directement au clonage
+- ✅ Vous utiliserez HTTPS pour cloner (avec authentification GitHub)
+- ✅ Utile si vous voulez installer rapidement
+- ✅ Vous pourrez configurer SSH plus tard si nécessaire
+
+**Note :** Pour cloner via HTTPS, GitHub peut vous demander un Personal Access Token au lieu d'un mot de passe.
+
+### Option 0 : Vérification automatique
+
+Le script vérifie automatiquement :
+- Si une clé SSH existe déjà
+- Si la connexion GitHub SSH fonctionne
+- Si tout fonctionne : propose automatiquement de passer cette étape
+
+### Quand bypasser la configuration SSH ?
+
+Bypasser la configuration SSH est recommandé si :
+- ✅ Vous avez déjà SSH configuré et fonctionnel
+- ✅ Vous préférez utiliser HTTPS pour Git
+- ✅ Vous voulez installer rapidement sans configuration supplémentaire
+- ✅ Vous configurez SSH manuellement plus tard
+
+**Après avoir bypassé :**
+- Vous pouvez toujours configurer SSH manuellement plus tard avec :
+  ```bash
+  ssh-keygen -t ed25519 -C "votre.email@example.com"
+  # Ajouter la clé sur GitHub : https://github.com/settings/keys
+  ```
 
 ---
 
