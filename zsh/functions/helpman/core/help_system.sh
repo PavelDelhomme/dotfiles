@@ -89,7 +89,7 @@ show_function_help() {
 # EXAMPLE: list_functions
 list_functions() {
     # Utiliser le script Python pour un affichage correct
-    local python_script="$DOTFILES_DIR/zsh/functions/utils/list_functions.py"
+    local python_script="$HELPMAN_DIR/utils/list_functions.py"
     
     # S'assurer que DOTFILES_DIR est défini
     if [ -z "$DOTFILES_DIR" ]; then
@@ -199,7 +199,7 @@ create_man_page() {
     fi
     
     # Méthode 7: Script Python personnalisé (fallback avec UTF-8 et couleurs)
-    local python_viewer="$DOTFILES_DIR/zsh/functions/utils/markdown_viewer.py"
+    local python_viewer="$HELPMAN_DIR/utils/markdown_viewer.py"
     if [ -f "$python_viewer" ] && command -v python3 >/dev/null 2>&1; then
         python3 "$python_viewer" "$man_file" 2>/dev/null
         return 0
