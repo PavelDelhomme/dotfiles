@@ -133,6 +133,100 @@ show_install_menu() {
     read -r dummy
 }
 
+# Fonction pour vérifier et configurer tous les managers
+verify_and_configure_managers() {
+    log_info "Vérification des managers disponibles..."
+    echo ""
+    
+    local managers=(
+        "cyberman:Cyberman - Gestionnaire cybersécurité"
+        "devman:Devman - Gestionnaire développement"
+        "gitman:Gitman - Gestionnaire Git"
+        "miscman:Miscman - Gestionnaire outils divers"
+        "pathman:Pathman - Gestionnaire PATH"
+        "netman:Netman - Gestionnaire réseau"
+    )
+    
+    local all_ok=true
+    
+    for manager_info in "${managers[@]}"; do
+        IFS=':' read -r manager_name manager_desc <<< "$manager_info"
+        local manager_file="$DOTFILES_DIR/zsh/functions/${manager_name}.zsh"
+        
+        if [ -f "$manager_file" ]; then
+            log_info "✅ $manager_desc: Disponible"
+        else
+            log_warn "❌ $manager_desc: Fichier manquant ($manager_file)"
+            all_ok=false
+        fi
+    done
+    
+    echo ""
+    if [ "$all_ok" = true ]; then
+        log_info "✅ Tous les managers sont disponibles"
+        echo ""
+        log_info "Commandes disponibles:"
+        echo "  - cyberman    : Gestionnaire cybersécurité"
+        echo "  - devman      : Gestionnaire développement"
+        echo "  - gitman      : Gestionnaire Git"
+        echo "  - miscman     : Gestionnaire outils divers"
+        echo "  - pathman     : Gestionnaire PATH"
+        echo "  - netman      : Gestionnaire réseau"
+    else
+        log_warn "⚠️  Certains managers sont manquants"
+        log_info "Vérifiez que les fichiers sont présents dans zsh/functions/"
+    fi
+}
+
+# Fonction pour installer les dépendances des managers
+install_managers_dependencies() {
+    log_info "Installation des dépendances pour tous les managers..."
+    echo ""
+    
+    # Dépendances communes
+    local deps=("jq" "git")
+    
+    # Vérifier le gestionnaire de paquets
+    if command -v pacman >/dev/null 2>&1; then
+        PKG_MANAGER="pacman"
+        INSTALL_CMD="sudo pacman -S --noconfirm"
+    elif command -v apt-get >/dev/null 2>&1; then
+        PKG_MANAGER="apt"
+        INSTALL_CMD="sudo apt-get install -y"
+    elif command -v yum >/dev/null 2>&1; then
+        PKG_MANAGER="yum"
+        INSTALL_CMD="sudo yum install -y"
+    else
+        log_error "Gestionnaire de paquets non supporté"
+        return 1
+    fi
+    
+    log_info "Gestionnaire détecté: $PKG_MANAGER"
+    echo ""
+    
+    # Installer les dépendances manquantes
+    for dep in "${deps[@]}"; do
+        if command -v "$dep" >/dev/null 2>&1; then
+            log_info "✅ $dep déjà installé"
+        else
+            log_info "📦 Installation de $dep..."
+            $INSTALL_CMD "$dep" || log_warn "⚠️  Échec installation de $dep"
+        fi
+    done
+    
+    echo ""
+    log_info "✅ Installation des dépendances terminée"
+    echo ""
+    log_info "Dépendances installées:"
+    for dep in "${deps[@]}"; do
+        if command -v "$dep" >/dev/null 2>&1; then
+            echo "  ✅ $dep"
+        else
+            echo "  ❌ $dep"
+        fi
+    done
+}
+
 # Boucle principale
 while true; do
     show_install_menu
