@@ -300,31 +300,51 @@ cyberman() {
     }
     
     # =========================================================================
-    # CATÉGORIE 6: PRIVACY & ANONYMITY
+    # GESTION DES ENVIRONNEMENTS
     # =========================================================================
-    # DESC: Affiche le menu de privacy et anonymisation
-    # USAGE: show_privacy_menu
-    # EXAMPLE: show_privacy_menu
-    show_privacy_menu() {
-        show_header
-        echo -e "${YELLOW}🔒 PRIVACY & ANONYMITY${RESET}"
-        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        echo "1.  Start Tor                 (Démarrer Tor)"
-        echo "2.  Stop Tor                  (Arrêter Tor)"
-        echo "3.  Proxy command             (Exécution via proxy)"
-        echo "0.  Retour au menu principal"
-        echo ""
-        printf "Choix: "
-        read -r choice
-        # Nettoyer le choix
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
-        case "$choice" in
-            1) source "$CYBER_DIR/privacy/start_tor.sh" && ensure_tool tor && start_tor ;;
-            2) source "$CYBER_DIR/privacy/stop_tor.sh" && stop_tor ;;
-            3) source "$CYBER_DIR/privacy/proxycmd.sh" && ensure_tool proxychains && proxycmd ;;
-            0) return ;;
-            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
-        esac
+    # DESC: Affiche le menu de gestion des environnements
+    # USAGE: show_environment_menu
+    # EXAMPLE: show_environment_menu
+    show_environment_menu() {
+        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            source "$CYBER_DIR/environment_manager.sh"
+            show_environment_menu
+        else
+            echo "❌ Gestionnaire d'environnements non disponible"
+            sleep 1
+        fi
+    }
+    
+    # =========================================================================
+    # GESTION DES WORKFLOWS
+    # =========================================================================
+    # DESC: Affiche le menu de gestion des workflows
+    # USAGE: show_workflow_menu
+    # EXAMPLE: show_workflow_menu
+    show_workflow_menu() {
+        if [ -f "$CYBER_DIR/workflow_manager.sh" ]; then
+            source "$CYBER_DIR/workflow_manager.sh"
+            show_workflow_menu
+        else
+            echo "❌ Gestionnaire de workflows non disponible"
+            sleep 1
+        fi
+    }
+    
+    # =========================================================================
+    # GESTION DES RAPPORTS
+    # =========================================================================
+    # DESC: Affiche le menu de gestion des rapports
+    # USAGE: show_report_menu
+    # EXAMPLE: show_report_menu
+    show_report_menu() {
+        if [ -f "$CYBER_DIR/report_manager.sh" ]; then
+            source "$CYBER_DIR/report_manager.sh"
+            show_report_menu
+        else
+            echo "❌ Gestionnaire de rapports non disponible"
+            sleep 1
+        fi
     }
     
     # =========================================================================
@@ -451,18 +471,20 @@ cyberman() {
         fi
         
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
-        echo "1.  🔍 Reconnaissance & Information Gathering"
-        echo "2.  🔎 Scanning & Enumeration"
-        echo "3.  🛡️  Vulnerability Assessment"
-        echo "4.  ⚔️  Network Attacks & Exploitation"
-        echo "5.  📡 Network Analysis & Monitoring"
-        echo "6.  🔒 Privacy & Anonymity"
-        echo "7.  🎯 Gestion des cibles"
-        echo "8.  🌍 Gestion des environnements"
-        echo "9.  🔄 Gestion des workflows"
-        echo "10. 📊 Gestion des rapports"
-        echo "11. 🔒 Gestion de l'anonymat"
-        echo "12. 🚀 Assistant de test complet"
+        echo "1.  🌍 Gestion des environnements"
+        echo "2.  🎯 Gestion des cibles"
+        echo "3.  🔒 Gestion de l'anonymat"
+        echo "4.  🔄 Gestion des workflows"
+        echo "5.  🔍 Reconnaissance & Information Gathering"
+        echo "6.  🔎 Scanning & Enumeration"
+        echo "7.  🛡️  Vulnerability Assessment & Session"
+        echo "8.  📡 Network Analysis & Monitoring"
+        echo "9.  ⚔️  Network Attacks & Exploitation"
+        echo "10. 🌐 Web Security & Testing"
+        echo "11. 📱 IoT Devices & Embedded Systems"
+        echo "12. 🔌 Network Devices & Infrastructure"
+        echo "13. 📊 Gestion des rapports"
+        echo "14. 🚀 Assistant de test complet"
         echo ""
         echo "h.  Aide"
         echo "q.  Quitter"
@@ -642,6 +664,141 @@ EOF
         fi
     }
     
+    # =========================================================================
+    # CATÉGORIE: WEB SECURITY & TESTING
+    # =========================================================================
+    # DESC: Affiche le menu de sécurité web
+    # USAGE: show_web_menu
+    # EXAMPLE: show_web_menu
+    show_web_menu() {
+        show_header
+        echo -e "${YELLOW}🌐 WEB SECURITY & TESTING${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Web dir enum              (Énumération répertoires web)"
+        echo "2.  Web port scan             (Scan ports web)"
+        echo "3.  Web vuln scan             (Scan vulnérabilités web)"
+        echo "4.  Get HTTP headers          (En-têtes HTTP)"
+        echo "5.  Analyze headers           (Analyse en-têtes)"
+        echo "6.  Get robots.txt            (Récupération robots.txt)"
+        echo "7.  Check SSL                 (Vérification SSL)"
+        echo "8.  Check SSL cert            (Vérification certificat SSL)"
+        echo "9.  Nikto scan                (Scan Nikto)"
+        echo "10. SQL Injection test         (Test injection SQL)"
+        echo "11. XSS test                  (Test XSS)"
+        echo "12. CSRF test                 (Test CSRF)"
+        echo "13. Web app fingerprint       (Empreinte application web)"
+        echo "14. CMS detection             (Détection CMS)"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
+            2) source "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan ;;
+            3) source "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan ;;
+            4) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
+            5) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
+            6) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
+            7) source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl ;;
+            8) source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert ;;
+            9) source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan ;;
+            10) echo "⚠️  Fonction SQL Injection test à implémenter" ; sleep 2 ;;
+            11) echo "⚠️  Fonction XSS test à implémenter" ; sleep 2 ;;
+            12) echo "⚠️  Fonction CSRF test à implémenter" ; sleep 2 ;;
+            13) echo "⚠️  Fonction Web app fingerprint à implémenter" ; sleep 2 ;;
+            14) echo "⚠️  Fonction CMS detection à implémenter" ; sleep 2 ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
+    # CATÉGORIE: IoT DEVICES & EMBEDDED SYSTEMS
+    # =========================================================================
+    # DESC: Affiche le menu pour les appareils IoT et systèmes embarqués
+    # USAGE: show_iot_menu
+    # EXAMPLE: show_iot_menu
+    show_iot_menu() {
+        show_header
+        echo -e "${YELLOW}📱 IoT DEVICES & EMBEDDED SYSTEMS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  IoT device scan           (Scan appareils IoT)"
+        echo "2.  MQTT scan                 (Scan serveurs MQTT)"
+        echo "3.  CoAP scan                 (Scan CoAP)"
+        echo "4.  Zigbee scan               (Scan réseaux Zigbee)"
+        echo "5.  Bluetooth scan            (Scan appareils Bluetooth)"
+        echo "6.  Firmware analysis         (Analyse firmware)"
+        echo "7.  Default credentials       (Test identifiants par défaut)"
+        echo "8.  UPnP scan                 (Scan UPnP)"
+        echo "9.  Modbus scan               (Scan Modbus)"
+        echo "10. BACnet scan               (Scan BACnet)"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1) echo "⚠️  Fonction IoT device scan à implémenter" ; sleep 2 ;;
+            2) echo "⚠️  Fonction MQTT scan à implémenter" ; sleep 2 ;;
+            3) echo "⚠️  Fonction CoAP scan à implémenter" ; sleep 2 ;;
+            4) echo "⚠️  Fonction Zigbee scan à implémenter" ; sleep 2 ;;
+            5) echo "⚠️  Fonction Bluetooth scan à implémenter" ; sleep 2 ;;
+            6) echo "⚠️  Fonction Firmware analysis à implémenter" ; sleep 2 ;;
+            7) echo "⚠️  Fonction Default credentials à implémenter" ; sleep 2 ;;
+            8) echo "⚠️  Fonction UPnP scan à implémenter" ; sleep 2 ;;
+            9) echo "⚠️  Fonction Modbus scan à implémenter" ; sleep 2 ;;
+            10) echo "⚠️  Fonction BACnet scan à implémenter" ; sleep 2 ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
+    # CATÉGORIE: NETWORK DEVICES & INFRASTRUCTURE
+    # =========================================================================
+    # DESC: Affiche le menu pour les appareils réseau et infrastructure
+    # USAGE: show_network_devices_menu
+    # EXAMPLE: show_network_devices_menu
+    show_network_devices_menu() {
+        show_header
+        echo -e "${YELLOW}🔌 NETWORK DEVICES & INFRASTRUCTURE${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Router scan               (Scan routeurs)"
+        echo "2.  Switch scan               (Scan switches)"
+        echo "3.  Firewall scan             (Scan pare-feu)"
+        echo "4.  SNMP scan                 (Scan SNMP)"
+        echo "5.  Check Telnet              (Vérifier si telnet est actif)"
+        echo "6.  SSH scan                  (Scan SSH)"
+        echo "7.  FTP scan                  (Scan FTP)"
+        echo "8.  SMB scan                  (Scan SMB/CIFS)"
+        echo "9.  Network topology          (Topologie réseau)"
+        echo "10. VLAN scan                 (Scan VLAN)"
+        echo "11. OSPF scan                 (Scan OSPF)"
+        echo "12. BGP scan                  (Scan BGP)"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1) echo "⚠️  Fonction Router scan à implémenter" ; sleep 2 ;;
+            2) echo "⚠️  Fonction Switch scan à implémenter" ; sleep 2 ;;
+            3) echo "⚠️  Fonction Firewall scan à implémenter" ; sleep 2 ;;
+            4) echo "⚠️  Fonction SNMP scan à implémenter" ; sleep 2 ;;
+            5) source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet ;;
+            6) echo "⚠️  Fonction SSH scan à implémenter" ; sleep 2 ;;
+            7) echo "⚠️  Fonction FTP scan à implémenter" ; sleep 2 ;;
+            8) source "$CYBER_DIR/scanning/enum_shares.sh" && enum_shares ;;
+            9) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
+            10) echo "⚠️  Fonction VLAN scan à implémenter" ; sleep 2 ;;
+            11) echo "⚠️  Fonction OSPF scan à implémenter" ; sleep 2 ;;
+            12) echo "⚠️  Fonction BGP scan à implémenter" ; sleep 2 ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
     # Gestion des arguments rapides
     if [[ "$1" == "recon" ]]; then show_recon_menu; return; fi
     if [[ "$1" == "scan" ]]; then show_scan_menu; return; fi
@@ -654,6 +811,9 @@ EOF
     if [[ "$1" == "report" ]]; then show_report_menu; return; fi
     if [[ "$1" == "anon" ]]; then show_anonymity_menu; return; fi
     if [[ "$1" == "assistant" ]]; then show_assistant_menu; return; fi
+    if [[ "$1" == "web" ]]; then show_web_menu; return; fi
+    if [[ "$1" == "iot" ]]; then show_iot_menu; return; fi
+    if [[ "$1" == "network" ]]; then show_network_devices_menu; return; fi
     if [[ "$1" == "help" ]]; then show_help; return; fi
     
     # Menu interactif principal
@@ -664,18 +824,20 @@ EOF
         # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
-            1) show_recon_menu ;;
-            2) show_scan_menu ;;
-            3) show_vuln_menu ;;
-            4) show_attack_menu ;;
-            5) show_analysis_menu ;;
-            6) show_privacy_menu ;;
-            7) show_target_menu ;;
-            8) show_environment_menu ;;
-            9) show_workflow_menu ;;
-            10) show_report_menu ;;
-            11) show_anonymity_menu ;;
-            12) show_assistant_menu ;;
+            1) show_environment_menu ;;
+            2) show_target_menu ;;
+            3) show_anonymity_menu ;;
+            4) show_workflow_menu ;;
+            5) show_recon_menu ;;
+            6) show_scan_menu ;;
+            7) show_vuln_menu ;;
+            8) show_analysis_menu ;;
+            9) show_attack_menu ;;
+            10) show_web_menu ;;
+            11) show_iot_menu ;;
+            12) show_network_devices_menu ;;
+            13) show_report_menu ;;
+            14) show_assistant_menu ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
