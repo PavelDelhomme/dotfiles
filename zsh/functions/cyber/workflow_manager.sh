@@ -318,3 +318,120 @@ delete_workflow() {
     fi
 }
 
+# DESC: Affiche le menu interactif de gestion des workflows
+# USAGE: show_workflow_menu
+# EXAMPLE: show_workflow_menu
+show_workflow_menu() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║              GESTION DES WORKFLOWS - CYBERMAN                  ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        
+        list_workflows
+        echo ""
+        echo "1.  Créer un nouveau workflow"
+        echo "2.  Ajouter une étape à un workflow"
+        echo "3.  Exécuter un workflow"
+        echo "4.  Afficher les détails d'un workflow"
+        echo "5.  Supprimer un workflow"
+        echo "6.  Lister tous les workflows"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                echo ""
+                printf "📝 Nom du workflow: "
+                read -r name
+                if [ -n "$name" ]; then
+                    printf "📝 Description (optionnel): "
+                    read -r desc
+                    create_workflow "$name" "$desc"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                list_workflows
+                echo ""
+                printf "📝 Nom du workflow: "
+                read -r workflow_name
+                if [ -n "$workflow_name" ]; then
+                    printf "📋 Type d'étape (scan/vuln/recon/attack/analysis): "
+                    read -r step_type
+                    printf "🔧 Nom de la fonction: "
+                    read -r func_name
+                    printf "📝 Arguments (optionnel): "
+                    read -r args
+                    if [ -n "$step_type" ] && [ -n "$func_name" ]; then
+                        add_workflow_step "$workflow_name" "$step_type" "$func_name" "$args"
+                    fi
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                list_workflows
+                echo ""
+                printf "🚀 Nom du workflow à exécuter: "
+                read -r name
+                if [ -n "$name" ]; then
+                    printf "🌍 Nom de l'environnement (optionnel): "
+                    read -r env_name
+                    run_workflow "$name" "$env_name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                list_workflows
+                echo ""
+                printf "📋 Nom du workflow: "
+                read -r name
+                if [ -n "$name" ]; then
+                    show_workflow "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                echo ""
+                list_workflows
+                echo ""
+                printf "🗑️  Nom du workflow à supprimer: "
+                read -r name
+                if [ -n "$name" ]; then
+                    delete_workflow "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                list_workflows
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
+}
+

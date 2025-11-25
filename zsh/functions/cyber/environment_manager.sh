@@ -201,3 +201,97 @@ show_environment() {
     return 0
 }
 
+# DESC: Affiche le menu interactif de gestion des environnements
+# USAGE: show_environment_menu
+# EXAMPLE: show_environment_menu
+show_environment_menu() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║           GESTION DES ENVIRONNEMENTS - CYBERMAN                ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        
+        list_environments
+        echo ""
+        echo "1.  Sauvegarder l'environnement actuel"
+        echo "2.  Charger un environnement"
+        echo "3.  Afficher les détails d'un environnement"
+        echo "4.  Supprimer un environnement"
+        echo "5.  Lister tous les environnements"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                echo ""
+                printf "📝 Nom de l'environnement: "
+                read -r name
+                if [ -n "$name" ]; then
+                    printf "📝 Description (optionnel): "
+                    read -r desc
+                    save_environment "$name" "$desc"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                list_environments
+                echo ""
+                printf "📂 Nom de l'environnement à charger: "
+                read -r name
+                if [ -n "$name" ]; then
+                    load_environment "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                list_environments
+                echo ""
+                printf "📋 Nom de l'environnement: "
+                read -r name
+                if [ -n "$name" ]; then
+                    show_environment "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                list_environments
+                echo ""
+                printf "🗑️  Nom de l'environnement à supprimer: "
+                read -r name
+                if [ -n "$name" ]; then
+                    delete_environment "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                list_environments
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
+}
+
