@@ -90,17 +90,33 @@ list_functions() {
     # Utiliser le script Python pour un affichage correct
     local python_script="$DOTFILES_DIR/zsh/functions/utils/list_functions.py"
     
+    # S'assurer que DOTFILES_DIR est défini
+    if [ -z "$DOTFILES_DIR" ]; then
+        DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    fi
+    
+    # S'assurer que COLUMNS est défini
+    if [ -z "$COLUMNS" ]; then
+        COLUMNS=$(tput cols 2>/dev/null || echo "80")
+    fi
+    
     if [ -f "$python_script" ] && command -v python3 >/dev/null 2>&1; then
+        # Exporter les variables nécessaires
         export DOTFILES_DIR COLUMNS
-        python3 "$python_script"
+        # Exécuter le script Python
+        python3 "$python_script" 2>&1
     else
         # Fallback vers la version shell si Python n'est pas disponible
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo "📋 FONCTIONS DISPONIBLES"
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
         echo ""
-        echo "⚠️  Python3 requis pour l'affichage organisé par catégories"
-        echo "💡 Installez Python3 ou utilisez: help <nom_fonction>"
+        if ! command -v python3 >/dev/null 2>&1; then
+            echo "⚠️  Python3 requis pour l'affichage organisé par catégories"
+            echo "💡 Installez Python3 ou utilisez: help <nom_fonction>"
+        else
+            echo "⚠️  Script list_functions.py introuvable: $python_script"
+        fi
         echo ""
     fi
 }

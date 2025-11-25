@@ -47,7 +47,10 @@ def get_category_from_path(file_path, funcs_dir):
                 "make": "dev/make"
             }
             return dev_mapping.get(filename, f"dev/{filename}")
-        # Autres cas (misc/system, etc.)
+        # Cas spécial : fichiers dans git/ ou utils/ (un seul fichier = catégorie racine)
+        elif parts[0] in ["git", "utils"]:
+            return parts[0]
+        # Autres cas (misc/system, etc.) - sous-dossiers
         return f"{parts[0]}/{parts[1]}"
     # Sinon, utils par défaut
     else:
