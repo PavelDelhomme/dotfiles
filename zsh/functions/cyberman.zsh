@@ -19,6 +19,9 @@ if [ -f "$CYBER_DIR/target_manager.sh" ]; then
     source "$CYBER_DIR/target_manager.sh"
 fi
 
+# Répertoire cyberman pour les modules
+CYBERMAN_DIR="$HOME/dotfiles/zsh/functions/cyberman"
+
 # DESC: Gestionnaire interactif complet pour les outils de cybersécurité. Organise les outils en catégories : reconnaissance, scanning, vulnérabilités, attaques, analyse et privacy. Installe automatiquement les outils manquants.
 # USAGE: cyberman [category]
 # EXAMPLE: cyberman
