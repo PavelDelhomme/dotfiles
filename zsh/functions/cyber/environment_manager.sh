@@ -424,7 +424,22 @@ deactivate_environment() {
     
     local env_name="$CYBER_CURRENT_ENV"
     
-    # Supprimer le fichier de persistance d'abord
+    # Demander si on veut aussi supprimer les cibles
+    printf "🗑️  Voulez-vous aussi supprimer les cibles de cet environnement? (o/N): "
+    read -r remove_targets
+    
+    # Supprimer les cibles si demandé
+    if [ "$remove_targets" = "o" ] || [ "$remove_targets" = "O" ]; then
+        if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+            source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+            if has_targets 2>/dev/null; then
+                clear_targets 2>/dev/null
+                echo "✅ Cibles supprimées"
+            fi
+        fi
+    fi
+    
+    # Supprimer le fichier de persistance
     rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
     
     # Désactiver l'environnement en vidant la variable globale
@@ -435,14 +450,12 @@ deactivate_environment() {
     # Vérifier que la désactivation a bien fonctionné
     if [ -z "$CYBER_CURRENT_ENV" ] && [ ! -f "$CYBER_CURRENT_ENV_FILE" ]; then
         echo "✅ Environnement désactivé: $env_name"
-        echo "💡 Les cibles actuelles ne sont pas supprimées"
         return 0
     else
         # Forcer la suppression si nécessaire
         typeset -g CYBER_CURRENT_ENV=""
         rm -f "$CYBER_CURRENT_ENV_FILE" 2>/dev/null
         echo "✅ Environnement désactivé: $env_name (forcé)"
-        echo "💡 Les cibles actuelles ne sont pas supprimées"
         return 0
     fi
 }
