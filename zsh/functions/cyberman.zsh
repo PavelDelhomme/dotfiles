@@ -508,6 +508,137 @@ EOF
         read -k 1 "?Appuyez sur une touche pour revenir au menu..."
     }
     
+    # =========================================================================
+    # GESTION DE L'ANONYMAT
+    # =========================================================================
+    # DESC: Affiche le menu de gestion de l'anonymat
+    # USAGE: show_anonymity_menu
+    # EXAMPLE: show_anonymity_menu
+    show_anonymity_menu() {
+        show_header
+        echo -e "${YELLOW}🔒 GESTION DE L'ANONYMAT${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        echo "1.  Vérifier l'anonymat"
+        echo "2.  Afficher les informations d'anonymat"
+        echo "3.  Exécuter une commande avec anonymat"
+        echo "4.  Configurer l'usurpation d'IP (IP spoofing)"
+        echo "5.  Supprimer l'usurpation d'IP"
+        echo "6.  Exécuter un workflow avec anonymat"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        case "$choice" in
+            1)
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh"
+                    check_anonymity
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                fi
+                ;;
+            2)
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh"
+                    show_anonymity_info
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                fi
+                ;;
+            3)
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh"
+                    echo ""
+                    printf "🔒 Commande à exécuter avec anonymat: "
+                    read -r cmd
+                    if [ -n "$cmd" ]; then
+                        run_with_anonymity $cmd
+                        echo ""
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    fi
+                fi
+                ;;
+            4)
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh"
+                    echo ""
+                    printf "🔧 IP à usurper: "
+                    read -r fake_ip
+                    if [ -n "$fake_ip" ]; then
+                        setup_ip_spoofing "$fake_ip"
+                        echo ""
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    fi
+                fi
+                ;;
+            5)
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh"
+                    echo ""
+                    printf "🔧 IP usurpée à supprimer: "
+                    read -r fake_ip
+                    if [ -n "$fake_ip" ]; then
+                        remove_ip_spoofing "$fake_ip"
+                        echo ""
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    fi
+                fi
+                ;;
+            6)
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ] && [ -f "$CYBER_DIR/workflow_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh"
+                    source "$CYBER_DIR/workflow_manager.sh"
+                    echo ""
+                    list_workflows
+                    echo ""
+                    printf "📝 Nom du workflow: "
+                    read -r workflow_name
+                    if [ -n "$workflow_name" ]; then
+                        run_workflow_anonymized "$workflow_name"
+                        echo ""
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    fi
+                fi
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
+    # ASSISTANT DE TEST COMPLET
+    # =========================================================================
+    # DESC: Affiche le menu de l'assistant
+    # USAGE: show_assistant_menu
+    # EXAMPLE: show_assistant_menu
+    show_assistant_menu() {
+        show_header
+        echo -e "${YELLOW}🚀 ASSISTANT DE TEST COMPLET${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        echo "L'assistant vous guidera à travers:"
+        echo "  • Configuration des cibles"
+        echo "  • Configuration de l'anonymat"
+        echo "  • Création/gestion d'environnements"
+        echo "  • Création/gestion de workflows"
+        echo "  • Exécution des tests"
+        echo "  • Consultation des rapports"
+        echo ""
+        printf "Lancer l'assistant? (O/n): "
+        read -r confirm
+        if [ "$confirm" != "n" ] && [ "$confirm" != "N" ]; then
+            if [ -f "$CYBER_DIR/assistant.sh" ]; then
+                source "$CYBER_DIR/assistant.sh"
+                show_assistant
+            else
+                echo "❌ Assistant non disponible"
+                sleep 1
+            fi
+        fi
+    }
+    
     # Gestion des arguments rapides
     if [[ "$1" == "recon" ]]; then show_recon_menu; return; fi
     if [[ "$1" == "scan" ]]; then show_scan_menu; return; fi
@@ -515,6 +646,11 @@ EOF
     if [[ "$1" == "attack" ]]; then show_attack_menu; return; fi
     if [[ "$1" == "analysis" ]]; then show_analysis_menu; return; fi
     if [[ "$1" == "privacy" ]]; then show_privacy_menu; return; fi
+    if [[ "$1" == "env" ]]; then show_environment_menu; return; fi
+    if [[ "$1" == "workflow" ]]; then show_workflow_menu; return; fi
+    if [[ "$1" == "report" ]]; then show_report_menu; return; fi
+    if [[ "$1" == "anon" ]]; then show_anonymity_menu; return; fi
+    if [[ "$1" == "assistant" ]]; then show_assistant_menu; return; fi
     if [[ "$1" == "help" ]]; then show_help; return; fi
     
     # Menu interactif principal
