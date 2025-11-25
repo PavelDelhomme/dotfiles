@@ -260,3 +260,99 @@ delete_report() {
     fi
 }
 
+# DESC: Affiche le menu interactif de gestion des rapports
+# USAGE: show_report_menu
+# EXAMPLE: show_report_menu
+show_report_menu() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local BLUE='\033[0;34m'
+    local CYAN='\033[0;36m'
+    local BOLD='\033[1m'
+    local RESET='\033[0m'
+    
+    while true; do
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║              GESTION DES RAPPORTS - CYBERMAN                   ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${RESET}"
+        echo ""
+        
+        list_reports --recent 5
+        echo ""
+        echo "1.  Lister tous les rapports"
+        echo "2.  Afficher un rapport complet"
+        echo "3.  Afficher le résumé d'un rapport"
+        echo "4.  Exporter un rapport en texte"
+        echo "5.  Supprimer un rapport"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                list_reports
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            2)
+                echo ""
+                list_reports
+                echo ""
+                printf "📊 Nom du rapport: "
+                read -r name
+                if [ -n "$name" ]; then
+                    show_report "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                list_reports
+                echo ""
+                printf "📊 Nom du rapport: "
+                read -r name
+                if [ -n "$name" ]; then
+                    report_summary "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                list_reports
+                echo ""
+                printf "📊 Nom du rapport: "
+                read -r name
+                if [ -n "$name" ]; then
+                    printf "📄 Fichier de sortie (optionnel): "
+                    read -r output_file
+                    export_report "$name" "$output_file"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                echo ""
+                list_reports
+                echo ""
+                printf "🗑️  Nom du rapport à supprimer: "
+                read -r name
+                if [ -n "$name" ]; then
+                    delete_report "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    done
+}
+
