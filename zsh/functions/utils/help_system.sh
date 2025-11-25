@@ -87,6 +87,13 @@ show_function_help() {
 # USAGE: list_functions
 # EXAMPLE: list_functions
 list_functions() {
+    # Obtenir la largeur du terminal (par défaut 80)
+    local term_width=${COLUMNS:-80}
+    if [ "$term_width" -lt 60 ]; then
+        term_width=80
+    fi
+    local desc_max_width=$((term_width - 45))  # Réserver 45 caractères pour le nom de fonction
+    
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📋 FONCTIONS DISPONIBLES (organisées par catégories)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -120,6 +127,11 @@ list_functions() {
         # Extraire les fonctions du fichier
         grep -E "^[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)|^function [a-zA-Z_]" "$file" 2>/dev/null | while read -r line; do
             local func_name=$(echo "$line" | sed -E 's/^(function )?([a-zA-Z_][a-zA-Z0-9_]*)\(.*/\2/')
+            # Ignorer les fonctions système et les doublons
+            if [ -z "$func_name" ] || echo "$func_name" | grep -qE "^(if|for|while|case|function)$"; then
+                continue
+            fi
+            # Extraire la description (première ligne DESC trouvée)
             local desc=$(grep -E "^#\s*DESC:" "$file" | head -1 | sed 's/^#\s*DESC:\s*//')
             
             if [ -n "$func_name" ]; then
@@ -128,12 +140,23 @@ list_functions() {
         done
     done
     
-    # Définir l'ordre d'affichage des catégories
-    local category_order="gestionnaires misc/system misc/clipboard misc/files misc/backup misc/security dev/go dev/docker dev/c dev/make dev/projects cyber git utils"
+    # Fonction pour tronquer une description
+    truncate_desc() {
+        local text="$1"
+        local max_len="$2"
+        if [ ${#text} -gt "$max_len" ]; then
+            echo "${text:0:$((max_len - 3))}..."
+        else
+            echo "$text"
+        fi
+    }
+    
+    # Définir l'ordre d'affichage des catégories avec sous-catégories cyber
+    local category_order="gestionnaires misc/system misc/clipboard misc/files misc/backup misc/security dev/go dev/docker dev/c dev/make dev/projects cyber/reconnaissance cyber/scanning cyber/vulnerability cyber/attacks cyber/analysis cyber/privacy git utils"
     
     # Afficher les catégories dans l'ordre défini
     for cat in $category_order; do
-        local funcs_in_cat=$(grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2)
+        local funcs_in_cat=$(grep "^${cat}|" "$temp_file" 2>/dev/null | sort -t'|' -k2 -u)
         if [ -n "$funcs_in_cat" ]; then
             # Formater le nom de catégorie pour l'affichage
             local display_name="$cat"
@@ -171,6 +194,24 @@ list_functions() {
                 "dev/projects")
                     display_name="📦 PROJETS (Projects)"
                     ;;
+                "cyber/reconnaissance")
+                    display_name="🛡️  CYBER / RECONNAISSANCE"
+                    ;;
+                "cyber/scanning")
+                    display_name="🛡️  CYBER / SCANNING"
+                    ;;
+                "cyber/vulnerability")
+                    display_name="🛡️  CYBER / VULNERABILITY"
+                    ;;
+                "cyber/attacks")
+                    display_name="🛡️  CYBER / ATTACKS"
+                    ;;
+                "cyber/analysis")
+                    display_name="🛡️  CYBER / ANALYSIS"
+                    ;;
+                "cyber/privacy")
+                    display_name="🛡️  CYBER / PRIVACY"
+                    ;;
                 "cyber")
                     display_name="🛡️  CYBERSÉCURITÉ (Cybersecurity)"
                     ;;
@@ -181,7 +222,9 @@ list_functions() {
                     display_name="🛠️  UTILITAIRES (Utils)"
                     ;;
                 *)
-                    display_name="📂 $(echo "$cat" | tr '[:lower:]' '[:upper:]')"
+                    # Formater automatiquement les catégories non listées
+                    display_name=$(echo "$cat" | sed 's|/| / |g' | tr '[:lower:]' '[:upper:]')
+                    display_name="📂 $display_name"
                     ;;
             esac
             
@@ -190,9 +233,17 @@ list_functions() {
             
             # Afficher les fonctions de cette catégorie
             echo "$funcs_in_cat" | while IFS='|' read -r cat_name func_name desc; do
-                printf "  • %-30s" "$func_name"
+                if [ -z "$func_name" ]; then
+                    continue
+                fi
+                # Tronquer la description si nécessaire
+                local short_desc=""
                 if [ -n "$desc" ]; then
-                    echo " - $desc"
+                    short_desc=$(truncate_desc "$desc" "$desc_max_width")
+                fi
+                printf "  • %-30s" "$func_name"
+                if [ -n "$short_desc" ]; then
+                    echo " - $short_desc"
                 else
                     echo ""
                 fi
@@ -200,7 +251,7 @@ list_functions() {
             
             echo ""
             # Retirer cette catégorie du fichier temporaire
-            grep -v "^${cat}|" "$temp_file" > "${temp_file}.new" && mv "${temp_file}.new" "$temp_file"
+            grep -v "^${cat}|" "$temp_file" > "${temp_file}.new" 2>/dev/null && mv "${temp_file}.new" "$temp_file" 2>/dev/null || true
         fi
     done
     
@@ -208,13 +259,21 @@ list_functions() {
     if [ -s "$temp_file" ]; then
         local remaining_cats=$(cut -d'|' -f1 "$temp_file" | sort -u)
         for cat in $remaining_cats; do
-            echo "📂 $(echo "$cat" | tr '[:lower:]' '[:upper:]')"
+            local display_cat=$(echo "$cat" | sed 's|/| / |g' | tr '[:lower:]' '[:upper:]')
+            echo "📂 $display_cat"
             echo "──────────────────────────────────────────────────────────────────────────"
             
-            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 | while IFS='|' read -r cat_name func_name desc; do
-                printf "  • %-30s" "$func_name"
+            grep "^${cat}|" "$temp_file" | sort -t'|' -k2 -u | while IFS='|' read -r cat_name func_name desc; do
+                if [ -z "$func_name" ]; then
+                    continue
+                fi
+                local short_desc=""
                 if [ -n "$desc" ]; then
-                    echo " - $desc"
+                    short_desc=$(truncate_desc "$desc" "$desc_max_width")
+                fi
+                printf "  • %-30s" "$func_name"
+                if [ -n "$short_desc" ]; then
+                    echo " - $short_desc"
                 else
                     echo ""
                 fi
