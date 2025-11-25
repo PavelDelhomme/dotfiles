@@ -95,16 +95,23 @@ fi
 log_section "Configuration Git globale"
 
 # Vérifier si Git est déjà configuré
-CURRENT_GIT_NAME=$(git config --global user.name 2>/dev/null)
-CURRENT_GIT_EMAIL=$(git config --global user.email 2>/dev/null)
+CURRENT_GIT_NAME=$(git config --global user.name 2>/dev/null || echo "")
+CURRENT_GIT_EMAIL=$(git config --global user.email 2>/dev/null || echo "")
 
-if [ -n "$CURRENT_GIT_NAME" ] && [ -n "$CURRENT_GIT_EMAIL" ]; then
+if [ -n "$CURRENT_GIT_NAME" ] && [ -n "$CURRENT_GIT_EMAIL" ] && [ "$CURRENT_GIT_NAME" != "" ] && [ "$CURRENT_GIT_EMAIL" != "" ]; then
     # Git est déjà configuré - utiliser la configuration existante
     git_name="$CURRENT_GIT_NAME"
     git_email="$CURRENT_GIT_EMAIL"
     log_info "✓ Git déjà configuré: $CURRENT_GIT_NAME <$CURRENT_GIT_EMAIL>"
     log_info "Configuration Git conservée, passage à la suite..."
+    
+    # Stocker les valeurs pour éviter de redemander
+    GIT_WAS_CONFIGURED=true
+    SKIP_GIT_CONFIG=true
 else
+    # Git n'est pas configuré
+    GIT_WAS_CONFIGURED=false
+    SKIP_GIT_CONFIG=false
     # Git n'est pas configuré, demander la configuration
     log_info "Configuration Git nécessaire"
     log_warn "Aucune information personnelle ne sera utilisée par défaut"
@@ -166,20 +173,22 @@ if [ -z "$git_name" ] || [[ "$git_name" == *"\$"* ]] || [[ "$git_name" == *"DEFA
     exit 1
 fi
 
-# Configurer Git (même si déjà configuré, pour s'assurer que tout est à jour)
-GIT_WAS_CONFIGURED=false
-if [ -n "$CURRENT_GIT_NAME" ] && [ -n "$CURRENT_GIT_EMAIL" ]; then
-    GIT_WAS_CONFIGURED=true
+# Configurer Git uniquement si nécessaire
+if [ "$SKIP_GIT_CONFIG" != "true" ]; then
+    git config --global user.name "$git_name"
+    git config --global user.email "$git_email"
+    log_info "✓ Git configuré: $git_name <$git_email>"
 fi
 
-git config --global user.name "$git_name"
-git config --global user.email "$git_email"
-git config --global init.defaultBranch main
-git config --global core.editor vim
-git config --global color.ui auto
-
-if [ "$GIT_WAS_CONFIGURED" = false ]; then
-    log_info "✓ Git configuré: $git_name <$git_email>"
+# Configurations globales (toujours appliquées si nécessaire)
+if [ -z "$(git config --global init.defaultBranch 2>/dev/null)" ]; then
+    git config --global init.defaultBranch main
+fi
+if [ -z "$(git config --global core.editor 2>/dev/null)" ]; then
+    git config --global core.editor vim
+fi
+if [ -z "$(git config --global color.ui 2>/dev/null)" ]; then
+    git config --global color.ui auto
 fi
 
 ################################################################################
