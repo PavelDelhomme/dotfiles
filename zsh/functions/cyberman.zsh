@@ -13,6 +13,12 @@ if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
     source "$UTILS_DIR/ensure_tool.sh"
 fi
 
+# Charger le gestionnaire de cibles
+CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+    source "$CYBER_DIR/target_manager.sh"
+fi
+
 # DESC: Gestionnaire interactif complet pour les outils de cybersécurité. Organise les outils en catégories : reconnaissance, scanning, vulnérabilités, attaques, analyse et privacy. Installe automatiquement les outils manquants.
 # USAGE: cyberman [category]
 # EXAMPLE: cyberman
@@ -29,6 +35,11 @@ cyberman() {
     local RESET='\033[0m'
     
     local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+    
+    # Charger le gestionnaire de cibles si pas déjà chargé
+    if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+        source "$CYBER_DIR/target_manager.sh"
+    fi
     
     # Fonction pour afficher le header
     show_header() {
@@ -76,6 +87,23 @@ cyberman() {
             8) source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers ;;
             9) source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers ;;
             10) source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt ;;
+            11)
+                if has_targets; then
+                    echo "🔄 Reconnaissance sur toutes les cibles..."
+                    for target in "${CYBER_TARGETS[@]}"; do
+                        echo ""
+                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                        echo "🎯 Cible: $target"
+                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                        source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois "$target"
+                        source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup "$target"
+                        source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers "$target"
+                    done
+                else
+                    echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
+                    sleep 2
+                fi
+                ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -100,6 +128,7 @@ cyberman() {
         echo "7.  Enumerate users           (Énumération utilisateurs)"
         echo "8.  Web dir enum              (Énumération répertoires web)"
         echo "9.  Network map               (Cartographie réseau)"
+        echo "10. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -114,6 +143,22 @@ cyberman() {
             7) source "$CYBER_DIR/scanning/enumerate_users.sh" && enumerate_users ;;
             8) source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum ;;
             9) source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map ;;
+            10)
+                if has_targets; then
+                    echo "🔄 Scan complet sur toutes les cibles..."
+                    for target in "${CYBER_TARGETS[@]}"; do
+                        echo ""
+                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                        echo "🎯 Cible: $target"
+                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                        source "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan "$target"
+                        source "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum "$target"
+                    done
+                else
+                    echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
+                    sleep 2
+                fi
+                ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -137,6 +182,7 @@ cyberman() {
         echo "6.  Check SSL                 (Vérification SSL)"
         echo "7.  Check SSL cert            (Vérification certificat SSL)"
         echo "8.  Check Heartbleed          (Vérification Heartbleed)"
+        echo "9.  Scan vuln toutes cibles   (Scan vulnérabilités sur toutes les cibles)"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -150,6 +196,25 @@ cyberman() {
             6) source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl ;;
             7) source "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert ;;
             8) source "$CYBER_DIR/vulnerability/check_heartbleed.sh" && check_heartbleed ;;
+            9)
+                if has_targets; then
+                    echo "🔄 Scan de vulnérabilités sur toutes les cibles..."
+                    for target in "${CYBER_TARGETS[@]}"; do
+                        echo ""
+                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                        echo "🎯 Cible: $target"
+                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                        source "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan "$target"
+                        if [[ "$target" =~ ^https?:// ]]; then
+                            source "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan "$target"
+                            source "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl "$target"
+                        fi
+                    done
+                else
+                    echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
+                    sleep 2
+                fi
+                ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
@@ -236,6 +301,104 @@ cyberman() {
     }
     
     # =========================================================================
+    # GESTION DES CIBLES
+    # =========================================================================
+    # DESC: Affiche le menu de gestion des cibles
+    # USAGE: show_target_menu
+    # EXAMPLE: show_target_menu
+    show_target_menu() {
+        show_header
+        echo -e "${YELLOW}🎯 GESTION DES CIBLES${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        if has_targets; then
+            show_targets
+            echo ""
+        else
+            echo "⚠️  Aucune cible configurée"
+            echo ""
+        fi
+        
+        echo "1.  Ajouter une cible"
+        echo "2.  Ajouter plusieurs cibles"
+        echo "3.  Supprimer une cible"
+        echo "4.  Vider toutes les cibles"
+        echo "5.  Afficher les cibles"
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        case "$choice" in
+            1)
+                echo ""
+                printf "🎯 Entrez la cible (IP, domaine ou URL): "
+                read -r target
+                if [ -n "$target" ]; then
+                    add_target "$target"
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                fi
+                ;;
+            2)
+                echo ""
+                echo "🎯 Entrez les cibles (séparées par des espaces): "
+                echo "Exemple: 192.168.1.1 192.168.1.2 example.com"
+                printf "Cibles: "
+                read -r targets
+                if [ -n "$targets" ]; then
+                    add_target $targets
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                fi
+                ;;
+            3)
+                if has_targets; then
+                    echo ""
+                    show_targets
+                    echo ""
+                    printf "🎯 Entrez l'index ou le nom de la cible à supprimer: "
+                    read -r target
+                    if [ -n "$target" ]; then
+                        remove_target "$target"
+                        echo ""
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    fi
+                else
+                    echo "❌ Aucune cible à supprimer"
+                    sleep 1
+                fi
+                ;;
+            4)
+                if has_targets; then
+                    echo ""
+                    printf "⚠️  Êtes-vous sûr de vouloir supprimer toutes les cibles? (o/N): "
+                    read -r confirm
+                    if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
+                        clear_targets
+                        echo ""
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    fi
+                else
+                    echo "❌ Aucune cible à supprimer"
+                    sleep 1
+                fi
+                ;;
+            5)
+                echo ""
+                if has_targets; then
+                    show_targets
+                else
+                    echo "⚠️  Aucune cible configurée"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
     # MENU PRINCIPAL
     # =========================================================================
     # DESC: Affiche le menu principal de cyberman
@@ -243,6 +406,21 @@ cyberman() {
     # EXAMPLE: show_main_menu
     show_main_menu() {
         show_header
+        
+        # Afficher les cibles configurées
+        if has_targets; then
+            echo -e "${GREEN}🎯 Cibles actives: ${#CYBER_TARGETS[@]}${RESET}"
+            local i=1
+            for target in "${CYBER_TARGETS[@]}"; do
+                echo -e "   ${GREEN}$i.${RESET} $target"
+                ((i++))
+            done
+            echo ""
+        else
+            echo -e "${YELLOW}⚠️  Aucune cible configurée${RESET}"
+            echo ""
+        fi
+        
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
         echo "1. 🔍 Reconnaissance & Information Gathering"
         echo "2. 🔎 Scanning & Enumeration"
@@ -250,6 +428,7 @@ cyberman() {
         echo "4. ⚔️  Network Attacks & Exploitation"
         echo "5. 📡 Network Analysis & Monitoring"
         echo "6. 🔒 Privacy & Anonymity"
+        echo "7. 🎯 Gestion des cibles"
         echo ""
         echo "h. Aide"
         echo "q. Quitter"
@@ -320,6 +499,7 @@ EOF
             4) show_attack_menu ;;
             5) show_analysis_menu ;;
             6) show_privacy_menu ;;
+            7) show_target_menu ;;
             h|H) show_help ;;
             q|Q) break ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
