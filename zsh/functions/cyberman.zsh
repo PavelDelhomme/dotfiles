@@ -456,19 +456,32 @@ cyberman() {
     show_main_menu() {
         show_header
         
+        # Afficher l'environnement actif et les cibles configurées
+        echo -e "${CYAN}${BOLD}État actuel:${RESET}"
+        
+        # Afficher l'environnement actif
+        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+            if has_active_environment 2>/dev/null; then
+                local current_env=$(get_current_environment 2>/dev/null)
+                echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
+            else
+                echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
+            fi
+        fi
+        
         # Afficher les cibles configurées
         if has_targets; then
-            echo -e "${GREEN}🎯 Cibles actives: ${#CYBER_TARGETS[@]}${RESET}"
+            echo -e "   ${GREEN}🎯 Cibles actives: ${#CYBER_TARGETS[@]}${RESET}"
             local i=1
             for target in "${CYBER_TARGETS[@]}"; do
-                echo -e "   ${GREEN}$i.${RESET} $target"
+                echo -e "      ${GREEN}$i.${RESET} $target"
                 ((i++))
             done
-            echo ""
         else
-            echo -e "${YELLOW}⚠️  Aucune cible configurée${RESET}"
-            echo ""
+            echo -e "   ${YELLOW}🎯 Aucune cible configurée${RESET}"
         fi
+        echo ""
         
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
         echo "1.  🌍 Gestion des environnements"

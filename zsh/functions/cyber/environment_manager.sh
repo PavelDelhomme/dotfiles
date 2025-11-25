@@ -12,6 +12,9 @@ CYBER_ENV_DIR="${CYBER_ENV_DIR:-${HOME}/.cyberman/environments}"
 CYBER_REPORTS_DIR="${CYBER_REPORTS_DIR:-${HOME}/.cyberman/reports}"
 CYBER_WORKFLOWS_DIR="${CYBER_WORKFLOWS_DIR:-${HOME}/.cyberman/workflows}"
 
+# Variable globale pour stocker l'environnement actuellement chargé
+typeset -g CYBER_CURRENT_ENV=""
+
 # Créer les répertoires si nécessaire
 mkdir -p "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR"
 
@@ -166,6 +169,9 @@ load_environment() {
         fi
     fi
     
+    # Définir l'environnement actuel
+    CYBER_CURRENT_ENV="$name"
+    
     echo "✅ Environnement chargé: $name"
     echo "📝 Description: $desc"
     echo "📅 Créé: $created"
@@ -286,6 +292,25 @@ show_environment() {
 # EXAMPLE: restore_environment "pentest_example_com"
 restore_environment() {
     load_environment "$@"
+}
+
+# DESC: Obtient le nom de l'environnement actuellement chargé
+# USAGE: get_current_environment
+# EXAMPLE: get_current_environment
+get_current_environment() {
+    if [ -n "$CYBER_CURRENT_ENV" ]; then
+        echo "$CYBER_CURRENT_ENV"
+        return 0
+    else
+        return 1
+    fi
+}
+
+# DESC: Vérifie si un environnement est actuellement chargé
+# USAGE: has_active_environment
+# EXAMPLE: has_active_environment
+has_active_environment() {
+    [ -n "$CYBER_CURRENT_ENV" ]
 }
 
 # DESC: Exporte un environnement vers un fichier JSON
