@@ -191,7 +191,7 @@ cyberman() {
     # EXAMPLE: show_vuln_menu
     show_vuln_menu() {
         show_header
-        echo -e "${YELLOW}🛡️ VULNERABILITY ASSESSMENT${RESET}"
+        echo -e "${YELLOW}🛡️ VULNERABILITY ASSESSMENT & SESSION${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo "1.  Nmap vuln scan            (Scan vulnérabilités Nmap)"
         echo "2.  Vuln scan                 (Scan vulnérabilités général)"
