@@ -269,6 +269,9 @@ aliaman() {
     }
     
     # Fonction pour éditer les alias sélectionnés
+    # DESC: Modifie les alias sélectionnés de manière interactive
+    # USAGE: edit_selected_aliases
+    # EXAMPLE: edit_selected_aliases
     edit_selected_aliases() {
         if [[ -z "$SELECTED_ALIASES" ]]; then
             echo -e "${RED}⚠️ Aucun alias sélectionné${RESET}"
@@ -320,6 +323,9 @@ aliaman() {
     }
     
     # Fonction pour supprimer les alias sélectionnés
+    # DESC: Supprime les alias sélectionnés avec confirmation
+    # USAGE: delete_selected_aliases
+    # EXAMPLE: delete_selected_aliases
     delete_selected_aliases() {
         if [[ -z "$SELECTED_ALIASES" ]]; then
             echo -e "${RED}⚠️ Aucun alias sélectionné${RESET}"
@@ -376,6 +382,9 @@ aliaman() {
     }
     
     # Fonction pour afficher les informations détaillées
+    # DESC: Affiche les informations détaillées des alias sélectionnés
+    # USAGE: show_selected_aliases_info
+    # EXAMPLE: show_selected_aliases_info
     show_selected_aliases_info() {
         if [[ -z "$SELECTED_ALIASES" ]]; then
             echo -e "${RED}⚠️ Aucun alias sélectionné${RESET}"
@@ -439,6 +448,9 @@ aliaman() {
     }
     
     # Fonction pour tester les alias sélectionnés
+    # DESC: Teste les alias sélectionnés pour vérifier qu'ils fonctionnent
+    # USAGE: test_selected_aliases
+    # EXAMPLE: test_selected_aliases
     test_selected_aliases() {
         if [[ -z "$SELECTED_ALIASES" ]]; then
             echo -e "${RED}⚠️ Aucun alias sélectionné${RESET}"
