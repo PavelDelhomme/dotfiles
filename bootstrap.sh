@@ -689,7 +689,15 @@ echo ""
 SELECTED_SHELL=""
 while [ -z "$SELECTED_SHELL" ]; do
     printf "Votre choix [défaut: 1]: "
-    IFS= read -r shell_choice </dev/tty 2>/dev/null || read -r shell_choice
+    # Lire le choix de manière robuste
+    shell_choice=""
+    if [ -t 0 ]; then
+        IFS= read -r shell_choice </dev/tty 2>/dev/null || IFS= read -r shell_choice
+    else
+        IFS= read -r shell_choice 2>/dev/null || read -r shell_choice
+    fi
+    # Nettoyer et utiliser la valeur par défaut si vide
+    shell_choice=$(echo "$shell_choice" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     shell_choice=${shell_choice:-1}
     
     case "$shell_choice" in
@@ -711,6 +719,7 @@ while [ -z "$SELECTED_SHELL" ]; do
             ;;
         *)
             log_error "Choix invalide, veuillez entrer 1, 2, 3 ou 0"
+            shell_choice=""  # Réinitialiser pour reboucler
             ;;
     esac
 done
@@ -725,7 +734,15 @@ log_section "Création des symlinks pour centraliser la configuration"
 
 if [ -f "$DOTFILES_DIR/scripts/config/create_symlinks.sh" ]; then
     printf "Créer les symlinks pour centraliser la configuration? (o/n) [défaut: o]: "
-    IFS= read -r create_symlinks </dev/tty 2>/dev/null || read -r create_symlinks
+    # Lire le choix de manière robuste
+    create_symlinks=""
+    if [ -t 0 ]; then
+        IFS= read -r create_symlinks </dev/tty 2>/dev/null || IFS= read -r create_symlinks
+    else
+        IFS= read -r create_symlinks 2>/dev/null || read -r create_symlinks
+    fi
+    # Nettoyer et utiliser la valeur par défaut si vide
+    create_symlinks=$(echo "$create_symlinks" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     create_symlinks=${create_symlinks:-o}
     if [[ "$create_symlinks" =~ ^[oO]$ ]]; then
         log_info "Création des symlinks..."
