@@ -236,7 +236,7 @@ show_menu() {
     echo "8.  Installation Cursor"
     echo "9.  Installation PortProton"
     echo ""
-    echo "10. Installation complète système (tout)"
+    echo "10. Installation complète système (tout SAUF Git)"
     echo "11. Configuration complète QEMU (tout)"
     echo ""
     echo "12. Configuration auto-sync Git (systemd timer)"
@@ -307,36 +307,35 @@ while true; do
     show_menu
     printf "Choix: "
     
-    # Lire l'input de manière robuste
-    # Essayer plusieurs méthodes pour être compatible avec tous les environnements
+    # Lire l'input de manière robuste - utiliser read avec timeout
     choice=""
     
-    # Méthode 1 : Lire depuis /dev/tty (meilleur pour les VMs)
-    if [ -t 0 ] && [ -r /dev/tty ]; then
-        IFS= read -r choice </dev/tty 2>/dev/null || true
+    # Essayer de lire depuis le terminal
+    # Utiliser read avec timeout pour éviter de bloquer indéfiniment
+    if [ -t 0 ]; then
+        # Terminal interactif - lire normalement
+        IFS= read -r choice </dev/tty 2>/dev/null || IFS= read -r choice
+    else
+        # Pas de terminal - essayer stdin
+        IFS= read -r choice 2>/dev/null || read -r choice
     fi
     
-    # Méthode 2 : Lire depuis stdin si /dev/tty ne fonctionne pas
-    if [ -z "$choice" ]; then
-        IFS= read -r choice 2>/dev/null || true
-    fi
-    
-    # Méthode 3 : Dernière tentative avec read simple
-    if [ -z "$choice" ]; then
-        read choice 2>/dev/null || true
-    fi
-    
-    # Nettoyer le choix : enlever tous les espaces et caractères non-numériques
-    # Garder uniquement les chiffres
+    # Nettoyer le choix : enlever les espaces en début/fin seulement
     if [ -n "$choice" ]; then
-        choice=$(echo "$choice" | tr -d '[:space:]' | tr -cd '0-9' | head -c 10)
+        choice=$(echo "$choice" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        # Si le choix contient des caractères non numériques, garder seulement les chiffres
+        if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
+            # Extraire seulement les chiffres
+            choice=$(echo "$choice" | tr -cd '0-9' | head -c 10)
+        fi
     fi
     
-    # Si le choix est vide, demander à nouveau
+    # Si le choix est vide après nettoyage, afficher un message et continuer
     if [ -z "$choice" ]; then
         echo ""
-        log_warn "Choix vide, veuillez entrer un nombre"
-        sleep 1
+        log_warn "⚠️  Choix vide ou invalide"
+        log_info "💡 Entrez un nombre entre 0 et 99 (ex: 10 pour installation complète)"
+        sleep 2
         continue
     fi
     
@@ -424,7 +423,17 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         10)
-            log_section "Installation complète système"
+            log_section "Installation complète système (sans Git)"
+            log_info "Cette option installe tous les composants SAUF la configuration Git"
+            echo ""
+            printf "Continuer avec l'installation complète? (o/n) [défaut: o]: "
+            read -r confirm_install
+            confirm_install=${confirm_install:-o}
+            if [[ ! "$confirm_install" =~ ^[oO]$ ]]; then
+                log_info "Installation annulée"
+                continue
+            fi
+            
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
             run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires"
             
