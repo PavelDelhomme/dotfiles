@@ -123,6 +123,9 @@ manman() {
     fi
 }
 
+# Message d'initialisation
+echo "🎯 MANMAN chargé - Tapez 'manman' ou 'mmg' pour démarrer"
+
 # Alias
 alias mmg='manman'
 alias managers='manman'

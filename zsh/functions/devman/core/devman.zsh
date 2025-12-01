@@ -199,3 +199,6 @@ devman() {
     done
 }
 
+# Message d'initialisation
+echo "💻 DEVMAN chargé - Tapez 'devman' ou 'dm' pour démarrer"
+

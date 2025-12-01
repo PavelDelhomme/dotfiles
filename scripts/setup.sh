@@ -250,16 +250,20 @@ show_menu() {
     echo "19. Installation yay (AUR - Arch Linux)"
     echo "20. Installation Go"
     echo "21. Installation NVM (Node Version Manager)"
+    echo "22. Installation .NET SDK et outils"
+    echo "23. Installation Flutter SDK"
+    echo "24. Installation Emacs et Doom Emacs"
+    echo "25. Installation Java 17 OpenJDK"
     echo ""
-    echo "21. Recharger configuration ZSH"
-    echo "22. Installer fonctions USB test"
-    echo "23. Validation complète du setup (détaillé)"
-    echo "24. Créer symlinks (centraliser configuration)"
-    echo "25. Sauvegarde manuelle (commit + push Git)"
-    echo "28. Restaurer depuis Git (annuler modifications locales)"
+    echo "26. Recharger configuration ZSH"
+    echo "27. Installer fonctions USB test"
+    echo "28. Validation complète du setup (détaillé)"
+    echo "29. Créer symlinks (centraliser configuration)"
+    echo "30. Sauvegarde manuelle (commit + push Git)"
+    echo "31. Restaurer depuis Git (annuler modifications locales)"
     echo ""
-    echo "26. Migration shell (Fish <-> Zsh)"
-    echo "27. Gestionnaire de shell (installer/configurer/définir zsh/fish/bash)"
+    echo "32. Migration shell (Fish <-> Zsh)"
+    echo "33. Gestionnaire de shell (installer/configurer/définir zsh/fish/bash)"
     echo ""
     echo "════════════════════════════════════════════════"
     echo "INSTALLATION & DÉTECTION"
@@ -635,11 +639,43 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         22)
+            run_script "$SCRIPT_DIR/install/dev/install_dotnet.sh" "Installation .NET SDK"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        23)
+            run_script "$SCRIPT_DIR/install/dev/install_flutter.sh" "Installation Flutter SDK"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        24)
+            run_script "$SCRIPT_DIR/install/dev/install_emacs.sh" "Installation Emacs"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        25)
+            run_script "$SCRIPT_DIR/install/dev/install_java17.sh" "Installation Java 17 OpenJDK"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        26)
             log_section "Rechargement configuration ZSH"
             log_info "Rechargement de la configuration ZSH..."
             exec zsh
             ;;
-        23)
+        27)
             log_section "Installation fonctions USB test"
             USB_FUNCTIONS="$DOTFILES_DIR/zsh/functions/misc/usb_test_functions.zsh"
             if [ -f "$USB_FUNCTIONS" ]; then
@@ -664,7 +700,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        24)
+        28)
             run_script "$SCRIPT_DIR/test/validate_setup.sh" "Validation complète du setup"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -672,7 +708,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        25)
+        29)
             log_section "Création des symlinks"
             run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Création symlinks"
             run_script_exit_code=$?
@@ -681,7 +717,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        26)
+        30)
             log_section "Sauvegarde manuelle (Git commit + push)"
             if [ -d "$DOTFILES_DIR/.git" ]; then
                 cd "$DOTFILES_DIR" || exit 1
@@ -711,7 +747,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        27)
+        31)
             log_section "Restaurer depuis Git"
             echo ""
             echo "Cette option permet de restaurer l'état du repo depuis GitHub"
@@ -761,7 +797,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        28)
+        32)
             log_section "Migration shell (Fish <-> Zsh)"
             run_script "$SCRIPT_DIR/migrate_shell.sh" "Migration shell"
             run_script_exit_code=$?
@@ -770,7 +806,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        27)
+        33)
             run_script "$SCRIPT_DIR/config/shell_manager.sh" "Gestionnaire de shell" "menu"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then

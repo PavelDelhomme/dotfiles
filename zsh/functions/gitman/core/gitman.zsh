@@ -598,3 +598,6 @@ gitman() {
     fi
 }
 
+# Message d'initialisation
+echo "📦 GITMAN chargé - Tapez 'gitman' pour démarrer"
+

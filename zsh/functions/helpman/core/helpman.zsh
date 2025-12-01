@@ -195,3 +195,6 @@ helpman() {
         esac
     done
 }
+
+# Message d'initialisation
+echo "📚 HELPMAN chargé - Tapez 'helpman' ou 'hm' pour démarrer"

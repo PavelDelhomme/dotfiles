@@ -288,6 +288,10 @@ clean_path() {
     echo "✅ PATH nettoyé"
 }
 
+# Message d'initialisation
+echo "📁 PATHMAN chargé - Tapez 'pathman' ou 'pm' pour démarrer"
+
+# Alias
 alias pm='pathman'
 alias path-manager='pathman'
 
