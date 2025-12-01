@@ -43,7 +43,7 @@ NC='\033[0m'
 # IMPORTANT: Ces gestionnaires doivent être chargés AVANT env.sh
 # car env.sh utilise add_to_path() qui est définie dans pathman.zsh
 # =============================================================================
-echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
+echo -e "${CYAN}🚀 ÉTAPE 1/5 : Chargement des gestionnaires...${NC}"
 
 [ -f "$DOTFILES_ZSH_PATH/functions/pathman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/pathman.zsh" && echo -e "${GREEN}  ✔️ PATHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ PATHMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/netman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/netman.zsh" && echo -e "${GREEN}  ✔️ NETMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ NETMAN introuvable${NC}"
@@ -51,6 +51,9 @@ echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/miscman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/miscman.zsh" && echo -e "${GREEN}  ✔️ MISCMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ MISCMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/searchman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/searchman.zsh" && echo -e "${GREEN}  ✔️ SEARCHMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ SEARCHMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" && echo -e "${GREEN}  ✔️ CYBERMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ CYBERMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/devman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/devman.zsh" && echo -e "${GREEN}  ✔️ DEVMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ DEVMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/gitman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/gitman.zsh" && echo -e "${GREEN}  ✔️ GITMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ GITMAN introuvable${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/helpman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/helpman.zsh" && echo -e "${GREEN}  ✔️ HELPMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ HELPMAN introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/manman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/manman.zsh" && echo -e "${GREEN}  ✔️ MANMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ MANMAN introuvable${NC}"
 
 # =============================================================================
@@ -58,7 +61,7 @@ echo -e "${CYAN}🚀 ÉTAPE 1/4 : Chargement des gestionnaires...${NC}"
 # IMPORTANT: env.sh doit être chargé APRÈS les gestionnaires car il utilise
 # add_to_path() définie dans pathman.zsh pour ajouter des chemins au PATH
 # =============================================================================
-echo -e "${CYAN}📦 ÉTAPE 2/4 : Chargement des variables d'environnement...${NC}"
+echo -e "${CYAN}📦 ÉTAPE 2/5 : Chargement des variables d'environnement...${NC}"
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
     echo -e "${GREEN}  ✔️ Variables d'environnement chargées${NC}"
@@ -72,7 +75,7 @@ fi
 # - cyber/ (réorganisé en reconnaissance/, scanning/, vulnerability/, attacks/, analysis/, privacy/)
 # - dev/, git/, misc/, network/, utils/
 # =============================================================================
-echo -e "${CYAN}🔧 ÉTAPE 3/4 : Chargement des fonctions individuelles...${NC}"
+echo -e "${CYAN}🔧 ÉTAPE 3/5 : Chargement des fonctions individuelles...${NC}"
 
 # Charger update_system.sh en premier pour remplacer les alias update/upgrade
 # Supprimer les alias s'ils existent avant de charger la fonction
@@ -116,12 +119,11 @@ echo -e "${CYAN}📝 ÉTAPE 4/5 : Chargement des utilitaires...${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" && echo -e "${GREEN}  ✔️ Alias utils chargés${NC}" || echo -e "${YELLOW}  ⚠️ Alias utils introuvable${NC}"
 [ -f "$DOTFILES_PATH/scripts/lib/actions_logger.sh" ] && source "$DOTFILES_PATH/scripts/lib/actions_logger.sh" && echo -e "${GREEN}  ✔️ Actions logger chargé${NC}" || echo -e "${YELLOW}  ⚠️ Actions logger introuvable${NC}"
 [ -f "$DOTFILES_ZSH_PATH/functions/helpman/core/help_system.sh" ] && source "$DOTFILES_ZSH_PATH/functions/helpman/core/help_system.sh" && echo -e "${GREEN}  ✔️ Système d'aide chargé${NC}" || echo -e "${YELLOW}  ⚠️ Système d'aide introuvable${NC}"
-[ -f "$DOTFILES_ZSH_PATH/functions/helpman.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/helpman.zsh" && echo -e "${GREEN}  ✔️ HELPMAN chargé${NC}" || echo -e "${YELLOW}  ⚠️ HELPMAN introuvable${NC}"
 
 # =============================================================================
 # ÉTAPE 5 : CHARGEMENT DES ALIASES
 # =============================================================================
-echo -e "${CYAN}📝 ÉTAPE 5/6 : Chargement des alias...${NC}"
+echo -e "${CYAN}📝 ÉTAPE 5/5 : Chargement des alias...${NC}"
 if [ -f "$ALIASES_FILES" ]; then
     source "$ALIASES_FILES"
     echo -e "${GREEN}  ✔️ Alias chargés${NC}"
