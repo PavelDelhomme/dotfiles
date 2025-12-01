@@ -161,6 +161,15 @@ backup_dotfiles() {
 }
 
 # =============================================================================
+# PROMPT MANJARO AVEC SUPPORT GIT
+# =============================================================================
+# Charger le prompt Manjaro par défaut qui inclut l'affichage Git
+# Ce prompt affiche la branche Git et le statut dans le prompt
+if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+    source /usr/share/zsh/manjaro-zsh-prompt
+fi
+
+# =============================================================================
 # FIN DU CHARGEMENT
 # =============================================================================
 # Neofetch (si installé)
