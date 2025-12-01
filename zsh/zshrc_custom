@@ -165,8 +165,15 @@ backup_dotfiles() {
 # =============================================================================
 # Charger le prompt Manjaro par défaut qui inclut l'affichage Git
 # Ce prompt affiche la branche Git et le statut dans le prompt
+# IMPORTANT: Doit être chargé APRÈS toutes les autres configurations
 if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
     source /usr/share/zsh/manjaro-zsh-prompt
+elif [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+    # Fallback: charger la config Manjaro si le prompt n'existe pas
+    source /usr/share/zsh/manjaro-zsh-config
+    if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+        source /usr/share/zsh/manjaro-zsh-prompt
+    fi
 fi
 
 # =============================================================================
