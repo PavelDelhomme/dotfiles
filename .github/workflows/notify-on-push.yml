@@ -1,0 +1,138 @@
+name: Notify on Push
+
+on:
+  push:
+    branches:
+      - '**'  # Toutes les branches
+  workflow_dispatch:  # Permet de déclencher manuellement
+
+jobs:
+  notify:
+    name: Send Email Notification
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Récupérer tout l'historique pour les comparaisons
+      
+      - name: Get commit information
+        id: commit-info
+        run: |
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          COMMIT_EMAIL=$(git log -1 --pretty=format:'%ae')
+          COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          REPO_NAME=${GITHUB_REPOSITORY}
+          COMMIT_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
+          COMPARE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/compare/${GITHUB_BEFORE}...${GITHUB_AFTER}"
+          
+          # Compter les fichiers modifiés
+          FILES_CHANGED=$(git diff --name-only ${GITHUB_BEFORE}...${GITHUB_AFTER} | wc -l)
+          
+          echo "author=$COMMIT_AUTHOR" >> $GITHUB_OUTPUT
+          echo "email=$COMMIT_EMAIL" >> $GITHUB_OUTPUT
+          echo "message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+          echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "repo=$REPO_NAME" >> $GITHUB_OUTPUT
+          echo "commit_url=$COMMIT_URL" >> $GITHUB_OUTPUT
+          echo "compare_url=$COMPARE_URL" >> $GITHUB_OUTPUT
+          echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
+      
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            CHANGED_FILES=$(git diff --name-only ${GITHUB_BEFORE}...${GITHUB_AFTER} | head -20)
+            echo "files<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "files=Initial commit" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "🔔 Push détecté sur ${{ steps.commit-info.outputs.repo }} - ${{ steps.commit-info.outputs.branch }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          body: |
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 5px 5px 0 0; }
+                .content { background: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; }
+                .info-box { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #667eea; border-radius: 3px; }
+                .label { font-weight: bold; color: #667eea; }
+                .commit-message { background: #e8f4f8; padding: 10px; border-radius: 3px; margin: 10px 0; font-style: italic; }
+                .button { display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 10px 5px 10px 0; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h2>🔔 Nouveau Push Détecté</h2>
+                </div>
+                <div class="content">
+                  <div class="info-box">
+                    <span class="label">📦 Repository:</span> ${{ steps.commit-info.outputs.repo }}<br>
+                    <span class="label">🌿 Branche:</span> ${{ steps.commit-info.outputs.branch }}<br>
+                    <span class="label">👤 Auteur:</span> ${{ steps.commit-info.outputs.author }} &lt;${{ steps.commit-info.outputs.email }}&gt;<br>
+                    <span class="label">🔖 Commit:</span> ${{ steps.commit-info.outputs.hash }}<br>
+                    <span class="label">📝 Fichiers modifiés:</span> ${{ steps.commit-info.outputs.files_changed }}
+                  </div>
+                  
+                  <div class="commit-message">
+                    <strong>💬 Message de commit:</strong><br>
+                    ${{ steps.commit-info.outputs.message }}
+                  </div>
+                  
+                  <div class="info-box">
+                    <strong>📄 Fichiers modifiés:</strong><br>
+                    <pre style="background: #f0f0f0; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px;">${{ steps.changed-files.outputs.files }}</pre>
+                  </div>
+                  
+                  <div style="margin-top: 20px;">
+                    <a href="${{ steps.commit-info.outputs.commit_url }}" class="button">Voir le commit</a>
+                    <a href="${{ steps.commit-info.outputs.compare_url }}" class="button">Comparer les changements</a>
+                  </div>
+                </div>
+                <div class="footer">
+                  <p>Notification automatique depuis GitHub Actions</p>
+                  <p>Workflow: Notify on Push</p>
+                </div>
+              </div>
+            </body>
+            </html>
+          content_type: text/html
+      
+      - name: Fallback - Print notification info
+        if: failure()
+        run: |
+          echo "❌ Échec de l'envoi d'email"
+          echo "📦 Repository: ${{ steps.commit-info.outputs.repo }}"
+          echo "🌿 Branche: ${{ steps.commit-info.outputs.branch }}"
+          echo "👤 Auteur: ${{ steps.commit-info.outputs.author }}"
+          echo "💬 Message: ${{ steps.commit-info.outputs.message }}"
+          echo "🔖 Commit: ${{ steps.commit-info.outputs.hash }}"
+          echo ""
+          echo "💡 Vérifiez que les secrets SMTP sont configurés dans GitHub:"
+          echo "   - SMTP_SERVER"
+          echo "   - SMTP_PORT"
+          echo "   - SMTP_USERNAME"
+          echo "   - SMTP_PASSWORD"
+          echo "   - EMAIL_TO"
+          echo "   - EMAIL_FROM"
+
