@@ -16,6 +16,11 @@ if [ -f "$GIT_DIR/git_functions.sh" ]; then
     source "$GIT_DIR/git_functions.sh"
 fi
 
+# Charger le wrapper Git intelligent
+if [ -f "$GITMAN_DIR/utils/git_wrapper.sh" ]; then
+    source "$GITMAN_DIR/utils/git_wrapper.sh"
+fi
+
 # DESC: Gestionnaire interactif complet pour les opérations Git
 # USAGE: gitman [command] [args]
 # EXAMPLE: gitman
