@@ -7,7 +7,10 @@ echo ""
 cd ~/dotfiles
 
 echo "État actuel:"
-echo "Branche: $(git branch --show-current)"
+# Afficher la branche uniquement si on est dans un dépôt Git
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Branche: $(git branch --show-current)"
+fi
 echo "Remote: $(git remote get-url origin)"
 echo ""
 
