@@ -31,18 +31,18 @@ fi
 # =============================================================================
 # DÉFINITION DES OUTILS DISPONIBLES
 # =============================================================================
-# Format: "nom|alias1|alias2|emoji|description|check_function|module_file|install_function"
+# Format: "nom:alias1,alias2:emoji:description:check_function:module_file:install_function"
 declare -a TOOLS=(
-    "flutter|flut|🎯|Flutter SDK|check_flutter_installed|flutter/install_flutter.sh|install_flutter"
-    "dotnet|dot-net|.net|net|🔷|.NET SDK|check_dotnet_installed|dotnet/install_dotnet.sh|install_dotnet"
-    "emacs|emac|📝|Emacs + Doom Emacs|check_emacs_installed|emacs/install_emacs.sh|install_emacs"
-    "java17|java|java-17|jdk|openjdk|☕|Java 17 OpenJDK|check_java17_installed|java/install_java17.sh|install_java17"
-    "android-studio|androidstudio|android|studio|as|🤖|Android Studio|check_android_studio_installed|android/install_android_studio.sh|install_android_studio"
-    "android-tools|androidtools|adb|sdk|android-sdk|🔧|Outils Android (ADB, SDK)|check_android_tools_installed|android/install_android_tools.sh|install_android_tools"
-    "docker|🐳|Docker & Docker Compose|check_docker_installed|docker/install_docker.sh|install_docker"
-    "brave|brave-browser|🌐|Brave Browser|check_brave_installed|brave/install_brave.sh|install_brave"
-    "cursor|💻|Cursor IDE|check_cursor_installed|cursor/install_cursor.sh|install_cursor"
-    "qemu|qemu-kvm|kvm|🖥️|QEMU/KVM (Virtualisation)|check_qemu_installed|qemu/install_qemu.sh|install_qemu"
+    "flutter:flut:🎯:Flutter SDK:check_flutter_installed:flutter/install_flutter.sh:install_flutter"
+    "dotnet:dot-net,.net,net:🔷:.NET SDK:check_dotnet_installed:dotnet/install_dotnet.sh:install_dotnet"
+    "emacs:emac:📝:Emacs + Doom Emacs:check_emacs_installed:emacs/install_emacs.sh:install_emacs"
+    "java17:java,java-17,jdk,openjdk:☕:Java 17 OpenJDK:check_java17_installed:java/install_java17.sh:install_java17"
+    "android-studio:androidstudio,android,studio,as:🤖:Android Studio:check_android_studio_installed:android/install_android_studio.sh:install_android_studio"
+    "android-tools:androidtools,adb,sdk,android-sdk:🔧:Outils Android (ADB, SDK):check_android_tools_installed:android/install_android_tools.sh:install_android_tools"
+    "docker::🐳:Docker & Docker Compose:check_docker_installed:docker/install_docker.sh:install_docker"
+    "brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave"
+    "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
+    "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
 )
 
 # DESC: Gestionnaire interactif complet pour installer des outils de développement
@@ -86,17 +86,31 @@ installman() {
         search_term=$(echo "$search_term" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
         for tool_def in "${TOOLS[@]}"; do
-            IFS='|' read -rA tool_parts <<< "$tool_def"
+            IFS=':' read -rA tool_parts <<< "$tool_def"
             local tool_name="${tool_parts[1]}"
-            local tool_aliases="${tool_parts[@]:1}"
+            local tool_aliases_str="${tool_parts[2]}"
+            local tool_emoji="${tool_parts[3]}"
+            local tool_desc="${tool_parts[4]}"
+            local tool_check="${tool_parts[5]}"
+            local module_file="${tool_parts[6]}"
+            local install_func="${tool_parts[7]}"
             
-            # Vérifier si le terme correspond au nom ou à un alias
-            for alias in "${(@)tool_parts}"; do
-                if [ "$alias" = "$search_term" ]; then
-                    echo "$tool_def"
-                    return 0
-                fi
-            done
+            # Vérifier si le terme correspond au nom principal
+            if [ "$tool_name" = "$search_term" ]; then
+                echo "$tool_def"
+                return 0
+            fi
+            
+            # Vérifier les alias (séparés par des virgules)
+            if [ -n "$tool_aliases_str" ]; then
+                IFS=',' read -rA aliases <<< "$tool_aliases_str"
+                for alias in "${aliases[@]}"; do
+                    if [ "$alias" = "$search_term" ]; then
+                        echo "$tool_def"
+                        return 0
+                    fi
+                done
+            fi
         done
         
         return 1
@@ -111,11 +125,11 @@ installman() {
         # Afficher tous les outils avec leurs statuts
         local index=1
         for tool_def in "${TOOLS[@]}"; do
-            IFS='|' read -rA tool_parts <<< "$tool_def"
+            IFS=':' read -rA tool_parts <<< "$tool_def"
             local tool_name="${tool_parts[1]}"
-            local tool_emoji="${tool_parts[2]}"
-            local tool_desc="${tool_parts[3]}"
-            local tool_check="${tool_parts[4]}"
+            local tool_emoji="${tool_parts[3]}"
+            local tool_desc="${tool_parts[4]}"
+            local tool_check="${tool_parts[5]}"
             
             local status=$(get_install_status "$tool_check")
             printf "%-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
@@ -135,11 +149,11 @@ installman() {
         # Fonction pour installer un outil
         install_tool_from_def() {
             local tool_def="$1"
-            IFS='|' read -rA tool_parts <<< "$tool_def"
+            IFS=':' read -rA tool_parts <<< "$tool_def"
             local tool_name="${tool_parts[1]}"
-            local tool_desc="${tool_parts[3]}"
-            local module_file="${tool_parts[5]}"
-            local install_func="${tool_parts[6]}"
+            local tool_desc="${tool_parts[4]}"
+            local module_file="${tool_parts[6]}"
+            local install_func="${tool_parts[7]}"
             
             local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
             
@@ -178,7 +192,7 @@ installman() {
                 echo ""
                 echo -e "${YELLOW}Outils disponibles:${RESET}"
                 for tool_def in "${TOOLS[@]}"; do
-                    IFS='|' read -rA tool_parts <<< "$tool_def"
+                    IFS=':' read -rA tool_parts <<< "$tool_def"
                     echo "  - ${tool_parts[1]}"
                 done
                 echo ""
@@ -210,20 +224,20 @@ installman() {
         # Rechercher l'outil
         local found_tool=$(find_tool "$tool_arg")
         if [ -n "$found_tool" ]; then
-            IFS='|' read -rA tool_parts <<< "$found_tool"
-            local tool_desc="${tool_parts[3]}"
-            local module_file="${tool_parts[5]}"
-            local install_func="${tool_parts[6]}"
+            IFS=':' read -rA tool_parts <<< "$found_tool"
+            local tool_desc="${tool_parts[4]}"
+            local module_file="${tool_parts[6]}"
+            local install_func="${tool_parts[7]}"
             local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
             install_tool "$tool_desc" "$full_module_path" "$install_func"
         elif [ "$tool_arg" = "list" ] || [ "$tool_arg" = "help" ] || [ "$tool_arg" = "--help" ] || [ "$tool_arg" = "-h" ]; then
             echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
             echo ""
             for tool_def in "${TOOLS[@]}"; do
-                IFS='|' read -rA tool_parts <<< "$tool_def"
+                IFS=':' read -rA tool_parts <<< "$tool_def"
                 local tool_name="${tool_parts[1]}"
-                local tool_emoji="${tool_parts[2]}"
-                local tool_desc="${tool_parts[3]}"
+                local tool_emoji="${tool_parts[3]}"
+                local tool_desc="${tool_parts[4]}"
                 echo "  ${GREEN}$tool_name${RESET} $tool_emoji - $tool_desc"
             done
             echo ""
@@ -240,7 +254,7 @@ installman() {
             echo ""
             echo -e "${YELLOW}Outils disponibles:${RESET}"
             for tool_def in "${TOOLS[@]}"; do
-                IFS='|' read -rA tool_parts <<< "$tool_def"
+                IFS=':' read -rA tool_parts <<< "$tool_def"
                 echo "  - ${tool_parts[1]}"
             done
             echo ""
