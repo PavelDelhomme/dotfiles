@@ -41,5 +41,7 @@ echo ""
 echo "✓ Push effectué!"
 echo ""
 echo "Vérification:"
-git remote -v
-git branch
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    git remote -v
+    git branch
+fi
