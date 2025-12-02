@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# ⚠️ IMPORTANT: Ce script ne doit être exécuté QUE via 'configman git'
+# Il ne doit JAMAIS être sourcé ou exécuté automatiquement au chargement de zshrc
+
+# Vérifier si on est dans un terminal interactif
+if [ ! -t 0 ]; then
+    echo "❌ Ce script nécessite un terminal interactif"
+    exit 1
+fi
+
 ################################################################################
 # Configuration Git initiale
 # À utiliser AVANT de commit/push dans dotfiles

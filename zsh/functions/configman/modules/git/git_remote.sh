@@ -55,5 +55,6 @@ echo ""
 echo "Vérification:"
 if git rev-parse --git-dir > /dev/null 2>&1; then
     git remote -v
-    git branch
+    # Désactiver le pager pour git branch
+    git --no-pager branch
 fi
