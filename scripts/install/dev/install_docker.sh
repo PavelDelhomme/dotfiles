@@ -298,7 +298,75 @@ if [ "$DESKTOP_ONLY" = false ]; then
 fi
 
 ################################################################################
-# ÉTAPE 8: Configuration BuildKit
+# ÉTAPE 8: Installation et configuration Docker Buildx (Bake)
+################################################################################
+if [ "$DESKTOP_ONLY" = false ]; then
+    log_section "Installation Docker Buildx (Bake)"
+
+    # Vérifier si buildx est déjà installé
+    if docker buildx version &> /dev/null 2>&1; then
+        log_info "✓ Docker Buildx déjà installé"
+        docker buildx version
+    else
+        log_info "Installation de Docker Buildx..."
+        
+        # Méthode 1: Installation via plugin (recommandé)
+        case "$DISTRO" in
+            arch)
+                # Pour Arch, buildx peut être installé via AUR ou manuellement
+                if command -v yay &> /dev/null; then
+                    log_info "Installation via yay (AUR)..."
+                    yay -S docker-buildx-bin --noconfirm 2>/dev/null || {
+                        log_warn "Installation via AUR échouée, installation manuelle..."
+                        # Installation manuelle de buildx
+                        mkdir -p ~/.docker/cli-plugins
+                        BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+                        curl -L "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64" -o ~/.docker/cli-plugins/docker-buildx
+                        chmod +x ~/.docker/cli-plugins/docker-buildx
+                    }
+                else
+                    log_warn "yay non installé. Installation manuelle de buildx..."
+                    mkdir -p ~/.docker/cli-plugins
+                    BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+                    curl -L "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64" -o ~/.docker/cli-plugins/docker-buildx
+                    chmod +x ~/.docker/cli-plugins/docker-buildx
+                fi
+                ;;
+            debian|fedora)
+                # Pour Debian/Fedora, buildx-plugin devrait déjà être installé
+                if ! docker buildx version &> /dev/null 2>&1; then
+                    log_warn "Buildx non disponible, installation manuelle..."
+                    mkdir -p ~/.docker/cli-plugins
+                    BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+                    curl -L "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64" -o ~/.docker/cli-plugins/docker-buildx
+                    chmod +x ~/.docker/cli-plugins/docker-buildx
+                fi
+                ;;
+        esac
+
+        # Vérifier l'installation
+        if docker buildx version &> /dev/null 2>&1; then
+            log_info "✓ Docker Buildx installé"
+            docker buildx version
+        else
+            log_warn "⚠️ Échec installation Buildx"
+            log_info "Installez manuellement: https://docs.docker.com/build/install-buildx/"
+        fi
+    fi
+
+    # Créer le builder par défaut si nécessaire
+    if docker buildx ls &> /dev/null 2>&1; then
+        if ! docker buildx ls 2>/dev/null | grep -q "default"; then
+            log_info "Création du builder par défaut..."
+            docker buildx create --name default --use 2>/dev/null || log_warn "Impossible de créer le builder (peut nécessiter sudo)"
+        else
+            log_info "✓ Builder par défaut déjà configuré"
+        fi
+    fi
+fi
+
+################################################################################
+# ÉTAPE 9: Configuration BuildKit
 ################################################################################
 if [ "$DESKTOP_ONLY" = false ]; then
     log_section "Configuration BuildKit"
