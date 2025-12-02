@@ -11,7 +11,7 @@ set +e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
-    return 1 2/dev/null || exit 1
+    return 1 2>/dev/null || exit 1
 }
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
@@ -359,33 +359,33 @@ elif [ -n "$1" ]; then
         install)
             if [ -z "$2" ]; then
                 log_error "Usage: $0 install <zsh|fish|bash>"
-                return 1 2/dev/null || exit 1
+                return 1 2>/dev/null || exit 1
             fi
             install_shell "$2"
             ;;
         configure)
             if [ -z "$2" ]; then
                 log_error "Usage: $0 configure <zsh|fish|bash>"
-                return 1 2/dev/null || exit 1
+                return 1 2>/dev/null || exit 1
             fi
             configure_shell "$2"
             ;;
         set-default)
             if [ -z "$2" ]; then
                 log_error "Usage: $0 set-default <zsh|fish|bash>"
-                return 1 2/dev/null || exit 1
+                return 1 2>/dev/null || exit 1
             fi
             local shell_path=$(which "$2" 2>/dev/null)
             if [ -z "$shell_path" ]; then
                 log_error "Shell $2 non trouvé. Installez-le d'abord."
-                return 1 2/dev/null || exit 1
+                return 1 2>/dev/null || exit 1
             fi
             set_default_shell "$shell_path" "$2"
             ;;
         *)
             log_error "Commande inconnue: $1"
             echo "Usage: $0 [menu|install|configure|set-default] [shell_name]"
-            return 1 2/dev/null || exit 1
+            return 1 2>/dev/null || exit 1
             ;;
     esac
 else

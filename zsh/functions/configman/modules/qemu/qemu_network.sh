@@ -11,7 +11,7 @@ set +e  # Désactivé pour éviter fermeture terminal si sourcé
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
-    return 1 2/dev/null || exit 1
+    return 1 2>/dev/null || exit 1
 }
 
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
@@ -23,7 +23,7 @@ log_section "Configuration réseau QEMU/KVM"
 if ! command -v virsh >/dev/null 2>&1; then
     log_error "libvirt n'est pas installé!"
     echo "Installez d'abord: sudo pacman -S libvirt"
-    return 1 2/dev/null || exit 1
+    return 1 2>/dev/null || exit 1
 fi
 
 # 1. Activer forwarding IP

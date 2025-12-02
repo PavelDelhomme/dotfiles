@@ -11,7 +11,7 @@ set +e  # Ne pas arrêter sur erreurs pour mieux gérer les problèmes de dépen
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
-    return 1 2/dev/null || exit 1
+    return 1 2>/dev/null || exit 1
 }
 
 log_section "Installation paquets QEMU/KVM"
@@ -20,7 +20,7 @@ log_section "Installation paquets QEMU/KVM"
 if ! grep -E '(vmx|svm)' /proc/cpuinfo >/dev/null 2>&1; then
     log_error "Pas de support virtualisation matérielle!"
     log_error "Activez Intel VT-x ou AMD-V dans le BIOS"
-    return 1 2/dev/null || exit 1
+    return 1 2>/dev/null || exit 1
 fi
 log_info "✓ Support virtualisation détecté"
 
@@ -49,7 +49,7 @@ if ! sudo pacman -S --needed --noconfirm \
     log_warn "Essayez de mettre à jour votre système d'abord:"
     log_warn "  sudo pacman -Syu"
     log_warn "Puis réessayez l'installation"
-    return 1 2/dev/null || exit 1
+    return 1 2>/dev/null || exit 1
 fi
 
 log_info "✓ Paquets installés"
