@@ -129,13 +129,9 @@ installman() {
             *)
                 echo -e "${RED}Choix invalide${RESET}"
                 sleep 1
+                show_main_menu
                 ;;
         esac
-        
-        # Retourner au menu après action
-        echo ""
-        read -k 1 "?Appuyez sur une touche pour continuer... "
-        installman
     }
     
     # Si un argument est fourni, lancer directement le module
@@ -195,10 +191,9 @@ installman() {
                 ;;
         esac
     else
-        # Mode interactif
-        while true; do
-            show_main_menu
-        done
+        # Mode interactif - NE PAS APPELER AUTOMATIQUEMENT
+        # Le menu ne s'affiche que si installman est appelé explicitement
+        show_main_menu
     fi
 }
 
