@@ -66,26 +66,28 @@ function moduleman
     end
 end
 
-# Créer la configuration par défaut
+# Créer la configuration par défaut (format compatible Zsh et Fish)
 function create_default_config
     cat > $MODULEMAN_CONFIG_FILE <<'EOF'
 # Configuration des modules - Moduleman
-# Format: set -g MODULE_<nom> enabled|disabled
+# Format compatible Zsh et Fish
+# Zsh: MODULE_<nom>=enabled|disabled
+# Fish: set -g MODULE_<nom> enabled|disabled
 # Tous les modules sont activés par défaut
 
-set -g MODULE_pathman enabled
-set -g MODULE_netman enabled
-set -g MODULE_aliaman enabled
-set -g MODULE_miscman enabled
-set -g MODULE_searchman enabled
-set -g MODULE_cyberman enabled
-set -g MODULE_devman enabled
-set -g MODULE_gitman enabled
-set -g MODULE_helpman enabled
-set -g MODULE_manman enabled
-set -g MODULE_configman enabled
-set -g MODULE_installman enabled
-set -g MODULE_moduleman enabled
+MODULE_pathman=enabled
+MODULE_netman=enabled
+MODULE_aliaman=enabled
+MODULE_miscman=enabled
+MODULE_searchman=enabled
+MODULE_cyberman=enabled
+MODULE_devman=enabled
+MODULE_gitman=enabled
+MODULE_helpman=enabled
+MODULE_manman=enabled
+MODULE_configman=enabled
+MODULE_installman=enabled
+MODULE_moduleman=enabled
 EOF
 end
 
@@ -174,11 +176,14 @@ end
 function enable_module
     set -l module_name $argv[1]
     
-    # Mettre à jour le fichier de configuration
-    if grep -q "^set -g MODULE_$module_name=" $MODULEMAN_CONFIG_FILE 2>/dev/null
-        sed -i "s/^set -g MODULE_$module_name=.*/set -g MODULE_$module_name enabled/" $MODULEMAN_CONFIG_FILE
+    # Mettre à jour le fichier de configuration (format Zsh ou Fish)
+    if grep -q "^MODULE_$module_name=" $MODULEMAN_CONFIG_FILE 2>/dev/null
+        sed -i "s/^MODULE_$module_name=.*/MODULE_$module_name=enabled/" $MODULEMAN_CONFIG_FILE
+    else if grep -q "^set -g MODULE_$module_name" $MODULEMAN_CONFIG_FILE 2>/dev/null
+        sed -i "s/^set -g MODULE_$module_name.*/set -g MODULE_$module_name enabled/" $MODULEMAN_CONFIG_FILE
     else
-        echo "set -g MODULE_$module_name enabled" >> $MODULEMAN_CONFIG_FILE
+        # Ajouter en format Zsh (par défaut, compatible)
+        echo "MODULE_$module_name=enabled" >> $MODULEMAN_CONFIG_FILE
     end
     
     echo "✅ Module $module_name activé"
@@ -189,11 +194,14 @@ end
 function disable_module
     set -l module_name $argv[1]
     
-    # Mettre à jour le fichier de configuration
-    if grep -q "^set -g MODULE_$module_name=" $MODULEMAN_CONFIG_FILE 2>/dev/null
-        sed -i "s/^set -g MODULE_$module_name=.*/set -g MODULE_$module_name disabled/" $MODULEMAN_CONFIG_FILE
+    # Mettre à jour le fichier de configuration (format Zsh ou Fish)
+    if grep -q "^MODULE_$module_name=" $MODULEMAN_CONFIG_FILE 2>/dev/null
+        sed -i "s/^MODULE_$module_name=.*/MODULE_$module_name=disabled/" $MODULEMAN_CONFIG_FILE
+    else if grep -q "^set -g MODULE_$module_name" $MODULEMAN_CONFIG_FILE 2>/dev/null
+        sed -i "s/^set -g MODULE_$module_name.*/set -g MODULE_$module_name disabled/" $MODULEMAN_CONFIG_FILE
     else
-        echo "set -g MODULE_$module_name disabled" >> $MODULEMAN_CONFIG_FILE
+        # Ajouter en format Zsh (par défaut, compatible)
+        echo "MODULE_$module_name=disabled" >> $MODULEMAN_CONFIG_FILE
     end
     
     echo "✅ Module $module_name désactivé"

@@ -37,14 +37,35 @@ moduleman() {
             # Créer un fichier de configuration par défaut (tous activés)
             create_default_config
         fi
-        source "$MODULEMAN_CONFIG_FILE" 2>/dev/null || true
+        # Charger la configuration (support Zsh et Fish)
+        # Format Zsh: MODULE_name=enabled
+        # Format Fish: set -g MODULE_name enabled
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Ignorer les commentaires et lignes vides
+            [[ "$line" =~ ^[[:space:]]*# ]] && continue
+            [[ -z "$line" ]] && continue
+            
+            # Parser le format Zsh (MODULE_name=enabled)
+            if [[ "$line" =~ ^MODULE_([^=]+)=(enabled|disabled)$ ]]; then
+                local module_name="${match[1]}"
+                local status="${match[2]}"
+                eval "MODULE_${module_name}=${status}"
+            # Parser le format Fish (set -g MODULE_name enabled)
+            elif [[ "$line" =~ ^set[[:space:]]+-g[[:space:]]+MODULE_([^[:space:]]+)[[:space:]]+(enabled|disabled)$ ]]; then
+                local module_name="${match[1]}"
+                local status="${match[2]}"
+                eval "MODULE_${module_name}=${status}"
+            fi
+        done < "$MODULEMAN_CONFIG_FILE"
     }
     
-    # Créer la configuration par défaut
+    # Créer la configuration par défaut (format compatible Zsh et Fish)
     create_default_config() {
         cat > "$MODULEMAN_CONFIG_FILE" <<'EOF'
 # Configuration des modules - Moduleman
-# Format: MODULE_<nom>=enabled|disabled
+# Format compatible Zsh et Fish
+# Zsh: MODULE_<nom>=enabled|disabled
+# Fish: set -g MODULE_<nom> enabled|disabled
 # Tous les modules sont activés par défaut
 
 MODULE_pathman=enabled
@@ -167,15 +188,19 @@ EOF
         local module_name="$1"
         local var_name="MODULE_${module_name}"
         
-        # Mettre à jour le fichier de configuration
+        # Mettre à jour le fichier de configuration (format Zsh)
         if grep -q "^MODULE_${module_name}=" "$MODULEMAN_CONFIG_FILE" 2>/dev/null; then
             sed -i "s/^MODULE_${module_name}=.*/MODULE_${module_name}=enabled/" "$MODULEMAN_CONFIG_FILE"
+        # Ou format Fish
+        elif grep -q "^set -g MODULE_${module_name}" "$MODULEMAN_CONFIG_FILE" 2>/dev/null; then
+            sed -i "s/^set -g MODULE_${module_name}.*/set -g MODULE_${module_name} enabled/" "$MODULEMAN_CONFIG_FILE"
         else
+            # Ajouter en format Zsh (par défaut)
             echo "MODULE_${module_name}=enabled" >> "$MODULEMAN_CONFIG_FILE"
         fi
         
         echo -e "${GREEN}✓ Module $module_name activé${RESET}"
-        echo -e "${YELLOW}⚠️  Rechargez votre shell (source ~/.zshrc) pour appliquer les changements${RESET}"
+        echo -e "${YELLOW}⚠️  Rechargez votre shell (source ~/.zshrc ou source ~/.config/fish/config.fish) pour appliquer les changements${RESET}"
     }
     
     # Fonction pour désactiver un module
@@ -183,15 +208,19 @@ EOF
         local module_name="$1"
         local var_name="MODULE_${module_name}"
         
-        # Mettre à jour le fichier de configuration
+        # Mettre à jour le fichier de configuration (format Zsh)
         if grep -q "^MODULE_${module_name}=" "$MODULEMAN_CONFIG_FILE" 2>/dev/null; then
             sed -i "s/^MODULE_${module_name}=.*/MODULE_${module_name}=disabled/" "$MODULEMAN_CONFIG_FILE"
+        # Ou format Fish
+        elif grep -q "^set -g MODULE_${module_name}" "$MODULEMAN_CONFIG_FILE" 2>/dev/null; then
+            sed -i "s/^set -g MODULE_${module_name}.*/set -g MODULE_${module_name} disabled/" "$MODULEMAN_CONFIG_FILE"
         else
+            # Ajouter en format Zsh (par défaut)
             echo "MODULE_${module_name}=disabled" >> "$MODULEMAN_CONFIG_FILE"
         fi
         
         echo -e "${RED}✓ Module $module_name désactivé${RESET}"
-        echo -e "${YELLOW}⚠️  Rechargez votre shell (source ~/.zshrc) pour appliquer les changements${RESET}"
+        echo -e "${YELLOW}⚠️  Rechargez votre shell (source ~/.zshrc ou source ~/.config/fish/config.fish) pour appliquer les changements${RESET}"
     }
     
     # Si un argument est fourni, exécuter la commande directement
