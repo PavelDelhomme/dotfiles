@@ -1,10 +1,11 @@
 #!/bin/zsh
 # =============================================================================
-# INSTALL-TOOL - Installateur universel d'outils avec configuration automatique
+# INSTALLMAN - Installateur universel d'outils avec configuration automatique
 # =============================================================================
 # Description: Installe et configure automatiquement des outils de développement
 #              avec ajout automatique au PATH dans env.sh
-# Usage: install-tool [tool-name] ou install-tool (menu interactif)
+# Usage: installman [tool-name] ou installman (menu interactif)
+#        install-tool [tool-name] (alias pour compatibilité)
 # =============================================================================
 
 # Couleurs
@@ -120,6 +121,80 @@ add_path_to_env() {
         export PATH="$path_to_add:$PATH"
         log_info "✓ Chemin ajouté au PATH de la session actuelle"
     fi
+    
+    return 0
+}
+
+# =============================================================================
+# CONFIGURATION EMACS DE BASE
+# =============================================================================
+configure_emacs_base() {
+    log_step "Configuration d'Emacs de base pour le développement..."
+    
+    local emacs_config="$HOME/.emacs"
+    local emacs_dir="$HOME/.emacs.d"
+    
+    # Créer le répertoire .emacs.d si nécessaire
+    mkdir -p "$emacs_dir"
+    
+    # Configuration Emacs de base avec mode sombre, numéros de ligne, outils dev
+    log_step "Création de la configuration Emacs de base..."
+    cat > "$emacs_config" <<'EMACSCONF'
+;; Configuration Emacs de base pour le développement
+;; Mode sombre, numéros de ligne, outils de développement
+
+;; Désactiver la barre d'outils et le menu
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+
+;; Activer les numéros de ligne
+(global-display-line-numbers-mode t)
+(setq display-line-numbers-type 'relative)
+
+;; Thème sombre
+(load-theme 'modus-vivendi t)  ; Thème sombre par défaut
+;; Alternative: (load-theme 'wombat t) ou (load-theme 'dracula t)
+
+;; Configuration de base pour le développement
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(setq-default c-basic-offset 4)
+(setq-default python-indent-offset 4)
+
+;; Activer le mode parenthèses correspondantes
+(show-paren-mode t)
+(setq show-paren-delay 0)
+
+;; Activer le mode auto-complétion
+(electric-pair-mode t)
+
+;; Activer le mode auto-save
+(setq auto-save-default t)
+(setq backup-inhibited t)
+
+;; Configuration pour différents langages
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+(add-hook 'prog-mode-hook 'electric-pair-mode)
+
+;; Couleurs personnalisées
+(set-face-attribute 'default nil :height 110)
+(set-face-attribute 'line-number nil :foreground "#666666")
+(set-face-attribute 'line-number-current-line nil :foreground "#ffffff" :background "#333333")
+
+;; Raccourcis utiles
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "C-c C-c") 'comment-region)
+(global-set-key (kbd "C-c C-u") 'uncomment-region)
+
+;; Message de bienvenue
+(message "Configuration Emacs chargée - Mode développement activé")
+EMACSCONF
+
+    log_info "✓ Configuration Emacs de base créée dans ~/.emacs"
+    log_info "  - Mode sombre activé"
+    log_info "  - Numéros de ligne activés"
+    log_info "  - Outils de développement configurés"
     
     return 0
 }
@@ -280,28 +355,95 @@ install_dotnet() {
 }
 
 # =============================================================================
-# INSTALLATION EMCAS
+# INSTALLATION EMACS + DOOM EMACS
 # =============================================================================
 install_emacs() {
-    log_step "Installation d'Emacs et Doom Emacs..."
+    log_step "Installation d'Emacs, Doom Emacs et configuration de base..."
     
-    local emacs_script="$INSTALL_DIR/install_emacs.sh"
-    
-    if [ ! -f "$emacs_script" ]; then
-        log_error "Script d'installation Emacs introuvable: $emacs_script"
-        return 1
+    # Détection de la distribution
+    local distro="unknown"
+    if [ -f /etc/arch-release ]; then
+        distro="arch"
+    elif [ -f /etc/debian_version ]; then
+        distro="debian"
+    elif [ -f /etc/fedora-release ]; then
+        distro="fedora"
     fi
     
-    bash "$emacs_script" || {
-        log_error "Échec de l'installation d'Emacs"
-        return 1
-    }
+    # Installation d'Emacs selon la distribution
+    if ! command -v emacs &>/dev/null; then
+        log_step "Installation d'Emacs..."
+        case "$distro" in
+            arch)
+                sudo pacman -S --noconfirm emacs || {
+                    log_error "Échec de l'installation d'Emacs"
+                    return 1
+                }
+                ;;
+            debian)
+                sudo apt update
+                sudo apt install -y emacs || {
+                    log_error "Échec de l'installation d'Emacs"
+                    return 1
+                }
+                ;;
+            fedora)
+                sudo dnf install -y emacs || {
+                    log_error "Échec de l'installation d'Emacs"
+                    return 1
+                }
+                ;;
+            *)
+                log_error "Distribution non supportée: $distro"
+                return 1
+                ;;
+        esac
+    else
+        log_info "Emacs est déjà installé: $(emacs --version | head -n1)"
+    fi
+    
+    # Configuration Emacs de base
+    configure_emacs_base
+    
+    # Installation de Doom Emacs
+    log_step "Installation de Doom Emacs..."
+    local emacs_dir="$HOME/.emacs.d"
+    local doom_dir="$HOME/.doom.d"
+    
+    if [ -d "$emacs_dir" ] && [ -f "$emacs_dir/bin/doom" ]; then
+        log_info "Doom Emacs est déjà installé"
+        read -p "Réinstaller Doom Emacs? (o/N): " reinstall_doom
+        if [[ "$reinstall_doom" =~ ^[oO]$ ]]; then
+            rm -rf "$emacs_dir" "$doom_dir"
+        else
+            log_info "Installation Doom ignorée"
+            return 0
+        fi
+    fi
+    
+    if [ ! -d "$emacs_dir" ] || [ ! -f "$emacs_dir/bin/doom" ]; then
+        log_step "Clonage de Doom Emacs..."
+        git clone --depth 1 https://github.com/doomemacs/doomemacs "$emacs_dir" || {
+            log_error "Échec du clonage de Doom Emacs"
+            return 1
+        }
+        
+        log_step "Installation de Doom Emacs..."
+        "$emacs_dir/bin/doom" install --yes || {
+            log_warn "Installation Doom terminée avec des avertissements"
+        }
+    fi
     
     # Ajouter Doom Emacs au PATH
-    local doom_bin="$HOME/.emacs.d/bin"
+    local doom_bin="$emacs_dir/bin"
     if [ -d "$doom_bin" ]; then
         add_path_to_env "$doom_bin" "Doom Emacs"
-        log_info "✓ Emacs installé et configuré avec succès!"
+        log_info "✓ Emacs et Doom Emacs installés et configurés avec succès!"
+        log_info "  - Configuration de base créée (~/.emacs)"
+        log_info "  - Mode sombre activé"
+        log_info "  - Numéros de ligne activés"
+        log_info "  - Outils de développement configurés"
+        log_info "  - Doom Emacs installé"
         log_info "💡 Rechargez votre shell (zshrc) pour utiliser Doom Emacs"
         return 0
     fi
@@ -340,6 +482,214 @@ install_java17() {
 }
 
 # =============================================================================
+# INSTALLATION ANDROID STUDIO
+# =============================================================================
+install_android_studio() {
+    log_step "Installation d'Android Studio..."
+    
+    # Détection de la distribution
+    local distro="unknown"
+    if [ -f /etc/arch-release ]; then
+        distro="arch"
+    elif [ -f /etc/debian_version ]; then
+        distro="debian"
+    elif [ -f /etc/fedora-release ]; then
+        distro="fedora"
+    fi
+    
+    # Vérifier si déjà installé
+    if command -v android-studio &>/dev/null || [ -f /opt/android-studio/bin/studio.sh ]; then
+        log_info "Android Studio est déjà installé"
+        read -p "Réinstaller? (o/N): " reinstall
+        if [[ ! "$reinstall" =~ ^[oO]$ ]]; then
+            return 0
+        fi
+    fi
+    
+    case "$distro" in
+        arch)
+            log_step "Installation Android Studio (Arch Linux)..."
+            
+            # Vérifier si yay est installé
+            if ! command -v yay &>/dev/null; then
+                log_warn "yay n'est pas installé. Installation nécessaire..."
+                read -p "Installer yay maintenant? (o/n): " install_yay
+                if [[ "$install_yay" =~ ^[oO]$ ]]; then
+                    bash "$SCRIPTS_DIR/install/tools/install_yay.sh" || {
+                        log_error "Échec de l'installation de yay"
+                        return 1
+                    }
+                else
+                    log_error "yay est requis pour installer Android Studio sur Arch Linux"
+                    return 1
+                fi
+            fi
+            
+            log_step "Installation d'Android Studio via yay..."
+            yay -S --noconfirm android-studio || {
+                log_error "Échec de l'installation d'Android Studio"
+                return 1
+            }
+            ;;
+        debian)
+            log_step "Installation Android Studio (Debian/Ubuntu)..."
+            
+            # Télécharger depuis le site officiel
+            log_step "Téléchargement d'Android Studio..."
+            cd /tmp
+            local studio_url="https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2023.3.1.18/android-studio-2023.3.1.18-linux.tar.gz"
+            wget -q --show-progress "$studio_url" -O android-studio.tar.gz || {
+                log_error "Échec du téléchargement"
+                return 1
+            }
+            
+            log_step "Extraction dans /opt/android-studio..."
+            sudo mkdir -p /opt
+            sudo tar -xf android-studio.tar.gz -C /opt/ || {
+                log_error "Échec de l'extraction"
+                rm -f android-studio.tar.gz
+                return 1
+            }
+            
+            sudo chown -R "$USER:$USER" /opt/android-studio
+            
+            # Créer un lien symbolique
+            sudo ln -sf /opt/android-studio/bin/studio.sh /usr/local/bin/android-studio
+            
+            rm -f android-studio.tar.gz
+            ;;
+        fedora)
+            log_step "Installation Android Studio (Fedora)..."
+            
+            # Télécharger depuis le site officiel
+            log_step "Téléchargement d'Android Studio..."
+            cd /tmp
+            local studio_url="https://redirector.gvt1.com/edgedl/android/studio/ide-zips/2023.3.1.18/android-studio-2023.3.1.18-linux.tar.gz"
+            wget -q --show-progress "$studio_url" -O android-studio.tar.gz || {
+                log_error "Échec du téléchargement"
+                return 1
+            }
+            
+            log_step "Extraction dans /opt/android-studio..."
+            sudo mkdir -p /opt
+            sudo tar -xf android-studio.tar.gz -C /opt/ || {
+                log_error "Échec de l'extraction"
+                rm -f android-studio.tar.gz
+                return 1
+            }
+            
+            sudo chown -R "$USER:$USER" /opt/android-studio
+            
+            # Créer un lien symbolique
+            sudo ln -sf /opt/android-studio/bin/studio.sh /usr/local/bin/android-studio
+            
+            rm -f android-studio.tar.gz
+            ;;
+        *)
+            log_error "Distribution non supportée: $distro"
+            log_info "Voir: https://developer.android.com/studio"
+            return 1
+            ;;
+    esac
+    
+    log_info "✓ Android Studio installé avec succès!"
+    log_info "💡 Lancez Android Studio avec: android-studio"
+    return 0
+}
+
+# =============================================================================
+# INSTALLATION OUTILS ANDROID (ADB, etc.)
+# =============================================================================
+install_android_tools() {
+    log_step "Installation des outils Android (ADB, SDK, etc.)..."
+    
+    # Détection de la distribution
+    local distro="unknown"
+    if [ -f /etc/arch-release ]; then
+        distro="arch"
+    elif [ -f /etc/debian_version ]; then
+        distro="debian"
+    elif [ -f /etc/fedora-release ]; then
+        distro="fedora"
+    fi
+    
+    case "$distro" in
+        arch)
+            log_step "Installation outils Android (Arch Linux)..."
+            
+            # Vérifier si yay est installé
+            if ! command -v yay &>/dev/null; then
+                log_warn "yay n'est pas installé. Installation nécessaire..."
+                read -p "Installer yay maintenant? (o/n): " install_yay
+                if [[ "$install_yay" =~ ^[oO]$ ]]; then
+                    bash "$SCRIPTS_DIR/install/tools/install_yay.sh" || {
+                        log_error "Échec de l'installation de yay"
+                        return 1
+                    }
+                else
+                    log_error "yay est requis pour installer les outils Android sur Arch Linux"
+                    return 1
+                fi
+            fi
+            
+            log_step "Installation des outils Android via yay..."
+            yay -S --noconfirm android-sdk android-sdk-platform-tools android-sdk-build-tools android-tools || {
+                log_error "Échec de l'installation des outils Android"
+                return 1
+            }
+            
+            # Ajouter les outils Android au PATH
+            local android_sdk="/opt/android-sdk"
+            local platform_tools="$android_sdk/platform-tools"
+            local build_tools="$android_sdk/build-tools"
+            
+            if [ -d "$platform_tools" ]; then
+                add_path_to_env "$platform_tools" "Android Platform Tools (ADB)"
+            fi
+            
+            if [ -d "$build_tools" ]; then
+                # Ajouter la dernière version de build-tools
+                local latest_build_tools=$(ls -td "$build_tools"/*/ 2>/dev/null | head -1)
+                if [ -n "$latest_build_tools" ]; then
+                    add_path_to_env "${latest_build_tools%/}" "Android Build Tools"
+                fi
+            fi
+            ;;
+        debian)
+            log_step "Installation outils Android (Debian/Ubuntu)..."
+            
+            sudo apt update
+            sudo apt install -y android-tools-adb android-tools-fastboot || {
+                log_error "Échec de l'installation des outils Android"
+                return 1
+            }
+            
+            # Les outils sont généralement dans /usr/bin
+            log_info "✓ Outils Android installés (adb, fastboot)"
+            ;;
+        fedora)
+            log_step "Installation outils Android (Fedora)..."
+            
+            sudo dnf install -y android-tools || {
+                log_error "Échec de l'installation des outils Android"
+                return 1
+            }
+            
+            # Les outils sont généralement dans /usr/bin
+            log_info "✓ Outils Android installés (adb, fastboot)"
+            ;;
+        *)
+            log_error "Distribution non supportée: $distro"
+            return 1
+            ;;
+    esac
+    
+    log_info "✓ Outils Android installés et configurés avec succès!"
+    log_info "💡 Vérifiez avec: adb version"
+    return 0
+}
+
+# =============================================================================
 # MENU INTERACTIF
 # =============================================================================
 show_menu() {
@@ -350,18 +700,20 @@ show_menu() {
     echo ""
     echo -e "${CYAN}1.${NC} Flutter SDK"
     echo -e "${CYAN}2.${NC} .NET SDK"
-    echo -e "${CYAN}3.${NC} Emacs + Doom Emacs"
+    echo -e "${CYAN}3.${NC} Emacs + Doom Emacs + Config de base"
     echo -e "${CYAN}4.${NC} Java 17 OpenJDK"
+    echo -e "${CYAN}5.${NC} Android Studio"
+    echo -e "${CYAN}6.${NC} Outils Android (ADB, SDK, etc.)"
     echo ""
     echo -e "${YELLOW}0.${NC} Quitter"
     echo ""
-    echo -n "Choisissez une option [0-4]: "
+    echo -n "Choisissez une option [0-6]: "
 }
 
 # =============================================================================
 # FONCTION PRINCIPALE
 # =============================================================================
-install_tool() {
+installman() {
     local tool="$1"
     
     # Si aucun argument, afficher le menu
@@ -395,6 +747,18 @@ install_tool() {
                     echo -n "Appuyez sur Entrée pour continuer..."
                     read -r dummy
                     ;;
+                5)
+                    install_android_studio
+                    echo ""
+                    echo -n "Appuyez sur Entrée pour continuer..."
+                    read -r dummy
+                    ;;
+                6)
+                    install_android_tools
+                    echo ""
+                    echo -n "Appuyez sur Entrée pour continuer..."
+                    read -r dummy
+                    ;;
                 0)
                     log_info "Au revoir!"
                     return 0
@@ -420,6 +784,12 @@ install_tool() {
             java|java17|Java|Java17)
                 install_java17
                 ;;
+            android-studio|androidstudio|AndroidStudio)
+                install_android_studio
+                ;;
+            android-tools|androidtools|adb|AndroidTools)
+                install_android_tools
+                ;;
             *)
                 log_error "Outil inconnu: $tool"
                 echo ""
@@ -428,20 +798,25 @@ install_tool() {
                 echo "  - dotnet"
                 echo "  - emacs"
                 echo "  - java17"
+                echo "  - android-studio"
+                echo "  - android-tools"
                 echo ""
-                echo "Usage: install-tool [tool-name]"
-                echo "   ou: install-tool (menu interactif)"
+                echo "Usage: installman [tool-name]"
+                echo "   ou: install-tool [tool-name] (alias)"
+                echo "   ou: installman (menu interactif)"
                 return 1
                 ;;
         esac
     fi
 }
 
+# Créer l'alias install-tool pour compatibilité
+alias install-tool='installman'
+
 # Exporter la fonction
-export -f install_tool 2>/dev/null || true
+export -f installman 2>/dev/null || true
 
 # Si appelé directement (pas source), exécuter la fonction
 if [ "${(%):-%x}" = "${0}" ]; then
-    install_tool "$@"
+    installman "$@"
 fi
-
