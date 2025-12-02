@@ -4,9 +4,16 @@
 # Il ne doit JAMAIS être sourcé ou exécuté automatiquement au chargement de zshrc
 
 # Vérifier si on est dans un terminal interactif
+# Si le script est sourcé (pas exécuté), on retourne simplement sans erreur
+if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+    # Script sourcé, ne rien faire
+    return 0 2>/dev/null || exit 0
+fi
+
+# Vérifier si on est dans un terminal interactif
 if [ ! -t 0 ]; then
     echo "❌ Ce script nécessite un terminal interactif"
-    exit 1
+    return 1 2>/dev/null || exit 1
 fi
 
 ################################################################################
