@@ -29,7 +29,7 @@ alias run_simplebrowser="weedlyweb_run"
 alias debug_build_simplebrowser="weedlyweb_debug_build"
 alias debug_simplebrowser="weedlyweb_debug"
 alias lscopy="ls | xclip -selection clipboard"
-alias sdkmanager="/home/pactivisme/Android/Sdk/cmdline-tools/latest/bin/sdkmanager"
+alias sdkmanager="/home/pactivisme/Android/Sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager"
 # update et upgrade sont maintenant des fonctions intelligentes
 # Voir: zsh/functions/misc/system/update_system.sh
 # Elles détectent automatiquement la distribution et utilisent le bon gestionnaire
