@@ -99,35 +99,12 @@ EOF
     local license_count=$(echo "$result" | grep "LICENSE_COUNT=" | cut -d'=' -f2)
     rm -f "$temp_script"
     
-    # Si aucune licence n'a été acceptée, essayer la méthode manuelle avec heredoc
-    if [ -z "$license_count" ] || [ "$license_count" -eq 0 ]; then
-        log_warn "Aucune licence détectée, tentative avec méthode alternative..."
-        
-        # Méthode alternative: utiliser le script bash existant s'il est disponible
-        if [ -f "$ACCEPT_LICENSES_SCRIPT" ]; then
-            log_step "Utilisation du script d'acceptation complet..."
-            bash "$ACCEPT_LICENSES_SCRIPT" || {
-                log_error "Échec de l'acceptation via script externe"
-                log_info "Tentative manuelle avec sdkmanager..."
-                # Dernière tentative: essayer d'installer un composant qui va demander les licences
-                "$SDKMANAGER" "platforms;android-34" --accept-licenses 2>/dev/null || true
-            }
-        else
-            # Dernière méthode: accepter les licences via l'installation d'un composant
-            log_step "Tentative d'acceptation via installation d'un composant..."
-            "$SDKMANAGER" "platforms;android-34" --accept-licenses > /tmp/android_sdk_install.log 2>&1 || true
-            "$SDKMANAGER" "build-tools;34.0.0" --accept-licenses > /tmp/android_sdk_install.log 2>&1 || true
-        fi
-    fi
-    
-    # Vérifier que les licences sont acceptées
-    if [ -d "$ANDROID_HOME/licenses" ]; then
-        local license_count=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
-        if [ "$license_count" -gt 0 ]; then
-            log_info "✓ $license_count licence(s) acceptée(s)"
-        else
-            log_warn "Aucune licence trouvée dans $ANDROID_HOME/licenses"
-        fi
+    # Afficher le résultat de l'acceptation des licences
+    if [ "$license_count" -gt 0 ]; then
+        log_info "✓ $license_count licence(s) acceptée(s)"
+    else
+        log_warn "Aucune licence détectée dans $ANDROID_HOME/licenses"
+        log_info "Les licences peuvent être créées lors de la première utilisation d'un composant"
     fi
     
     # Fonction pour vérifier si un composant est déjà installé
