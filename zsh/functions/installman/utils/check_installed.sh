@@ -67,18 +67,41 @@ check_java_version_installed() {
     # Vérifier dans /usr/lib/jvm
     local java_path=""
     if [ "$version" = "25" ]; then
-        # Java 25 peut être dans différents chemins
-        if [ -d "/usr/lib/jvm/java-25-openjdk" ]; then
+        # Java 25 peut être dans différents chemins - vérifier le paquet installé
+        if pacman -Q jdk-openjdk &>/dev/null 2>&1; then
             echo "installed"
             return 0
-        elif [ -d "/usr/lib/jvm/default" ]; then
-            echo "installed"
-            return 0
-        elif [ -d "/usr/lib/jvm/java-openjdk" ]; then
+        fi
+        # Vérifier aussi les chemins possibles
+        if [ -d "/usr/lib/jvm/java-25-openjdk" ] || [ -d "/usr/lib/jvm/default" ] || [ -d "/usr/lib/jvm/java-openjdk" ]; then
             echo "installed"
             return 0
         fi
     else
+        # Pour les autres versions, vérifier le paquet spécifique
+        if [ "$version" = "8" ]; then
+            if pacman -Q jdk8-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-8-openjdk" ]; then
+                echo "installed"
+                return 0
+            fi
+        elif [ "$version" = "11" ]; then
+            if pacman -Q jdk11-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-11-openjdk" ]; then
+                echo "installed"
+                return 0
+            fi
+        elif [ "$version" = "17" ]; then
+            if pacman -Q jdk17-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
+                echo "installed"
+                return 0
+            fi
+        elif [ "$version" = "21" ]; then
+            if pacman -Q jdk21-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
+                echo "installed"
+                return 0
+            fi
+        fi
+        
+        # Fallback: vérifier le répertoire
         java_path="/usr/lib/jvm/java-${version}-openjdk"
         if [ -d "$java_path" ]; then
             echo "installed"

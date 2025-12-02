@@ -76,27 +76,36 @@ install_java_version() {
             # Configurer le PATH selon la version
             local java_path=""
             if [ "$java_version" = "25" ]; then
-                # Java 25 utilise jdk-openjdk (pas de numéro dans le chemin)
-                java_path="/usr/lib/jvm/java-${java_version}-openjdk/bin"
-                if [ ! -d "$java_path" ]; then
-                    # Essayer les autres chemins possibles
+                # Java 25 utilise jdk-openjdk - chercher le chemin réel
+                # Sur Arch, Java 25 peut être dans différents emplacements
+                if [ -d "/usr/lib/jvm/java-25-openjdk/bin" ]; then
+                    java_path="/usr/lib/jvm/java-25-openjdk/bin"
+                elif [ -d "/usr/lib/jvm/default/bin" ]; then
                     java_path="/usr/lib/jvm/default/bin"
-                    if [ ! -d "$java_path" ]; then
-                        java_path="/usr/lib/jvm/java-openjdk/bin"
+                elif [ -d "/usr/lib/jvm/java-openjdk/bin" ]; then
+                    java_path="/usr/lib/jvm/java-openjdk/bin"
+                else
+                    # Chercher dans /usr/lib/jvm
+                    java_path=$(find /usr/lib/jvm -maxdepth 2 -type d -name "*openjdk*" -o -name "default" 2>/dev/null | grep -E "(openjdk|default)" | head -1)
+                    if [ -n "$java_path" ] && [ -d "$java_path/bin" ]; then
+                        java_path="$java_path/bin"
+                    else
+                        java_path="/usr/lib/jvm/default/bin"
                     fi
                 fi
             else
                 java_path="/usr/lib/jvm/java-${java_version}-openjdk/bin"
             fi
             
-            if [ -d "$java_path" ]; then
+            if [ -d "$java_path" ] && [ -x "$java_path/java" ]; then
                 add_path_to_env "$java_path" "Java ${java_version} OpenJDK"
                 log_info "✓ Java ${java_version} installé et configuré avec succès!"
                 log_info "💡 Rechargez votre shell (exec zsh) pour utiliser Java ${java_version}"
                 return 0
             else
-                log_warn "Chemin Java non trouvé: $java_path"
-                log_info "Java ${java_version} installé, mais le PATH n'a pas été configuré automatiquement"
+                log_warn "Chemin Java non trouvé automatiquement: $java_path"
+                log_info "Java ${java_version} est installé, mais le PATH doit être configuré manuellement"
+                log_info "Cherchez le chemin Java avec: find /usr/lib/jvm -name java"
                 return 0
             fi
             ;;
