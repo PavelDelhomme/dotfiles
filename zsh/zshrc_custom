@@ -1,5 +1,12 @@
 # ~/dotfiles/zsh/zshrc_custom - VERSION RÉORGANISÉE
 
+# =============================================================================
+# INSTANT PROMPT - Désactiver le warning pendant l'initialisation
+# =============================================================================
+# Powerlevel10k affiche un warning si on fait des echo pendant l'init
+# On définit cette variable pour éviter le warning (le prompt sera un peu plus lent)
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
 # Restaurer le PATH original si nécessaire
 if [ -n "$PATH_ORIGINAL" ]; then
 	export PATH=$PATH_ORIGINAL
