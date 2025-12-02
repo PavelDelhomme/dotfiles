@@ -73,15 +73,7 @@ if [ "$DESKTOP_ONLY" = false ]; then
         arch)
             log_info "Installation via pacman (Arch Linux)..."
             sudo pacman -S --noconfirm docker docker-compose
-            # Installer docker-buildx-plugin pour Arch (via AUR si nécessaire)
-            if ! command -v docker buildx &> /dev/null; then
-                log_info "Installation de Docker Buildx (Bake)..."
-                if command -v yay &> /dev/null; then
-                    yay -S docker-buildx-bin --noconfirm 2>/dev/null || log_warn "Buildx non disponible via yay, installation manuelle requise"
-                else
-                    log_warn "yay non installé. Pour installer Buildx, installez yay puis: yay -S docker-buildx-bin"
-                fi
-            fi
+            # Note: Buildx sera installé dans l'étape 8 dédiée
             ;;
         debian)
             log_info "Installation via script officiel Docker (Debian/Ubuntu)..."
@@ -355,13 +347,32 @@ if [ "$DESKTOP_ONLY" = false ]; then
     fi
 
     # Créer le builder par défaut si nécessaire
-    if docker buildx ls &> /dev/null 2>&1; then
+    if docker buildx version &> /dev/null 2>&1; then
+        log_info "Vérification du builder par défaut..."
         if ! docker buildx ls 2>/dev/null | grep -q "default"; then
             log_info "Création du builder par défaut..."
-            docker buildx create --name default --use 2>/dev/null || log_warn "Impossible de créer le builder (peut nécessiter sudo)"
+            # Essayer avec l'utilisateur actuel
+            if docker buildx create --name default --use 2>/dev/null; then
+                log_info "✓ Builder par défaut créé et activé"
+            else
+                # Si échec, essayer avec sudo
+                log_warn "Tentative avec sudo..."
+                if sudo docker buildx create --name default --use 2>/dev/null; then
+                    log_info "✓ Builder par défaut créé avec sudo"
+                else
+                    log_warn "⚠️ Impossible de créer le builder automatiquement"
+                    log_info "Créez-le manuellement: docker buildx create --name default --use"
+                fi
+            fi
         else
             log_info "✓ Builder par défaut déjà configuré"
+            # S'assurer qu'il est utilisé
+            docker buildx use default 2>/dev/null || true
         fi
+        
+        # Afficher les builders disponibles
+        log_info "Builders disponibles:"
+        docker buildx ls 2>/dev/null || true
     fi
 fi
 
