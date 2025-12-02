@@ -130,8 +130,7 @@ installman() {
         # Organiser par catégories
         echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
         local index=1
-        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "android-licenses" "docker")
-        # Note: android-licenses n'est pas dans la liste principale, ajouté séparément
+        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "docker")
         for tool_name in "${dev_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"
@@ -151,6 +150,24 @@ installman() {
         echo -e "${BOLD}🌐 APPLICATIONS:${RESET}"
         local app_tools=("brave" "cursor")
         for tool_name in "${app_tools[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                IFS=':' read -rA tool_parts <<< "$tool_def"
+                if [ "${tool_parts[1]}" = "$tool_name" ]; then
+                    local tool_emoji="${tool_parts[3]}"
+                    local tool_desc="${tool_parts[4]}"
+                    local tool_check="${tool_parts[5]}"
+                    local status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    ((index++))
+                    break
+                fi
+            done
+        done
+        
+        echo ""
+        echo -e "${BOLD}⚙️  CONFIGURATION ANDROID:${RESET}"
+        local android_config_tools=("android-licenses")
+        for tool_name in "${android_config_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"
                 if [ "${tool_parts[1]}" = "$tool_name" ]; then
