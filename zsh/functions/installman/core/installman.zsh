@@ -55,128 +55,138 @@ installman() {
         echo -e "${YELLOW}📦 INSTALLATION D'OUTILS DE DÉVELOPPEMENT${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
-        echo "1.  🎯 Flutter SDK"
-        echo "2.  🔷 .NET SDK"
-        echo "3.  📝 Emacs + Doom Emacs + Config de base"
-        echo "4.  ☕ Java 17 OpenJDK"
-        echo "5.  🤖 Android Studio"
-        echo "6.  🔧 Outils Android (ADB, SDK, etc.)"
+        echo "1.  🎯 Flutter SDK                    (flutter)"
+        echo "2.  🔷 .NET SDK                       (dotnet)"
+        echo "3.  📝 Emacs + Doom Emacs             (emacs)"
+        echo "4.  ☕ Java 17 OpenJDK                (java17)"
+        echo "5.  🤖 Android Studio                 (android-studio)"
+        echo "6.  🔧 Outils Android (ADB, SDK)      (android-tools)"
         echo ""
         echo "0.  Quitter"
         echo ""
-        printf "Choix: "
+        echo -e "${CYAN}💡 Astuce: Vous pouvez taper le nom complet (ex: 'flutter') au lieu du numéro${RESET}"
+        echo ""
+        printf "Choix [numéro ou nom]: "
         read -r choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
+        # Fonction pour installer un outil
+        install_tool() {
+            local tool_name="$1"
+            local module_file="$2"
+            local install_func="$3"
+            
+            if [ -f "$module_file" ]; then
+                source "$module_file"
+                $install_func
+            else
+                echo -e "${RED}❌ Module $tool_name non disponible${RESET}"
+                sleep 2
+            fi
+        }
+        
+        # Traitement du choix (numéro ou nom)
         case "$choice" in
-            1)
-                if [ -f "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh"
-                    install_flutter
-                else
-                    echo -e "${RED}❌ Module Flutter non disponible${RESET}"
-                    sleep 2
-                fi
+            # Numéros
+            1|flutter|flut)
+                install_tool "Flutter" "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh" "install_flutter"
                 ;;
-            2)
-                if [ -f "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh"
-                    install_dotnet
-                else
-                    echo -e "${RED}❌ Module .NET non disponible${RESET}"
-                    sleep 2
-                fi
+            2|dotnet|dot-net|.net|net)
+                install_tool ".NET" "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh" "install_dotnet"
                 ;;
-            3)
-                if [ -f "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh"
-                    install_emacs
-                else
-                    echo -e "${RED}❌ Module Emacs non disponible${RESET}"
-                    sleep 2
-                fi
+            3|emacs|emac)
+                install_tool "Emacs" "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh" "install_emacs"
                 ;;
-            4)
-                if [ -f "$INSTALLMAN_MODULES_DIR/java/install_java17.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/java/install_java17.sh"
-                    install_java17
-                else
-                    echo -e "${RED}❌ Module Java 17 non disponible${RESET}"
-                    sleep 2
-                fi
+            4|java|java17|java-17|jdk|openjdk)
+                install_tool "Java 17" "$INSTALLMAN_MODULES_DIR/java/install_java17.sh" "install_java17"
                 ;;
-            5)
-                if [ -f "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh"
-                    install_android_studio
-                else
-                    echo -e "${RED}❌ Module Android Studio non disponible${RESET}"
-                    sleep 2
-                fi
+            5|android-studio|androidstudio|android|studio|as)
+                install_tool "Android Studio" "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh" "install_android_studio"
                 ;;
-            6)
-                if [ -f "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh"
-                    install_android_tools
-                else
-                    echo -e "${RED}❌ Module Outils Android non disponible${RESET}"
-                    sleep 2
-                fi
+            6|android-tools|androidtools|adb|sdk|android-sdk)
+                install_tool "Outils Android" "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" "install_android_tools"
                 ;;
-            0)
+            0|quit|exit|q)
                 return 0
                 ;;
             *)
-                echo -e "${RED}Choix invalide${RESET}"
-                sleep 1
+                echo -e "${RED}❌ Choix invalide: '$choice'${RESET}"
+                echo ""
+                echo -e "${YELLOW}Outils disponibles:${RESET}"
+                echo "  - flutter"
+                echo "  - dotnet"
+                echo "  - emacs"
+                echo "  - java17"
+                echo "  - android-studio"
+                echo "  - android-tools"
+                echo ""
+                sleep 2
                 show_main_menu
                 ;;
         esac
     }
     
+    # Fonction pour installer un outil (utilisée par le menu et les arguments)
+    install_tool() {
+        local tool_name="$1"
+        local module_file="$2"
+        local install_func="$3"
+        
+        if [ -f "$module_file" ]; then
+            source "$module_file"
+            $install_func
+        else
+            echo -e "${RED}❌ Module $tool_name non disponible${RESET}"
+            return 1
+        fi
+    }
+    
     # Si un argument est fourni, lancer directement le module
     if [ -n "$1" ]; then
-        case "$1" in
-            flutter|Flutter)
-                if [ -f "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh"
-                    install_flutter
-                fi
+        local tool_arg=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+        
+        case "$tool_arg" in
+            flutter|flut)
+                install_tool "Flutter" "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh" "install_flutter"
                 ;;
-            dotnet|dot-net|.NET|net)
-                if [ -f "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh"
-                    install_dotnet
-                fi
+            dotnet|dot-net|.net|net)
+                install_tool ".NET" "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh" "install_dotnet"
                 ;;
-            emacs|Emacs)
-                if [ -f "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh"
-                    install_emacs
-                fi
+            emacs|emac)
+                install_tool "Emacs" "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh" "install_emacs"
                 ;;
-            java|java17|Java|Java17)
-                if [ -f "$INSTALLMAN_MODULES_DIR/java/install_java17.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/java/install_java17.sh"
-                    install_java17
-                fi
+            java|java17|java-17|jdk|openjdk)
+                install_tool "Java 17" "$INSTALLMAN_MODULES_DIR/java/install_java17.sh" "install_java17"
                 ;;
-            android-studio|androidstudio|AndroidStudio)
-                if [ -f "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh"
-                    install_android_studio
-                fi
+            android-studio|androidstudio|android|studio|as)
+                install_tool "Android Studio" "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh" "install_android_studio"
                 ;;
-            android-tools|androidtools|adb|AndroidTools)
-                if [ -f "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" ]; then
-                    source "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh"
-                    install_android_tools
-                fi
+            android-tools|androidtools|adb|sdk|android-sdk)
+                install_tool "Outils Android" "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" "install_android_tools"
+                ;;
+            list|help|--help|-h)
+                echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
+                echo ""
+                echo "  ${GREEN}flutter${RESET}          - Flutter SDK"
+                echo "  ${GREEN}dotnet${RESET}           - .NET SDK"
+                echo "  ${GREEN}emacs${RESET}            - Emacs + Doom Emacs"
+                echo "  ${GREEN}java17${RESET}           - Java 17 OpenJDK"
+                echo "  ${GREEN}android-studio${RESET}   - Android Studio"
+                echo "  ${GREEN}android-tools${RESET}    - Outils Android (ADB, SDK)"
+                echo ""
+                echo -e "${YELLOW}Usage:${RESET}"
+                echo "  installman [tool-name]     - Installer directement un outil"
+                echo "  installman                 - Menu interactif"
+                echo ""
+                echo -e "${CYAN}Exemples:${RESET}"
+                echo "  installman flutter"
+                echo "  installman android-studio"
+                echo "  installman java17"
                 ;;
             *)
-                echo -e "${RED}Outil inconnu: $1${RESET}"
+                echo -e "${RED}❌ Outil inconnu: '$1'${RESET}"
                 echo ""
-                echo "Outils disponibles:"
+                echo -e "${YELLOW}Outils disponibles:${RESET}"
                 echo "  - flutter"
                 echo "  - dotnet"
                 echo "  - emacs"
@@ -187,6 +197,7 @@ installman() {
                 echo "Usage: installman [tool-name]"
                 echo "   ou: install-tool [tool-name] (alias)"
                 echo "   ou: installman (menu interactif)"
+                echo "   ou: installman list (afficher la liste)"
                 return 1
                 ;;
         esac
