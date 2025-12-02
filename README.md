@@ -274,6 +274,12 @@ Cela permet de cloner/pusher sans saisir vos identifiants.
   - `.p10k.zsh` → `~/dotfiles/.p10k.zsh` (configuration Powerlevel10k avec Git)
   - `.ssh/id_ed25519` → `~/dotfiles/.ssh/id_ed25519` (optionnel)
   - `.ssh/config` → `~/dotfiles/.ssh/config` (optionnel)
+- **Symlinks créés** :
+  - `.zshrc` → `~/dotfiles/zshrc` (wrapper avec détection shell)
+  - `.gitconfig` → `~/dotfiles/.gitconfig`
+  - `.p10k.zsh` → `~/dotfiles/.p10k.zsh` (configuration Powerlevel10k avec Git)
+  - `.ssh/id_ed25519` → `~/dotfiles/.ssh/id_ed25519` (optionnel)
+  - `.ssh/config` → `~/dotfiles/.ssh/config` (optionnel)
 
 **7. Lancement automatique du menu interactif d'installation**
 - Menu `scripts/setup.sh` avec toutes les options
@@ -1241,7 +1247,7 @@ gitman help                # Liste toutes les commandes
 
 ### ⚙️ Configman - Gestionnaire de Configurations
 
-Gestionnaire complet pour configurer le système (Git, QEMU, symlinks, shells).
+Gestionnaire complet pour configurer le système (Git, QEMU, symlinks, shells, Powerlevel10k).
 
 **Utilisation :**
 ```bash
@@ -1250,6 +1256,7 @@ configman git                # Configuration Git globale
 configman git-remote         # Configuration remote GitHub
 configman symlinks           # Création des symlinks dotfiles
 configman shell              # Gestion des shells (zsh, fish, bash)
+configman p10k               # Configuration Powerlevel10k (prompt avec Git)
 configman qemu-libvirt       # Configuration permissions libvirt
 configman qemu-network       # Configuration réseau NAT QEMU
 configman qemu-packages      # Installation paquets QEMU uniquement
@@ -1260,6 +1267,7 @@ configman qemu-packages      # Installation paquets QEMU uniquement
 - **Git Remote** : Configuration remote GitHub (SSH/HTTPS)
 - **Symlinks** : Création automatique des symlinks pour centraliser la config
 - **Shell** : Installation, configuration et changement de shell par défaut
+- **Powerlevel10k** : Configuration du prompt avec support Git (statut Git dans le prompt)
 - **QEMU Libvirt** : Configuration permissions et groupes libvirt
 - **QEMU Network** : Configuration réseau NAT pour VMs
 - **QEMU Packages** : Installation modulaire des paquets QEMU
@@ -1275,11 +1283,25 @@ configman symlinks
 # Changer le shell par défaut vers zsh
 configman shell
 
+# Configurer Powerlevel10k (prompt avec statut Git)
+configman p10k
+configman powerlevel10k      # Alias
+configman prompt             # Alias
+
 # Configurer QEMU (modulaire)
 configman qemu-libvirt
 configman qemu-network
 configman qemu-packages
 ```
+
+**Module Powerlevel10k :**
+Le module `p10k` permet de gérer la configuration du prompt Powerlevel10k (utilisé par Manjaro) avec support Git :
+- **Option 1** : Configurer Powerlevel10k (`p10k configure`) - Assistant interactif
+- **Option 2** : Copier la configuration depuis dotfiles vers `~/.p10k.zsh`
+- **Option 3** : Créer un symlink de `~/.p10k.zsh` vers dotfiles (recommandé pour synchronisation)
+- **Option 4** : Vérifier la configuration actuelle
+
+La configuration Powerlevel10k est automatiquement chargée au démarrage du shell si elle existe dans `~/dotfiles/.p10k.zsh`. Un symlink est créé automatiquement vers `~/.p10k.zsh` pour la synchronisation.
 
 **Documentation :** `help configman` ou `man configman`
 
