@@ -56,6 +56,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Netman - Gestionnaire Réseau](#-netman---gestionnaire-rseau)
   - [Helpman - Gestionnaire Documentation](#-helpman---gestionnaire-documentation)
   - [Fileman - Gestionnaire Fichiers](#-fileman---gestionnaire-fichiers)
+  - [Virtman - Gestionnaire Environnements Virtuels](#-virtman---gestionnaire-environnements-virtuels)
 - [🔐 Configuration GitHub SSH](#configuration-github-ssh)
 - [🐳 Docker](#docker)
   - [Installation](#installation)
@@ -641,6 +642,10 @@ Structure principale :
 │       ├── fileman/            # Fileman - Gestionnaire de fichiers
 │       │   ├── core/           # Script principal
 │       │   ├── modules/        # Modules (archive, backup, search, permissions, files)
+│       │   └── config/        # Configuration
+│       ├── virtman/            # Virtman - Gestionnaire environnements virtuels
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules (docker, qemu, libvirt, lxc, vagrant)
 │       │   └── config/        # Configuration
 │       └── manman.zsh          # Manager of Managers (menu central)
 │       └── **/*.sh             # Fonctions individuelles
@@ -1534,6 +1539,55 @@ fileman files
 
 **Alias :** `fm` → `fileman`
 
+### 🖥️ Virtman - Gestionnaire Environnements Virtuels
+
+Gestionnaire complet pour les environnements virtuels (VMs, conteneurs).
+
+**Utilisation :**
+```bash
+virtman                    # Menu interactif
+virtman docker             # Gestion Docker
+virtman qemu               # Gestion QEMU/KVM
+virtman libvirt            # Gestion libvirt/virsh
+virtman lxc                # Gestion LXC
+virtman vagrant            # Gestion Vagrant
+virtman overview           # Vue d'ensemble
+```
+
+**Fonctionnalités :**
+- **Docker** : Gestion complète des conteneurs (créer, démarrer, arrêter, logs, images, volumes, réseaux)
+- **QEMU/KVM** : Gestion des machines virtuelles (créer, démarrer, arrêter, disques, réseau)
+- **libvirt/virsh** : Gestion via libvirt (domaines, réseaux, console)
+- **LXC** : Gestion des conteneurs LXC (créer, démarrer, arrêter, shell)
+- **Vagrant** : Gestion des VMs Vagrant (init, up, down, ssh, provision)
+- **Vue d'ensemble** : Résumé de tous les environnements virtuels
+
+**Exemples :**
+```bash
+# Menu interactif complet
+virtman
+
+# Gestion Docker
+virtman docker
+# Options: Lister, créer, démarrer, arrêter, logs, images, volumes, réseaux
+
+# Gestion QEMU/KVM
+virtman qemu
+# Options: Lister, créer, démarrer, arrêter, disques, réseau
+
+# Gestion libvirt
+virtman libvirt
+# Options: Lister, démarrer, arrêter, suspendre, console, réseaux
+
+# Vue d'ensemble
+virtman overview
+# Affiche un résumé de tous les environnements (Docker, QEMU, libvirt, LXC, Vagrant)
+```
+
+**Documentation :** `help virtman` ou `man virtman`
+
+**Alias :** `vm` → `virtman`, `virt` → `virtman`
+
 ### Installation des Managers
 
 **Vérification :**
@@ -1940,7 +1994,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
 
 **Fonctions ZSH** :
-- ✅ Gestionnaires (12 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman, fileman)
+- ✅ Gestionnaires (13 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman, fileman, virtman)
 - ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
 - ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
 - ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)

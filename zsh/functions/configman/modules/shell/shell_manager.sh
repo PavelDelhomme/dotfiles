@@ -8,11 +8,13 @@
 set +e
 
 # Charger la bibliothèque commune
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "$SCRIPT_DIR/lib/common.sh" || {
-    echo "Erreur: Impossible de charger la bibliothèque commune"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [ -f "$DOTFILES_DIR/scripts/lib/common.sh" ]; then
+    source "$DOTFILES_DIR/scripts/lib/common.sh"
+else
+    echo "Erreur: Impossible de charger la bibliothèque commune: $DOTFILES_DIR/scripts/lib/common.sh"
     return 1 2>/dev/null || exit 1
-}
+fi
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 

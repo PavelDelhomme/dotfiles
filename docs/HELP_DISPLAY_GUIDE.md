@@ -16,11 +16,11 @@ Ce document explique toutes les méthodes possibles pour structurer l'affichage 
 
 ### Fichiers concernés
 
-- **Script Python principal** : `zsh/functions/utils/list_functions.py`
+- **Script Python principal** : `zsh/functions/helpman/utils/list_functions.py`
   - C'est ici que se fait l'affichage principal
   - Format actuel : catégorie → séparateur → fonctions (une par ligne)
 
-- **Fonction shell wrapper** : `zsh/functions/utils/help_system.sh`
+- **Fonction shell wrapper** : `zsh/functions/helpman/modules/help_system.sh`
   - Fonction `list_functions()` qui appelle le script Python
   - Ligne ~89-99 : point d'entrée principal
 
@@ -176,7 +176,7 @@ print(f"{display_name} ({len(categories[cat])} fonctions)")
 
 ## 🔧 Où modifier le code
 
-### Fichier principal : `zsh/functions/utils/list_functions.py`
+### Fichier principal : `zsh/functions/helpman/utils/list_functions.py`
 
 #### Section 1 : Configuration (lignes ~20-35)
 
@@ -348,13 +348,13 @@ for i in range(0, len(funcs), num_cols):
 
 1. **Modifier le fichier** :
    ```bash
-   nano ~/dotfiles/zsh/functions/utils/list_functions.py
+   nano ~/dotfiles/zsh/functions/helpman/utils/list_functions.py
    ```
 
 2. **Tester directement** :
    ```bash
    # Tester le script Python directement
-   python3 ~/dotfiles/zsh/functions/utils/list_functions.py
+   python3 ~/dotfiles/zsh/functions/helpman/utils/list_functions.py
    ```
 
 3. **Tester via help** :
@@ -393,13 +393,13 @@ Si l'affichage ne fonctionne pas :
 
 1. **Vérifier les erreurs Python** :
    ```bash
-   python3 ~/dotfiles/zsh/functions/utils/list_functions.py 2>&1
+   python3 ~/dotfiles/zsh/functions/helpman/utils/list_functions.py 2>&1
    ```
 
 2. **Vérifier que le script est exécutable** :
    ```bash
-   ls -l ~/dotfiles/zsh/functions/utils/list_functions.py
-   chmod +x ~/dotfiles/zsh/functions/utils/list_functions.py
+   ls -l ~/dotfiles/zsh/functions/helpman/utils/list_functions.py
+   chmod +x ~/dotfiles/zsh/functions/helpman/utils/list_functions.py
    ```
 
 3. **Vérifier les variables d'environnement** :
@@ -447,21 +447,21 @@ Si l'affichage ne fonctionne pas :
 
 1. **Faire une copie de sauvegarde** :
    ```bash
-   cp zsh/functions/utils/list_functions.py zsh/functions/utils/list_functions.py.bak
+   cp zsh/functions/helpman/utils/list_functions.py zsh/functions/helpman/utils/list_functions.py.bak
    ```
 
 2. **Modifier le fichier** selon les exemples ci-dessus
 
 3. **Tester** :
    ```bash
-   python3 zsh/functions/utils/list_functions.py
+   python3 zsh/functions/helpman/utils/list_functions.py
    ```
 
 4. **Valider** avec `help`
 
 5. **Commit** si satisfait :
    ```bash
-   git add zsh/functions/utils/list_functions.py
+   git add zsh/functions/helpman/utils/list_functions.py
    git commit -m "feat: amélioration affichage help() - [description]"
    ```
 
@@ -476,5 +476,5 @@ Si l'affichage ne fonctionne pas :
 ---
 
 **Dernière mise à jour** : $(date)
-**Fichier modifié** : `zsh/functions/utils/list_functions.py` (lignes ~140-150 pour l'affichage principal)
+**Fichier modifié** : `zsh/functions/helpman/utils/list_functions.py` (lignes ~140-150 pour l'affichage principal)
 

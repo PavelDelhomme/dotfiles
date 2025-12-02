@@ -33,12 +33,14 @@ fi
 
 echo ""
 echo "Options disponibles:"
-echo "1. Configurer Powerlevel10k (p10k configure)"
-echo "2. Copier la configuration depuis dotfiles vers ~/.p10k.zsh"
-echo "3. Créer un symlink de ~/.p10k.zsh vers dotfiles"
-echo "4. Vérifier la configuration actuelle"
-echo ""
-printf "Choix [1-4]: "
+      echo "1. Configurer Powerlevel10k (p10k configure)"
+      echo "2. Copier la configuration depuis dotfiles vers ~/.p10k.zsh"
+      echo "3. Créer un symlink de ~/.p10k.zsh vers dotfiles (RECOMMANDÉ)"
+      echo "4. Sauvegarder la configuration actuelle dans dotfiles"
+      echo "5. Vérifier la configuration Powerlevel10k"
+      echo "0. Retour"
+      echo ""
+      printf "Choix [1-5]: "
 read -r choice
 
 case "$choice" in
@@ -106,6 +108,21 @@ case "$choice" in
         fi
         ;;
     4)
+        # Sauvegarder la configuration actuelle dans dotfiles
+        if [[ -f "$P10K_HOME" ]] && [[ ! -L "$P10K_HOME" ]]; then
+            log_info "Sauvegarde de la configuration actuelle dans dotfiles..."
+            cp "$P10K_HOME" "$P10K_DOTFILES"
+            log_info "✓ Configuration sauvegardée dans dotfiles: $P10K_DOTFILES"
+            log_info "💡 Utilisez l'option 3 pour créer un symlink et synchroniser automatiquement"
+        elif [[ -L "$P10K_HOME" ]]; then
+            log_info "La configuration est déjà un symlink vers: $(readlink "$P10K_HOME")"
+            log_info "La configuration est déjà synchronisée avec dotfiles"
+        else
+            log_warn "Aucune configuration Powerlevel10k trouvée dans $P10K_HOME"
+            log_info "Configurez d'abord Powerlevel10k avec l'option 1"
+        fi
+        ;;
+    5)
         log_info "Vérification de la configuration Powerlevel10k..."
         echo ""
         if [[ -f "$P10K_HOME" ]]; then
@@ -137,6 +154,9 @@ case "$choice" in
         else
             log_warn "⚠ Prompt Manjaro non disponible"
         fi
+        ;;
+    0)
+        return 0
         ;;
     *)
         log_error "Choix invalide"

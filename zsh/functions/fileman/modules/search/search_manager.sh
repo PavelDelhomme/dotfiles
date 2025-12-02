@@ -1,4 +1,4 @@
-,#!/bin/bash
+#!/bin/bash
 
 ################################################################################
 # Search Manager - Recherche de fichiers

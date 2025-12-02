@@ -23,7 +23,7 @@ fi
 echo ""
 
 # Vérifier le script Python
-SCRIPT_PATH="$HOME/dotfiles/zsh/functions/utils/list_functions.py"
+SCRIPT_PATH="$HOME/dotfiles/zsh/functions/helpman/utils/list_functions.py"
 echo "📄 Script Python:"
 if [ -f "$SCRIPT_PATH" ]; then
     echo "  ✅ Fichier trouvé: $SCRIPT_PATH"

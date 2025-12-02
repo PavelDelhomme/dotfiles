@@ -144,12 +144,12 @@ aliaman() {
                 fi
                 
                 # Vérifier si l'alias est sélectionné
-                local status="[ ]"
+                local alias_status="[ ]"
                 if [[ " $SELECTED_ALIASES " =~ " $i " ]]; then
-                    status="${GREEN}[✓]${RESET}"
+                    alias_status="${GREEN}[✓]${RESET}"
                 fi
                 
-                printf "%-5d %-20.20s %-40.40s %s\n" "$i" "$alias_name" "$alias_command" "$status"
+                printf "%-5d %-20.20s %-40.40s %s\n" "$i" "$alias_name" "$alias_command" "$alias_status"
                 ((i++))
             fi
         done <<< "$page_aliases"
