@@ -63,9 +63,9 @@ load_manager() {
     local manager_file="$2"
     local display_name="$3"
     local var_name="MODULE_${manager_name}"
-    local status="${(P)var_name:-enabled}"
+    local module_status="${(P)var_name:-enabled}"
     
-    if [ "$status" = "enabled" ]; then
+    if [ "$module_status" = "enabled" ]; then
         if [ -f "$manager_file" ]; then
             source "$manager_file" && echo -e "${GREEN}  ✔️ $display_name chargé${NC}" || echo -e "${YELLOW}  ⚠️ $display_name introuvable${NC}"
         else
