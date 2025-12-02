@@ -130,54 +130,99 @@ EOF
         fi
     fi
     
+    # Fonction pour vérifier si un composant est déjà installé
+    check_component_installed() {
+        local component="$1"
+        local component_type=$(echo "$component" | cut -d';' -f1)
+        local component_name=$(echo "$component" | cut -d';' -f2)
+        
+        case "$component_type" in
+            "platforms")
+                if [ -d "$ANDROID_HOME/platforms/$component_name" ]; then
+                    return 0
+                fi
+                ;;
+            "build-tools")
+                if [ -d "$ANDROID_HOME/build-tools/$component_name" ]; then
+                    return 0
+                fi
+                ;;
+        esac
+        return 1
+    }
+    
     # Installer les composants requis (platforms et build-tools)
     log_step "Installation des composants Android SDK requis..."
     local platforms=("platforms;android-34" "platforms;android-33" "platforms;android-32")
     local build_tools=("build-tools;34.0.0" "build-tools;33.0.2")
     
     for platform in "${platforms[@]}"; do
+        local platform_name=$(echo "$platform" | cut -d';' -f2)
+        
+        # Vérifier si déjà installé
+        if check_component_installed "$platform"; then
+            log_info "✓ $platform_name déjà installé"
+            continue
+        fi
+        
         log_step "Installation de $platform..."
         local install_output
         install_output=$("$SDKMANAGER" "$platform" 2>&1)
         local install_status=$?
         
         if [ $install_status -eq 0 ]; then
-            log_info "✓ $platform installé avec succès"
+            log_info "✓ $platform_name installé avec succès"
         else
-            # Vérifier si c'est déjà installé ou si c'est une vraie erreur
-            if echo "$install_output" | grep -qi "already installed\|installed"; then
-                log_info "✓ $platform déjà installé"
-            elif echo "$install_output" | grep -qi "license"; then
-                log_warn "⚠ $platform nécessite l'acceptation de licences"
-                log_info "Relancez: installman android-licenses"
+            # Vérifier si c'est une erreur de licence
+            if echo "$install_output" | grep -qi "license\|License"; then
+                log_warn "⚠ $platform_name nécessite l'acceptation de licences"
+                log_info "Les licences ont été acceptées, mais peut nécessiter un redémarrage"
             else
-                log_warn "⚠ Échec installation $platform"
-                log_info "Détails: $install_output" | head -3
+                log_warn "⚠ Erreur lors de l'installation de $platform_name"
+                echo "$install_output" | head -3 | while read line; do
+                    log_info "  → $line"
+                done
             fi
         fi
     done
     
     for build_tool in "${build_tools[@]}"; do
+        local tool_name=$(echo "$build_tool" | cut -d';' -f2)
+        
+        # Vérifier si déjà installé
+        if check_component_installed "$build_tool"; then
+            log_info "✓ Build-tools $tool_name déjà installé"
+            continue
+        fi
+        
         log_step "Installation de $build_tool..."
         local install_output
         install_output=$("$SDKMANAGER" "$build_tool" 2>&1)
         local install_status=$?
         
         if [ $install_status -eq 0 ]; then
-            log_info "✓ $build_tool installé avec succès"
+            log_info "✓ Build-tools $tool_name installé avec succès"
         else
-            # Vérifier si c'est déjà installé ou si c'est une vraie erreur
-            if echo "$install_output" | grep -qi "already installed\|installed"; then
-                log_info "✓ $build_tool déjà installé"
-            elif echo "$install_output" | grep -qi "license"; then
+            # Vérifier si c'est une erreur de licence
+            if echo "$install_output" | grep -qi "license\|License"; then
                 log_warn "⚠ $build_tool nécessite l'acceptation de licences"
-                log_info "Relancez: installman android-licenses"
+                log_info "Les licences ont été acceptées, mais peut nécessiter un redémarrage"
             else
-                log_warn "⚠ Échec installation $build_tool"
-                log_info "Détails: $install_output" | head -3
+                log_warn "⚠ Erreur lors de l'installation de $build_tool"
+                echo "$install_output" | head -3 | while read line; do
+                    log_info "  → $line"
+                done
             fi
         fi
     done
+    
+    # Vérification finale des composants installés
+    log_step "Vérification des composants installés..."
+    local installed_platforms=$(ls -d "$ANDROID_HOME/platforms"/* 2>/dev/null | wc -l)
+    local installed_build_tools=$(ls -d "$ANDROID_HOME/build-tools"/* 2>/dev/null | wc -l)
+    
+    log_info "✓ $installed_platforms plateforme(s) Android installée(s)"
+    log_info "✓ $installed_build_tools version(s) de build-tools installée(s)"
     
     log_info "✓ Toutes les licences Android SDK sont acceptées!"
     log_info "💡 Vous pouvez maintenant compiler vos projets Flutter/Android"
