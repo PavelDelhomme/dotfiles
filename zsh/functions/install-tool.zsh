@@ -2,10 +2,12 @@
 # =============================================================================
 # INSTALLMAN - Installateur universel d'outils avec configuration automatique
 # =============================================================================
-# Description: Installe et configure automatiquement des outils de développement
-#              avec ajout automatique au PATH dans env.sh
-# Usage: installman [tool-name] ou installman (menu interactif)
-#        install-tool [tool-name] (alias pour compatibilité)
+# ⚠️ FICHIER DÉPRÉCIÉ - NE PLUS UTILISER
+# Ce fichier est conservé uniquement pour compatibilité avec l'ancien code.
+# La nouvelle version modulaire se trouve dans installman.zsh
+# 
+# Ce fichier NE DOIT PAS être chargé automatiquement.
+# Il est exclu dans zshrc_custom pour éviter les conflits.
 # =============================================================================
 
 # Couleurs
