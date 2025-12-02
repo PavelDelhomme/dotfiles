@@ -230,20 +230,39 @@ backup_dotfiles() {
 # ÉTAPE 0: Configurer GITSTATUS_DIR AVANT TOUT (critique pour que gitstatus fonctionne)
 # Définir GITSTATUS_DIR si gitstatusd est installé via le package zsh-theme-powerlevel10k
 # C'est nécessaire pour que Powerlevel10k puisse afficher le statut Git
+# IMPORTANT: Cette variable DOIT être définie AVANT le chargement de P10k
 if [[ -z "${GITSTATUS_DIR:-}" ]] && [[ -d /usr/share/zsh-theme-powerlevel10k/gitstatus ]]; then
     export GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
     typeset -g POWERLEVEL9K_GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
+    # S'assurer que la variable est persistante
+    typeset -gx GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
 fi
 
-# Étape 1: Charger le prompt Manjaro (qui charge P10k automatiquement)
-# OU charger P10k directement si le prompt Manjaro n'existe pas
-# IMPORTANT: Pas de echo ici pour éviter le warning instant_prompt
-if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
-    # Prompt Manjaro (charge P10k + config système)
-    source /usr/share/zsh/manjaro-zsh-prompt
-elif [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]]; then
-    # Powerlevel10k système (Arch/Manjaro) - si prompt Manjaro absent
+# ÉTAPE 0.5: Charger gitstatus plugin AVANT P10k (CRITIQUE)
+# Powerlevel10k ne charge PAS automatiquement gitstatus, il faut le charger explicitement
+# Sinon les variables VCS_STATUS_* ne seront jamais définies
+if [[ ! $+functions[gitstatus_start] ]] && [[ -f /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh ]]; then
+    source /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh 2>/dev/null || true
+fi
+
+# ÉTAPE 0.5: Charger gitstatus plugin AVANT P10k (CRITIQUE)
+# Powerlevel10k ne charge PAS automatiquement gitstatus, il faut le charger explicitement
+# Sinon les variables VCS_STATUS_* ne seront jamais définies
+if [[ ! $+functions[gitstatus_start] ]] && [[ -f /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh ]]; then
+    source /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh 2>/dev/null || true
+fi
+
+# Étape 1: Charger P10k DIRECTEMENT (sans prompt Manjaro pour éviter les conflits)
+# Le prompt Manjaro charge /usr/share/zsh/p10k.zsh qui a VCS_DISABLED_WORKDIR_PATTERN='~'
+# et VCS_DISABLE_GITSTATUS_FORMATTING=true, ce qui empêche gitstatus de fonctionner
+# SOLUTION: Charger P10k directement pour avoir le contrôle total
+if [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]]; then
+    # Powerlevel10k système (Arch/Manjaro) - chargement direct
     source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+elif [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+    # Fallback: Prompt Manjaro si P10k système absent
+    # Mais on chargera notre config après pour écraser
+    source /usr/share/zsh/manjaro-zsh-prompt
 elif [[ -f "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
     # Powerlevel10k Oh-My-Zsh
     source "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme"
