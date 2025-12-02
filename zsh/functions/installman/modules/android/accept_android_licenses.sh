@@ -88,13 +88,14 @@ accept_android_licenses() {
         }
     fi
     
-    # Vérifier et compter les licences acceptées
+    # Vérifier et compter les licences acceptées (tous types de fichiers)
     local license_count=0
     if [ -d "$ANDROID_HOME/licenses" ]; then
-        # Compter tous les fichiers de licence (peuvent être .txt ou sans extension)
-        license_count=$(find "$ANDROID_HOME/licenses" -type f \( -name "*.txt" -o -name "android-*" -o -name "google-*" -o -name "intel-*" -o -name "mips-*" -o -name "*-license" \) 2>/dev/null | wc -l)
+        # Compter tous les fichiers de licence
+        license_count=$(find "$ANDROID_HOME/licenses" -type f 2>/dev/null | wc -l)
         if [ "$license_count" -gt 0 ]; then
             log_info "✓ $license_count licence(s) acceptée(s)"
+            log_info "  → Fichiers dans: $ANDROID_HOME/licenses"
         else
             log_warn "Aucune licence détectée dans $ANDROID_HOME/licenses"
             log_info "Les licences peuvent être créées lors de la première utilisation d'un composant"
