@@ -816,7 +816,8 @@ alias install-tool='installman'
 # Exporter la fonction
 export -f installman 2>/dev/null || true
 
-# Si appelé directement (pas source), exécuter la fonction
-if [ "${(%):-%x}" = "${0}" ]; then
-    installman "$@"
-fi
+# NE PAS APPELER AUTOMATIQUEMENT installman au chargement
+# La fonction ne doit être appelée que manuellement par l'utilisateur
+# if [ "${(%):-%x}" = "${0}" ]; then
+#     installman "$@"
+# fi
