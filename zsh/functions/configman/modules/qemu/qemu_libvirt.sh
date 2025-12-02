@@ -5,13 +5,13 @@
 # Configure les permissions et groupes libvirt
 ################################################################################
 
-set -e
+set +e  # Désactivé pour éviter fermeture terminal si sourcé
 
 # Charger la bibliothèque commune
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
-    exit 1
+    return 1 2/dev/null || exit 1
 }
 
 log_section "Configuration libvirt"
@@ -20,7 +20,7 @@ log_section "Configuration libvirt"
 if ! command -v virsh >/dev/null 2>&1; then
     log_error "libvirt n'est pas installé!"
     echo "Installez d'abord: sudo pacman -S libvirt"
-    exit 1
+    return 1 2/dev/null || exit 1
 fi
 
 # 1. Démarrer libvirtd

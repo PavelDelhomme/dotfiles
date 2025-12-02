@@ -7,13 +7,13 @@
 # Si le script est sourcé (pas exécuté), on retourne simplement sans erreur
 if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
     # Script sourcé, ne rien faire
-    return 0 2>/dev/null || exit 0
+    return 0 2>/dev/null || return 0 2/dev/null || exit 0
 fi
 
 # Vérifier si on est dans un terminal interactif
 if [ ! -t 0 ]; then
     echo "❌ Ce script nécessite un terminal interactif"
-    return 1 2>/dev/null || exit 1
+    return 1 2>/dev/null || return 1 2/dev/null || exit 1
 fi
 
 ################################################################################
@@ -35,7 +35,7 @@ if [ -z "$GIT_USER_NAME" ]; then
     read -r GIT_USER_NAME
     if [ -z "$GIT_USER_NAME" ]; then
         echo "Erreur: Le nom Git est obligatoire"
-        return 1 2>/dev/null || exit 1
+        return 1 2>/dev/null || return 1 2/dev/null || exit 1
     fi
 fi
 
@@ -44,11 +44,11 @@ if [ -z "$GIT_USER_EMAIL" ]; then
     read -r GIT_USER_EMAIL
     if [ -z "$GIT_USER_EMAIL" ]; then
         echo "Erreur: L'email Git est obligatoire"
-        return 1 2>/dev/null || exit 1
+        return 1 2>/dev/null || return 1 2/dev/null || exit 1
     fi
     if [[ ! "$GIT_USER_EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
         echo "Erreur: Format d'email invalide"
-        return 1 2>/dev/null || exit 1
+        return 1 2>/dev/null || return 1 2/dev/null || exit 1
     fi
 fi
 

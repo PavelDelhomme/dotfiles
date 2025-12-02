@@ -12,7 +12,7 @@ set +e  # Ne pas arrêter sur erreurs pour continuer le traitement
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || {
     echo "Erreur: Impossible de charger la bibliothèque commune"
-    exit 1
+    return 1 2/dev/null || exit 1
 }
 
 log_section "Création des symlinks pour centraliser la configuration"
@@ -22,7 +22,7 @@ log_section "Création des symlinks pour centraliser la configuration"
 ################################################################################
 if [ ! -d "$DOTFILES_DIR" ]; then
     log_error "Répertoire dotfiles non trouvé: $DOTFILES_DIR"
-    exit 1
+    return 1 2/dev/null || exit 1
 fi
 
 ################################################################################
