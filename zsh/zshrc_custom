@@ -89,9 +89,12 @@ if [ -d "$FUNCTIONS_DIR" ]; then
     local loaded_count=0
     local error_count=0
     
-    # Charger install-tool en premier (utilitaire d'installation)
-    if [ -f "$FUNCTIONS_DIR/install-tool.zsh" ]; then
-        source "$FUNCTIONS_DIR/install-tool.zsh" 2>/dev/null && ((loaded_count++)) || ((error_count++))
+    # Charger installman et configman en premier (gestionnaires d'installation/configuration)
+    if [ -f "$FUNCTIONS_DIR/installman.zsh" ]; then
+        source "$FUNCTIONS_DIR/installman.zsh" 2>/dev/null && ((loaded_count++)) || ((error_count++))
+    fi
+    if [ -f "$FUNCTIONS_DIR/configman.zsh" ]; then
+        source "$FUNCTIONS_DIR/configman.zsh" 2>/dev/null && ((loaded_count++)) || ((error_count++))
     fi
     
     # Charger récursivement tous les scripts .sh et .zsh
@@ -103,6 +106,8 @@ if [ -d "$FUNCTIONS_DIR" ]; then
            [[ "$func_file" != *"alias_utils.zsh" ]] && \
            [[ "$func_file" != *"update_system.sh" ]] && \
            [[ "$func_file" != *"install-tool.zsh" ]] && \
+           [[ "$func_file" != *"installman.zsh" ]] && \
+           [[ "$func_file" != *"configman.zsh" ]] && \
            [[ "$func_file" != *"/install/"* ]] && \
            [ -f "$func_file" ]; then
             if source "$func_file" 2>/dev/null; then
