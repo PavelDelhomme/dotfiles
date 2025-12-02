@@ -713,31 +713,22 @@ show_menu() {
 }
 
 # =============================================================================
-# FONCTION PRINCIPALE
+# FONCTION PRINCIPALE - DÉPRÉCIÉE
 # =============================================================================
+# ⚠️ Cette fonction est remplacée par la nouvelle version dans installman.zsh
+# Elle ne fait que rediriger vers la nouvelle version pour éviter les conflits
 installman() {
-    # Cette fonction est remplacée par la nouvelle version dans installman.zsh
-    # Ne pas exécuter automatiquement - rediriger vers la nouvelle version
-    if command -v installman >/dev/null 2>&1 && [ "$(type -f installman 2>/dev/null | grep -c 'installman/core')" -gt 0 ]; then
-        # Utiliser la nouvelle version si disponible
-        command installman "$@"
+    # Rediriger vers la nouvelle version si disponible
+    if [ -f "$HOME/dotfiles/zsh/functions/installman/core/installman.zsh" ]; then
+        source "$HOME/dotfiles/zsh/functions/installman/core/installman.zsh" 2>/dev/null || true
+        # Appeler la nouvelle fonction
+        installman "$@"
         return $?
     fi
     
-    local tool="$1"
-    
-    # Si aucun argument, NE PAS afficher le menu automatiquement
-    # Le menu ne doit s'afficher que si installman est appelé explicitement
-    if [ -z "$tool" ]; then
-        # Ne pas afficher le menu automatiquement
-        return 0
-    fi
-    
-    # Si un outil est spécifié, continuer avec l'ancienne logique (pour compatibilité)
-    if [ -n "$tool" ]; then
-        while true; do
-            show_menu
-            read -r choice
+    # Si la nouvelle version n'existe pas, ne rien faire (éviter les erreurs)
+    echo "⚠️  install-tool.zsh est déprécié. Utilisez installman depuis installman.zsh"
+    return 1
             
             case "$choice" in
                 1)
