@@ -119,27 +119,68 @@ installman() {
     # Fonction pour afficher le menu principal
     show_main_menu() {
         show_header
-        echo -e "${YELLOW}📦 INSTALLATION D'OUTILS${RESET}"
+        echo -e "${YELLOW}📦 INSTALLATION D'OUTILS ET APPLICATIONS${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
-        # Afficher tous les outils avec leurs statuts
+        # Organiser par catégories
+        echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
         local index=1
-        for tool_def in "${TOOLS[@]}"; do
-            IFS=':' read -rA tool_parts <<< "$tool_def"
-            local tool_name="${tool_parts[1]}"
-            local tool_emoji="${tool_parts[3]}"
-            local tool_desc="${tool_parts[4]}"
-            local tool_check="${tool_parts[5]}"
-            
-            local status=$(get_install_status "$tool_check")
-            printf "%-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
-            ((index++))
+        local dev_tools=("flutter" "dotnet" "emacs" "java17" "android-studio" "android-tools" "docker")
+        for tool_name in "${dev_tools[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                IFS=':' read -rA tool_parts <<< "$tool_def"
+                if [ "${tool_parts[1]}" = "$tool_name" ]; then
+                    local tool_emoji="${tool_parts[3]}"
+                    local tool_desc="${tool_parts[4]}"
+                    local tool_check="${tool_parts[5]}"
+                    local status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    ((index++))
+                    break
+                fi
+            done
+        done
+        
+        echo ""
+        echo -e "${BOLD}🌐 APPLICATIONS:${RESET}"
+        local app_tools=("brave" "cursor")
+        for tool_name in "${app_tools[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                IFS=':' read -rA tool_parts <<< "$tool_def"
+                if [ "${tool_parts[1]}" = "$tool_name" ]; then
+                    local tool_emoji="${tool_parts[3]}"
+                    local tool_desc="${tool_parts[4]}"
+                    local tool_check="${tool_parts[5]}"
+                    local status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    ((index++))
+                    break
+                fi
+            done
+        done
+        
+        echo ""
+        echo -e "${BOLD}🖥️  SYSTÈME & VIRTUALISATION:${RESET}"
+        local sys_tools=("qemu")
+        for tool_name in "${sys_tools[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                IFS=':' read -rA tool_parts <<< "$tool_def"
+                if [ "${tool_parts[1]}" = "$tool_name" ]; then
+                    local tool_emoji="${tool_parts[3]}"
+                    local tool_desc="${tool_parts[4]}"
+                    local tool_check="${tool_parts[5]}"
+                    local status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    ((index++))
+                    break
+                fi
+            done
         done
         
         echo ""
         echo "0.  Quitter"
         echo ""
-        echo -e "${CYAN}💡 Tapez le nom de l'outil (ex: 'flutter', 'docker') puis appuyez sur Entrée${RESET}"
+        echo -e "${CYAN}💡 Tapez le nom de l'outil (ex: 'flutter', 'docker', 'brave') puis appuyez sur Entrée${RESET}"
         echo -e "${CYAN}   Ou tapez un numéro pour sélectionner par position${RESET}"
         echo ""
         printf "Choix: "
