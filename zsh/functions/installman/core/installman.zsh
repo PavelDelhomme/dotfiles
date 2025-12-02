@@ -4,7 +4,7 @@
 # =============================================================================
 # Description: Gestionnaire complet des installations d'outils de développement
 # Author: Paul Delhomme
-# Version: 1.0
+# Version: 2.0
 # =============================================================================
 
 # Répertoires de base
@@ -28,11 +28,28 @@ fi
 # Charger les fonctions de vérification
 [ -f "$INSTALLMAN_UTILS_DIR/check_installed.sh" ] && source "$INSTALLMAN_UTILS_DIR/check_installed.sh"
 
+# =============================================================================
+# DÉFINITION DES OUTILS DISPONIBLES
+# =============================================================================
+# Format: "nom|alias1|alias2|emoji|description|check_function|module_file|install_function"
+declare -a TOOLS=(
+    "flutter|flut|🎯|Flutter SDK|check_flutter_installed|flutter/install_flutter.sh|install_flutter"
+    "dotnet|dot-net|.net|net|🔷|.NET SDK|check_dotnet_installed|dotnet/install_dotnet.sh|install_dotnet"
+    "emacs|emac|📝|Emacs + Doom Emacs|check_emacs_installed|emacs/install_emacs.sh|install_emacs"
+    "java17|java|java-17|jdk|openjdk|☕|Java 17 OpenJDK|check_java17_installed|java/install_java17.sh|install_java17"
+    "android-studio|androidstudio|android|studio|as|🤖|Android Studio|check_android_studio_installed|android/install_android_studio.sh|install_android_studio"
+    "android-tools|androidtools|adb|sdk|android-sdk|🔧|Outils Android (ADB, SDK)|check_android_tools_installed|android/install_android_tools.sh|install_android_tools"
+    "docker|🐳|Docker & Docker Compose|check_docker_installed|docker/install_docker.sh|install_docker"
+    "brave|brave-browser|🌐|Brave Browser|check_brave_installed|brave/install_brave.sh|install_brave"
+    "cursor|💻|Cursor IDE|check_cursor_installed|cursor/install_cursor.sh|install_cursor"
+    "qemu|qemu-kvm|kvm|🖥️|QEMU/KVM (Virtualisation)|check_qemu_installed|qemu/install_qemu.sh|install_qemu"
+)
+
 # DESC: Gestionnaire interactif complet pour installer des outils de développement
 # USAGE: installman [tool-name]
 # EXAMPLE: installman
 # EXAMPLE: installman flutter
-# EXAMPLE: installman android-studio
+# EXAMPLE: installman docker
 installman() {
     local RED='\033[0;31m'
     local GREEN='\033[0;32m'
@@ -63,92 +80,115 @@ installman() {
         fi
     }
     
+    # Fonction pour trouver un outil par nom/alias
+    find_tool() {
+        local search_term="$1"
+        search_term=$(echo "$search_term" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+        
+        for tool_def in "${TOOLS[@]}"; do
+            IFS='|' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_aliases="${tool_parts[@]:1}"
+            
+            # Vérifier si le terme correspond au nom ou à un alias
+            for alias in "${(@)tool_parts}"; do
+                if [ "$alias" = "$search_term" ]; then
+                    echo "$tool_def"
+                    return 0
+                fi
+            done
+        done
+        
+        return 1
+    }
+    
     # Fonction pour afficher le menu principal
     show_main_menu() {
         show_header
-        echo -e "${YELLOW}📦 INSTALLATION D'OUTILS DE DÉVELOPPEMENT${RESET}"
+        echo -e "${YELLOW}📦 INSTALLATION D'OUTILS${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
-        # Vérifier les statuts d'installation
-        local flutter_status=$(get_install_status "check_flutter_installed")
-        local dotnet_status=$(get_install_status "check_dotnet_installed")
-        local emacs_status=$(get_install_status "check_emacs_installed")
-        local java_status=$(get_install_status "check_java17_installed")
-        local android_studio_status=$(get_install_status "check_android_studio_installed")
-        local android_tools_status=$(get_install_status "check_android_tools_installed")
+        # Afficher tous les outils avec leurs statuts
+        local index=1
+        for tool_def in "${TOOLS[@]}"; do
+            IFS='|' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_emoji="${tool_parts[2]}"
+            local tool_desc="${tool_parts[3]}"
+            local tool_check="${tool_parts[4]}"
+            
+            local status=$(get_install_status "$tool_check")
+            printf "%-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+            ((index++))
+        done
         
-        echo "1.  🎯 Flutter SDK                    (flutter)     $flutter_status"
-        echo "2.  🔷 .NET SDK                       (dotnet)       $dotnet_status"
-        echo "3.  📝 Emacs + Doom Emacs             (emacs)        $emacs_status"
-        echo "4.  ☕ Java 17 OpenJDK                (java17)       $java_status"
-        echo "5.  🤖 Android Studio                 (android-studio) $android_studio_status"
-        echo "6.  🔧 Outils Android (ADB, SDK)      (android-tools) $android_tools_status"
         echo ""
         echo "0.  Quitter"
         echo ""
-        echo -e "${CYAN}💡 Astuce: Vous pouvez taper le nom complet (ex: 'flutter') au lieu du numéro${RESET}"
+        echo -e "${CYAN}💡 Tapez le nom de l'outil (ex: 'flutter', 'docker') puis appuyez sur Entrée${RESET}"
+        echo -e "${CYAN}   Ou tapez un numéro pour sélectionner par position${RESET}"
         echo ""
-        printf "Choix [numéro ou nom]: "
+        printf "Choix: "
         read -r choice
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         # Fonction pour installer un outil
-        install_tool() {
-            local tool_name="$1"
-            local module_file="$2"
-            local install_func="$3"
+        install_tool_from_def() {
+            local tool_def="$1"
+            IFS='|' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_desc="${tool_parts[3]}"
+            local module_file="${tool_parts[5]}"
+            local install_func="${tool_parts[6]}"
             
-            if [ -f "$module_file" ]; then
-                source "$module_file"
+            local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
+            
+            if [ -f "$full_module_path" ]; then
+                source "$full_module_path"
                 $install_func
             else
-                echo -e "${RED}❌ Module $tool_name non disponible${RESET}"
+                echo -e "${RED}❌ Module $tool_desc non disponible: $full_module_path${RESET}"
                 sleep 2
             fi
         }
         
-        # Traitement du choix (numéro ou nom)
-        case "$choice" in
-            # Numéros
-            1|flutter|flut)
-                install_tool "Flutter" "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh" "install_flutter"
-                ;;
-            2|dotnet|dot-net|.net|net)
-                install_tool ".NET" "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh" "install_dotnet"
-                ;;
-            3|emacs|emac)
-                install_tool "Emacs" "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh" "install_emacs"
-                ;;
-            4|java|java17|java-17|jdk|openjdk)
-                install_tool "Java 17" "$INSTALLMAN_MODULES_DIR/java/install_java17.sh" "install_java17"
-                ;;
-            5|android-studio|androidstudio|android|studio|as)
-                install_tool "Android Studio" "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh" "install_android_studio"
-                ;;
-            6|android-tools|androidtools|adb|sdk|android-sdk)
-                install_tool "Outils Android" "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" "install_android_tools"
-                ;;
-            0|quit|exit|q)
-                return 0
-                ;;
-            *)
-                echo -e "${RED}❌ Choix invalide: '$choice'${RESET}"
+        # Traitement du choix
+        if [ -z "$choice" ] || [ "$choice" = "0" ] || [ "$choice" = "quit" ] || [ "$choice" = "exit" ] || [ "$choice" = "q" ]; then
+            return 0
+        fi
+        
+        # Vérifier si c'est un numéro
+        if [[ "$choice" =~ ^[0-9]+$ ]]; then
+            local tool_index=$((choice))
+            if [ $tool_index -ge 1 ] && [ $tool_index -le ${#TOOLS[@]} ]; then
+                local tool_def="${TOOLS[$tool_index]}"
+                install_tool_from_def "$tool_def"
+            else
+                echo -e "${RED}❌ Numéro invalide: $choice${RESET}"
+                sleep 2
+                show_main_menu
+            fi
+        else
+            # Rechercher par nom/alias
+            local found_tool=$(find_tool "$choice")
+            if [ -n "$found_tool" ]; then
+                install_tool_from_def "$found_tool"
+            else
+                echo -e "${RED}❌ Outil non trouvé: '$choice'${RESET}"
                 echo ""
                 echo -e "${YELLOW}Outils disponibles:${RESET}"
-                echo "  - flutter"
-                echo "  - dotnet"
-                echo "  - emacs"
-                echo "  - java17"
-                echo "  - android-studio"
-                echo "  - android-tools"
+                for tool_def in "${TOOLS[@]}"; do
+                    IFS='|' read -rA tool_parts <<< "$tool_def"
+                    echo "  - ${tool_parts[1]}"
+                done
                 echo ""
                 sleep 2
                 show_main_menu
-                ;;
-        esac
+            fi
+        fi
     }
     
-    # Fonction pour installer un outil (utilisée par le menu et les arguments)
+    # Fonction pour installer un outil (utilisée par les arguments en ligne de commande)
     install_tool() {
         local tool_name="$1"
         local module_file="$2"
@@ -167,62 +207,49 @@ installman() {
     if [ -n "$1" ]; then
         local tool_arg=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
-        case "$tool_arg" in
-            flutter|flut)
-                install_tool "Flutter" "$INSTALLMAN_MODULES_DIR/flutter/install_flutter.sh" "install_flutter"
-                ;;
-            dotnet|dot-net|.net|net)
-                install_tool ".NET" "$INSTALLMAN_MODULES_DIR/dotnet/install_dotnet.sh" "install_dotnet"
-                ;;
-            emacs|emac)
-                install_tool "Emacs" "$INSTALLMAN_MODULES_DIR/emacs/install_emacs.sh" "install_emacs"
-                ;;
-            java|java17|java-17|jdk|openjdk)
-                install_tool "Java 17" "$INSTALLMAN_MODULES_DIR/java/install_java17.sh" "install_java17"
-                ;;
-            android-studio|androidstudio|android|studio|as)
-                install_tool "Android Studio" "$INSTALLMAN_MODULES_DIR/android/install_android_studio.sh" "install_android_studio"
-                ;;
-            android-tools|androidtools|adb|sdk|android-sdk)
-                install_tool "Outils Android" "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" "install_android_tools"
-                ;;
-            list|help|--help|-h)
-                echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
-                echo ""
-                echo "  ${GREEN}flutter${RESET}          - Flutter SDK"
-                echo "  ${GREEN}dotnet${RESET}           - .NET SDK"
-                echo "  ${GREEN}emacs${RESET}            - Emacs + Doom Emacs"
-                echo "  ${GREEN}java17${RESET}           - Java 17 OpenJDK"
-                echo "  ${GREEN}android-studio${RESET}   - Android Studio"
-                echo "  ${GREEN}android-tools${RESET}    - Outils Android (ADB, SDK)"
-                echo ""
-                echo -e "${YELLOW}Usage:${RESET}"
-                echo "  installman [tool-name]     - Installer directement un outil"
-                echo "  installman                 - Menu interactif"
-                echo ""
-                echo -e "${CYAN}Exemples:${RESET}"
-                echo "  installman flutter"
-                echo "  installman android-studio"
-                echo "  installman java17"
-                ;;
-            *)
-                echo -e "${RED}❌ Outil inconnu: '$1'${RESET}"
-                echo ""
-                echo -e "${YELLOW}Outils disponibles:${RESET}"
-                echo "  - flutter"
-                echo "  - dotnet"
-                echo "  - emacs"
-                echo "  - java17"
-                echo "  - android-studio"
-                echo "  - android-tools"
-                echo ""
-                echo "Usage: installman [tool-name]"
-                echo "   ou: install-tool [tool-name] (alias)"
-                echo "   ou: installman (menu interactif)"
-                echo "   ou: installman list (afficher la liste)"
-                return 1
-                ;;
-        esac
+        # Rechercher l'outil
+        local found_tool=$(find_tool "$tool_arg")
+        if [ -n "$found_tool" ]; then
+            IFS='|' read -rA tool_parts <<< "$found_tool"
+            local tool_desc="${tool_parts[3]}"
+            local module_file="${tool_parts[5]}"
+            local install_func="${tool_parts[6]}"
+            local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
+            install_tool "$tool_desc" "$full_module_path" "$install_func"
+        elif [ "$tool_arg" = "list" ] || [ "$tool_arg" = "help" ] || [ "$tool_arg" = "--help" ] || [ "$tool_arg" = "-h" ]; then
+            echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
+            echo ""
+            for tool_def in "${TOOLS[@]}"; do
+                IFS='|' read -rA tool_parts <<< "$tool_def"
+                local tool_name="${tool_parts[1]}"
+                local tool_emoji="${tool_parts[2]}"
+                local tool_desc="${tool_parts[3]}"
+                echo "  ${GREEN}$tool_name${RESET} $tool_emoji - $tool_desc"
+            done
+            echo ""
+            echo -e "${YELLOW}Usage:${RESET}"
+            echo "  installman [tool-name]     - Installer directement un outil"
+            echo "  installman                 - Menu interactif"
+            echo ""
+            echo -e "${CYAN}Exemples:${RESET}"
+            echo "  installman flutter"
+            echo "  installman docker"
+            echo "  installman cursor"
+        else
+            echo -e "${RED}❌ Outil inconnu: '$1'${RESET}"
+            echo ""
+            echo -e "${YELLOW}Outils disponibles:${RESET}"
+            for tool_def in "${TOOLS[@]}"; do
+                IFS='|' read -rA tool_parts <<< "$tool_def"
+                echo "  - ${tool_parts[1]}"
+            done
+            echo ""
+            echo "Usage: installman [tool-name]"
+            echo "   ou: install-tool [tool-name] (alias)"
+            echo "   ou: installman (menu interactif)"
+            echo "   ou: installman list (afficher la liste)"
+            return 1
+        fi
     else
         # Mode interactif - NE PAS APPELER AUTOMATIQUEMENT
         # Le menu ne s'affiche que si installman est appelé explicitement
@@ -235,4 +262,3 @@ alias install-tool='installman'
 
 # Alias
 alias im='installman'
-

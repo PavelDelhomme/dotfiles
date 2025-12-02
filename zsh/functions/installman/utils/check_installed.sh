@@ -118,3 +118,47 @@ check_android_sdk_installed() {
     return 1
 }
 
+# DESC: Vérifie si Docker est installé
+# USAGE: check_docker_installed
+check_docker_installed() {
+    if command -v docker &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Brave est installé
+# USAGE: check_brave_installed
+check_brave_installed() {
+    if command -v brave &>/dev/null || command -v brave-browser &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Cursor est installé
+# USAGE: check_cursor_installed
+check_cursor_installed() {
+    if command -v cursor &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si QEMU/KVM est installé
+# USAGE: check_qemu_installed
+check_qemu_installed() {
+    if command -v qemu-system-x86_64 &>/dev/null && command -v virsh &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
