@@ -57,6 +57,9 @@ manman() {
     if [[ -f "$DOTFILES_FUNCTIONS_DIR/installman.zsh" ]]; then
         managers+=("installman:📦 Gestionnaire installation|installman")
     fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/moduleman.zsh" ]]; then
+        managers+=("moduleman:⚙️ Gestionnaire modules|moduleman")
+    fi
     
     clear
     echo -e "${CYAN}${BOLD}"
