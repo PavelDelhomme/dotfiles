@@ -1,49 +1,69 @@
 # Scripts de Configuration - Documentation
 
-Scripts modulaires pour configurer unitairement chaque composant.
+⚠️ **MIGRATION VERS CONFIGMAN**
+
+Les scripts de configuration ont été migrés vers `configman` (gestionnaire modulaire).
+
+## Nouvelle utilisation (recommandé)
+
+Utilisez `configman` pour accéder à toutes les configurations :
+
+```bash
+# Menu interactif
+configman
+
+# Configuration directe
+configman git
+configman git-remote
+configman symlinks
+configman shell
+configman qemu-libvirt
+configman qemu-network
+configman qemu-packages
+```
 
 ## Structure
 
+Les scripts sont maintenant dans :
 ```
-scripts/config/
-├── git_config.sh      # Configuration Git globale (nom, email, etc.)
-├── git_remote.sh      # Configuration remote GitHub (SSH/HTTPS)
-├── qemu_packages.sh   # Installation paquets QEMU/KVM uniquement
-├── qemu_network.sh    # Configuration réseau NAT pour VMs
-└── qemu_libvirt.sh    # Configuration permissions libvirt
+zsh/functions/configman/
+├── core/configman.zsh
+└── modules/
+    ├── git/              # git_config.sh, git_remote.sh
+    ├── qemu/             # qemu_libvirt.sh, qemu_network.sh, qemu_packages.sh
+    ├── symlinks/         # create_symlinks.sh
+    └── shell/            # shell_manager.sh
 ```
 
-## Utilisation
+## Utilisation directe (ancienne méthode)
 
-### Configuration Git
+Si vous préférez utiliser les scripts directement :
 
 ```bash
-# Configurer Git globalement
-bash ~/dotfiles/scripts/config/git_config.sh
+# Configuration Git
+bash ~/dotfiles/zsh/functions/configman/modules/git/git_config.sh
+bash ~/dotfiles/zsh/functions/configman/modules/git/git_remote.sh
 
-# Configurer remote GitHub
-bash ~/dotfiles/scripts/config/git_remote.sh
+# Configuration QEMU (unitaire)
+bash ~/dotfiles/zsh/functions/configman/modules/qemu/qemu_packages.sh
+bash ~/dotfiles/zsh/functions/configman/modules/qemu/qemu_network.sh
+bash ~/dotfiles/zsh/functions/configman/modules/qemu/qemu_libvirt.sh
+
+# Symlinks
+bash ~/dotfiles/zsh/functions/configman/modules/symlinks/create_symlinks.sh
+
+# Shell
+bash ~/dotfiles/zsh/functions/configman/modules/shell/shell_manager.sh
 ```
 
-### Configuration QEMU (unitaire)
+## Avantages de configman
 
-Si QEMU est déjà installé mais mal configuré, vous pouvez configurer chaque partie séparément :
-
-```bash
-# 1. Installer uniquement les paquets (si pas installé)
-bash ~/dotfiles/scripts/config/qemu_packages.sh
-
-# 2. Configurer le réseau NAT (si réseau non fonctionnel)
-bash ~/dotfiles/scripts/config/qemu_network.sh
-
-# 3. Configurer libvirt (si permissions manquantes)
-bash ~/dotfiles/scripts/config/qemu_libvirt.sh
-```
-
-## Avantages
-
-- **Modulaire** : Configurez uniquement ce qui est nécessaire
-- **Unitaire** : Chaque script fait une seule chose
+- **Menu interactif** : Accès facile à toutes les configurations
+- **Structure modulaire** : Organisation claire et extensible
+- **Unitaire** : Chaque module fait une seule chose
 - **Réutilisable** : Peut être exécuté plusieurs fois sans problème
 - **Idempotent** : Vérifie l'état avant de modifier
 
+## Documentation complète
+
+Voir la section [Configman - Gestionnaire de Configurations](#%EF%B8%8F-configman---gestionnaire-de-configurations) dans le README.md principal.

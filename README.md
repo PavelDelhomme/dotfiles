@@ -579,7 +579,7 @@ Structure principale :
 │   ├── env.sh                  # Variables d'environnement
 │   ├── aliases.zsh             # Aliases personnalisés
 │   └── functions/              # Fonctions shell
-│       ├── *man.zsh            # Gestionnaires (cyberman, devman, gitman, miscman, pathman, netman, aliaman, etc.)
+│       ├── *man.zsh            # Gestionnaires (cyberman, devman, gitman, miscman, pathman, netman, aliaman, configman, installman, helpman, manman, searchman)
 │       ├── cyberman/           # Cyberman - Structure modulaire
 │       │   ├── core/           # Script principal
 │       │   ├── modules/        # Modules organisés (security, legacy, etc.)
@@ -589,18 +589,35 @@ Structure principale :
 │       │   └── modules/        # Modules (legacy, etc.)
 │       ├── gitman/             # Gitman - Structure modulaire
 │       │   ├── core/           # Script principal
-│       │   └── modules/        # Modules (legacy, etc.)
+│       │   ├── modules/        # Modules (legacy, etc.)
+│       │   └── utils/          # Utilitaires (git_wrapper)
 │       ├── miscman/            # Miscman - Structure modulaire
 │       │   ├── core/           # Script principal
 │       │   └── modules/        # Modules (legacy, etc.)
 │       ├── pathman/            # Pathman - Structure modulaire
-│       │   └── core/           # Script principal
-│       └── netman/             # Netman - Structure modulaire
-│           └── core/           # Script principal
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules
+│       │   └── utils/          # Utilitaires
+│       ├── netman/             # Netman - Structure modulaire
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules
+│       │   └── utils/          # Utilitaires
+│       ├── configman/          # Configman - Gestionnaire de configurations
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules (git, qemu, symlinks, shell)
+│       │   └── utils/          # Utilitaires
+│       ├── installman/         # Installman - Gestionnaire d'installations
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules (flutter, dotnet, emacs, java, android)
+│       │   └── utils/          # Utilitaires (logger, path_utils, distro_detect)
+│       ├── helpman/            # Helpman - Gestionnaire d'aide/documentation
+│       │   ├── core/           # Script principal
+│       │   └── utils/          # Utilitaires (list_functions, markdown_viewer)
+│       └── manman.zsh          # Manager of Managers (menu central)
 │       └── **/*.sh             # Fonctions individuelles
 └── scripts/
-    ├── config/                 # Configurations unitaires
-    ├── install/                # Scripts d'installation
+    ├── config/                 # Configurations unitaires (migré vers configman/modules/)
+    ├── install/                # Scripts d'installation (utilisés par installman)
     ├── sync/                   # Auto-sync Git
     ├── test/                   # Validation & tests
     └── vm/                     # Gestion VM

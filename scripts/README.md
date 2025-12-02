@@ -78,24 +78,16 @@ QEMU/KVM (installation complète) :
 bash ~/dotfiles/scripts/install/tools/install_qemu_full.sh
 ```
 
-Ou installation modulaire via scripts/config/ :
-
-Paquets uniquement :
+Ou installation modulaire via configman :
 
 ```bash
-bash ~/dotfiles/scripts/config/qemu_packages.sh
-```
+# Menu interactif
+configman
 
-Réseau uniquement :
-
-```bash
-bash ~/dotfiles/scripts/config/qemu_network.sh
-```
-
-Libvirt uniquement :
-
-```bash
-bash ~/dotfiles/scripts/config/qemu_libvirt.sh
+# Ou directement
+configman qemu-packages    # Installation paquets uniquement
+configman qemu-network    # Configuration réseau uniquement
+configman qemu-libvirt    # Configuration libvirt uniquement
 ```
 
 Vérification réseau :
