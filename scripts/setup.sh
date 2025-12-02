@@ -227,11 +227,12 @@ show_menu() {
     echo "2.  Configuration remote Git (SSH/HTTPS)"
     echo ""
     echo "3.  Installation paquets de base (btop, curl, wget, etc.)"
-    echo "4.  Installation gestionnaires (yay, snap, flatpak)"
+    echo "4.  Installation Powerlevel10k (thème Zsh avec support Git)"
+    echo "5.  Installation gestionnaires (yay, snap, flatpak)"
     echo ""
-    echo "5.  Installation QEMU/KVM (paquets)"
-    echo "6.  Configuration réseau QEMU"
-    echo "7.  Configuration libvirt (permissions)"
+    echo "6.  Installation QEMU/KVM (paquets)"
+    echo "7.  Configuration réseau QEMU"
+    echo "8.  Configuration libvirt (permissions)"
     echo ""
     echo "8.  Installation Cursor"
     echo "9.  Installation PortProton"
@@ -372,14 +373,13 @@ while true; do
             ;;
         3)
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
-            run_script_exit_code=$?
-            if [ $run_script_exit_code -eq 130 ]; then
-                continue
+            echo ""
+            printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
+            read -r install_p10k
+            install_p10k=${install_p10k:-o}
+            if [[ "$install_p10k" =~ ^[oO]$ ]]; then
+                run_script "$SCRIPT_DIR/install/system/install_powerlevel10k.sh" "Powerlevel10k"
             fi
-            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
-            ;;
-        4)
-            run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires de paquets"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
@@ -387,7 +387,7 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         5)
-            run_script "$SCRIPT_DIR/config/qemu_packages.sh" "Installation QEMU/KVM"
+            run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires de paquets"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
@@ -395,7 +395,7 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         6)
-            run_script "$SCRIPT_DIR/config/qemu_network.sh" "Configuration réseau QEMU"
+            run_script "$SCRIPT_DIR/config/qemu_packages.sh" "Installation QEMU/KVM"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
@@ -403,7 +403,7 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         7)
-            run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Configuration libvirt"
+            run_script "$SCRIPT_DIR/config/qemu_network.sh" "Configuration réseau QEMU"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
@@ -411,7 +411,7 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         8)
-            run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Installation Cursor"
+            run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Configuration libvirt"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
@@ -419,6 +419,14 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         9)
+            run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Installation Cursor"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        10)
             run_script "$SCRIPT_DIR/install/apps/install_portproton.sh" "Installation PortProton"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -439,6 +447,13 @@ while true; do
             fi
             
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            echo ""
+            printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
+            read -r install_p10k
+            install_p10k=${install_p10k:-o}
+            if [[ "$install_p10k" =~ ^[oO]$ ]]; then
+                run_script "$SCRIPT_DIR/install/system/install_powerlevel10k.sh" "Powerlevel10k"
+            fi
             run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires"
             
             # Installer yay AVANT Docker Desktop (nécessaire pour Docker Desktop sur Arch)
@@ -880,6 +895,13 @@ while true; do
                 case "$action" in
                     install_base_packages)
                         run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            echo ""
+            printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
+            read -r install_p10k
+            install_p10k=${install_p10k:-o}
+            if [[ "$install_p10k" =~ ^[oO]$ ]]; then
+                run_script "$SCRIPT_DIR/install/system/install_powerlevel10k.sh" "Powerlevel10k"
+            fi
                         if [ $? -eq 0 ]; then
                             log_install_action "install" "$name" "success" "Installation via packages_base.sh"
                         else
@@ -1004,6 +1026,13 @@ while true; do
             if ! command -v git &> /dev/null || ! command -v curl &> /dev/null || ! command -v zsh &> /dev/null; then
                 log_info "Installation des paquets de base..."
                 run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            echo ""
+            printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
+            read -r install_p10k
+            install_p10k=${install_p10k:-o}
+            if [[ "$install_p10k" =~ ^[oO]$ ]]; then
+                run_script "$SCRIPT_DIR/install/system/install_powerlevel10k.sh" "Powerlevel10k"
+            fi
                 if [ $? -eq 0 ]; then
                     log_install_action "install" "packages_base" "success" "Installation automatique via packages_base.sh"
                 else

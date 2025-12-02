@@ -25,6 +25,13 @@
   # Unset all configuration options. This allows you to apply configuration changes without
   # restarting zsh. Edit ~/.p10k.zsh and type `source ~/.p10k.zsh`.
   unset -m '(POWERLEVEL9K_*|DEFAULT_USER)~POWERLEVEL9K_GITSTATUS_DIR'
+  
+  # Configuration gitstatusd pour Powerlevel10k (Arch/Manjaro)
+  # Définir GITSTATUS_DIR si gitstatusd est installé via le package zsh-theme-powerlevel10k
+  if [[ -z "${GITSTATUS_DIR:-}" ]] && [[ -d /usr/share/zsh-theme-powerlevel10k/gitstatus ]]; then
+    typeset -g POWERLEVEL9K_GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
+    export GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
+  fi
 
   # Zsh >= 5.1 is required.
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return

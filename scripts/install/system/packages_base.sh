@@ -15,7 +15,7 @@ source "$SCRIPT_DIR/lib/common.sh" || {
 
 log_info "Installation paquets de base..."
 
-base_tools=("xclip" "curl" "wget" "make" "cmake" "gcc" "git" "base-devel" "zsh" "btop")
+base_tools=("xclip" "curl" "wget" "make" "cmake" "gcc" "git" "base-devel" "zsh" "btop" "zsh-theme-powerlevel10k")
 for tool in "${base_tools[@]}"; do
     if ! is_package_installed "$tool"; then
         log_info "Installation de $tool..."

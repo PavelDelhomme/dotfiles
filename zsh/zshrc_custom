@@ -225,7 +225,15 @@ backup_dotfiles() {
 # PROMPT POWERLEVEL10K AVEC SUPPORT GIT
 # =============================================================================
 # IMPORTANT: Le prompt Manjaro charge P10k + /usr/share/zsh/p10k.zsh qui écrase notre config
-# Solution: Charger le prompt Manjaro PUIS notre .p10k.zsh pour écraser la config système
+# Solution: Configurer GITSTATUS_DIR AVANT le chargement, puis charger notre .p10k.zsh après
+
+# ÉTAPE 0: Configurer GITSTATUS_DIR AVANT TOUT (critique pour que gitstatus fonctionne)
+# Définir GITSTATUS_DIR si gitstatusd est installé via le package zsh-theme-powerlevel10k
+# C'est nécessaire pour que Powerlevel10k puisse afficher le statut Git
+if [[ -z "${GITSTATUS_DIR:-}" ]] && [[ -d /usr/share/zsh-theme-powerlevel10k/gitstatus ]]; then
+    export GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
+    typeset -g POWERLEVEL9K_GITSTATUS_DIR=/usr/share/zsh-theme-powerlevel10k/gitstatus
+fi
 
 # Étape 1: Charger le prompt Manjaro (qui charge P10k automatiquement)
 # OU charger P10k directement si le prompt Manjaro n'existe pas
@@ -269,13 +277,26 @@ echo "🎉 Configuration ZSH personnalisée chargée avec succès"
 # CRITIQUE : Charger notre .p10k.zsh APRÈS TOUT (même après les messages)
 # pour écraser la config système du prompt Manjaro
 # Cette étape doit être ABSOLUMENT en dernier pour que Git s'affiche
+# 
+# IMPORTANT: Le prompt Manjaro charge /usr/share/zsh/p10k.zsh qui a
+# POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='~' (exclut le home)
+# Notre config écrase cela avec POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN=''
 if [[ -f "$HOME/.p10k.zsh" ]]; then
     source "$HOME/.p10k.zsh" 2>/dev/null || true
     # Forcer le rechargement de P10k pour appliquer notre config
-    (( ! $+functions[p10k] )) || p10k reload 2>/dev/null || true
+    # et s'assurer que gitstatus est initialisé
+    if (( $+functions[p10k] )); then
+        p10k reload 2>/dev/null || true
+        # Attendre un peu pour que gitstatus se connecte
+        sleep 0.1
+    fi
 elif [[ -f "$DOTFILES_PATH/.p10k.zsh" ]]; then
     source "$DOTFILES_PATH/.p10k.zsh" 2>/dev/null || true
     # Forcer le rechargement de P10k pour appliquer notre config
-    (( ! $+functions[p10k] )) || p10k reload 2>/dev/null || true
+    if (( $+functions[p10k] )); then
+        p10k reload 2>/dev/null || true
+        # Attendre un peu pour que gitstatus se connecte
+        sleep 0.1
+    fi
 fi
 
