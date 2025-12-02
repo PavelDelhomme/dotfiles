@@ -1221,6 +1221,127 @@ gitman help                # Liste toutes les commandes
 
 **Documentation :** `help gitman` ou `man gitman`
 
+### ⚙️ Configman - Gestionnaire de Configurations
+
+Gestionnaire complet pour configurer le système (Git, QEMU, symlinks, shells).
+
+**Utilisation :**
+```bash
+configman                    # Menu interactif
+configman git                # Configuration Git globale
+configman git-remote         # Configuration remote GitHub
+configman symlinks           # Création des symlinks dotfiles
+configman shell              # Gestion des shells (zsh, fish, bash)
+configman qemu-libvirt       # Configuration permissions libvirt
+configman qemu-network       # Configuration réseau NAT QEMU
+configman qemu-packages      # Installation paquets QEMU uniquement
+```
+
+**Fonctionnalités :**
+- **Git** : Configuration globale (nom, email, editor, etc.)
+- **Git Remote** : Configuration remote GitHub (SSH/HTTPS)
+- **Symlinks** : Création automatique des symlinks pour centraliser la config
+- **Shell** : Installation, configuration et changement de shell par défaut
+- **QEMU Libvirt** : Configuration permissions et groupes libvirt
+- **QEMU Network** : Configuration réseau NAT pour VMs
+- **QEMU Packages** : Installation modulaire des paquets QEMU
+
+**Exemples :**
+```bash
+# Configurer Git globalement
+configman git
+
+# Créer les symlinks dotfiles
+configman symlinks
+
+# Changer le shell par défaut vers zsh
+configman shell
+
+# Configurer QEMU (modulaire)
+configman qemu-libvirt
+configman qemu-network
+configman qemu-packages
+```
+
+**Documentation :** `help configman` ou `man configman`
+
+### 📦 Installman - Gestionnaire d'Installations
+
+Gestionnaire complet pour installer et configurer automatiquement des outils de développement.
+
+**Utilisation :**
+```bash
+installman                   # Menu interactif
+install-tool                 # Alias pour installman
+installman flutter           # Installation Flutter SDK
+installman dotnet            # Installation .NET SDK
+installman emacs             # Installation Emacs + Doom Emacs + config de base
+installman java17            # Installation Java 17 OpenJDK
+installman android-studio    # Installation Android Studio
+installman android-tools     # Installation outils Android (ADB, SDK, etc.)
+```
+
+**Fonctionnalités :**
+- **Flutter SDK** : Installation dans `/opt/flutter/bin` avec configuration automatique
+- **.NET SDK** : Installation avec ajout automatique au PATH
+- **Emacs** : Installation + Doom Emacs + configuration de base (mode sombre, numéros de ligne, outils dev)
+- **Java 17** : Installation OpenJDK avec configuration automatique
+- **Android Studio** : Installation selon la distribution (Arch, Debian, Fedora)
+- **Outils Android** : ADB, SDK, build-tools avec configuration automatique
+
+**Configuration automatique :**
+- ✅ Ajout automatique au PATH dans `env.sh` (configuration définitive)
+- ✅ Vérification si déjà installé (évite les réinstallations)
+- ✅ Configuration adaptée à la distribution (Arch, Debian, Fedora)
+- ✅ Support multi-distributions
+
+**Exemples :**
+```bash
+# Installer Flutter (menu interactif)
+installman
+
+# Installer Flutter directement
+installman flutter
+
+# Installer Android Studio et outils
+installman android-studio
+installman android-tools
+
+# Installer Emacs avec configuration complète
+installman emacs
+# → Installe Emacs
+# → Configure mode sombre, numéros de ligne, outils dev
+# → Installe Doom Emacs
+```
+
+**Documentation :** `help installman` ou `man installman`
+
+### 🎯 Manman - Manager of Managers
+
+Gestionnaire centralisé pour accéder à tous les autres gestionnaires.
+
+**Utilisation :**
+```bash
+manman                       # Menu interactif de tous les managers
+mmg                         # Alias pour manman
+managers                    # Alias pour manman
+```
+
+**Managers disponibles :**
+- 📁 **pathman** : Gestionnaire PATH
+- 🌐 **netman** : Gestionnaire réseau
+- 📝 **aliaman** : Gestionnaire alias
+- 🔧 **miscman** : Gestionnaire divers
+- 🔍 **searchman** : Gestionnaire recherche
+- 🛡️ **cyberman** : Gestionnaire cybersécurité
+- 💻 **devman** : Gestionnaire développement
+- 📦 **gitman** : Gestionnaire Git
+- 📚 **helpman** : Gestionnaire aide/documentation
+- ⚙️ **configman** : Gestionnaire configurations
+- 📦 **installman** : Gestionnaire installations
+
+**Documentation :** `help manman` ou `man manman`
+
 ### 🛠️ Miscman - Gestionnaire Outils Divers
 
 Gestionnaire pour les outils divers et utilitaires système.
@@ -1723,7 +1844,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
 
 **Fonctions ZSH** :
-- ✅ Gestionnaires (9 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman)
+- ✅ Gestionnaires (11 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman)
 - ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
 - ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
 - ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)
