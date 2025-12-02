@@ -1,17 +1,29 @@
 #!/bin/bash
 
+# ⚠️ IMPORTANT: Ce script ne doit être exécuté QUE via 'configman git-remote'
+# Il ne doit JAMAIS être sourcé ou exécuté automatiquement au chargement de zshrc
+
+# Vérifier si on est dans un terminal interactif
+if [ ! -t 0 ]; then
+    echo "❌ Ce script nécessite un terminal interactif"
+    exit 1
+fi
+
 echo "🔧 Fix Git Push - Dotfiles"
 echo "=========================="
 echo ""
 
 cd ~/dotfiles
 
-echo "État actuel:"
-# Afficher la branche uniquement si on est dans un dépôt Git
-if git rev-parse --git-dir > /dev/null 2>&1; then
-    echo "Branche: $(git branch --show-current)"
+# Vérifier qu'on est dans un dépôt Git
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+    echo "❌ Ce répertoire n'est pas un dépôt Git"
+    exit 1
 fi
-echo "Remote: $(git remote get-url origin)"
+
+echo "État actuel:"
+echo "Branche: $(git branch --show-current)"
+echo "Remote: $(git remote get-url origin 2>/dev/null || echo 'Non configuré')"
 echo ""
 
 read -p "Changer remote en SSH? (o/n): " use_ssh
