@@ -58,17 +58,28 @@ accept_android_licenses() {
     
     # Accepter toutes les licences automatiquement
     log_step "Accepter toutes les licences (automatique)..."
-    yes | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1 || {
-        log_warn "Certaines licences n'ont pas pu être acceptées automatiquement"
-        log_step "Tentative avec méthode alternative..."
+    
+    # Méthode 1: Utiliser yes pour répondre automatiquement à toutes les questions
+    local license_output
+    license_output=$(yes | "$SDKMANAGER" --licenses 2>&1) || {
+        log_warn "Méthode automatique échouée, tentative alternative..."
         
-        # Méthode alternative: accepter chaque licence
-        echo "y" | "$SDKMANAGER" --licenses || {
+        # Méthode 2: Utiliser un heredoc pour accepter toutes les licences
+        # On accepte jusqu'à 50 licences (suffisant pour tous les composants)
+        local yes_answers=""
+        for i in {1..50}; do
+            yes_answers="${yes_answers}y\n"
+        done
+        
+        printf "%b" "$yes_answers" | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1 || {
             log_error "Échec de l'acceptation des licences"
             log_info "Essayez manuellement: sdkmanager --licenses"
+            log_info "Ou utilisez le script: bash $SCRIPTS_DIR/install/dev/accept_android_licenses.sh"
             return 1
         }
     }
+    
+    log_info "✓ Licences acceptées"
     
     # Vérifier que les licences sont acceptées
     if [ -d "$ANDROID_HOME/licenses" ]; then
