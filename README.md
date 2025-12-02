@@ -55,6 +55,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Pathman - Gestionnaire PATH](#-pathman---gestionnaire-path)
   - [Netman - Gestionnaire Réseau](#-netman---gestionnaire-rseau)
   - [Helpman - Gestionnaire Documentation](#-helpman---gestionnaire-documentation)
+  - [Fileman - Gestionnaire Fichiers](#-fileman---gestionnaire-fichiers)
 - [🔐 Configuration GitHub SSH](#configuration-github-ssh)
 - [🐳 Docker](#docker)
   - [Installation](#installation)
@@ -603,7 +604,7 @@ Structure principale :
 │   ├── env.sh                  # Variables d'environnement
 │   ├── aliases.zsh             # Aliases personnalisés
 │   └── functions/              # Fonctions shell
-│       ├── *man.zsh            # Gestionnaires (cyberman, devman, gitman, miscman, pathman, netman, aliaman, configman, installman, helpman, manman, searchman)
+│       ├── *man.zsh            # Gestionnaires (cyberman, devman, gitman, miscman, pathman, netman, aliaman, configman, installman, helpman, fileman, manman, searchman)
 │       ├── cyberman/           # Cyberman - Structure modulaire
 │       │   ├── core/           # Script principal
 │       │   ├── modules/        # Modules organisés (security, legacy, etc.)
@@ -637,6 +638,10 @@ Structure principale :
 │       ├── helpman/            # Helpman - Gestionnaire d'aide/documentation
 │       │   ├── core/           # Script principal
 │       │   └── utils/          # Utilitaires (list_functions, markdown_viewer)
+│       ├── fileman/            # Fileman - Gestionnaire de fichiers
+│       │   ├── core/           # Script principal
+│       │   ├── modules/        # Modules (archive, backup, search, permissions, files)
+│       │   └── config/        # Configuration
 │       └── manman.zsh          # Manager of Managers (menu central)
 │       └── **/*.sh             # Fonctions individuelles
 └── scripts/
@@ -1478,6 +1483,57 @@ help --search <mot>        # Rechercher des fonctions
 
 **Documentation :** `help helpman` ou `man helpman`
 
+### 📁 Fileman - Gestionnaire Fichiers
+
+Gestionnaire complet pour les opérations sur fichiers et répertoires.
+
+**Utilisation :**
+```bash
+fileman                    # Menu interactif
+fileman archive            # Gestion des archives
+fileman backup             # Gestion des sauvegardes
+fileman search             # Recherche de fichiers
+fileman permissions        # Gestion des permissions
+fileman files              # Opérations sur fichiers
+```
+
+**Fonctionnalités :**
+- **Archive** : Création et extraction d'archives (tar, zip, rar, 7z, etc.)
+- **Backup** : Création, liste, restauration et suppression de sauvegardes
+- **Recherche** : Recherche de fichiers par nom, contenu, taille ou date
+- **Permissions** : Gestion des permissions de fichiers/répertoires
+- **Fichiers** : Copier, déplacer, supprimer, renommer, créer des répertoires
+
+**Exemples :**
+```bash
+# Menu interactif complet
+fileman
+
+# Gestion des archives
+fileman archive
+# Options: Extraire, créer, lister, vérifier
+
+# Gestion des sauvegardes
+fileman backup
+# Options: Créer, lister, restaurer, supprimer
+
+# Recherche de fichiers
+fileman search
+# Options: Par nom, contenu, taille, date
+
+# Gestion des permissions
+fileman permissions
+# Options: Changer, afficher, appliquer par défaut, rechercher
+
+# Opérations sur fichiers
+fileman files
+# Options: Copier, déplacer, supprimer, renommer, créer, infos
+```
+
+**Documentation :** `help fileman` ou `man fileman`
+
+**Alias :** `fm` → `fileman`
+
 ### Installation des Managers
 
 **Vérification :**
@@ -1884,7 +1940,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
 
 **Fonctions ZSH** :
-- ✅ Gestionnaires (11 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman)
+- ✅ Gestionnaires (12 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman, fileman)
 - ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
 - ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
 - ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)

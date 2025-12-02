@@ -89,6 +89,7 @@ load_manager "manman" "$DOTFILES_ZSH_PATH/functions/manman.zsh" "MANMAN"
 load_manager "configman" "$DOTFILES_ZSH_PATH/functions/configman.zsh" "CONFIGMAN"
 load_manager "installman" "$DOTFILES_ZSH_PATH/functions/installman.zsh" "INSTALLMAN"
 load_manager "moduleman" "$DOTFILES_ZSH_PATH/functions/moduleman.zsh" "MODULEMAN"
+load_manager "fileman" "$DOTFILES_ZSH_PATH/functions/fileman.zsh" "FILEMAN"
 
 # =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
