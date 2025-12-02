@@ -25,6 +25,9 @@ if [ -d "$INSTALLMAN_UTILS_DIR" ]; then
     done
 fi
 
+# Charger les fonctions de vérification
+[ -f "$INSTALLMAN_UTILS_DIR/check_installed.sh" ] && source "$INSTALLMAN_UTILS_DIR/check_installed.sh"
+
 # DESC: Gestionnaire interactif complet pour installer des outils de développement
 # USAGE: installman [tool-name]
 # EXAMPLE: installman
