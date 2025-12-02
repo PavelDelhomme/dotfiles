@@ -714,10 +714,25 @@ show_menu() {
 # FONCTION PRINCIPALE
 # =============================================================================
 installman() {
+    # Cette fonction est remplacée par la nouvelle version dans installman.zsh
+    # Ne pas exécuter automatiquement - rediriger vers la nouvelle version
+    if command -v installman >/dev/null 2>&1 && [ "$(type -f installman 2>/dev/null | grep -c 'installman/core')" -gt 0 ]; then
+        # Utiliser la nouvelle version si disponible
+        command installman "$@"
+        return $?
+    fi
+    
     local tool="$1"
     
-    # Si aucun argument, afficher le menu
+    # Si aucun argument, NE PAS afficher le menu automatiquement
+    # Le menu ne doit s'afficher que si installman est appelé explicitement
     if [ -z "$tool" ]; then
+        # Ne pas afficher le menu automatiquement
+        return 0
+    fi
+    
+    # Si un outil est spécifié, continuer avec l'ancienne logique (pour compatibilité)
+    if [ -n "$tool" ]; then
         while true; do
             show_menu
             read -r choice
@@ -810,14 +825,9 @@ installman() {
     fi
 }
 
-# Créer l'alias install-tool pour compatibilité
-alias install-tool='installman'
-
-# Exporter la fonction
-export -f installman 2>/dev/null || true
+# NE PAS créer d'alias ou exporter - utiliser la nouvelle version dans installman.zsh
+# Cette fonction est conservée uniquement pour compatibilité avec l'ancien code
+# La nouvelle version dans installman.zsh sera utilisée par défaut
 
 # NE PAS APPELER AUTOMATIQUEMENT installman au chargement
 # La fonction ne doit être appelée que manuellement par l'utilisateur
-# if [ "${(%):-%x}" = "${0}" ]; then
-#     installman "$@"
-# fi
