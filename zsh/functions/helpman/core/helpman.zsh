@@ -9,9 +9,21 @@
 
 # Répertoires de base
 HELPMAN_DIR="${HELPMAN_DIR:-$HOME/dotfiles/zsh/functions/helpman}"
-HELP_SYSTEM_FILE="$HELPMAN_DIR/core/help_system.sh"
+HELPMAN_CORE_DIR="$HELPMAN_DIR/core"
+HELPMAN_MODULES_DIR="$HELPMAN_DIR/modules"
+HELPMAN_UTILS_DIR="$HELPMAN_DIR/utils"
+HELPMAN_CONFIG_DIR="$HELPMAN_DIR/config"
+HELPMAN_INSTALL_DIR="$HELPMAN_DIR/install"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
 
-# Charger le système d'aide
+# Charger la configuration si disponible
+if [ -f "$HELPMAN_CONFIG_DIR/helpman.conf" ]; then
+    source "$HELPMAN_CONFIG_DIR/helpman.conf" 2>/dev/null || true
+fi
+
+# Charger le système d'aide (module principal)
+HELP_SYSTEM_FILE="$HELPMAN_MODULES_DIR/help_system.sh"
 if [ -f "$HELP_SYSTEM_FILE" ]; then
     source "$HELP_SYSTEM_FILE"
 fi
