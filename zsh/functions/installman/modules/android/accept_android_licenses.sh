@@ -39,22 +39,33 @@ accept_android_licenses() {
     export ANDROID_HOME
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
     
-    # Trouver sdkmanager (éviter les alias)
+    # Trouver sdkmanager (éviter les alias, utiliser le chemin direct)
     local SDKMANAGER=""
     if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
         SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
     elif [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
         SDKMANAGER="$ANDROID_HOME/tools/bin/sdkmanager"
     else
-        # Utiliser command -v pour éviter les alias, mais vérifier que c'est un vrai fichier
-        local sdkmanager_path=$(command -v sdkmanager 2>/dev/null)
-        if [ -n "$sdkmanager_path" ] && [ -f "$sdkmanager_path" ]; then
-            SDKMANAGER="$sdkmanager_path"
-        else
-            log_error "sdkmanager non trouvé dans $ANDROID_HOME"
-            log_info "Installez d'abord Android SDK avec: installman android-tools"
-            return 1
+        # Résoudre l'alias si nécessaire
+        local sdkmanager_cmd=$(command -v sdkmanager 2>/dev/null)
+        if [ -n "$sdkmanager_cmd" ]; then
+            # Si c'est un alias dans zsh, extraire le chemin réel
+            if echo "$sdkmanager_cmd" | grep -q "alias"; then
+                # Extraire le chemin depuis l'alias
+                sdkmanager_cmd=$(echo "$sdkmanager_cmd" | sed 's/alias sdkmanager=//' | tr -d "'\"")
+            fi
+            if [ -f "$sdkmanager_cmd" ] && [ -x "$sdkmanager_cmd" ]; then
+                SDKMANAGER="$sdkmanager_cmd"
+            fi
         fi
+    fi
+    
+    # Vérifier que sdkmanager existe et est exécutable
+    if [ -z "$SDKMANAGER" ] || [ ! -f "$SDKMANAGER" ] || [ ! -x "$SDKMANAGER" ]; then
+        log_error "sdkmanager non trouvé ou non exécutable dans $ANDROID_HOME"
+        log_info "Chemin recherché: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+        log_info "Installez d'abord Android SDK avec: installman android-tools"
+        return 1
     fi
     
     log_step "Acceptation des licences avec sdkmanager..."
@@ -63,48 +74,31 @@ accept_android_licenses() {
     # Créer le répertoire des licences s'il n'existe pas
     mkdir -p "$ANDROID_HOME/licenses"
     
-    # Accepter toutes les licences automatiquement
-    log_step "Accepter toutes les licences (automatique)..."
-    
-    # Méthode robuste: Utiliser un script temporaire pour accepter toutes les licences
-    local temp_script="/tmp/accept_android_licenses_$$.sh"
-    cat > "$temp_script" << 'EOF'
-#!/bin/bash
-# Script temporaire pour accepter toutes les licences Android SDK
-SDKMANAGER="$1"
-ANDROID_HOME="$2"
-
-# Créer le répertoire licenses s'il n'existe pas
-mkdir -p "$ANDROID_HOME/licenses"
-
-# Essayer d'accepter les licences avec yes
-if ! yes | "$SDKMANAGER" --licenses > /tmp/android_licenses_output.log 2>&1; then
-    # Si ça échoue, utiliser une autre méthode
-    echo "y" | "$SDKMANAGER" --licenses > /tmp/android_licenses_output.log 2>&1 || true
-fi
-
-# Vérifier que le répertoire licenses existe et a des fichiers
-if [ -d "$ANDROID_HOME/licenses" ]; then
-    LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
-    echo "LICENSE_COUNT=$LICENSE_COUNT"
-else
-    echo "LICENSE_COUNT=0"
-fi
-EOF
-    chmod +x "$temp_script"
-    
-    # Exécuter le script temporaire
-    local result
-    result=$("$temp_script" "$SDKMANAGER" "$ANDROID_HOME")
-    local license_count=$(echo "$result" | grep "LICENSE_COUNT=" | cut -d'=' -f2)
-    rm -f "$temp_script"
-    
-    # Afficher le résultat de l'acceptation des licences
-    if [ "$license_count" -gt 0 ]; then
-        log_info "✓ $license_count licence(s) acceptée(s)"
+    # Utiliser le script bash existant qui est plus robuste
+    if [ -f "$ACCEPT_LICENSES_SCRIPT" ]; then
+        log_step "Utilisation du script d'acceptation complet..."
+        bash "$ACCEPT_LICENSES_SCRIPT" || {
+            log_warn "Échec partiel, vérification manuelle..."
+        }
     else
-        log_warn "Aucune licence détectée dans $ANDROID_HOME/licenses"
-        log_info "Les licences peuvent être créées lors de la première utilisation d'un composant"
+        # Méthode alternative: accepter directement
+        log_step "Accepter toutes les licences (automatique)..."
+        yes | "$SDKMANAGER" --licenses > /tmp/android_licenses_output.log 2>&1 || {
+            log_warn "Certaines licences peuvent nécessiter une acceptation manuelle"
+        }
+    fi
+    
+    # Vérifier et compter les licences acceptées
+    local license_count=0
+    if [ -d "$ANDROID_HOME/licenses" ]; then
+        # Compter tous les fichiers de licence (peuvent être .txt ou sans extension)
+        license_count=$(find "$ANDROID_HOME/licenses" -type f \( -name "*.txt" -o -name "android-*" -o -name "google-*" -o -name "intel-*" -o -name "mips-*" -o -name "*-license" \) 2>/dev/null | wc -l)
+        if [ "$license_count" -gt 0 ]; then
+            log_info "✓ $license_count licence(s) acceptée(s)"
+        else
+            log_warn "Aucune licence détectée dans $ANDROID_HOME/licenses"
+            log_info "Les licences peuvent être créées lors de la première utilisation d'un composant"
+        fi
     fi
     
     # Fonction pour vérifier si un composant est déjà installé
