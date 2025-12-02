@@ -45,23 +45,79 @@ check_emacs_installed() {
     return 1
 }
 
-# DESC: Vérifie si Java 17 est installé
-# USAGE: check_java17_installed
-check_java17_installed() {
+# DESC: Vérifie si une version spécifique de Java est installée
+# USAGE: check_java_version_installed <version>
+check_java_version_installed() {
+    local version="$1"
+    
+    if [ -z "$version" ]; then
+        echo "not_installed"
+        return 1
+    fi
+    
+    # Vérifier via command java
     if command -v java &>/dev/null; then
-        local java_version=$(java -version 2>&1 | head -n1 | grep -oP 'version "17[^"]*"')
-        if [ -n "$java_version" ]; then
+        local java_version_output=$(java -version 2>&1 | head -n1)
+        if echo "$java_version_output" | grep -q "version \"${version}[^"]*\""; then
             echo "installed"
             return 0
         fi
     fi
-    # Vérifier aussi dans /usr/lib/jvm
-    if [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
-        echo "installed"
-        return 0
+    
+    # Vérifier dans /usr/lib/jvm
+    local java_path=""
+    if [ "$version" = "25" ]; then
+        # Java 25 peut être dans différents chemins
+        if [ -d "/usr/lib/jvm/java-25-openjdk" ]; then
+            echo "installed"
+            return 0
+        elif [ -d "/usr/lib/jvm/default" ]; then
+            echo "installed"
+            return 0
+        elif [ -d "/usr/lib/jvm/java-openjdk" ]; then
+            echo "installed"
+            return 0
+        fi
+    else
+        java_path="/usr/lib/jvm/java-${version}-openjdk"
+        if [ -d "$java_path" ]; then
+            echo "installed"
+            return 0
+        fi
     fi
+    
     echo "not_installed"
     return 1
+}
+
+# DESC: Vérifie si Java 8 est installé
+# USAGE: check_java8_installed
+check_java8_installed() {
+    check_java_version_installed 8
+}
+
+# DESC: Vérifie si Java 11 est installé
+# USAGE: check_java11_installed
+check_java11_installed() {
+    check_java_version_installed 11
+}
+
+# DESC: Vérifie si Java 17 est installé
+# USAGE: check_java17_installed
+check_java17_installed() {
+    check_java_version_installed 17
+}
+
+# DESC: Vérifie si Java 21 est installé
+# USAGE: check_java21_installed
+check_java21_installed() {
+    check_java_version_installed 21
+}
+
+# DESC: Vérifie si Java 25 est installé
+# USAGE: check_java25_installed
+check_java25_installed() {
+    check_java_version_installed 25
 }
 
 # DESC: Vérifie si Android Studio est installé

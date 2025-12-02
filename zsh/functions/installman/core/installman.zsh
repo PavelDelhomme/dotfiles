@@ -36,7 +36,11 @@ declare -a TOOLS=(
     "flutter:flut:🎯:Flutter SDK:check_flutter_installed:flutter/install_flutter.sh:install_flutter"
     "dotnet:dot-net,.net,net:🔷:.NET SDK:check_dotnet_installed:dotnet/install_dotnet.sh:install_dotnet"
     "emacs:emac:📝:Emacs + Doom Emacs:check_emacs_installed:emacs/install_emacs.sh:install_emacs"
-    "java17:java,java-17,jdk,openjdk:☕:Java 17 OpenJDK:check_java17_installed:java/install_java17.sh:install_java17"
+    "java8:java8,jdk8:☕:Java 8 OpenJDK:check_java8_installed:java/install_java.sh:install_java8"
+    "java11:java11,jdk11:☕:Java 11 OpenJDK:check_java11_installed:java/install_java.sh:install_java11"
+    "java17:java17,java-17,jdk17:☕:Java 17 OpenJDK:check_java17_installed:java/install_java.sh:install_java17"
+    "java21:java21,jdk21:☕:Java 21 OpenJDK:check_java21_installed:java/install_java.sh:install_java21"
+    "java25:java25,jdk25,java,jdk:☕:Java 25 OpenJDK:check_java25_installed:java/install_java.sh:install_java25"
     "android-studio:androidstudio,android,studio,as:🤖:Android Studio:check_android_studio_installed:android/install_android_studio.sh:install_android_studio"
     "android-tools:androidtools,adb,sdk,android-sdk:🔧:Outils Android (ADB, SDK):check_android_tools_installed:android/install_android_tools.sh:install_android_tools"
     "docker::🐳:Docker & Docker Compose:check_docker_installed:docker/install_docker.sh:install_docker"
@@ -125,7 +129,7 @@ installman() {
         # Organiser par catégories
         echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
         local index=1
-        local dev_tools=("flutter" "dotnet" "emacs" "java17" "android-studio" "android-tools" "docker")
+        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "docker")
         for tool_name in "${dev_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"
