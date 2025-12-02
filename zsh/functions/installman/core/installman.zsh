@@ -91,14 +91,16 @@ installman() {
         search_term=$(echo "$search_term" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
         for tool_def in "${TOOLS[@]}"; do
-            IFS=':' read -rA tool_parts <<< "$tool_def"
+            # Utiliser un tableau temporaire pour éviter les problèmes avec les indices
+            local tool_parts=("${(s/:/)tool_def}")
+            
+            # Vérifier que nous avons assez de parties
+            if [ ${#tool_parts[@]} -lt 7 ]; then
+                continue
+            fi
+            
             local tool_name="${tool_parts[1]}"
             local tool_aliases_str="${tool_parts[2]}"
-            local tool_emoji="${tool_parts[3]}"
-            local tool_desc="${tool_parts[4]}"
-            local tool_check="${tool_parts[5]}"
-            local module_file="${tool_parts[6]}"
-            local install_func="${tool_parts[7]}"
             
             # Vérifier si le terme correspond au nom principal
             if [ "$tool_name" = "$search_term" ]; then
@@ -108,8 +110,9 @@ installman() {
             
             # Vérifier les alias (séparés par des virgules)
             if [ -n "$tool_aliases_str" ]; then
-                IFS=',' read -rA aliases <<< "$tool_aliases_str"
+                local aliases=("${(s/,/)tool_aliases_str}")
                 for alias in "${aliases[@]}"; do
+                    alias=$(echo "$alias" | tr -d '[:space:]')
                     if [ "$alias" = "$search_term" ]; then
                         echo "$tool_def"
                         return 0
