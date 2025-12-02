@@ -15,7 +15,7 @@ CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
 if [ -d "$CONFIGMAN_DIR/utils" ]; then
     # Utiliser setopt nonomatch pour éviter l'erreur si aucun fichier .sh
     setopt nonomatch 2>/dev/null || true
-    for util_file in "$CONFIGMAN_DIR/utils"/*.sh; do
+    for util_file in "$CONFIGMAN_DIR/utils"/*.sh(N); do
         [ -f "$util_file" ] && source "$util_file" 2>/dev/null || true
     done
     unsetopt nonomatch 2>/dev/null || true
