@@ -73,6 +73,15 @@ if [ "$DESKTOP_ONLY" = false ]; then
         arch)
             log_info "Installation via pacman (Arch Linux)..."
             sudo pacman -S --noconfirm docker docker-compose
+            # Installer docker-buildx-plugin pour Arch (via AUR si nécessaire)
+            if ! command -v docker buildx &> /dev/null; then
+                log_info "Installation de Docker Buildx (Bake)..."
+                if command -v yay &> /dev/null; then
+                    yay -S docker-buildx-bin --noconfirm 2>/dev/null || log_warn "Buildx non disponible via yay, installation manuelle requise"
+                else
+                    log_warn "yay non installé. Pour installer Buildx, installez yay puis: yay -S docker-buildx-bin"
+                fi
+            fi
             ;;
         debian)
             log_info "Installation via script officiel Docker (Debian/Ubuntu)..."
@@ -350,4 +359,7 @@ echo "  docker ps                      # Lister les conteneurs"
 echo "  docker run hello-world         # Tester Docker"
 echo "  docker-compose up              # Lancer avec docker-compose"
 echo "  docker compose up              # Lancer avec docker compose (plugin)"
+echo "  docker buildx version          # Vérifier Buildx (Bake)"
+echo "  docker buildx ls                # Lister les builders"
+echo "  docker buildx bake              # Utiliser Bake pour builds"
 echo ""
