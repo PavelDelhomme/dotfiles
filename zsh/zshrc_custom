@@ -216,10 +216,10 @@ backup_dotfiles() {
 }
 
 # =============================================================================
-# PROMPT MANJARO AVEC SUPPORT GIT
+# PROMPT MANJARO AVEC SUPPORT GIT (POWERLEVEL10K)
 # =============================================================================
 # Charger le prompt Manjaro par défaut qui inclut l'affichage Git
-# Ce prompt affiche la branche Git et le statut dans le prompt
+# Ce prompt utilise Powerlevel10k et nécessite un fichier .p10k.zsh
 # IMPORTANT: Doit être chargé APRÈS toutes les autres configurations
 if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
     source /usr/share/zsh/manjaro-zsh-prompt
@@ -229,6 +229,25 @@ elif [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
     if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
         source /usr/share/zsh/manjaro-zsh-prompt
     fi
+fi
+
+# Charger la configuration Powerlevel10k depuis dotfiles si disponible
+# Sinon, utiliser la configuration système ou créer un symlink
+if [[ -f "$DOTFILES_PATH/.p10k.zsh" ]]; then
+    # Si le fichier existe dans dotfiles, créer un symlink vers ~/.p10k.zsh
+    if [[ ! -L "$HOME/.p10k.zsh" ]] || [[ "$(readlink "$HOME/.p10k.zsh")" != "$DOTFILES_PATH/.p10k.zsh" ]]; then
+        # Créer un backup si un fichier existe déjà
+        if [[ -f "$HOME/.p10k.zsh" ]] && [[ ! -L "$HOME/.p10k.zsh" ]]; then
+            mv "$HOME/.p10k.zsh" "$HOME/.p10k.zsh.backup.$(date +%Y%m%d_%H%M%S)"
+        fi
+        # Créer le symlink
+        ln -sf "$DOTFILES_PATH/.p10k.zsh" "$HOME/.p10k.zsh"
+    fi
+    # Charger la configuration
+    [[ ! -f "$HOME/.p10k.zsh" ]] || source "$HOME/.p10k.zsh"
+elif [[ -f "$HOME/.p10k.zsh" ]]; then
+    # Si le fichier existe dans ~/, le charger directement
+    source "$HOME/.p10k.zsh"
 fi
 
 # =============================================================================

@@ -58,9 +58,10 @@ configman() {
         echo "2.  🔗 Git Remote (configuration remote GitHub)"
         echo "3.  🔗 Symlinks (création des symlinks dotfiles)"
         echo "4.  🐚 Shell (gestion des shells)"
-        echo "5.  🖥️  QEMU Libvirt (permissions libvirt)"
-        echo "6.  🌐 QEMU Network (configuration réseau NAT)"
-        echo "7.  📦 QEMU Packages (installation paquets QEMU)"
+        echo "5.  🎨 Powerlevel10k (configuration prompt avec Git)"
+        echo "6.  🖥️  QEMU Libvirt (permissions libvirt)"
+        echo "7.  🌐 QEMU Network (configuration réseau NAT)"
+        echo "8.  📦 QEMU Packages (installation paquets QEMU)"
         echo ""
         echo "0.  Quitter"
         echo ""
@@ -102,6 +103,14 @@ configman() {
                 fi
                 ;;
             5)
+                if [ -f "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh"
+                else
+                    echo -e "${RED}❌ Module Powerlevel10k non disponible${RESET}"
+                    sleep 2
+                fi
+                ;;
+            6)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh"
                 else
@@ -109,7 +118,7 @@ configman() {
                     sleep 2
                 fi
                 ;;
-            6)
+            7)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_network.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_network.sh"
                 else
@@ -117,7 +126,7 @@ configman() {
                     sleep 2
                 fi
                 ;;
-            7)
+            8)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_packages.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_packages.sh"
                 else
@@ -163,6 +172,11 @@ configman() {
                     bash "$CONFIGMAN_MODULES_DIR/shell/shell_manager.sh" menu
                 fi
                 ;;
+            p10k|powerlevel10k|prompt)
+                if [ -f "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh"
+                fi
+                ;;
             qemu-libvirt|qemulibvirt)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh"
@@ -186,6 +200,7 @@ configman() {
                 echo "  - git-remote"
                 echo "  - symlinks"
                 echo "  - shell"
+                echo "  - p10k (Powerlevel10k)"
                 echo "  - qemu-libvirt"
                 echo "  - qemu-network"
                 echo "  - qemu-packages"
