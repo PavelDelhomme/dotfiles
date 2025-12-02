@@ -218,6 +218,50 @@ elif [ -f "$DOTFILES_DIR/.ssh/config" ]; then
 fi
 
 ################################################################################
+# 4. SYMLINK .p10k.zsh (Configuration Powerlevel10k)
+################################################################################
+echo ""
+log_info "Vérification symlink .p10k.zsh..."
+
+if [ -L "$HOME/.p10k.zsh" ]; then
+    CURRENT_LINK=$(readlink "$HOME/.p10k.zsh")
+    if [ "$CURRENT_LINK" = "$DOTFILES_DIR/.p10k.zsh" ]; then
+        log_info "Symlink .p10k.zsh déjà configuré: $CURRENT_LINK"
+    else
+        log_warn "Symlink .p10k.zsh existe mais pointe vers: $CURRENT_LINK"
+        printf "Remplacer? (o/n) [défaut: n]: "
+        read -r replace_p10k
+        if [[ "$replace_p10k" =~ ^[oO]$ ]]; then
+            rm "$HOME/.p10k.zsh"
+            if [ -f "$DOTFILES_DIR/.p10k.zsh" ]; then
+                ln -s "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+                log_info "✓ Symlink .p10k.zsh créé"
+            fi
+        fi
+    fi
+elif [ -f "$HOME/.p10k.zsh" ]; then
+    log_warn "Fichier .p10k.zsh existe déjà (pas un symlink)"
+    printf "Déplacer vers dotfiles et créer symlink? (o/n) [défaut: n]: "
+    read -r move_p10k
+    if [[ "$move_p10k" =~ ^[oO]$ ]]; then
+        BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
+        mkdir -p "$BACKUP_DIR"
+        cp "$HOME/.p10k.zsh" "$BACKUP_DIR/.p10k.zsh"
+        log_info "✓ Backup créé: $BACKUP_DIR/.p10k.zsh"
+        mv "$HOME/.p10k.zsh" "$DOTFILES_DIR/.p10k.zsh"
+        ln -s "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+        log_info "✓ Configuration Powerlevel10k déplacée et symlink créé"
+    fi
+elif [ -f "$DOTFILES_DIR/.p10k.zsh" ]; then
+    # Si le fichier existe dans dotfiles, créer le symlink
+    ln -s "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
+    log_info "✓ Symlink .p10k.zsh créé"
+else
+    log_info "ℹ️  Aucune configuration Powerlevel10k trouvée"
+    log_info "   Vous pouvez la configurer plus tard avec: configman p10k"
+fi
+
+################################################################################
 # RÉSUMÉ
 ################################################################################
 log_section "Résumé des symlinks"
@@ -226,6 +270,7 @@ echo ""
 echo "Symlinks créés/configurés :"
 [ -L "$HOME/.zshrc" ] && echo "  ✅ $HOME/.zshrc -> $(readlink "$HOME/.zshrc")" || echo "  ❌ $HOME/.zshrc (non configuré)"
 [ -L "$HOME/.gitconfig" ] && echo "  ✅ $HOME/.gitconfig -> $(readlink "$HOME/.gitconfig")" || echo "  ❌ $HOME/.gitconfig (non configuré)"
+[ -L "$HOME/.p10k.zsh" ] && echo "  ✅ $HOME/.p10k.zsh -> $(readlink "$HOME/.p10k.zsh")" || echo "  ⚠️  $HOME/.p10k.zsh (optionnel - Powerlevel10k)"
 [ -L "$HOME/.ssh/id_ed25519" ] && echo "  ✅ $HOME/.ssh/id_ed25519 -> $(readlink "$HOME/.ssh/id_ed25519")" || echo "  ⚠️  $HOME/.ssh/id_ed25519 (optionnel)"
 [ -L "$HOME/.ssh/config" ] && echo "  ✅ $HOME/.ssh/config -> $(readlink "$HOME/.ssh/config")" || echo "  ⚠️  $HOME/.ssh/config (optionnel)"
 echo ""

@@ -268,6 +268,12 @@ Cela permet de cloner/pusher sans saisir vos identifiants.
 - Centralisation de la configuration
 - Backup automatique des fichiers existants
 - Création selon le shell sélectionné
+- **Symlinks créés** :
+  - `.zshrc` → `~/dotfiles/zshrc` (wrapper avec détection shell)
+  - `.gitconfig` → `~/dotfiles/.gitconfig`
+  - `.p10k.zsh` → `~/dotfiles/.p10k.zsh` (configuration Powerlevel10k avec Git)
+  - `.ssh/id_ed25519` → `~/dotfiles/.ssh/id_ed25519` (optionnel)
+  - `.ssh/config` → `~/dotfiles/.ssh/config` (optionnel)
 
 **7. Lancement automatique du menu interactif d'installation**
 - Menu `scripts/setup.sh` avec toutes les options
