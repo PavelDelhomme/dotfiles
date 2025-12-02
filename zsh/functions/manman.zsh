@@ -54,7 +54,7 @@ manman() {
     if [[ -f "$DOTFILES_FUNCTIONS_DIR/configman.zsh" ]]; then
         managers+=("configman:⚙️ Gestionnaire configuration|configman")
     fi
-    if [[ -f "$DOTFILES_FUNCTIONS_DIR/install-tool.zsh" ]] || [[ -f "$DOTFILES_FUNCTIONS_DIR/installman.zsh" ]]; then
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/installman.zsh" ]]; then
         managers+=("installman:📦 Gestionnaire installation|installman")
     fi
     
