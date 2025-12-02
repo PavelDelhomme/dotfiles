@@ -218,4 +218,6 @@ configman() {
 # Alias
 alias cm='configman'
 alias config='configman'
+alias dotfilesman='configman'
+alias dfm='configman'
 

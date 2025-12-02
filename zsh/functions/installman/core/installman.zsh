@@ -52,18 +52,37 @@ installman() {
         echo -e "${RESET}"
     }
     
+    # Fonction pour obtenir le statut d'installation
+    get_install_status() {
+        local tool_check="$1"
+        local status=$($tool_check 2>/dev/null)
+        if [ "$status" = "installed" ]; then
+            echo -e "${GREEN}[✓ Installé]${RESET}"
+        else
+            echo -e "${YELLOW}[✗ Non installé]${RESET}"
+        fi
+    }
+    
     # Fonction pour afficher le menu principal
     show_main_menu() {
         show_header
         echo -e "${YELLOW}📦 INSTALLATION D'OUTILS DE DÉVELOPPEMENT${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
-        echo "1.  🎯 Flutter SDK                    (flutter)"
-        echo "2.  🔷 .NET SDK                       (dotnet)"
-        echo "3.  📝 Emacs + Doom Emacs             (emacs)"
-        echo "4.  ☕ Java 17 OpenJDK                (java17)"
-        echo "5.  🤖 Android Studio                 (android-studio)"
-        echo "6.  🔧 Outils Android (ADB, SDK)      (android-tools)"
+        # Vérifier les statuts d'installation
+        local flutter_status=$(get_install_status "check_flutter_installed")
+        local dotnet_status=$(get_install_status "check_dotnet_installed")
+        local emacs_status=$(get_install_status "check_emacs_installed")
+        local java_status=$(get_install_status "check_java17_installed")
+        local android_studio_status=$(get_install_status "check_android_studio_installed")
+        local android_tools_status=$(get_install_status "check_android_tools_installed")
+        
+        echo "1.  🎯 Flutter SDK                    (flutter)     $flutter_status"
+        echo "2.  🔷 .NET SDK                       (dotnet)       $dotnet_status"
+        echo "3.  📝 Emacs + Doom Emacs             (emacs)        $emacs_status"
+        echo "4.  ☕ Java 17 OpenJDK                (java17)       $java_status"
+        echo "5.  🤖 Android Studio                 (android-studio) $android_studio_status"
+        echo "6.  🔧 Outils Android (ADB, SDK)      (android-tools) $android_tools_status"
         echo ""
         echo "0.  Quitter"
         echo ""

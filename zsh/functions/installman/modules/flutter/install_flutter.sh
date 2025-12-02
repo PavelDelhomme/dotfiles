@@ -39,6 +39,7 @@ install_flutter() {
         log_info "Flutter est déjà installé dans $flutter_dir"
         log_step "Vérification de la version..."
         "$flutter_bin/flutter" --version | head -n1 || true
+        echo ""
         read -p "Réinstaller/mettre à jour? (o/N): " reinstall
         if [[ ! "$reinstall" =~ ^[oO]$ ]]; then
             # Vérifier si déjà dans env.sh
@@ -52,6 +53,53 @@ install_flutter() {
             log_step "Suppression de l'installation existante..."
             sudo rm -rf "$flutter_dir"
         fi
+    fi
+    
+    # =============================================================================
+    # INSTALLATION ANDROID SDK AVANT FLUTTER (REQUIS)
+    # =============================================================================
+    log_step "Vérification des prérequis Android SDK..."
+    
+    # Charger la fonction de vérification Android SDK
+    [ -f "$INSTALLMAN_UTILS_DIR/check_installed.sh" ] && source "$INSTALLMAN_UTILS_DIR/check_installed.sh"
+    
+    local android_sdk_status=$(check_android_sdk_installed 2>/dev/null)
+    if [ "$android_sdk_status" != "installed" ]; then
+        log_warn "Android SDK n'est pas installé. Flutter nécessite Android SDK pour fonctionner."
+        echo ""
+        read -p "Installer Android SDK maintenant? (O/n): " install_android
+        install_android=${install_android:-O}
+        
+        if [[ "$install_android" =~ ^[oO]$ ]]; then
+            log_step "Installation d'Android SDK..."
+            # Charger et exécuter install_android_tools
+            if [ -f "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh" ]; then
+                source "$INSTALLMAN_MODULES_DIR/android/install_android_tools.sh"
+                install_android_tools || {
+                    log_error "Échec de l'installation d'Android SDK"
+                    log_warn "Vous pouvez continuer, mais Flutter ne fonctionnera pas correctement sans Android SDK"
+                    read -p "Continuer quand même? (o/N): " continue_anyway
+                    if [[ ! "$continue_anyway" =~ ^[oO]$ ]]; then
+                        return 1
+                    fi
+                }
+            else
+                log_error "Module Android Tools non disponible"
+                log_warn "Vous pouvez continuer, mais Flutter ne fonctionnera pas correctement sans Android SDK"
+                read -p "Continuer quand même? (o/N): " continue_anyway
+                if [[ ! "$continue_anyway" =~ ^[oO]$ ]]; then
+                    return 1
+                fi
+            fi
+        else
+            log_warn "Android SDK non installé. Flutter ne fonctionnera pas correctement."
+            read -p "Continuer quand même? (o/N): " continue_anyway
+            if [[ ! "$continue_anyway" =~ ^[oO]$ ]]; then
+                return 1
+            fi
+        fi
+    else
+        log_info "✓ Android SDK déjà installé"
     fi
     
     # Détection de la distribution
@@ -128,12 +176,38 @@ install_flutter() {
             export PATH="$flutter_bin:$PATH"
         fi
         
-        # Exécuter flutter doctor
-        log_step "Exécution de 'flutter doctor'..."
-        "$flutter_bin/flutter" doctor || true
+        # Exécuter flutter doctor et valider l'installation
+        log_step "Exécution de 'flutter doctor' pour valider l'installation..."
+        echo ""
+        local doctor_output
+        doctor_output=$("$flutter_bin/flutter" doctor 2>&1)
+        echo "$doctor_output"
+        
+        # Analyser le résultat de flutter doctor
+        local doctor_errors=$(echo "$doctor_output" | grep -c "✗" || true)
+        local doctor_warnings=$(echo "$doctor_output" | grep -c "!" || true)
+        local doctor_success=$(echo "$doctor_output" | grep -c "✓" || true)
+        
+        echo ""
+        if [ "$doctor_errors" -gt 0 ]; then
+            log_warn "Flutter doctor a détecté $doctor_errors erreur(s)"
+            log_info "Flutter est installé, mais certains composants nécessitent une configuration"
+            echo ""
+            read -p "Continuer malgré les erreurs? (O/n): " continue_errors
+            continue_errors=${continue_errors:-O}
+            if [[ ! "$continue_errors" =~ ^[oO]$ ]]; then
+                log_error "Installation annulée par l'utilisateur"
+                return 1
+            fi
+        elif [ "$doctor_warnings" -gt 0 ]; then
+            log_warn "Flutter doctor a détecté $doctor_warnings avertissement(s)"
+            log_info "Flutter est installé, mais certains composants peuvent être améliorés"
+        else
+            log_info "✓ Flutter doctor: Tout est OK!"
+        fi
         
         log_info "✓ Flutter installé et configuré avec succès!"
-        log_info "💡 Rechargez votre shell (zshrc) pour utiliser Flutter partout"
+        log_info "💡 Rechargez votre shell (exec zsh) pour utiliser Flutter partout"
         return 0
     else
         log_error "Flutter n'a pas pu être installé correctement"
