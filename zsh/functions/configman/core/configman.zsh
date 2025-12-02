@@ -11,14 +11,16 @@
 CONFIGMAN_DIR="${CONFIGMAN_DIR:-$HOME/dotfiles/zsh/functions/configman}"
 CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
 
-# Charger les utilitaires
+# Charger les utilitaires (seulement si le répertoire existe et contient des fichiers)
 if [ -d "$CONFIGMAN_DIR/utils" ]; then
-    # Utiliser setopt nonomatch pour éviter l'erreur si aucun fichier .sh
-    setopt nonomatch 2>/dev/null || true
-    for util_file in "$CONFIGMAN_DIR/utils"/*.sh(N); do
-        [ -f "$util_file" ] && source "$util_file" 2>/dev/null || true
+    # Vérifier s'il y a des fichiers .sh avant de boucler
+    shopt -s nullglob 2>/dev/null || setopt null_glob 2>/dev/null || true
+    for util_file in "$CONFIGMAN_DIR/utils"/*.sh; do
+        if [ -f "$util_file" ]; then
+            source "$util_file" 2>/dev/null || true
+        fi
     done
-    unsetopt nonomatch 2>/dev/null || true
+    shopt -u nullglob 2>/dev/null || unsetopt null_glob 2>/dev/null || true
 fi
 
 # DESC: Gestionnaire interactif complet pour les configurations système
