@@ -222,38 +222,36 @@ backup_dotfiles() {
 }
 
 # =============================================================================
-# PROMPT MANJARO AVEC SUPPORT GIT (POWERLEVEL10K)
+# PROMPT POWERLEVEL10K AVEC SUPPORT GIT
 # =============================================================================
-# Charger le prompt Manjaro par défaut qui inclut l'affichage Git
-# Ce prompt utilise Powerlevel10k et nécessite un fichier .p10k.zsh
-# IMPORTANT: Doit être chargé APRÈS toutes les autres configurations
+# IMPORTANT: Le prompt Manjaro charge P10k + /usr/share/zsh/p10k.zsh qui écrase notre config
+# Solution: Charger le prompt Manjaro PUIS notre .p10k.zsh pour écraser la config système
+
+# Étape 1: Charger le prompt Manjaro (qui charge P10k automatiquement)
+# OU charger P10k directement si le prompt Manjaro n'existe pas
+# IMPORTANT: Pas de echo ici pour éviter le warning instant_prompt
 if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+    # Prompt Manjaro (charge P10k + config système)
     source /usr/share/zsh/manjaro-zsh-prompt
-elif [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
-    # Fallback: charger la config Manjaro si le prompt n'existe pas
-    source /usr/share/zsh/manjaro-zsh-config
-    if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
-        source /usr/share/zsh/manjaro-zsh-prompt
-    fi
+elif [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]]; then
+    # Powerlevel10k système (Arch/Manjaro) - si prompt Manjaro absent
+    source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+elif [[ -f "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+    # Powerlevel10k Oh-My-Zsh
+    source "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme"
 fi
 
-# Charger la configuration Powerlevel10k depuis dotfiles si disponible
-# Sinon, utiliser la configuration système ou créer un symlink
+# Étape 2: Créer/verifier le symlink .p10k.zsh
 if [[ -f "$DOTFILES_PATH/.p10k.zsh" ]]; then
     # Si le fichier existe dans dotfiles, créer un symlink vers ~/.p10k.zsh
     if [[ ! -L "$HOME/.p10k.zsh" ]] || [[ "$(readlink "$HOME/.p10k.zsh")" != "$DOTFILES_PATH/.p10k.zsh" ]]; then
         # Créer un backup si un fichier existe déjà
         if [[ -f "$HOME/.p10k.zsh" ]] && [[ ! -L "$HOME/.p10k.zsh" ]]; then
-            mv "$HOME/.p10k.zsh" "$HOME/.p10k.zsh.backup.$(date +%Y%m%d_%H%M%S)"
+            mv "$HOME/.p10k.zsh" "$HOME/.p10k.zsh.backup.$(date +%Y%m%d_%H%M%S)" 2>/dev/null || true
         fi
         # Créer le symlink
-        ln -sf "$DOTFILES_PATH/.p10k.zsh" "$HOME/.p10k.zsh"
+        ln -sf "$DOTFILES_PATH/.p10k.zsh" "$HOME/.p10k.zsh" 2>/dev/null || true
     fi
-    # Charger la configuration
-    [[ ! -f "$HOME/.p10k.zsh" ]] || source "$HOME/.p10k.zsh"
-elif [[ -f "$HOME/.p10k.zsh" ]]; then
-    # Si le fichier existe dans ~/, le charger directement
-    source "$HOME/.p10k.zsh"
 fi
 
 # =============================================================================
@@ -264,4 +262,20 @@ if command -v neofetch >/dev/null 2>&1; then
     neofetch
 fi
 echo "🎉 Configuration ZSH personnalisée chargée avec succès"
+
+# =============================================================================
+# ÉTAPE FINALE : CHARGER NOTRE CONFIG P10K EN DERNIER
+# =============================================================================
+# CRITIQUE : Charger notre .p10k.zsh APRÈS TOUT (même après les messages)
+# pour écraser la config système du prompt Manjaro
+# Cette étape doit être ABSOLUMENT en dernier pour que Git s'affiche
+if [[ -f "$HOME/.p10k.zsh" ]]; then
+    source "$HOME/.p10k.zsh" 2>/dev/null || true
+    # Forcer le rechargement de P10k pour appliquer notre config
+    (( ! $+functions[p10k] )) || p10k reload 2>/dev/null || true
+elif [[ -f "$DOTFILES_PATH/.p10k.zsh" ]]; then
+    source "$DOTFILES_PATH/.p10k.zsh" 2>/dev/null || true
+    # Forcer le rechargement de P10k pour appliquer notre config
+    (( ! $+functions[p10k] )) || p10k reload 2>/dev/null || true
+fi
 

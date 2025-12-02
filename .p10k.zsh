@@ -357,8 +357,8 @@
   # typeset -g POWERLEVEL9K_DIR_PREFIX='%246Fin '
 
   #####################################[ vcs: git status ]######################################
-  # Branch icon. Set this parameter to '\UE0A0 ' for the popular Powerline branch icon.
-  typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
+  # Branch icon. Utiliser l'icône de branche Powerline standard pour un affichage plus clair (comme Manjaro)
+  typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uE0A0 '
 
   # Untracked files icon. It's really a question mark, your font isn't broken.
   # Change the value of this parameter to show a different icon.
@@ -402,10 +402,8 @@
 
     if [[ -n $VCS_STATUS_LOCAL_BRANCH ]]; then
       local branch=${(V)VCS_STATUS_LOCAL_BRANCH}
-      # If local branch name is at most 32 characters long, show it in full.
-      # Otherwise show the first 12 … the last 12.
-      # Tip: To always show local branch name in full without truncation, delete the next line.
-      (( $#branch > 32 )) && branch[13,-13]="…"  # <-- this line
+      # Afficher le nom de la branche en entier (comme le prompt Manjaro)
+      # Supprimer la troncature pour un affichage complet
       res+="${clean}${(g::)POWERLEVEL9K_VCS_BRANCH_ICON}${branch//\%/%%}"
     fi
 
@@ -490,7 +488,8 @@
   # Don't show Git status in prompt for repositories whose workdir matches this pattern.
   # For example, if set to '~', the Git repository at $HOME/.git will be ignored.
   # Multiple patterns can be combined with '|': '~(|/foo)|/bar/baz/*'.
-  typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='~'
+  # IMPORTANT: Ne pas exclure ~/dotfiles, donc on désactive ce pattern
+  typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN=''
 
   # Disable the default Git status formatting.
   typeset -g POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING=true
@@ -505,8 +504,8 @@
   typeset -g POWERLEVEL9K_VCS_LOADING_VISUAL_IDENTIFIER_COLOR=244
   # Custom icon.
   # typeset -g POWERLEVEL9K_VCS_VISUAL_IDENTIFIER_EXPANSION='⭐'
-  # Custom prefix.
-  typeset -g POWERLEVEL9K_VCS_PREFIX='%246Fon '
+  # Custom prefix (désactivé pour affichage plus propre comme Manjaro)
+  typeset -g POWERLEVEL9K_VCS_PREFIX=''
 
   # Show status of repositories of these types. You can add svn and/or hg if you are
   # using them. If you do, your prompt may become slow even when your current directory

@@ -4,7 +4,7 @@
 # Teste tous les managers et fonctionnalités dans un environnement isolé
 ################################################################################
 
-set -e
+set +e  # Ne pas arrêter sur erreurs pour continuer tous les tests
 
 # Couleurs
 RED='\033[0;31m'
@@ -289,10 +289,17 @@ show_report() {
 # Nettoyage
 ################################################################################
 cleanup() {
+    # ⚠️ IMPORTANT: Ne jamais modifier la machine réelle, seulement /tmp/
     if [ "${KEEP_TEST_DIR:-}" != "1" ]; then
         log_info "Nettoyage de l'environnement de test..."
-        rm -rf "$TEST_DIR"
-        log_info "Environnement de test supprimé"
+        # Vérifier que TEST_DIR est bien dans /tmp/ pour sécurité
+        if [[ "$TEST_DIR" == /tmp/dotfiles_test_* ]]; then
+            rm -rf "$TEST_DIR"
+            log_info "Environnement de test supprimé"
+        else
+            log_warn "⚠️  TEST_DIR n'est pas dans /tmp/, nettoyage annulé pour sécurité"
+            log_info "Environnement de test conservé: $TEST_DIR"
+        fi
     else
         log_info "Environnement de test conservé: $TEST_DIR"
         log_info "Pour le supprimer: rm -rf $TEST_DIR"

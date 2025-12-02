@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -35,6 +35,17 @@ help: ## Afficher cette aide
 	@echo ""
 	@echo "$(GREEN)Validation:$(NC)"
 	@echo "  make validate          - Valider le setup complet"
+	@echo ""
+	@echo "$(GREEN)Tests:$(NC)"
+	@echo "  make test              - Lancer tous les tests"
+	@echo "  make test-all          - Test complet dans environnement isolé"
+	@echo "  make test-syntax       - Tester la syntaxe de tous les scripts"
+	@echo "  make test-managers     - Tester tous les managers"
+	@echo "  make test-manager MANAGER=aliaman - Tester un manager spécifique"
+	@echo "  make test-scripts      - Tester les scripts de configuration"
+	@echo "  make test-libs         - Tester les bibliothèques communes"
+	@echo "  make test-zshrc        - Tester zshrc_custom"
+	@echo "  make test-alias        - Tester les alias"
 	@echo ""
 	@echo "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
@@ -282,3 +293,182 @@ generate-man: ## Générer les pages man pour toutes les fonctions
 # Génération de documentation
 generate-man: ## Générer les pages man pour toutes les fonctions
 	@bash "$(SCRIPT_DIR)/tools/generate_man_pages.sh"
+
+################################################################################
+# Tests
+################################################################################
+
+test: test-all ## Lancer tous les tests (alias pour test-all)
+
+test-all: ## Test complet dans environnement isolé
+	@echo "$(BLUE)🧪 Test complet des dotfiles...$(NC)"
+	@if [ -f "$(SCRIPT_DIR)/test/test_dotfiles.sh" ]; then \
+		bash "$(SCRIPT_DIR)/test/test_dotfiles.sh"; \
+	else \
+		echo "$(YELLOW)⚠️  Script de test non trouvé$(NC)"; \
+		echo "$(YELLOW)   Création du script de test...$(NC)"; \
+		make test-syntax test-managers test-scripts test-libs test-zshrc test-alias; \
+	fi
+
+test-syntax: ## Tester la syntaxe de tous les scripts
+	@echo "$(BLUE)🔍 Test de syntaxe des scripts...$(NC)"
+	@echo ""
+	@echo "$(GREEN)Test syntaxe Zsh (managers):$(NC)"
+	@for manager in pathman netman aliaman miscman searchman cyberman devman gitman helpman configman installman fileman virtman manman moduleman; do \
+		if [ -f "$(DOTFILES_DIR)/zsh/functions/$$manager.zsh" ]; then \
+			if zsh -n "$(DOTFILES_DIR)/zsh/functions/$$manager.zsh" 2>/dev/null; then \
+				echo "  ✓ $$manager.zsh"; \
+			else \
+				echo "  ✗ $$manager.zsh"; \
+			fi; \
+		fi; \
+	done
+	@echo ""
+	@echo "$(GREEN)Test syntaxe Bash (scripts config):$(NC)"
+	@find "$(DOTFILES_DIR)/zsh/functions/configman/modules" -name "*.sh" 2>/dev/null | while read script; do \
+		if bash -n "$$script" 2>/dev/null; then \
+			echo "  ✓ $$(basename $$script)"; \
+		else \
+			echo "  ✗ $$(basename $$script)"; \
+		fi; \
+	done
+	@find "$(DOTFILES_DIR)/zsh/functions/virtman/modules" -name "*.sh" 2>/dev/null | while read script; do \
+		if bash -n "$$script" 2>/dev/null; then \
+			echo "  ✓ $$(basename $$script)"; \
+		else \
+			echo "  ✗ $$(basename $$script)"; \
+		fi; \
+	done
+	@echo ""
+	@echo "$(GREEN)Test syntaxe bibliothèques:$(NC)"
+	@if [ -f "$(SCRIPT_DIR)/lib/common.sh" ]; then \
+		if bash -n "$(SCRIPT_DIR)/lib/common.sh" 2>/dev/null; then \
+			echo "  ✓ common.sh"; \
+		else \
+			echo "  ✗ common.sh"; \
+		fi; \
+	fi
+
+test-managers: ## Tester tous les managers
+	@echo "$(BLUE)🔍 Test des managers...$(NC)"
+	@for manager in pathman netman aliaman miscman searchman cyberman devman gitman helpman configman installman fileman virtman manman moduleman; do \
+		if [ -f "$(DOTFILES_DIR)/zsh/functions/$$manager.zsh" ]; then \
+			echo "  ✓ $$manager existe"; \
+		else \
+			echo "  ✗ $$manager manquant"; \
+		fi; \
+	done
+	@echo ""
+	@echo "$(GREEN)Structures modulaires:$(NC)"
+	@for manager in cyberman fileman virtman configman; do \
+		if [ -d "$(DOTFILES_DIR)/zsh/functions/$$manager/core" ] && \
+		   [ -d "$(DOTFILES_DIR)/zsh/functions/$$manager/modules" ] && \
+		   [ -d "$(DOTFILES_DIR)/zsh/functions/$$manager/config" ]; then \
+			echo "  ✓ $$manager (structure complète)"; \
+		else \
+			echo "  ✗ $$manager (structure incomplète)"; \
+		fi; \
+	done
+
+test-manager: ## Tester un manager spécifique (usage: make test-manager MANAGER=aliaman)
+	@if [ -z "$(MANAGER)" ]; then \
+		echo "$(YELLOW)⚠️  Usage: make test-manager MANAGER=<nom>$(NC)"; \
+		echo "$(YELLOW)   Exemples: make test-manager MANAGER=aliaman$(NC)"; \
+		echo "$(YELLOW)            make test-manager MANAGER=cyberman$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)🔍 Test du manager: $(MANAGER)$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/zsh/functions/$(MANAGER).zsh" ]; then \
+		echo "$(GREEN)✓ Fichier trouvé$(NC)"; \
+		if zsh -n "$(DOTFILES_DIR)/zsh/functions/$(MANAGER).zsh" 2>/dev/null; then \
+			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+		else \
+			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+			zsh -n "$(DOTFILES_DIR)/zsh/functions/$(MANAGER).zsh" 2>&1 || true; \
+		fi; \
+	else \
+		echo "$(RED)✗ Fichier non trouvé$(NC)"; \
+	fi
+
+test-scripts: ## Tester les scripts de configuration
+	@echo "$(BLUE)🔍 Test des scripts de configuration...$(NC)"
+	@echo "$(GREEN)Scripts configman:$(NC)"
+	@find "$(DOTFILES_DIR)/zsh/functions/configman/modules" -name "*.sh" 2>/dev/null | while read script; do \
+		if bash -n "$$script" 2>/dev/null; then \
+			echo "  ✓ $$(basename $$script)"; \
+		else \
+			echo "  ✗ $$(basename $$script)"; \
+		fi; \
+	done
+	@echo "$(GREEN)Scripts virtman:$(NC)"
+	@find "$(DOTFILES_DIR)/zsh/functions/virtman/modules" -name "*.sh" 2>/dev/null | while read script; do \
+		if bash -n "$$script" 2>/dev/null; then \
+			echo "  ✓ $$(basename $$script)"; \
+		else \
+			echo "  ✗ $$(basename $$script)"; \
+		fi; \
+	done
+
+test-libs: ## Tester les bibliothèques communes
+	@echo "$(BLUE)🔍 Test des bibliothèques communes...$(NC)"
+	@if [ -f "$(SCRIPT_DIR)/lib/common.sh" ]; then \
+		echo "$(GREEN)✓ common.sh existe$(NC)"; \
+		if bash -n "$(SCRIPT_DIR)/lib/common.sh" 2>/dev/null; then \
+			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+		else \
+			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+		fi; \
+	else \
+		echo "$(RED)✗ common.sh non trouvé$(NC)"; \
+	fi
+	@if [ -f "$(SCRIPT_DIR)/lib/actions_logger.sh" ]; then \
+		echo "$(GREEN)✓ actions_logger.sh existe$(NC)"; \
+	fi
+	@if [ -f "$(SCRIPT_DIR)/lib/install_logger.sh" ]; then \
+		echo "$(GREEN)✓ install_logger.sh existe$(NC)"; \
+	fi
+
+test-zshrc: ## Tester zshrc_custom
+	@echo "$(BLUE)🔍 Test de zshrc_custom...$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/zsh/zshrc_custom" ]; then \
+		echo "$(GREEN)✓ zshrc_custom existe$(NC)"; \
+		if zsh -n "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; then \
+			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+		else \
+			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+			zsh -n "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>&1 | head -5 || true; \
+		fi; \
+		if grep -q "module_status" "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; then \
+			echo "$(GREEN)✓ Variable 'status' corrigée (module_status)$(NC)"; \
+		else \
+			if grep -E "local status=|status=" "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null | grep -v "module_status" | grep -v "#"; then \
+				echo "$(YELLOW)⚠️  Variable 'status' potentiellement en conflit$(NC)"; \
+			else \
+				echo "$(GREEN)✓ Pas de conflit de variable 'status'$(NC)"; \
+			fi; \
+		fi; \
+	else \
+		echo "$(RED)✗ zshrc_custom non trouvé$(NC)"; \
+	fi
+
+test-alias: ## Tester les alias
+	@echo "$(BLUE)🔍 Test des alias...$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/zsh/aliases.zsh" ]; then \
+		echo "$(GREEN)✓ aliases.zsh existe$(NC)"; \
+		if zsh -n "$(DOTFILES_DIR)/zsh/aliases.zsh" 2>/dev/null; then \
+			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+		else \
+			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+		fi; \
+		if grep -q "alias_status" "$(DOTFILES_DIR)/zsh/functions/aliaman.zsh" 2>/dev/null; then \
+			echo "$(GREEN)✓ aliaman: variable 'status' corrigée (alias_status)$(NC)"; \
+		else \
+			if grep -E "local status=|status=" "$(DOTFILES_DIR)/zsh/functions/aliaman.zsh" 2>/dev/null | grep -v "alias_status" | grep -v "#"; then \
+				echo "$(YELLOW)⚠️  aliaman: Variable 'status' potentiellement en conflit$(NC)"; \
+			else \
+				echo "$(GREEN)✓ aliaman: Pas de conflit de variable 'status'$(NC)"; \
+			fi; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  aliases.zsh non trouvé (optionnel)$(NC)"; \
+	fi
