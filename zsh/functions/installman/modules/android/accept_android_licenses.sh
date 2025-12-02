@@ -39,19 +39,41 @@ accept_android_licenses() {
     export ANDROID_HOME
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
     
-    # Trouver sdkmanager (éviter les alias, utiliser le chemin direct)
+    # Trouver sdkmanager (chercher dans plusieurs emplacements possibles)
     local SDKMANAGER=""
-    if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-        SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-    elif [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
-        SDKMANAGER="$ANDROID_HOME/tools/bin/sdkmanager"
-    else
-        # Résoudre l'alias si nécessaire
+    
+    # Liste des emplacements possibles (dans l'ordre de préférence)
+    local possible_paths=(
+        "$ANDROID_HOME/cmdline-tools/latest/cmdline-tools/bin/sdkmanager"
+        "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+        "$ANDROID_HOME/tools/bin/sdkmanager"
+    )
+    
+    # Chercher dans les emplacements connus
+    for path in "${possible_paths[@]}"; do
+        if [ -f "$path" ] && [ -x "$path" ]; then
+            SDKMANAGER="$path"
+            break
+        fi
+    done
+    
+    # Si toujours pas trouvé, utiliser find pour chercher dans tout le SDK
+    if [ -z "$SDKMANAGER" ]; then
+        SDKMANAGER=$(find "$ANDROID_HOME" -type f -name "sdkmanager" 2>/dev/null | head -1)
+        if [ -n "$SDKMANAGER" ] && [ -f "$SDKMANAGER" ] && [ -x "$SDKMANAGER" ]; then
+            log_info "sdkmanager trouvé via recherche: $SDKMANAGER"
+        else
+            SDKMANAGER=""
+        fi
+    fi
+    
+    # Dernier recours: essayer de résoudre l'alias
+    if [ -z "$SDKMANAGER" ]; then
         local sdkmanager_cmd=$(command -v sdkmanager 2>/dev/null)
         if [ -n "$sdkmanager_cmd" ]; then
             # Si c'est un alias dans zsh, extraire le chemin réel
             if echo "$sdkmanager_cmd" | grep -q "alias"; then
-                # Extraire le chemin depuis l'alias
+                # Extraire le chemin depuis l'alias (format: alias sdkmanager=/path)
                 sdkmanager_cmd=$(echo "$sdkmanager_cmd" | sed 's/alias sdkmanager=//' | tr -d "'\"")
             fi
             if [ -f "$sdkmanager_cmd" ] && [ -x "$sdkmanager_cmd" ]; then
@@ -63,8 +85,11 @@ accept_android_licenses() {
     # Vérifier que sdkmanager existe et est exécutable
     if [ -z "$SDKMANAGER" ] || [ ! -f "$SDKMANAGER" ] || [ ! -x "$SDKMANAGER" ]; then
         log_error "sdkmanager non trouvé ou non exécutable dans $ANDROID_HOME"
-        log_info "Chemin recherché: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-        log_info "Installez d'abord Android SDK avec: installman android-tools"
+        log_info "Chemins recherchés:"
+        for path in "${possible_paths[@]}"; do
+            log_info "  → $path"
+        done
+        log_info "Utilisez: installman android-tools pour installer Android SDK"
         return 1
     fi
     
