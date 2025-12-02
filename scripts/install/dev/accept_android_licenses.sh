@@ -52,13 +52,44 @@ fi
 
 log_info "sdkmanager trouvé: $SDKMANAGER"
 
+# Créer le répertoire des licences s'il n'existe pas
+mkdir -p "$ANDROID_HOME/licenses"
+
 # Accepter toutes les licences
 log_info "Acceptation de toutes les licences Android SDK..."
-yes | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1 || {
-    log_warn "Certaines licences n'ont pas pu être acceptées automatiquement"
-    log_info "Tentative manuelle..."
+
+# Méthode 1: Utiliser yes pour répondre automatiquement
+if ! yes | "$SDKMANAGER" --licenses > /tmp/android_licenses.log 2>&1; then
+    log_warn "Méthode automatique échouée, tentative alternative..."
     
-    # Essayer d'accepter chaque licence individuellement
+    # Méthode 2: Créer les fichiers de licence directement
+    log_info "Création des fichiers de licence directement..."
+    
+    # Créer les fichiers de licence standard avec leurs hash
+    LICENSE_DIR="$ANDROID_HOME/licenses"
+    
+    # android-sdk-license (hash standard accepté)
+    echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$LICENSE_DIR/android-sdk-license" 2>/dev/null || true
+    echo "601085b94cd77f0b54ff86406957099ebe79c4d6" >> "$LICENSE_DIR/android-sdk-license" 2>/dev/null || true
+    
+    # android-sdk-preview-license
+    echo "84831b9409646a918e30573bab4c9c91346d8abd" > "$LICENSE_DIR/android-sdk-preview-license" 2>/dev/null || true
+    
+    # google-gdk-license
+    echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a" > "$LICENSE_DIR/google-gdk-license" 2>/dev/null || true
+    
+    # intel-android-extra-license
+    echo "d975f751698a77b662f1254ddbeed3901e976f5a" > "$LICENSE_DIR/intel-android-extra-license" 2>/dev/null || true
+    
+    # mips-android-sysimage-license
+    echo "e9acab5b5fbb560a72cfaecce8946896ff6aab9d" > "$LICENSE_DIR/mips-android-sysimage-license" 2>/dev/null || true
+    
+    # google-gdk-license (alternatif)
+    echo "601085b94cd77f0b54ff86406957099ebe79c4d6" > "$LICENSE_DIR/google-gdk-license" 2>/dev/null || true
+    
+    log_info "Fichiers de licence créés, nouvelle tentative avec sdkmanager..."
+    
+    # Méthode 3: Essayer d'accepter chaque licence individuellement
     "$SDKMANAGER" --licenses <<EOF
 y
 y
@@ -183,13 +214,34 @@ BUILD_TOOLS="build-tools;34.0.0 build-tools;33.0.2 build-tools;32.0.0"
 
 for platform in $PLATFORMS; do
     log_info "Installation de $platform..."
-    "$SDKMANAGER" "$platform" > /tmp/android_sdk_install.log 2>&1 || log_warn "Échec installation $platform"
+    # Utiliser --accept-licenses pour éviter les prompts
+    "$SDKMANAGER" "$platform" --accept-licenses > /tmp/android_sdk_install.log 2>&1 || {
+        # Si --accept-licenses n'est pas supporté, essayer sans
+        "$SDKMANAGER" "$platform" > /tmp/android_sdk_install.log 2>&1 || log_warn "Échec installation $platform (peut déjà être installé)"
+    }
 done
 
 for build_tool in $BUILD_TOOLS; do
     log_info "Installation de $build_tool..."
-    "$SDKMANAGER" "$build_tool" > /tmp/android_sdk_install.log 2>&1 || log_warn "Échec installation $build_tool"
+    # Utiliser --accept-licenses pour éviter les prompts
+    "$SDKMANAGER" "$build_tool" --accept-licenses > /tmp/android_sdk_install.log 2>&1 || {
+        # Si --accept-licenses n'est pas supporté, essayer sans
+        "$SDKMANAGER" "$build_tool" > /tmp/android_sdk_install.log 2>&1 || log_warn "Échec installation $build_tool (peut déjà être installé)"
+    }
 done
+
+# Vérification finale
+if [ -d "$ANDROID_HOME/licenses" ]; then
+    LICENSE_COUNT=$(find "$ANDROID_HOME/licenses" -name "*.txt" -o -name "android-*" 2>/dev/null | wc -l)
+    if [ "$LICENSE_COUNT" -gt 0 ]; then
+        log_success "$LICENSE_COUNT licence(s) acceptée(s)"
+        log_info "Fichiers de licence dans: $ANDROID_HOME/licenses"
+        ls -la "$ANDROID_HOME/licenses" | head -10
+    else
+        log_warn "Aucune licence trouvée dans $ANDROID_HOME/licenses"
+        log_info "Les licences peuvent être créées automatiquement lors de la première utilisation"
+    fi
+fi
 
 log_success "Licences Android SDK acceptées et composants installés"
 
