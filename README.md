@@ -2115,6 +2115,83 @@ Les symlinks sont créés automatiquement lors de l'installation pour centralise
 
 [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
+## 🎨 Configuration Powerlevel10k (Prompt avec Git)
+
+Le prompt Manjaro utilise **Powerlevel10k** pour afficher le statut Git dans le terminal. La configuration est automatiquement gérée par les dotfiles.
+
+### Installation automatique
+
+Lors de l'installation via `bootstrap.sh` ou `create_symlinks.sh`, la configuration Powerlevel10k est automatiquement synchronisée :
+- Si `~/dotfiles/.p10k.zsh` existe, un symlink est créé vers `~/.p10k.zsh`
+- La configuration est chargée automatiquement au démarrage du shell
+
+### Configuration manuelle
+
+Si vous n'avez pas encore configuré Powerlevel10k :
+
+```bash
+# Via configman (recommandé)
+configman p10k
+# Choisir option 1 : Configurer Powerlevel10k
+
+# Ou directement
+p10k configure
+```
+
+Après configuration, copiez la configuration vers dotfiles :
+```bash
+configman p10k
+# Choisir option 3 : Créer un symlink (recommandé pour synchronisation)
+```
+
+### Gestion via configman
+
+```bash
+# Menu interactif
+configman p10k
+
+# Options disponibles :
+# 1. Configurer Powerlevel10k (p10k configure)
+# 2. Copier la configuration depuis dotfiles vers ~/.p10k.zsh
+# 3. Créer un symlink de ~/.p10k.zsh vers dotfiles (recommandé)
+# 4. Vérifier la configuration actuelle
+```
+
+### Fonctionnement
+
+1. **Configuration dans dotfiles** : `~/dotfiles/.p10k.zsh` (versionnée dans Git)
+2. **Symlink automatique** : `~/.p10k.zsh` → `~/dotfiles/.p10k.zsh`
+3. **Chargement automatique** : Le prompt charge la configuration au démarrage
+4. **Statut Git** : Affiché automatiquement dans le prompt si vous êtes dans un dépôt Git
+
+### Vérification
+
+```bash
+# Vérifier si la configuration existe
+ls -la ~/.p10k.zsh
+
+# Vérifier si le symlink pointe vers dotfiles
+readlink ~/.p10k.zsh
+
+# Vérifier la configuration via configman
+configman p10k
+# Choisir option 4 : Vérifier la configuration actuelle
+```
+
+### Dépannage
+
+**Le statut Git n'apparaît pas :**
+1. Vérifier que `~/.p10k.zsh` existe : `ls -la ~/.p10k.zsh`
+2. Si absent, configurer : `configman p10k` (option 1)
+3. Vérifier que Powerlevel10k est installé : `pacman -Q zsh-theme-powerlevel10k`
+4. Recharger le shell : `exec zsh`
+
+**La configuration n'est pas synchronisée :**
+1. Créer le symlink : `configman p10k` (option 3)
+2. Vérifier : `readlink ~/.p10k.zsh` doit pointer vers `~/dotfiles/.p10k.zsh`
+
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
 ## 🚨 Troubleshooting
 
 ### Flutter pas dans le PATH
