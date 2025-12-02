@@ -39,18 +39,22 @@ accept_android_licenses() {
     export ANDROID_HOME
     export ANDROID_SDK_ROOT="$ANDROID_HOME"
     
-    # Trouver sdkmanager
+    # Trouver sdkmanager (éviter les alias)
     local SDKMANAGER=""
     if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
         SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
     elif [ -f "$ANDROID_HOME/tools/bin/sdkmanager" ]; then
         SDKMANAGER="$ANDROID_HOME/tools/bin/sdkmanager"
-    elif command -v sdkmanager &>/dev/null; then
-        SDKMANAGER=$(command -v sdkmanager)
     else
-        log_error "sdkmanager non trouvé dans $ANDROID_HOME"
-        log_info "Installez d'abord Android SDK avec: installman android-tools"
-        return 1
+        # Utiliser command -v pour éviter les alias, mais vérifier que c'est un vrai fichier
+        local sdkmanager_path=$(command -v sdkmanager 2>/dev/null)
+        if [ -n "$sdkmanager_path" ] && [ -f "$sdkmanager_path" ]; then
+            SDKMANAGER="$sdkmanager_path"
+        else
+            log_error "sdkmanager non trouvé dans $ANDROID_HOME"
+            log_info "Installez d'abord Android SDK avec: installman android-tools"
+            return 1
+        fi
     fi
     
     log_step "Acceptation des licences avec sdkmanager..."
@@ -133,12 +137,46 @@ EOF
     
     for platform in "${platforms[@]}"; do
         log_step "Installation de $platform..."
-        "$SDKMANAGER" "$platform" > /tmp/android_sdk_install.log 2>&1 || log_warn "Échec installation $platform (peut déjà être installé)"
+        local install_output
+        install_output=$("$SDKMANAGER" "$platform" 2>&1)
+        local install_status=$?
+        
+        if [ $install_status -eq 0 ]; then
+            log_info "✓ $platform installé avec succès"
+        else
+            # Vérifier si c'est déjà installé ou si c'est une vraie erreur
+            if echo "$install_output" | grep -qi "already installed\|installed"; then
+                log_info "✓ $platform déjà installé"
+            elif echo "$install_output" | grep -qi "license"; then
+                log_warn "⚠ $platform nécessite l'acceptation de licences"
+                log_info "Relancez: installman android-licenses"
+            else
+                log_warn "⚠ Échec installation $platform"
+                log_info "Détails: $install_output" | head -3
+            fi
+        fi
     done
     
     for build_tool in "${build_tools[@]}"; do
         log_step "Installation de $build_tool..."
-        "$SDKMANAGER" "$build_tool" > /tmp/android_sdk_install.log 2>&1 || log_warn "Échec installation $build_tool (peut déjà être installé)"
+        local install_output
+        install_output=$("$SDKMANAGER" "$build_tool" 2>&1)
+        local install_status=$?
+        
+        if [ $install_status -eq 0 ]; then
+            log_info "✓ $build_tool installé avec succès"
+        else
+            # Vérifier si c'est déjà installé ou si c'est une vraie erreur
+            if echo "$install_output" | grep -qi "already installed\|installed"; then
+                log_info "✓ $build_tool déjà installé"
+            elif echo "$install_output" | grep -qi "license"; then
+                log_warn "⚠ $build_tool nécessite l'acceptation de licences"
+                log_info "Relancez: installman android-licenses"
+            else
+                log_warn "⚠ Échec installation $build_tool"
+                log_info "Détails: $install_output" | head -3
+            fi
+        fi
     done
     
     log_info "✓ Toutes les licences Android SDK sont acceptées!"

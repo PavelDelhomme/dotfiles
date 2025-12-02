@@ -248,7 +248,8 @@ check_android_licenses_accepted() {
     
     # Vérifier si le répertoire des licences existe et contient des licences
     if [ -d "$ANDROID_HOME/licenses" ]; then
-        local license_count=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
+        # Compter les fichiers de licence (peuvent être .txt ou sans extension)
+        local license_count=$(find "$ANDROID_HOME/licenses" -type f \( -name "*.txt" -o -name "android-*" -o -name "google-*" -o -name "intel-*" -o -name "mips-*" \) 2>/dev/null | wc -l)
         if [ "$license_count" -gt 0 ]; then
             echo "installed"
             return 0

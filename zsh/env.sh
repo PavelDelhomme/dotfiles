@@ -43,6 +43,10 @@ if command -v add_to_path >/dev/null 2>&1 || type add_to_path >/dev/null 2>&1 ||
     add_to_path "/opt/flutter/bin" 2>/dev/null || true
     add_to_path "$EMACSDIR" 2>/dev/null || true
     add_to_path "$DOTNET_PATH" 2>/dev/null || true
+    # Android Platform Tools (ADB)
+    add_to_path "/opt/android-sdk/platform-tools" 2>/dev/null || true
+    # Android Build Tools
+    add_to_path "drwxr-xr-x 1 root root 586  2 déc.  22:17 /opt/android-sdk/build-tools/36.1.0" 2>/dev/null || true
 else
     # Fallback: ajouter directement au PATH si la fonction n'est pas disponible
     for dir in "/usr/lib/jvm/java-17-openjdk/bin" "$CMDLINE_TOOLS" "$PLATFORM_TOOLS" "$ANDROID_TOOLS" "$PUB_FLUTTER_BIN" "/opt/flutter/bin" "$EMACSDIR" "$DOTNET_PATH"; do
