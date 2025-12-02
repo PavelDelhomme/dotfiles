@@ -91,10 +91,10 @@ installman() {
         search_term=$(echo "$search_term" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
         for tool_def in "${TOOLS[@]}"; do
-            # Utiliser un tableau temporaire pour éviter les problèmes avec les indices
-            local tool_parts=("${(s/:/)tool_def}")
+            # Utiliser la syntaxe Zsh native pour split par ':'
+            local tool_parts=("${(@s/:/)tool_def}")
             
-            # Vérifier que nous avons assez de parties
+            # Vérifier que nous avons assez de parties (7: nom, alias, emoji, desc, check, module, func)
             if [ ${#tool_parts[@]} -lt 7 ]; then
                 continue
             fi
@@ -110,7 +110,7 @@ installman() {
             
             # Vérifier les alias (séparés par des virgules)
             if [ -n "$tool_aliases_str" ]; then
-                local aliases=("${(s/,/)tool_aliases_str}")
+                local aliases=("${(@s/,/)tool_aliases_str}")
                 for alias in "${aliases[@]}"; do
                     alias=$(echo "$alias" | tr -d '[:space:]')
                     if [ "$alias" = "$search_term" ]; then
