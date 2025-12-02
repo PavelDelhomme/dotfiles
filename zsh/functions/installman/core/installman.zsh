@@ -43,6 +43,7 @@ declare -a TOOLS=(
     "java25:java25,jdk25,java,jdk:☕:Java 25 OpenJDK:check_java25_installed:java/install_java.sh:install_java25"
     "android-studio:androidstudio,android,studio,as:🤖:Android Studio:check_android_studio_installed:android/install_android_studio.sh:install_android_studio"
     "android-tools:androidtools,adb,sdk,android-sdk:🔧:Outils Android (ADB, SDK):check_android_tools_installed:android/install_android_tools.sh:install_android_tools"
+    "android-licenses:android-license,licenses:📝:Accepter licences Android SDK:check_android_licenses_accepted:android/accept_android_licenses.sh:accept_android_licenses"
     "docker::🐳:Docker & Docker Compose:check_docker_installed:docker/install_docker.sh:install_docker"
     "brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave"
     "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
@@ -129,7 +130,8 @@ installman() {
         # Organiser par catégories
         echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
         local index=1
-        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "docker")
+        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "android-licenses" "docker")
+        # Note: android-licenses n'est pas dans la liste principale, ajouté séparément
         for tool_name in "${dev_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"

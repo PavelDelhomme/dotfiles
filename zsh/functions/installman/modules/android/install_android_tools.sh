@@ -105,7 +105,29 @@ install_android_tools() {
     esac
     
     log_info "✓ Outils Android installés et configurés avec succès!"
+    
+    # Proposer d'accepter les licences Android SDK
+    echo ""
+    log_step "Acceptation des licences Android SDK..."
+    read -p "Accepter automatiquement toutes les licences Android SDK maintenant? (O/n): " accept_licenses
+    accept_licenses=${accept_licenses:-O}
+    
+    if [[ "$accept_licenses" =~ ^[oO]$ ]]; then
+        # Charger le module d'acceptation des licences
+        if [ -f "$INSTALLMAN_DIR/modules/android/accept_android_licenses.sh" ]; then
+            source "$INSTALLMAN_DIR/modules/android/accept_android_licenses.sh"
+            accept_android_licenses || {
+                log_warn "Échec de l'acceptation automatique des licences"
+                log_info "Vous pouvez accepter les licences manuellement avec: installman android-licenses"
+            }
+        else
+            log_warn "Module d'acceptation des licences non disponible"
+            log_info "Acceptez les licences manuellement avec: sdkmanager --licenses"
+        fi
+    fi
+    
     log_info "💡 Vérifiez avec: adb version"
+    log_info "💡 Pour accepter les licences plus tard: installman android-licenses"
     return 0
 }
 

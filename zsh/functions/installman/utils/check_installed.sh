@@ -241,3 +241,21 @@ check_qemu_installed() {
     return 1
 }
 
+# DESC: Vérifie si les licences Android SDK sont acceptées
+# USAGE: check_android_licenses_accepted
+check_android_licenses_accepted() {
+    local ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
+    
+    # Vérifier si le répertoire des licences existe et contient des licences
+    if [ -d "$ANDROID_HOME/licenses" ]; then
+        local license_count=$(find "$ANDROID_HOME/licenses" -name "*.txt" 2>/dev/null | wc -l)
+        if [ "$license_count" -gt 0 ]; then
+            echo "installed"
+            return 0
+        fi
+    fi
+    
+    echo "not_installed"
+    return 1
+}
+

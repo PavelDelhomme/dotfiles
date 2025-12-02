@@ -151,6 +151,18 @@ clean: ## Nettoyer les fichiers temporaires
 	@rm -f "$(DOTFILES_DIR)/logs/auto_sync.log" 2>/dev/null || true
 	@rm -f /tmp/dotfiles_auto_sync.lock 2>/dev/null || true
 	@rm -f /tmp/auto_backup_dotfiles.pid 2>/dev/null || true
+	@echo "$(GREEN)✓ Nettoyage des logs terminé$(NC)"
+	@echo ""
+	@echo "$(BLUE)🧹 Nettoyage des fichiers de build (Gradle, etc.)...$(NC)"
+	@if [ -d "frontend/android" ]; then \
+		echo "$(YELLOW)  Nettoyage de frontend/android...$(NC)"; \
+		cd frontend/android && \
+		rm -rf .gradle build 2>/dev/null || true && \
+		echo "$(GREEN)  ✓ frontend/android/.gradle et build supprimés$(NC)" && \
+		cd ../..; \
+	else \
+		echo "$(YELLOW)  ⚠️  frontend/android non trouvé, ignoré$(NC)"; \
+	fi
 	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
 
 symlinks: ## Créer les symlinks pour centraliser la config
