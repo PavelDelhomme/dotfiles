@@ -7,9 +7,11 @@
 # Version: 1.1 - Ajout vérification si outils déjà installés
 # =============================================================================
 
-# Ne pas exécuter automatiquement si sourcé depuis zshrc_custom
+# Ne pas exécuter automatiquement si sourcé (méthode standard)
 # Ce script doit être appelé explicitement
-[ -z "$CYBERMAN_INSTALL_MODE" ] && return 0 2>/dev/null || true
+if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+    return 0 2>/dev/null || exit 0
+fi
 
 set -e
 

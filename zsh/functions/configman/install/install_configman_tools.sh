@@ -7,8 +7,10 @@
 # Version: 1.0
 # =============================================================================
 
-# Ne pas exécuter automatiquement si sourcé depuis zshrc_custom
-[ -z "$CONFIGMAN_INSTALL_MODE" ] && return 0 2>/dev/null || true
+# Ne pas exécuter automatiquement si sourcé (méthode standard)
+if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
+    return 0 2>/dev/null || exit 0
+fi
 
 set -e
 
