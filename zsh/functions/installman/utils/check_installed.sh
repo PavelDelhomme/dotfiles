@@ -260,3 +260,21 @@ check_android_licenses_accepted() {
     return 1
 }
 
+# DESC: Vérifie si SSH est configuré (au moins une connexion dans ~/.ssh/config)
+# USAGE: check_ssh_configured
+check_ssh_configured() {
+    local SSH_CONFIG="$HOME/.ssh/config"
+    
+    # Vérifier si le fichier config existe et contient au moins un Host (non commenté)
+    if [ -f "$SSH_CONFIG" ]; then
+        local host_count=$(grep -E "^Host " "$SSH_CONFIG" 2>/dev/null | grep -v "^\*$" | wc -l)
+        if [ "$host_count" -gt 0 ]; then
+            echo "installed"
+            return 0
+        fi
+    fi
+    
+    echo "not_installed"
+    return 1
+}
+

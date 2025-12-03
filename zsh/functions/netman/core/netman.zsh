@@ -540,6 +540,169 @@ netman() {
         read -k 1 "?Appuyez sur une touche pour continuer..."
     }
     
+    # Fonction pour tester la connectivité réseau
+    # DESC: Teste la connectivité avec ping et traceroute
+    # USAGE: test_connectivity
+    # EXAMPLE: test_connectivity
+    test_connectivity() {
+        show_header
+        echo -e "${YELLOW}🌐 Test de connectivité réseau${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+        echo
+        
+        read "host?Entrez l'hôte à tester (défaut: google.com): "
+        host=${host:-google.com}
+        
+        echo
+        echo -e "${CYAN}Ping vers $host...${RESET}"
+        if command -v ping >/dev/null 2>&1; then
+            ping -c 4 "$host" 2>/dev/null || ping -c 4 "$host" 2>/dev/null
+        else
+            echo -e "${RED}✗ ping non disponible${RESET}"
+        fi
+        
+        echo
+        echo -e "${CYAN}Traceroute vers $host (premiers 10 sauts)...${RESET}"
+        if command -v traceroute >/dev/null 2>&1; then
+            traceroute -m 10 "$host" 2>/dev/null | head -15
+        elif command -v tracepath >/dev/null 2>&1; then
+            tracepath "$host" 2>/dev/null | head -15
+        else
+            echo -e "${YELLOW}⚠️  traceroute/tracepath non disponible${RESET}"
+        fi
+        
+        echo
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
+    # Fonction pour tester la vitesse réseau
+    # DESC: Teste la vitesse de téléchargement et d'upload
+    # USAGE: test_network_speed
+    # EXAMPLE: test_network_speed
+    test_network_speed() {
+        show_header
+        echo -e "${YELLOW}⚡ Test de vitesse réseau${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+        echo
+        
+        echo -e "${CYAN}Test de téléchargement...${RESET}"
+        echo "Téléchargement d'un fichier de test (10MB)..."
+        
+        local start_time=$(date +%s)
+        local downloaded=$(curl -s -o /dev/null -w "%{size_download}" --max-time 30 "http://speedtest.tele2.net/10MB.zip" 2>/dev/null || echo "0")
+        local end_time=$(date +%s)
+        local duration=$((end_time - start_time))
+        
+        if [ "$downloaded" != "0" ] && [ "$duration" -gt 0 ]; then
+            local speed=$((downloaded * 8 / duration / 1000))  # en Kbps
+            local speed_mbps=$((speed / 1000))
+            echo -e "${GREEN}✓ Vitesse de téléchargement: ${speed_mbps} Mbps (${speed} Kbps)${RESET}"
+        else
+            echo -e "${RED}✗ Échec du test de téléchargement${RESET}"
+        fi
+        
+        echo
+        echo -e "${CYAN}Test de latence...${RESET}"
+        if command -v ping >/dev/null 2>&1; then
+            local ping_result=$(ping -c 5 8.8.8.8 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
+            if [ -n "$ping_result" ]; then
+                echo -e "${GREEN}✓ Latence moyenne: ${ping_result} ms${RESET}"
+            else
+                echo -e "${RED}✗ Échec du test de latence${RESET}"
+            fi
+        fi
+        
+        echo
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
+    # Fonction pour monitorer la bande passante en temps réel
+    # DESC: Surveille la bande passante en temps réel avec graphiques ASCII
+    # USAGE: monitor_bandwidth
+    # EXAMPLE: monitor_bandwidth
+    monitor_bandwidth() {
+        show_header
+        echo -e "${YELLOW}📊 Monitoring de bande passante en temps réel${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+        echo
+        echo "Appuyez sur 'q' pour quitter..."
+        echo
+        
+        local interface=$(ip route | grep default | awk '{print $5}' | head -1)
+        if [ -z "$interface" ]; then
+            interface="eth0"
+        fi
+        
+        echo -e "${CYAN}Interface: $interface${RESET}"
+        echo
+        
+        while true; do
+            local rx_bytes=$(cat "/sys/class/net/$interface/statistics/rx_bytes" 2>/dev/null || echo "0")
+            local tx_bytes=$(cat "/sys/class/net/$interface/statistics/tx_bytes" 2>/dev/null || echo "0")
+            
+            sleep 1
+            
+            local rx_bytes_new=$(cat "/sys/class/net/$interface/statistics/rx_bytes" 2>/dev/null || echo "0")
+            local tx_bytes_new=$(cat "/sys/class/net/$interface/statistics/tx_bytes" 2>/dev/null || echo "0")
+            
+            local rx_rate=$((rx_bytes_new - rx_bytes))
+            local tx_rate=$((tx_bytes_new - tx_bytes))
+            
+            local rx_formatted=$(numfmt --to=iec-i --suffix=B/s $rx_rate 2>/dev/null || echo "${rx_rate}B/s")
+            local tx_formatted=$(numfmt --to=iec-i --suffix=B/s $tx_rate 2>/dev/null || echo "${tx_rate}B/s")
+            
+            printf "\r  ↓ RX: %-12s  ↑ TX: %-12s  [Appuyez sur 'q' pour quitter]" "$rx_formatted" "$tx_formatted"
+            
+            # Vérifier si 'q' a été pressé (non-bloquant)
+            read -t 0.1 -k 1 key 2>/dev/null
+            if [[ "$key" == "q" ]] || [[ "$key" == "Q" ]]; then
+                echo
+                break
+            fi
+        done
+        
+        echo
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
+    # Fonction pour analyser le trafic réseau
+    # DESC: Analyse le trafic réseau par protocole et port
+    # USAGE: analyze_traffic
+    # EXAMPLE: analyze_traffic
+    analyze_traffic() {
+        show_header
+        echo -e "${YELLOW}🔍 Analyse du trafic réseau${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+        echo
+        
+        echo -e "${CYAN}Top 10 des connexions par IP:${RESET}"
+        ss -tn 2>/dev/null | awk 'NR>1 {print $5}' | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | \
+        sort | uniq -c | sort -rn | head -10 | \
+        awk '{printf "  %3d connexions: %s\n", $1, $2}'
+        
+        echo
+        echo -e "${CYAN}Top 10 des ports utilisés:${RESET}"
+        ss -tn 2>/dev/null | awk 'NR>1 {print $5}' | grep -oE ':[0-9]+' | sed 's/://' | \
+        sort | uniq -c | sort -rn | head -10 | \
+        awk '{printf "  %3d connexions: port %s\n", $1, $2}'
+        
+        echo
+        echo -e "${CYAN}Répartition par état:${RESET}"
+        ss -tn 2>/dev/null | awk 'NR>1 {print $1}' | sort | uniq -c | \
+        awk '{printf "  %-15s: %3d connexions\n", $2, $1}'
+        
+        echo
+        echo -e "${CYAN}Protocoles utilisés:${RESET}"
+        ss -tn 2>/dev/null | awk 'NR>1 {print $1}' | sort | uniq | \
+        while read proto; do
+            local count=$(ss -tn 2>/dev/null | grep -c "^$proto")
+            echo "  $proto: $count connexions"
+        done
+        
+        echo
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
     # Fonction pour exporter la configuration réseau
     # DESC: Exporte la configuration réseau complète (interfaces, routes, DNS, ports, connexions, firewall) dans un fichier texte
     # USAGE: export_network_config
@@ -605,6 +768,10 @@ netman() {
         echo "  ${BOLD}7${RESET}  🔍 Scanner un port spécifique"
         echo "  ${BOLD}8${RESET}  💀 Kill rapide d'un port"
         echo "  ${BOLD}9${RESET}  📊 Statistiques réseau"
+        echo "  ${BOLD}a${RESET}  🌐 Test de connectivité (ping/traceroute)"
+        echo "  ${BOLD}b${RESET}  ⚡ Test de vitesse réseau"
+        echo "  ${BOLD}c${RESET}  📊 Monitoring bande passante (temps réel)"
+        echo "  ${BOLD}d${RESET}  🔍 Analyse du trafic réseau"
         echo "  ${BOLD}0${RESET}  💾 Exporter la configuration"
         echo
         echo "  ${BOLD}h${RESET}  📚 Aide"
@@ -624,6 +791,10 @@ netman() {
             7) scan_port ;;
             8) kill_port_quick ;;
             9) show_network_stats ;;
+            a|A) test_connectivity ;;
+            b|B) test_network_speed ;;
+            c|C) monitor_bandwidth ;;
+            d|D) analyze_traffic ;;
             0) export_network_config ;;
             h|H)
                 show_header
@@ -641,6 +812,10 @@ netman() {
                 echo "  • Scan de ports sur hosts locaux ou distants"
                 echo "  • Kill rapide de processus par port"
                 echo "  • Statistiques réseau détaillées"
+                echo "  • Test de connectivité (ping/traceroute)"
+                echo "  • Test de vitesse réseau"
+                echo "  • Monitoring de bande passante en temps réel"
+                echo "  • Analyse du trafic réseau"
                 echo "  • Export de configuration complète"
                 echo
                 echo "Raccourcis:"

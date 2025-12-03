@@ -13,12 +13,18 @@ ssh_auto_setup() {
     local user="${3:-pavel}"
     local port="${4:-22}"
     
-    local script_path="$HOME/dotfiles/zsh/functions/configman/modules/ssh/ssh_auto_setup.sh"
+    # Essayer d'abord sshman, puis configman en fallback
+    local script_path="$HOME/dotfiles/zsh/functions/sshman/modules/ssh_auto_setup.sh"
+    
+    if [ ! -f "$script_path" ]; then
+        script_path="$HOME/dotfiles/zsh/functions/configman/modules/ssh/ssh_auto_setup.sh"
+    fi
     
     if [ -f "$script_path" ]; then
         bash "$script_path" "$host_name" "$host_ip" "$user" "$port"
     else
-        echo "❌ Script ssh_auto_setup.sh non trouvé: $script_path"
+        echo "❌ Script ssh_auto_setup.sh non trouvé"
+        echo "💡 Essayez: sshman auto-setup"
         return 1
     fi
 }

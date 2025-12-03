@@ -54,6 +54,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Miscman - Gestionnaire Outils Divers](#%EF%B8%8F-miscman---gestionnaire-outils-divers)
   - [Pathman - Gestionnaire PATH](#-pathman---gestionnaire-path)
   - [Netman - Gestionnaire Réseau](#-netman---gestionnaire-rseau)
+  - [Sshman - Gestionnaire SSH](#-sshman---gestionnaire-ssh)
   - [Helpman - Gestionnaire Documentation](#-helpman---gestionnaire-documentation)
   - [Fileman - Gestionnaire Fichiers](#-fileman---gestionnaire-fichiers)
   - [Virtman - Gestionnaire Environnements Virtuels](#-virtman---gestionnaire-environnements-virtuels)
@@ -1329,15 +1330,22 @@ installman emacs             # Installation Emacs + Doom Emacs + config de base
 installman java17            # Installation Java 17 OpenJDK
 installman android-studio    # Installation Android Studio
 installman android-tools     # Installation outils Android (ADB, SDK, etc.)
+installman ssh-config        # Configuration SSH automatique (avec mot de passe .env)
 ```
 
 **Fonctionnalités :**
 - **Flutter SDK** : Installation dans `/opt/flutter/bin` avec configuration automatique
 - **.NET SDK** : Installation avec ajout automatique au PATH
 - **Emacs** : Installation + Doom Emacs + configuration de base (mode sombre, numéros de ligne, outils dev)
-- **Java 17** : Installation OpenJDK avec configuration automatique
+- **Java** : Installation OpenJDK (versions 8, 11, 17, 21, 25) avec configuration automatique
 - **Android Studio** : Installation selon la distribution (Arch, Debian, Fedora)
 - **Outils Android** : ADB, SDK, build-tools avec configuration automatique
+- **Licences Android** : Acceptation automatique des licences Android SDK
+- **Docker** : Installation Docker & Docker Compose
+- **Brave Browser** : Installation Brave Browser
+- **Cursor IDE** : Installation Cursor IDE
+- **QEMU/KVM** : Installation outils de virtualisation
+- **SSH Config** : Configuration automatique SSH avec mot de passe depuis `.env`
 
 **Configuration automatique :**
 - ✅ Ajout automatique au PATH dans `env.sh` (configuration définitive)
@@ -1434,23 +1442,75 @@ pathman clean              # Nettoyer le PATH
 
 ### 🌐 Netman - Gestionnaire Réseau
 
-Gestionnaire pour les ports, connexions et informations réseau.
+Gestionnaire complet pour les ports, connexions, interfaces réseau, DNS, routage et analyse du trafic.
 
 **Utilisation :**
 ```bash
 netman                     # Menu interactif
-netman ports               # Gestion des ports
-netman connections         # Connexions réseau
+netman ports               # Gestion des ports (interactif)
+netman kill <port>         # Kill rapide d'un port
+netman scan <host>         # Scan rapide d'un host
+netman stats               # Statistiques réseau
 ```
 
 **Fonctionnalités :**
-- Gestion des ports
-- Connexions réseau
-- Interfaces réseau
-- DNS
-- Informations réseau détaillées
+- **Gestion des ports** : Liste interactive, kill, informations détaillées
+- **Connexions réseau** : Visualisation des connexions actives (ESTABLISHED, TIME_WAIT, etc.)
+- **Informations IP** : IP publique, géolocalisation, IPs locales, IPv6
+- **Configuration DNS** : Serveurs DNS, test de résolution, cache DNS
+- **Table de routage** : Routes IPv4/IPv6, passerelles, métriques
+- **Interfaces réseau** : État, MAC, IPs, statistiques (RX/TX)
+- **Scan de ports** : Port unique ou plage de ports
+- **Kill rapide** : Termination de processus par port
+- **Statistiques réseau** : Statistiques globales, top connexions, bande passante
+- **Test de connectivité** : Ping et traceroute
+- **Test de vitesse** : Vitesse de téléchargement et latence
+- **Monitoring bande passante** : Surveillance en temps réel avec graphiques
+- **Analyse du trafic** : Top IPs, ports, répartition par protocole
+- **Export de configuration** : Export complet (interfaces, routes, DNS, ports, firewall)
 
 **Documentation :** `help netman` ou `man netman`
+
+### 🔐 Sshman - Gestionnaire SSH
+
+Gestionnaire complet pour les connexions SSH, clés SSH et configurations automatiques.
+
+**Utilisation :**
+```bash
+sshman                     # Menu interactif
+sshman auto-setup          # Configuration automatique SSH (avec mot de passe .env)
+sshman list                # Liste des connexions SSH configurées
+sshman test                # Test de connexion SSH
+sshman keys                # Gestion des clés SSH
+sshman stats               # Statistiques SSH
+```
+
+**Fonctionnalités :**
+- **Configuration automatique** : Configuration SSH avec mot de passe depuis `.env`
+- **Liste des connexions** : Affiche toutes les connexions SSH configurées dans `~/.ssh/config`
+- **Test de connexion** : Teste une connexion SSH configurée
+- **Gestion des clés SSH** : Génération, affichage, copie dans presse-papiers, suppression
+- **Statistiques SSH** : Nombre de hosts configurés, clés, vérification des permissions
+
+**Configuration via `.env` :**
+```bash
+SSH_HOST_NAME="pavel-server"
+SSH_HOST="95.111.227.204"
+SSH_USER="pavel"
+SSH_PORT="22"
+SSH_PASSWORD="votre_mot_de_passe"
+```
+
+**Utilisation manuelle :**
+```bash
+# Fonction directe (compatible avec configman)
+ssh_auto_setup [host_name] [host_ip] [user] [port]
+
+# Exemple
+ssh_auto_setup pavel-server 95.111.227.204 pavel 22
+```
+
+**Documentation :** `help sshman` ou `man sshman`
 
 ### Installation des Managers
 
