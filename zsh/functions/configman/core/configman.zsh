@@ -59,7 +59,8 @@ configman() {
         echo "3.  🔗 Symlinks (création des symlinks dotfiles)"
         echo "4.  🐚 Shell (gestion des shells)"
         echo "5.  🎨 Powerlevel10k (configuration prompt avec Git)"
-        echo "6.  🔐 SSH (configuration connexion SSH automatique)"
+        echo "6.  🔐 SSH (configuration connexion SSH interactive)"
+        echo "6a. 🔐 SSH Auto (configuration automatique avec mot de passe .env)"
         echo "7.  🖥️  QEMU Libvirt (permissions libvirt)"
         echo "8.  🌐 QEMU Network (configuration réseau NAT)"
         echo "9.  📦 QEMU Packages (installation paquets QEMU)"
@@ -116,6 +117,14 @@ configman() {
                     bash "$CONFIGMAN_MODULES_DIR/ssh/ssh_config.sh"
                 else
                     echo -e "${RED}❌ Module SSH non disponible${RESET}"
+                    sleep 2
+                fi
+                ;;
+            6a)
+                if [ -f "$CONFIGMAN_MODULES_DIR/ssh/ssh_auto_setup.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/ssh/ssh_auto_setup.sh"
+                else
+                    echo -e "${RED}❌ Module SSH Auto non disponible${RESET}"
                     sleep 2
                 fi
                 ;;
@@ -193,6 +202,11 @@ configman() {
                     bash "$CONFIGMAN_MODULES_DIR/ssh/ssh_config.sh"
                 fi
                 ;;
+            ssh-auto|sshauto)
+                if [ -f "$CONFIGMAN_MODULES_DIR/ssh/ssh_auto_setup.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/ssh/ssh_auto_setup.sh" "$2" "$3" "$4" "$5"
+                fi
+                ;;
             qemu-libvirt|qemulibvirt)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh"
@@ -217,7 +231,8 @@ configman() {
                 echo "  - symlinks"
                 echo "  - shell"
                 echo "  - p10k (Powerlevel10k)"
-                echo "  - ssh (configuration SSH)"
+                echo "  - ssh (configuration SSH interactive)"
+                echo "  - ssh-auto (configuration SSH automatique avec .env)"
                 echo "  - qemu-libvirt"
                 echo "  - qemu-network"
                 echo "  - qemu-packages"
