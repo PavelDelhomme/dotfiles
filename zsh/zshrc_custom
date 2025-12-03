@@ -229,6 +229,13 @@ backup_dotfiles() {
 }
 
 # =============================================================================
+# FONCTION SSH AUTO SETUP
+# =============================================================================
+if [ -f "$DOTFILES_ZSH_PATH/functions/ssh_auto_setup.zsh" ]; then
+    source "$DOTFILES_ZSH_PATH/functions/ssh_auto_setup.zsh" 2>/dev/null || true
+fi
+
+# =============================================================================
 # PROMPT POWERLEVEL10K AVEC SUPPORT GIT
 # =============================================================================
 # IMPORTANT: Le prompt Manjaro charge P10k + /usr/share/zsh/p10k.zsh qui écrase notre config
