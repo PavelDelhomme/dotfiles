@@ -249,10 +249,14 @@ add_ssh_config_entry() {
 
 # Fonction principale de configuration automatique
 auto_setup_ssh() {
-    local host_name="${1:-pavel-server}"
-    local host_ip="${2:-95.111.227.204}"
-    local user="${3:-pavel}"
-    local port="${4:-22}"
+    # Charger .env d'abord pour avoir accès aux variables
+    load_env
+    
+    # Utiliser les arguments ou les variables d'environnement depuis .env
+    local host_name="${1:-${SSH_HOST_NAME:-pavel-server}}"
+    local host_ip="${2:-${SSH_HOST:-95.111.227.204}}"
+    local user="${3:-${SSH_USER:-pavel}}"
+    local port="${4:-${SSH_PORT:-22}}"
     
     clear
     echo -e "${CYAN}${BOLD}"
@@ -262,19 +266,60 @@ auto_setup_ssh() {
     echo -e "${NC}"
     echo ""
     
-    log_info "Configuration automatique SSH pour: $user@$host_ip"
-    echo ""
+    # Demander les valeurs si non définies dans .env ou arguments
+    if [ -z "$host_name" ] || [ "$host_name" = "pavel-server" ]; then
+        if [ -z "${SSH_HOST_NAME}" ]; then
+            printf "Nom d'alias SSH (Host dans ~/.ssh/config) [pavel-server]: "
+            read -r input_host_name
+            host_name="${input_host_name:-pavel-server}"
+            save_to_env "SSH_HOST_NAME" "$host_name"
+        else
+            host_name="${SSH_HOST_NAME}"
+        fi
+    fi
     
-    # Charger .env
-    load_env
+    if [ -z "$host_ip" ] || [ "$host_ip" = "95.111.227.204" ]; then
+        if [ -z "${SSH_HOST}" ]; then
+            printf "Adresse IP ou hostname du serveur [95.111.227.204]: "
+            read -r input_host_ip
+            host_ip="${input_host_ip:-95.111.227.204}"
+            save_to_env "SSH_HOST" "$host_ip"
+        else
+            host_ip="${SSH_HOST}"
+        fi
+    fi
+    
+    if [ -z "$user" ] || [ "$user" = "pavel" ]; then
+        if [ -z "${SSH_USER}" ]; then
+            printf "Nom d'utilisateur SSH [pavel]: "
+            read -r input_user
+            user="${input_user:-pavel}"
+            save_to_env "SSH_USER" "$user"
+        else
+            user="${SSH_USER}"
+        fi
+    fi
+    
+    if [ -z "$port" ] || [ "$port" = "22" ]; then
+        if [ -z "${SSH_PORT}" ]; then
+            printf "Port SSH [22]: "
+            read -r input_port
+            port="${input_port:-22}"
+            save_to_env "SSH_PORT" "$port"
+        else
+            port="${SSH_PORT}"
+        fi
+    fi
+    
+    log_info "Configuration automatique SSH pour: $user@$host_ip:$port (alias: $host_name)"
+    echo ""
     
     # Obtenir le mot de passe depuis .env ou demander
     local password
-    local env_key="SSH_PASSWORD_${host_name//[^a-zA-Z0-9]/_}"
     
-    if [ -n "${!env_key}" ]; then
+    if [ -n "${SSH_PASSWORD}" ]; then
         log_info "Mot de passe trouvé dans .env"
-        password="${!env_key}"
+        password="${SSH_PASSWORD}"
     else
         # Demander le mot de passe
         printf "Mot de passe SSH pour $user@$host_ip: "
@@ -288,7 +333,7 @@ auto_setup_ssh() {
         
         # Sauvegarder dans .env
         log_info "Sauvegarde du mot de passe dans .env..."
-        save_to_env "$env_key" "$password"
+        save_to_env "SSH_PASSWORD" "$password"
         log_success "Mot de passe sauvegardé dans .env (ne sera pas commité)"
     fi
     
