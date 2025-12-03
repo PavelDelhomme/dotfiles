@@ -67,6 +67,6 @@ alias gca="git commit -a -m"
 # L'alias gs="git status" ci-dessus a la priorité sur la commande système
 alias ghs="command gs"
 alias cd_jobbingtrack="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrackProject/JobbingTrack"
+alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions/CMS_CRM_SOLUTIONS/"
 alias cd_vtcbuilder="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions/CMS_CRM_SOLUTIONS/"
 alias cd_flutter_cooking_recipe="cd /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe"
-alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions"
