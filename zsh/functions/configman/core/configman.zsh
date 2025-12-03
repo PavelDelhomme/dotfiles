@@ -152,10 +152,12 @@ configman() {
                 ;;
         esac
         
-        # Retourner au menu après action
-        echo ""
-        read -k 1 "?Appuyez sur une touche pour continuer... "
-        configman
+        # Retourner au menu après action (sauf si choix 0)
+        if [ "$choice" != "0" ]; then
+            echo ""
+            read -k 1 "?Appuyez sur une touche pour continuer... "
+            configman
+        fi
     }
     
     # Si un argument est fourni, lancer directement le module
