@@ -59,9 +59,10 @@ configman() {
         echo "3.  🔗 Symlinks (création des symlinks dotfiles)"
         echo "4.  🐚 Shell (gestion des shells)"
         echo "5.  🎨 Powerlevel10k (configuration prompt avec Git)"
-        echo "6.  🖥️  QEMU Libvirt (permissions libvirt)"
-        echo "7.  🌐 QEMU Network (configuration réseau NAT)"
-        echo "8.  📦 QEMU Packages (installation paquets QEMU)"
+        echo "6.  🔐 SSH (configuration connexion SSH automatique)"
+        echo "7.  🖥️  QEMU Libvirt (permissions libvirt)"
+        echo "8.  🌐 QEMU Network (configuration réseau NAT)"
+        echo "9.  📦 QEMU Packages (installation paquets QEMU)"
         echo ""
         echo "0.  Quitter"
         echo ""
@@ -111,6 +112,14 @@ configman() {
                 fi
                 ;;
             6)
+                if [ -f "$CONFIGMAN_MODULES_DIR/ssh/ssh_config.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/ssh/ssh_config.sh"
+                else
+                    echo -e "${RED}❌ Module SSH non disponible${RESET}"
+                    sleep 2
+                fi
+                ;;
+            7)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh"
                 else
@@ -118,7 +127,7 @@ configman() {
                     sleep 2
                 fi
                 ;;
-            7)
+            8)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_network.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_network.sh"
                 else
@@ -126,7 +135,7 @@ configman() {
                     sleep 2
                 fi
                 ;;
-            8)
+            9)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_packages.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_packages.sh"
                 else
@@ -177,6 +186,11 @@ configman() {
                     bash "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh"
                 fi
                 ;;
+            ssh)
+                if [ -f "$CONFIGMAN_MODULES_DIR/ssh/ssh_config.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/ssh/ssh_config.sh"
+                fi
+                ;;
             qemu-libvirt|qemulibvirt)
                 if [ -f "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_libvirt.sh"
@@ -201,6 +215,7 @@ configman() {
                 echo "  - symlinks"
                 echo "  - shell"
                 echo "  - p10k (Powerlevel10k)"
+                echo "  - ssh (configuration SSH)"
                 echo "  - qemu-libvirt"
                 echo "  - qemu-network"
                 echo "  - qemu-packages"
