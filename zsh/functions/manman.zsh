@@ -66,6 +66,9 @@ manman() {
     if [[ -f "$DOTFILES_FUNCTIONS_DIR/virtman.zsh" ]]; then
         managers+=("virtman:🖥️ Gestionnaire virtualisation|virtman")
     fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/sshman.zsh" ]]; then
+        managers+=("sshman:🔐 Gestionnaire SSH|sshman")
+    fi
 
     clear
     echo -e "${CYAN}${BOLD}"

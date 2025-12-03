@@ -19,7 +19,12 @@ Le gestionnaire offre les fonctionnalités suivantes :
 - Gestion des connexions réseau
 - Informations sur les interfaces réseau
 - Configuration DNS
-- Tests de connectivité
+- Table de routage
+- Tests de connectivité (ping/traceroute)
+- Test de vitesse réseau
+- Monitoring de bande passante en temps réel
+- Analyse du trafic réseau
+- Export de configuration complète
 - Informations réseau détaillées
 
 ## OPTIONS
@@ -31,7 +36,13 @@ Sans argument, lance le menu interactif principal.
 - **connections** - Gérer les connexions
 - **interfaces** - Gérer les interfaces réseau
 - **dns** - Configuration DNS
+- **routing** - Table de routage
 - **info** - Informations réseau
+- **test** - Test de connectivité (ping/traceroute)
+- **speed** - Test de vitesse réseau
+- **monitor** - Monitoring bande passante temps réel
+- **analyze** - Analyse du trafic réseau
+- **export** - Export de configuration réseau
 
 ## EXEMPLES
 

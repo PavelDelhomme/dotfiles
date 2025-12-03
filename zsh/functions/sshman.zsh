@@ -11,7 +11,11 @@
 SSHMAN_CORE="$HOME/dotfiles/zsh/functions/sshman/core/sshman.zsh"
 
 if [ -f "$SSHMAN_CORE" ]; then
-    source "$SSHMAN_CORE"
+    source "$SSHMAN_CORE" 2>/dev/null || {
+        echo "❌ Erreur: Impossible de charger sshman core"
+        return 1
+    }
+    # Ne pas afficher le message ici, il sera affiché par load_manager dans zshrc_custom
 else
     echo "❌ Erreur: sshman core non trouvé: $SSHMAN_CORE"
     return 1

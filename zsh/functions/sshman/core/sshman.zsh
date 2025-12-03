@@ -14,9 +14,12 @@ SSHMAN_UTILS_DIR="$SSHMAN_DIR/utils"
 
 # Charger les utilitaires
 if [ -d "$SSHMAN_UTILS_DIR" ]; then
+    # Utiliser null_glob pour éviter l'erreur si le répertoire est vide
+    setopt null_glob 2>/dev/null || true
     for util_file in "$SSHMAN_UTILS_DIR"/*.sh; do
         [ -f "$util_file" ] && source "$util_file" 2>/dev/null || true
     done
+    unsetopt null_glob 2>/dev/null || true
 fi
 
 # DESC: Gestionnaire interactif complet pour la gestion SSH
