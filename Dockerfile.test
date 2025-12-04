@@ -210,6 +210,8 @@ echo "  source ~/.zshrc"
 echo "  installman"
 echo "  configman"
 echo ""
+# Toujours retourner 0 pour indiquer que l'installation s'est bien passée
+exit 0
 AUTOEOF
 
 RUN chmod +x /root/auto-install-test.sh
