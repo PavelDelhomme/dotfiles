@@ -54,23 +54,40 @@ echo ""
 echo -e "${CYAN}📦 SÉLECTION DES MANAGERS À ACTIVER${NC}"
 echo -e "${YELLOW}Quels managers voulez-vous activer dans Docker?${NC}"
 echo ""
-echo "Managers disponibles:"
-echo "  1) pathman      - Gestionnaire PATH"
-echo "  2) netman       - Gestionnaire réseau"
-echo "  3) aliaman      - Gestionnaire alias"
-echo "  4) miscman      - Gestionnaire divers"
-echo "  5) searchman    - Gestionnaire recherche"
-echo "  6) cyberman     - Gestionnaire cybersécurité"
-echo "  7) devman       - Gestionnaire développement"
-echo "  8) gitman       - Gestionnaire Git"
-echo "  9) helpman      - Gestionnaire aide/documentation"
-echo " 10) manman       - Manager of Managers"
-echo " 11) configman    - Gestionnaire configuration"
-echo " 12) installman   - Gestionnaire installation"
-echo " 13) moduleman    - Gestionnaire modules"
-echo " 14) fileman      - Gestionnaire fichiers"
-echo " 15) virtman      - Gestionnaire virtualisation"
-echo " 16) sshman       - Gestionnaire SSH"
+
+# Liste des managers avec leurs descriptions (triée par ordre alphabétique)
+declare -A MANAGER_DESCS=(
+    ["aliaman"]="Gestionnaire alias"
+    ["configman"]="Gestionnaire configuration"
+    ["cyberman"]="Gestionnaire cybersécurité"
+    ["devman"]="Gestionnaire développement"
+    ["fileman"]="Gestionnaire fichiers"
+    ["gitman"]="Gestionnaire Git"
+    ["helpman"]="Gestionnaire aide/documentation"
+    ["installman"]="Gestionnaire installation"
+    ["manman"]="Manager of Managers"
+    ["miscman"]="Gestionnaire divers"
+    ["moduleman"]="Gestionnaire modules"
+    ["netman"]="Gestionnaire réseau"
+    ["pathman"]="Gestionnaire PATH"
+    ["searchman"]="Gestionnaire recherche"
+    ["sshman"]="Gestionnaire SSH"
+    ["virtman"]="Gestionnaire virtualisation"
+)
+
+# Créer un tableau trié des noms de managers
+MANAGER_NAMES=($(printf '%s\n' "${!MANAGER_DESCS[@]}" | sort))
+
+# Afficher la liste triée
+echo "Managers disponibles (triés par ordre alphabétique):"
+local_index=1
+declare -A MANAGER_MAP
+for manager_name in "${MANAGER_NAMES[@]}"; do
+    MANAGER_MAP["$local_index"]="$manager_name"
+    printf " %2d) %-15s - %s\n" "$local_index" "$manager_name" "${MANAGER_DESCS[$manager_name]}"
+    ((local_index++))
+done
+
 echo ""
 echo -e "${YELLOW}Format: numéros séparés par des espaces (ex: 1 2 3 6 7 9)${NC}"
 echo -e "${YELLOW}Ou 'all' pour tout activer, 'none' pour rien activer${NC}"
@@ -85,26 +102,6 @@ cat > "$MANAGERS_CONFIG" << 'EOF'
 # Zsh: MODULE_<nom>=enabled|disabled
 # Fish: set -g MODULE_<nom> enabled|disabled
 EOF
-
-# Liste des managers avec leurs numéros
-declare -A MANAGER_MAP=(
-    ["1"]="pathman"
-    ["2"]="netman"
-    ["3"]="aliaman"
-    ["4"]="miscman"
-    ["5"]="searchman"
-    ["6"]="cyberman"
-    ["7"]="devman"
-    ["8"]="gitman"
-    ["9"]="helpman"
-    ["10"]="manman"
-    ["11"]="configman"
-    ["12"]="installman"
-    ["13"]="moduleman"
-    ["14"]="fileman"
-    ["15"]="virtman"
-    ["16"]="sshman"
-)
 
 # Traiter le choix
 if [[ "$managers_choice" == "all" ]]; then
