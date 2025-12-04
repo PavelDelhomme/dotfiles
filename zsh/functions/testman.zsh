@@ -32,10 +32,14 @@ if [ ! -f "$TESTMAN_CORE" ]; then
 fi
 
 if [ -f "$TESTMAN_CORE" ]; then
-    source "$TESTMAN_CORE" 2>/dev/null || {
-        # Ne pas afficher d'erreur en mode silencieux (chargement initial)
+    # Charger le core - ne pas retourner en cas d'erreur pour permettre le chargement
+    source "$TESTMAN_CORE" 2>/dev/null || true
+    # Vérifier si la fonction a été définie
+    if ! type testman >/dev/null 2>&1; then
+        # Si la fonction n'existe pas, essayer de charger directement sans wrapper
+        # (peut être nécessaire dans certains environnements)
         return 1
-    }
+    fi
 else
     # Ne pas afficher d'erreur en mode silencieux (chargement initial)
     return 1
