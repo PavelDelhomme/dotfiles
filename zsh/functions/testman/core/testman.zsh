@@ -56,7 +56,7 @@ testman() {
         
         if [ -f "$dir/package.json" ]; then
             echo "node"
-        elif [ -f "$dir/PyProject.toml" ] || [ -f "$dir/setup.py" ] || [ -f "$dir/requirements.txt" ]; then
+        elif [ -f "$dir/PyProject.toml" ] || [ -f "$dir/setup.py" ] || [ -f "$dir/requirements.txt" ] || [ -f "$dir/pyproject.toml" ]; then
             echo "python"
         elif [ -f "$dir/Cargo.toml" ]; then
             echo "rust"
@@ -70,6 +70,10 @@ testman() {
             echo "ruby"
         elif [ -f "$dir/composer.json" ]; then
             echo "php"
+        elif ls "$dir"/*.asd 2>/dev/null | head -1 >/dev/null || ls "$dir"/*.lisp 2>/dev/null | head -1 >/dev/null || [ -f "$dir/package.lisp" ]; then
+            echo "lisp"
+        elif ls "$dir"/*.el 2>/dev/null | head -1 >/dev/null; then
+            echo "lisp"
         else
             echo "unknown"
         fi
