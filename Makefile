@@ -500,67 +500,73 @@ test-alias: ## Tester les alias
 # DOCKER - Tests dans environnement conteneurisé
 ################################################################################
 
+# Préfixe pour isoler les conteneurs dotfiles des autres
+DOTFILES_DOCKER_PREFIX = dotfiles-test
+DOTFILES_CONTAINER = $(DOTFILES_DOCKER_PREFIX)-container
+DOTFILES_IMAGE = $(DOTFILES_DOCKER_PREFIX)-image:latest
+
 docker-build: ## Construire l'image Docker pour tester les dotfiles
-	@echo "$(BLUE)🔨 Construction de l'image Docker...$(NC)"
+	@echo "$(BLUE)🔨 Construction de l'image Docker (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		docker build -t dotfiles-test:latest . && \
-		echo "$(GREEN)✓ Image Docker construite avec succès$(NC)"; \
+		docker build -t $(DOTFILES_IMAGE) . && \
+		echo "$(GREEN)✓ Image Docker construite avec succès (isolée: $(DOTFILES_IMAGE))$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
 docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles
-	@echo "$(BLUE)🚀 Lancement du conteneur Docker...$(NC)"
+	@echo "$(BLUE)🚀 Lancement du conteneur Docker (isolé avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		docker run -it --rm \
-			--name dotfiles-test \
+			--name $(DOTFILES_CONTAINER) \
 			-v "$(PWD):/root/dotfiles:ro" \
-			-v dotfiles-config:/root/.config \
-			-v dotfiles-ssh:/root/.ssh \
+			-v dotfiles-test-config:/root/.config \
+			-v dotfiles-test-ssh:/root/.ssh \
 			-e HOME=/root \
 			-e DOTFILES_DIR=/root/dotfiles \
 			-e TERM=xterm-256color \
-			dotfiles-test:latest; \
+			$(DOTFILES_IMAGE); \
 	else \
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
-docker-compose-up: ## Lancer avec docker-compose
-	@echo "$(BLUE)🚀 Lancement avec docker-compose...$(NC)"
+docker-compose-up: ## Lancer avec docker-compose (isolé avec préfixe)
+	@echo "$(BLUE)🚀 Lancement avec docker-compose (isolé avec préfixe)...$(NC)"
 	@if command -v docker-compose >/dev/null 2>&1 || docker compose version >/dev/null 2>&1; then \
-		docker compose up -d && \
-		docker compose exec dotfiles-test /bin/zsh; \
+		docker compose -p $(DOTFILES_DOCKER_PREFIX) up -d && \
+		docker compose -p $(DOTFILES_DOCKER_PREFIX) exec dotfiles-test /bin/zsh; \
 	else \
 		echo "$(YELLOW)⚠️  docker-compose n'est pas installé$(NC)"; \
 		exit 1; \
 	fi
 
-docker-test: docker-build ## Tester les dotfiles dans Docker (build + run)
-	@echo "$(BLUE)🧪 Test des dotfiles dans Docker...$(NC)"
+docker-test: docker-build ## Tester les dotfiles dans Docker (build + run, isolé)
+	@echo "$(BLUE)🧪 Test des dotfiles dans Docker (isolé avec préfixe)...$(NC)"
 	@docker run --rm \
-		--name dotfiles-test \
+		--name $(DOTFILES_CONTAINER) \
 		-v "$(PWD):/root/dotfiles:ro" \
-		dotfiles-test:latest \
+		$(DOTFILES_IMAGE) \
 		/bin/zsh -c "source /root/dotfiles/zsh/zshrc_custom && echo '✓ Dotfiles chargés avec succès' && zsh -c 'type installman >/dev/null && echo \"✓ installman disponible\" || echo \"✗ installman non disponible\"'"
 
-docker-stop: ## Arrêter le conteneur Docker
-	@echo "$(BLUE)🛑 Arrêt du conteneur Docker...$(NC)"
-	@docker stop dotfiles-test 2>/dev/null || echo "$(YELLOW)⚠️  Conteneur déjà arrêté$(NC)"
-	@docker compose down 2>/dev/null || true
+docker-stop: ## Arrêter UNIQUEMENT les conteneurs Docker dotfiles-test
+	@echo "$(BLUE)🛑 Arrêt UNIQUEMENT des conteneurs Docker dotfiles-test...$(NC)"
+	@docker ps --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-test en cours$(NC)"
+	@docker compose -p $(DOTFILES_DOCKER_PREFIX) down 2>/dev/null || true
 
-docker-clean: ## Nettoyer les images et volumes Docker
-	@echo "$(BLUE)🧹 Nettoyage Docker...$(NC)"
-	@docker stop dotfiles-test 2>/dev/null || true
-	@docker rm dotfiles-test 2>/dev/null || true
-	@docker rmi dotfiles-test:latest 2>/dev/null || true
-	@docker compose down -v 2>/dev/null || true
-	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
+docker-clean: ## Nettoyer UNIQUEMENT les images et volumes Docker dotfiles-test
+	@echo "$(BLUE)🧹 Nettoyage UNIQUEMENT des conteneurs/images/volumes dotfiles-test...$(NC)"
+	@echo "$(YELLOW)⚠️  Vos autres conteneurs Docker ne seront PAS touchés$(NC)"
+	@docker ps -a --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || true
+	@docker ps -a --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker rm 2>/dev/null || true
+	@docker images --filter "reference=$(DOTFILES_DOCKER_PREFIX)*" --format "{{.Repository}}:{{.Tag}}" | xargs -r docker rmi 2>/dev/null || true
+	@docker compose -p $(DOTFILES_DOCKER_PREFIX) down -v 2>/dev/null || true
+	@echo "$(GREEN)✓ Nettoyage terminé (uniquement dotfiles-test)$(NC)"
 
-docker-shell: ## Ouvrir un shell dans le conteneur en cours d'exécution
-	@echo "$(BLUE)🐚 Ouverture d'un shell dans le conteneur...$(NC)"
-	@docker exec -it dotfiles-test /bin/zsh || docker compose exec dotfiles-test /bin/zsh
+docker-shell: ## Ouvrir un shell dans le conteneur dotfiles-test en cours d'exécution
+	@echo "$(BLUE)🐚 Ouverture d'un shell dans le conteneur dotfiles-test...$(NC)"
+	@docker exec -it $(DOTFILES_CONTAINER) /bin/zsh 2>/dev/null || docker compose -p $(DOTFILES_DOCKER_PREFIX) exec dotfiles-test /bin/zsh 2>/dev/null || echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-test en cours d'exécution$(NC)"
 
 docker-test-auto: ## Tester l'installation complète et automatique dans Docker isolé
 	@echo "$(BLUE)🧪 Test d'installation automatique complète dans Docker...$(NC)"
@@ -576,11 +582,11 @@ docker-test-auto: ## Tester l'installation complète et automatique dans Docker 
 		exit 1; \
 	fi
 
-docker-build-test: ## Construire l'image Docker de test automatique
-	@echo "$(BLUE)🔨 Construction de l'image Docker de test...$(NC)"
+docker-build-test: ## Construire l'image Docker de test automatique (isolée)
+	@echo "$(BLUE)🔨 Construction de l'image Docker de test (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		docker build -f Dockerfile.test -t dotfiles-test:auto . && \
-		echo "$(GREEN)✓ Image Docker de test construite avec succès$(NC)"; \
+		docker build -f Dockerfile.test -t $(DOTFILES_DOCKER_PREFIX):auto . && \
+		echo "$(GREEN)✓ Image Docker de test construite avec succès (isolée: $(DOTFILES_DOCKER_PREFIX):auto)$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \

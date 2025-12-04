@@ -16,19 +16,24 @@ log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_step()  { echo -e "${CYAN}[→]${NC} $1"; }
 
-CONTAINER_NAME="dotfiles-test-auto"
-IMAGE_NAME="dotfiles-test:auto"
+# Préfixe unique pour isoler des autres conteneurs Docker
+DOTFILES_PREFIX="dotfiles-test"
+CONTAINER_NAME="${DOTFILES_PREFIX}-auto"
+IMAGE_NAME="${DOTFILES_PREFIX}:auto"
 
-log_step "Nettoyage des conteneurs et images existants..."
-docker stop "$CONTAINER_NAME" 2>/dev/null || true
-docker rm "$CONTAINER_NAME" 2>/dev/null || true
-docker rmi "$IMAGE_NAME" 2>/dev/null || true
+log_step "Nettoyage UNIQUEMENT des conteneurs et images dotfiles-test..."
+# Nettoyer uniquement les conteneurs avec notre préfixe
+docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || true
+docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" | xargs -r docker rm 2>/dev/null || true
+# Nettoyer uniquement les images avec notre préfixe
+docker images --filter "reference=${DOTFILES_PREFIX}*" --format "{{.Repository}}:{{.Tag}}" | xargs -r docker rmi 2>/dev/null || true
 
-log_step "Construction de l'image Docker avec installation automatique..."
+log_step "Construction de l'image Docker avec installation automatique (isolée)..."
 docker build -f Dockerfile.test -t "$IMAGE_NAME" . || {
     log_error "Échec de la construction de l'image"
     exit 1
 }
+log_info "✅ Image isolée créée: $IMAGE_NAME (ne touche pas vos autres conteneurs)"
 
 log_info "✅ Image construite avec succès"
 

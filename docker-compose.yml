@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: dotfiles-test
-    image: dotfiles-test:latest
+    container_name: dotfiles-test-container
+    image: dotfiles-test-image:latest
     stdin_open: true
     tty: true
     volumes:
@@ -24,12 +24,12 @@ services:
       - dotfiles-network
 
 volumes:
-  dotfiles-config:
+  dotfiles-test-config:
     driver: local
-  dotfiles-ssh:
+  dotfiles-test-ssh:
     driver: local
 
 networks:
-  dotfiles-network:
+  dotfiles-test-network:
     driver: bridge
 
