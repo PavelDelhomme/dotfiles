@@ -170,4 +170,9 @@ docker run --rm \
 }
 
 log_info "✅ Tests terminés !"
+echo ""
+echo -e "${CYAN}💡 Pour tester manuellement, lancez:${NC}"
+echo -e "${GREEN}   make docker-start${NC}"
+echo -e "${YELLOW}   (Plus simple que docker exec !)${NC}"
+echo ""
 

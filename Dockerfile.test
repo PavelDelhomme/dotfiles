@@ -600,7 +600,7 @@ RUN chmod +x /root/test-managers-functional.sh
 
 # Commande par défaut : lancer l'installation automatique puis les tests
 # Ne pas lancer zsh automatiquement car le conteneur peut ne pas être interactif
-CMD ["/bin/bash", "-c", "/root/auto-install-test.sh && /root/test-verification.sh && /root/test-managers-functional.sh && echo '' && echo '🎉 Tests terminés!' && echo '💡 Pour tester manuellement, lancez: docker exec -it <container> /bin/zsh'"]
+CMD ["/bin/bash", "-c", "/root/auto-install-test.sh && /root/test-verification.sh && /root/test-managers-functional.sh && echo '' && echo '🎉 Tests terminés!' && echo '' && echo '💡 Pour tester manuellement, lancez:' && echo '   make docker-start' && echo '   (Plus simple que docker exec !)' && echo ''"]
 
 RUN chmod +x /root/test-verification.sh
 
