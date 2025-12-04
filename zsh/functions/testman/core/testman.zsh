@@ -8,7 +8,9 @@
 # =============================================================================
 
 # Répertoires de base
-TESTMAN_DIR="${TESTMAN_DIR:-$HOME/dotfiles/zsh/functions/testman}"
+# Utiliser DOTFILES_DIR si disponible (pour Docker), sinon $HOME/dotfiles
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+TESTMAN_DIR="${TESTMAN_DIR:-$DOTFILES_DIR/zsh/functions/testman}"
 TESTMAN_MODULES_DIR="$TESTMAN_DIR/modules"
 TESTMAN_UTILS_DIR="$TESTMAN_DIR/utils"
 TESTMAN_CONFIG_DIR="$TESTMAN_DIR/config"
