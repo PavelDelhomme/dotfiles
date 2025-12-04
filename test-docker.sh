@@ -49,12 +49,104 @@ else
     log_info "ℹ️  Nettoyage ignoré, utilisation des images existantes si disponibles"
 fi
 
+# Demander quels managers activer
+echo ""
+echo -e "${CYAN}📦 SÉLECTION DES MANAGERS À ACTIVER${NC}"
+echo -e "${YELLOW}Quels managers voulez-vous activer dans Docker?${NC}"
+echo ""
+echo "Managers disponibles:"
+echo "  1) pathman      - Gestionnaire PATH"
+echo "  2) netman       - Gestionnaire réseau"
+echo "  3) aliaman      - Gestionnaire alias"
+echo "  4) miscman      - Gestionnaire divers"
+echo "  5) searchman    - Gestionnaire recherche"
+echo "  6) cyberman     - Gestionnaire cybersécurité"
+echo "  7) devman       - Gestionnaire développement"
+echo "  8) gitman       - Gestionnaire Git"
+echo "  9) helpman      - Gestionnaire aide/documentation"
+echo " 10) manman       - Manager of Managers"
+echo " 11) configman    - Gestionnaire configuration"
+echo " 12) installman   - Gestionnaire installation"
+echo " 13) moduleman    - Gestionnaire modules"
+echo " 14) fileman      - Gestionnaire fichiers"
+echo " 15) virtman      - Gestionnaire virtualisation"
+echo " 16) sshman       - Gestionnaire SSH"
+echo ""
+echo -e "${YELLOW}Format: numéros séparés par des espaces (ex: 1 2 3 6 7 9)${NC}"
+echo -e "${YELLOW}Ou 'all' pour tout activer, 'none' pour rien activer${NC}"
+read -p "Votre choix: " managers_choice
+managers_choice=${managers_choice:-all}
+
+# Créer un fichier temporaire avec la configuration des managers
+MANAGERS_CONFIG=$(mktemp)
+cat > "$MANAGERS_CONFIG" << 'EOF'
+# Configuration des modules - Moduleman
+# Format compatible Zsh et Fish
+# Zsh: MODULE_<nom>=enabled|disabled
+# Fish: set -g MODULE_<nom> enabled|disabled
+EOF
+
+# Liste des managers avec leurs numéros
+declare -A MANAGER_MAP=(
+    ["1"]="pathman"
+    ["2"]="netman"
+    ["3"]="aliaman"
+    ["4"]="miscman"
+    ["5"]="searchman"
+    ["6"]="cyberman"
+    ["7"]="devman"
+    ["8"]="gitman"
+    ["9"]="helpman"
+    ["10"]="manman"
+    ["11"]="configman"
+    ["12"]="installman"
+    ["13"]="moduleman"
+    ["14"]="fileman"
+    ["15"]="virtman"
+    ["16"]="sshman"
+)
+
+# Traiter le choix
+if [[ "$managers_choice" == "all" ]]; then
+    # Activer tous les managers
+    for manager in "${MANAGER_MAP[@]}"; do
+        echo "MODULE_${manager}=enabled" >> "$MANAGERS_CONFIG"
+    done
+    log_info "✓ Tous les managers seront activés"
+elif [[ "$managers_choice" == "none" ]]; then
+    # Désactiver tous les managers
+    for manager in "${MANAGER_MAP[@]}"; do
+        echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
+    done
+    log_info "✓ Aucun manager ne sera activé"
+else
+    # Activer seulement les managers sélectionnés
+    for num in $managers_choice; do
+        if [[ -n "${MANAGER_MAP[$num]}" ]]; then
+            echo "MODULE_${MANAGER_MAP[$num]}=enabled" >> "$MANAGERS_CONFIG"
+            log_info "✓ ${MANAGER_MAP[$num]} sera activé"
+        fi
+    done
+    # Désactiver les autres
+    for num in "${!MANAGER_MAP[@]}"; do
+        if [[ ! " $managers_choice " =~ " $num " ]]; then
+            echo "MODULE_${MANAGER_MAP[$num]}=disabled" >> "$MANAGERS_CONFIG"
+        fi
+    done
+fi
+
 log_step "Construction de l'image Docker avec installation automatique (isolée)..."
 # Utiliser --load pour charger l'image dans Docker (nécessaire avec BuildKit)
-docker build --load -f Dockerfile.test -t "$IMAGE_NAME" . || {
+# Passer le fichier de configuration des managers comme build arg
+docker build --load \
+    --build-arg MANAGERS_CONFIG="$(cat "$MANAGERS_CONFIG")" \
+    -f Dockerfile.test \
+    -t "$IMAGE_NAME" . || {
     log_error "Échec de la construction de l'image"
+    rm -f "$MANAGERS_CONFIG"
     exit 1
 }
+rm -f "$MANAGERS_CONFIG"
 log_info "✅ Image isolée créée: $IMAGE_NAME (ne touche pas vos autres conteneurs)"
 
 log_info "✅ Image construite avec succès"
