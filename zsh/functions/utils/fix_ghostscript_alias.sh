@@ -26,15 +26,14 @@ if [ -n "$GS_BINARY" ] && [ -x "$GS_BINARY" ]; then
         # Créer l'alias ghs pour ghostscript si pas déjà défini
         if ! alias ghs >/dev/null 2>&1; then
             alias ghs="command gs"
-            # Utiliser les couleurs si disponibles, sinon texte simple
-            if [ -n "$YELLOW" ] && [ -n "$NC" ]; then
-                echo -e "${YELLOW}  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript${NC}"
-                echo -e "${YELLOW}     (l'alias 'gs' est configuré pour 'git status')${NC}"
-            else
-                # Messages désactivés pour éviter l'avertissement Powerlevel10k
-                # echo "  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript"
-                # echo "     (l'alias 'gs' est configuré pour 'git status')"
-            fi
+            # Messages désactivés pour éviter l'avertissement Powerlevel10k
+            # if [ -n "$YELLOW" ] && [ -n "$NC" ]; then
+            #     echo -e "${YELLOW}  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript${NC}"
+            #     echo -e "${YELLOW}     (l'alias 'gs' est configuré pour 'git status')${NC}"
+            # else
+            #     echo "  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript"
+            #     echo "     (l'alias 'gs' est configuré pour 'git status')"
+            # fi
         fi
     fi
 fi
