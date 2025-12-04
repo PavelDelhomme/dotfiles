@@ -246,6 +246,8 @@ MANAGER_FILES=(
     "zsh/functions/moduleman.zsh:moduleman"
     "zsh/functions/fileman.zsh:fileman"
     "zsh/functions/sshman.zsh:sshman"
+    "zsh/functions/testzshman.zsh:testzshman"
+    "zsh/functions/testman.zsh:testman"
 )
 
 for file_manager in "${MANAGER_FILES[@]}"; do
