@@ -404,9 +404,10 @@ installman/
 
 ## 📚 Documentation
 
-- `docs/MIGRATION_COMPLETE_GUIDE.md` - Guide complet détaillé
-- `docs/MIGRATION_PLAN.md` - Plan détaillé
-- `docs/MIGRATION_MULTI_SHELLS.md` - Explications
+- `docs/migrations/MIGRATION_COMPLETE_GUIDE.md` - Guide complet détaillé
+- `docs/migrations/MIGRATION_PLAN.md` - Plan détaillé
+- `docs/migrations/MIGRATION_MULTI_SHELLS.md` - Explications
+- `docs/migrations/COMPLETE_MIGRATION_LIST.md` - Liste précise de tout à migrer
 - `STATUS.md` - Ce fichier (suivi de progression)
 
 ---

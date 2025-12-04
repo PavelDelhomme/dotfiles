@@ -182,5 +182,5 @@ log_info "═══════════════════════�
 echo ""
 log_warn "⚠️  NOTE: Les versions Fish et Bash utilisent des wrappers temporaires"
 log_warn "   Une conversion complète de la syntaxe sera nécessaire"
-log_warn "   Voir docs/MIGRATION_PLAN.md pour plus de détails"
+log_warn "   Voir docs/migrations/MIGRATION_PLAN.md pour plus de détails"
 echo ""
