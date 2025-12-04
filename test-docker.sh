@@ -159,7 +159,9 @@ log_info "✅ Image isolée créée: $IMAGE_NAME (ne touche pas vos autres conte
 log_info "✅ Image construite avec succès"
 
 log_step "Lancement du conteneur avec installation automatique..."
-docker run -it --rm \
+# Utiliser --rm pour supprimer automatiquement le conteneur après exécution
+# Ne pas utiliser -it si on veut juste voir la sortie sans interaction
+docker run --rm \
     --name "$CONTAINER_NAME" \
     -v "$(pwd):/root/dotfiles:ro" \
     "$IMAGE_NAME" || {
