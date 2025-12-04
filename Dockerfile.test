@@ -70,10 +70,41 @@ git config --global core.editor vim
 git config --global color.ui auto
 log_info "✓ Git configuré"
 
-log_info "Étape 2/5 : Création des répertoires..."
+log_info "Étape 2/5 : Création des répertoires et configuration des managers..."
 mkdir -p ~/.config/moduleman
 mkdir -p ~/.ssh
 mkdir -p ${DOTFILES_DIR}/.config/moduleman
+
+# Créer le fichier de configuration des managers
+if [ -n "${MANAGERS_CONFIG}" ]; then
+    echo "${MANAGERS_CONFIG}" > ${DOTFILES_DIR}/.config/moduleman/modules.conf
+    log_info "✓ Configuration des managers créée depuis build arg"
+else
+    # Configuration par défaut (tous activés)
+    cat > ${DOTFILES_DIR}/.config/moduleman/modules.conf << 'MODULES_EOF'
+# Configuration des modules - Moduleman
+# Format compatible Zsh et Fish
+# Tous les modules sont activés par défaut
+
+MODULE_pathman=enabled
+MODULE_netman=enabled
+MODULE_aliaman=enabled
+MODULE_miscman=enabled
+MODULE_searchman=enabled
+MODULE_cyberman=enabled
+MODULE_devman=enabled
+MODULE_gitman=enabled
+MODULE_helpman=enabled
+MODULE_manman=enabled
+MODULE_configman=enabled
+MODULE_installman=enabled
+MODULE_moduleman=enabled
+MODULE_fileman=enabled
+MODULE_virtman=enabled
+MODULE_sshman=enabled
+MODULES_EOF
+    log_info "✓ Configuration par défaut créée (tous activés)"
+fi
 log_info "✓ Répertoires créés"
 
 log_info "Étape 3/5 : Création des symlinks..."
