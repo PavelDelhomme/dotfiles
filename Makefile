@@ -587,3 +587,29 @@ docker-build-test: ## Construire l'image Docker de test automatique (isolée)
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
+
+docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfiles (après docker-build-test)
+	@echo "$(BLUE)🚀 Démarrage d'un conteneur Docker interactif...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "$(DOTFILES_DOCKER_PREFIX):auto"; then \
+			echo "$(GREEN)✓ Image $(DOTFILES_DOCKER_PREFIX):auto trouvée$(NC)"; \
+			docker run -it --rm \
+				--name $(DOTFILES_CONTAINER) \
+				-v "$(PWD):/root/dotfiles:ro" \
+				-v $(DOTFILES_DOCKER_PREFIX)-config:/root/.config \
+				-v $(DOTFILES_DOCKER_PREFIX)-ssh:/root/.ssh \
+				-e HOME=/root \
+				-e DOTFILES_DIR=/root/dotfiles \
+				-e TERM=xterm-256color \
+				$(DOTFILES_DOCKER_PREFIX):auto \
+				/bin/zsh; \
+		else \
+			echo "$(YELLOW)⚠️  Image $(DOTFILES_DOCKER_PREFIX):auto non trouvée$(NC)"; \
+			echo "$(YELLOW)   Construisez d'abord l'image avec: make docker-build-test$(NC)"; \
+			echo "$(YELLOW)   Ou utilisez: make docker-test-auto$(NC)"; \
+			exit 1; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi
