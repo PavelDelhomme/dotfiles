@@ -301,14 +301,33 @@ for manager in "${MANAGERS[@]}"; do
             echo "    - DOTFILES_DIR: ${DOTFILES_DIR:-non défini}"
             echo "    - Fichier wrapper: $([ -f /root/dotfiles/zsh/functions/testman.zsh ] && echo 'existe' || echo 'manquant')"
             echo "    - Fichier core: $([ -f /root/dotfiles/zsh/functions/testman/core/testman.zsh ] && echo 'existe' || echo 'manquant')"
-            # Essayer de charger manuellement
+            # Essayer de charger manuellement avec capture d'erreurs
             if [ -f /root/dotfiles/zsh/functions/testman.zsh ]; then
                 echo "    - Tentative chargement manuel..."
-                source /root/dotfiles/zsh/functions/testman.zsh 2>&1 | head -5
+                ERROR_OUTPUT=$(source /root/dotfiles/zsh/functions/testman.zsh 2>&1)
+                ERROR_CODE=$?
+                if [ -n "$ERROR_OUTPUT" ]; then
+                    echo "    - Erreur: $ERROR_OUTPUT" | head -3
+                fi
+                if [ $ERROR_CODE -ne 0 ]; then
+                    echo "    - Code de sortie: $ERROR_CODE"
+                fi
+                # Vérifier si la fonction existe maintenant
                 if type testman >/dev/null 2>&1; then
                     echo "    - ✓ Chargement manuel réussi!"
                 else
                     echo "    - ✗ Chargement manuel échoué"
+                    # Vérifier si le core peut être chargé directement
+                    echo "    - Test chargement core direct..."
+                    CORE_ERROR=$(source /root/dotfiles/zsh/functions/testman/core/testman.zsh 2>&1)
+                    if [ -n "$CORE_ERROR" ]; then
+                        echo "    - Erreur core: $CORE_ERROR" | head -3
+                    fi
+                    if type testman >/dev/null 2>&1; then
+                        echo "    - ✓ Chargement core direct réussi!"
+                    else
+                        echo "    - ✗ Chargement core direct échoué"
+                    fi
                 fi
             fi
         fi
