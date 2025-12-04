@@ -1803,6 +1803,59 @@ docker compose up             # Lancer avec docker compose (plugin)
 
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
+### Tests dans environnement Docker isolé
+
+**🔒 Isolation complète :** Les conteneurs de test utilisent le préfixe `dotfiles-test-*` et ne touchent **JAMAIS** vos autres conteneurs Docker existants.
+
+**Installation automatique et tests :**
+
+```bash
+# Tester l'installation automatique complète (recommandé)
+make docker-test-auto
+
+# Construire l'image de test uniquement
+make docker-build-test
+
+# Lancer un conteneur interactif pour tester
+make docker-run
+
+# Tester rapidement les dotfiles
+make docker-test
+
+# Nettoyer UNIQUEMENT les conteneurs dotfiles-test
+make docker-clean
+```
+
+**Environnement de test :**
+- ✅ **Arch Linux minimal** : Environnement propre et isolé
+- ✅ **Installation automatique** : Configuration complète sans intervention
+- ✅ **Tests intégrés** : Vérification automatique de tous les managers
+- ✅ **Isolation totale** : Préfixe unique `dotfiles-test-*` pour ne pas toucher vos autres conteneurs
+
+**Fichiers créés :**
+- `Dockerfile.test` : Dockerfile pour installation automatique complète
+- `test-docker.sh` : Script de test automatique
+- `docker-compose.yml` : Orchestration (projet isolé avec préfixe)
+
+**Sécurité :**
+- ✅ Tous les conteneurs/images/volumes utilisent le préfixe `dotfiles-test-*`
+- ✅ Nettoyage sélectif avec filtres Docker
+- ✅ Vos autres conteneurs Docker ne seront **JAMAIS** touchés
+
+**Exemple d'utilisation :**
+```bash
+# Tester l'installation complète automatique
+make docker-test-auto
+
+# Cela va :
+# 1. Construire l'image Docker avec installation automatique
+# 2. Lancer l'installation complète des dotfiles
+# 3. Vérifier que tous les managers fonctionnent
+# 4. Afficher un rapport de test
+```
+
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
 ## 🔄 Auto-Synchronisation Git
 
 Système de synchronisation automatique des dotfiles toutes les heures via systemd timer.
