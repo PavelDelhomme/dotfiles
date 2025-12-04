@@ -446,7 +446,7 @@ testman() {
                 echo -e "${RED}✗ Aucun interpréteur Lisp trouvé (SBCL ou CLISP)${RESET}"
                 local exit_code=1
             fi
-        elif [ -f "package.lisp" ] || [ -f "*.el" ] 2>/dev/null; then
+        elif [ -f "package.lisp" ] || ls *.el 2>/dev/null | head -1 >/dev/null; then
             # Emacs Lisp
             echo -e "${YELLOW}Type détecté: Emacs Lisp${RESET}\n"
             if command -v emacs >/dev/null 2>&1; then
