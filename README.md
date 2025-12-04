@@ -595,18 +595,24 @@ Ou via le menu (Option 23) pour un rapport détaillé.
 
 ## 📁 Structure du repository
 
-Voir `STRUCTURE.md` pour la structure complète et détaillée.
+Voir `docs/STRUCTURE.md` pour la structure complète et détaillée.
+
+Voir `docs/ARCHITECTURE.md` pour comprendre l'architecture des fichiers ZSH (zshrc, .zshrc, zshrc_custom) et Docker (test-docker.sh, Dockerfile.test).
 
 Structure principale :
 ```
 ~/dotfiles/
 ├── bootstrap.sh                 # Installation en une ligne (curl)
+├── zshrc                        # Wrapper qui détecte le shell (ZSH/Fish/Bash)
+├── test-docker.sh               # Script de test Docker (appelé par make docker-test-auto)
+├── Dockerfile.test              # Dockerfile pour tests automatiques
+├── docker-compose.yml           # Orchestration Docker (isolé avec préfixe)
 ├── zsh/
-│   ├── zshrc_custom            # Configuration ZSH principale
+│   ├── zshrc_custom            # Configuration ZSH principale (source par zshrc)
 │   ├── env.sh                  # Variables d'environnement
 │   ├── aliases.zsh             # Aliases personnalisés
 │   └── functions/              # Fonctions shell
-│       ├── *man.zsh            # Gestionnaires (cyberman, devman, gitman, miscman, pathman, netman, aliaman, configman, installman, helpman, fileman, manman, searchman)
+│       ├── *man.zsh            # Gestionnaires (18 managers: voir section Managers)
 │       ├── cyberman/           # Cyberman - Structure modulaire
 │       │   ├── core/           # Script principal
 │       │   ├── modules/        # Modules organisés (security, legacy, etc.)
@@ -648,6 +654,15 @@ Structure principale :
 │       │   ├── core/           # Script principal
 │       │   ├── modules/        # Modules (docker, qemu, libvirt, lxc, vagrant)
 │       │   └── config/        # Configuration
+│       ├── sshman/             # Sshman - Gestionnaire SSH
+│       │   ├── core/           # Script principal
+│       │   └── modules/        # Modules (ssh_auto_setup)
+│       ├── testman/            # Testman - Gestionnaire tests applications
+│       │   └── core/           # Script principal
+│       ├── testzshman/         # Testzshman - Gestionnaire tests ZSH/dotfiles
+│       │   └── core/           # Script principal
+│       ├── moduleman/          # Moduleman - Gestionnaire modules (activation/désactivation)
+│       │   └── core/           # Script principal
 │       └── manman.zsh          # Manager of Managers (menu central)
 │       └── **/*.sh             # Fonctions individuelles
 └── scripts/
@@ -772,6 +787,81 @@ Fonctions utiles :
 - `gclone` - Git clone et cd
 - `docker-cleanup` - Nettoyage Docker
 - `backup` - Backup rapide avec timestamp
+
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
+### Configuration ZSH : `zshrc`, `.zshrc` et `zshrc_custom`
+
+Le projet utilise trois fichiers différents pour la configuration ZSH :
+
+#### 1. `~/dotfiles/zshrc` (Wrapper à la racine)
+- **Rôle** : Wrapper intelligent qui détecte le shell actif (ZSH, Fish, Bash)
+- **Fonction** :
+  - Détecte automatiquement le shell en cours d'exécution
+  - Source la configuration appropriée selon le shell
+  - Pour ZSH : source `zsh/zshrc_custom`
+  - Pour Fish : affiche un message (config doit être dans `.config/fish/config.fish`)
+  - Pour Bash : charge les variables d'environnement et alias compatibles
+
+#### 2. `~/.zshrc` (Symlink dans le HOME)
+- **Rôle** : Point d'entrée standard de ZSH (chargé automatiquement au démarrage)
+- **Fonction** : Symlink vers `~/dotfiles/zshrc`
+- **Création** : Automatique lors de l'installation via `create_symlinks.sh`
+
+#### 3. `~/dotfiles/zsh/zshrc_custom` (Configuration principale)
+- **Rôle** : Configuration ZSH complète et principale
+- **Contenu** :
+  - Chargement des managers (installman, configman, etc.)
+  - Variables d'environnement
+  - Aliases
+  - Fonctions
+  - Configuration Powerlevel10k
+  - Toute la logique de configuration ZSH
+
+**Flux de chargement :**
+```
+ZSH démarre
+    ↓
+Charge ~/.zshrc (symlink)
+    ↓
+Pointe vers ~/dotfiles/zshrc (wrapper)
+    ↓
+Détecte ZSH_VERSION
+    ↓
+Source ~/dotfiles/zsh/zshrc_custom
+    ↓
+Configuration complète chargée ✅
+```
+
+**Pourquoi cette architecture ?**
+1. **Flexibilité multi-shells** : Le wrapper `zshrc` permet de supporter ZSH, Fish et Bash avec un seul symlink
+2. **Modularité** : La vraie configuration est dans `zshrc_custom`, facile à modifier
+3. **Compatibilité** : ZSH charge automatiquement `~/.zshrc`, donc on utilise un symlink
+4. **Centralisation** : Tout est dans `~/dotfiles/` pour faciliter la synchronisation
+
+Voir aussi `docs/ARCHITECTURE.md` pour plus de détails.
+
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
+### Scripts Docker de test
+
+#### `test-docker.sh` (à la racine)
+- **Emplacement** : `~/dotfiles/test-docker.sh` (à la racine du projet)
+- **Pourquoi à la racine ?** :
+  - Appelé directement par `make docker-test-auto` depuis le Makefile
+  - Doit être accessible facilement depuis la racine du projet
+  - Script principal d'orchestration des tests Docker
+  - Permet de sélectionner interactivement les managers à tester
+
+#### `Dockerfile.test`
+- **Emplacement** : `~/dotfiles/Dockerfile.test` (à la racine)
+- **Fonction** : Dockerfile pour créer l'image de test avec installation automatique
+- **Contenu** :
+  - Installation automatique des dotfiles
+  - Tests de vérification
+  - Tests fonctionnels des managers
+
+Voir la section [🐳 Docker - Tests dans environnement Docker isolé](#tests-dans-environnement-docker-isolé) pour plus de détails.
 
 ---
 
@@ -1385,7 +1475,7 @@ mmg                         # Alias pour manman
 managers                    # Alias pour manman
 ```
 
-**Managers disponibles :**
+**Managers disponibles (18 managers) :**
 - 📁 **pathman** : Gestionnaire PATH
 - 🌐 **netman** : Gestionnaire réseau
 - 📝 **aliaman** : Gestionnaire alias
@@ -1397,6 +1487,12 @@ managers                    # Alias pour manman
 - 📚 **helpman** : Gestionnaire aide/documentation
 - ⚙️ **configman** : Gestionnaire configurations
 - 📦 **installman** : Gestionnaire installations
+- 🔐 **sshman** : Gestionnaire SSH
+- 📁 **fileman** : Gestionnaire fichiers
+- 🖥️ **virtman** : Gestionnaire virtualisation
+- 🧪 **testman** : Gestionnaire tests applications
+- 🧪 **testzshman** : Gestionnaire tests ZSH/dotfiles
+- ⚙️ **moduleman** : Gestionnaire modules (activation/désactivation)
 
 **Documentation :** `help manman` ou `man manman`
 
@@ -1648,6 +1744,104 @@ virtman overview
 
 **Alias :** `vm` → `virtman`, `virt` → `virtman`
 
+### ⚙️ Moduleman - Gestionnaire Modules
+
+Gestionnaire qui contrôle l'activation/désactivation des autres managers.
+
+**⚠️ IMPORTANT : Moduleman doit toujours être activé** car il contrôle le chargement des autres managers.
+
+**Utilisation :**
+```bash
+moduleman                    # Menu interactif
+moduleman enable <manager>  # Activer un manager
+moduleman disable <manager> # Désactiver un manager
+moduleman status            # Voir le statut de tous les managers
+moduleman list              # Lister tous les managers
+```
+
+**Fonctionnalités :**
+- **Contrôle centralisé** : Active/désactive les autres managers
+- **Configuration persistante** : Sauvegarde dans `~/.config/moduleman/modules.conf`
+- **Interface interactive** : Menu pour gérer tous les managers
+- **Démarrage optimisé** : Charge seulement les managers activés
+
+**Pourquoi Moduleman est essentiel :**
+- Contrôle quels managers sont chargés au démarrage
+- Permet de désactiver des managers non utilisés
+- Accélère le démarrage du shell
+- Configuration centralisée dans un fichier
+
+**Documentation :** `help moduleman`, `man moduleman` ou voir `docs/MODULEMAN_EXPLICATION.md`
+
+**Alias :** `mm` → `moduleman`
+
+### 🧪 Testzshman - Gestionnaire Tests ZSH/Dotfiles
+
+Gestionnaire complet pour tester la configuration ZSH et les dotfiles.
+
+**Utilisation :**
+```bash
+testzshman                   # Menu interactif
+testzshman managers          # Tester tous les managers
+testzshman functions         # Tester toutes les fonctions
+testzshman structure         # Vérifier la structure des dotfiles
+testzshman config            # Tester la configuration
+testzshman symlinks          # Vérifier les symlinks
+testzshman syntax            # Vérifier la syntaxe des fichiers
+```
+
+**Fonctionnalités :**
+- **Tests des managers** : Vérifie que tous les managers sont disponibles
+- **Tests des fonctions** : Vérifie que les fonctions sont chargées
+- **Vérification structure** : Vérifie la structure des dotfiles
+- **Tests de configuration** : Vérifie les fichiers de configuration
+- **Vérification symlinks** : Vérifie que les symlinks sont corrects
+- **Tests de syntaxe** : Vérifie la syntaxe ZSH des fichiers
+
+**Documentation :** `help testzshman` ou `man testzshman`
+
+### 🧪 Testman - Gestionnaire Tests Applications
+
+Gestionnaire complet pour tester des applications dans différents langages.
+
+**Utilisation :**
+```bash
+testman                      # Menu interactif
+testman python               # Tester projet Python
+testman node                 # Tester projet Node.js
+testman rust                 # Tester projet Rust
+testman go                   # Tester projet Go
+testman java                 # Tester projet Java
+testman flutter              # Tester projet Flutter
+testman lisp                 # Tester projet Lisp
+testman auto                 # Détection automatique du langage
+```
+
+**Fonctionnalités :**
+- **Multi-langages** : Support Python, Node.js, Rust, Go, Java, Flutter, Ruby, PHP, Lisp
+- **Détection automatique** : Détecte automatiquement le langage du projet
+- **Tests depuis répertoire courant** : Lance les tests depuis le répertoire actuel
+- **Support Docker Compose** : Gère les tests complexes avec Docker
+- **Input direct** : Permet de lancer des tests directement (`testman python`)
+
+**Exemples :**
+```bash
+# Détection automatique du langage
+testman auto
+
+# Tester un projet Python depuis le répertoire courant
+cd ~/mon-projet-python
+testman python
+
+# Tester un projet Node.js
+testman node
+
+# Tester avec Docker Compose
+testman docker
+```
+
+**Documentation :** `help testman` ou `man testman`
+
 ### Installation des Managers
 
 **Vérification :**
@@ -1815,6 +2009,9 @@ make docker-test-auto
 
 # Construire l'image de test uniquement
 make docker-build-test
+
+# Démarrer un conteneur interactif pour tester en live (après docker-build-test)
+make docker-start
 
 # Lancer un conteneur interactif pour tester
 make docker-run
