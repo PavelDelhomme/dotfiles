@@ -427,15 +427,21 @@ testman() {
                     sbcl --eval "(asdf:test-system :$(basename $(pwd)))" --quit
                 else
                     echo -e "${YELLOW}Exécution des fichiers de test...${RESET}\n"
-                    for test_file in test/*.lisp tests/*.lisp *.test.lisp 2>/dev/null; do
+                    # Utiliser null_glob pour éviter les erreurs si aucun fichier ne correspond
+                    setopt null_glob 2>/dev/null || true
+                    for test_file in test/*.lisp tests/*.lisp *.test.lisp; do
                         [ -f "$test_file" ] && sbcl --script "$test_file"
                     done
+                    unsetopt null_glob 2>/dev/null || true
                 fi
             elif command -v clisp >/dev/null 2>&1; then
                 echo -e "${YELLOW}Interpréteur détecté: CLISP${RESET}\n"
-                for test_file in test/*.lisp tests/*.lisp *.test.lisp 2>/dev/null; do
+                # Utiliser null_glob pour éviter les erreurs si aucun fichier ne correspond
+                setopt null_glob 2>/dev/null || true
+                for test_file in test/*.lisp tests/*.lisp *.test.lisp; do
                     [ -f "$test_file" ] && clisp "$test_file"
                 done
+                unsetopt null_glob 2>/dev/null || true
             else
                 echo -e "${RED}✗ Aucun interpréteur Lisp trouvé (SBCL ou CLISP)${RESET}"
                 local exit_code=1
