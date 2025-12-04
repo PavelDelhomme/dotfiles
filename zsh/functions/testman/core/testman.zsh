@@ -536,8 +536,8 @@ testman() {
                 ;;
         esac
         
-        # Retourner au menu après action (sauf si choix 0)
-        if [ "$choice" != "0" ]; then
+        # Retourner au menu après action (sauf si choix 0, q, quit, exit)
+        if [[ ! "$choice" =~ ^(0|q|Q|quit|exit)$ ]]; then
             echo ""
             read -k 1 "?Appuyez sur une touche pour continuer... "
             testman
@@ -546,36 +546,43 @@ testman() {
     
     # Si des arguments sont fournis, exécuter directement
     if [ -n "$1" ]; then
-        case "$1" in
-            python|py)
-                test_python "$2"
+        local lang=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+        local test_type="$2"
+        local test_dir="${3:-.}"
+        
+        case "$lang" in
+            python|py|pytest|django)
+                test_python "$test_type" "$test_dir"
                 ;;
-            node|js|npm)
-                test_node "$2"
+            node|nodejs|js|npm|jest|mocha)
+                test_node "$test_type" "$test_dir"
                 ;;
-            rust|rs)
-                test_rust
+            rust|rs|cargo)
+                test_rust "$test_dir"
                 ;;
             go|golang)
-                test_go
+                test_go "$test_dir"
                 ;;
-            java)
-                test_java
+            java|maven|gradle)
+                test_java "$test_dir"
                 ;;
             flutter|dart)
-                test_flutter
+                test_flutter "$test_dir"
                 ;;
-            ruby|rb)
-                test_ruby
+            ruby|rb|rspec|minitest)
+                test_ruby "$test_dir"
                 ;;
-            php)
-                test_php
+            php|phpunit)
+                test_php "$test_dir"
                 ;;
-            detect|auto)
-                local detected=$(detect_language)
+            lisp|cl|common-lisp|emacs-lisp|elisp)
+                test_lisp "$test_dir"
+                ;;
+            detect|auto|d)
+                local detected=$(detect_language "$test_dir")
                 if [ "$detected" != "unknown" ]; then
                     echo -e "${GREEN}Langage détecté: $detected${RESET}\n"
-                    "test_${detected}" "$2"
+                    "test_${detected}" "$test_type" "$test_dir"
                 else
                     echo -e "${RED}✗ Impossible de détecter le langage${RESET}"
                     return 1
@@ -585,15 +592,21 @@ testman() {
                 echo -e "${RED}Langage inconnu: $1${RESET}"
                 echo ""
                 echo "Langages disponibles:"
-                echo "  testman python [unit|integration|all]"
-                echo "  testman node [unit|integration|watch|all]"
-                echo "  testman rust"
-                echo "  testman go"
-                echo "  testman java"
-                echo "  testman flutter"
-                echo "  testman ruby"
-                echo "  testman php"
-                echo "  testman detect  - Détecter automatiquement"
+                echo "  testman python [unit|integration|coverage|all] [dir]"
+                echo "  testman node [unit|integration|watch|coverage|all] [dir]"
+                echo "  testman rust [dir]"
+                echo "  testman go [dir]"
+                echo "  testman java [dir]"
+                echo "  testman flutter [dir]"
+                echo "  testman ruby [dir]"
+                echo "  testman php [dir]"
+                echo "  testman lisp [dir]"
+                echo "  testman detect [dir]  - Détecter automatiquement"
+                echo ""
+                echo "Exemples:"
+                echo "  testman python unit"
+                echo "  testman node coverage ./frontend"
+                echo "  testman detect"
                 return 1
                 ;;
         esac
