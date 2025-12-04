@@ -415,6 +415,8 @@ log_info "✅ Vérification terminée"
 echo ""
 TESTEOF
 
+RUN chmod +x /root/test-verification.sh
+
 # Script de test fonctionnel complet des managers
 RUN cat > /root/test-managers-functional.sh << 'FUNCTIONAL_TEST'
 #!/bin/bash
