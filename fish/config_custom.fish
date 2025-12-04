@@ -33,9 +33,67 @@ end
 # === Définition des chemins (VARIABLES GLOBALES) ===
 set -g DOTFILES_PATH "$HOME/dotfiles"
 set -g DOTFILES_FISH_PATH "$DOTFILES_PATH/fish"
+set -g DOTFILES_ZSH_PATH "$DOTFILES_PATH/zsh"  # Pour partager env.sh et aliases.zsh
 set -g ENV_FILE "$DOTFILES_FISH_PATH/env.fish"
 set -g ALIASES_FILE "$DOTFILES_FISH_PATH/aliases.fish"
 set -g FUNCTIONS_DIR "$DOTFILES_FISH_PATH/functions"
+
+# =============================================================================
+# ÉTAPE 1 : CHARGEMENT DU GESTIONNAIRE DE MODULES (MODULEMAN) EN PREMIER
+# =============================================================================
+# Chercher le fichier de configuration dans plusieurs emplacements
+set -g MODULEMAN_CONFIG_FILE "$HOME/dotfiles/.config/moduleman/modules.conf"
+if not test -f "$MODULEMAN_CONFIG_FILE"
+    set -g MODULEMAN_CONFIG_FILE "$HOME/.config/moduleman/modules.conf"
+end
+
+if test -f "$MODULEMAN_CONFIG_FILE"
+    source "$MODULEMAN_CONFIG_FILE" 2>/dev/null || true
+end
+
+# Charger moduleman pour gérer les modules
+if test -f "$DOTFILES_FISH_PATH/functions/moduleman.fish"
+    source "$DOTFILES_FISH_PATH/functions/moduleman.fish" 2>/dev/null || true
+end
+
+# =============================================================================
+# ÉTAPE 2 : CHARGEMENT DES GESTIONNAIRES (*MAN) SELON LA CONFIGURATION
+# =============================================================================
+# Fonction pour charger un manager si activé (version Fish)
+function load_manager -d "Charger un manager si activé"
+    set -l manager_name "$argv[1]"
+    set -l manager_file "$argv[2]"
+    set -l display_name "$argv[3]"
+    set -l var_name "MODULE_"(string upper $manager_name)
+    set -l module_status (eval "echo \$$var_name" 2>/dev/null || echo "enabled")
+    
+    if test "$module_status" = "enabled"
+        if test -f "$manager_file"
+            source "$manager_file" >/dev/null 2>&1 || true
+            # Messages désactivés pour éviter le bruit
+        end
+    end
+end
+
+# Charger les managers (même ordre que ZSH)
+load_manager "pathman" "$DOTFILES_FISH_PATH/functions/pathman.fish" "PATHMAN"
+load_manager "netman" "$DOTFILES_FISH_PATH/functions/netman.fish" "NETMAN"
+load_manager "aliaman" "$DOTFILES_FISH_PATH/functions/aliaman.fish" "ALIAMAN"
+load_manager "miscman" "$DOTFILES_FISH_PATH/functions/miscman.fish" "MISCMAN"
+load_manager "searchman" "$DOTFILES_FISH_PATH/functions/searchman.fish" "SEARCHMAN"
+load_manager "cyberman" "$DOTFILES_FISH_PATH/functions/cyberman.fish" "CYBERMAN"
+load_manager "devman" "$DOTFILES_FISH_PATH/functions/devman.fish" "DEVMAN"
+load_manager "gitman" "$DOTFILES_FISH_PATH/functions/gitman.fish" "GITMAN"
+load_manager "helpman" "$DOTFILES_FISH_PATH/functions/helpman.fish" "HELPMAN"
+load_manager "manman" "$DOTFILES_FISH_PATH/functions/manman.fish" "MANMAN"
+load_manager "configman" "$DOTFILES_FISH_PATH/functions/configman.fish" "CONFIGMAN"
+load_manager "installman" "$DOTFILES_FISH_PATH/functions/installman.fish" "INSTALLMAN"
+load_manager "moduleman" "$DOTFILES_FISH_PATH/functions/moduleman.fish" "MODULEMAN"
+load_manager "fileman" "$DOTFILES_FISH_PATH/functions/fileman.fish" "FILEMAN"
+load_manager "virtman" "$DOTFILES_FISH_PATH/functions/virtman.fish" "VIRTMAN"
+load_manager "sshman" "$DOTFILES_FISH_PATH/functions/sshman.fish" "SSHMAN"
+load_manager "testzshman" "$DOTFILES_FISH_PATH/functions/testzshman.fish" "TESTZSHMAN"
+load_manager "testman" "$DOTFILES_FISH_PATH/functions/testman.fish" "TESTMAN"
 
 
 # Charger update_system.fish en premier pour remplacer les alias update/upgrade

@@ -30,7 +30,7 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 
 ## 🗺️ Plan de migration complet
 
-### Phase 1 : Infrastructure de base ⏳
+### Phase 1 : Infrastructure de base ✅ (EN COURS)
 
 **Objectif** : Créer la structure et les outils nécessaires.
 
@@ -39,25 +39,30 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
   - [x] `docs/MIGRATION_COMPLETE_GUIDE.md` - Guide complet
   - [x] `docs/MIGRATION_PLAN.md` - Plan détaillé
   - [x] `docs/MIGRATION_MULTI_SHELLS.md` - Explications
+  - [x] `docs/COMPLETE_MIGRATION_LIST.md` - Liste précise
   - [x] `STATUS.md` - Ce fichier (suivi de progression)
 
-- [ ] Créer structure de base
-  - [ ] `bash/functions/` avec structure complète
-  - [ ] `fish/functions/` avec structure complète (améliorer l'existant)
-  - [ ] Système de chargement multi-shells
+- [x] Créer structure de base
+  - [x] `bash/functions/` avec structure complète
+  - [x] `bash/utils/` créé
+  - [x] `fish/config_custom.fish` amélioré avec système de chargement
+  - [x] Système de chargement multi-shells
 
-- [ ] Créer convertisseur avancé
-  - [ ] Script de conversion ZSH → Fish
-  - [ ] Script de conversion ZSH → Bash
-  - [ ] Adaptation syntaxe complète
-  - [ ] Gestion des patterns complexes
+- [x] Créer convertisseur de base
+  - [x] Script de conversion ZSH → Fish (`convert_zsh_to_fish.sh`)
+  - [x] Script de conversion ZSH → Bash (`convert_zsh_to_bash.sh`)
+  - [x] Script de synchronisation amélioré (`sync_managers_multi_shell.sh`)
+  - [ ] Adaptation syntaxe complète (à améliorer progressivement)
+  - [ ] Gestion des patterns complexes (à améliorer progressivement)
 
-- [ ] Créer système de détection et chargement
-  - [ ] `fish/config_custom.fish` - Chargement managers Fish
-  - [ ] `bash/bashrc_custom` - Chargement managers Bash
-  - [ ] Fonction `load_manager` pour chaque shell
+- [x] Créer système de détection et chargement
+  - [x] `fish/config_custom.fish` - Chargement managers Fish avec `load_manager`
+  - [x] `bash/bashrc_custom` - Chargement managers Bash avec `load_manager`
+  - [x] `zshrc` - Détection Bash améliorée
+  - [x] Makefile targets (`sync-all-shells`, `sync-manager`, `convert-manager`)
 
 **Durée estimée :** 1-2 jours
+**Progression :** ~80% (structure et scripts de base créés, améliorations progressives à venir)
 
 ---
 

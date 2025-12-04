@@ -78,9 +78,12 @@ convert_zsh_to_fish() {
     
     log_step "Conversion ZSH → Fish: $(basename "$zsh_file")"
     
-    # Conversion basique (à améliorer)
-    # Pour l'instant, on crée un wrapper qui appelle la version ZSH via bash
-    cat > "$fish_file" << EOF
+    # Utiliser le script de conversion dédié
+    if [ -f "$DOTFILES_DIR/scripts/tools/convert_zsh_to_fish.sh" ]; then
+        "$DOTFILES_DIR/scripts/tools/convert_zsh_to_fish.sh" "$zsh_file" "$fish_file"
+    else
+        log_warn "Script de conversion non trouvé, création d'un wrapper temporaire"
+        cat > "$fish_file" << EOF
 # Converted from ZSH - Version Fish
 # Original: $zsh_file
 # 
@@ -92,8 +95,9 @@ function $(basename "$fish_file" .fish) -d "Manager converti depuis ZSH"
     bash -c "source '$zsh_file' && \$(basename '$zsh_file' .zsh) \$argv"
 end
 EOF
+    fi
     
-    log_info "Fichier Fish créé (wrapper temporaire)"
+    log_info "Fichier Fish créé"
 }
 
 # Fonction pour convertir ZSH → Bash
@@ -103,9 +107,12 @@ convert_zsh_to_bash() {
     
     log_step "Conversion ZSH → Bash: $(basename "$zsh_file")"
     
-    # Conversion basique (à améliorer)
-    # Pour l'instant, on crée un wrapper qui appelle la version ZSH
-    cat > "$bash_file" << EOF
+    # Utiliser le script de conversion dédié
+    if [ -f "$DOTFILES_DIR/scripts/tools/convert_zsh_to_bash.sh" ]; then
+        "$DOTFILES_DIR/scripts/tools/convert_zsh_to_bash.sh" "$zsh_file" "$bash_file"
+    else
+        log_warn "Script de conversion non trouvé, création d'un wrapper temporaire"
+        cat > "$bash_file" << EOF
 # Converted from ZSH - Version Bash
 # Original: $zsh_file
 # 
@@ -122,8 +129,9 @@ $(basename "$bash_file" .sh)() {
     fi
 }
 EOF
+    fi
     
-    log_info "Fichier Bash créé (wrapper temporaire)"
+    log_info "Fichier Bash créé"
 }
 
 log_step "Migration des managers..."
