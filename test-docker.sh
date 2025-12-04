@@ -23,10 +23,18 @@ IMAGE_NAME="${DOTFILES_PREFIX}:auto"
 
 log_step "Nettoyage UNIQUEMENT des conteneurs et images dotfiles-test..."
 # Nettoyer uniquement les conteneurs avec notre préfixe
-docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || true
-docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" | xargs -r docker rm 2>/dev/null || true
+CONTAINERS=$(docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" 2>/dev/null || true)
+if [ -n "$CONTAINERS" ]; then
+    echo "$CONTAINERS" | xargs -r docker stop 2>/dev/null || true
+    echo "$CONTAINERS" | xargs -r docker rm 2>/dev/null || true
+fi
 # Nettoyer uniquement les images avec notre préfixe
-docker images --filter "reference=${DOTFILES_PREFIX}*" --format "{{.Repository}}:{{.Tag}}" | xargs -r docker rmi 2>/dev/null || true
+IMAGES=$(docker images --filter "reference=${DOTFILES_PREFIX}*" --format "{{.Repository}}:{{.Tag}}" 2>/dev/null || true)
+if [ -n "$IMAGES" ]; then
+    echo "$IMAGES" | xargs -r docker rmi 2>/dev/null || true
+fi
+# Nettoyer aussi les images avec le tag exact
+docker rmi "${IMAGE_NAME}" 2>/dev/null || true
 
 log_step "Construction de l'image Docker avec installation automatique (isolée)..."
 # Utiliser --load pour charger l'image dans Docker (nécessaire avec BuildKit)

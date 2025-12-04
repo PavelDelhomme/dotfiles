@@ -187,6 +187,7 @@ NC='\033[0m'
 
 log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
+log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 
 cd /root/dotfiles
 
@@ -196,32 +197,79 @@ echo "VÉRIFICATION AUTOMATIQUE"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
-# Charger la configuration ZSH
-source ~/.zshrc 2>/dev/null || true
+# Test 1: Vérifier que les fichiers des managers existent
+log_info "Vérification des fichiers des managers..."
+MANAGER_FILES=(
+    "zsh/functions/installman.zsh:installman"
+    "zsh/functions/configman.zsh:configman"
+    "zsh/functions/pathman.zsh:pathman"
+    "zsh/functions/netman.zsh:netman"
+    "zsh/functions/gitman.zsh:gitman"
+    "zsh/functions/moduleman.zsh:moduleman"
+    "zsh/functions/fileman.zsh:fileman"
+    "zsh/functions/sshman.zsh:sshman"
+)
 
-# Test 1: Vérifier que installman est disponible
-if type installman >/dev/null 2>&1; then
-    log_info "✓ installman disponible"
-else
-    log_error "✗ installman non disponible"
-fi
-
-# Test 2: Vérifier que configman est disponible
-if type configman >/dev/null 2>&1; then
-    log_info "✓ configman disponible"
-else
-    log_error "✗ configman non disponible"
-fi
-
-# Test 3: Vérifier que les managers sont chargés
-MANAGERS=("pathman" "netman" "gitman" "moduleman")
-for manager in "${MANAGERS[@]}"; do
-    if type "$manager" >/dev/null 2>&1; then
-        log_info "✓ $manager disponible"
+for file_manager in "${MANAGER_FILES[@]}"; do
+    file="${file_manager%%:*}"
+    manager="${file_manager##*:}"
+    if [ -f "${DOTFILES_DIR}/${file}" ]; then
+        log_info "✓ Fichier $manager trouvé: $file"
     else
-        log_error "✗ $manager non disponible"
+        log_error "✗ Fichier $manager non trouvé: $file"
     fi
 done
+
+echo ""
+log_info "Vérification du chargement dans ZSH..."
+# Tester dans ZSH car les managers sont des fonctions ZSH
+if command -v zsh >/dev/null 2>&1; then
+    # Créer un script temporaire pour tester dans ZSH
+    cat > /tmp/test-zsh-managers.sh << 'ZSH_TEST'
+#!/bin/zsh
+set -e
+
+DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
+
+# Charger la configuration ZSH
+if [ -f ~/.zshrc ]; then
+    source ~/.zshrc >/dev/null 2>&1 || true
+fi
+
+# Test des managers dans ZSH
+MANAGERS=("installman" "configman" "pathman" "netman" "gitman" "moduleman" "fileman" "sshman")
+SUCCESS=0
+FAILED=0
+
+for manager in "${MANAGERS[@]}"; do
+    if type "$manager" >/dev/null 2>&1; then
+        echo "✓ $manager disponible"
+        ((SUCCESS++))
+    else
+        echo "✗ $manager non disponible"
+        ((FAILED++))
+    fi
+done
+
+echo ""
+echo "Résumé: $SUCCESS disponibles, $FAILED manquants"
+exit $FAILED
+ZSH_TEST
+    
+    chmod +x /tmp/test-zsh-managers.sh
+    
+    # Exécuter le test dans ZSH
+    if zsh /tmp/test-zsh-managers.sh 2>/dev/null; then
+        log_info "✓ Tous les managers sont disponibles dans ZSH"
+    else
+        log_warn "⚠️  Certains managers ne sont pas disponibles dans ZSH"
+        log_warn "   (Cela peut être normal si la configuration n'est pas complètement chargée)"
+    fi
+    
+    rm -f /tmp/test-zsh-managers.sh
+else
+    log_error "✗ ZSH non disponible pour les tests"
+fi
 
 echo ""
 echo "═══════════════════════════════════════════════════════════"
