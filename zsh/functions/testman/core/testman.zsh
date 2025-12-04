@@ -16,8 +16,10 @@ TESTMAN_UTILS_DIR="$TESTMAN_DIR/utils"
 TESTMAN_CONFIG_DIR="${TESTMAN_DIR}/config"
 
 # Créer les répertoires si nécessaire (ne pas échouer si impossible)
-# Utiliser une variable locale pour éviter les problèmes de paramètre non défini
-mkdir -p "${TESTMAN_CONFIG_DIR}" 2>/dev/null || true
+# Utiliser directement la construction pour éviter les problèmes de paramètre non défini
+if [ -n "${TESTMAN_DIR}" ]; then
+    mkdir -p "${TESTMAN_DIR}/config" 2>/dev/null || true
+fi
 
 # Charger les utilitaires
 if [ -d "$TESTMAN_UTILS_DIR" ]; then
