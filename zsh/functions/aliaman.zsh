@@ -844,5 +844,5 @@ elif [[ "$1" == "reload" ]]; then
     echo "✅ Alias rechargés"
 fi
 
-# Message d'initialisation
-echo "🚀 ALIAMAN chargé - Tapez 'aliaman' ou 'am' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🚀 ALIAMAN chargé - Tapez 'aliaman' ou 'am' pour démarrer"

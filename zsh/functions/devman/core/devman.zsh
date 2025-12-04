@@ -199,6 +199,6 @@ devman() {
     done
 }
 
-# Message d'initialisation
-echo "💻 DEVMAN chargé - Tapez 'devman' ou 'dm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "💻 DEVMAN chargé - Tapez 'devman' ou 'dm' pour démarrer"
 

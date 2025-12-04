@@ -200,8 +200,8 @@ virtman() {
     fi
 }
 
-# Message d'initialisation
-echo "🖥️  VIRTMAN chargé - Tapez 'virtman' ou 'vm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🖥️  VIRTMAN chargé - Tapez 'virtman' ou 'vm' pour démarrer"
 
 # Alias
 alias vm='virtman'

@@ -5,7 +5,7 @@
 # =============================================================================
 # Powerlevel10k affiche un warning si on fait des echo pendant l'init
 # On définit cette variable pour éviter le warning (le prompt sera un peu plus lent)
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
 
 # Restaurer le PATH original si nécessaire
 if [ -n "$PATH_ORIGINAL" ]; then
@@ -62,7 +62,8 @@ fi
 # IMPORTANT: Ces gestionnaires doivent être chargés AVANT env.sh
 # car env.sh utilise add_to_path() qui est définie dans pathman.zsh
 # =============================================================================
-echo -e "${CYAN}🚀 ÉTAPE 1/5 : Chargement des gestionnaires...${NC}"
+# Messages d'initialisation désactivés pour éviter l'avertissement Powerlevel10k
+# echo -e "${CYAN}🚀 ÉTAPE 1/5 : Chargement des gestionnaires...${NC}"
 
 # Fonction pour charger un manager si activé
 load_manager() {
@@ -74,13 +75,15 @@ load_manager() {
     
     if [ "$module_status" = "enabled" ]; then
         if [ -f "$manager_file" ]; then
-            source "$manager_file" && echo -e "${GREEN}  ✔️ $display_name chargé${NC}" || echo -e "${YELLOW}  ⚠️ $display_name introuvable${NC}"
-        else
-            echo -e "${YELLOW}  ⚠️ $display_name introuvable${NC}"
+            source "$manager_file" >/dev/null 2>&1 || true
+            # Messages désactivés pour éviter l'avertissement Powerlevel10k
+            # && echo -e "${GREEN}  ✔️ $display_name chargé${NC}" || echo -e "${YELLOW}  ⚠️ $display_name introuvable${NC}"
         fi
-    else
-        echo -e "${YELLOW}  ⚠️ $display_name désactivé (moduleman)${NC}"
+        # else
+        #     echo -e "${YELLOW}  ⚠️ $display_name introuvable${NC}"
     fi
+    # else
+    #     echo -e "${YELLOW}  ⚠️ $display_name désactivé (moduleman)${NC}"
 }
 
 load_manager "pathman" "$DOTFILES_ZSH_PATH/functions/pathman.zsh" "PATHMAN"
@@ -105,13 +108,15 @@ load_manager "sshman" "$DOTFILES_ZSH_PATH/functions/sshman.zsh" "SSHMAN"
 # IMPORTANT: env.sh doit être chargé APRÈS les gestionnaires car il utilise
 # add_to_path() définie dans pathman.zsh pour ajouter des chemins au PATH
 # =============================================================================
-echo -e "${CYAN}📦 ÉTAPE 2/5 : Chargement des variables d'environnement...${NC}"
+# Messages d'initialisation désactivés pour éviter l'avertissement Powerlevel10k
+# echo -e "${CYAN}📦 ÉTAPE 2/5 : Chargement des variables d'environnement...${NC}"
 if [ -f "$ENV_FILE" ]; then
-    source "$ENV_FILE"
-    echo -e "${GREEN}  ✔️ Variables d'environnement chargées${NC}"
-else
-    echo -e "${YELLOW}  ⚠️ Fichier $ENV_FILE introuvable${NC}"
+    source "$ENV_FILE" >/dev/null 2>&1
+    # Messages désactivés pour éviter l'avertissement Powerlevel10k
+    # echo -e "${GREEN}  ✔️ Variables d'environnement chargées${NC}"
 fi
+# else
+#     echo -e "${YELLOW}  ⚠️ Fichier $ENV_FILE introuvable${NC}"
 
 # =============================================================================
 # ÉTAPE 4 : CHARGEMENT DES FONCTIONS INDIVIDUELLES
@@ -119,14 +124,16 @@ fi
 # - cyber/ (réorganisé en reconnaissance/, scanning/, vulnerability/, attacks/, analysis/, privacy/)
 # - dev/, git/, misc/, network/, utils/
 # =============================================================================
-echo -e "${CYAN}🔧 ÉTAPE 3/5 : Chargement des fonctions individuelles...${NC}"
+# Messages d'initialisation désactivés pour éviter l'avertissement Powerlevel10k
+# echo -e "${CYAN}🔧 ÉTAPE 3/5 : Chargement des fonctions individuelles...${NC}"
 
 # Charger update_system.sh en premier pour remplacer les alias update/upgrade
 # Supprimer les alias s'ils existent avant de charger la fonction
 if [ -f "$FUNCTIONS_DIR/misc/system/update_system.sh" ]; then
     unalias update 2>/dev/null || true
     unalias upgrade 2>/dev/null || true
-    source "$FUNCTIONS_DIR/misc/system/update_system.sh" 2>/dev/null && echo -e "${GREEN}  ✔️ update_system chargé${NC}" || echo -e "${YELLOW}  ⚠️ update_system introuvable${NC}"
+    source "$FUNCTIONS_DIR/misc/system/update_system.sh" >/dev/null 2>&1 || true
+    # Messages désactivés pour éviter l'avertissement Powerlevel10k
 fi
 
 if [ -d "$FUNCTIONS_DIR" ]; then
@@ -140,14 +147,12 @@ if [ -d "$FUNCTIONS_DIR" ]; then
     
     if [ "$installman_status" = "enabled" ] && [ -f "$FUNCTIONS_DIR/installman.zsh" ]; then
         source "$FUNCTIONS_DIR/installman.zsh" 2>/dev/null && ((loaded_count++)) || ((error_count++))
-    elif [ "$installman_status" = "disabled" ]; then
-        echo -e "${YELLOW}  ⚠️ INSTALLMAN désactivé (moduleman)${NC}"
+    # Messages désactivés pour éviter l'avertissement Powerlevel10k
     fi
     
     if [ "$configman_status" = "enabled" ] && [ -f "$FUNCTIONS_DIR/configman.zsh" ]; then
-        source "$FUNCTIONS_DIR/configman.zsh" 2>/dev/null && ((loaded_count++)) || ((error_count++))
-    elif [ "$configman_status" = "disabled" ]; then
-        echo -e "${YELLOW}  ⚠️ CONFIGMAN désactivé (moduleman)${NC}"
+        source "$FUNCTIONS_DIR/configman.zsh" >/dev/null 2>&1 && ((loaded_count++)) || ((error_count++))
+    # Messages désactivés pour éviter l'avertissement Powerlevel10k
     fi
     
     # Charger récursivement tous les scripts .sh et .zsh
@@ -170,34 +175,42 @@ if [ -d "$FUNCTIONS_DIR" ]; then
                 ((loaded_count++))
             else
                 ((error_count++))
-                echo -e "${YELLOW}  ⚠️ Erreur: $(basename "$func_file")${NC}" >&2
+                # Messages désactivés pour éviter l'avertissement Powerlevel10k
+                # echo -e "${YELLOW}  ⚠️ Erreur: $(basename "$func_file")${NC}" >&2
             fi
         fi
     done
-    echo -e "${GREEN}  ✔️ $loaded_count fonctions chargées${NC}"
-    [ $error_count -gt 0 ] && echo -e "${YELLOW}  ⚠️ $error_count erreurs${NC}"
-else
-    echo -e "${YELLOW}  ⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR${NC}"
+    # Messages désactivés pour éviter l'avertissement Powerlevel10k
+    # echo -e "${GREEN}  ✔️ $loaded_count fonctions chargées${NC}"
+    # [ $error_count -gt 0 ] && echo -e "${YELLOW}  ⚠️ $error_count erreurs${NC}"
 fi
+# Messages désactivés pour éviter l'avertissement Powerlevel10k
+# else
+#     echo -e "${YELLOW}  ⚠️ Répertoire de fonctions introuvable : $FUNCTIONS_DIR${NC}"
 
 # =============================================================================
 # ÉTAPE 5 : CHARGEMENT DES UTILITAIRES (alias, logs, documentation)
 # =============================================================================
-echo -e "${CYAN}📝 ÉTAPE 4/5 : Chargement des utilitaires...${NC}"
-[ -f "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" && echo -e "${GREEN}  ✔️ Alias utils chargés${NC}" || echo -e "${YELLOW}  ⚠️ Alias utils introuvable${NC}"
-[ -f "$DOTFILES_PATH/scripts/lib/actions_logger.sh" ] && source "$DOTFILES_PATH/scripts/lib/actions_logger.sh" && echo -e "${GREEN}  ✔️ Actions logger chargé${NC}" || echo -e "${YELLOW}  ⚠️ Actions logger introuvable${NC}"
-[ -f "$DOTFILES_ZSH_PATH/functions/helpman/modules/help_system.sh" ] && source "$DOTFILES_ZSH_PATH/functions/helpman/modules/help_system.sh" && echo -e "${GREEN}  ✔️ Système d'aide chargé${NC}" || echo -e "${YELLOW}  ⚠️ Système d'aide introuvable${NC}"
+# Messages d'initialisation désactivés pour éviter l'avertissement Powerlevel10k
+# echo -e "${CYAN}📝 ÉTAPE 4/5 : Chargement des utilitaires...${NC}"
+[ -f "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/utils/alias_utils.zsh" >/dev/null 2>&1 || true
+[ -f "$DOTFILES_PATH/scripts/lib/actions_logger.sh" ] && source "$DOTFILES_PATH/scripts/lib/actions_logger.sh" >/dev/null 2>&1 || true
+[ -f "$DOTFILES_ZSH_PATH/functions/helpman/modules/help_system.sh" ] && source "$DOTFILES_ZSH_PATH/functions/helpman/modules/help_system.sh" >/dev/null 2>&1 || true
+# Messages désactivés pour éviter l'avertissement Powerlevel10k
 
 # =============================================================================
 # ÉTAPE 6 : CHARGEMENT DES ALIASES
 # =============================================================================
-echo -e "${CYAN}📝 ÉTAPE 5/5 : Chargement des alias...${NC}"
+# Messages d'initialisation désactivés pour éviter l'avertissement Powerlevel10k
+# echo -e "${CYAN}📝 ÉTAPE 5/5 : Chargement des alias...${NC}"
 if [ -f "$ALIASES_FILES" ]; then
-    source "$ALIASES_FILES"
-    echo -e "${GREEN}  ✔️ Alias chargés${NC}"
-else
-    echo -e "${YELLOW}  ⚠️ Fichier $ALIASES_FILES introuvable${NC}"
+    source "$ALIASES_FILES" >/dev/null 2>&1
+    # Messages désactivés pour éviter l'avertissement Powerlevel10k
+    # echo -e "${GREEN}  ✔️ Alias chargés${NC}"
 fi
+# Messages désactivés pour éviter l'avertissement Powerlevel10k
+# else
+#     echo -e "${YELLOW}  ⚠️ Fichier $ALIASES_FILES introuvable${NC}"
 
 # =============================================================================
 # ÉTAPE 6 : CORRECTION AUTOMATIQUE DU CONFLIT GHOSTSCRIPT
@@ -298,11 +311,12 @@ fi
 # =============================================================================
 # FIN DU CHARGEMENT
 # =============================================================================
-# Neofetch (si installé)
-if command -v neofetch >/dev/null 2>&1; then
-    neofetch
-fi
-echo "🎉 Configuration ZSH personnalisée chargée avec succès"
+# Neofetch (si installé) - désactivé pendant l'initialisation
+# if command -v neofetch >/dev/null 2>&1; then
+#     neofetch
+# fi
+# Messages désactivés pour éviter l'avertissement Powerlevel10k
+# echo "🎉 Configuration ZSH personnalisée chargée avec succès"
 
 # =============================================================================
 # ÉTAPE FINALE : CHARGER NOTRE CONFIG P10K EN DERNIER

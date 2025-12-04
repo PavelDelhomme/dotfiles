@@ -507,5 +507,5 @@ elif [[ "$1" == "process" && -n "$2" ]]; then
     ps aux | grep -i "$2" | grep -v grep
 fi
 
-# Message d'initialisation
-echo "🔍 SEARCHMAN chargé - Tapez 'searchman' ou 'sm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🔍 SEARCHMAN chargé - Tapez 'searchman' ou 'sm' pour démarrer"

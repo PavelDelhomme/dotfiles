@@ -172,3 +172,6 @@ fileman() {
 # Alias
 alias fm='fileman'
 
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "📁 FILEMAN chargé - Tapez 'fileman' ou 'fm' pour démarrer"
+

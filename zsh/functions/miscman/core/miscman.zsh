@@ -548,5 +548,5 @@ elif [[ "$1" == "cleanup" ]]; then
     miscman; system_cleanup
 fi
 
-# Message d'initialisation
-echo "🔧 MISCMAN chargé - Tapez 'miscman' ou 'mm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🔧 MISCMAN chargé - Tapez 'miscman' ou 'mm' pour démarrer"

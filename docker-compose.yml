@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  dotfiles-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dotfiles-test
+    image: dotfiles-test:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      # Monter les dotfiles pour développement
+      - .:/root/dotfiles:ro
+      # Permettre la persistance des configurations
+      - dotfiles-config:/root/.config
+      - dotfiles-ssh:/root/.ssh
+    environment:
+      - HOME=/root
+      - DOTFILES_DIR=/root/dotfiles
+      - TERM=xterm-256color
+    command: /bin/zsh
+    networks:
+      - dotfiles-network
+
+volumes:
+  dotfiles-config:
+    driver: local
+  dotfiles-ssh:
+    driver: local
+
+networks:
+  dotfiles-network:
+    driver: bridge
+

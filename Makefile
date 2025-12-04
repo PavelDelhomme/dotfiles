@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -46,6 +46,15 @@ help: ## Afficher cette aide
 	@echo "  make test-libs         - Tester les bibliothèques communes"
 	@echo "  make test-zshrc        - Tester zshrc_custom"
 	@echo "  make test-alias        - Tester les alias"
+	@echo ""
+	@echo "$(GREEN)Docker (Tests conteneurisés):$(NC)"
+	@echo "  make docker-build      - Construire l'image Docker"
+	@echo "  make docker-run        - Lancer un conteneur interactif"
+	@echo "  make docker-compose-up - Lancer avec docker-compose"
+	@echo "  make docker-test       - Tester les dotfiles dans Docker"
+	@echo "  make docker-shell      - Ouvrir un shell dans le conteneur"
+	@echo "  make docker-stop       - Arrêter le conteneur"
+	@echo "  make docker-clean      - Nettoyer images et volumes Docker"
 	@echo ""
 	@echo "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
@@ -484,3 +493,69 @@ test-alias: ## Tester les alias
 	else \
 		echo "$(YELLOW)⚠️  aliases.zsh non trouvé (optionnel)$(NC)"; \
 	fi
+
+################################################################################
+# DOCKER - Tests dans environnement conteneurisé
+################################################################################
+
+docker-build: ## Construire l'image Docker pour tester les dotfiles
+	@echo "$(BLUE)🔨 Construction de l'image Docker...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		docker build -t dotfiles-test:latest . && \
+		echo "$(GREEN)✓ Image Docker construite avec succès$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi
+
+docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles
+	@echo "$(BLUE)🚀 Lancement du conteneur Docker...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		docker run -it --rm \
+			--name dotfiles-test \
+			-v "$(PWD):/root/dotfiles:ro" \
+			-v dotfiles-config:/root/.config \
+			-v dotfiles-ssh:/root/.ssh \
+			-e HOME=/root \
+			-e DOTFILES_DIR=/root/dotfiles \
+			-e TERM=xterm-256color \
+			dotfiles-test:latest; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi
+
+docker-compose-up: ## Lancer avec docker-compose
+	@echo "$(BLUE)🚀 Lancement avec docker-compose...$(NC)"
+	@if command -v docker-compose >/dev/null 2>&1 || docker compose version >/dev/null 2>&1; then \
+		docker compose up -d && \
+		docker compose exec dotfiles-test /bin/zsh; \
+	else \
+		echo "$(YELLOW)⚠️  docker-compose n'est pas installé$(NC)"; \
+		exit 1; \
+	fi
+
+docker-test: docker-build ## Tester les dotfiles dans Docker (build + run)
+	@echo "$(BLUE)🧪 Test des dotfiles dans Docker...$(NC)"
+	@docker run --rm \
+		--name dotfiles-test \
+		-v "$(PWD):/root/dotfiles:ro" \
+		dotfiles-test:latest \
+		/bin/zsh -c "source /root/dotfiles/zsh/zshrc_custom && echo '✓ Dotfiles chargés avec succès' && zsh -c 'type installman >/dev/null && echo \"✓ installman disponible\" || echo \"✗ installman non disponible\"'"
+
+docker-stop: ## Arrêter le conteneur Docker
+	@echo "$(BLUE)🛑 Arrêt du conteneur Docker...$(NC)"
+	@docker stop dotfiles-test 2>/dev/null || echo "$(YELLOW)⚠️  Conteneur déjà arrêté$(NC)"
+	@docker compose down 2>/dev/null || true
+
+docker-clean: ## Nettoyer les images et volumes Docker
+	@echo "$(BLUE)🧹 Nettoyage Docker...$(NC)"
+	@docker stop dotfiles-test 2>/dev/null || true
+	@docker rm dotfiles-test 2>/dev/null || true
+	@docker rmi dotfiles-test:latest 2>/dev/null || true
+	@docker compose down -v 2>/dev/null || true
+	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
+
+docker-shell: ## Ouvrir un shell dans le conteneur en cours d'exécution
+	@echo "$(BLUE)🐚 Ouverture d'un shell dans le conteneur...$(NC)"
+	@docker exec -it dotfiles-test /bin/zsh || docker compose exec dotfiles-test /bin/zsh

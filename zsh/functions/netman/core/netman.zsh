@@ -881,5 +881,5 @@ elif [[ "$1" == "stats" ]]; then
     show_network_stats
 fi
 
-# Message d'initialisation
-echo "🚀 NETMAN chargé - Tapez 'netman' ou 'nm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🚀 NETMAN chargé - Tapez 'netman' ou 'nm' pour démarrer"

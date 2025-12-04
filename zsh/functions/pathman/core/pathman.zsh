@@ -288,8 +288,8 @@ clean_path() {
     echo "✅ PATH nettoyé"
 }
 
-# Message d'initialisation
-echo "📁 PATHMAN chargé - Tapez 'pathman' ou 'pm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "📁 PATHMAN chargé - Tapez 'pathman' ou 'pm' pour démarrer"
 
 # Alias
 alias pm='pathman'

@@ -294,3 +294,6 @@ EOF
 alias mm='moduleman'
 alias modman='moduleman'
 
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "⚙️  MODULEMAN chargé - Tapez 'moduleman' ou 'mm' pour démarrer"
+

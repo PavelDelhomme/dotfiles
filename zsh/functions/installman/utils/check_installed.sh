@@ -58,7 +58,7 @@ check_java_version_installed() {
     # Vérifier via command java
     if command -v java &>/dev/null; then
         local java_version_output=$(java -version 2>&1 | head -n1)
-        if echo "$java_version_output" | grep -q "version \"${version}[^"]*\""; then
+        if echo "$java_version_output" | grep -q "version \"${version}[^\"]*\""; then
             echo "installed"
             return 0
         fi

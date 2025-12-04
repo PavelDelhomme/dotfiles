@@ -603,6 +603,6 @@ gitman() {
     fi
 }
 
-# Message d'initialisation
-echo "📦 GITMAN chargé - Tapez 'gitman' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "📦 GITMAN chargé - Tapez 'gitman' pour démarrer"
 

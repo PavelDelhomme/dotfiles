@@ -414,6 +414,6 @@ elif [[ "$1" == "stats" ]]; then
     show_ssh_stats
 fi
 
-# Message d'initialisation
-echo "🚀 SSMAN chargé - Tapez 'sshman' ou 'sm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🚀 SSMAN chargé - Tapez 'sshman' ou 'sm' pour démarrer"
 

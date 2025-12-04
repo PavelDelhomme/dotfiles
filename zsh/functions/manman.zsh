@@ -141,8 +141,8 @@ manman() {
     fi
 }
 
-# Message d'initialisation
-echo "🎯 MANMAN chargé - Tapez 'manman' ou 'mmg' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🎯 MANMAN chargé - Tapez 'manman' ou 'mmg' pour démarrer"
 
 # Alias
 alias mmg='manman'

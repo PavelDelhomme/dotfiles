@@ -1409,8 +1409,8 @@ EOF
     echo -e "${GREEN}Au revoir !${RESET}"
 }
 
-# Message d'initialisation
-echo "🛡️ CYBERMAN chargé - Tapez 'cyberman' ou 'cm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "🛡️ CYBERMAN chargé - Tapez 'cyberman' ou 'cm' pour démarrer"
 
 # Alias
 alias cm='cyberman'

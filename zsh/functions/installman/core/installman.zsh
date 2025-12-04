@@ -344,3 +344,6 @@ alias install-tool='installman'
 
 # Alias
 alias im='installman'
+
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "📦 INSTALLMAN chargé - Tapez 'installman' ou 'im' pour démarrer"

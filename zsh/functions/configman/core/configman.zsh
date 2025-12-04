@@ -253,3 +253,6 @@ alias config='configman'
 alias dotfilesman='configman'
 alias dfm='configman'
 
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "⚙️  CONFIGMAN chargé - Tapez 'configman' ou 'cm' pour démarrer"
+

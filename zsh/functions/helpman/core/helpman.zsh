@@ -208,5 +208,5 @@ helpman() {
     done
 }
 
-# Message d'initialisation
-echo "📚 HELPMAN chargé - Tapez 'helpman' ou 'hm' pour démarrer"
+# Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
+# echo "📚 HELPMAN chargé - Tapez 'helpman' ou 'hm' pour démarrer"
