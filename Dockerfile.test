@@ -227,14 +227,18 @@ if command -v zsh >/dev/null 2>&1; then
     # Créer un script temporaire pour tester dans ZSH
     cat > /tmp/test-zsh-managers.sh << 'ZSH_TEST'
 #!/bin/zsh
-set -e
+set +e  # Ne pas arrêter sur erreurs
 
 DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
 
-# Charger la configuration ZSH
+# Charger la configuration ZSH en silence
 if [ -f ~/.zshrc ]; then
+    # Rediriger tous les outputs pour éviter les messages pendant le chargement
     source ~/.zshrc >/dev/null 2>&1 || true
 fi
+
+# Attendre un peu pour que tout soit chargé
+sleep 0.5
 
 # Test des managers dans ZSH
 MANAGERS=("installman" "configman" "pathman" "netman" "gitman" "moduleman" "fileman" "sshman")
@@ -243,27 +247,39 @@ FAILED=0
 
 for manager in "${MANAGERS[@]}"; do
     if type "$manager" >/dev/null 2>&1; then
-        echo "✓ $manager disponible"
+        echo "[✓] $manager disponible"
         ((SUCCESS++))
     else
-        echo "✗ $manager non disponible"
+        echo "[✗] $manager non disponible"
         ((FAILED++))
     fi
 done
 
 echo ""
-echo "Résumé: $SUCCESS disponibles, $FAILED manquants"
-exit $FAILED
+if [ $FAILED -eq 0 ]; then
+    echo "[✓] Résumé: Tous les $SUCCESS managers sont disponibles"
+    exit 0
+else
+    echo "[!] Résumé: $SUCCESS disponibles, $FAILED manquants"
+    exit $FAILED
+fi
 ZSH_TEST
     
     chmod +x /tmp/test-zsh-managers.sh
     
-    # Exécuter le test dans ZSH
-    if zsh /tmp/test-zsh-managers.sh 2>/dev/null; then
+    # Exécuter le test dans ZSH et capturer la sortie
+    TEST_OUTPUT=$(zsh /tmp/test-zsh-managers.sh 2>&1)
+    TEST_EXIT=$?
+    
+    # Afficher la sortie du test
+    echo "$TEST_OUTPUT"
+    
+    if [ $TEST_EXIT -eq 0 ]; then
         log_info "✓ Tous les managers sont disponibles dans ZSH"
     else
         log_warn "⚠️  Certains managers ne sont pas disponibles dans ZSH"
         log_warn "   (Cela peut être normal si la configuration n'est pas complètement chargée)"
+        log_warn "   Essayez de lancer 'zsh' manuellement pour tester"
     fi
     
     rm -f /tmp/test-zsh-managers.sh
