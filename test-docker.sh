@@ -106,13 +106,13 @@ EOF
 # Traiter le choix
 if [[ "$managers_choice" == "all" ]]; then
     # Activer tous les managers
-    for manager in "${MANAGER_MAP[@]}"; do
+    for manager in "${MANAGER_NAMES[@]}"; do
         echo "MODULE_${manager}=enabled" >> "$MANAGERS_CONFIG"
     done
     log_info "✓ Tous les managers seront activés"
 elif [[ "$managers_choice" == "none" ]]; then
     # Désactiver tous les managers
-    for manager in "${MANAGER_MAP[@]}"; do
+    for manager in "${MANAGER_NAMES[@]}"; do
         echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
     done
     log_info "✓ Aucun manager ne sera activé"
@@ -125,9 +125,17 @@ else
         fi
     done
     # Désactiver les autres
-    for num in "${!MANAGER_MAP[@]}"; do
-        if [[ ! " $managers_choice " =~ " $num " ]]; then
-            echo "MODULE_${MANAGER_MAP[$num]}=disabled" >> "$MANAGERS_CONFIG"
+    for manager in "${MANAGER_NAMES[@]}"; do
+        # Vérifier si ce manager a été sélectionné
+        found=false
+        for num in $managers_choice; do
+            if [[ "${MANAGER_MAP[$num]}" == "$manager" ]]; then
+                found=true
+                break
+            fi
+        done
+        if [[ "$found" == "false" ]]; then
+            echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
         fi
     done
 fi
