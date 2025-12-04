@@ -8,10 +8,11 @@ ENV HOME=/root
 ENV TERM=xterm-256color
 ENV GIT_USER_NAME="Test User"
 ENV GIT_USER_EMAIL="test@example.com"
-ENV SELECTED_SHELL="zsh"
+ARG SELECTED_SHELL="zsh"
+ENV SELECTED_SHELL=${SELECTED_SHELL}
 ENV SKIP_SSH_CONFIG=true
 
-# Installer les dépendances minimales pour tester
+# Installer les dépendances minimales pour tester (tous les shells)
 RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
         bash \
@@ -19,6 +20,7 @@ RUN pacman -Syu --noconfirm && \
         curl \
         wget \
         zsh \
+        fish \
         sudo \
         which \
         openssh \
@@ -147,35 +149,67 @@ fi
 
 log_info "✓ Symlinks créés"
 
-log_info "Étape 4/5 : Configuration ZSH..."
-# Si .zshrc est un symlink, il devrait déjà pointer vers la bonne configuration
-# Sinon, essayer de créer un fichier .zshrc qui source zshrc_custom
-if [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then
-    if [ -L ~/.zshrc ]; then
-        log_info "✓ .zshrc est un symlink, configuration automatique"
-    elif [ ! -f ~/.zshrc ]; then
-        # Essayer de créer un fichier .zshrc si possible (peut échouer si lecture seule)
-        {
-            echo "# ZSH Configuration"
-            echo "source ${DOTFILES_DIR}/zsh/zshrc_custom"
-        } > ~/.zshrc 2>/dev/null || {
-            log_warn "⚠️  Impossible d'écrire dans ~/.zshrc (système de fichiers en lecture seule)"
-            log_info "💡 Le symlink devrait être créé automatiquement au prochain démarrage"
-        }
-    else
-        # Fichier existe mais n'est pas un symlink
-        if ! grep -q "source ${DOTFILES_DIR}/zsh/zshrc_custom" ~/.zshrc 2>/dev/null; then
+log_info "Étape 4/5 : Configuration du shell (${SELECTED_SHELL:-zsh})..."
+# Configurer selon le shell choisi via build arg
+SELECTED_SHELL="${SELECTED_SHELL:-zsh}"
+
+case "$SELECTED_SHELL" in
+    zsh)
+        # Configuration ZSH (toutes les fonctionnalités)
+        if [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then
+            if [ -L ~/.zshrc ]; then
+                log_info "✓ .zshrc est un symlink, configuration automatique"
+            elif [ ! -f ~/.zshrc ]; then
+                if [ -f "${DOTFILES_DIR}/zshrc" ]; then
+                    ln -s "${DOTFILES_DIR}/zshrc" ~/.zshrc 2>/dev/null || log_warn "Impossible de créer symlink .zshrc"
+                else
+                    {
+                        echo "# ZSH Configuration"
+                        echo "source ${DOTFILES_DIR}/zsh/zshrc_custom"
+                    } > ~/.zshrc 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.zshrc"
+                fi
+            fi
+            log_info "✓ ZSH configuré (toutes les fonctionnalités - 18 managers disponibles)"
+        else
+            log_warn "zshrc_custom non trouvé"
+        fi
+        ;;
+    bash)
+        # Configuration Bash (compatibilité basique)
+        if [ ! -f ~/.bashrc ] || ! grep -q "dotfiles" ~/.bashrc 2>/dev/null; then
             {
                 echo ""
-                echo "# Source dotfiles custom configuration"
-                echo "source ${DOTFILES_DIR}/zsh/zshrc_custom"
-            } >> ~/.zshrc 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.zshrc"
+                echo "# Dotfiles configuration (compatibilité Bash)"
+                if [ -f "${DOTFILES_DIR}/zshrc" ]; then
+                    echo "source ${DOTFILES_DIR}/zshrc"
+                elif [ -f "${DOTFILES_DIR}/zsh/env.sh" ]; then
+                    echo "source ${DOTFILES_DIR}/zsh/env.sh"
+                fi
+            } >> ~/.bashrc 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.bashrc"
         fi
-    fi
-    log_info "✓ ZSH configuré"
-else
-    log_warn "zshrc_custom non trouvé"
-fi
+        log_info "✓ Bash configuré (mode compatibilité basique - variables d'env et alias simples)"
+        log_warn "⚠️  Les managers interactifs (*man) ne sont pas disponibles en Bash (ZSH-only)"
+        ;;
+    fish)
+        # Configuration Fish (compatibilité basique)
+        mkdir -p ~/.config/fish
+        if [ ! -f ~/.config/fish/config.fish ] || ! grep -q "dotfiles" ~/.config/fish/config.fish 2>/dev/null; then
+            {
+                echo ""
+                echo "# Dotfiles configuration (compatibilité Fish)"
+                if [ -f "${DOTFILES_DIR}/fish/config_custom.fish" ]; then
+                    echo "source ${DOTFILES_DIR}/fish/config_custom.fish"
+                fi
+            } >> ~/.config/fish/config.fish 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.config/fish/config.fish"
+        fi
+        log_info "✓ Fish configuré (mode compatibilité basique - variables d'env et alias)"
+        log_warn "⚠️  Les managers interactifs (*man) ne sont pas disponibles en Fish (ZSH-only)"
+        ;;
+    *)
+        log_warn "⚠️  Shell non reconnu: $SELECTED_SHELL, utilisation de ZSH par défaut"
+        SELECTED_SHELL="zsh"
+        ;;
+esac
 
 log_info "Étape 5/5 : Vérification de l'installation..."
 echo ""

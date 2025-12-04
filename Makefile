@@ -594,6 +594,21 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 	@if command -v docker >/dev/null 2>&1; then \
 		if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "$(DOTFILES_DOCKER_PREFIX):auto"; then \
 			echo "$(GREEN)✓ Image $(DOTFILES_DOCKER_PREFIX):auto trouvée$(NC)"; \
+			echo ""; \
+			echo "$(CYAN)🐚 Choisissez le shell:$(NC)"; \
+			echo "  1) zsh (recommandé - toutes les fonctionnalités)"; \
+			echo "  2) bash (test de compatibilité basique)"; \
+			echo "  3) fish (test de compatibilité basique)"; \
+			echo ""; \
+			read -p "Votre choix [défaut: 1 (zsh)]: " shell_choice; \
+			shell_choice=$${shell_choice:-1}; \
+			case "$$shell_choice" in \
+				1) SELECTED_SHELL_CMD="/bin/zsh" ;; \
+				2) SELECTED_SHELL_CMD="/bin/bash" ;; \
+				3) SELECTED_SHELL_CMD="/usr/bin/fish" ;; \
+				*) SELECTED_SHELL_CMD="/bin/zsh" ;; \
+			esac; \
+			echo "$(GREEN)✓ Shell: $$SELECTED_SHELL_CMD$(NC)"; \
 			docker run -it --rm \
 				--name $(DOTFILES_CONTAINER) \
 				-v "$(PWD):/root/dotfiles:ro" \
@@ -603,7 +618,7 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 				-e DOTFILES_DIR=/root/dotfiles \
 				-e TERM=xterm-256color \
 				$(DOTFILES_DOCKER_PREFIX):auto \
-				/bin/zsh; \
+				$$SELECTED_SHELL_CMD; \
 		else \
 			echo "$(YELLOW)⚠️  Image $(DOTFILES_DOCKER_PREFIX):auto non trouvée$(NC)"; \
 			echo "$(YELLOW)   Construisez d'abord l'image avec: make docker-build-test$(NC)"; \

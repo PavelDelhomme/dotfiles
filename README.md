@@ -1842,6 +1842,78 @@ testman docker
 
 **Documentation :** `help testman` ou `man testman`
 
+  [🔝 Retour en haut](#dotfiles-paveldelhomme)
+
+## 🔄 Compatibilité Multi-Shells
+
+Le projet supporte **ZSH**, **Bash** et **Fish**, mais avec des niveaux de compatibilité différents.
+
+### ✅ Ce qui est compatible avec tous les shells
+
+#### Variables d'environnement (`env.sh`)
+- ✅ **ZSH** : Chargé via `zshrc_custom`
+- ✅ **Bash** : Chargé via wrapper `zshrc`
+- ✅ **Fish** : Version Fish (`env.fish`) disponible
+
+#### Aliases
+- ✅ **ZSH** : Chargé via `aliases.zsh`
+- ✅ **Bash** : Chargé via wrapper `zshrc` (alias simples compatibles)
+- ✅ **Fish** : Version Fish (`aliases.fish`) disponible
+
+#### Scripts d'installation et configuration
+- ✅ **Tous les shells** : Scripts dans `scripts/install/` et `scripts/config/` sont en bash
+
+### ⚠️ Ce qui est ZSH-only
+
+**Tous les managers interactifs** (*man) sont **ZSH-only** car ils utilisent :
+- Syntaxe ZSH spécifique (`typeset`, `declare -A`, etc.)
+- Fonctions ZSH interactives
+- Caractéristiques avancées de ZSH
+
+**Managers ZSH-only (18 managers) :**
+- `installman`, `configman`, `pathman`, `netman`, `gitman`, `cyberman`, `devman`, `miscman`, `aliaman`, `searchman`, `helpman`, `fileman`, `virtman`, `sshman`, `testman`, `testzshman`, `moduleman`, `manman`
+
+### 🐟 Support Fish
+
+Fish a ses propres implémentations dans `fish/` :
+- `fish/config_custom.fish` - Configuration principale
+- `fish/aliases.fish` - Aliases Fish
+- `fish/env.fish` - Variables d'environnement
+- `fish/functions/` - Quelques fonctions Fish
+
+**Note :** Fish a une syntaxe très différente, donc les managers ZSH ne sont pas compatibles.
+
+### 🐚 Support Bash
+
+Bash peut utiliser :
+- Variables d'environnement via `env.sh`
+- Alias simples via `aliases.zsh` (avec limitations)
+- Scripts d'installation et configuration (tous en bash)
+
+**Limitations Bash :**
+- ❌ Pas de managers interactifs
+- ⚠️ Alias complexes peuvent ne pas fonctionner
+- ❌ Pas de fonctions ZSH avancées
+
+### 🔄 Wrapper `zshrc` multi-shells
+
+Le fichier `~/dotfiles/zshrc` est un wrapper intelligent qui :
+
+1. **Détecte le shell actif** (ZSH, Fish, Bash)
+2. **Source la configuration appropriée** :
+   - **ZSH** → `zsh/zshrc_custom` (tout est chargé, toutes les fonctionnalités)
+   - **Bash** → `env.sh` et `aliases.zsh` (limité, compatibilité basique)
+   - **Fish** → Affiche un message (config doit être dans `.config/fish/config.fish`)
+
+### 📝 Recommandation
+
+**Pour une compatibilité maximale :**
+- ✅ **Utilisez ZSH** : Toutes les fonctionnalités sont disponibles (18 managers, toutes les fonctions)
+- ⚠️ **Utilisez Fish** : Fonctionnalités limitées, syntaxe différente
+- ⚠️ **Utilisez Bash** : Seulement variables d'env et alias simples
+
+Voir `docs/COMPATIBILITY.md` pour plus de détails.
+
 ### Installation des Managers
 
 **Vérification :**
@@ -2039,16 +2111,43 @@ make docker-clean
 - ✅ Nettoyage sélectif avec filtres Docker
 - ✅ Vos autres conteneurs Docker ne seront **JAMAIS** touchés
 
+**Choix du shell de test :**
+
+Lors de `make docker-test-auto`, vous pouvez choisir le shell de test :
+- **ZSH** (recommandé) : Toutes les fonctionnalités disponibles (18 managers)
+- **Bash** : Test de compatibilité basique (variables d'env, alias simples)
+- **Fish** : Test de compatibilité basique (variables d'env, alias)
+
+```bash
+# Tester avec ZSH (par défaut, toutes les fonctionnalités)
+make docker-test-auto
+# Choisir option 1 pour zsh
+
+# Tester avec Bash (compatibilité basique)
+make docker-test-auto
+# Choisir option 2 pour bash
+
+# Tester avec Fish (compatibilité basique)
+make docker-test-auto
+# Choisir option 3 pour fish
+
+# Tester manuellement avec le shell de votre choix
+make docker-start
+# Choisir le shell (zsh/bash/fish) au démarrage
+```
+
 **Exemple d'utilisation :**
 ```bash
 # Tester l'installation complète automatique
 make docker-test-auto
 
 # Cela va :
-# 1. Construire l'image Docker avec installation automatique
-# 2. Lancer l'installation complète des dotfiles
-# 3. Vérifier que tous les managers fonctionnent
-# 4. Afficher un rapport de test
+# 1. Demander quels managers activer
+# 2. Demander quel shell utiliser (zsh/bash/fish)
+# 3. Construire l'image Docker avec installation automatique
+# 4. Lancer l'installation complète des dotfiles
+# 5. Vérifier que tous les managers fonctionnent (ZSH seulement)
+# 6. Afficher un rapport de test
 ```
 
   [🔝 Retour en haut](#dotfiles-paveldelhomme)

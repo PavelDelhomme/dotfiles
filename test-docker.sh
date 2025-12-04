@@ -142,11 +142,33 @@ else
     done
 fi
 
+# Demander quel shell utiliser pour les tests
+echo ""
+echo -e "${CYAN}🐚 SÉLECTION DU SHELL DE TEST${NC}"
+echo -e "${YELLOW}Quel shell voulez-vous utiliser pour tester?${NC}"
+echo ""
+echo "  1) zsh (recommandé - toutes les fonctionnalités)"
+echo "  2) bash (test de compatibilité basique)"
+echo "  3) fish (test de compatibilité basique)"
+echo ""
+read -p "Votre choix [défaut: 1 (zsh)]: " shell_choice
+shell_choice=${shell_choice:-1}
+
+case "$shell_choice" in
+    1) SELECTED_SHELL="zsh" ;;
+    2) SELECTED_SHELL="bash" ;;
+    3) SELECTED_SHELL="fish" ;;
+    *) SELECTED_SHELL="zsh" ;;
+esac
+
+log_info "✓ Shell sélectionné: $SELECTED_SHELL"
+
 log_step "Construction de l'image Docker avec installation automatique (isolée)..."
 # Utiliser --load pour charger l'image dans Docker (nécessaire avec BuildKit)
-# Passer le fichier de configuration des managers comme build arg
+# Passer le fichier de configuration des managers et le shell comme build arg
 docker build --load \
     --build-arg MANAGERS_CONFIG="$(cat "$MANAGERS_CONFIG")" \
+    --build-arg SELECTED_SHELL="$SELECTED_SHELL" \
     -f Dockerfile.test \
     -t "$IMAGE_NAME" . || {
     log_error "Échec de la construction de l'image"
