@@ -43,6 +43,7 @@ COPY . ${DOTFILES_DIR}/
 # Créer le script d'installation automatique complète
 RUN cat > /root/auto-install-test.sh << 'AUTOEOF'
 #!/bin/bash
+# Utiliser set -e pour arrêter sur erreurs critiques, mais continuer pour les avertissements
 set -e
 
 RED='\033[0;31m'
