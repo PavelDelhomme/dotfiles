@@ -281,7 +281,7 @@ fi
 sleep 0.5
 
 # Test des managers dans ZSH
-MANAGERS=("installman" "configman" "pathman" "netman" "gitman" "moduleman" "fileman" "sshman")
+MANAGERS=("installman" "configman" "pathman" "netman" "gitman" "moduleman" "fileman" "sshman" "testzshman" "testman")
 SUCCESS=0
 FAILED=0
 
