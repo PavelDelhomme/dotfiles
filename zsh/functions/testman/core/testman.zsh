@@ -15,8 +15,8 @@ TESTMAN_MODULES_DIR="$TESTMAN_DIR/modules"
 TESTMAN_UTILS_DIR="$TESTMAN_DIR/utils"
 TESTMAN_CONFIG_DIR="$TESTMAN_DIR/config"
 
-# Créer les répertoires si nécessaire
-mkdir -p "$TESTMAN_CONFIG_DIR"
+# Créer les répertoires si nécessaire (ne pas échouer si impossible)
+mkdir -p "$TESTMAN_CONFIG_DIR" 2>/dev/null || true
 
 # Charger les utilitaires
 if [ -d "$TESTMAN_UTILS_DIR" ]; then
