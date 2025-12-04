@@ -72,6 +72,8 @@ declare -A MANAGER_DESCS=(
     ["pathman"]="Gestionnaire PATH"
     ["searchman"]="Gestionnaire recherche"
     ["sshman"]="Gestionnaire SSH"
+    ["testman"]="Gestionnaire tests applications"
+    ["testzshman"]="Gestionnaire tests ZSH/dotfiles"
     ["virtman"]="Gestionnaire virtualisation"
 )
 

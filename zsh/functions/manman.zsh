@@ -69,6 +69,12 @@ manman() {
     if [[ -f "$DOTFILES_FUNCTIONS_DIR/sshman.zsh" ]]; then
         managers+=("sshman:🔐 Gestionnaire SSH|sshman")
     fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/testzshman.zsh" ]]; then
+        managers+=("testzshman:🧪 Gestionnaire tests ZSH/dotfiles|testzshman")
+    fi
+    if [[ -f "$DOTFILES_FUNCTIONS_DIR/testman.zsh" ]]; then
+        managers+=("testman:🧪 Gestionnaire tests applications|testman")
+    fi
 
     clear
     echo -e "${CYAN}${BOLD}"

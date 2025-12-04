@@ -104,6 +104,8 @@ MODULE_moduleman=enabled
 MODULE_fileman=enabled
 MODULE_virtman=enabled
 MODULE_sshman=enabled
+MODULE_testzshman=enabled
+MODULE_testman=enabled
 MODULES_EOF
     log_info "✓ Configuration par défaut créée (tous activés)"
 fi

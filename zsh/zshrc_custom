@@ -108,6 +108,8 @@ load_manager "moduleman" "$DOTFILES_ZSH_PATH/functions/moduleman.zsh" "MODULEMAN
 load_manager "fileman" "$DOTFILES_ZSH_PATH/functions/fileman.zsh" "FILEMAN"
 load_manager "virtman" "$DOTFILES_ZSH_PATH/functions/virtman.zsh" "VIRTMAN"
 load_manager "sshman" "$DOTFILES_ZSH_PATH/functions/sshman.zsh" "SSHMAN"
+load_manager "testzshman" "$DOTFILES_ZSH_PATH/functions/testzshman.zsh" "TESTZSHMAN"
+load_manager "testman" "$DOTFILES_ZSH_PATH/functions/testman.zsh" "TESTMAN"
 
 # =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
