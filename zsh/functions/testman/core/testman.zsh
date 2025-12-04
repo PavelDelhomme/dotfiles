@@ -422,7 +422,7 @@ testman() {
         echo -e "${YELLOW}Répertoire: $(pwd)${RESET}\n"
         
         # Détecter le type de Lisp
-        if [ -f "*.asd" ] 2>/dev/null || [ -f "*.lisp" ] 2>/dev/null; then
+        if ls *.asd 2>/dev/null | head -1 >/dev/null || ls *.lisp 2>/dev/null | head -1 >/dev/null; then
             # Common Lisp (ASDF)
             if command -v sbcl >/dev/null 2>&1; then
                 echo -e "${YELLOW}Interpréteur détecté: SBCL${RESET}\n"
