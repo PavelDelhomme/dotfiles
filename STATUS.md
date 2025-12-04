@@ -36,10 +36,10 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 
 **Tâches :**
 - [x] Documentation complète créée
-  - [x] `docs/MIGRATION_COMPLETE_GUIDE.md` - Guide complet
-  - [x] `docs/MIGRATION_PLAN.md` - Plan détaillé
-  - [x] `docs/MIGRATION_MULTI_SHELLS.md` - Explications
-  - [x] `docs/COMPLETE_MIGRATION_LIST.md` - Liste précise
+  - [x] `docs/migrations/MIGRATION_COMPLETE_GUIDE.md` - Guide complet
+  - [x] `docs/migrations/MIGRATION_PLAN.md` - Plan détaillé
+  - [x] `docs/migrations/MIGRATION_MULTI_SHELLS.md` - Explications
+  - [x] `docs/migrations/COMPLETE_MIGRATION_LIST.md` - Liste précise
   - [x] `STATUS.md` - Ce fichier (suivi de progression)
 
 - [x] Créer structure de base
