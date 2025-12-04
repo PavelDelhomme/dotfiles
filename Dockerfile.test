@@ -295,6 +295,23 @@ for manager in "${MANAGERS[@]}"; do
         ((SUCCESS++))
     else
         echo "[✗] $manager non disponible"
+        # Diagnostic pour testman
+        if [ "$manager" = "testman" ]; then
+            echo "    Debug testman:"
+            echo "    - DOTFILES_DIR: ${DOTFILES_DIR:-non défini}"
+            echo "    - Fichier wrapper: $([ -f /root/dotfiles/zsh/functions/testman.zsh ] && echo 'existe' || echo 'manquant')"
+            echo "    - Fichier core: $([ -f /root/dotfiles/zsh/functions/testman/core/testman.zsh ] && echo 'existe' || echo 'manquant')"
+            # Essayer de charger manuellement
+            if [ -f /root/dotfiles/zsh/functions/testman.zsh ]; then
+                echo "    - Tentative chargement manuel..."
+                source /root/dotfiles/zsh/functions/testman.zsh 2>&1 | head -5
+                if type testman >/dev/null 2>&1; then
+                    echo "    - ✓ Chargement manuel réussi!"
+                else
+                    echo "    - ✗ Chargement manuel échoué"
+                fi
+            fi
+        fi
         ((FAILED++))
     fi
 done
