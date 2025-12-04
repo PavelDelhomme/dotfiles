@@ -31,8 +31,9 @@ if [ -n "$GS_BINARY" ] && [ -x "$GS_BINARY" ]; then
                 echo -e "${YELLOW}  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript${NC}"
                 echo -e "${YELLOW}     (l'alias 'gs' est configuré pour 'git status')${NC}"
             else
-                echo "  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript"
-                echo "     (l'alias 'gs' est configuré pour 'git status')"
+                # Messages désactivés pour éviter l'avertissement Powerlevel10k
+                # echo "  ℹ️  Ghostscript détecté : alias 'ghs' créé pour accéder à ghostscript"
+                # echo "     (l'alias 'gs' est configuré pour 'git status')"
             fi
         fi
     fi

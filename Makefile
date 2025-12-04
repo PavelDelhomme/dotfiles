@@ -311,10 +311,6 @@ detect-shell: ## Détecter et afficher le shell actuel
 	done
 
 generate-man: ## Générer les pages man pour toutes les fonctions
-	@bash $(SCRIPT_DIR)/tools/generate_man_pages.sh
-
-# Génération de documentation
-generate-man: ## Générer les pages man pour toutes les fonctions
 	@bash "$(SCRIPT_DIR)/tools/generate_man_pages.sh"
 
 ################################################################################
@@ -585,7 +581,7 @@ docker-test-auto: ## Tester l'installation complète et automatique dans Docker 
 docker-build-test: ## Construire l'image Docker de test automatique (isolée)
 	@echo "$(BLUE)🔨 Construction de l'image Docker de test (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		docker build -f Dockerfile.test -t $(DOTFILES_DOCKER_PREFIX):auto . && \
+		docker build --load -f Dockerfile.test -t $(DOTFILES_DOCKER_PREFIX):auto . && \
 		echo "$(GREEN)✓ Image Docker de test construite avec succès (isolée: $(DOTFILES_DOCKER_PREFIX):auto)$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \

@@ -215,8 +215,9 @@ fi
 # =============================================================================
 # ÉTAPE 6 : CORRECTION AUTOMATIQUE DU CONFLIT GHOSTSCRIPT
 # =============================================================================
+# Messages désactivés pour éviter l'avertissement Powerlevel10k
 if [ -f "$DOTFILES_ZSH_PATH/functions/utils/fix_ghostscript_alias.sh" ]; then
-    source "$DOTFILES_ZSH_PATH/functions/utils/fix_ghostscript_alias.sh" 2>/dev/null || true
+    source "$DOTFILES_ZSH_PATH/functions/utils/fix_ghostscript_alias.sh" >/dev/null 2>&1 || true
 fi
 
 # =============================================================================

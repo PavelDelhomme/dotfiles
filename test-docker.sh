@@ -29,7 +29,8 @@ docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" | xargs -r
 docker images --filter "reference=${DOTFILES_PREFIX}*" --format "{{.Repository}}:{{.Tag}}" | xargs -r docker rmi 2>/dev/null || true
 
 log_step "Construction de l'image Docker avec installation automatique (isolée)..."
-docker build -f Dockerfile.test -t "$IMAGE_NAME" . || {
+# Utiliser --load pour charger l'image dans Docker (nécessaire avec BuildKit)
+docker build --load -f Dockerfile.test -t "$IMAGE_NAME" . || {
     log_error "Échec de la construction de l'image"
     exit 1
 }
