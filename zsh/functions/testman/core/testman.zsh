@@ -426,7 +426,7 @@ testman() {
             # Common Lisp (ASDF)
             if command -v sbcl >/dev/null 2>&1; then
                 echo -e "${YELLOW}Interpréteur détecté: SBCL${RESET}\n"
-                if [ -f "*.asd" ]; then
+                if ls *.asd 2>/dev/null | head -1 >/dev/null; then
                     sbcl --eval "(asdf:test-system :$(basename $(pwd)))" --quit
                 else
                     echo -e "${YELLOW}Exécution des fichiers de test...${RESET}\n"
