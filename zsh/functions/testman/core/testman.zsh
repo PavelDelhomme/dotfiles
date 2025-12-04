@@ -366,9 +366,7 @@ testman() {
         esac
     else
         # Mode interactif
-        while true; do
-            show_main_menu
-        done
+        show_main_menu
     fi
 }
 
