@@ -242,16 +242,24 @@ echo ""
 # Test 1: Vérifier que les fichiers des managers existent
 log_info "Vérification des fichiers des managers..."
 MANAGER_FILES=(
-    "zsh/functions/installman.zsh:installman"
+    "zsh/functions/aliaman.zsh:aliaman"
     "zsh/functions/configman.zsh:configman"
-    "zsh/functions/pathman.zsh:pathman"
-    "zsh/functions/netman.zsh:netman"
-    "zsh/functions/gitman.zsh:gitman"
-    "zsh/functions/moduleman.zsh:moduleman"
+    "zsh/functions/cyberman.zsh:cyberman"
+    "zsh/functions/devman.zsh:devman"
     "zsh/functions/fileman.zsh:fileman"
+    "zsh/functions/gitman.zsh:gitman"
+    "zsh/functions/helpman.zsh:helpman"
+    "zsh/functions/installman.zsh:installman"
+    "zsh/functions/manman.zsh:manman"
+    "zsh/functions/miscman.zsh:miscman"
+    "zsh/functions/moduleman.zsh:moduleman"
+    "zsh/functions/netman.zsh:netman"
+    "zsh/functions/pathman.zsh:pathman"
+    "zsh/functions/searchman.zsh:searchman"
     "zsh/functions/sshman.zsh:sshman"
-    "zsh/functions/testzshman.zsh:testzshman"
     "zsh/functions/testman.zsh:testman"
+    "zsh/functions/testzshman.zsh:testzshman"
+    "zsh/functions/virtman.zsh:virtman"
 )
 
 for file_manager in "${MANAGER_FILES[@]}"; do
@@ -284,8 +292,8 @@ fi
 # Attendre un peu pour que tout soit chargé
 sleep 0.5
 
-# Test des managers dans ZSH
-MANAGERS=("installman" "configman" "pathman" "netman" "gitman" "moduleman" "fileman" "sshman" "testzshman" "testman")
+# Test des managers dans ZSH (tous les managers disponibles)
+MANAGERS=("aliaman" "configman" "cyberman" "devman" "fileman" "gitman" "helpman" "installman" "manman" "miscman" "moduleman" "netman" "pathman" "searchman" "sshman" "testman" "testzshman" "virtman")
 SUCCESS=0
 FAILED=0
 
