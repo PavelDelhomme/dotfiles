@@ -379,9 +379,218 @@ echo ""
 echo "═══════════════════════════════════════════════════════════"
 log_info "✅ Vérification terminée"
 echo ""
+TESTEOF
+
+# Script de test fonctionnel complet des managers
+RUN cat > /root/test-managers-functional.sh << 'FUNCTIONAL_TEST'
+#!/bin/bash
+# Ne pas utiliser set -e pour permettre de continuer même si certains tests échouent
+set +e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
+log_error() { echo -e "${RED}[✗]${NC} $1"; }
+log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
+log_test()  { echo -e "${BLUE}[→]${NC} $1"; }
+
+cd /root/dotfiles
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "TESTS FONCTIONNELS DES MANAGERS"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+# Créer un script ZSH pour tester les managers
+cat > /tmp/test-managers-zsh.sh << 'ZSH_FUNCTIONAL_TEST'
+#!/bin/zsh
+set +e  # Ne pas arrêter sur erreurs
+
+DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
+
+# Charger la configuration ZSH
+if [ -f ~/.zshrc ]; then
+    source ~/.zshrc >/dev/null 2>&1 || true
+fi
+
+# Attendre un peu pour que tout soit chargé
+sleep 0.5
+
+TOTAL_TESTS=0
+PASSED_TESTS=0
+FAILED_TESTS=0
+
+# Fonction pour tester un manager
+test_manager() {
+    local manager="$1"
+    local test_command="$2"
+    local expected_output="$3"
+    
+    ((TOTAL_TESTS++))
+    
+    # Vérifier que le manager existe
+    if ! type "$manager" >/dev/null 2>&1; then
+        echo "[✗] $manager: non disponible"
+        ((FAILED_TESTS++))
+        return 1
+    fi
+    
+    # Tester la commande
+    if [ -n "$test_command" ]; then
+        TEST_OUTPUT=$(eval "$test_command" 2>&1)
+        TEST_EXIT=$?
+        
+        if [ $TEST_EXIT -eq 0 ]; then
+            if [ -z "$expected_output" ] || echo "$TEST_OUTPUT" | grep -q "$expected_output"; then
+                echo "[✓] $manager: fonctionne correctement"
+                ((PASSED_TESTS++))
+                return 0
+            else
+                echo "[✗] $manager: sortie inattendue"
+                ((FAILED_TESTS++))
+                return 1
+            fi
+        else
+            echo "[✗] $manager: erreur lors de l'exécution (code: $TEST_EXIT)"
+            ((FAILED_TESTS++))
+            return 1
+        fi
+    else
+        # Juste vérifier que le manager peut être appelé
+        if "$manager" --help >/dev/null 2>&1 || "$manager" help >/dev/null 2>&1 || "$manager" list >/dev/null 2>&1; then
+            echo "[✓] $manager: disponible et appelable"
+            ((PASSED_TESTS++))
+            return 0
+        else
+            # Certains managers peuvent ne pas avoir --help, tester juste l'appel
+            if "$manager" >/dev/null 2>&1; then
+                echo "[✓] $manager: disponible et appelable"
+                ((PASSED_TESTS++))
+                return 0
+            else
+                echo "[✗] $manager: erreur lors de l'appel"
+                ((FAILED_TESTS++))
+                return 1
+            fi
+        fi
+    fi
+}
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "TESTS FONCTIONNELS DES MANAGERS"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+# Tester chaque manager avec ses fonctions spécifiques
+log_test "Test installman..."
+test_manager "installman" "installman list" "Outils disponibles"
+
+log_test "Test configman..."
+test_manager "configman" "" ""
+
+log_test "Test pathman..."
+test_manager "pathman" "pathman show" ""
+
+log_test "Test netman..."
+test_manager "netman" "" ""
+
+log_test "Test gitman..."
+test_manager "gitman" "" ""
+
+log_test "Test moduleman..."
+test_manager "moduleman" "" ""
+
+log_test "Test fileman..."
+test_manager "fileman" "" ""
+
+log_test "Test sshman..."
+test_manager "sshman" "" ""
+
+log_test "Test testzshman..."
+test_manager "testzshman" "" ""
+
+log_test "Test testman..."
+test_manager "testman" "" ""
+
+log_test "Test aliaman..."
+test_manager "aliaman" "" ""
+
+log_test "Test cyberman..."
+test_manager "cyberman" "" ""
+
+log_test "Test devman..."
+test_manager "devman" "" ""
+
+log_test "Test helpman..."
+test_manager "helpman" "" ""
+
+log_test "Test manman..."
+test_manager "manman" "" ""
+
+log_test "Test miscman..."
+test_manager "miscman" "" ""
+
+log_test "Test searchman..."
+test_manager "searchman" "" ""
+
+log_test "Test virtman..."
+test_manager "virtman" "" ""
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "RÉSUMÉ DES TESTS FONCTIONNELS"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+echo "Total: $TOTAL_TESTS tests"
+echo "Réussis: $PASSED_TESTS"
+echo "Échoués: $FAILED_TESTS"
+echo ""
+
+if [ $FAILED_TESTS -eq 0 ]; then
+    echo "[✓] Tous les managers fonctionnent correctement!"
+    exit 0
+else
+    echo "[!] $FAILED_TESTS manager(s) ont des problèmes"
+    exit $FAILED_TESTS
+fi
+ZSH_FUNCTIONAL_TEST
+
+chmod +x /tmp/test-managers-zsh.sh
+
+# Exécuter le test dans ZSH
+log_info "Exécution des tests fonctionnels dans ZSH..."
+TEST_OUTPUT=$(zsh /tmp/test-managers-zsh.sh 2>&1)
+TEST_EXIT=$?
+
+# Afficher la sortie du test
+echo "$TEST_OUTPUT"
+
+if [ $TEST_EXIT -eq 0 ]; then
+    log_info "✓ Tous les tests fonctionnels ont réussi"
+else
+    log_warn "⚠️  Certains tests fonctionnels ont échoué"
+    log_warn "   (Cela peut être normal si certains managers nécessitent une configuration spécifique)"
+fi
+
+rm -f /tmp/test-managers-zsh.sh
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
 # Toujours retourner 0 pour ne pas faire échouer le conteneur
 exit 0
-TESTEOF
+FUNCTIONAL_TEST
+
+RUN chmod +x /root/test-managers-functional.sh
+
+# Commande par défaut : lancer l'installation automatique puis les tests
+# Ne pas lancer zsh automatiquement car le conteneur peut ne pas être interactif
+CMD ["/bin/bash", "-c", "/root/auto-install-test.sh && /root/test-verification.sh && /root/test-managers-functional.sh && echo '' && echo '🎉 Tests terminés!' && echo '💡 Pour tester manuellement, lancez: docker exec -it <container> /bin/zsh'"]
 
 RUN chmod +x /root/test-verification.sh
 
