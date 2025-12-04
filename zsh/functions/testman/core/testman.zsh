@@ -293,7 +293,7 @@ testman() {
                     echo -e "${YELLOW}Choisissez manuellement un langage${RESET}"
                 fi
                 ;;
-            0)
+            0|q|Q|quit|exit)
                 echo -e "${GREEN}Au revoir!${RESET}"
                 return 0
                 ;;
