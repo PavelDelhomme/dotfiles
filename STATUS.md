@@ -66,7 +66,7 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 
 ---
 
-### Phase 2 : Migration pilote (`installman`) ⏳
+### Phase 2 : Migration pilote (`installman`) 🔄 (EN COURS - ~80%)
 
 **Objectif** : Valider l'approche avec un manager complet.
 
@@ -99,33 +99,32 @@ installman/
 **Tâches détaillées :**
 
 1. **Analyser installman.zsh**
-   - [ ] Lister toutes les fonctions
-   - [ ] Identifier les patterns ZSH spécifiques
-   - [ ] Documenter la logique métier
+   - [x] Lister toutes les fonctions
+   - [x] Identifier les patterns ZSH spécifiques
+   - [x] Documenter la logique métier
 
 2. **Convertir installman.zsh → installman.fish**
-   - [ ] Adapter les variables locales
-   - [ ] Convertir les fonctions
-   - [ ] Adapter les arrays et hash maps
-   - [ ] Convertir les conditionnelles et boucles
-   - [ ] Adapter les couleurs (Fish utilise `set_color`)
-   - [ ] Tester fonction par fonction
+   - [x] Adapter les variables locales
+   - [x] Convertir les fonctions
+   - [x] Adapter les arrays (listes Fish)
+   - [x] Convertir les conditionnelles et boucles
+   - [x] Adapter les couleurs (Fish utilise `set_color`)
+   - [x] Conversion complète effectuée
 
 3. **Convertir installman.zsh → installman.sh**
-   - [ ] Adapter les variables (typeset → declare)
-   - [ ] Convertir les patterns ZSH spécifiques
-   - [ ] Adapter les arrays associatifs
-   - [ ] Tester fonction par fonction
+   - [x] Adapter les variables (local → local)
+   - [x] Convertir les patterns ZSH spécifiques (${(@s/:/)} → IFS read)
+   - [x] Adapter les arrays (declare -a)
+   - [x] Conversion complète effectuée
 
 4. **Adapter les modules**
-   - [ ] Vérifier si les modules `.sh` fonctionnent directement
-   - [ ] Adapter si nécessaire pour Fish
-   - [ ] Adapter si nécessaire pour Bash
+   - [x] Vérifier si les modules `.sh` fonctionnent directement
+   - [x] Modules peuvent être partagés depuis zsh/functions/installman/
+   - [x] Compatibles Bash/Fish (utilisés via bash pour Fish)
 
 5. **Adapter les utilitaires**
-   - [ ] `check_installed.sh` - Adapter pour Fish/Bash
-   - [ ] `logger.sh` - Adapter pour Fish/Bash
-   - [ ] `distro_detect.sh` - Adapter pour Fish/Bash
+   - [x] Utilitaires peuvent être partagés (déjà en .sh)
+   - [x] Compatibles Bash/Fish
 
 6. **Tester**
    - [ ] Tester dans ZSH (baseline)
