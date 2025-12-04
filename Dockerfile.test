@@ -73,15 +73,17 @@ log_info "✓ Git configuré"
 log_info "Étape 2/5 : Création des répertoires et configuration des managers..."
 mkdir -p ~/.config/moduleman
 mkdir -p ~/.ssh
-mkdir -p ${DOTFILES_DIR}/.config/moduleman
+# Ne pas créer dans DOTFILES_DIR car c'est en lecture seule dans Docker
+# Créer dans ~/.config/moduleman à la place
 
-# Créer le fichier de configuration des managers
+# Créer le fichier de configuration des managers dans ~/.config/moduleman
+# (pas dans DOTFILES_DIR car le volume est en lecture seule)
 if [ -n "${MANAGERS_CONFIG}" ]; then
-    echo "${MANAGERS_CONFIG}" > ${DOTFILES_DIR}/.config/moduleman/modules.conf
+    echo "${MANAGERS_CONFIG}" > ~/.config/moduleman/modules.conf
     log_info "✓ Configuration des managers créée depuis build arg"
 else
     # Configuration par défaut (tous activés)
-    cat > ${DOTFILES_DIR}/.config/moduleman/modules.conf << 'MODULES_EOF'
+    cat > ~/.config/moduleman/modules.conf << 'MODULES_EOF'
 # Configuration des modules - Moduleman
 # Format compatible Zsh et Fish
 # Tous les modules sont activés par défaut
