@@ -122,6 +122,11 @@ EOF
             "configman:CONFIGMAN - Gestionnaire configurations"
             "installman:INSTALLMAN - Gestionnaire installations"
             "moduleman:MODULEMAN - Gestionnaire modules (ce menu)"
+            "fileman:FILEMAN - Gestionnaire fichiers"
+            "virtman:VIRTMAN - Gestionnaire virtualisation"
+            "sshman:SSHMAN - Gestionnaire SSH"
+            "testzshman:TESTZSHMAN - Gestionnaire tests ZSH/dotfiles"
+            "testman:TESTMAN - Gestionnaire tests applications"
         )
         
         local index=1
