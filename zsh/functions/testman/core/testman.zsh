@@ -219,26 +219,58 @@ testman() {
     
     # Test Rust
     test_rust() {
+        local test_dir="${1:-.}"
+        
+        # Aller dans le répertoire de test si spécifié
+        if [ "$test_dir" != "." ] && [ -d "$test_dir" ]; then
+            cd "$test_dir" || return 1
+        fi
+        
         echo -e "${CYAN}🦀 Tests Rust${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo -e "${YELLOW}Répertoire: $(pwd)${RESET}\n"
         
         if [ -f "Cargo.toml" ]; then
-            cargo test
+            cargo test --verbose
         else
             echo -e "${RED}✗ Cargo.toml non trouvé${RESET}"
+            local exit_code=1
         fi
+        
+        local exit_code=$?
+        # Revenir au répertoire original si on a changé
+        if [ "$test_dir" != "." ] && [ -d "$test_dir" ]; then
+            cd - >/dev/null || true
+        fi
+        return $exit_code
     }
     
     # Test Go
     test_go() {
+        local test_dir="${1:-.}"
+        
+        # Aller dans le répertoire de test si spécifié
+        if [ "$test_dir" != "." ] && [ -d "$test_dir" ]; then
+            cd "$test_dir" || return 1
+        fi
+        
         echo -e "${CYAN}🐹 Tests Go${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo -e "${YELLOW}Répertoire: $(pwd)${RESET}\n"
         
         if [ -f "go.mod" ] || [ -d ".git" ]; then
             go test ./... -v
         else
             echo -e "${RED}✗ Projet Go non détecté${RESET}"
+            local exit_code=1
         fi
+        
+        local exit_code=$?
+        # Revenir au répertoire original si on a changé
+        if [ "$test_dir" != "." ] && [ -d "$test_dir" ]; then
+            cd - >/dev/null || true
+        fi
+        return $exit_code
     }
     
     # Test Java
