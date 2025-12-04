@@ -39,6 +39,8 @@ log_info "✅ Image isolée créée: $IMAGE_NAME (ne touche pas vos autres conte
 log_info "✅ Image construite avec succès"
 
 log_step "Lancement du conteneur avec installation automatique..."
+# Utiliser --read-only=false pour permettre l'écriture dans /root/.zshrc
+# Mais monter le volume dotfiles en lecture seule pour protéger le code source
 docker run -it --rm \
     --name "$CONTAINER_NAME" \
     -v "$(pwd):/root/dotfiles:ro" \

@@ -74,25 +74,64 @@ mkdir -p ${DOTFILES_DIR}/.config/moduleman
 log_info "✓ Répertoires créés"
 
 log_info "Étape 3/5 : Création des symlinks..."
-if [ -f "${DOTFILES_DIR}/scripts/config/create_symlinks.sh" ]; then
-    bash "${DOTFILES_DIR}/scripts/config/create_symlinks.sh" || log_warn "Symlinks déjà existants"
-    log_info "✓ Symlinks créés"
+# Créer les symlinks directement (mode non-interactif pour Docker)
+# Ne pas utiliser create_symlinks.sh car il demande des confirmations interactives
+
+# Symlink .zshrc
+if [ ! -f ~/.zshrc ] && [ ! -L ~/.zshrc ]; then
+    # Préférer le wrapper zshrc qui détecte le shell
+    if [ -f "${DOTFILES_DIR}/zshrc" ]; then
+        ln -s "${DOTFILES_DIR}/zshrc" ~/.zshrc 2>/dev/null || log_warn "Impossible de créer symlink .zshrc (lecture seule?)"
+    elif [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then
+        ln -s "${DOTFILES_DIR}/zsh/zshrc_custom" ~/.zshrc 2>/dev/null || log_warn "Impossible de créer symlink .zshrc (lecture seule?)"
+    fi
+    log_info "✓ Symlink .zshrc créé"
+elif [ -L ~/.zshrc ]; then
+    log_info "✓ Symlink .zshrc existe déjà"
 else
-    log_warn "Script create_symlinks.sh non trouvé"
+    log_warn "⚠️  Fichier .zshrc existe (pas un symlink), création d'un symlink échouée"
 fi
 
-log_info "Étape 4/5 : Configuration ZSH..."
-if [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then
-    # Créer le .zshrc s'il n'existe pas
-    if [ ! -f ~/.zshrc ]; then
-        echo "# ZSH Configuration" > ~/.zshrc
+# Symlink .gitconfig (optionnel, ne pas échouer si impossible)
+if [ ! -f ~/.gitconfig ] && [ ! -L ~/.gitconfig ]; then
+    if [ -f "${DOTFILES_DIR}/.gitconfig" ]; then
+        ln -s "${DOTFILES_DIR}/.gitconfig" ~/.gitconfig 2>/dev/null || log_warn "Impossible de créer symlink .gitconfig"
     fi
-    
-    # Ajouter le source si pas déjà présent
-    if ! grep -q "source ${DOTFILES_DIR}/zsh/zshrc_custom" ~/.zshrc; then
-        echo "" >> ~/.zshrc
-        echo "# Source dotfiles custom configuration" >> ~/.zshrc
-        echo "source ${DOTFILES_DIR}/zsh/zshrc_custom" >> ~/.zshrc
+fi
+
+# Symlink .p10k.zsh (optionnel)
+if [ ! -f ~/.p10k.zsh ] && [ ! -L ~/.p10k.zsh ]; then
+    if [ -f "${DOTFILES_DIR}/.p10k.zsh" ]; then
+        ln -s "${DOTFILES_DIR}/.p10k.zsh" ~/.p10k.zsh 2>/dev/null || log_warn "Impossible de créer symlink .p10k.zsh"
+    fi
+fi
+
+log_info "✓ Symlinks créés"
+
+log_info "Étape 4/5 : Configuration ZSH..."
+# Si .zshrc est un symlink, il devrait déjà pointer vers la bonne configuration
+# Sinon, essayer de créer un fichier .zshrc qui source zshrc_custom
+if [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then
+    if [ -L ~/.zshrc ]; then
+        log_info "✓ .zshrc est un symlink, configuration automatique"
+    elif [ ! -f ~/.zshrc ]; then
+        # Essayer de créer un fichier .zshrc si possible (peut échouer si lecture seule)
+        {
+            echo "# ZSH Configuration"
+            echo "source ${DOTFILES_DIR}/zsh/zshrc_custom"
+        } > ~/.zshrc 2>/dev/null || {
+            log_warn "⚠️  Impossible d'écrire dans ~/.zshrc (système de fichiers en lecture seule)"
+            log_info "💡 Le symlink devrait être créé automatiquement au prochain démarrage"
+        }
+    else
+        # Fichier existe mais n'est pas un symlink
+        if ! grep -q "source ${DOTFILES_DIR}/zsh/zshrc_custom" ~/.zshrc 2>/dev/null; then
+            {
+                echo ""
+                echo "# Source dotfiles custom configuration"
+                echo "source ${DOTFILES_DIR}/zsh/zshrc_custom"
+            } >> ~/.zshrc 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.zshrc"
+        fi
     fi
     log_info "✓ ZSH configuré"
 else
