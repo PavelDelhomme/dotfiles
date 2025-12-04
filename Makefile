@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -55,6 +55,8 @@ help: ## Afficher cette aide
 	@echo "  make docker-shell      - Ouvrir un shell dans le conteneur"
 	@echo "  make docker-stop       - Arrêter le conteneur"
 	@echo "  make docker-clean      - Nettoyer images et volumes Docker"
+	@echo "  make docker-test-auto  - Tester installation automatique complète (isolé)"
+	@echo "  make docker-build-test - Construire l'image Docker de test automatique"
 	@echo ""
 	@echo "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
@@ -559,3 +561,27 @@ docker-clean: ## Nettoyer les images et volumes Docker
 docker-shell: ## Ouvrir un shell dans le conteneur en cours d'exécution
 	@echo "$(BLUE)🐚 Ouverture d'un shell dans le conteneur...$(NC)"
 	@docker exec -it dotfiles-test /bin/zsh || docker compose exec dotfiles-test /bin/zsh
+
+docker-test-auto: ## Tester l'installation complète et automatique dans Docker isolé
+	@echo "$(BLUE)🧪 Test d'installation automatique complète dans Docker...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		if [ -f "test-docker.sh" ]; then \
+			bash test-docker.sh; \
+		else \
+			echo "$(YELLOW)⚠️  Script test-docker.sh non trouvé$(NC)"; \
+			exit 1; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi
+
+docker-build-test: ## Construire l'image Docker de test automatique
+	@echo "$(BLUE)🔨 Construction de l'image Docker de test...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		docker build -f Dockerfile.test -t dotfiles-test:auto . && \
+		echo "$(GREEN)✓ Image Docker de test construite avec succès$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi

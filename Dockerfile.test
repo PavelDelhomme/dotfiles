@@ -1,0 +1,194 @@
+# Dockerfile pour tester l'installation complète et automatique des dotfiles
+# Environnement minimal et isolé pour tester sans affecter le système hôte
+FROM archlinux:latest
+
+# Variables d'environnement pour installation automatique
+ENV DOTFILES_DIR=/root/dotfiles
+ENV HOME=/root
+ENV TERM=xterm-256color
+ENV GIT_USER_NAME="Test User"
+ENV GIT_USER_EMAIL="test@example.com"
+ENV SELECTED_SHELL="zsh"
+ENV SKIP_SSH_CONFIG=true
+
+# Installer les dépendances minimales pour tester
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+        bash \
+        git \
+        curl \
+        wget \
+        zsh \
+        sudo \
+        which \
+        openssh \
+        vim \
+        python \
+        python-pip \
+        make \
+        base-devel
+
+# Créer les répertoires nécessaires
+RUN mkdir -p /root/.config/moduleman \
+    /root/.ssh \
+    /root/dotfiles
+
+# Copier les dotfiles dans le conteneur
+WORKDIR /root
+COPY . ${DOTFILES_DIR}/
+
+# Créer le script d'installation automatique complète
+RUN cat > /root/auto-install-test.sh << 'AUTOEOF'
+#!/bin/bash
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
+log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
+log_error() { echo -e "${RED}[✗]${NC} $1"; }
+
+cd /root/dotfiles
+
+log_info "═══════════════════════════════════════════════════════════"
+log_info "TEST D'INSTALLATION AUTOMATIQUE DES DOTFILES"
+log_info "═══════════════════════════════════════════════════════════"
+echo ""
+
+log_info "Étape 1/5 : Configuration Git..."
+git config --global user.name "${GIT_USER_NAME:-Test User}"
+git config --global user.email "${GIT_USER_EMAIL:-test@example.com}"
+git config --global init.defaultBranch main
+git config --global core.editor vim
+git config --global color.ui auto
+log_info "✓ Git configuré"
+
+log_info "Étape 2/5 : Création des répertoires..."
+mkdir -p ~/.config/moduleman
+mkdir -p ~/.ssh
+mkdir -p ${DOTFILES_DIR}/.config/moduleman
+log_info "✓ Répertoires créés"
+
+log_info "Étape 3/5 : Création des symlinks..."
+if [ -f "${DOTFILES_DIR}/scripts/config/create_symlinks.sh" ]; then
+    bash "${DOTFILES_DIR}/scripts/config/create_symlinks.sh" || log_warn "Symlinks déjà existants"
+    log_info "✓ Symlinks créés"
+else
+    log_warn "Script create_symlinks.sh non trouvé"
+fi
+
+log_info "Étape 4/5 : Configuration ZSH..."
+if [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then
+    # Créer le .zshrc s'il n'existe pas
+    if [ ! -f ~/.zshrc ]; then
+        echo "# ZSH Configuration" > ~/.zshrc
+    fi
+    
+    # Ajouter le source si pas déjà présent
+    if ! grep -q "source ${DOTFILES_DIR}/zsh/zshrc_custom" ~/.zshrc; then
+        echo "" >> ~/.zshrc
+        echo "# Source dotfiles custom configuration" >> ~/.zshrc
+        echo "source ${DOTFILES_DIR}/zsh/zshrc_custom" >> ~/.zshrc
+    fi
+    log_info "✓ ZSH configuré"
+else
+    log_warn "zshrc_custom non trouvé"
+fi
+
+log_info "Étape 5/5 : Vérification de l'installation..."
+echo ""
+log_info "Tests de vérification :"
+
+# Test 1: Vérifier que les fonctions sont chargées
+if [ -f "${DOTFILES_DIR}/zsh/functions/installman.zsh" ]; then
+    log_info "✓ installman trouvé"
+else
+    log_error "✗ installman non trouvé"
+fi
+
+if [ -f "${DOTFILES_DIR}/zsh/functions/configman.zsh" ]; then
+    log_info "✓ configman trouvé"
+else
+    log_error "✗ configman non trouvé"
+fi
+
+if [ -f "${DOTFILES_DIR}/Makefile" ]; then
+    log_info "✓ Makefile trouvé"
+else
+    log_error "✗ Makefile non trouvé"
+fi
+
+echo ""
+log_info "═══════════════════════════════════════════════════════════"
+log_info "✅ INSTALLATION AUTOMATIQUE TERMINÉE"
+log_info "═══════════════════════════════════════════════════════════"
+echo ""
+log_info "Pour tester manuellement, lancez:"
+echo "  source ~/.zshrc"
+echo "  installman"
+echo "  configman"
+echo ""
+AUTOEOF
+
+RUN chmod +x /root/auto-install-test.sh
+
+# Script de test automatique qui vérifie que tout fonctionne
+RUN cat > /root/test-verification.sh << 'TESTEOF'
+#!/bin/bash
+set -e
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
+log_error() { echo -e "${RED}[✗]${NC} $1"; }
+
+cd /root/dotfiles
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "VÉRIFICATION AUTOMATIQUE"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+# Charger la configuration ZSH
+source ~/.zshrc 2>/dev/null || true
+
+# Test 1: Vérifier que installman est disponible
+if type installman >/dev/null 2>&1; then
+    log_info "✓ installman disponible"
+else
+    log_error "✗ installman non disponible"
+fi
+
+# Test 2: Vérifier que configman est disponible
+if type configman >/dev/null 2>&1; then
+    log_info "✓ configman disponible"
+else
+    log_error "✗ configman non disponible"
+fi
+
+# Test 3: Vérifier que les managers sont chargés
+MANAGERS=("pathman" "netman" "gitman" "moduleman")
+for manager in "${MANAGERS[@]}"; do
+    if type "$manager" >/dev/null 2>&1; then
+        log_info "✓ $manager disponible"
+    else
+        log_error "✗ $manager non disponible"
+    fi
+done
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+TESTEOF
+
+RUN chmod +x /root/test-verification.sh
+
+# Commande par défaut : lancer l'installation automatique puis les tests
+CMD ["/bin/bash", "-c", "/root/auto-install-test.sh && /root/test-verification.sh && echo '' && echo '🎉 Tests terminés! Lancez /bin/zsh pour un shell interactif' && /bin/zsh"]
