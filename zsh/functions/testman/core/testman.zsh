@@ -294,6 +294,7 @@ testman() {
                 fi
                 ;;
             0)
+                echo -e "${GREEN}Au revoir!${RESET}"
                 return 0
                 ;;
             *)
@@ -302,7 +303,7 @@ testman() {
                 ;;
         esac
         
-        # Retourner au menu après action
+        # Retourner au menu après action (sauf si choix 0)
         if [ "$choice" != "0" ]; then
             echo ""
             read -k 1 "?Appuyez sur une touche pour continuer... "
