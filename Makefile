@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -57,6 +57,7 @@ help: ## Afficher cette aide
 	@echo "  make docker-clean      - Nettoyer images et volumes Docker"
 	@echo "  make docker-test-auto  - Tester installation automatique complète (isolé)"
 	@echo "  make docker-build-test - Construire l'image Docker de test automatique"
+	@echo "  make docker-start      - Démarrer conteneur interactif (après docker-build-test)"
 	@echo ""
 	@echo "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
