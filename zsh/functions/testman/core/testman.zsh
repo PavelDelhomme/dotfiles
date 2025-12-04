@@ -13,10 +13,11 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 TESTMAN_DIR="${TESTMAN_DIR:-$DOTFILES_DIR/zsh/functions/testman}"
 TESTMAN_MODULES_DIR="$TESTMAN_DIR/modules"
 TESTMAN_UTILS_DIR="$TESTMAN_DIR/utils"
-TESTMAN_CONFIG_DIR="$TESTMAN_DIR/config"
+TESTMAN_CONFIG_DIR="${TESTMAN_DIR}/config"
 
 # Créer les répertoires si nécessaire (ne pas échouer si impossible)
-mkdir -p "$TESTMAN_CONFIG_DIR" 2>/dev/null || true
+# Utiliser une variable locale pour éviter les problèmes de paramètre non défini
+mkdir -p "${TESTMAN_CONFIG_DIR}" 2>/dev/null || true
 
 # Charger les utilitaires
 if [ -d "$TESTMAN_UTILS_DIR" ]; then
@@ -452,9 +453,12 @@ testman() {
             if command -v emacs >/dev/null 2>&1; then
                 emacs --batch --eval "(progn (load-file \"*.el\") (ert-run-tests-batch-and-exit))" 2>/dev/null || \
                 echo -e "${YELLOW}Exécution manuelle des tests Emacs Lisp...${RESET}\n"
-                for test_file in *-test.el *test.el test/*.el 2>/dev/null; do
+                # Utiliser null_glob pour éviter les erreurs si aucun fichier ne correspond
+                setopt null_glob 2>/dev/null || true
+                for test_file in *-test.el *test.el test/*.el; do
                     [ -f "$test_file" ] && emacs --batch -l "$test_file"
                 done
+                unsetopt null_glob 2>/dev/null || true
             else
                 echo -e "${RED}✗ Emacs non trouvé${RESET}"
                 local exit_code=1
