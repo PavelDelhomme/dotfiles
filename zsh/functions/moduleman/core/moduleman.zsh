@@ -81,6 +81,9 @@ MODULE_manman=enabled
 MODULE_configman=enabled
 MODULE_installman=enabled
 MODULE_moduleman=enabled
+MODULE_fileman=enabled
+MODULE_virtman=enabled
+MODULE_sshman=enabled
 EOF
     }
     
@@ -145,7 +148,7 @@ EOF
             0)
                 return 0
                 ;;
-            [1-9]|1[0-3])
+            [1-9]|1[0-6])
                 local selected_index=$choice
                 local manager_index=1
                 for manager_info in "${managers[@]}"; do
@@ -245,7 +248,7 @@ EOF
             list|liste)
                 load_config
                 echo -e "${CYAN}Modules disponibles:${RESET}"
-                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman")
+                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman" "fileman" "virtman" "sshman")
                 for manager in "${managers[@]}"; do
                     local var_name="MODULE_${manager}"
                     local status="${(P)var_name:-enabled}"
@@ -259,7 +262,7 @@ EOF
             status|statut)
                 load_config
                 echo -e "${CYAN}Statut des modules:${RESET}"
-                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman")
+                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman" "fileman" "virtman" "sshman")
                 for manager in "${managers[@]}"; do
                     local var_name="MODULE_${manager}"
                     local status="${(P)var_name:-enabled}"

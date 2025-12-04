@@ -33,6 +33,9 @@ RUN mkdir -p /root/.config/moduleman \
     /root/.ssh \
     /root/dotfiles
 
+# Argument de build pour la configuration des managers
+ARG MANAGERS_CONFIG=""
+
 # Copier les dotfiles dans le conteneur
 WORKDIR /root
 COPY . ${DOTFILES_DIR}/
