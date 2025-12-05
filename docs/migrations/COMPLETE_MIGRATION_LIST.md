@@ -33,11 +33,11 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 
 ## 📝 Liste détaillée par manager
 
-### 1. INSTALLMAN
+### 1. INSTALLMAN ✅
 
 **Fichiers core :**
-- [ ] `zsh/functions/installman.zsh` (wrapper)
-- [ ] `zsh/functions/installman/core/installman.zsh` (350 lignes)
+- [x] `zsh/functions/installman.zsh` (wrapper)
+- [x] `zsh/functions/installman/core/installman.zsh` (350 lignes) → `bash/functions/installman/core/installman.sh` + `fish/functions/installman/core/installman.fish` ✅
 
 **Modules (11 fichiers) :**
 - [ ] `zsh/functions/installman/modules/flutter/install_flutter.sh`
@@ -63,11 +63,11 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 
 ---
 
-### 2. CONFIGMAN
+### 2. CONFIGMAN ✅
 
 **Fichiers core :**
-- [ ] `zsh/functions/configman.zsh` (wrapper)
-- [ ] `zsh/functions/configman/core/configman.zsh`
+- [x] `zsh/functions/configman.zsh` (wrapper)
+- [x] `zsh/functions/configman/core/configman.zsh` → `bash/functions/configman/core/configman.sh` + `fish/functions/configman/core/configman.fish` ✅
 
 **Modules (8 fichiers) :**
 - [ ] `zsh/functions/configman/modules/git/git_config.sh`
@@ -88,13 +88,13 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 
 ---
 
-### 3. PATHMAN
+### 3. PATHMAN ✅
 
 **Fichiers core :**
-- [ ] `zsh/functions/pathman.zsh` (wrapper)
-- [ ] `zsh/functions/pathman/core/pathman.zsh`
+- [x] `zsh/functions/pathman.zsh` (wrapper)
+- [x] `zsh/functions/pathman/core/pathman.zsh` → `bash/functions/pathman/core/pathman.sh` + `fish/functions/pathman/core/pathman.fish` ✅
 
-**Total pathman :** 2 core = **2 fichiers**
+**Total pathman :** 2 core = **2 fichiers** (convertis ✅)
 
 ---
 
@@ -298,12 +298,12 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 
 ---
 
-### 18. MANMAN
+### 18. MANMAN ✅
 
 **Fichiers core :**
-- [ ] `zsh/functions/manman.zsh` (monolithique)
+- [x] `zsh/functions/manman.zsh` (monolithique) → `bash/functions/manman.sh` + `fish/functions/manman.fish` ✅
 
-**Total manman :** 1 fichier = **1 fichier**
+**Total manman :** 1 fichier = **1 fichier** (converti ✅)
 
 ---
 
@@ -419,9 +419,9 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 - [ ] Hook Git pre-commit
 
 ### Managers (18)
-- [ ] installman (16 fichiers)
-- [ ] configman (13 fichiers)
-- [ ] pathman (2 fichiers)
+- [x] installman (16 fichiers) ✅ - Core converti
+- [x] configman (13 fichiers) ✅ - Core converti
+- [x] pathman (2 fichiers) ✅ - Core converti
 - [ ] netman (2 fichiers)
 - [ ] gitman (4 fichiers)
 - [ ] cyberman (~30 fichiers)
@@ -436,7 +436,7 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 - [ ] testman (2 fichiers)
 - [ ] testzshman (2 fichiers)
 - [ ] moduleman (2 fichiers)
-- [ ] manman (1 fichier)
+- [x] manman (1 fichier) ✅ - Core converti
 
 ### Utilitaires globaux
 - [ ] alias_utils.zsh
@@ -458,4 +458,5 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 ---
 
 **Dernière mise à jour :** 2024-12-04
+**Progression actuelle :** 4/18 managers convertis (22%) - installman, configman, pathman, manman ✅
 

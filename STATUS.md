@@ -141,13 +141,13 @@ installman/
 **Ordre de migration recommandé :**
 
 #### Priorité 1 (Essentiels)
-- [ ] **configman** - Configuration système
-  - Core : `configman.zsh`
+- [x] **configman** - Configuration système ✅
+  - Core : `configman.zsh` → `configman.sh` + `configman.fish` ✅
   - Modules : Git, SSH, Shell, Symlinks, Prompt, QEMU
   - Utils : divers
 
-- [ ] **pathman** - Gestion PATH (utilisé par d'autres)
-  - Core : `pathman.zsh`
+- [x] **pathman** - Gestion PATH (utilisé par d'autres) ✅
+  - Core : `pathman.zsh` → `pathman.sh` + `pathman.fish` ✅
   - Modules : divers
 
 #### Priorité 2 (Utilitaires de base)
@@ -210,8 +210,8 @@ installman/
   - Core : `moduleman.zsh`
   - Gestion des modules
 
-- [ ] **manman** - Manager of Managers
-  - Core : `manman.zsh`
+- [x] **manman** - Manager of Managers ✅
+  - Core : `manman.zsh` → `manman.sh` + `manman.fish` ✅
   - Manager of Managers
 
 **Durée estimée :** 5-7 jours
@@ -286,14 +286,14 @@ installman/
 
 ### Infrastructure
 - [x] Documentation complète (100%)
-- [ ] Structure de base (0%)
-- [ ] Convertisseur avancé (0%)
-- [ ] Système de chargement (0%)
+- [x] Structure de base (80%)
+- [x] Convertisseur de base (80%)
+- [x] Système de chargement (80%)
 
 ### Migration des managers
-- [ ] installman (0%)
-- [ ] configman (0%)
-- [ ] pathman (0%)
+- [x] installman (100%) ✅ - Core converti (Bash + Fish)
+- [x] configman (100%) ✅ - Core converti (Bash + Fish)
+- [x] pathman (100%) ✅ - Core converti (Bash + Fish)
 - [ ] netman (0%)
 - [ ] gitman (0%)
 - [ ] cyberman (0%)
@@ -308,7 +308,7 @@ installman/
 - [ ] testman (0%)
 - [ ] testzshman (0%)
 - [ ] moduleman (0%)
-- [ ] manman (0%)
+- [x] manman (100%) ✅ - Core converti (Bash + Fish)
 
 ### Synchronisation
 - [ ] Script de synchronisation (0%)
@@ -381,8 +381,12 @@ installman/
 - ~50+ utilitaires
 
 **Progression :**
-- Managers migrés : 0/18 (0%)
-- Fichiers core migrés : 0/35 (0%)
+- Managers migrés : 4/18 (22%) ✅
+  - installman ✅
+  - configman ✅
+  - pathman ✅
+  - manman ✅
+- Fichiers core migrés : 8/35 (~23%) ✅
 - Modules migrés : 0/100 (0%)
 - Utilitaires migrés : 0/50 (0%)
 
@@ -421,5 +425,5 @@ installman/
 ---
 
 **Dernière mise à jour :** 2024-12-04
-**Statut global :** Phase 1 - Infrastructure de base (en cours)
+**Statut global :** Phase 3 - Migration des managers (22% - 4/18 managers convertis)
 
