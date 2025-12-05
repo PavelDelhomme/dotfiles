@@ -71,3 +71,4 @@ alias cd_vtcbuilder="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions/C
 alias cd_flutter_cooking_recipe="cd /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe"
 alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions"
 alias cd_auto_apply="cd /home/pactivisme/Documents/Dev/Perso/auto_apply/auto_apply/"
+alias cd_streammake="cd /home/pactivisme/Documents/Dev/Perso/StreamMake"
