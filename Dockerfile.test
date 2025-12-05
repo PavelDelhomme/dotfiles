@@ -483,20 +483,90 @@ test_manager_in_shell() {
     fi
 }
 
+# Fonction pour tester tous les managers dans un shell spécifique
+test_all_managers_in_shell() {
+    local shell="$1"
+    local shell_name="$2"
+    local report_file="/tmp/test-report-$shell.txt"
+    
+    echo ""
+    echo "═══════════════════════════════════════════════════════════"
+    echo "TESTS DANS $shell_name"
+    echo "═══════════════════════════════════════════════════════════"
+    echo ""
+    
+    local total=0
+    local passed=0
+    local failed=0
+    
+    # Tester chaque manager converti
+    for manager in "${CONVERTED_MANAGERS[@]}"; do
+        ((total++))
+        if test_manager_in_shell "$shell" "$manager"; then
+            ((passed++))
+            echo "  ✓ $manager disponible" | tee -a "$report_file"
+        else
+            ((failed++))
+            echo "  ✗ $manager non disponible" | tee -a "$report_file"
+        fi
+    done
+    
+    echo ""
+    echo "Résumé $shell_name:"
+    echo "  Total: $total"
+    echo "  Réussis: $passed"
+    echo "  Échoués: $failed"
+    echo ""
+    
+    # Retourner le nombre d'échecs
+    return $failed
+}
+
 # Tester les managers convertis dans les 3 shells
 echo ""
 log_shell "Test des managers convertis dans les 3 shells..."
 echo ""
 
-for manager in "${CONVERTED_MANAGERS[@]}"; do
-    log_test "Test $manager..."
-    echo "  ZSH:   $(test_manager_in_shell zsh "$manager" && echo '✓' || echo '✗')"
-    echo "  Bash:  $(test_manager_in_shell bash "$manager" && echo '✓' || echo '✗')"
-    echo "  Fish:  $(test_manager_in_shell fish "$manager" && echo '✓' || echo '✗')"
-    echo ""
-done
+# Compteurs globaux
+TOTAL_SHELL_TESTS=0
+TOTAL_SHELL_PASSED=0
+TOTAL_SHELL_FAILED=0
 
-# Créer un script ZSH pour tester les managers (optimisé pour éviter les problèmes de mémoire)
+# Test 1: ZSH
+test_all_managers_in_shell "zsh" "ZSH"
+ZSH_FAILED=$?
+TOTAL_SHELL_TESTS=$((TOTAL_SHELL_TESTS + ${#CONVERTED_MANAGERS[@]}))
+TOTAL_SHELL_PASSED=$((TOTAL_SHELL_PASSED + ${#CONVERTED_MANAGERS[@]} - ZSH_FAILED))
+TOTAL_SHELL_FAILED=$((TOTAL_SHELL_FAILED + ZSH_FAILED))
+
+# Test 2: Bash
+test_all_managers_in_shell "bash" "BASH"
+BASH_FAILED=$?
+TOTAL_SHELL_TESTS=$((TOTAL_SHELL_TESTS + ${#CONVERTED_MANAGERS[@]}))
+TOTAL_SHELL_PASSED=$((TOTAL_SHELL_PASSED + ${#CONVERTED_MANAGERS[@]} - BASH_FAILED))
+TOTAL_SHELL_FAILED=$((TOTAL_SHELL_FAILED + BASH_FAILED))
+
+# Test 3: Fish
+test_all_managers_in_shell "fish" "FISH"
+FISH_FAILED=$?
+TOTAL_SHELL_TESTS=$((TOTAL_SHELL_TESTS + ${#CONVERTED_MANAGERS[@]}))
+TOTAL_SHELL_PASSED=$((TOTAL_SHELL_PASSED + ${#CONVERTED_MANAGERS[@]} - FISH_FAILED))
+TOTAL_SHELL_FAILED=$((TOTAL_SHELL_FAILED + FISH_FAILED))
+
+# Rapport final multi-shells
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "RAPPORT FINAL MULTI-SHELLS"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+echo "ZSH:   $(( ${#CONVERTED_MANAGERS[@]} - ZSH_FAILED ))/${#CONVERTED_MANAGERS[@]} managers disponibles"
+echo "Bash:  $(( ${#CONVERTED_MANAGERS[@]} - BASH_FAILED ))/${#CONVERTED_MANAGERS[@]} managers disponibles"
+echo "Fish:  $(( ${#CONVERTED_MANAGERS[@]} - FISH_FAILED ))/${#CONVERTED_MANAGERS[@]} managers disponibles"
+echo ""
+echo "Total: $TOTAL_SHELL_PASSED/$TOTAL_SHELL_TESTS tests réussis"
+echo ""
+
+# Créer un script ZSH pour tester les managers fonctionnellement (optimisé pour éviter les problèmes de mémoire)
 cat > /tmp/test-managers-zsh.sh << 'ZSH_FUNCTIONAL_TEST'
 #!/bin/zsh
 set +e  # Ne pas arrêter sur erreurs
