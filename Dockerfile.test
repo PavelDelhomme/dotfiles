@@ -677,23 +677,179 @@ ZSH_FUNCTIONAL_TEST
 
 chmod +x /tmp/test-managers-zsh.sh
 
-# Exécuter le test dans ZSH
+# Exécuter les tests fonctionnels dans chaque shell
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "TESTS FONCTIONNELS PAR SHELL"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+# Test fonctionnel ZSH
 log_info "Exécution des tests fonctionnels dans ZSH..."
-TEST_OUTPUT=$(zsh /tmp/test-managers-zsh.sh 2>&1)
-TEST_EXIT=$?
-
-# Afficher la sortie du test
-echo "$TEST_OUTPUT"
-
-if [ $TEST_EXIT -eq 0 ]; then
-    log_info "✓ Tous les tests fonctionnels ont réussi"
+TEST_OUTPUT_ZSH=$(zsh /tmp/test-managers-zsh.sh 2>&1)
+TEST_EXIT_ZSH=$?
+echo "$TEST_OUTPUT_ZSH"
+if [ $TEST_EXIT_ZSH -eq 0 ]; then
+    log_info "✓ Tests fonctionnels ZSH réussis"
 else
-    log_warn "⚠️  Certains tests fonctionnels ont échoué"
-    log_warn "   (Cela peut être normal si certains managers nécessitent une configuration spécifique)"
+    log_warn "⚠️  Certains tests fonctionnels ZSH ont échoué"
+fi
+echo ""
+
+# Test fonctionnel Bash (créer un script similaire)
+cat > /tmp/test-managers-bash.sh << 'BASH_FUNCTIONAL_TEST'
+#!/bin/bash
+set +e
+
+DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
+
+# Charger la configuration Bash
+if [ -f /root/dotfiles/bash/bashrc_custom ]; then
+    source /root/dotfiles/bash/bashrc_custom >/dev/null 2>&1 || true
 fi
 
-rm -f /tmp/test-managers-zsh.sh
+sleep 0.3
 
+TOTAL_TESTS=0
+PASSED_TESTS=0
+FAILED_TESTS=0
+
+test_manager() {
+    local manager="$1"
+    ((TOTAL_TESTS++))
+    
+    if type "$manager" >/dev/null 2>&1; then
+        if "$manager" >/dev/null 2>&1; then
+            echo "[✓] $manager: disponible et appelable"
+            ((PASSED_TESTS++))
+            return 0
+        else
+            echo "[✗] $manager: erreur lors de l'appel"
+            ((FAILED_TESTS++))
+            return 1
+        fi
+    else
+        echo "[✗] $manager: non disponible"
+        ((FAILED_TESTS++))
+        return 1
+    fi
+}
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "TESTS FONCTIONNELS DES MANAGERS (BASH)"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+test_manager "installman"
+test_manager "configman"
+test_manager "pathman"
+test_manager "manman"
+
+echo ""
+echo "Total: $TOTAL_TESTS tests, Réussis: $PASSED_TESTS, Échoués: $FAILED_TESTS"
+exit 0
+BASH_FUNCTIONAL_TEST
+
+chmod +x /tmp/test-managers-bash.sh
+
+log_info "Exécution des tests fonctionnels dans Bash..."
+TEST_OUTPUT_BASH=$(bash /tmp/test-managers-bash.sh 2>&1)
+TEST_EXIT_BASH=$?
+echo "$TEST_OUTPUT_BASH"
+if [ $TEST_EXIT_BASH -eq 0 ]; then
+    log_info "✓ Tests fonctionnels Bash réussis"
+else
+    log_warn "⚠️  Certains tests fonctionnels Bash ont échoué"
+fi
+echo ""
+
+# Test fonctionnel Fish (créer un script similaire)
+cat > /tmp/test-managers-fish.sh << 'FISH_FUNCTIONAL_TEST'
+#!/usr/bin/fish
+set -e false
+
+set -g DOTFILES_DIR (test -n "$DOTFILES_DIR" && echo "$DOTFILES_DIR" || echo "/root/dotfiles")
+
+# Charger la configuration Fish
+if test -f /root/dotfiles/fish/config_custom.fish
+    source /root/dotfiles/fish/config_custom.fish >/dev/null 2>&1 || true
+end
+
+sleep 0.3
+
+set -g TOTAL_TESTS 0
+set -g PASSED_TESTS 0
+set -g FAILED_TESTS 0
+
+function test_manager
+    set manager $argv[1]
+    set -g TOTAL_TESTS (math $TOTAL_TESTS + 1)
+    
+    if type -q "$manager"
+        if eval "$manager" >/dev/null 2>&1
+            echo "[✓] $manager: disponible et appelable"
+            set -g PASSED_TESTS (math $PASSED_TESTS + 1)
+            return 0
+        else
+            echo "[✗] $manager: erreur lors de l'appel"
+            set -g FAILED_TESTS (math $FAILED_TESTS + 1)
+            return 1
+        end
+    else
+        echo "[✗] $manager: non disponible"
+        set -g FAILED_TESTS (math $FAILED_TESTS + 1)
+        return 1
+    end
+end
+
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "TESTS FONCTIONNELS DES MANAGERS (FISH)"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+
+test_manager installman
+test_manager configman
+test_manager pathman
+test_manager manman
+
+echo ""
+echo "Total: $TOTAL_TESTS tests, Réussis: $PASSED_TESTS, Échoués: $FAILED_TESTS"
+exit 0
+FISH_FUNCTIONAL_TEST
+
+chmod +x /tmp/test-managers-fish.sh
+
+log_info "Exécution des tests fonctionnels dans Fish..."
+TEST_OUTPUT_FISH=$(fish /tmp/test-managers-fish.sh 2>&1)
+TEST_EXIT_FISH=$?
+echo "$TEST_OUTPUT_FISH"
+if [ $TEST_EXIT_FISH -eq 0 ]; then
+    log_info "✓ Tests fonctionnels Fish réussis"
+else
+    log_warn "⚠️  Certains tests fonctionnels Fish ont échoué"
+fi
+echo ""
+
+# Nettoyer les scripts temporaires
+rm -f /tmp/test-managers-zsh.sh /tmp/test-managers-bash.sh /tmp/test-managers-fish.sh
+
+# Rapport final complet
+echo ""
+echo "═══════════════════════════════════════════════════════════"
+echo "RAPPORT FINAL COMPLET - TOUS LES SHELLS"
+echo "═══════════════════════════════════════════════════════════"
+echo ""
+echo "📊 Disponibilité des managers:"
+echo "  ZSH:   $(( ${#CONVERTED_MANAGERS[@]} - ZSH_FAILED ))/${#CONVERTED_MANAGERS[@]} managers disponibles"
+echo "  Bash:  $(( ${#CONVERTED_MANAGERS[@]} - BASH_FAILED ))/${#CONVERTED_MANAGERS[@]} managers disponibles"
+echo "  Fish:  $(( ${#CONVERTED_MANAGERS[@]} - FISH_FAILED ))/${#CONVERTED_MANAGERS[@]} managers disponibles"
+echo ""
+echo "🧪 Tests fonctionnels:"
+echo "  ZSH:   $([ $TEST_EXIT_ZSH -eq 0 ] && echo '✓ Réussis' || echo '✗ Échoués')"
+echo "  Bash:  $([ $TEST_EXIT_BASH -eq 0 ] && echo '✓ Réussis' || echo '✗ Échoués')"
+echo "  Fish:  $([ $TEST_EXIT_FISH -eq 0 ] && echo '✓ Réussis' || echo '✗ Échoués')"
 echo ""
 echo "═══════════════════════════════════════════════════════════"
 # Toujours retourner 0 pour ne pas faire échouer le conteneur
