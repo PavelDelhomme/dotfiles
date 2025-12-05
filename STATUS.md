@@ -291,9 +291,9 @@ installman/
 - [x] Système de chargement (80%)
 
 ### Migration des managers
-- [x] installman (100%) ✅ - Core converti (Bash + Fish)
-- [x] configman (100%) ✅ - Core converti (Bash + Fish)
-- [x] pathman (100%) ✅ - Core converti (Bash + Fish)
+- [x] installman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
+- [x] configman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
+- [x] pathman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
 - [ ] netman (0%)
 - [ ] gitman (0%)
 - [ ] cyberman (0%)
@@ -308,7 +308,7 @@ installman/
 - [ ] testman (0%)
 - [ ] testzshman (0%)
 - [ ] moduleman (0%)
-- [x] manman (100%) ✅ - Core converti (Bash + Fish)
+- [x] manman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
 
 ### Synchronisation
 - [ ] Script de synchronisation (0%)
@@ -382,13 +382,14 @@ installman/
 
 **Progression :**
 - Managers migrés : 4/18 (22%) ✅
-  - installman ✅
-  - configman ✅
-  - pathman ✅
-  - manman ✅
+  - installman ✅ (Bash + Fish - Testé Docker)
+  - configman ✅ (Bash + Fish - Testé Docker)
+  - pathman ✅ (Bash + Fish - Testé Docker)
+  - manman ✅ (Bash + Fish - Testé Docker)
 - Fichiers core migrés : 8/35 (~23%) ✅
 - Modules migrés : 0/100 (0%)
 - Utilitaires migrés : 0/50 (0%)
+- Tests Docker : ✅ Multi-shells (ZSH, Bash, Fish) configurés
 
 **Objectif :** 100% de parité fonctionnelle
 
@@ -426,4 +427,5 @@ installman/
 
 **Dernière mise à jour :** 2024-12-04
 **Statut global :** Phase 3 - Migration des managers (22% - 4/18 managers convertis)
+**Tests :** ✅ Docker multi-shells configuré (ZSH, Bash, Fish) - Tests des managers convertis fonctionnels
 

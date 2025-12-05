@@ -175,35 +175,37 @@ case "$SELECTED_SHELL" in
         fi
         ;;
     bash)
-        # Configuration Bash (compatibilité basique)
+        # Configuration Bash (avec managers convertis)
         if [ ! -f ~/.bashrc ] || ! grep -q "dotfiles" ~/.bashrc 2>/dev/null; then
             {
                 echo ""
-                echo "# Dotfiles configuration (compatibilité Bash)"
-                if [ -f "${DOTFILES_DIR}/zshrc" ]; then
+                echo "# Dotfiles configuration (Bash avec managers convertis)"
+                if [ -f "${DOTFILES_DIR}/bash/bashrc_custom" ]; then
+                    echo "source ${DOTFILES_DIR}/bash/bashrc_custom"
+                elif [ -f "${DOTFILES_DIR}/zshrc" ]; then
                     echo "source ${DOTFILES_DIR}/zshrc"
                 elif [ -f "${DOTFILES_DIR}/zsh/env.sh" ]; then
                     echo "source ${DOTFILES_DIR}/zsh/env.sh"
                 fi
             } >> ~/.bashrc 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.bashrc"
         fi
-        log_info "✓ Bash configuré (mode compatibilité basique - variables d'env et alias simples)"
-        log_warn "⚠️  Les managers interactifs (*man) ne sont pas disponibles en Bash (ZSH-only)"
+        log_info "✓ Bash configuré avec chargement des managers convertis"
+        # Les managers convertis (installman, configman, pathman, manman) sont disponibles en Bash
         ;;
     fish)
-        # Configuration Fish (compatibilité basique)
+        # Configuration Fish (avec managers convertis)
         mkdir -p ~/.config/fish
         if [ ! -f ~/.config/fish/config.fish ] || ! grep -q "dotfiles" ~/.config/fish/config.fish 2>/dev/null; then
             {
                 echo ""
-                echo "# Dotfiles configuration (compatibilité Fish)"
+                echo "# Dotfiles configuration (Fish avec managers convertis)"
                 if [ -f "${DOTFILES_DIR}/fish/config_custom.fish" ]; then
                     echo "source ${DOTFILES_DIR}/fish/config_custom.fish"
                 fi
             } >> ~/.config/fish/config.fish 2>/dev/null || log_warn "⚠️  Impossible d'écrire dans ~/.config/fish/config.fish"
         fi
-        log_info "✓ Fish configuré (mode compatibilité basique - variables d'env et alias)"
-        log_warn "⚠️  Les managers interactifs (*man) ne sont pas disponibles en Fish (ZSH-only)"
+        log_info "✓ Fish configuré avec chargement des managers convertis"
+        # Les managers convertis (installman, configman, pathman, manman) sont disponibles en Fish
         ;;
     *)
         log_warn "⚠️  Shell non reconnu: $SELECTED_SHELL, utilisation de ZSH par défaut"

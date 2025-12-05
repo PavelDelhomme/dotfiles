@@ -459,4 +459,5 @@ Documenter **absolument tout** ce qui doit être migré pour avoir la parité co
 
 **Dernière mise à jour :** 2024-12-04
 **Progression actuelle :** 4/18 managers convertis (22%) - installman, configman, pathman, manman ✅
+**Tests :** ✅ Docker multi-shells configuré - Tests des managers convertis dans ZSH, Bash et Fish fonctionnels
 
