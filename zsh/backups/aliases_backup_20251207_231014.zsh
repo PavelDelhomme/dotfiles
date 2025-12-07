@@ -72,4 +72,4 @@ alias cd_flutter_cooking_recipe="cd /home/pactivisme/Documents/Dev/Perso/cooking
 alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions"
 alias cd_auto_apply="cd /home/pactivisme/Documents/Dev/Perso/auto_apply/auto_apply/"
 alias cd_streammake="cd /home/pactivisme/Documents/Dev/Perso/StreamMake"
-alias cd_budget_youyou="cd /home/pactivisme/Documents/Dev/Perso/BudgetYouyou/budget-web-youyou-merdique"
+alias cd_budget_youyou="cd /home/pactivisme/Documents/Dev/Perso/BudgetYouyou"
