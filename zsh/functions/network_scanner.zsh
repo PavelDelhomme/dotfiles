@@ -116,8 +116,8 @@ network_scanner() {
         echo -e "${YELLOW}${BOLD}📡 APPAREILS DÉTECTÉS (ARP Table):${RESET}\n"
         
         if [ -f /proc/net/arp ]; then
-            printf "${CYAN}%-18s %-18s %-20s %-15s %s${RESET}\n" "IP" "MAC" "Interface" "Type" "Hostname"
-            echo "────────────────────────────────────────────────────────────────────────────────"
+            printf "${CYAN}%-18s %-18s %-20s %-25s %-20s %-20s %s${RESET}\n" "IP" "MAC" "Interface" "Vendor" "Hostname" "OS" "Status"
+            echo "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
             
             while IFS= read -r line; do
                 # Ignorer la ligne d'en-tête
@@ -143,15 +143,41 @@ network_scanner() {
                     hostname="N/A"
                 fi
                 
-                # Détecter le type d'appareil via MAC (vendor lookup)
+                # Détecter le type d'appareil et OS
                 local vendor=""
+                local os_info=""
+                
+                # Scan OS avec nmap si disponible
                 if command -v nmap &>/dev/null; then
-                    vendor=$(nmap --script smb-os-discovery "$ip" 2>/dev/null | grep -i "OS:" | head -1 | sed 's/.*OS: //')
+                    local nmap_os=$(nmap -O --osscan-guess "$ip" 2>/dev/null | grep -i "OS details" | head -1 | sed 's/.*OS details: //')
+                    if [ -n "$nmap_os" ]; then
+                        os_info="$nmap_os"
+                    fi
+                    
+                    # Détection vendor via MAC
+                    local nmap_mac=$(nmap --script smb-os-discovery "$ip" 2>/dev/null | grep -i "MAC Address" | head -1)
+                    if [ -n "$nmap_mac" ]; then
+                        vendor=$(echo "$nmap_mac" | sed 's/.*MAC Address: //' | sed 's/ (.*//')
+                    fi
                 fi
+                
+                # Si pas de vendor, essayer de deviner via MAC prefix
                 if [ -z "$vendor" ]; then
-                    # Essayer de deviner via les 3 premiers octets du MAC
                     local mac_prefix=$(echo "$mac" | cut -d':' -f1-3 | tr ':' '-')
-                    vendor="Unknown"
+                    # Base de données MAC vendors courants
+                    case "$mac_prefix" in
+                        00-50-56|00-0c-29|00-05-69) vendor="VMware" ;;
+                        08-00-27) vendor="VirtualBox" ;;
+                        52-54-00) vendor="QEMU" ;;
+                        00-1b-21|00-1c-42) vendor="Intel" ;;
+                        00-1e-c2) vendor="Apple" ;;
+                        00-23-24) vendor="Samsung" ;;
+                        *) vendor="Unknown" ;;
+                    esac
+                fi
+                
+                if [ -z "$os_info" ]; then
+                    os_info="Unknown"
                 fi
                 
                 # Ping pour vérifier si actif
@@ -163,7 +189,7 @@ network_scanner() {
                     status="${RED}○${RESET}"
                 fi
                 
-                printf "%-18s %-18s %-20s %-15s %s %s\n" "$ip" "$mac" "$iface" "$vendor" "$hostname" "$status"
+                printf "%-18s %-18s %-20s %-25s %-20s %s %s\n" "$ip" "$mac" "$iface" "$vendor" "$hostname" "$os_info" "$status"
             done < <(cat /proc/net/arp | grep -v "^IP")
         fi
         
@@ -192,13 +218,28 @@ network_scanner() {
                             
                             # Scan de ports pour cet hôte
                             local open_ports=""
+                            local services=""
                             if command -v nmap &>/dev/null; then
-                                open_ports=$(nmap -F "$current_ip" 2>/dev/null | grep -E "open" | awk '{print $1}' | cut -d'/' -f1 | tr '\n' ',' | sed 's/,$//')
+                                local port_scan=$(nmap -F "$current_ip" 2>/dev/null)
+                                open_ports=$(echo "$port_scan" | grep -E "open" | awk '{print $1}' | cut -d'/' -f1 | tr '\n' ',' | sed 's/,$//')
+                                services=$(echo "$port_scan" | grep -E "open" | awk '{print $3}' | tr '\n' ',' | sed 's/,$//')
+                            fi
+                            
+                            # Détection OS
+                            local os_detected=""
+                            if command -v nmap &>/dev/null; then
+                                os_detected=$(nmap -O --osscan-guess "$current_ip" 2>/dev/null | grep -i "OS details" | head -1 | sed 's/.*OS details: //')
                             fi
                             
                             echo -e "${GREEN}●${RESET} ${CYAN}$current_ip${RESET} - ${YELLOW}$hostname_nmap${RESET}"
+                            if [ -n "$os_detected" ]; then
+                                echo -e "  ${BLUE}OS:${RESET} $os_detected"
+                            fi
                             if [ -n "$open_ports" ]; then
                                 echo -e "  ${BLUE}Ports ouverts:${RESET} $open_ports"
+                                if [ -n "$services" ]; then
+                                    echo -e "  ${BLUE}Services:${RESET} $services"
+                                fi
                             fi
                         fi
                     elif [[ "$line" =~ "MAC Address" ]]; then
