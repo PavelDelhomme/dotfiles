@@ -47,6 +47,7 @@ declare -a TOOLS=(
     "docker::🐳:Docker & Docker Compose:check_docker_installed:docker/install_docker.sh:install_docker"
     "brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave"
     "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
+    "handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake"
     "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
     "ssh-config:ssh,ssh-setup:🔐:Configuration SSH automatique:check_ssh_configured:ssh/install_ssh_config.sh:install_ssh_config"
 )
@@ -154,6 +155,24 @@ installman() {
         echo -e "${BOLD}🌐 APPLICATIONS:${RESET}"
         local app_tools=("brave" "cursor")
         for tool_name in "${app_tools[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                IFS=':' read -rA tool_parts <<< "$tool_def"
+                if [ "${tool_parts[1]}" = "$tool_name" ]; then
+                    local tool_emoji="${tool_parts[3]}"
+                    local tool_desc="${tool_parts[4]}"
+                    local tool_check="${tool_parts[5]}"
+                    local status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    ((index++))
+                    break
+                fi
+            done
+        done
+        
+        echo ""
+        echo -e "${BOLD}🎬 MULTIMÉDIA:${RESET}"
+        local media_tools=("handbrake")
+        for tool_name in "${media_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"
                 if [ "${tool_parts[1]}" = "$tool_name" ]; then

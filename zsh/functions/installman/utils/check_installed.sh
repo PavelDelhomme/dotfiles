@@ -278,3 +278,14 @@ check_ssh_configured() {
     return 1
 }
 
+# DESC: Vérifie si HandBrake est installé (CLI ou GUI)
+# USAGE: check_handbrake_installed
+check_handbrake_installed() {
+    if command -v HandBrakeCLI &>/dev/null || command -v HandBrake &>/dev/null || command -v handbrake &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
