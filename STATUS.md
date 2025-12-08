@@ -4,14 +4,14 @@
 
 Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisation automatique.
 
-**Parité fonctionnelle complète** : 18 managers disponibles dans les 3 shells.
+**Parité fonctionnelle complète** : 19 managers disponibles dans les 3 shells.
 
 ---
 
 ## 📋 État actuel
 
 ### ✅ ZSH (Complet)
-- 18 managers fonctionnels
+- 19 managers fonctionnels
 - Structure modulaire complète
 - ~35 fichiers de code
 - Architecture bien définie
@@ -325,7 +325,7 @@ installman/
 
 ## 📝 Liste complète des fichiers à migrer
 
-### Managers (18)
+### Managers (19)
 1. installman
 2. configman
 3. pathman
@@ -344,6 +344,7 @@ installman/
 16. testzshman
 17. moduleman
 18. manman
+19. multimediaman
 
 ### Utilitaires globaux
 - `zsh/functions/utils/alias_utils.zsh`
@@ -381,7 +382,7 @@ installman/
 - ~50+ utilitaires
 
 **Progression :**
-- Managers migrés : 4/18 (22%) ✅
+- Managers migrés : 4/19 (21%) ✅
   - installman ✅ (Bash + Fish - Testé Docker)
   - configman ✅ (Bash + Fish - Testé Docker)
   - pathman ✅ (Bash + Fish - Testé Docker)
@@ -426,6 +427,7 @@ installman/
 ---
 
 **Dernière mise à jour :** 2024-12-04
-**Statut global :** Phase 3 - Migration des managers (22% - 4/18 managers convertis)
+**Statut global :** Phase 3 - Migration des managers (21% - 4/19 managers convertis)
+**Nouveautés :** 🎬 multimediaman ajouté (ripping DVD, encodage vidéo) | 🎬 HandBrake ajouté dans installman
 **Tests :** ✅ Docker multi-shells configuré (ZSH, Bash, Fish) - Tests des managers convertis fonctionnels
 

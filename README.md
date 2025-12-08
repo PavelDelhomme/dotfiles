@@ -58,6 +58,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
   - [Helpman - Gestionnaire Documentation](#-helpman---gestionnaire-documentation)
   - [Fileman - Gestionnaire Fichiers](#-fileman---gestionnaire-fichiers)
   - [Virtman - Gestionnaire Environnements Virtuels](#-virtman---gestionnaire-environnements-virtuels)
+  - [Multimediaman - Gestionnaire Multimédia](#-multimediaman---gestionnaire-multimdia)
 - [🔐 Configuration GitHub SSH](#configuration-github-ssh)
 - [🐳 Docker](#docker)
   - [Installation](#installation)
@@ -1420,6 +1421,7 @@ installman emacs             # Installation Emacs + Doom Emacs + config de base
 installman java17            # Installation Java 17 OpenJDK
 installman android-studio    # Installation Android Studio
 installman android-tools     # Installation outils Android (ADB, SDK, etc.)
+installman handbrake         # Installation HandBrake CLI + GUI (si GUI disponible)
 installman ssh-config        # Configuration SSH automatique (avec mot de passe .env)
 ```
 
@@ -1434,6 +1436,7 @@ installman ssh-config        # Configuration SSH automatique (avec mot de passe 
 - **Docker** : Installation Docker & Docker Compose
 - **Brave Browser** : Installation Brave Browser
 - **Cursor IDE** : Installation Cursor IDE
+- **HandBrake** : Installation HandBrake CLI et GUI (si interface graphique disponible)
 - **QEMU/KVM** : Installation outils de virtualisation
 - **SSH Config** : Configuration automatique SSH avec mot de passe depuis `.env`
 
@@ -1475,7 +1478,7 @@ mmg                         # Alias pour manman
 managers                    # Alias pour manman
 ```
 
-**Managers disponibles (18 managers) :**
+**Managers disponibles (19 managers) :**
 - 📁 **pathman** : Gestionnaire PATH
 - 🌐 **netman** : Gestionnaire réseau
 - 📝 **aliaman** : Gestionnaire alias
@@ -1492,9 +1495,53 @@ managers                    # Alias pour manman
 - 🖥️ **virtman** : Gestionnaire virtualisation
 - 🧪 **testman** : Gestionnaire tests applications
 - 🧪 **testzshman** : Gestionnaire tests ZSH/dotfiles
+- 🎬 **multimediaman** : Gestionnaire multimédia (ripping DVD, encodage)
 - ⚙️ **moduleman** : Gestionnaire modules (activation/désactivation)
 
 **Documentation :** `help manman` ou `man manman`
+
+### 🎬 Multimediaman - Gestionnaire Multimédia
+
+Gestionnaire complet pour les opérations multimédias (ripping DVD, encodage vidéo).
+
+**Utilisation :**
+```bash
+multimediaman                  # Menu interactif
+multimediaman rip-dvd "Film"   # Ripping DVD avec encodage MP4
+mm                             # Alias pour multimediaman
+mm-rip                         # Alias pour multimediaman rip-dvd
+```
+
+**Fonctionnalités :**
+- **Ripping DVD** : Pipeline automatique pour ripper des DVD
+  - Copie du DVD brut avec `dvdbackup`
+  - Encodage MP4 H.264 avec `HandBrakeCLI`
+  - Qualité RF 20 par défaut (configurable)
+  - Toutes les pistes audio (VF+VO) et sous-titres conservés
+  - Optimisation "fast start" pour streaming web
+  - Chapitres conservés
+
+**Pré-requis :**
+- HandBrake CLI installé (via `installman handbrake`)
+- `dvdbackup` installé (installé automatiquement avec HandBrake)
+- `libdvdcss` pour DVD chiffrés (Arch/Manjaro uniquement, via AUR)
+
+**Exemple :**
+```bash
+# 1. Installer HandBrake
+installman handbrake
+
+# 2. Insérer le DVD
+
+# 3. Ripper le DVD
+multimediaman rip-dvd "Mon_Film"
+
+# 4. Le fichier sera dans ~/DVD_RIPS/Mon_Film.mp4
+```
+
+**Fichier de sortie :** `~/DVD_RIPS/[nom_du_film].mp4`
+
+**Documentation :** `help multimediaman` ou voir `zsh/functions/multimediaman/modules/dvd/README.md`
 
 ### 🛠️ Miscman - Gestionnaire Outils Divers
 
@@ -2403,7 +2450,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 - ✅ Scripts désinstallation (13 scripts : uninstall_*, rollback_*, reset_all)
 
 **Fonctions ZSH** :
-- ✅ Gestionnaires (13 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman, fileman, virtman)
+- ✅ Gestionnaires (14 : cyberman, devman, gitman, miscman, pathman, netman, helpman, aliaman, searchman, configman, installman, fileman, virtman, multimediaman)
 - ✅ Fonctions dev (6 : go.sh, c.sh, docker.sh, make.sh, projects/*)
 - ✅ Fonctions misc (9+ : clipboard/, security/, files/, system/, backup/)
 - ✅ Fonctions cyber (structure complète : reconnaissance, scanning, vulnerability, attacks, analysis, privacy)
