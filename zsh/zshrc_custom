@@ -134,6 +134,12 @@ fi
 #     echo -e "${YELLOW}  ⚠️ Fichier $ENV_FILE introuvable${NC}"
 
 # =============================================================================
+# ÉTAPE 3.5 : CHARGEMENT DES FONCTIONS UTILITAIRES
+# =============================================================================
+# Charger ipinfo (informations IP et réseau)
+[ -f "$DOTFILES_ZSH_PATH/functions/ipinfo.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/ipinfo.zsh" 2>/dev/null || true
+
+# =============================================================================
 # ÉTAPE 4 : CHARGEMENT DES FONCTIONS INDIVIDUELLES
 # Charge toutes les fonctions depuis les sous-dossiers organisés :
 # - cyber/ (réorganisé en reconnaissance/, scanning/, vulnerability/, attacks/, analysis/, privacy/)
