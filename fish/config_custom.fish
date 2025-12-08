@@ -75,6 +75,14 @@ function load_manager -d "Charger un manager si activé"
     end
 end
 
+# =============================================================================
+# CONFIGURATION HISTORIQUE (AVANT CHARGEMENT MANAGERS)
+# =============================================================================
+# Charger la configuration d'historique partagé
+if test -f "$DOTFILES_FISH_PATH/history.fish"
+    source "$DOTFILES_FISH_PATH/history.fish" 2>/dev/null || true
+end
+
 # Charger les managers (même ordre que ZSH)
 load_manager "pathman" "$DOTFILES_FISH_PATH/functions/pathman.fish" "PATHMAN"
 load_manager "netman" "$DOTFILES_FISH_PATH/functions/netman.fish" "NETMAN"

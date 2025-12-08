@@ -113,6 +113,12 @@ load_manager "testzshman" "$DOTFILES_ZSH_PATH/functions/testzshman.zsh" "TESTZSH
 load_manager "testman" "$DOTFILES_ZSH_PATH/functions/testman.zsh" "TESTMAN"
 
 # =============================================================================
+# ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)
+# =============================================================================
+# Charger la configuration d'historique partagé
+[ -f "$DOTFILES_ZSH_PATH/history.zsh" ] && source "$DOTFILES_ZSH_PATH/history.zsh" 2>/dev/null || true
+
+# =============================================================================
 # ÉTAPE 2 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
 # IMPORTANT: env.sh doit être chargé APRÈS les gestionnaires car il utilise
 # add_to_path() définie dans pathman.zsh pour ajouter des chemins au PATH

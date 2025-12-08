@@ -78,6 +78,12 @@ load_manager "testzshman" "$DOTFILES_BASH_PATH/functions/testzshman.sh" "TESTZSH
 load_manager "testman" "$DOTFILES_BASH_PATH/functions/testman.sh" "TESTMAN"
 
 # =============================================================================
+# ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)
+# =============================================================================
+# Charger la configuration d'historique partagé
+[ -f "$DOTFILES_BASH_PATH/history.sh" ] && source "$DOTFILES_BASH_PATH/history.sh" 2>/dev/null || true
+
+# =============================================================================
 # ÉTAPE 3 : CHARGEMENT DES VARIABLES D'ENVIRONNEMENT
 # =============================================================================
 if [ -f "$ENV_FILE" ]; then
