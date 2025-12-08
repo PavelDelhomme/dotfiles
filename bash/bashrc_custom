@@ -102,6 +102,8 @@ fi
 # =============================================================================
 # Charger ipinfo (informations IP et réseau)
 [ -f "$DOTFILES_BASH_PATH/functions/ipinfo.sh" ] && source "$DOTFILES_BASH_PATH/functions/ipinfo.sh" 2>/dev/null || true
+# Charger network_scanner (scanner réseau en temps réel)
+[ -f "$DOTFILES_BASH_PATH/functions/network_scanner.sh" ] && source "$DOTFILES_BASH_PATH/functions/network_scanner.sh" 2>/dev/null || true
 
 # =============================================================================
 # ÉTAPE 5 : CHARGEMENT DES UTILITAIRES

@@ -108,6 +108,10 @@ load_manager "testman" "$DOTFILES_FISH_PATH/functions/testman.fish" "TESTMAN"
 if test -f "$DOTFILES_FISH_PATH/functions/ipinfo.fish"
     source "$DOTFILES_FISH_PATH/functions/ipinfo.fish" 2>/dev/null || true
 end
+# Charger network_scanner (scanner réseau en temps réel)
+if test -f "$DOTFILES_FISH_PATH/functions/network_scanner.fish"
+    source "$DOTFILES_FISH_PATH/functions/network_scanner.fish" 2>/dev/null || true
+end
 
 # Charger update_system.fish en premier pour remplacer les alias update/upgrade
 if test -f $FUNCTIONS_DIR/update_system.fish

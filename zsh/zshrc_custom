@@ -138,6 +138,8 @@ fi
 # =============================================================================
 # Charger ipinfo (informations IP et réseau)
 [ -f "$DOTFILES_ZSH_PATH/functions/ipinfo.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/ipinfo.zsh" 2>/dev/null || true
+# Charger network_scanner (scanner réseau en temps réel)
+[ -f "$DOTFILES_ZSH_PATH/functions/network_scanner.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network_scanner.zsh" 2>/dev/null || true
 
 # =============================================================================
 # ÉTAPE 4 : CHARGEMENT DES FONCTIONS INDIVIDUELLES
