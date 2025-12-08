@@ -48,6 +48,7 @@ declare -a TOOLS=(
     "brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave"
     "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
     "handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake"
+    "network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools"
     "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
     "ssh-config:ssh,ssh-setup:🔐:Configuration SSH automatique:check_ssh_configured:ssh/install_ssh_config.sh:install_ssh_config"
 )
@@ -191,6 +192,24 @@ installman() {
         echo -e "${BOLD}⚙️  CONFIGURATION ANDROID:${RESET}"
         local android_config_tools=("android-licenses")
         for tool_name in "${android_config_tools[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                IFS=':' read -rA tool_parts <<< "$tool_def"
+                if [ "${tool_parts[1]}" = "$tool_name" ]; then
+                    local tool_emoji="${tool_parts[3]}"
+                    local tool_desc="${tool_parts[4]}"
+                    local tool_check="${tool_parts[5]}"
+                    local status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    ((index++))
+                    break
+                fi
+            done
+        done
+        
+        echo ""
+        echo -e "${BOLD}🌐 RÉSEAU:${RESET}"
+        local network_tools=("network-tools")
+        for tool_name in "${network_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"
                 if [ "${tool_parts[1]}" = "$tool_name" ]; then

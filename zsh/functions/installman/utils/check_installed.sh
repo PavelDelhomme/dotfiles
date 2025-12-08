@@ -289,3 +289,29 @@ check_handbrake_installed() {
     return 1
 }
 
+# DESC: Vérifie si les outils réseau sont installés
+# USAGE: check_network_tools_installed
+check_network_tools_installed() {
+    local tools_installed=0
+    local tools_total=9
+    
+    # Vérifier chaque outil
+    command -v nslookup &>/dev/null && ((tools_installed++))
+    command -v dig &>/dev/null && ((tools_installed++))
+    command -v traceroute &>/dev/null && ((tools_installed++))
+    command -v whois &>/dev/null && ((tools_installed++))
+    command -v nmap &>/dev/null && ((tools_installed++))
+    command -v tcpdump &>/dev/null && ((tools_installed++))
+    command -v iftop &>/dev/null && ((tools_installed++))
+    (command -v nc &>/dev/null || command -v netcat &>/dev/null) && ((tools_installed++))
+    command -v lsof &>/dev/null && ((tools_installed++))
+    
+    # Considérer comme installé si au moins 7/9 outils sont présents
+    if [ "$tools_installed" -ge 7 ]; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
