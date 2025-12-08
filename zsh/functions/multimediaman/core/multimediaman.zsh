@@ -53,7 +53,9 @@ multimediaman() {
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
         echo -e "${BOLD}1.${RESET} Ripping DVD (copie + encodage MP4)"
-        echo -e "${BOLD}2.${RESET} Aide"
+        echo -e "${BOLD}2.${RESET} Extraire une archive (avec progression)"
+        echo -e "${BOLD}3.${RESET} Lister le contenu d'une archive"
+        echo -e "${BOLD}4.${RESET} Aide"
         echo -e "${BOLD}0.${RESET} Quitter"
         echo ""
         printf "Choix: "
@@ -73,7 +75,28 @@ multimediaman() {
                     fi
                 fi
                 ;;
-            2|help|h|aide)
+            2|extract|ext)
+                read "?Chemin de l'archive: " archive_path
+                if [ -n "$archive_path" ]; then
+                    read "?Destination (défaut: .): " dest_path
+                    extract_with_progress "$archive_path" "${dest_path:-.}"
+                else
+                    echo -e "${YELLOW}Opération annulée${RESET}"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                show_main_menu
+                ;;
+            3|list|ls)
+                read "?Chemin de l'archive: " archive_path
+                if [ -n "$archive_path" ]; then
+                    list_archive "$archive_path"
+                else
+                    echo -e "${YELLOW}Opération annulée${RESET}"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                show_main_menu
+                ;;
+            4|help|h|aide)
                 show_help
                 ;;
             0|q|quit|exit)
@@ -93,12 +116,17 @@ multimediaman() {
         echo -e "${CYAN}${BOLD}AIDE - MULTIMEDIAMAN${RESET}\n"
         echo -e "${BOLD}Commandes disponibles:${RESET}"
         echo ""
-        echo -e "${GREEN}multimediaman${RESET}              - Menu interactif"
-        echo -e "${GREEN}multimediaman rip-dvd [nom]${RESET} - Ripping DVD avec encodage MP4"
+        echo -e "${GREEN}multimediaman${RESET}                    - Menu interactif"
+        echo -e "${GREEN}multimediaman rip-dvd [nom]${RESET}       - Ripping DVD avec encodage MP4"
+        echo -e "${GREEN}multimediaman extract [archive] [dest]${RESET} - Extraire archive avec progression"
+        echo -e "${GREEN}multimediaman list [archive]${RESET}      - Lister contenu d'une archive"
         echo ""
         echo -e "${BOLD}Exemples:${RESET}"
         echo "  multimediaman"
         echo "  multimediaman rip-dvd Mon_Film"
+        echo "  multimediaman extract archive.zip"
+        echo "  multimediaman extract archive.tar.gz /tmp/extract"
+        echo "  multimediaman list archive.zip"
         echo ""
         echo -e "${BOLD}Pré-requis:${RESET}"
         echo "  - HandBrakeCLI installé (via installman handbrake)"
@@ -126,6 +154,33 @@ multimediaman() {
                     fi
                 fi
                 ;;
+            extract|ext)
+                if [ -n "$2" ]; then
+                    extract_with_progress "$2" "${3:-.}"
+                else
+                    read "?Chemin de l'archive: " archive_path
+                    if [ -n "$archive_path" ]; then
+                        read "?Destination (défaut: .): " dest_path
+                        extract_with_progress "$archive_path" "${dest_path:-.}"
+                    else
+                        echo -e "${YELLOW}Opération annulée${RESET}"
+                        return 1
+                    fi
+                fi
+                ;;
+            list|ls)
+                if [ -n "$2" ]; then
+                    list_archive "$2"
+                else
+                    read "?Chemin de l'archive: " archive_path
+                    if [ -n "$archive_path" ]; then
+                        list_archive "$archive_path"
+                    else
+                        echo -e "${YELLOW}Opération annulée${RESET}"
+                        return 1
+                    fi
+                fi
+                ;;
             help|h|aide|--help|-h)
                 show_help
                 ;;
@@ -133,8 +188,10 @@ multimediaman() {
                 echo -e "${RED}❌ Commande inconnue: $1${RESET}"
                 echo ""
                 echo -e "${YELLOW}Commandes disponibles:${RESET}"
-                echo "  rip-dvd [nom]  - Ripping DVD avec encodage MP4"
-                echo "  help           - Afficher l'aide"
+                echo "  rip-dvd [nom]     - Ripping DVD avec encodage MP4"
+                echo "  extract [arch]    - Extraire archive avec progression"
+                echo "  list [arch]       - Lister contenu d'une archive"
+                echo "  help             - Afficher l'aide"
                 echo ""
                 return 1
                 ;;
@@ -148,4 +205,6 @@ multimediaman() {
 # Alias
 alias mm='multimediaman'
 alias mm-rip='multimediaman rip-dvd'
+alias mm-extract='multimediaman extract'
+alias mm-list='multimediaman list'
 
