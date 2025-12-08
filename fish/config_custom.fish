@@ -104,6 +104,11 @@ load_manager "testzshman" "$DOTFILES_FISH_PATH/functions/testzshman.fish" "TESTZ
 load_manager "testman" "$DOTFILES_FISH_PATH/functions/testman.fish" "TESTMAN"
 
 
+# Charger ipinfo (informations IP et réseau)
+if test -f "$DOTFILES_FISH_PATH/functions/ipinfo.fish"
+    source "$DOTFILES_FISH_PATH/functions/ipinfo.fish" 2>/dev/null || true
+end
+
 # Charger update_system.fish en premier pour remplacer les alias update/upgrade
 if test -f $FUNCTIONS_DIR/update_system.fish
     source $FUNCTIONS_DIR/update_system.fish

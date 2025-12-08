@@ -98,6 +98,12 @@ if [ -f "$ALIASES_FILES" ]; then
 fi
 
 # =============================================================================
+# ÉTAPE 4.5 : CHARGEMENT DES FONCTIONS UTILITAIRES
+# =============================================================================
+# Charger ipinfo (informations IP et réseau)
+[ -f "$DOTFILES_BASH_PATH/functions/ipinfo.sh" ] && source "$DOTFILES_BASH_PATH/functions/ipinfo.sh" 2>/dev/null || true
+
+# =============================================================================
 # ÉTAPE 5 : CHARGEMENT DES UTILITAIRES
 # =============================================================================
 if [ -d "$DOTFILES_BASH_PATH/utils" ]; then
