@@ -376,7 +376,7 @@ installman/
 ## 📈 Métriques de progression
 
 **Total à migrer :**
-- 18 managers
+- 19 managers
 - ~35 fichiers core
 - ~100+ modules
 - ~50+ utilitaires
