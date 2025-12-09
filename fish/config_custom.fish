@@ -112,6 +112,10 @@ end
 if test -f "$DOTFILES_FISH_PATH/functions/network_scanner.fish"
     source "$DOTFILES_FISH_PATH/functions/network_scanner.fish" 2>/dev/null || true
 end
+# Charger whatismyip (IP publique)
+if test -f "$DOTFILES_FISH_PATH/functions/whatismyip.fish"
+    source "$DOTFILES_FISH_PATH/functions/whatismyip.fish" 2>/dev/null || true
+end
 
 # Charger update_system.fish en premier pour remplacer les alias update/upgrade
 if test -f $FUNCTIONS_DIR/update_system.fish
