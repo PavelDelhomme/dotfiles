@@ -99,6 +99,8 @@ load_manager "miscman" "$DOTFILES_ZSH_PATH/functions/miscman.zsh" "MISCMAN"
 load_manager "searchman" "$DOTFILES_ZSH_PATH/functions/searchman.zsh" "SEARCHMAN"
 load_manager "multimediaman" "$DOTFILES_ZSH_PATH/functions/multimediaman.zsh" "MULTIMEDIAMAN"
 load_manager "cyberman" "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" "CYBERMAN"
+# Charger cyberlearn (système d'apprentissage cybersécurité)
+load_manager "cyberlearn" "$DOTFILES_ZSH_PATH/functions/cyberlearn.zsh" "CYBERLEARN"
 load_manager "devman" "$DOTFILES_ZSH_PATH/functions/devman.zsh" "DEVMAN"
 load_manager "gitman" "$DOTFILES_ZSH_PATH/functions/gitman.zsh" "GITMAN"
 load_manager "helpman" "$DOTFILES_ZSH_PATH/functions/helpman.zsh" "HELPMAN"
