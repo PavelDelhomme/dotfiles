@@ -95,9 +95,9 @@ load_manager() {
 # Charger pathman depuis la nouvelle structure hybride
 load_manager "pathman" "$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh" "PATHMAN"
 load_manager "netman" "$DOTFILES_ZSH_PATH/functions/netman.zsh" "NETMAN"
-load_manager "aliaman" "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" "ALIAMAN"
+load_manager "aliaman" "$DOTFILES_DIR/shells/zsh/adapters/aliaman.zsh" "ALIAMAN"
 load_manager "miscman" "$DOTFILES_ZSH_PATH/functions/miscman.zsh" "MISCMAN"
-load_manager "searchman" "$DOTFILES_ZSH_PATH/functions/searchman.zsh" "SEARCHMAN"
+load_manager "searchman" "$DOTFILES_DIR/shells/zsh/adapters/searchman.zsh" "SEARCHMAN"
 load_manager "multimediaman" "$DOTFILES_ZSH_PATH/functions/multimediaman.zsh" "MULTIMEDIAMAN"
 load_manager "cyberman" "$DOTFILES_ZSH_PATH/functions/cyberman.zsh" "CYBERMAN"
 # Charger cyberlearn (système d'apprentissage cybersécurité)
@@ -105,7 +105,7 @@ load_manager "cyberlearn" "$DOTFILES_ZSH_PATH/functions/cyberlearn.zsh" "CYBERLE
 load_manager "devman" "$DOTFILES_ZSH_PATH/functions/devman.zsh" "DEVMAN"
 load_manager "gitman" "$DOTFILES_ZSH_PATH/functions/gitman.zsh" "GITMAN"
 load_manager "helpman" "$DOTFILES_ZSH_PATH/functions/helpman.zsh" "HELPMAN"
-load_manager "manman" "$DOTFILES_ZSH_PATH/functions/manman.zsh" "MANMAN"
+load_manager "manman" "$DOTFILES_DIR/shells/zsh/adapters/manman.zsh" "MANMAN"
 load_manager "configman" "$DOTFILES_ZSH_PATH/functions/configman.zsh" "CONFIGMAN"
 load_manager "installman" "$DOTFILES_ZSH_PATH/functions/installman.zsh" "INSTALLMAN"
 load_manager "moduleman" "$DOTFILES_ZSH_PATH/functions/moduleman.zsh" "MODULEMAN"
