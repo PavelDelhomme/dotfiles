@@ -37,49 +37,17 @@ function osint_llm() {
     local target_type="${2:-auto}"
     local OSINT_LLM_DIR="$HOME/.local/share/osint-llm"
     
-    # Vérifier Ollama
+    # Vérifier/installer Ollama et OSINT with LLM via ensure_tool
     if ! command -v ollama &>/dev/null; then
-        echo -e "${YELLOW}Ollama n'est pas installé${RESET}"
-        echo -e "${CYAN}Ollama est requis pour OSINT with LLM${RESET}"
-        printf "Installer Ollama maintenant? (O/n): "
-        read -r install_ollama
-        install_ollama=${install_ollama:-O}
-        
-        if [[ "$install_ollama" =~ ^[oO]$ ]]; then
-            echo -e "${CYAN}Installation d'Ollama...${RESET}"
-            curl -fsSL https://ollama.com/install.sh | sh
-            if [ $? -eq 0 ]; then
-                echo -e "${GREEN}✓ Ollama installé${RESET}"
-            else
-                echo -e "${RED}❌ Échec installation Ollama${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool ollama 2>/dev/null; then
+            echo -e "${RED}❌ Ollama est requis pour OSINT with LLM${RESET}"
             return 1
         fi
     fi
     
-    # Vérifier/installer OSINT with LLM
     if [ ! -d "$OSINT_LLM_DIR" ]; then
-        echo -e "${YELLOW}OSINT with LLM n'est pas installé${RESET}"
-        printf "Installer OSINT with LLM maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            if command -v git &>/dev/null && command -v python3 &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                git clone https://github.com/mouna23/OSINT-with-LLM.git "$OSINT_LLM_DIR" 2>/dev/null
-                cd "$OSINT_LLM_DIR" || return 1
-                if [ -f "requirements.txt" ]; then
-                    pip3 install -r requirements.txt --user
-                fi
-                echo -e "${GREEN}✓ OSINT with LLM installé${RESET}"
-            else
-                echo -e "${RED}❌ git ou python3 non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool osint-llm 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation OSINT with LLM${RESET}"
             return 1
         fi
     fi

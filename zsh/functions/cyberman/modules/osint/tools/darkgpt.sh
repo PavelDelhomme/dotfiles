@@ -36,33 +36,15 @@ function darkgpt_osint() {
     local query="$1"
     local DARKGPT_DIR="$HOME/.local/share/darkgpt"
     
-    # Vérifier/installer DarkGPT
+    # Vérifier/installer DarkGPT via ensure_tool
     if ! command -v darkgpt &>/dev/null && [ ! -d "$DARKGPT_DIR" ]; then
-        echo -e "${YELLOW}DarkGPT n'est pas installé${RESET}"
-        printf "Installer DarkGPT maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            if command -v git &>/dev/null && command -v python3 &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                git clone https://github.com/luijait/DarkGPT.git "$DARKGPT_DIR" 2>/dev/null || \
-                git clone https://github.com/binaco/DarkGPT.git "$DARKGPT_DIR" 2>/dev/null
-                cd "$DARKGPT_DIR" || return 1
-                if [ -f "requirements.txt" ]; then
-                    pip3 install -r requirements.txt --user
-                fi
-                echo -e "${GREEN}✓ DarkGPT installé${RESET}"
-                echo -e "${YELLOW}⚠️  Configuration requise:${RESET}"
-                echo -e "${CYAN}   - OpenAI API key (optionnel)${RESET}"
-                echo -e "${CYAN}   - DeHashed API key (optionnel)${RESET}"
-            else
-                echo -e "${RED}❌ git ou python3 non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool darkgpt 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation DarkGPT${RESET}"
             return 1
         fi
+        echo -e "${YELLOW}⚠️  Configuration requise:${RESET}"
+        echo -e "${CYAN}   - OpenAI API key (optionnel)${RESET}"
+        echo -e "${CYAN}   - DeHashed API key (optionnel)${RESET}"
     fi
     
     # Obtenir la requête

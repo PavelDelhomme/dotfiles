@@ -36,43 +36,17 @@ function gosearch_osint() {
     local username="$1"
     local GOSEARCH_DIR="$HOME/.local/share/gosearch"
     
-    # Vérifier Go
+    # Vérifier/installer Go et GoSearch via ensure_tool
     if ! command -v go &>/dev/null; then
-        echo -e "${YELLOW}Go n'est pas installé${RESET}"
-        printf "Installer Go maintenant? (O/n): "
-        read -r install_go
-        install_go=${install_go:-O}
-        
-        if [[ "$install_go" =~ ^[oO]$ ]]; then
-            ensure_tool go
-        else
+        if ! ensure_tool go 2>/dev/null; then
+            echo -e "${RED}❌ Go est requis pour GoSearch${RESET}"
             return 1
         fi
     fi
     
-    # Vérifier/installer GoSearch
     if ! command -v gosearch &>/dev/null && [ ! -d "$GOSEARCH_DIR" ]; then
-        echo -e "${YELLOW}GoSearch n'est pas installé${RESET}"
-        printf "Installer GoSearch maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            if command -v git &>/dev/null && command -v go &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                git clone https://github.com/GoSearch-OSINT/GoSearch.git "$GOSEARCH_DIR" 2>/dev/null || \
-                git clone https://github.com/apurvsinghgautam/gosearch.git "$GOSEARCH_DIR" 2>/dev/null
-                cd "$GOSEARCH_DIR" || return 1
-                go build -o gosearch . 2>/dev/null || go install . 2>/dev/null
-                if [ -f "gosearch" ]; then
-                    cp gosearch "$HOME/.local/bin/" 2>/dev/null || true
-                fi
-                echo -e "${GREEN}✓ GoSearch installé${RESET}"
-            else
-                echo -e "${RED}❌ git ou go non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool gosearch 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation GoSearch${RESET}"
             return 1
         fi
     fi
