@@ -64,6 +64,7 @@ configman() {
         echo "7.  🖥️  QEMU Libvirt (permissions libvirt)"
         echo "8.  🌐 QEMU Network (configuration réseau NAT)"
         echo "9.  📦 QEMU Packages (installation paquets QEMU)"
+        echo "10. 🔍 OSINT Tools (configuration outils OSINT et clés API)"
         echo ""
         echo "0.  Quitter"
         echo ""
@@ -152,6 +153,14 @@ configman() {
                     sleep 2
                 fi
                 ;;
+            10)
+                if [ -f "$CONFIGMAN_MODULES_DIR/osint/osint_config.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/osint/osint_config.sh"
+                else
+                    echo -e "${RED}❌ Module OSINT Config non disponible${RESET}"
+                    sleep 2
+                fi
+                ;;
             0)
                 return 0
                 ;;
@@ -222,6 +231,11 @@ configman() {
                     bash "$CONFIGMAN_MODULES_DIR/qemu/qemu_packages.sh"
                 fi
                 ;;
+            osint|osint-config)
+                if [ -f "$CONFIGMAN_MODULES_DIR/osint/osint_config.sh" ]; then
+                    bash "$CONFIGMAN_MODULES_DIR/osint/osint_config.sh"
+                fi
+                ;;
             *)
                 echo -e "${RED}Module inconnu: $1${RESET}"
                 echo ""
@@ -236,6 +250,7 @@ configman() {
                 echo "  - qemu-libvirt"
                 echo "  - qemu-network"
                 echo "  - qemu-packages"
+                echo "  - osint (configuration outils OSINT et clés API)"
                 return 1
                 ;;
         esac
