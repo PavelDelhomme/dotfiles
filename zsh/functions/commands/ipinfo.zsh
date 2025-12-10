@@ -131,42 +131,39 @@ ipinfo() {
         
         # Essayer plusieurs services
         local public_ip=""
+        local service_used=""
         
-        # Méthode 1: ifconfig.me
+        # Liste des services à essayer
+        local services=(
+            "ifconfig.me"
+            "icanhazip.com"
+            "ipinfo.io/ip"
+            "api.ipify.org"
+            "checkip.amazonaws.com"
+            "ipecho.net/plain"
+            "ident.me"
+        )
+        
+        # Essayer chaque service jusqu'à en trouver un qui fonctionne
         if command -v curl &>/dev/null; then
-            public_ip=$(curl -s --max-time 3 ifconfig.me 2>/dev/null)
-            if [ -n "$public_ip" ] && [[ "$public_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo -e "  ${GREEN}ifconfig.me:${RESET} $public_ip"
+            for service in "${services[@]}"; do
+                local ip_result=$(curl -s --max-time 3 "$service" 2>/dev/null | tr -d '\n\r ' | grep -oE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+                if [ -n "$ip_result" ] && [[ "$ip_result" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                    public_ip="$ip_result"
+                    service_used="$service"
+                    break
+                fi
+            done
+            
+            if [ -n "$public_ip" ]; then
+                echo -e "  ${GREEN}$service_used:${RESET} ${CYAN}${BOLD}$public_ip${RESET}"
+            else
+                echo -e "  ${RED}✗ Impossible de récupérer l'IP publique${RESET}"
+                echo -e "  ${YELLOW}💡 Vérifiez votre connexion internet${RESET}"
             fi
-        fi
-        
-        # Méthode 2: icanhazip.com
-        if [ -z "$public_ip" ] && command -v curl &>/dev/null; then
-            public_ip=$(curl -s --max-time 3 icanhazip.com 2>/dev/null)
-            if [ -n "$public_ip" ] && [[ "$public_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo -e "  ${GREEN}icanhazip.com:${RESET} $public_ip"
-            fi
-        fi
-        
-        # Méthode 3: ipinfo.io
-        if [ -z "$public_ip" ] && command -v curl &>/dev/null; then
-            public_ip=$(curl -s --max-time 3 ipinfo.io/ip 2>/dev/null)
-            if [ -n "$public_ip" ] && [[ "$public_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo -e "  ${GREEN}ipinfo.io:${RESET} $public_ip"
-            fi
-        fi
-        
-        # Méthode 4: api.ipify.org
-        if [ -z "$public_ip" ] && command -v curl &>/dev/null; then
-            public_ip=$(curl -s --max-time 3 api.ipify.org 2>/dev/null)
-            if [ -n "$public_ip" ] && [[ "$public_ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-                echo -e "  ${GREEN}api.ipify.org:${RESET} $public_ip"
-            fi
-        fi
-        
-        if [ -z "$public_ip" ]; then
-            echo -e "  ${RED}✗ Impossible de récupérer l'IP publique${RESET}"
-            echo -e "  ${YELLOW}💡 Vérifiez votre connexion internet${RESET}"
+        else
+            echo -e "  ${RED}✗ 'curl' n'est pas installé${RESET}"
+            echo -e "  ${YELLOW}💡 Installez-le pour récupérer l'IP publique${RESET}"
         fi
         echo ""
     fi

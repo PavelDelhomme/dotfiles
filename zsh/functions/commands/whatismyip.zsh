@@ -83,11 +83,12 @@ whatismyip() {
             echo -e "${BLUE}Essai avec: ${CYAN}$service${RESET}..."
         fi
         
-        # Récupérer l'IP (timeout de 3 secondes)
-        public_ip=$(curl -s --max-time 3 "$service" 2>/dev/null | tr -d '\n\r ' | grep -oE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
+        # Récupérer l'IP (timeout de 5 secondes pour plus de fiabilité)
+        local ip_result=$(curl -s --max-time 5 "$service" 2>/dev/null | tr -d '\n\r ' | grep -oE '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
         
         # Vérifier que c'est une IP valide
-        if [ -n "$public_ip" ] && [[ "$public_ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        if [ -n "$ip_result" ] && [[ "$ip_result" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            public_ip="$ip_result"
             service_used="$service"
             break
         fi
