@@ -355,7 +355,17 @@ show_report_menu() {
         
         case "$choice" in
             1)
-                list_reports
+                # Utiliser la pagination si disponible
+                if type list_reports_paginated >/dev/null 2>&1; then
+                    if has_active_environment 2>/dev/null; then
+                        local current_env=$(get_current_environment 2>/dev/null)
+                        list_reports_paginated "$current_env"
+                    else
+                        list_reports_paginated
+                    fi
+                else
+                    list_reports
+                fi
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
@@ -401,10 +411,70 @@ show_report_menu() {
                 echo ""
                 list_reports
                 echo ""
+                printf "📝 Nom du rapport JSON: "
+                read -r report_name
+                if [ -n "$report_name" ]; then
+                    local report_file="$CYBER_REPORTS_DIR/${report_name}.json"
+                    if [ ! -f "$report_file" ]; then
+                        report_file="$CYBER_REPORTS_DIR/${report_name}"
+                    fi
+                    if [ -f "$report_file" ]; then
+                        if type generate_html_report >/dev/null 2>&1; then
+                            local html_file="${report_file%.json}.html"
+                            generate_html_report "$report_file" "$html_file"
+                            if [ -f "$html_file" ]; then
+                                echo ""
+                                printf "Ouvrir le rapport HTML? (O/n): "
+                                read -r open_html
+                                if [ "$open_html" != "n" ] && [ "$open_html" != "N" ]; then
+                                    if command -v xdg-open &>/dev/null; then
+                                        xdg-open "$html_file" &
+                                    elif command -v firefox &>/dev/null; then
+                                        firefox "$html_file" &
+                                    fi
+                                fi
+                            fi
+                        else
+                            echo "❌ Fonction generate_html_report non disponible"
+                        fi
+                    else
+                        echo "❌ Rapport non trouvé: $report_name"
+                    fi
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                echo ""
+                list_reports
+                echo ""
                 printf "🗑️  Nom du rapport à supprimer: "
                 read -r name
                 if [ -n "$name" ]; then
                     delete_report "$name"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            7)
+                echo ""
+                echo "📁 Organisation des rapports..."
+                if has_active_environment 2>/dev/null; then
+                    local current_env=$(get_current_environment 2>/dev/null)
+                    echo "🌍 Environnement actif: $current_env"
+                    if type setup_report_structure >/dev/null 2>&1; then
+                        setup_report_structure "$current_env"
+                        echo "✅ Structure créée pour $current_env"
+                    else
+                        echo "❌ Fonction setup_report_structure non disponible"
+                    fi
+                else
+                    if type setup_report_structure >/dev/null 2>&1; then
+                        setup_report_structure
+                        echo "✅ Structure globale créée"
+                    else
+                        echo "❌ Fonction setup_report_structure non disponible"
+                    fi
                 fi
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
