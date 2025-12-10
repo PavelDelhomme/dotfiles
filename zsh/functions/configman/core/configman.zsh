@@ -7,9 +7,8 @@
 # Version: 1.0
 # =============================================================================
 
-# Répertoires de base
+# Répertoires de base (globaux pour être accessibles partout)
 CONFIGMAN_DIR="${CONFIGMAN_DIR:-$HOME/dotfiles/zsh/functions/configman}"
-CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
 
 # Charger les utilitaires (seulement si le répertoire existe et contient des fichiers)
 if [ -d "$CONFIGMAN_DIR/utils" ]; then
@@ -29,6 +28,7 @@ fi
 # EXAMPLE: configman git
 # EXAMPLE: configman qemu
 configman() {
+    # Variables locales pour éviter les modifications par les scripts enfants
     local RED='\033[0;31m'
     local GREEN='\033[0;32m'
     local YELLOW='\033[1;33m'
@@ -37,6 +37,10 @@ configman() {
     local CYAN='\033[0;36m'
     local BOLD='\033[1m'
     local RESET='\033[0m'
+    
+    # Répertoires de base (toujours réinitialisés)
+    local CONFIGMAN_DIR="${CONFIGMAN_DIR:-$HOME/dotfiles/zsh/functions/configman}"
+    local CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
     
     # Fonction pour afficher le header
     show_header() {
@@ -180,9 +184,8 @@ configman() {
     
     # Si un argument est fourni, lancer directement le module
     if [ -n "$1" ]; then
-        # Réinitialiser CONFIGMAN_MODULES_DIR pour éviter les modifications par les scripts précédents
+        # Réinitialiser CONFIGMAN_MODULES_DIR (variable locale, pas exportée)
         CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
-        export CONFIGMAN_MODULES_DIR
         
         case "$1" in
             git)
