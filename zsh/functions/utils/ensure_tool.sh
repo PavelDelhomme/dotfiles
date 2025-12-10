@@ -80,6 +80,9 @@ get_package_name() {
                 traceroute) echo "traceroute" ;;
                 curl) echo "curl" ;;
                 wget) echo "wget" ;;
+                python3) echo "python" ;;
+                pip3) echo "python-pip" ;;
+                go) echo "go" ;;
                 *) echo "$tool" ;;
             esac
             ;;
