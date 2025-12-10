@@ -171,33 +171,78 @@ network_scanner() {
                 local vendor=""
                 local os_info=""
                 
-                # Scan OS avec nmap si disponible
-                if command -v nmap &>/dev/null; then
-                    local nmap_os=$(nmap -O --osscan-guess "$ip" 2>/dev/null | grep -i "OS details" | head -1 | sed 's/.*OS details: //')
-                    if [ -n "$nmap_os" ]; then
-                        os_info="$nmap_os"
-                    fi
-                    
-                    # Détection vendor via MAC
-                    local nmap_mac=$(nmap --script smb-os-discovery "$ip" 2>/dev/null | grep -i "MAC Address" | head -1)
-                    if [ -n "$nmap_mac" ]; then
-                        vendor=$(echo "$nmap_mac" | sed 's/.*MAC Address: //' | sed 's/ (.*//')
+                # Détection vendor via MAC prefix (plus rapide et fiable)
+                local mac_prefix=$(echo "$mac" | cut -d':' -f1-3 | tr ':' '-')
+                local mac_oui=$(echo "$mac" | cut -d':' -f1-3 | tr ':' '')
+                
+                # Base de données MAC vendors étendue
+                case "$mac_prefix" in
+                    00-50-56|00-0c-29|00-05-69) vendor="VMware" ;;
+                    08-00-27) vendor="VirtualBox" ;;
+                    52-54-00) vendor="QEMU" ;;
+                    00-1b-21|00-1c-42|00-1e-67|00-1e-c2) vendor="Intel" ;;
+                    00-1e-c2|00-23-12|00-23-24|00-23-6c|00-23-df) vendor="Apple" ;;
+                    00-23-24|00-23-39|00-23-6c) vendor="Samsung" ;;
+                    00-1d-0f|00-1d-7e) vendor="Sony" ;;
+                    00-24-36|00-24-90) vendor="Microsoft" ;;
+                    00-25-00|00-25-90) vendor="LG" ;;
+                    00-26-18|00-26-4a) vendor="Huawei" ;;
+                    00-26-bb) vendor="Xiaomi" ;;
+                    00-27-22) vendor="TP-Link" ;;
+                    00-50-f2) vendor="Cisco" ;;
+                    00-90-27) vendor="Netgear" ;;
+                    00-a0-c9) vendor="D-Link" ;;
+                    00-e0-4c) vendor="Realtek" ;;
+                    00-e0-18) vendor="Broadcom" ;;
+                    00-0d-4b) vendor="Raspberry Pi" ;;
+                    *) 
+                        # Essayer avec nmap si disponible (plus lent mais plus précis)
+                        if command -v nmap &>/dev/null; then
+                            local nmap_vendor=$(nmap --script smb-os-discovery -sn "$ip" 2>/dev/null | grep -i "MAC Address" | head -1 | sed 's/.*MAC Address: //' | sed 's/ (.*//')
+                            if [ -n "$nmap_vendor" ] && [ "$nmap_vendor" != "Unknown" ]; then
+                                vendor="$nmap_vendor"
+                            else
+                                vendor="Unknown"
+                            fi
+                        else
+                            vendor="Unknown"
+                        fi
+                        ;;
+                esac
+                
+                # Détection OS (méthodes rapides d'abord)
+                # Méthode 1: TTL (Time To Live) - rapide et fiable
+                local ttl=$(ping -c 1 -W 1 "$ip" 2>/dev/null | grep -oP 'ttl=\K\d+' | head -1)
+                if [ -n "$ttl" ]; then
+                    if [ "$ttl" -le 64 ]; then
+                        os_info="Linux/Unix"
+                    elif [ "$ttl" -le 128 ]; then
+                        os_info="Windows"
+                    elif [ "$ttl" -le 255 ]; then
+                        os_info="Network Device"
                     fi
                 fi
                 
-                # Si pas de vendor, essayer de deviner via MAC prefix
-                if [ -z "$vendor" ]; then
-                    local mac_prefix=$(echo "$mac" | cut -d':' -f1-3 | tr ':' '-')
-                    # Base de données MAC vendors courants
-                    case "$mac_prefix" in
-                        00-50-56|00-0c-29|00-05-69) vendor="VMware" ;;
-                        08-00-27) vendor="VirtualBox" ;;
-                        52-54-00) vendor="QEMU" ;;
-                        00-1b-21|00-1c-42) vendor="Intel" ;;
-                        00-1e-c2) vendor="Apple" ;;
-                        00-23-24) vendor="Samsung" ;;
-                        *) vendor="Unknown" ;;
-                    esac
+                # Méthode 2: Scan nmap rapide (si disponible et OS non détecté)
+                if [ -z "$os_info" ] || [ "$os_info" = "Unknown" ]; then
+                    if command -v nmap &>/dev/null; then
+                        # Scan rapide avec détection OS (timeout court)
+                        local nmap_os=$(timeout 5 nmap -O --osscan-guess --max-retries 1 "$ip" 2>/dev/null | grep -i "OS details" | head -1 | sed 's/.*OS details: //' | cut -c1-30)
+                        if [ -n "$nmap_os" ] && [ "$nmap_os" != "Unknown" ]; then
+                            os_info="$nmap_os"
+                        fi
+                    fi
+                fi
+                
+                # Méthode 3: Détection via hostname
+                if [ -n "$hostname" ] && [ "$hostname" != "N/A" ]; then
+                    if [[ "$hostname" =~ -[0-9]+$ ]] || [[ "$hostname" =~ ^android- ]]; then
+                        os_info="Android"
+                    elif [[ "$hostname" =~ ^iPhone ]] || [[ "$hostname" =~ ^iPad ]]; then
+                        os_info="iOS"
+                    elif [[ "$hostname" =~ ^raspberrypi ]]; then
+                        os_info="Raspberry Pi OS"
+                    fi
                 fi
                 
                 if [ -z "$os_info" ]; then
@@ -213,7 +258,8 @@ network_scanner() {
                     device_status="${RED}○${RESET}"
                 fi
                 
-                printf "%-18s %-18s %-20s %-25s %-20s %s %s\n" "$ip" "$mac" "$iface" "$vendor" "$hostname" "$os_info" "$device_status"
+                # Utiliser echo -e pour interpréter les codes ANSI
+                echo -e "$(printf '%-18s %-18s %-20s %-25s %-20s %-20s' "$ip" "$mac" "$iface" "$vendor" "$hostname" "$os_info") $device_status"
             done < <(cat /proc/net/arp | grep -v "^IP")
         fi
         
