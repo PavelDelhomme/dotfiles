@@ -140,8 +140,6 @@ show_main_menu() {
     case "$choice" in
         1)
             list_vms
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         2)
             log_info "Démarrage d'une VM..."
@@ -152,22 +150,19 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             # Vérifier si la VM existe
             if ! virsh dominfo "$vm_name" &>/dev/null; then
                 log_error "VM '$vm_name' introuvable"
-                sleep 2
-                return
+                continue
             fi
             
             # Vérifier si déjà démarrée
             if virsh list --name | grep -q "^${vm_name}$"; then
                 log_warn "La VM '$vm_name' est déjà démarrée"
-                sleep 2
-                return
+                continue
             fi
             
             # Demander confirmation
@@ -180,14 +175,11 @@ show_main_menu() {
                 log_info "Démarrage de $vm_name..."
                 if virsh start "$vm_name"; then
                     log_info "✓ VM '$vm_name' démarrée avec succès"
-                    sleep 2
                 else
                     log_error "Échec du démarrage de '$vm_name'"
-                    sleep 2
                 fi
             else
                 log_info "Démarrage annulé"
-                sleep 1
             fi
             ;;
         3)
@@ -199,8 +191,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             printf "Arrêt gracieux (O) ou forcé (f)? [O]: "
@@ -217,7 +208,6 @@ show_main_menu() {
             
             if [ $? -eq 0 ]; then
                 log_info "✓ VM arrêtée"
-                sleep 2
             fi
             ;;
         4)
@@ -229,8 +219,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             printf "${YELLOW}Redémarrer '$vm_name' maintenant? (O/n): ${NC}"
@@ -241,11 +230,9 @@ show_main_menu() {
                 virsh reboot "$vm_name"
                 if [ $? -eq 0 ]; then
                     log_info "✓ VM redémarrée"
-                    sleep 2
                 fi
             else
                 log_info "Redémarrage annulé"
-                sleep 1
             fi
             ;;
         5)
@@ -257,8 +244,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             echo ""
@@ -271,16 +257,13 @@ show_main_menu() {
                 1)
                     virsh suspend "$vm_name"
                     log_info "✓ VM suspendue"
-                    sleep 2
                     ;;
                 2)
                     virsh resume "$vm_name"
                     log_info "✓ VM reprise"
-                    sleep 2
                     ;;
                 *)
                     log_error "Choix invalide"
-                    sleep 1
                     ;;
             esac
             ;;
@@ -293,16 +276,14 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             echo ""
             echo -e "${CYAN}📊 Informations de base:${NC}"
             virsh dominfo "$vm_name" 2>/dev/null || {
                 log_error "VM '$vm_name' introuvable"
-                sleep 2
-                return
+                continue
             }
             echo ""
             echo -e "${CYAN}📈 Statistiques:${NC}"
@@ -310,8 +291,6 @@ show_main_menu() {
             echo ""
             echo -e "${CYAN}🌐 Interfaces réseau:${NC}"
             virsh domiflist "$vm_name" 2>/dev/null || true
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         7)
             log_info "Accès console d'une VM (terminal actuel)..."
@@ -322,8 +301,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             # Vérifier que la VM est démarrée
@@ -334,9 +312,9 @@ show_main_menu() {
                 start_confirm=${start_confirm:-O}
                 if [[ "$start_confirm" =~ ^[oO]$ ]]; then
                     virsh start "$vm_name"
-                    sleep 3
+                    sleep 2
                 else
-                    return
+                    continue
                 fi
             fi
             
@@ -354,8 +332,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             # Vérifier que la VM est démarrée
@@ -366,14 +343,13 @@ show_main_menu() {
                 start_confirm=${start_confirm:-O}
                 if [[ "$start_confirm" =~ ^[oO]$ ]]; then
                     virsh start "$vm_name"
-                    sleep 3
+                    sleep 2
                 else
-                    return
+                    continue
                 fi
             fi
             
             open_vm_console_terminal "$vm_name"
-            sleep 2
             ;;
         9)
             log_info "Ouvrir virt-viewer (interface graphique)..."
@@ -384,8 +360,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             # Vérifier que la VM est démarrée
@@ -396,14 +371,13 @@ show_main_menu() {
                 start_confirm=${start_confirm:-O}
                 if [[ "$start_confirm" =~ ^[oO]$ ]]; then
                     virsh start "$vm_name"
-                    sleep 3
+                    sleep 2
                 else
-                    return
+                    continue
                 fi
             fi
             
             open_vm_viewer_terminal "$vm_name"
-            sleep 2
             ;;
         10)
             log_info "Gestion des snapshots..."
@@ -414,8 +388,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             echo ""
@@ -487,8 +460,6 @@ show_main_menu() {
                     virsh snapshot-info "$vm_name" "$snapshot_name" 2>/dev/null || log_error "Snapshot introuvable"
                     ;;
             esac
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         11)
             log_info "Monitoring et statistiques..."
@@ -499,8 +470,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             echo ""
@@ -512,8 +482,6 @@ show_main_menu() {
             echo ""
             echo -e "${CYAN}🌐 Interfaces réseau:${NC}"
             virsh domiflist "$vm_name" 2>/dev/null || true
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         12)
             log_info "Gestion des réseaux libvirt..."
@@ -568,8 +536,6 @@ show_main_menu() {
                     fi
                     ;;
             esac
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         13)
             log_info "Création d'une nouvelle VM..."
@@ -585,8 +551,6 @@ show_main_menu() {
             echo "     --cdrom /path/to/iso --graphics vnc"
             echo ""
             echo "3. Via virtman (à venir)"
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         14)
             log_info "Suppression d'une VM..."
@@ -597,8 +561,7 @@ show_main_menu() {
             
             if [ -z "$vm_name" ]; then
                 log_error "Nom de VM requis"
-                sleep 2
-                return
+                continue
             fi
             
             printf "${RED}⚠️  Confirmer la suppression de '$vm_name'? (o/N): ${NC}"
@@ -630,7 +593,6 @@ show_main_menu() {
             else
                 log_info "Suppression annulée"
             fi
-            sleep 2
             ;;
         15)
             log_info "Rechercher une VM..."
@@ -646,8 +608,6 @@ show_main_menu() {
             echo ""
             echo -e "${CYAN}Résultats:${NC}"
             virsh list --all --name | grep -i "$search_term" || log_warn "Aucune VM trouvée"
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         16)
             log_info "Configuration et maintenance..."
@@ -694,15 +654,12 @@ show_main_menu() {
                     virsh pool-info "$pool_name" 2>/dev/null || log_error "Pool introuvable"
                     ;;
             esac
-            echo ""
-            read -k 1 "?Appuyez sur une touche pour continuer... "
             ;;
         0)
-            return 0
+            exit 0
             ;;
         *)
             log_error "Choix invalide"
-            sleep 1
             ;;
     esac
 }
@@ -711,7 +668,7 @@ show_main_menu() {
 if ! command -v virsh >/dev/null 2>&1; then
     log_error "libvirt n'est pas installé!"
     echo "Installez avec: installman network-tools"
-    return 1 2>/dev/null || exit 1
+    exit 1
 fi
 
 # Vérifier que libvirtd est démarré
@@ -724,9 +681,10 @@ if ! systemctl is-active --quiet libvirtd 2>/dev/null; then
         sudo systemctl start libvirtd
         if [ $? -eq 0 ]; then
             log_info "✓ libvirtd démarré"
+            sleep 1
         else
             log_error "Impossible de démarrer libvirtd"
-            return 1 2>/dev/null || exit 1
+            exit 1
         fi
     fi
 fi
