@@ -1,10 +1,12 @@
-# 📊 STATUS - Migration Multi-Shells
+# 📊 STATUS - Migration Multi-Shells vers Structure Hybride
 
 ## 🎯 Objectif
 
 Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisation automatique.
 
 **Parité fonctionnelle complète** : 19 managers disponibles dans les 3 shells.
+
+**Architecture choisie** : **Structure Hybride** avec code commun POSIX dans `core/` et adapters shell-spécifiques dans `shells/{zsh,bash,fish}/adapters/`
 
 ---
 
@@ -16,21 +18,105 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 - ~35 fichiers de code
 - Architecture bien définie
 
-### ⚠️ Fish (Partiel)
-- Quelques fonctions isolées
-- Pas de structure modulaire cohérente
-- Pas de managers complets
+### ⚠️ Fish (Partiel - En migration)
+- Structure hybride en cours d'implémentation
+- Adapters créés pour managers migrés
+- Wrappers temporaires pour managers complexes
 
-### ❌ Bash (Minimal)
-- Variables d'environnement seulement
-- Pas de managers
-- Structure absente
+### ⚠️ Bash (Partiel - En migration)
+- Structure hybride en cours d'implémentation
+- Adapters créés pour managers migrés
+- Wrappers temporaires pour managers complexes
+
+---
+
+## 🏗️ Architecture Hybride (Choix réalisé)
+
+### Structure choisie
+
+```
+dotfiles/
+├── core/
+│   └── managers/
+│       ├── pathman/
+│       │   └── core/
+│       │       └── pathman.sh          # Code POSIX commun
+│       ├── manman/
+│       │   └── core/
+│       │       └── manman.sh           # Code POSIX commun
+│       ├── searchman/
+│       │   └── core/
+│       │       └── searchman.sh        # Wrapper temporaire (charge ZSH)
+│       └── aliaman/
+│           └── core/
+│               └── aliaman.sh          # Wrapper temporaire (charge ZSH)
+│
+└── shells/
+    ├── zsh/
+    │   └── adapters/
+    │       ├── pathman.zsh             # Adapter ZSH (charge core)
+    │       ├── manman.zsh
+    │       ├── searchman.zsh
+    │       └── aliaman.zsh
+    ├── bash/
+    │   └── adapters/
+    │       ├── pathman.sh              # Adapter Bash (charge core)
+    │       └── manman.sh
+    └── fish/
+        └── adapters/
+            ├── pathman.fish            # Adapter Fish (charge core)
+            └── manman.fish
+```
+
+### Avantages de cette architecture
+
+1. **Code commun POSIX** : Un seul fichier core par manager (évite duplication)
+2. **Adapters légers** : Chaque shell charge simplement le core
+3. **Maintenance simplifiée** : Modifications dans core/ propagées automatiquement
+4. **Migration progressive** : Wrappers temporaires pour managers complexes
+5. **Compatibilité maximale** : Code POSIX fonctionne partout
+
+### Choix techniques
+
+- **Core en POSIX sh** : Compatible avec tous les shells
+- **Adapters shell-spécifiques** : Gèrent les différences de syntaxe mineures
+- **Wrappers temporaires** : Pour managers complexes (searchman, aliaman) qui nécessitent encore ZSH
+- **Migration progressive** : Managers simples d'abord, complexes ensuite
 
 ---
 
 ## 🗺️ Plan de migration complet
 
-### Phase 1 : Infrastructure de base ✅ (EN COURS)
+### Phase 0 : Structure Hybride ✅ (TERMINÉE)
+
+**Objectif** : Créer la nouvelle architecture hybride avec code commun POSIX.
+
+**Tâches :**
+- [x] Créer structure `core/managers/` pour code commun POSIX
+- [x] Créer structure `shells/{zsh,bash,fish}/adapters/` pour adapters shell
+- [x] Migrer **pathman** comme POC (migration complète POSIX)
+  - [x] Core POSIX créé : `core/managers/pathman/core/pathman.sh`
+  - [x] Adapters créés : `shells/{zsh,bash,fish}/adapters/pathman.*`
+  - [x] Tests passés dans les 3 shells
+- [x] Migrer **manman** (migration complète POSIX)
+  - [x] Core POSIX créé : `core/managers/manman/core/manman.sh`
+  - [x] Adapters créés : `shells/{zsh,bash,fish}/adapters/manman.*`
+- [x] Migrer **searchman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/searchman/core/searchman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/searchman.zsh`
+  - [ ] Migration complète POSIX à venir
+- [x] Migrer **aliaman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/aliaman/core/aliaman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/aliaman.zsh`
+  - [ ] Migration complète POSIX à venir
+- [x] Mettre à jour `zshrc_custom` pour charger depuis adapters
+
+**Durée estimée :** 2-3 jours
+**Progression :** 100% (4 managers migrés : pathman ✅, manman ✅, searchman ⚠️, aliaman ⚠️)
+
+---
+
+### Phase 1 : Infrastructure de base ✅ (TERMINÉE)
 
 **Objectif** : Créer la structure et les outils nécessaires.
 
@@ -210,9 +296,10 @@ installman/
   - Core : `moduleman.zsh`
   - Gestion des modules
 
-- [x] **manman** - Manager of Managers ✅
-  - Core : `manman.zsh` → `manman.sh` + `manman.fish` ✅
-  - Manager of Managers
+- [x] **manman** - Manager of Managers ✅ **MIGRÉ (Structure Hybride)**
+  - Core POSIX : `core/managers/manman/core/manman.sh` ✅
+  - Adapters : `shells/{zsh,bash,fish}/adapters/manman.*` ✅
+  - Migration complète POSIX
 
 **Durée estimée :** 5-7 jours
 
@@ -290,25 +377,46 @@ installman/
 - [x] Convertisseur de base (80%)
 - [x] Système de chargement (80%)
 
-### Migration des managers
-- [x] installman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
-- [x] configman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
-- [x] pathman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
-- [ ] netman (0%)
-- [ ] gitman (0%)
-- [ ] cyberman (0%)
-- [ ] devman (0%)
-- [ ] miscman (0%)
-- [ ] aliaman (0%)
-- [ ] searchman (0%)
-- [ ] helpman (0%)
-- [ ] fileman (0%)
-- [ ] virtman (0%)
-- [ ] sshman (0%)
-- [ ] testman (0%)
-- [ ] testzshman (0%)
-- [ ] moduleman (0%)
-- [x] manman (100%) ✅ - Core converti (Bash + Fish) - Testé dans Docker
+### Migration des managers (Structure Hybride)
+
+#### ✅ Migrés complètement (Core POSIX + Adapters)
+- [x] **pathman** (100%) ✅
+  - Core POSIX : `core/managers/pathman/core/pathman.sh`
+  - Adapters : `shells/{zsh,bash,fish}/adapters/pathman.*`
+  - Tests passés dans les 3 shells
+
+- [x] **manman** (100%) ✅
+  - Core POSIX : `core/managers/manman/core/manman.sh`
+  - Adapters : `shells/{zsh,bash,fish}/adapters/manman.*`
+
+#### ⚠️ Migrés partiellement (Wrappers temporaires)
+- [x] **searchman** (50%) ⚠️
+  - Core wrapper : `core/managers/searchman/core/searchman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/searchman.zsh`
+  - **Migration complète POSIX à venir**
+
+- [x] **aliaman** (50%) ⚠️
+  - Core wrapper : `core/managers/aliaman/core/aliaman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/aliaman.zsh`
+  - **Migration complète POSIX à venir**
+
+#### ❌ À migrer
+- [ ] **netman** (0%)
+- [ ] **gitman** (0%)
+- [ ] **helpman** (0%)
+- [ ] **fileman** (0%)
+- [ ] **miscman** (0%)
+- [ ] **devman** (0%)
+- [ ] **virtman** (0%)
+- [ ] **sshman** (0%)
+- [ ] **testman** (0%)
+- [ ] **testzshman** (0%)
+- [ ] **moduleman** (0%)
+- [ ] **cyberman** (0%) - Complexe
+- [ ] **installman** (0%) - À migrer vers structure hybride
+- [ ] **configman** (0%) - À migrer vers structure hybride
+- [ ] **multimediaman** (0%)
+- [ ] **cyberlearn** (0%)
 
 ### Synchronisation
 - [ ] Script de synchronisation (0%)
@@ -426,8 +534,14 @@ installman/
 
 ---
 
-**Dernière mise à jour :** 2024-12-04
-**Statut global :** Phase 3 - Migration des managers (21% - 4/19 managers convertis)
-**Nouveautés :** 🎬 multimediaman ajouté (ripping DVD, encodage vidéo) | 🎬 HandBrake ajouté dans installman
-**Tests :** ✅ Docker multi-shells configuré (ZSH, Bash, Fish) - Tests des managers convertis fonctionnels
+**Dernière mise à jour :** 2024-12-XX
+**Statut global :** Phase 0 - Structure Hybride (4/19 managers migrés : 2 complets, 2 wrappers)
+**Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
+**Managers migrés :**
+  - ✅ **pathman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original)
+**Prochaines étapes :** Migration managers moyens (installman, configman, gitman, fileman, helpman)
+**Tests :** ✅ Docker multi-shells configuré (ZSH, Bash, Fish) - Tests pathman fonctionnels
 
