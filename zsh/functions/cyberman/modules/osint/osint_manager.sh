@@ -49,19 +49,21 @@ show_osint_menu() {
         echo "3.  GoSearch                (Recherche empreintes numériques)"
         echo "4.  DarkGPT                 (Assistant OSINT GPT-4)"
         echo "5.  OSINT with LLM          (Reconnaissance avec LLM locaux)"
+        echo "6.  OSINT AI                (Outil OSINT basé sur LLM)"
+        echo "7.  LLM OSINT               (OSINT avec modèles de langage)"
         echo ""
         echo -e "${YELLOW}${BOLD}🛠️  OUTILS OSINT TRADITIONNELS${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        echo "6.  SpiderFoot              (Collecte OSINT automatisée)"
-        echo "7.  Recon-ng                (Framework reconnaissance web)"
-        echo "8.  Sherlock                (Recherche username réseaux sociaux)"
-        echo "9.  TheHarvester            (Collecte emails/sous-domaines)"
+        echo "8.  SpiderFoot              (Collecte OSINT automatisée)"
+        echo "9.  Recon-ng                (Framework reconnaissance web)"
+        echo "10. Sherlock                (Recherche username réseaux sociaux)"
+        echo "11. TheHarvester            (Collecte emails/sous-domaines)"
         echo ""
         echo -e "${YELLOW}${BOLD}⚙️  INSTALLATION & CONFIGURATION${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        echo "10. Installer outils OSINT  (Installation automatique)"
-        echo "11. Configurer clés API    (Configuration clés API)"
-        echo "12. Vérifier installations (Vérifier outils installés)"
+        echo "12. Installer outils OSINT  (Installation automatique)"
+        echo "13. Configurer clés API    (Configuration clés API)"
+        echo "14. Vérifier installations (Vérifier outils installés)"
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
@@ -96,36 +98,46 @@ show_osint_menu() {
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             6)
-                source "$OSINT_DIR/tools/spiderfoot.sh" && spiderfoot_osint
+                source "$OSINT_DIR/tools/osint_ai.sh" && osint_ai_osint
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             7)
-                source "$OSINT_DIR/tools/recon_ng.sh" && recon_ng_osint
+                source "$OSINT_DIR/tools/llm_osint.sh" && llm_osint_tool
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             8)
-                source "$OSINT_DIR/tools/sherlock.sh" && sherlock_osint
+                source "$OSINT_DIR/tools/spiderfoot.sh" && spiderfoot_osint
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             9)
-                source "$OSINT_DIR/tools/theharvester.sh" && theharvester_osint
+                source "$OSINT_DIR/tools/recon_ng.sh" && recon_ng_osint
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             10)
-                source "$OSINT_DIR/install/install_osint_tools.sh" && install_osint_tools
+                source "$OSINT_DIR/tools/sherlock.sh" && sherlock_osint
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             11)
-                source "$OSINT_DIR/utils/config_api_keys.sh" && config_osint_api_keys
+                source "$OSINT_DIR/tools/theharvester.sh" && theharvester_osint
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             12)
+                source "$OSINT_DIR/install/install_osint_tools.sh" && install_osint_tools
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            13)
+                source "$OSINT_DIR/utils/config_api_keys.sh" && config_osint_api_keys
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            14)
                 source "$OSINT_DIR/utils/check_osint_tools.sh" && check_osint_tools_installed
                 echo ""
                 read -k 1 "?Appuyez sur une touche pour continuer..."

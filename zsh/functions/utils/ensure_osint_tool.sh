@@ -53,6 +53,12 @@ get_osint_github_repo() {
         osint-llm|osint_llm|osintllm)
             echo "mouna23/OSINT-with-LLM"
             ;;
+        osint-ai|osint_ai|osintai)
+            echo "sshh12/llm_osint"
+            ;;
+        llm-osint|llm_osint|llmosint)
+            echo "sshh12/llm_osint"
+            ;;
         ollama)
             echo "ollama/ollama"
             ;;
