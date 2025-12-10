@@ -36,6 +36,18 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 install_network_tools() {
     log_step "Installation des outils réseau..."
     
+    # Vérifier les droits sudo au début
+    echo ""
+    log_info "Vérification des droits d'administration..."
+    if ! sudo -v 2>/dev/null; then
+        log_error "Impossible d'obtenir les droits sudo"
+        log_info "Veuillez vous assurer d'avoir les droits d'administration"
+        log_info "Vous pouvez installer les outils manuellement avec les commandes appropriées"
+        return 1
+    fi
+    log_info "Droits sudo confirmés"
+    echo ""
+    
     # Détecter la distribution
     local distro=$(detect_distro 2>/dev/null || echo "arch")
     
@@ -69,31 +81,40 @@ install_network_tools() {
         case "$distro" in
             arch|manjaro)
                 log_info "Installation de $tool_name ($package_name)..."
-                if sudo pacman -S --noconfirm "$package_name" 2>/dev/null; then
+                # Rafraîchir le timestamp sudo si nécessaire
+                sudo -v 2>/dev/null
+                if sudo pacman -S --noconfirm "$package_name"; then
                     install_success=true
                     log_info "$tool_name installé avec succès"
                 else
-                    log_warn "Impossible d'installer $package_name"
+                    local exit_code=$?
+                    log_warn "Impossible d'installer $package_name (code: $exit_code)"
                     log_info "Vous pouvez l'installer manuellement: sudo pacman -S $package_name"
                 fi
                 ;;
             debian|ubuntu)
                 log_info "Installation de $tool_name ($package_name)..."
-                if sudo apt update -qq && sudo apt install -y "$package_name" 2>/dev/null; then
+                # Rafraîchir le timestamp sudo si nécessaire
+                sudo -v 2>/dev/null
+                if sudo apt update -qq && sudo apt install -y "$package_name"; then
                     install_success=true
                     log_info "$tool_name installé avec succès"
                 else
-                    log_warn "Impossible d'installer $package_name"
+                    local exit_code=$?
+                    log_warn "Impossible d'installer $package_name (code: $exit_code)"
                     log_info "Vous pouvez l'installer manuellement: sudo apt install $package_name"
                 fi
                 ;;
             fedora)
                 log_info "Installation de $tool_name ($package_name)..."
-                if sudo dnf install -y "$package_name" 2>/dev/null; then
+                # Rafraîchir le timestamp sudo si nécessaire
+                sudo -v 2>/dev/null
+                if sudo dnf install -y "$package_name"; then
                     install_success=true
                     log_info "$tool_name installé avec succès"
                 else
-                    log_warn "Impossible d'installer $package_name"
+                    local exit_code=$?
+                    log_warn "Impossible d'installer $package_name (code: $exit_code)"
                     log_info "Vous pouvez l'installer manuellement: sudo dnf install $package_name"
                 fi
                 ;;
