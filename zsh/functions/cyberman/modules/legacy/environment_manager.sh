@@ -353,7 +353,17 @@ list_environments() {
         while IFS= read -r env_file; do
             if [ -f "$env_file" ]; then
                 local basename=$(basename "$env_file" .json)
-                echo "  $count. $basename"
+                # Vérifier si c'est l'environnement actif
+                local is_active=false
+                if [ -n "$current_active_env" ] && [ "$current_active_env" = "$basename" ]; then
+                    is_active=true
+                fi
+                
+                if [ "$is_active" = true ]; then
+                    echo -e "  ${GREEN}${BOLD}✅ $count. $basename ${YELLOW}(ENVIRONNEMENT ACTIF)${RESET}"
+                else
+                    echo "  $count. $basename"
+                fi
                 ((count++))
             fi
         done < <(find "$CYBER_ENV_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | sort)
