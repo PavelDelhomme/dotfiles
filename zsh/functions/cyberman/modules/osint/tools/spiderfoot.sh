@@ -36,27 +36,10 @@ function spiderfoot_osint() {
     local target="$1"
     local SPIDERFOOT_DIR="$HOME/.local/share/spiderfoot"
     
-    # Vérifier/installer SpiderFoot
+    # Vérifier/installer SpiderFoot via ensure_tool
     if ! command -v spiderfoot &>/dev/null && [ ! -d "$SPIDERFOOT_DIR" ]; then
-        echo -e "${YELLOW}SpiderFoot n'est pas installé${RESET}"
-        printf "Installer SpiderFoot maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            if command -v git &>/dev/null && command -v python3 &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                git clone https://github.com/smicallef/spiderfoot.git "$SPIDERFOOT_DIR"
-                cd "$SPIDERFOOT_DIR" || return 1
-                if [ -f "requirements.txt" ]; then
-                    pip3 install -r requirements.txt --user
-                fi
-                echo -e "${GREEN}✓ SpiderFoot installé${RESET}"
-            else
-                echo -e "${RED}❌ git ou python3 non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool spiderfoot 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation SpiderFoot${RESET}"
             return 1
         fi
     fi

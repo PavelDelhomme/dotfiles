@@ -37,27 +37,10 @@ function theharvester_osint() {
     local target="$1"
     local HARVESTER_DIR="$HOME/.local/share/theHarvester"
     
-    # Vérifier/installer TheHarvester
+    # Vérifier/installer TheHarvester via ensure_tool
     if ! command -v theHarvester &>/dev/null && [ ! -d "$HARVESTER_DIR" ]; then
-        echo -e "${YELLOW}TheHarvester n'est pas installé${RESET}"
-        printf "Installer TheHarvester maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            if command -v git &>/dev/null && command -v python3 &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                git clone https://github.com/laramies/theHarvester.git "$HARVESTER_DIR"
-                cd "$HARVESTER_DIR" || return 1
-                if [ -f "requirements.txt" ]; then
-                    pip3 install -r requirements.txt --user
-                fi
-                echo -e "${GREEN}✓ TheHarvester installé${RESET}"
-            else
-                echo -e "${RED}❌ git ou python3 non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool theharvester 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation TheHarvester${RESET}"
             return 1
         fi
     fi

@@ -38,37 +38,10 @@ function taranis_ai_osint() {
     local target="$1"
     local TARANIS_DIR="$HOME/.local/share/taranis-ai"
     
-    # Vérifier si Taranis AI est installé
+    # Vérifier/installer Taranis AI via ensure_tool
     if [ ! -d "$TARANIS_DIR" ] && ! command -v taranis-ai &>/dev/null; then
-        echo -e "${YELLOW}Taranis AI n'est pas installé${RESET}"
-        echo -e "${CYAN}Installation depuis GitHub...${RESET}"
-        printf "Installer Taranis AI maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            # Installation de Taranis AI
-            if command -v git &>/dev/null && command -v python3 &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                cd "$HOME/.local/share" || return 1
-                if [ -d "taranis-ai" ]; then
-                    cd taranis-ai && git pull
-                else
-                    git clone https://github.com/taranis-ai/taranis-ai.git
-                    cd taranis-ai || return 1
-                fi
-                
-                # Installer les dépendances
-                if [ -f "requirements.txt" ]; then
-                    pip3 install -r requirements.txt --user
-                fi
-                
-                echo -e "${GREEN}✓ Taranis AI installé${RESET}"
-            else
-                echo -e "${RED}❌ git ou python3 non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool taranis-ai 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation Taranis AI${RESET}"
             return 1
         fi
     fi

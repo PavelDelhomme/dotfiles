@@ -38,39 +38,10 @@ function sherlock_osint() {
     local username="$1"
     local SHERLOCK_DIR="$HOME/.local/share/sherlock"
     
-    # Vérifier/installer Sherlock
+    # Vérifier/installer Sherlock via ensure_tool
     if ! command -v sherlock &>/dev/null && [ ! -d "$SHERLOCK_DIR" ]; then
-        echo -e "${YELLOW}Sherlock n'est pas installé${RESET}"
-        printf "Installer Sherlock maintenant? (O/n): "
-        read -r install_choice
-        install_choice=${install_choice:-O}
-        
-        if [[ "$install_choice" =~ ^[oO]$ ]]; then
-            if command -v git &>/dev/null && command -v python3 &>/dev/null; then
-                mkdir -p "$HOME/.local/share"
-                cd "$HOME/.local/share" || return 1
-                if [ -d "sherlock" ]; then
-                    cd sherlock && git pull
-                else
-                    git clone https://github.com/sherlock-project/sherlock.git
-                    cd sherlock || return 1
-                fi
-                
-                if [ -f "requirements.txt" ]; then
-                    pip3 install -r requirements.txt --user
-                fi
-                
-                # Créer un alias/symlink
-                if [ -f "sherlock.py" ]; then
-                    echo 'alias sherlock="python3 '$HOME'/.local/share/sherlock/sherlock.py"' >> "$HOME/.zshrc"
-                fi
-                
-                echo -e "${GREEN}✓ Sherlock installé${RESET}"
-            else
-                echo -e "${RED}❌ git ou python3 non disponible${RESET}"
-                return 1
-            fi
-        else
+        if ! ensure_tool sherlock 2>/dev/null; then
+            echo -e "${RED}❌ Échec installation Sherlock${RESET}"
             return 1
         fi
     fi
