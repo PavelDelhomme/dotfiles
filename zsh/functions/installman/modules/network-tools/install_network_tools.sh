@@ -242,8 +242,8 @@ install_network_tools() {
     
     for tool_status in "${tools_summary[@]}"; do
         local tool=$(echo "$tool_status" | cut -d: -f1)
-        local status=$(echo "$tool_status" | cut -d: -f2)
-        if [ "$status" = "✓" ]; then
+        local tool_status_value=$(echo "$tool_status" | cut -d: -f2)
+        if [ "$tool_status_value" = "✓" ]; then
             log_info "  - $tool: ${GREEN}✓${NC}"
         else
             log_info "  - $tool: ${RED}✗${NC}"
