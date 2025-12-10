@@ -697,19 +697,18 @@ cyberman() {
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
         echo "9.  🛠️  Utilitaires (hash, encode/decode, etc.)"
         echo "10. 🎓 Apprentissage & Labs (cyberlearn intégré)"
-        echo "11. 🚀 Assistant de test complet"
-        echo "12. 🔍 OSINT Tools (Outils OSINT avec IA)"
-        echo "11. 🚀 Assistant de test complet"
+        echo "11. 🔍 OSINT Tools (Outils OSINT avec IA)"
+        echo "12. 🚀 Assistant de test complet"
         
         # Afficher les options rapides si un environnement est actif
         if has_active_environment 2>/dev/null; then
             local current_env=$(get_current_environment 2>/dev/null)
             echo ""
             echo -e "${GREEN}📝 Environnement actif: $current_env${RESET}"
-            echo "12. 📝 Notes & Informations de l'environnement actif"
-            echo "13. 📊 Rapports (consulter, exporter)"
-            echo "14. 🔄 Workflows (créer, exécuter, gérer)"
-            echo "15. 🚫 Désactiver l'environnement actif"
+            echo "13. 📝 Notes & Informations de l'environnement actif"
+            echo "14. 📊 Rapports (consulter, exporter)"
+            echo "15. 🔄 Workflows (créer, exécuter, gérer)"
+            echo "16. 🚫 Désactiver l'environnement actif"
         fi
         echo ""
         echo "h.  Aide"
