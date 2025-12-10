@@ -1892,7 +1892,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            15)
+            16)
                 # Désactiver l'environnement actif
                 if has_active_environment 2>/dev/null; then
                     local current_env=$(get_current_environment 2>/dev/null)
