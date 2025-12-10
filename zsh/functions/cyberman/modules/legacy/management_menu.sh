@@ -272,6 +272,13 @@ show_environment_management_menu() {
         fi
         echo ""
         
+        # Afficher l'environnement actif en haut si disponible
+        if has_active_environment 2>/dev/null; then
+            local current_env=$(get_current_environment 2>/dev/null)
+            echo -e "${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
+            echo ""
+        fi
+        
         # Lister les environnements (peut retourner 1 si aucun environnement)
         if ! list_environments 2>/dev/null; then
             # Si aucun environnement, afficher un message mais continuer

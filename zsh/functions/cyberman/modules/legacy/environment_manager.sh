@@ -340,6 +340,9 @@ list_environments() {
                 echo "     📝 $desc"
                 echo "     📅 $created"
                 echo "     🎯 $targets_count cible(s)"
+                if [ "$is_active" = true ]; then
+                    echo -e "     ${GREEN}🌍 Chargé actuellement${RESET}"
+                fi
                 echo ""
                 ((count++))
             fi
