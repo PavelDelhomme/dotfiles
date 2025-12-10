@@ -810,7 +810,7 @@ add_environment_result() {
     fi
 }
 
-# DESC: Affiche les notes d'un environnement
+# DESC: Affiche les notes d'un environnement avec pagination
 # USAGE: show_environment_notes <env_name>
 # EXAMPLE: show_environment_notes "pentest_example"
 show_environment_notes() {
@@ -840,14 +840,29 @@ show_environment_notes() {
         return 0
     fi
     
-    echo "📝 Notes de l'environnement: $env_name"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    jq -r '.notes[] | "📌 \(.timestamp) - \(.author)\n   \(.text)\n"' "$env_file"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # Charger la fonction de pagination
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/cyberman/modules/legacy/utils"
+    if [ -f "$UTILS_DIR/pagination.sh" ]; then
+        source "$UTILS_DIR/pagination.sh" 2>/dev/null
+    fi
+    
+    # Générer le texte formaté des notes
+    local notes_text=$(jq -r '.notes[] | "📌 \(.timestamp) - \(.author)\n   \(.text)\n"' "$env_file")
+    
+    # Utiliser la pagination si disponible
+    if type paginate_text >/dev/null 2>&1; then
+        echo -e "${CYAN}${BOLD}📝 Notes de l'environnement: $env_name${RESET}"
+        paginate_text "$notes_text" 15
+    else
+        echo "📝 Notes de l'environnement: $env_name"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "$notes_text"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    fi
     return 0
 }
 
-# DESC: Affiche l'historique des actions d'un environnement
+# DESC: Affiche l'historique des actions d'un environnement avec pagination
 # USAGE: show_environment_history <env_name>
 # EXAMPLE: show_environment_history "pentest_example"
 show_environment_history() {
@@ -877,14 +892,29 @@ show_environment_history() {
         return 0
     fi
     
-    echo "📜 Historique des actions - Environnement: $env_name"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    jq -r '.history[] | "🔹 [\(.type)] \(.timestamp) - \(.user)\n   \(.description)\n   \(if .result != "" then "   📊 Résultat: \(.result)" else "" end)\n"' "$env_file"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # Charger la fonction de pagination
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/cyberman/modules/legacy/utils"
+    if [ -f "$UTILS_DIR/pagination.sh" ]; then
+        source "$UTILS_DIR/pagination.sh" 2>/dev/null
+    fi
+    
+    # Générer le texte formaté de l'historique
+    local history_text=$(jq -r '.history[] | "🔹 [\(.type)] \(.timestamp) - \(.user)\n   \(.description)\n   \(if .result != "" then "   📊 Résultat: \(.result)" else "" end)\n"' "$env_file")
+    
+    # Utiliser la pagination si disponible
+    if type paginate_text >/dev/null 2>&1; then
+        echo -e "${CYAN}${BOLD}📜 Historique des actions - Environnement: $env_name${RESET}"
+        paginate_text "$history_text" 15
+    else
+        echo "📜 Historique des actions - Environnement: $env_name"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "$history_text"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    fi
     return 0
 }
 
-# DESC: Affiche les résultats de tests d'un environnement
+# DESC: Affiche les résultats de tests d'un environnement avec pagination
 # USAGE: show_environment_results <env_name>
 # EXAMPLE: show_environment_results "pentest_example"
 show_environment_results() {
@@ -914,10 +944,25 @@ show_environment_results() {
         return 0
     fi
     
-    echo "📊 Résultats de tests - Environnement: $env_name"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    jq -r '.results[] | "🧪 [\(.test_name)] \(.timestamp) - \(.status)\n   \(.result)\n"' "$env_file"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # Charger la fonction de pagination
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/cyberman/modules/legacy/utils"
+    if [ -f "$UTILS_DIR/pagination.sh" ]; then
+        source "$UTILS_DIR/pagination.sh" 2>/dev/null
+    fi
+    
+    # Générer le texte formaté des résultats
+    local results_text=$(jq -r '.results[] | "🧪 [\(.test_name)] \(.timestamp) - \(.status)\n   \(.result)\n"' "$env_file")
+    
+    # Utiliser la pagination si disponible
+    if type paginate_text >/dev/null 2>&1; then
+        echo -e "${CYAN}${BOLD}📊 Résultats de tests - Environnement: $env_name${RESET}"
+        paginate_text "$results_text" 15
+    else
+        echo "📊 Résultats de tests - Environnement: $env_name"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "$results_text"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    fi
     return 0
 }
 

@@ -9,6 +9,13 @@
 
 # Répertoire de stockage des rapports (défini si non défini)
 CYBER_REPORTS_DIR="${CYBER_REPORTS_DIR:-${HOME}/.cyberman/reports}"
+CYBER_REPORTS_BASE="${CYBER_REPORTS_BASE:-${HOME}/.cyberman/reports}"
+
+# Charger les utilitaires de génération de rapports
+CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+if [ -f "$CYBER_DIR/utils/report_generator.sh" ]; then
+    source "$CYBER_DIR/utils/report_generator.sh" 2>/dev/null
+fi
 
 # Créer le répertoire si nécessaire
 mkdir -p "$CYBER_REPORTS_DIR"
@@ -36,11 +43,25 @@ list_reports() {
     if command -v jq >/dev/null 2>&1; then
         local count=1
         # Utiliser find pour éviter les problèmes de glob pattern en Zsh
-        local files=($(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | cut -d' ' -f2-))
+        # Filtrer les fichiers .md et ne garder que les vrais rapports JSON
+        local files=($(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f ! -name "README.json" ! -name "STATUS.json" -printf '%T@ %p\n' 2>/dev/null | sort -rn | cut -d' ' -f2-))
         # Fallback si find -printf n'est pas disponible
         if [ ${#files[@]} -eq 0 ]; then
-            files=($(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | xargs ls -t 2>/dev/null))
+            files=($(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f ! -name "README.json" ! -name "STATUS.json" 2>/dev/null | xargs ls -t 2>/dev/null))
         fi
+        
+        # Filtrer aussi les fichiers qui ne sont pas de vrais rapports (vérifier structure JSON)
+        local -a valid_files=()
+        for report_file in "${files[@]}"; do
+            if [ -f "$report_file" ]; then
+                # Vérifier que c'est un vrai rapport (contient environment, workflow, ou targets)
+                if jq empty "$report_file" 2>/dev/null && \
+                   (jq -e '.environment // .workflow // .targets' "$report_file" >/dev/null 2>&1); then
+                    valid_files+=("$report_file")
+                fi
+            fi
+        done
+        files=("${valid_files[@]}")
         
         if [ $recent_count -gt 0 ]; then
             files=(${files[@]:0:$recent_count})
@@ -77,13 +98,17 @@ list_reports() {
     else
         local count=1
         # Utiliser find pour éviter les problèmes de glob pattern en Zsh
+        # Filtrer les fichiers .md et ne garder que les vrais rapports
         while IFS= read -r report_file; do
             if [ -f "$report_file" ]; then
                 local basename=$(basename "$report_file" .json)
-                echo "  $count. $basename"
-                ((count++))
+                # Ignorer les fichiers de documentation
+                if [[ "$basename" != "README" ]] && [[ "$basename" != "STATUS" ]]; then
+                    echo "  $count. $basename"
+                    ((count++))
+                fi
             fi
-        done < <(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f 2>/dev/null | sort)
+        done < <(find "$CYBER_REPORTS_DIR" -maxdepth 1 -name "*.json" -type f ! -name "README.json" ! -name "STATUS.json" 2>/dev/null | sort)
     fi
     
     return 0
@@ -315,11 +340,13 @@ show_report_menu() {
         
         list_reports --recent 5
         echo ""
-        echo "1.  Lister tous les rapports"
+        echo "1.  Lister tous les rapports (avec pagination)"
         echo "2.  Afficher un rapport complet"
         echo "3.  Afficher le résumé d'un rapport"
         echo "4.  Exporter un rapport en texte"
-        echo "5.  Supprimer un rapport"
+        echo "5.  Générer rapport HTML"
+        echo "6.  Supprimer un rapport"
+        echo "7.  Organiser les rapports (par environnement/date)"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
