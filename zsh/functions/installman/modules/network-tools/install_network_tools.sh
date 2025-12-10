@@ -89,7 +89,28 @@ install_network_tools() {
                 else
                     local exit_code=$?
                     log_warn "Impossible d'installer $package_name (code: $exit_code)"
-                    log_info "Vous pouvez l'installer manuellement: sudo pacman -S $package_name"
+                    
+                    # Essayer des alternatives pour certains outils
+                    local alternative_package=""
+                    case "$package_name" in
+                        bind)
+                            # bind contient nslookup et dig, mais si ça échoue, essayer bind-tools
+                            alternative_package="bind-tools"
+                            ;;
+                    esac
+                    
+                    if [ -n "$alternative_package" ]; then
+                        log_info "Tentative avec le paquet alternatif: $alternative_package"
+                        if sudo pacman -S --noconfirm "$alternative_package"; then
+                            install_success=true
+                            log_info "$tool_name installé avec succès (via $alternative_package)"
+                        else
+                            log_warn "Échec également avec $alternative_package"
+                            log_info "Vous pouvez l'installer manuellement: sudo pacman -S $package_name"
+                        fi
+                    else
+                        log_info "Vous pouvez l'installer manuellement: sudo pacman -S $package_name"
+                    fi
                 fi
                 ;;
             debian|ubuntu)
