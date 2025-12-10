@@ -109,10 +109,30 @@ dotfiles/
   - [x] Core wrapper créé : `core/managers/aliaman/core/aliaman.sh`
   - [x] Adapter ZSH créé : `shells/zsh/adapters/aliaman.zsh`
   - [ ] Migration complète POSIX à venir
+- [x] Migrer **installman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/installman/core/installman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/installman.zsh`
+  - [ ] Migration complète POSIX à venir
+- [x] Migrer **configman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/configman/core/configman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/configman.zsh`
+  - [ ] Migration complète POSIX à venir
+- [x] Migrer **gitman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/gitman/core/gitman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/gitman.zsh`
+  - [ ] Migration complète POSIX à venir
+- [x] Migrer **fileman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/fileman/core/fileman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/fileman.zsh`
+  - [ ] Migration complète POSIX à venir
+- [x] Migrer **helpman** (wrapper temporaire)
+  - [x] Core wrapper créé : `core/managers/helpman/core/helpman.sh`
+  - [x] Adapter ZSH créé : `shells/zsh/adapters/helpman.zsh`
+  - [ ] Migration complète POSIX à venir
 - [x] Mettre à jour `zshrc_custom` pour charger depuis adapters
 
 **Durée estimée :** 2-3 jours
-**Progression :** 100% (4 managers migrés : pathman ✅, manman ✅, searchman ⚠️, aliaman ⚠️)
+**Progression :** 100% (9 managers migrés : pathman ✅, manman ✅, searchman ⚠️, aliaman ⚠️, installman ⚠️, configman ⚠️, gitman ⚠️, fileman ⚠️, helpman ⚠️)
 
 ---
 
@@ -403,11 +423,33 @@ installman/
   - Adapter ZSH : `shells/zsh/adapters/aliaman.zsh`
   - **Migration complète POSIX à venir**
 
+- [x] **installman** (50%) ⚠️
+  - Core wrapper : `core/managers/installman/core/installman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/installman.zsh`
+  - **Migration complète POSIX à venir**
+
+- [x] **configman** (50%) ⚠️
+  - Core wrapper : `core/managers/configman/core/configman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/configman.zsh`
+  - **Migration complète POSIX à venir**
+
+- [x] **gitman** (50%) ⚠️
+  - Core wrapper : `core/managers/gitman/core/gitman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/gitman.zsh`
+  - **Migration complète POSIX à venir**
+
+- [x] **fileman** (50%) ⚠️
+  - Core wrapper : `core/managers/fileman/core/fileman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/fileman.zsh`
+  - **Migration complète POSIX à venir**
+
+- [x] **helpman** (50%) ⚠️
+  - Core wrapper : `core/managers/helpman/core/helpman.sh` (charge ZSH original)
+  - Adapter ZSH : `shells/zsh/adapters/helpman.zsh`
+  - **Migration complète POSIX à venir**
+
 #### ❌ À migrer
 - [ ] **netman** (0%)
-- [ ] **gitman** (0%)
-- [ ] **helpman** (0%)
-- [ ] **fileman** (0%)
 - [ ] **miscman** (0%)
 - [ ] **devman** (0%)
 - [ ] **virtman** (0%)
@@ -416,8 +458,6 @@ installman/
 - [ ] **testzshman** (0%)
 - [ ] **moduleman** (0%)
 - [ ] **cyberman** (0%) - Complexe
-- [ ] **installman** (0%) - À migrer vers structure hybride
-- [ ] **configman** (0%) - À migrer vers structure hybride
 - [ ] **multimediaman** (0%)
 - [ ] **cyberlearn** (0%)
 
@@ -538,13 +578,18 @@ installman/
 ---
 
 **Dernière mise à jour :** 2024-12-XX
-**Statut global :** Phase 0 - Structure Hybride (4/19 managers migrés : 2 complets, 2 wrappers)
+**Statut global :** Phase 0 - Structure Hybride (9/19 managers migrés : 2 complets, 7 wrappers)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
 **Managers migrés :**
   - ✅ **pathman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original)
-**Prochaines étapes :** Migration managers moyens (installman, configman, gitman, fileman, helpman)
-**Tests :** ✅ Docker multi-shells configuré (ZSH, Bash, Fish) - Tests pathman fonctionnels
+  - ⚠️ **installman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **configman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **gitman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **fileman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **helpman** : Wrapper temporaire (charge ZSH original)
+**Prochaines étapes :** Migration managers complexes (cyberman, devman, virtman, miscman)
+**Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
 
