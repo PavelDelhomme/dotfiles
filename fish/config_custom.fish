@@ -84,7 +84,8 @@ if test -f "$DOTFILES_FISH_PATH/history.fish"
 end
 
 # Charger les managers (même ordre que ZSH)
-load_manager "pathman" "$DOTFILES_FISH_PATH/functions/pathman.fish" "PATHMAN"
+# Charger pathman depuis la nouvelle structure hybride
+load_manager "pathman" "$DOTFILES_DIR/shells/fish/adapters/pathman.fish" "PATHMAN"
 load_manager "netman" "$DOTFILES_FISH_PATH/functions/netman.fish" "NETMAN"
 load_manager "aliaman" "$DOTFILES_FISH_PATH/functions/aliaman.fish" "ALIAMAN"
 load_manager "miscman" "$DOTFILES_FISH_PATH/functions/miscman.fish" "MISCMAN"

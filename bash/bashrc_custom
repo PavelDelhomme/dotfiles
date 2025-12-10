@@ -58,7 +58,8 @@ load_manager() {
 }
 
 # Charger les managers (même ordre que ZSH)
-load_manager "pathman" "$DOTFILES_BASH_PATH/functions/pathman.sh" "PATHMAN"
+# Charger pathman depuis la nouvelle structure hybride
+load_manager "pathman" "$DOTFILES_DIR/shells/bash/adapters/pathman.sh" "PATHMAN"
 load_manager "netman" "$DOTFILES_BASH_PATH/functions/netman.sh" "NETMAN"
 load_manager "aliaman" "$DOTFILES_BASH_PATH/functions/aliaman.sh" "ALIAMAN"
 load_manager "miscman" "$DOTFILES_BASH_PATH/functions/miscman.sh" "MISCMAN"

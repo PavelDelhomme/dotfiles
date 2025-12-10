@@ -92,7 +92,8 @@ load_manager() {
     #     echo -e "${YELLOW}  ⚠️ $display_name désactivé (moduleman)${NC}"
 }
 
-load_manager "pathman" "$DOTFILES_ZSH_PATH/functions/pathman.zsh" "PATHMAN"
+# Charger pathman depuis la nouvelle structure hybride
+load_manager "pathman" "$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh" "PATHMAN"
 load_manager "netman" "$DOTFILES_ZSH_PATH/functions/netman.zsh" "NETMAN"
 load_manager "aliaman" "$DOTFILES_ZSH_PATH/functions/aliaman.zsh" "ALIAMAN"
 load_manager "miscman" "$DOTFILES_ZSH_PATH/functions/miscman.zsh" "MISCMAN"
