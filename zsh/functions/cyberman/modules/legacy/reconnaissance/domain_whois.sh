@@ -5,12 +5,30 @@
 # EXAMPLE: domain_whois  # Utilise les cibles configurées
 function domain_whois() {
     # Charger le gestionnaire de cibles et le helper d'enregistrement
-    local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyber"
+    local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyberman/modules/legacy"
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
         source "$CYBER_DIR/target_manager.sh"
     fi
     if [ -f "$CYBER_DIR/helpers/auto_save_helper.sh" ]; then
         source "$CYBER_DIR/helpers/auto_save_helper.sh"
+    fi
+    
+    # Charger ensure_tool une seule fois au début
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+    local whois_available=false
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+        if ensure_tool whois; then
+            whois_available=true
+        else
+            return 1
+        fi
+    elif command -v whois >/dev/null 2>&1; then
+        whois_available=true
+    else
+        echo "❌ whois non installé"
+        echo "💡 Installez-le: sudo pacman -S whois"
+        return 1
     fi
     
     local target=""
@@ -35,18 +53,13 @@ function domain_whois() {
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo "🎯 WHOIS: $domain"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                # Vérifier et installer whois si nécessaire
-                local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
-                if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
-                    source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
-                    if ensure_tool whois; then
-                        whois "$domain"
+                if [ "$whois_available" = true ]; then
+                    local whois_output=$(whois "$domain" 2>&1)
+                    echo "$whois_output"
+                    # Enregistrer automatiquement le résultat
+                    if typeset -f auto_save_recon_result >/dev/null 2>&1; then
+                        auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
                     fi
-                elif command -v whois >/dev/null 2>&1; then
-                    whois "$domain"
-                else
-                    echo "❌ whois non installé"
-                    echo "💡 Installez-le: sudo pacman -S whois"
                 fi
             done
             return 0
@@ -72,25 +85,18 @@ function domain_whois() {
     echo "🔍 WHOIS pour: $domain"
     echo ""
     
-    # Vérifier et installer whois si nécessaire
-    local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
-    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
-        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
-        if ! ensure_tool whois; then
-            return 1
+    # whois devrait déjà être disponible (vérifié au début)
+    if [ "$whois_available" = true ]; then
+        local whois_output=$(whois "$domain" 2>&1)
+        echo "$whois_output"
+        
+        # Enregistrer automatiquement le résultat dans l'environnement actif
+        if typeset -f auto_save_recon_result >/dev/null 2>&1; then
+            auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
         fi
-    elif ! command -v whois >/dev/null 2>&1; then
-        echo "❌ whois non installé"
-        echo "💡 Installez-le: sudo pacman -S whois"
+        
+        return 0
+    else
         return 1
     fi
-    
-    # Exécuter whois
-    local whois_output=$(whois "$domain" 2>&1)
-    echo "$whois_output"
-    
-    # Enregistrer automatiquement le résultat dans l'environnement actif
-    auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
-    
-    return 0
 }
