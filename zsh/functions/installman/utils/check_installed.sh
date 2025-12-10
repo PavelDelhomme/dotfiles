@@ -222,10 +222,48 @@ check_brave_installed() {
 # DESC: Vérifie si Cursor est installé
 # USAGE: check_cursor_installed
 check_cursor_installed() {
+    # Vérifier si la commande cursor est dans le PATH
     if command -v cursor &>/dev/null; then
         echo "installed"
         return 0
     fi
+    
+    # Vérifier dans ~/Applications/ (AppImage)
+    local cursor_paths=(
+        "$HOME/Applications/cursor.AppImage"
+        "$HOME/Applications/Cursor.AppImage"
+        "$HOME/Applications/cursor"
+        "$HOME/Applications/Cursor"
+        "/Applications/cursor.AppImage"
+        "/Applications/Cursor.AppImage"
+        "/Applications/cursor"
+        "/Applications/Cursor"
+        "/opt/cursor/cursor"
+        "/usr/local/bin/cursor"
+        "$HOME/.local/bin/cursor"
+    )
+    
+    for cursor_path in "${cursor_paths[@]}"; do
+        if [ -f "$cursor_path" ] && [ -x "$cursor_path" ]; then
+            echo "installed"
+            return 0
+        fi
+    done
+    
+    # Vérifier aussi les variantes avec extension
+    local cursor_variants=(
+        "$HOME/Applications/cursor*.AppImage"
+        "$HOME/Applications/Cursor*.AppImage"
+    )
+    
+    for pattern in "${cursor_variants[@]}"; do
+        # Utiliser find pour éviter les problèmes de glob
+        if find "$HOME/Applications" -maxdepth 1 -iname "cursor*.AppImage" -type f 2>/dev/null | grep -q .; then
+            echo "installed"
+            return 0
+        fi
+    done
+    
     echo "not_installed"
     return 1
 }
