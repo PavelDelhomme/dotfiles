@@ -30,240 +30,131 @@ install_network_tools() {
     # Détecter la distribution
     local distro=$(detect_distro 2>/dev/null || echo "arch")
     
+    # Fonction pour installer un outil avec confirmation
+    install_tool_with_confirm() {
+        local tool_name="$1"
+        local package_name="$2"
+        local description="$3"
+        
+        # Vérifier si déjà installé
+        if command -v "$tool_name" &>/dev/null; then
+            log_skip "$tool_name déjà installé"
+            return 0
+        fi
+        
+        # Demander confirmation
+        echo ""
+        printf "${YELLOW}Installer $tool_name${RESET}"
+        [ -n "$description" ] && printf " ($description)"
+        printf "? (O/n): "
+        read -r confirm
+        confirm=${confirm:-O}
+        
+        if [[ ! "$confirm" =~ ^[oO]$ ]]; then
+            log_skip "$tool_name ignoré par l'utilisateur"
+            return 0
+        fi
+        
+        # Installer selon la distribution
+        case "$distro" in
+            arch|manjaro)
+                log_info "Installation de $tool_name ($package_name)..."
+                sudo pacman -S --noconfirm "$package_name" || log_warn "Impossible d'installer $package_name"
+                ;;
+            debian|ubuntu)
+                log_info "Installation de $tool_name ($package_name)..."
+                sudo apt update -qq && sudo apt install -y "$package_name" || log_warn "Impossible d'installer $package_name"
+                ;;
+            fedora)
+                log_info "Installation de $tool_name ($package_name)..."
+                sudo dnf install -y "$package_name" || log_warn "Impossible d'installer $package_name"
+                ;;
+        esac
+    }
+    
     # Liste des outils à installer selon la distribution
     case "$distro" in
         arch|manjaro)
             log_info "Installation des outils réseau pour Arch/Manjaro..."
+            echo ""
+            echo -e "${CYAN}📦 Outils DNS:${RESET}"
+            install_tool_with_confirm "nslookup" "bind-utils" "requis avec dig"
+            install_tool_with_confirm "dig" "bind-utils" "requis avec nslookup"
             
-            # Outils DNS
-            if ! command -v nslookup &>/dev/null; then
-                log_info "Installation de nslookup (bind-utils)..."
-                sudo pacman -S --noconfirm bind-utils || log_warn "Impossible d'installer bind-utils"
-            else
-                log_skip "nslookup déjà installé"
-            fi
+            echo ""
+            echo -e "${CYAN}🔍 Outils de diagnostic réseau:${RESET}"
+            install_tool_with_confirm "traceroute" "traceroute" "traceroute réseau"
+            install_tool_with_confirm "whois" "whois" "informations domaine"
             
-            if ! command -v dig &>/dev/null; then
-                log_info "Installation de dig (bind-utils)..."
-                sudo pacman -S --noconfirm bind-utils || log_warn "Impossible d'installer bind-utils"
-            else
-                log_skip "dig déjà installé"
-            fi
-            
-            # Outils de diagnostic réseau
-            if ! command -v traceroute &>/dev/null; then
-                log_info "Installation de traceroute..."
-                sudo pacman -S --noconfirm traceroute || log_warn "Impossible d'installer traceroute"
-            else
-                log_skip "traceroute déjà installé"
-            fi
-            
-            if ! command -v whois &>/dev/null; then
-                log_info "Installation de whois..."
-                sudo pacman -S --noconfirm whois || log_warn "Impossible d'installer whois"
-            else
-                log_skip "whois déjà installé"
-            fi
-            
-            # Outils d'analyse réseau
-            if ! command -v nmap &>/dev/null; then
-                log_info "Installation de nmap..."
-                sudo pacman -S --noconfirm nmap || log_warn "Impossible d'installer nmap"
-            else
-                log_skip "nmap déjà installé"
-            fi
-            
-            if ! command -v tcpdump &>/dev/null; then
-                log_info "Installation de tcpdump..."
-                sudo pacman -S --noconfirm tcpdump || log_warn "Impossible d'installer tcpdump"
-            else
-                log_skip "tcpdump déjà installé"
-            fi
-            
-            if ! command -v iftop &>/dev/null; then
-                log_info "Installation de iftop..."
-                sudo pacman -S --noconfirm iftop || log_warn "Impossible d'installer iftop"
-            else
-                log_skip "iftop déjà installé"
-            fi
-            
-            if ! command -v netcat &>/dev/null && ! command -v nc &>/dev/null; then
-                log_info "Installation de netcat (gnu-netcat)..."
-                sudo pacman -S --noconfirm gnu-netcat || log_warn "Impossible d'installer gnu-netcat"
-            else
-                log_skip "netcat déjà installé"
-            fi
-            
-            if ! command -v lsof &>/dev/null; then
-                log_info "Installation de lsof..."
-                sudo pacman -S --noconfirm lsof || log_warn "Impossible d'installer lsof"
-            else
-                log_skip "lsof déjà installé"
-            fi
+            echo ""
+            echo -e "${CYAN}🛡️  Outils d'analyse réseau:${RESET}"
+            install_tool_with_confirm "nmap" "nmap" "scanner réseau"
+            install_tool_with_confirm "tcpdump" "tcpdump" "analyse paquets"
+            install_tool_with_confirm "iftop" "iftop" "monitoring trafic"
+            install_tool_with_confirm "nc" "gnu-netcat" "netcat (nc)"
+            install_tool_with_confirm "lsof" "lsof" "list open files"
             
             # Wireshark (optionnel, interface graphique)
             if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-                if ! command -v wireshark &>/dev/null; then
-                    log_info "Interface graphique détectée, installation de Wireshark (optionnel)..."
-                    read "?Installer Wireshark? (o/N): " install_wireshark
-                    if [[ "$install_wireshark" =~ ^[oO]$ ]]; then
-                        sudo pacman -S --noconfirm wireshark-qt || log_warn "Impossible d'installer wireshark"
-                    fi
-                else
-                    log_skip "wireshark déjà installé"
-                fi
+                echo ""
+                echo -e "${CYAN}🖥️  Outils graphiques (optionnel):${RESET}"
+                install_tool_with_confirm "wireshark" "wireshark-qt" "analyseur réseau graphique"
             fi
             ;;
             
         debian|ubuntu)
             log_info "Installation des outils réseau pour Debian/Ubuntu..."
+            echo ""
+            echo -e "${CYAN}📦 Outils DNS:${RESET}"
+            install_tool_with_confirm "nslookup" "bind9-dnsutils" "requis avec dig"
+            install_tool_with_confirm "dig" "bind9-dnsutils" "requis avec nslookup"
             
-            # Outils DNS
-            if ! command -v nslookup &>/dev/null || ! command -v dig &>/dev/null; then
-                log_info "Installation de bind9-dnsutils (nslookup, dig)..."
-                sudo apt update && sudo apt install -y bind9-dnsutils || log_warn "Impossible d'installer bind9-dnsutils"
-            else
-                log_skip "nslookup/dig déjà installés"
-            fi
+            echo ""
+            echo -e "${CYAN}🔍 Outils de diagnostic réseau:${RESET}"
+            install_tool_with_confirm "traceroute" "traceroute" "traceroute réseau"
+            install_tool_with_confirm "whois" "whois" "informations domaine"
             
-            # Outils de diagnostic réseau
-            if ! command -v traceroute &>/dev/null; then
-                log_info "Installation de traceroute..."
-                sudo apt install -y traceroute || log_warn "Impossible d'installer traceroute"
-            else
-                log_skip "traceroute déjà installé"
-            fi
-            
-            if ! command -v whois &>/dev/null; then
-                log_info "Installation de whois..."
-                sudo apt install -y whois || log_warn "Impossible d'installer whois"
-            else
-                log_skip "whois déjà installé"
-            fi
-            
-            # Outils d'analyse réseau
-            if ! command -v nmap &>/dev/null; then
-                log_info "Installation de nmap..."
-                sudo apt install -y nmap || log_warn "Impossible d'installer nmap"
-            else
-                log_skip "nmap déjà installé"
-            fi
-            
-            if ! command -v tcpdump &>/dev/null; then
-                log_info "Installation de tcpdump..."
-                sudo apt install -y tcpdump || log_warn "Impossible d'installer tcpdump"
-            else
-                log_skip "tcpdump déjà installé"
-            fi
-            
-            if ! command -v iftop &>/dev/null; then
-                log_info "Installation de iftop..."
-                sudo apt install -y iftop || log_warn "Impossible d'installer iftop"
-            else
-                log_skip "iftop déjà installé"
-            fi
-            
-            if ! command -v netcat &>/dev/null && ! command -v nc &>/dev/null; then
-                log_info "Installation de netcat..."
-                sudo apt install -y netcat || log_warn "Impossible d'installer netcat"
-            else
-                log_skip "netcat déjà installé"
-            fi
-            
-            if ! command -v lsof &>/dev/null; then
-                log_info "Installation de lsof..."
-                sudo apt install -y lsof || log_warn "Impossible d'installer lsof"
-            else
-                log_skip "lsof déjà installé"
-            fi
+            echo ""
+            echo -e "${CYAN}🛡️  Outils d'analyse réseau:${RESET}"
+            install_tool_with_confirm "nmap" "nmap" "scanner réseau"
+            install_tool_with_confirm "tcpdump" "tcpdump" "analyse paquets"
+            install_tool_with_confirm "iftop" "iftop" "monitoring trafic"
+            install_tool_with_confirm "nc" "netcat" "netcat (nc)"
+            install_tool_with_confirm "lsof" "lsof" "list open files"
             
             # Wireshark (optionnel)
             if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-                if ! command -v wireshark &>/dev/null; then
-                    log_info "Interface graphique détectée, installation de Wireshark (optionnel)..."
-                    read "?Installer Wireshark? (o/N): " install_wireshark
-                    if [[ "$install_wireshark" =~ ^[oO]$ ]]; then
-                        sudo apt install -y wireshark || log_warn "Impossible d'installer wireshark"
-                    fi
-                else
-                    log_skip "wireshark déjà installé"
-                fi
+                echo ""
+                echo -e "${CYAN}🖥️  Outils graphiques (optionnel):${RESET}"
+                install_tool_with_confirm "wireshark" "wireshark" "analyseur réseau graphique"
             fi
             ;;
             
         fedora)
             log_info "Installation des outils réseau pour Fedora..."
+            echo ""
+            echo -e "${CYAN}📦 Outils DNS:${RESET}"
+            install_tool_with_confirm "nslookup" "bind-utils" "requis avec dig"
+            install_tool_with_confirm "dig" "bind-utils" "requis avec nslookup"
             
-            # Outils DNS
-            if ! command -v nslookup &>/dev/null || ! command -v dig &>/dev/null; then
-                log_info "Installation de bind-utils (nslookup, dig)..."
-                sudo dnf install -y bind-utils || log_warn "Impossible d'installer bind-utils"
-            else
-                log_skip "nslookup/dig déjà installés"
-            fi
+            echo ""
+            echo -e "${CYAN}🔍 Outils de diagnostic réseau:${RESET}"
+            install_tool_with_confirm "traceroute" "traceroute" "traceroute réseau"
+            install_tool_with_confirm "whois" "whois" "informations domaine"
             
-            # Outils de diagnostic réseau
-            if ! command -v traceroute &>/dev/null; then
-                log_info "Installation de traceroute..."
-                sudo dnf install -y traceroute || log_warn "Impossible d'installer traceroute"
-            else
-                log_skip "traceroute déjà installé"
-            fi
-            
-            if ! command -v whois &>/dev/null; then
-                log_info "Installation de whois..."
-                sudo dnf install -y whois || log_warn "Impossible d'installer whois"
-            else
-                log_skip "whois déjà installé"
-            fi
-            
-            # Outils d'analyse réseau
-            if ! command -v nmap &>/dev/null; then
-                log_info "Installation de nmap..."
-                sudo dnf install -y nmap || log_warn "Impossible d'installer nmap"
-            else
-                log_skip "nmap déjà installé"
-            fi
-            
-            if ! command -v tcpdump &>/dev/null; then
-                log_info "Installation de tcpdump..."
-                sudo dnf install -y tcpdump || log_warn "Impossible d'installer tcpdump"
-            else
-                log_skip "tcpdump déjà installé"
-            fi
-            
-            if ! command -v iftop &>/dev/null; then
-                log_info "Installation de iftop..."
-                sudo dnf install -y iftop || log_warn "Impossible d'installer iftop"
-            else
-                log_skip "iftop déjà installé"
-            fi
-            
-            if ! command -v netcat &>/dev/null && ! command -v nc &>/dev/null; then
-                log_info "Installation de netcat (nc)..."
-                sudo dnf install -y nc || log_warn "Impossible d'installer nc"
-            else
-                log_skip "netcat déjà installé"
-            fi
-            
-            if ! command -v lsof &>/dev/null; then
-                log_info "Installation de lsof..."
-                sudo dnf install -y lsof || log_warn "Impossible d'installer lsof"
-            else
-                log_skip "lsof déjà installé"
-            fi
+            echo ""
+            echo -e "${CYAN}🛡️  Outils d'analyse réseau:${RESET}"
+            install_tool_with_confirm "nmap" "nmap" "scanner réseau"
+            install_tool_with_confirm "tcpdump" "tcpdump" "analyse paquets"
+            install_tool_with_confirm "iftop" "iftop" "monitoring trafic"
+            install_tool_with_confirm "nc" "nc" "netcat (nc)"
+            install_tool_with_confirm "lsof" "lsof" "list open files"
             
             # Wireshark (optionnel)
             if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-                if ! command -v wireshark &>/dev/null; then
-                    log_info "Interface graphique détectée, installation de Wireshark (optionnel)..."
-                    read "?Installer Wireshark? (o/N): " install_wireshark
-                    if [[ "$install_wireshark" =~ ^[oO]$ ]]; then
-                        sudo dnf install -y wireshark || log_warn "Impossible d'installer wireshark"
-                    fi
-                else
-                    log_skip "wireshark déjà installé"
-                fi
+                echo ""
+                echo -e "${CYAN}🖥️  Outils graphiques (optionnel):${RESET}"
+                install_tool_with_confirm "wireshark" "wireshark" "analyseur réseau graphique"
             fi
             ;;
             
