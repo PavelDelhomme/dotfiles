@@ -9,7 +9,7 @@
 # =============================================================================
 
 # Charger le gestionnaire d'environnements
-CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
+CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
 if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
     source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
 fi
@@ -29,7 +29,16 @@ auto_save_recon_result() {
     
     # Vérifier si un environnement est actif
     if [ -z "${CYBER_CURRENT_ENV+x}" ] || [ -z "$CYBER_CURRENT_ENV" ]; then
-        return 0  # Pas d'erreur, juste pas d'environnement actif
+        # Essayer de charger l'environnement manager pour vérifier
+        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+            if type has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
+                CYBER_CURRENT_ENV=$(get_current_environment 2>/dev/null)
+            fi
+        fi
+        if [ -z "${CYBER_CURRENT_ENV+x}" ] || [ -z "$CYBER_CURRENT_ENV" ]; then
+            return 0  # Pas d'erreur, juste pas d'environnement actif
+        fi
     fi
     
     # S'assurer que les fonctions sont chargées
@@ -45,8 +54,7 @@ auto_save_recon_result() {
         local result_preview=$(echo "$result_data" | head -100 | tr '\n' ' ' | cut -c1-500)
         add_environment_action "$CYBER_CURRENT_ENV" "$action_type" "$description" "$result_preview" 2>/dev/null
         add_environment_result "$CYBER_CURRENT_ENV" "${action_type}_$(date +%s)" "$result_data" "$status" 2>/dev/null
-        echo ""
-        echo "✅ Résultat enregistré dans l'environnement: $CYBER_CURRENT_ENV"
+        # Ne pas afficher le message ici, laisser la fonction appelante le faire
     fi
     
     return 0

@@ -38,6 +38,7 @@ function domain_whois() {
     fi
     
     local target=""
+    local processed_all=false
     
     if [ $# -gt 0 ]; then
         target="$1"
@@ -49,6 +50,7 @@ function domain_whois() {
         read -r use_all
         if [ "$use_all" != "n" ] && [ "$use_all" != "N" ]; then
             # Utiliser toutes les cibles
+            processed_all=true
             for t in "${CYBER_TARGETS[@]}"; do
                 # Extraire le domaine si c'est une URL
                 local domain="$t"
@@ -82,7 +84,8 @@ function domain_whois() {
                 fi
                 echo ""
             done
-            # Ne pas faire return ici, laisser cyberman gérer le retour au menu
+            # Ne pas continuer, toutes les cibles ont été traitées
+            return 0
         else
             target=$(prompt_target "🎯 Entrez le domaine: ")
             if [ -z "$target" ]; then
@@ -96,6 +99,12 @@ function domain_whois() {
         fi
     fi
     
+    # Si on a déjà traité toutes les cibles, ne pas continuer
+    if [ "$processed_all" = true ]; then
+        return 0
+    fi
+    
+    # Traiter une seule cible
     # Extraire le domaine si c'est une URL
     local domain="$target"
     if [[ "$target" =~ ^https?:// ]]; then
