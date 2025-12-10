@@ -598,8 +598,7 @@ show_main_menu() {
             
             if [ -z "$search_term" ]; then
                 log_error "Terme de recherche requis"
-                sleep 2
-                return
+                continue
             fi
             
             echo ""
