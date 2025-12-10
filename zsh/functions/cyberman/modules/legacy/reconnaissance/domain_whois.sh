@@ -4,15 +4,6 @@
 # EXAMPLE: domain_whois example.com
 # EXAMPLE: domain_whois  # Utilise les cibles configurées
 function domain_whois() {
-    # Charger le gestionnaire de cibles et le helper d'enregistrement
-    local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyberman/modules/legacy"
-    if [ -f "$CYBER_DIR/target_manager.sh" ]; then
-        source "$CYBER_DIR/target_manager.sh"
-    fi
-    if [ -f "$CYBER_DIR/helpers/auto_save_helper.sh" ]; then
-        source "$CYBER_DIR/helpers/auto_save_helper.sh"
-    fi
-    
     # Charger ensure_tool une seule fois au début
     local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
     local whois_available=false
@@ -21,6 +12,8 @@ function domain_whois() {
         if ensure_tool whois; then
             whois_available=true
         else
+            echo ""
+            echo "❌ Impossible de continuer sans whois"
             return 1
         fi
     elif command -v whois >/dev/null 2>&1; then
@@ -29,6 +22,15 @@ function domain_whois() {
         echo "❌ whois non installé"
         echo "💡 Installez-le: sudo pacman -S whois"
         return 1
+    fi
+    
+    # Charger le gestionnaire de cibles et le helper d'enregistrement
+    local CYBER_DIR="$HOME/dotfiles/zsh/functions/cyberman/modules/legacy"
+    if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+        source "$CYBER_DIR/target_manager.sh"
+    fi
+    if [ -f "$CYBER_DIR/helpers/auto_save_helper.sh" ]; then
+        source "$CYBER_DIR/helpers/auto_save_helper.sh"
     fi
     
     local target=""
