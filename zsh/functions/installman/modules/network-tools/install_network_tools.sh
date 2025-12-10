@@ -13,6 +13,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+NC='\033[0m'
 RESET='\033[0m'
 
 # Charger les utilitaires
@@ -64,20 +65,41 @@ install_network_tools() {
         fi
         
         # Installer selon la distribution
+        local install_success=false
         case "$distro" in
             arch|manjaro)
                 log_info "Installation de $tool_name ($package_name)..."
-                sudo pacman -S --noconfirm "$package_name" || log_warn "Impossible d'installer $package_name"
+                if sudo pacman -S --noconfirm "$package_name" 2>/dev/null; then
+                    install_success=true
+                    log_info "$tool_name installé avec succès"
+                else
+                    log_warn "Impossible d'installer $package_name"
+                    log_info "Vous pouvez l'installer manuellement: sudo pacman -S $package_name"
+                fi
                 ;;
             debian|ubuntu)
                 log_info "Installation de $tool_name ($package_name)..."
-                sudo apt update -qq && sudo apt install -y "$package_name" || log_warn "Impossible d'installer $package_name"
+                if sudo apt update -qq && sudo apt install -y "$package_name" 2>/dev/null; then
+                    install_success=true
+                    log_info "$tool_name installé avec succès"
+                else
+                    log_warn "Impossible d'installer $package_name"
+                    log_info "Vous pouvez l'installer manuellement: sudo apt install $package_name"
+                fi
                 ;;
             fedora)
                 log_info "Installation de $tool_name ($package_name)..."
-                sudo dnf install -y "$package_name" || log_warn "Impossible d'installer $package_name"
+                if sudo dnf install -y "$package_name" 2>/dev/null; then
+                    install_success=true
+                    log_info "$tool_name installé avec succès"
+                else
+                    log_warn "Impossible d'installer $package_name"
+                    log_info "Vous pouvez l'installer manuellement: sudo dnf install $package_name"
+                fi
                 ;;
         esac
+        
+        return 0
     }
     
     # Liste des outils à installer selon la distribution

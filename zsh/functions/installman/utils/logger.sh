@@ -22,4 +22,5 @@ log_info()  { echo -e "${GREEN}[✓]${NC} $1"; }
 log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_step()  { echo -e "${CYAN}[→]${NC} $1"; }
+log_skip()  { echo -e "${BLUE}[⊘]${NC} $1"; }
 
