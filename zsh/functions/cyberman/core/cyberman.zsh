@@ -1852,7 +1852,7 @@ EOF
                 fi
                 ;;
             11) show_assistant_menu ;;
-            12)
+            13)
                 # Accès rapide aux notes de l'environnement actif
                 if has_active_environment 2>/dev/null; then
                     local current_env=$(get_current_environment 2>/dev/null)
@@ -1872,20 +1872,32 @@ EOF
                     sleep 2
                 fi
                 ;;
-            15)
+            14)
                 # Accès rapide aux rapports
                 if has_active_environment 2>/dev/null; then
-                    show_report_menu
+                    if [ -f "$CYBER_DIR/report_manager.sh" ]; then
+                        source "$CYBER_DIR/report_manager.sh" 2>/dev/null
+                        show_report_menu
+                    else
+                        echo "❌ Gestionnaire de rapports non disponible"
+                        sleep 2
+                    fi
                 else
                     echo "❌ Aucun environnement actif"
                     echo "💡 Chargez d'abord un environnement (Option 1 > Environnements)"
                     sleep 2
                 fi
                 ;;
-            14)
+            15)
                 # Accès rapide aux workflows
                 if has_active_environment 2>/dev/null; then
-                    show_workflow_menu
+                    if [ -f "$CYBER_DIR/workflow_manager.sh" ]; then
+                        source "$CYBER_DIR/workflow_manager.sh" 2>/dev/null
+                        show_workflow_menu
+                    else
+                        echo "❌ Gestionnaire de workflows non disponible"
+                        sleep 2
+                    fi
                 else
                     echo "❌ Aucun environnement actif"
                     echo "💡 Chargez d'abord un environnement (Option 1 > Environnements)"

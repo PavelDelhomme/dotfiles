@@ -48,19 +48,27 @@ list_reports() {
         
         for report_file in "${files[@]}"; do
             if [ -f "$report_file" ]; then
+                # Vérifier que le fichier JSON est valide avant d'utiliser jq
+                if ! jq empty "$report_file" 2>/dev/null; then
+                    echo "  $count. ⚠️  $(basename "$report_file" .json) (JSON invalide)"
+                    echo ""
+                    ((count++))
+                    continue
+                fi
+                
                 local basename=$(basename "$report_file" .json)
-                local workflow=$(jq -r '.workflow // "N/A"' "$report_file")
-                local env=$(jq -r '.environment // "N/A"' "$report_file")
-                local started=$(jq -r '.started // "N/A"' "$report_file")
-                local status=$(jq -r '.status // "unknown"' "$report_file")
-                local steps_count=$(jq '.steps | length' "$report_file")
-                local targets_count=$(jq '.targets | length' "$report_file")
+                local workflow=$(jq -r '.workflow // "N/A"' "$report_file" 2>/dev/null || echo "N/A")
+                local env=$(jq -r '.environment // "N/A"' "$report_file" 2>/dev/null || echo "N/A")
+                local started=$(jq -r '.started // "N/A"' "$report_file" 2>/dev/null || echo "N/A")
+                local report_status=$(jq -r '.status // "unknown"' "$report_file" 2>/dev/null || echo "unknown")
+                local steps_count=$(jq '.steps | length' "$report_file" 2>/dev/null || echo "0")
+                local targets_count=$(jq '.targets | length' "$report_file" 2>/dev/null || echo "0")
                 
                 echo "  $count. $basename"
                 echo "     📊 Workflow: $workflow"
                 echo "     🌍 Environnement: $env"
                 echo "     📅 Début: $started"
-                echo "     ✅ Statut: $status"
+                echo "     ✅ Statut: $report_status"
                 echo "     📋 Étapes: $steps_count | 🎯 Cibles: $targets_count"
                 echo ""
                 ((count++))
@@ -127,7 +135,7 @@ show_report() {
     echo "🌍 Environnement: $env"
     echo "📅 Début: $started"
     echo "📅 Fin: $ended"
-    echo "✅ Statut: $status"
+    echo "✅ Statut: $report_status"
     echo "🎯 Cibles: ${#targets[@]}"
     for target in "${targets[@]}"; do
         echo "   • $target"
