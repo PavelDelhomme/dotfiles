@@ -4,7 +4,7 @@ Ce module intègre les meilleurs outils OSINT (Open Source Intelligence) avec in
 
 ## Outils intégrés
 
-### Outils OSINT avec IA
+### Outils OSINT avec IA (Open Source)
 
 1. **Taranis AI** - OSINT avancé avec NLP et IA
    - Reconnaissance d'entités nommées (NER)
@@ -30,6 +30,14 @@ Ce module intègre les meilleurs outils OSINT (Open Source Intelligence) avec in
    - Utilise Ollama pour exécution locale
    - Reconnaissance multi-types automatisée
 
+6. **OSINT AI** - Outil OSINT basé sur LLM
+   - Analyse OSINT avec intelligence artificielle
+   - Support multiple modèles LLM
+
+7. **LLM OSINT** - OSINT avec modèles de langage
+   - Utilise LLM pour analyse et collecte
+   - Support Ollama et modèles locaux
+
 ### Outils OSINT traditionnels
 
 6. **SpiderFoot** - Collecte OSINT automatisée
@@ -47,6 +55,15 @@ Ce module intègre les meilleurs outils OSINT (Open Source Intelligence) avec in
 9. **TheHarvester** - Collecte d'informations
    - Emails, sous-domaines, IPs
    - Multiples sources
+
+### Outils OSINT commerciaux (non intégrés)
+
+**Note:** Les outils suivants sont des solutions commerciales et ne sont pas disponibles en open source. Des alternatives open source équivalentes sont intégrées :
+
+- **Lampyre** - Solution commerciale OSINT avec IA
+  - Alternative open source : SpiderFoot, Taranis AI
+- **Babel X / Babel Street** - Plateforme OSINT multilingue commerciale
+  - Alternative open source : OSINT with LLM, Taranis AI
 
 ## Installation
 
