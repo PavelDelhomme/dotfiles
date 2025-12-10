@@ -150,8 +150,31 @@ install_network_tools() {
             log_info "Installation des outils réseau pour Arch/Manjaro..."
             echo ""
             echo -e "${CYAN}📦 Outils DNS:${RESET}"
-            install_tool_with_confirm "nslookup" "bind-utils" "requis avec dig"
-            install_tool_with_confirm "dig" "bind-utils" "requis avec nslookup"
+            # bind contient à la fois nslookup et dig, donc on l'installe une seule fois
+            if ! command -v nslookup &>/dev/null && ! command -v dig &>/dev/null; then
+                echo ""
+                printf "${YELLOW}Installer nslookup et dig (bind)${RESET} (contient les deux outils)? (O/n): "
+                read -r confirm
+                confirm=${confirm:-O}
+                if [[ "$confirm" =~ ^[oO]$ ]]; then
+                    log_info "Installation de bind (contient nslookup et dig)..."
+                    sudo -v 2>/dev/null
+                    if sudo pacman -S --noconfirm bind; then
+                        log_info "bind installé avec succès (nslookup et dig disponibles)"
+                    else
+                        log_warn "Impossible d'installer bind"
+                        log_info "Vous pouvez l'installer manuellement: sudo pacman -S bind"
+                    fi
+                else
+                    log_skip "bind ignoré par l'utilisateur"
+                fi
+            elif ! command -v nslookup &>/dev/null; then
+                install_tool_with_confirm "nslookup" "bind" "contient nslookup et dig"
+            elif ! command -v dig &>/dev/null; then
+                install_tool_with_confirm "dig" "bind" "contient nslookup et dig"
+            else
+                log_skip "nslookup et dig déjà installés"
+            fi
             
             echo ""
             echo -e "${CYAN}🔍 Outils de diagnostic réseau:${RESET}"
