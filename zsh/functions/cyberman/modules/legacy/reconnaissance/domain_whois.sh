@@ -4,6 +4,10 @@
 # EXAMPLE: domain_whois example.com
 # EXAMPLE: domain_whois  # Utilise les cibles configurées
 function domain_whois() {
+    # Couleurs
+    local CYAN='\033[0;36m'
+    local RESET='\033[0m'
+    
     # Charger ensure_tool une seule fois au début
     local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
     local whois_available=false
