@@ -624,7 +624,22 @@ cyberman() {
         fi
         
         # Afficher les cibles configurées
-        if has_targets; then
+        # S'assurer que les cibles sont chargées
+        if [ -z "${CYBER_TARGETS+x}" ]; then
+            if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+                source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+            fi
+        fi
+        
+        # Vérifier si has_targets existe et l'utiliser
+        if type has_targets >/dev/null 2>&1 && has_targets 2>/dev/null; then
+            echo -e "   ${GREEN}🎯 Cibles actives: ${#CYBER_TARGETS[@]}${RESET}"
+            local i=1
+            for target in "${CYBER_TARGETS[@]}"; do
+                echo -e "      ${GREEN}$i.${RESET} $target"
+                ((i++))
+            done
+        elif [ -n "${CYBER_TARGETS+x}" ] && [ ${#CYBER_TARGETS[@]} -gt 0 ]; then
             echo -e "   ${GREEN}🎯 Cibles actives: ${#CYBER_TARGETS[@]}${RESET}"
             local i=1
             for target in "${CYBER_TARGETS[@]}"; do
@@ -802,6 +817,122 @@ EOF
                         read -k 1 "?Appuyez sur une touche pour continuer..."
                     fi
                 fi
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # =========================================================================
+    # UTILITAIRES (HASH, ENCODE/DECODE, etc.)
+    # =========================================================================
+    # DESC: Affiche le menu des utilitaires
+    # USAGE: show_utilities_menu
+    # EXAMPLE: show_utilities_menu
+    show_utilities_menu() {
+        show_header
+        echo -e "${YELLOW}🛠️  UTILITAIRES${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        echo "1.  🔐 Calculer un hash (MD5, SHA1, SHA256, etc.)"
+        echo "2.  🔄 Encoder/Décoder (Base64, URL, Hex, etc.)"
+        echo "3.  🔍 Rechercher dans les fichiers"
+        echo "4.  📝 Générer un mot de passe"
+        echo "5.  🔢 Convertir entre formats (hex, decimal, binary)"
+        echo ""
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                if [ -f "$CYBER_DIR/utils/hash_calculator.sh" ]; then
+                    source "$CYBER_DIR/utils/hash_calculator.sh"
+                    if type hash_calculator >/dev/null 2>&1; then
+                        hash_calculator
+                    else
+                        echo "❌ Fonction hash_calculator non disponible"
+                        sleep 2
+                    fi
+                else
+                    echo "❌ Module hash_calculator non disponible"
+                    sleep 2
+                fi
+                ;;
+            2)
+                if [ -f "$CYBER_DIR/utils/encoder_decoder.sh" ]; then
+                    source "$CYBER_DIR/utils/encoder_decoder.sh"
+                    if type encoder_decoder >/dev/null 2>&1; then
+                        encoder_decoder
+                    else
+                        echo "❌ Fonction encoder_decoder non disponible"
+                        sleep 2
+                    fi
+                else
+                    echo "❌ Module encoder_decoder non disponible"
+                    sleep 2
+                fi
+                ;;
+            3)
+                echo ""
+                printf "🔍 Rechercher: "
+                read -r search_term
+                if [ -n "$search_term" ]; then
+                    printf "📁 Dans le répertoire (ou . pour courant): "
+                    read -r search_dir
+                    search_dir="${search_dir:-.}"
+                    if [ -d "$search_dir" ]; then
+                        echo ""
+                        echo "Résultats:"
+                        grep -r "$search_term" "$search_dir" 2>/dev/null | head -20
+                    else
+                        echo "❌ Répertoire invalide"
+                    fi
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                printf "Longueur du mot de passe (défaut: 16): "
+                read -r length
+                length="${length:-16}"
+                if command -v openssl &>/dev/null; then
+                    echo "Mot de passe généré:"
+                    openssl rand -base64 32 | tr -d "=+/" | cut -c1-${length}
+                elif command -v /dev/urandom &>/dev/null; then
+                    cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${length} | head -n 1
+                else
+                    echo "❌ Aucun générateur aléatoire disponible"
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                echo ""
+                printf "Valeur à convertir: "
+                read -r value
+                if [ -n "$value" ]; then
+                    echo ""
+                    echo "Conversions:"
+                    # Hex to decimal
+                    if [[ "$value" =~ ^0x[0-9A-Fa-f]+$ ]] || [[ "$value" =~ ^[0-9A-Fa-f]+$ ]]; then
+                        local hex_val="${value#0x}"
+                        echo "  Hex: $hex_val"
+                        echo "  Decimal: $((16#$hex_val))"
+                        echo "  Binary: $(echo "obase=2; ibase=16; $hex_val" | bc 2>/dev/null || echo "N/A")"
+                    # Decimal to hex
+                    elif [[ "$value" =~ ^[0-9]+$ ]]; then
+                        echo "  Decimal: $value"
+                        echo "  Hex: $(printf "%x" $value)"
+                        echo "  Binary: $(echo "obase=2; $value" | bc 2>/dev/null || echo "N/A")"
+                    else
+                        echo "  Format non reconnu. Utilisez hex (0x... ou ...) ou decimal"
+                    fi
+                fi
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -1628,12 +1759,33 @@ EOF
         case "$choice" in
             1)
                 # Menu de gestion et configuration
+                # S'assurer que CYBER_DIR est défini
+                local CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+                
+                # Charger d'abord les dépendances nécessaires
+                if [ -f "$CYBER_DIR/target_manager.sh" ]; then
+                    source "$CYBER_DIR/target_manager.sh" 2>/dev/null
+                fi
+                if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+                    source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+                fi
+                
+                # Charger le menu de gestion
                 if [ -f "$CYBER_DIR/management_menu.sh" ]; then
-                    source "$CYBER_DIR/management_menu.sh"
-                    show_management_menu
+                    # Passer CYBER_DIR au script
+                    export CYBER_DIR
+                    source "$CYBER_DIR/management_menu.sh" 2>/dev/null
+                    if type show_management_menu >/dev/null 2>&1; then
+                        show_management_menu
+                    else
+                        echo "❌ Fonction show_management_menu non trouvée"
+                        echo "💡 Vérifiez que management_menu.sh est correctement chargé"
+                        sleep 2
+                    fi
                 else
                     echo "❌ Menu de gestion non disponible"
-                    sleep 1
+                    echo "💡 Fichier attendu: $CYBER_DIR/management_menu.sh"
+                    sleep 2
                 fi
                 ;;
             2) show_recon_menu ;;

@@ -8,7 +8,8 @@
 # =============================================================================
 
 # Charger les dépendances
-CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
+# Utiliser CYBER_DIR défini dans cyberman.zsh, sinon utiliser le chemin par défaut
+CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
 
 # Charger tous les gestionnaires
 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
