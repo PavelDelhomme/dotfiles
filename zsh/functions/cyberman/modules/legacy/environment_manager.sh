@@ -300,6 +300,14 @@ list_environments() {
     echo "📋 Environnements disponibles:"
     echo ""
     
+    # Obtenir l'environnement actif
+    local current_active_env=""
+    if [ -n "$CYBER_CURRENT_ENV" ]; then
+        current_active_env="$CYBER_CURRENT_ENV"
+    elif [ -f "$CYBER_CURRENT_ENV_FILE" ]; then
+        current_active_env=$(cat "$CYBER_CURRENT_ENV_FILE" 2>/dev/null | tr -d '\n' | head -c 100)
+    fi
+    
     if command -v jq >/dev/null 2>&1; then
         local count=1
         # Utiliser find pour éviter les problèmes de glob pattern en Zsh
@@ -313,10 +321,22 @@ list_environments() {
                 # Vérifier que les valeurs ne sont pas "null"
                 [ "$name" = "null" ] && name=$(basename "$env_file" .json)
                 [ "$desc" = "null" ] && desc="Pas de description"
+                
+                # Déterminer si c'est l'environnement actif
+                local env_basename=$(basename "$env_file" .json)
+                local is_active=false
+                if [ -n "$current_active_env" ] && ([ "$current_active_env" = "$name" ] || [ "$current_active_env" = "$env_basename" ]); then
+                    is_active=true
+                fi
                 [ "$created" = "null" ] && created="Date inconnue"
                 [ "$targets_count" = "null" ] && targets_count=0
                 
-                echo "  $count. $name"
+                # Afficher avec indicateur si actif
+                if [ "$is_active" = true ]; then
+                    echo -e "  ${GREEN}${BOLD}✅ $count. $name ${YELLOW}(ENVIRONNEMENT ACTIF)${RESET}"
+                else
+                    echo "  $count. $name"
+                fi
                 echo "     📝 $desc"
                 echo "     📅 $created"
                 echo "     🎯 $targets_count cible(s)"
