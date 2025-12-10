@@ -7,6 +7,14 @@
 # Version: 1.0
 # =============================================================================
 
+# Couleurs
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+RESET='\033[0m'
+
 # Charger les utilitaires
 INSTALLMAN_DIR="${INSTALLMAN_DIR:-$HOME/dotfiles/zsh/functions/installman}"
 INSTALLMAN_UTILS_DIR="$INSTALLMAN_DIR/utils"
