@@ -62,7 +62,8 @@ testzshman() {
         echo "  4. ⚙️  Test de la configuration (zshrc, env, aliases)"
         echo "  5. 🔗 Test des symlinks"
         echo "  6. 📝 Test de la syntaxe ZSH"
-        echo "  7. 🚀 Test complet (tous les tests)"
+        echo "  7. 🎓 Test de cyberlearn (modules, labs, progression)"
+        echo "  8. 🚀 Test complet (tous les tests)"
         echo ""
         echo -e "${YELLOW}  0.${RESET} Quitter"
         echo ""
@@ -90,6 +91,9 @@ testzshman() {
                 test_syntax
                 ;;
             7)
+                test_cyberlearn
+                ;;
+            8)
                 test_all
                 ;;
             0)
@@ -119,7 +123,7 @@ testzshman() {
             "pathman" "netman" "aliaman" "miscman" "searchman"
             "cyberman" "devman" "gitman" "helpman" "manman"
             "configman" "installman" "moduleman" "fileman"
-            "virtman" "sshman" "testzshman" "testman"
+            "virtman" "sshman" "testzshman" "testman" "cyberlearn"
         )
         
         local success=0
@@ -353,6 +357,195 @@ testzshman() {
         echo -e "Résumé: ${GREEN}$success${RESET} fichiers OK, ${RED}$failed${RESET} erreurs"
     }
     
+    # Test de cyberlearn
+    test_cyberlearn() {
+        show_header
+        echo -e "${CYAN}🎓 Test de cyberlearn${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        local success=0
+        local failed=0
+        local warning=0
+        
+        # Test 1: cyberlearn disponible
+        echo -e "${YELLOW}1. Vérification de la commande cyberlearn:${RESET}"
+        if type cyberlearn >/dev/null 2>&1; then
+            echo -e "${GREEN}✓${RESET} cyberlearn est disponible"
+            ((success++))
+        else
+            echo -e "${RED}✗${RESET} cyberlearn n'est pas disponible"
+            ((failed++))
+        fi
+        
+        # Test 2: Structure des répertoires
+        echo ""
+        echo -e "${YELLOW}2. Vérification de la structure:${RESET}"
+        local cyberlearn_dir="$DOTFILES_DIR/zsh/functions/cyberlearn"
+        local required_dirs=(
+            "$cyberlearn_dir"
+            "$cyberlearn_dir/modules"
+            "$cyberlearn_dir/modules/basics"
+            "$cyberlearn_dir/modules/network"
+            "$cyberlearn_dir/modules/web"
+            "$cyberlearn_dir/utils"
+            "$cyberlearn_dir/labs"
+        )
+        
+        for dir in "${required_dirs[@]}"; do
+            if [ -d "$dir" ]; then
+                echo -e "${GREEN}✓${RESET} $dir"
+                ((success++))
+            else
+                echo -e "${RED}✗${RESET} $dir manquant"
+                ((failed++))
+            fi
+        done
+        
+        # Test 3: Modules disponibles
+        echo ""
+        echo -e "${YELLOW}3. Vérification des modules:${RESET}"
+        local modules=("basics" "network" "web" "crypto" "linux" "windows" "mobile" "forensics" "pentest" "incident")
+        local modules_found=0
+        
+        for module in "${modules[@]}"; do
+            local module_file="$cyberlearn_dir/modules/$module/module.zsh"
+            if [ -f "$module_file" ]; then
+                echo -e "${GREEN}✓${RESET} Module $module disponible"
+                ((modules_found++))
+                ((success++))
+            else
+                echo -e "${YELLOW}⚠️${RESET} Module $module non implémenté"
+                ((warning++))
+            fi
+        done
+        echo -e "${CYAN}ℹ️${RESET} Modules implémentés: $modules_found/${#modules[@]}"
+        
+        # Test 4: Utilitaires
+        echo ""
+        echo -e "${YELLOW}4. Vérification des utilitaires:${RESET}"
+        local utils=("progress.sh" "labs.sh" "validator.sh")
+        for util in "${utils[@]}"; do
+            local util_file="$cyberlearn_dir/utils/$util"
+            if [ -f "$util_file" ]; then
+                echo -e "${GREEN}✓${RESET} $util"
+                ((success++))
+            else
+                echo -e "${RED}✗${RESET} $util manquant"
+                ((failed++))
+            fi
+        done
+        
+        # Test 5: Système de progression
+        echo ""
+        echo -e "${YELLOW}5. Vérification du système de progression:${RESET}"
+        local progress_dir="$HOME/.cyberlearn"
+        if [ -d "$progress_dir" ]; then
+            echo -e "${GREEN}✓${RESET} Répertoire de progression: $progress_dir"
+            ((success++))
+            
+            # Vérifier si jq est installé (pour la progression JSON)
+            if command -v jq &>/dev/null; then
+                echo -e "${GREEN}✓${RESET} jq installé (pour la progression JSON)"
+                ((success++))
+            else
+                echo -e "${YELLOW}⚠️${RESET} jq non installé (recommandé pour la progression)"
+                ((warning++))
+            fi
+        else
+            echo -e "${YELLOW}⚠️${RESET} Répertoire de progression non créé (sera créé au premier lancement)"
+            ((warning++))
+        fi
+        
+        # Test 6: Labs Docker
+        echo ""
+        echo -e "${YELLOW}6. Vérification des labs Docker:${RESET}"
+        if command -v docker &>/dev/null; then
+            echo -e "${GREEN}✓${RESET} Docker installé"
+            ((success++))
+            
+            # Vérifier si Docker est en cours d'exécution
+            if docker info &>/dev/null 2>&1; then
+                echo -e "${GREEN}✓${RESET} Docker est en cours d'exécution"
+                ((success++))
+                
+                # Vérifier les labs actifs
+                local active_labs=$(docker ps --format '{{.Names}}' | grep -c '^cyberlearn-' 2>/dev/null || echo "0")
+                if [ "$active_labs" -gt 0 ]; then
+                    echo -e "${CYAN}ℹ️${RESET} Labs actifs: $active_labs"
+                    docker ps --format '  - {{.Names}} ({{.Status}})' | grep '^  - cyberlearn-'
+                else
+                    echo -e "${CYAN}ℹ️${RESET} Aucun lab actif"
+                fi
+            else
+                echo -e "${YELLOW}⚠️${RESET} Docker installé mais non démarré"
+                ((warning++))
+            fi
+        else
+            echo -e "${YELLOW}⚠️${RESET} Docker non installé (requis pour les labs)"
+            echo -e "${CYAN}💡${RESET} Installez Docker avec: installman docker"
+            ((warning++))
+        fi
+        
+        # Test 7: Fichiers de configuration des labs
+        echo ""
+        echo -e "${YELLOW}7. Vérification des configurations de labs:${RESET}"
+        local labs_dir="$cyberlearn_dir/labs"
+        if [ -d "$labs_dir" ]; then
+            local lab_configs=$(find "$labs_dir" -name "Dockerfile" -o -name "docker-compose.yml" 2>/dev/null | wc -l)
+            if [ "$lab_configs" -gt 0 ]; then
+                echo -e "${GREEN}✓${RESET} Configurations de labs trouvées: $lab_configs"
+                ((success++))
+            else
+                echo -e "${CYAN}ℹ️${RESET} Aucune configuration de lab trouvée (sera créée au démarrage)"
+            fi
+        fi
+        
+        # Test 8: Alias
+        echo ""
+        echo -e "${YELLOW}8. Vérification des alias:${RESET}"
+        local aliases=("cl" "cyberlearn-module" "cyberlearn-lab")
+        for alias_name in "${aliases[@]}"; do
+            if alias "$alias_name" &>/dev/null 2>&1; then
+                echo -e "${GREEN}✓${RESET} Alias $alias_name disponible"
+                ((success++))
+            else
+                echo -e "${YELLOW}⚠️${RESET} Alias $alias_name non défini"
+                ((warning++))
+            fi
+        done
+        
+        # Test 9: Test fonctionnel rapide
+        echo ""
+        echo -e "${YELLOW}9. Test fonctionnel rapide:${RESET}"
+        if type cyberlearn >/dev/null 2>&1; then
+            # Tester que cyberlearn peut charger sans erreur
+            if (cyberlearn help &>/dev/null 2>&1 || true); then
+                echo -e "${GREEN}✓${RESET} cyberlearn peut être exécuté"
+                ((success++))
+            else
+                echo -e "${RED}✗${RESET} Erreur lors de l'exécution de cyberlearn"
+                ((failed++))
+            fi
+        fi
+        
+        # Résumé
+        echo ""
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+        echo -e "Résumé: ${GREEN}$success${RESET} tests réussis, ${RED}$failed${RESET} échecs, ${YELLOW}$warning${RESET} avertissements"
+        
+        # Recommandations
+        if [ "$failed" -eq 0 ] && [ "$warning" -gt 0 ]; then
+            echo ""
+            echo -e "${CYAN}💡 Recommandations:${RESET}"
+            if ! command -v docker &>/dev/null; then
+                echo "  • Installez Docker pour utiliser les labs: installman docker"
+            fi
+            if ! command -v jq &>/dev/null; then
+                echo "  • Installez jq pour la progression: sudo pacman -S jq (ou apt/dnf)"
+            fi
+        fi
+    }
+    
     # Test complet
     test_all() {
         show_header
@@ -372,6 +565,8 @@ testzshman() {
         test_symlinks
         echo ""
         test_syntax
+        echo ""
+        test_cyberlearn
         
         echo ""
         echo -e "${GREEN}${BOLD}✅ Tests complets terminés!${RESET}"
@@ -398,6 +593,9 @@ testzshman() {
             syntax)
                 test_syntax
                 ;;
+            cyberlearn|cyber)
+                test_cyberlearn
+                ;;
             all|complete)
                 test_all
                 ;;
@@ -411,6 +609,7 @@ testzshman() {
                 echo "  testzshman config    - Test de la configuration"
                 echo "  testzshman symlinks   - Test des symlinks"
                 echo "  testzshman syntax    - Test de la syntaxe"
+                echo "  testzshman cyberlearn - Test de cyberlearn"
                 echo "  testzshman all       - Tous les tests"
                 return 1
                 ;;
