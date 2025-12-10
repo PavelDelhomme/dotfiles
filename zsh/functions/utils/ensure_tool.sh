@@ -109,6 +109,9 @@ get_package_name() {
                 traceroute) echo "traceroute" ;;
                 curl) echo "curl" ;;
                 wget) echo "wget" ;;
+                python3) echo "python3" ;;
+                pip3) echo "python3-pip" ;;
+                go) echo "golang" ;;
                 *) echo "$tool" ;;
             esac
             ;;
@@ -138,6 +141,9 @@ get_package_name() {
                 traceroute) echo "traceroute" ;;
                 curl) echo "curl" ;;
                 wget) echo "wget" ;;
+                python3) echo "dev-lang/python" ;;
+                pip3) echo "dev-python/pip" ;;
+                go) echo "dev-lang/go" ;;
                 *) echo "$tool" ;;
             esac
             ;;
@@ -233,10 +239,17 @@ install_package() {
     esac
 }
 
+# Charger ensure_osint_tool si disponible
+if [ -f "$HOME/dotfiles/zsh/functions/utils/ensure_osint_tool.sh" ]; then
+    source "$HOME/dotfiles/zsh/functions/utils/ensure_osint_tool.sh" 2>/dev/null
+fi
+
 # Fonction principale: ensure_tool
 # DESC: Vérifie si un outil est installé et propose de l'installer automatiquement si absent.
+#       Détecte automatiquement les outils OSINT et les installe depuis GitHub.
 # USAGE: ensure_tool <tool_name> [package_name]
 # EXAMPLE: ensure_tool docker
+# EXAMPLE: ensure_tool sherlock  # Installe depuis GitHub
 ensure_tool() {
     local tool="$1"
     local package_name="$2"  # Nom de paquet optionnel (si différent du nom de l'outil)
@@ -245,6 +258,35 @@ ensure_tool() {
         echo -e "${RED}❌ Usage: ensure_tool <tool_name> [package_name]${NC}"
         return 1
     fi
+    
+    # Liste des outils OSINT (installés depuis GitHub)
+    local osint_tools=(
+        "sherlock" "sherlock-project"
+        "theharvester" "theHarvester"
+        "recon-ng" "recon_ng"
+        "spiderfoot" "spiderFoot"
+        "taranis-ai" "taranis_ai" "taranis"
+        "gosearch" "go-search"
+        "darkgpt" "dark_gpt" "DarkGPT"
+        "robin"
+        "osint-llm" "osint_llm" "osintllm"
+        "ollama"
+    )
+    
+    # Vérifier si c'est un outil OSINT
+    for osint_tool in "${osint_tools[@]}"; do
+        if [ "$tool" = "$osint_tool" ]; then
+            # Utiliser ensure_osint_tool pour les outils OSINT
+            if type ensure_osint_tool >/dev/null 2>&1; then
+                ensure_osint_tool "$tool"
+                return $?
+            else
+                echo -e "${YELLOW}⚠️  ensure_osint_tool non disponible${NC}"
+                echo -e "${CYAN}💡 Installez $tool manuellement depuis GitHub${NC}"
+                return 1
+            fi
+        fi
+    done
     
     # Vérifier si l'outil est déjà installé
     if command -v "$tool" &>/dev/null; then
