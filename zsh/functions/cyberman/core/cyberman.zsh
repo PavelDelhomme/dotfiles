@@ -202,7 +202,8 @@ cyberman() {
         echo "10. Check Telnet              (Vérifier si telnet est actif)"
         echo "11. Network Scanner          (Scanner réseau complet en temps réel)"
         echo "12. Network Scanner Live      (Scanner réseau live continu)"
-        echo "13. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
+        echo "13. Advanced Network Scan    (Scan réseau avancé avec ports/services/vuln)"
+        echo "14. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -271,6 +272,11 @@ cyberman() {
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             13)
+                source "$CYBER_DIR/scanning/advanced_network_scan.sh" && advanced_network_scan "" --full --vuln --save
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            14)
                 if has_targets; then
                     echo "🔄 Scan complet sur toutes les cibles..."
                     for target in "${CYBER_TARGETS[@]}"; do
