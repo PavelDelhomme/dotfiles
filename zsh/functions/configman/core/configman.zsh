@@ -232,11 +232,13 @@ configman() {
                 fi
                 ;;
             osint|osint-config)
-                if [ -f "$CONFIGMAN_MODULES_DIR/osint/osint_config.sh" ]; then
-                    bash "$CONFIGMAN_MODULES_DIR/osint/osint_config.sh"
+                local osint_script="$CONFIGMAN_MODULES_DIR/osint/osint_config.sh"
+                if [ -f "$osint_script" ]; then
+                    bash "$osint_script"
                 else
                     echo -e "${RED}❌ Module OSINT non disponible${RESET}"
-                    echo -e "${YELLOW}Fichier attendu: $CONFIGMAN_MODULES_DIR/osint/osint_config.sh${RESET}"
+                    echo -e "${YELLOW}Fichier attendu: $osint_script${RESET}"
+                    echo -e "${CYAN}CONFIGMAN_MODULES_DIR: $CONFIGMAN_MODULES_DIR${RESET}"
                     return 1
                 fi
                 ;;
