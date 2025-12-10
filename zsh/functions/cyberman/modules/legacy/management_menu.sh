@@ -330,6 +330,13 @@ show_environment_creation_menu() {
         echo -e "${RESET}"
         echo ""
         
+        # Afficher l'environnement actif en haut si disponible
+        if has_active_environment 2>/dev/null; then
+            local current_env=$(get_current_environment 2>/dev/null)
+            echo -e "${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
+            echo ""
+        fi
+        
         # Lister les environnements
         if ! list_environments 2>/dev/null; then
             echo ""
