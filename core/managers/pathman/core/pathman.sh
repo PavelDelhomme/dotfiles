@@ -79,36 +79,13 @@ pathman() {
             echo "❌ Usage: add_to_path <directory>"
             return 1
         fi
+        # Utiliser la fonction globale add_to_path
         add_to_path "$dir"
-    }
-
-    # DESC: Ajoute un répertoire au PATH de manière globale (exportée)
-    # USAGE: add_to_path <directory>
-    # EXAMPLE: add_to_path /usr/local/bin
-    add_to_path() {
-        local dir="${1%/}"
-        if [ -z "$dir" ]; then
-            echo "❌ Usage: add_to_path <directory>"
-            return 1
-        fi
-        if [ ! -d "$dir" ]; then
-            printf "${RED}Répertoire '$dir' inexistant.${RESET}\n"
-            add_logs "ERROR" "Tentative d'ajout: $dir"
-            sleep 2
-            return 1
-        fi
-        case ":$PATH:" in
-            *":$dir:"*)
-                printf "${YELLOW}Déjà présent: $dir${RESET}\n"
-                ;;
-            *)
-                export PATH="$dir:$PATH"
-                printf "${GREEN}Ajouté: $dir${RESET}\n"
-                add_logs "ADD" "Ajout: $dir"
-                ;;
-        esac
         sleep 2
     }
+
+    # Note: add_to_path() est définie en dehors de pathman() pour être globale
+    # Cette fonction interne utilise la fonction globale
 
     # DESC: Retire un répertoire du PATH de manière interactive
     # USAGE: remove_from_path
@@ -128,36 +105,14 @@ pathman() {
         sleep 2
     }
 
-    # DESC: Nettoie le PATH en supprimant les doublons et répertoires invalides
-    # USAGE: pathman_clean_path
-    # EXAMPLE: pathman_clean_path
-    pathman_clean_path() {
-        local old_IFS="$IFS"
-        IFS=':'
-        set -- $PATH
-        IFS="$old_IFS"
-        local new_path=""
-        local seen=""
-        
-        for dir in "$@"; do
-            if [ -n "$dir" ] && [ -d "$dir" ]; then
-                case ":$seen:" in
-                    *":$dir:"*) ;;
-                    *)
-                        new_path="$new_path:$dir"
-                        seen="$seen:$dir"
-                        ;;
-                esac
-            fi
-        done
-        export PATH="${new_path#:}"
+    # DESC: Nettoie le PATH (version interne avec logs)
+    # USAGE: clean_path_internal
+    clean_path_internal() {
+        # Utiliser la fonction globale clean_path
+        clean_path
         add_logs "CLEAN" "Doublons/invalid nettoyés"
         printf "${GREEN}PATH nettoyé: $PATH${RESET}\n"
-    }
-
-    # Alias pour compatibilité avec env.sh
-    clean_path() {
-        pathman_clean_path
+        sleep 2
     }
 
     # DESC: Supprime les répertoires invalides (inexistants) du PATH
@@ -289,7 +244,9 @@ EOF
     case "$1" in
         add)
             if [ -n "$2" ]; then
-                pathman_add_to_path "$2"
+                # Utiliser la fonction globale add_to_path définie en dehors
+                add_to_path "$2"
+                add_logs "ADD" "Ajout rapide: $2"
             else
                 add_to_path_interactive
             fi
@@ -308,7 +265,7 @@ EOF
             return 0
             ;;
         clean)
-            pathman_clean_path
+            clean_path_internal
             return 0
             ;;
         invalid)
@@ -354,7 +311,7 @@ EOF
             1) show_path ;;
             2) add_to_path_interactive ;;
             3) remove_from_path ;;
-            4) pathman_clean_path ;;
+            4) clean_path_internal ;;
             5) clean_invalid_paths ;;
             6) save_path ;;
             7) restore_path ;;
@@ -368,16 +325,67 @@ EOF
     printf "${GREEN}Bye bye !${RESET}\n"
 }
 
-# Exporter les fonctions pour utilisation globale (via adapters)
-# Ces fonctions seront disponibles après le chargement de pathman()
+# =============================================================================
+# FONCTIONS EXPORTÉES GLOBALEMENT
+# =============================================================================
+# Ces fonctions sont définies en dehors de pathman() pour être disponibles
+# globalement (utilisées par env.sh et autres scripts)
+
+# DESC: Ajoute un répertoire au PATH de manière globale (exportée)
+# USAGE: add_to_path <directory>
+# EXAMPLE: add_to_path /usr/local/bin
 add_to_path() {
-    pathman_add_to_path "$@"
+    local dir="${1%/}"
+    if [ -z "$dir" ]; then
+        echo "❌ Usage: add_to_path <directory>"
+        return 1
+    fi
+    if [ ! -d "$dir" ]; then
+        echo "❌ Répertoire '$dir' inexistant."
+        return 1
+    fi
+    case ":$PATH:" in
+        *":$dir:"*)
+            echo "⚠️  Déjà présent dans PATH: $dir"
+            ;;
+        *)
+            export PATH="$dir:$PATH"
+            echo "✅ Ajouté au PATH: $dir"
+            # Log si pathman est chargé et add_logs disponible
+            if command -v add_logs >/dev/null 2>&1; then
+                add_logs "ADD" "Ajout: $dir" 2>/dev/null || true
+            fi
+            ;;
+    esac
 }
 
+# DESC: Nettoie le PATH en supprimant les doublons et répertoires invalides
+# USAGE: clean_path
+# EXAMPLE: clean_path
 clean_path() {
-    pathman_clean_path
+    local old_IFS="$IFS"
+    IFS=':'
+    set -- $PATH
+    IFS="$old_IFS"
+    local new_path=""
+    local seen=""
+    
+    for dir in "$@"; do
+        if [ -n "$dir" ] && [ -d "$dir" ]; then
+            case ":$seen:" in
+                *":$dir:"*) ;;
+                *)
+                    new_path="$new_path:$dir"
+                    seen="$seen:$dir"
+                    ;;
+            esac
+        fi
+    done
+    export PATH="${new_path#:}"
+    echo "✅ PATH nettoyé"
+    # Log si pathman est chargé et add_logs disponible
+    if command -v add_logs >/dev/null 2>&1; then
+        add_logs "CLEAN" "Doublons/invalid nettoyés" 2>/dev/null || true
+    fi
 }
-
-# Note: Les fonctions add_to_path et clean_path sont définies dans pathman()
-# Elles seront disponibles globalement via les adapters shell qui les exportent
 
