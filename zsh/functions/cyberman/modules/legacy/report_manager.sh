@@ -119,13 +119,19 @@ show_report() {
         return 1
     fi
     
-    local workflow=$(jq -r '.workflow // "N/A"' "$report_file")
-    local env=$(jq -r '.environment // "N/A"' "$report_file")
-    local started=$(jq -r '.started' "$report_file")
-    local ended=$(jq -r '.ended // "En cours..."' "$report_file")
-    local status=$(jq -r '.status // "unknown"' "$report_file")
-    local targets=($(jq -r '.targets[]' "$report_file"))
-    local steps_count=$(jq '.steps | length' "$report_file")
+    # Vérifier que le fichier JSON est valide
+    if ! jq empty "$report_file" 2>/dev/null; then
+        echo "❌ Fichier JSON invalide: $report_file"
+        return 1
+    fi
+    
+    local workflow=$(jq -r '.workflow // "N/A"' "$report_file" 2>/dev/null || echo "N/A")
+    local env=$(jq -r '.environment // "N/A"' "$report_file" 2>/dev/null || echo "N/A")
+    local started=$(jq -r '.started' "$report_file" 2>/dev/null || echo "N/A")
+    local ended=$(jq -r '.ended // "En cours..."' "$report_file" 2>/dev/null || echo "En cours...")
+    local report_status=$(jq -r '.status // "unknown"' "$report_file" 2>/dev/null || echo "unknown")
+    local targets=($(jq -r '.targets[]' "$report_file" 2>/dev/null || echo ""))
+    local steps_count=$(jq '.steps | length' "$report_file" 2>/dev/null || echo "0")
     
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📊 RAPPORT DE TEST DE SÉCURITÉ"
