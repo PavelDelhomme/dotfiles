@@ -223,10 +223,10 @@ network_scanner() {
         # Méthode 2: Scan actif avec nmap (si disponible)
         if command -v nmap &>/dev/null; then
             echo -e "${YELLOW}${BOLD}🔍 SCAN ACTIF (nmap):${RESET}\n"
-            echo -e "${CYAN}Scan en cours... (cela peut prendre quelques secondes)${RESET}\n"
+            echo -e "${CYAN}Scan en cours sur $network_range via $interface... (cela peut prendre quelques secondes)${RESET}\n"
             
-            # Scan rapide pour détecter les hôtes actifs
-            local nmap_output=$(nmap -sn "$network_range" 2>/dev/null | grep -E "Nmap scan report|MAC Address")
+            # Scan rapide pour détecter les hôtes actifs (uniquement sur l'interface principale)
+            local nmap_output=$(nmap -sn -e "$interface" "$network_range" 2>/dev/null | grep -E "Nmap scan report|MAC Address")
             
             if [ -n "$nmap_output" ]; then
                 local current_ip=""
