@@ -180,6 +180,10 @@ configman() {
     
     # Si un argument est fourni, lancer directement le module
     if [ -n "$1" ]; then
+        # Réinitialiser CONFIGMAN_MODULES_DIR pour éviter les modifications par les scripts précédents
+        CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
+        export CONFIGMAN_MODULES_DIR
+        
         case "$1" in
             git)
                 if [ -f "$CONFIGMAN_MODULES_DIR/git/git_config.sh" ]; then
@@ -232,13 +236,17 @@ configman() {
                 fi
                 ;;
             osint|osint-config)
+                # S'assurer que CONFIGMAN_MODULES_DIR est correct
+                CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
                 local osint_script="$CONFIGMAN_MODULES_DIR/osint/osint_config.sh"
                 if [ -f "$osint_script" ]; then
                     bash "$osint_script"
                 else
                     echo -e "${RED}❌ Module OSINT non disponible${RESET}"
                     echo -e "${YELLOW}Fichier attendu: $osint_script${RESET}"
+                    echo -e "${CYAN}CONFIGMAN_DIR: $CONFIGMAN_DIR${RESET}"
                     echo -e "${CYAN}CONFIGMAN_MODULES_DIR: $CONFIGMAN_MODULES_DIR${RESET}"
+                    ls -la "$CONFIGMAN_MODULES_DIR" 2>/dev/null || echo "Répertoire modules n'existe pas"
                     return 1
                 fi
                 ;;
