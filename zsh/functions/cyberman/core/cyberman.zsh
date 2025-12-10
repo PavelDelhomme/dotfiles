@@ -686,7 +686,6 @@ cyberman() {
         
         echo -e "${CYAN}${BOLD}Menu principal${RESET}\n"
         echo "1.  ⚙️  Gestion & Configuration (environnements, cibles, workflows, rapports, anonymat)"
-        echo ""
         echo "2.  🔍 Reconnaissance & Information Gathering"
         echo "3.  🔎 Scanning & Enumeration"
         echo "4.  🛡️  Vulnerability Assessment & Session"
@@ -695,7 +694,6 @@ cyberman() {
         echo "7.  📱 IoT Devices & Embedded Systems"
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
         echo "9.  🛠️  Utilitaires (hash, encode/decode, etc.)"
-        echo ""
         echo "10. 🎓 Apprentissage & Labs (cyberlearn intégré)"
         echo "11. 🚀 Assistant de test complet"
         
