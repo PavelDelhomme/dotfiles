@@ -697,7 +697,8 @@ cyberman() {
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
         echo "9.  🛠️  Utilitaires (hash, encode/decode, etc.)"
         echo "10. 🎓 Apprentissage & Labs (cyberlearn intégré)"
-        echo "11. 🔍 OSINT Tools (Outils OSINT avec IA)"
+        echo "11. 🚀 Assistant de test complet"
+        echo "12. 🔍 OSINT Tools (Outils OSINT avec IA)"
         echo "11. 🚀 Assistant de test complet"
         
         # Afficher les options rapides si un environnement est actif
@@ -1872,7 +1873,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            13)
+            15)
                 # Accès rapide aux rapports
                 if has_active_environment 2>/dev/null; then
                     show_report_menu
