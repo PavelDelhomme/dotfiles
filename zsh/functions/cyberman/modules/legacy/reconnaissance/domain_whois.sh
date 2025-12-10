@@ -77,11 +77,12 @@ function domain_whois() {
                     # Enregistrer automatiquement le résultat (sortie complète)
                     if typeset -f auto_save_recon_result >/dev/null 2>&1; then
                         auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
+                        echo -e "${GREEN}✓ Résultats sauvegardés dans l'environnement actif${RESET}"
                     fi
                 fi
                 echo ""
             done
-            return 0
+            # Ne pas faire return ici, laisser cyberman gérer le retour au menu
         else
             target=$(prompt_target "🎯 Entrez le domaine: ")
             if [ -z "$target" ]; then
@@ -123,10 +124,11 @@ function domain_whois() {
         # Enregistrer automatiquement le résultat dans l'environnement actif (sortie complète)
         if typeset -f auto_save_recon_result >/dev/null 2>&1; then
             auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
+            echo -e "${GREEN}✓ Résultats sauvegardés dans l'environnement actif${RESET}"
         fi
         
         echo ""
-        return 0
+        # Ne pas faire return ici, laisser cyberman gérer le retour au menu
     else
         return 1
     fi

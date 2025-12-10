@@ -80,104 +80,106 @@ cyberman() {
     # USAGE: show_recon_menu
     # EXAMPLE: show_recon_menu
     show_recon_menu() {
-        show_header
-        echo -e "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET}"
-        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        echo "1.  WHOIS domain              (Informations domaine)"
-        echo "2.  DNS Lookup                (Requêtes DNS)"
-        echo "3.  DNSEnum scan              (Énumération DNS)"
-        echo "4.  Find subdomains           (Recherche sous-domaines)"
-        echo "5.  Recon domain              (Reconnaissance complète domaine)"
-        echo "6.  Enhanced traceroute       (Traceroute amélioré)"
-        echo "7.  Network map               (Cartographie réseau)"
-        echo "8.  Get HTTP headers          (En-têtes HTTP)"
-        echo "9.  Analyze headers           (Analyse en-têtes)"
-        echo "10. Get robots.txt            (Récupération robots.txt)"
-        echo "0.  Retour au menu principal"
-        echo ""
-        printf "Choix: "
-        read -r choice
-        # Nettoyer le choix
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
-        case "$choice" in
-            1) 
-                source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            2) 
-                source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            3) 
-                source "$CYBER_DIR/reconnaissance/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            4) 
-                source "$CYBER_DIR/reconnaissance/find_subdomains.sh" && find_subdomains
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            5) 
-                source "$CYBER_DIR/reconnaissance/recon_domain.sh" && ensure_tool theHarvester && recon_domain
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            6) 
-                source "$CYBER_DIR/reconnaissance/enhanced_traceroute.sh" && enhanced_traceroute
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            7) 
-                source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            8) 
-                source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            9) 
-                source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            10) 
-                source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            11) 
-                source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet
-                echo ""
-                read -k 1 "?Appuyez sur une touche pour continuer..."
-                ;;
-            12)
-                if has_targets; then
-                    echo "🔄 Reconnaissance sur toutes les cibles..."
-                    for target in "${CYBER_TARGETS[@]}"; do
-                        echo ""
-                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                        echo "🎯 Cible: $target"
-                        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                        source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois "$target"
-                        source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup "$target"
-                        source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers "$target"
-                    done
+        while true; do
+            show_header
+            echo -e "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET}"
+            echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            echo "1.  WHOIS domain              (Informations domaine)"
+            echo "2.  DNS Lookup                (Requêtes DNS)"
+            echo "3.  DNSEnum scan              (Énumération DNS)"
+            echo "4.  Find subdomains           (Recherche sous-domaines)"
+            echo "5.  Recon domain              (Reconnaissance complète domaine)"
+            echo "6.  Enhanced traceroute       (Traceroute amélioré)"
+            echo "7.  Network map               (Cartographie réseau)"
+            echo "8.  Get HTTP headers          (En-têtes HTTP)"
+            echo "9.  Analyze headers           (Analyse en-têtes)"
+            echo "10. Get robots.txt            (Récupération robots.txt)"
+            echo "0.  Retour au menu principal"
+            echo ""
+            printf "Choix: "
+            read -r choice
+            # Nettoyer le choix
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+            case "$choice" in
+                1) 
+                    source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois
                     echo ""
-                    echo "✅ Reconnaissance terminée sur toutes les cibles"
                     read -k 1 "?Appuyez sur une touche pour continuer..."
-                else
-                    echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
-                    sleep 2
-                fi
-                ;;
-            0) return ;;
-            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
-        esac
+                    ;;
+                2) 
+                    source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                3) 
+                    source "$CYBER_DIR/reconnaissance/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                4) 
+                    source "$CYBER_DIR/reconnaissance/find_subdomains.sh" && find_subdomains
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                5) 
+                    source "$CYBER_DIR/reconnaissance/recon_domain.sh" && ensure_tool theHarvester && recon_domain
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                6) 
+                    source "$CYBER_DIR/reconnaissance/enhanced_traceroute.sh" && enhanced_traceroute
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                7) 
+                    source "$CYBER_DIR/reconnaissance/network_map.sh" && network_map
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                8) 
+                    source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                9) 
+                    source "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                10) 
+                    source "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                11) 
+                    source "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet
+                    echo ""
+                    read -k 1 "?Appuyez sur une touche pour continuer..."
+                    ;;
+                12)
+                    if has_targets; then
+                        echo "🔄 Reconnaissance sur toutes les cibles..."
+                        for target in "${CYBER_TARGETS[@]}"; do
+                            echo ""
+                            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                            echo "🎯 Cible: $target"
+                            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                            source "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois "$target"
+                            source "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup "$target"
+                            source "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers "$target"
+                        done
+                        echo ""
+                        echo "✅ Reconnaissance terminée sur toutes les cibles"
+                        read -k 1 "?Appuyez sur une touche pour continuer..."
+                    else
+                        echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
+                        sleep 2
+                    fi
+                    ;;
+                0) return ;;
+                *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+            esac
+        done
     }
     
     # =========================================================================
