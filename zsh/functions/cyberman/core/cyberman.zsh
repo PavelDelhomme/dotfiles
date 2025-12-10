@@ -38,7 +38,9 @@ cyberman() {
     local BOLD='\033[1m'
     local RESET='\033[0m'
     
-    local CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+    # S'assurer que CYBER_DIR est défini correctement (utiliser la valeur globale si définie)
+    CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+    export CYBER_DIR
     
     # Charger tous les gestionnaires
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
