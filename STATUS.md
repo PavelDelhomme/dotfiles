@@ -245,12 +245,15 @@ installman/
   - Core : `gitman.zsh`
   - Modules : fonctions Git
 
-- [ ] **aliaman** - Alias
-  - Core : `aliaman.zsh`
-  - Fonctions d'alias
+- [x] **aliaman** - Alias ⚠️ **MIGRÉ (Wrapper temporaire)**
+  - Core wrapper : `core/managers/aliaman/core/aliaman.sh` ✅
+  - Adapter ZSH : `shells/zsh/adapters/aliaman.zsh` ✅
+  - **Migration complète POSIX à venir**
 
-- [ ] **searchman** - Recherche
-  - Core : `searchman.zsh`
+- [x] **searchman** - Recherche ⚠️ **MIGRÉ (Wrapper temporaire)**
+  - Core wrapper : `core/managers/searchman/core/searchman.sh` ✅
+  - Adapter ZSH : `shells/zsh/adapters/searchman.zsh` ✅
+  - **Migration complète POSIX à venir**
 
 - [ ] **helpman** - Aide
   - Core : `helpman.zsh`
