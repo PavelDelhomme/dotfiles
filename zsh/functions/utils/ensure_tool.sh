@@ -71,6 +71,14 @@ get_package_name() {
                 john) echo "john" ;;
                 tor) echo "tor" ;;
                 proxychains) echo "proxychains-ng" ;;
+                whois) echo "whois" ;;
+                theHarvester) echo "theharvester" ;;
+                dig) echo "bind" ;;
+                nslookup) echo "bind" ;;
+                host) echo "bind" ;;
+                traceroute) echo "traceroute" ;;
+                curl) echo "curl" ;;
+                wget) echo "wget" ;;
                 *) echo "$tool" ;;
             esac
             ;;
@@ -92,6 +100,14 @@ get_package_name() {
                 john) echo "john" ;;
                 tor) echo "tor" ;;
                 proxychains) echo "proxychains4" ;;
+                whois) echo "whois" ;;
+                theHarvester) echo "theharvester" ;;
+                dig) echo "dnsutils" ;;
+                nslookup) echo "dnsutils" ;;
+                host) echo "dnsutils" ;;
+                traceroute) echo "traceroute" ;;
+                curl) echo "curl" ;;
+                wget) echo "wget" ;;
                 *) echo "$tool" ;;
             esac
             ;;
@@ -113,6 +129,14 @@ get_package_name() {
                 john) echo "john" ;;
                 tor) echo "tor" ;;
                 proxychains) echo "proxychains-ng" ;;
+                whois) echo "whois" ;;
+                theHarvester) echo "theharvester" ;;
+                dig) echo "bind-utils" ;;
+                nslookup) echo "bind-utils" ;;
+                host) echo "bind-utils" ;;
+                traceroute) echo "traceroute" ;;
+                curl) echo "curl" ;;
+                wget) echo "wget" ;;
                 *) echo "$tool" ;;
             esac
             ;;
@@ -153,45 +177,56 @@ install_package() {
     
     case "$distro" in
         arch)
-            log_info "Installation via pacman: $package"
-            sudo pacman -S --noconfirm "$package" 2>/dev/null || {
-                log_warn "Paquet non trouvé dans les repos officiels"
+            echo -e "${CYAN}📦 Installation via pacman: $package${NC}"
+            if sudo pacman -S --noconfirm "$package" 2>/dev/null; then
+                return 0
+            else
+                echo -e "${YELLOW}⚠️  Paquet non trouvé dans les repos officiels${NC}"
                 if command -v yay &>/dev/null; then
-                    log_info "Tentative avec yay (AUR)..."
-                    yay -S --noconfirm "$package" 2>/dev/null || {
-                        log_error "Échec de l'installation de $package"
-                        return 1
-                    }
-                else
-                    log_error "yay non disponible. Installez $package manuellement."
-                    return 1
+                    echo -e "${CYAN}📦 Tentative avec yay (AUR)...${NC}"
+                    if yay -S --noconfirm "$package" 2>/dev/null; then
+                        return 0
+                    fi
+                elif command -v pamac &>/dev/null; then
+                    echo -e "${CYAN}📦 Tentative avec pamac (AUR)...${NC}"
+                    if pamac build --no-confirm "$package" 2>/dev/null; then
+                        return 0
+                    fi
                 fi
-            }
+                echo -e "${RED}❌ Échec de l'installation de $package${NC}"
+                return 1
+            fi
             ;;
         debian)
-            log_info "Installation via apt: $package"
-            sudo apt-get update -qq && sudo apt-get install -y "$package" || {
-                log_error "Échec de l'installation de $package"
+            echo -e "${CYAN}📦 Installation via apt: $package${NC}"
+            if sudo apt-get update -qq && sudo apt-get install -y "$package"; then
+                return 0
+            else
+                echo -e "${RED}❌ Échec de l'installation de $package${NC}"
                 return 1
-            }
+            fi
             ;;
         fedora)
-            log_info "Installation via dnf: $package"
-            sudo dnf install -y "$package" || {
-                log_error "Échec de l'installation de $package"
+            echo -e "${CYAN}📦 Installation via dnf: $package${NC}"
+            if sudo dnf install -y "$package"; then
+                return 0
+            else
+                echo -e "${RED}❌ Échec de l'installation de $package${NC}"
                 return 1
-            }
+            fi
             ;;
         gentoo)
-            log_info "Installation via emerge: $package"
-            sudo emerge -av "$package" || {
-                log_error "Échec de l'installation de $package"
+            echo -e "${CYAN}📦 Installation via emerge: $package${NC}"
+            if sudo emerge -av "$package"; then
+                return 0
+            else
+                echo -e "${RED}❌ Échec de l'installation de $package${NC}"
                 return 1
-            }
+            fi
             ;;
         *)
-            log_error "Distribution non supportée pour l'installation automatique"
-            log_warn "Installez $package manuellement pour votre distribution"
+            echo -e "${RED}❌ Distribution non supportée pour l'installation automatique${NC}"
+            echo -e "${YELLOW}💡 Installez $package manuellement pour votre distribution${NC}"
             return 1
             ;;
     esac
@@ -206,7 +241,7 @@ ensure_tool() {
     local package_name="$2"  # Nom de paquet optionnel (si différent du nom de l'outil)
     
     if [ -z "$tool" ]; then
-        log_error "Usage: ensure_tool <tool_name> [package_name]"
+        echo -e "${RED}❌ Usage: ensure_tool <tool_name> [package_name]${NC}"
         return 1
     fi
     
@@ -219,8 +254,8 @@ ensure_tool() {
     local distro=$(detect_distro)
     
     if [ "$distro" = "unknown" ]; then
-        log_warn "Distribution non détectée. Impossible d'installer automatiquement $tool"
-        log_info "Veuillez installer $tool manuellement"
+        echo -e "${YELLOW}⚠️  Distribution non détectée. Impossible d'installer automatiquement $tool${NC}"
+        echo -e "${CYAN}💡 Veuillez installer $tool manuellement${NC}"
         return 1
     fi
     
@@ -228,24 +263,43 @@ ensure_tool() {
     local package=$(get_package_name "$tool" "$distro" "$package_name")
     
     # Afficher une proposition d'installation
-    log_warn "L'outil '$tool' n'est pas installé"
-    log_info "Paquet requis: $package (distribution: $distro)"
     echo ""
-    printf "${CYAN}Voulez-vous installer $tool maintenant? (o/n) [défaut: o]: ${NC}"
+    echo -e "${YELLOW}⚠️  L'outil '${BOLD}$tool${NC}${YELLOW}' n'est pas installé${NC}"
+    echo -e "${CYAN}📦 Paquet requis: ${BOLD}$package${NC} (distribution: $distro)"
+    echo ""
+    printf "${CYAN}💡 Voulez-vous installer $tool maintenant? (O/n) [défaut: O]: ${NC}"
     read -r install_choice
-    install_choice=${install_choice:-o}
+    install_choice=${install_choice:-O}
     
     if [[ ! "$install_choice" =~ ^[oO]$ ]]; then
-        log_warn "Installation annulée. L'outil $tool est requis pour continuer."
+        echo -e "${YELLOW}⚠️  Installation annulée. L'outil $tool est requis pour continuer.${NC}"
+        echo -e "${CYAN}💡 Installez-le manuellement: ${NC}"
+        case "$distro" in
+            arch) echo -e "   ${GREEN}sudo pacman -S $package${NC}" ;;
+            debian) echo -e "   ${GREEN}sudo apt install $package${NC}" ;;
+            fedora) echo -e "   ${GREEN}sudo dnf install $package${NC}" ;;
+            *) echo -e "   ${GREEN}Installez $package pour votre distribution${NC}" ;;
+        esac
         return 1
     fi
     
     # Installer le paquet
+    echo ""
+    echo -e "${CYAN}📦 Installation de $package...${NC}"
     if install_package "$package" "$distro"; then
-        log_info "✅ $tool installé avec succès"
+        echo -e "${GREEN}✅ $tool installé avec succès !${NC}"
+        echo ""
         return 0
     else
-        log_error "❌ Échec de l'installation de $tool"
+        echo -e "${RED}❌ Échec de l'installation de $tool${NC}"
+        echo -e "${YELLOW}💡 Essayez d'installer manuellement: ${NC}"
+        case "$distro" in
+            arch) echo -e "   ${GREEN}sudo pacman -S $package${NC}" ;;
+            debian) echo -e "   ${GREEN}sudo apt install $package${NC}" ;;
+            fedora) echo -e "   ${GREEN}sudo dnf install $package${NC}" ;;
+            *) echo -e "   ${GREEN}Installez $package pour votre distribution${NC}" ;;
+        esac
+        echo ""
         return 1
     fi
 }

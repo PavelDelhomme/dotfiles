@@ -35,7 +35,14 @@ function domain_whois() {
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo "🎯 WHOIS: $domain"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                if command -v whois >/dev/null 2>&1; then
+                # Vérifier et installer whois si nécessaire
+                local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+                if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+                    source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+                    if ensure_tool whois; then
+                        whois "$domain"
+                    fi
+                elif command -v whois >/dev/null 2>&1; then
                     whois "$domain"
                 else
                     echo "❌ whois non installé"
@@ -65,17 +72,25 @@ function domain_whois() {
     echo "🔍 WHOIS pour: $domain"
     echo ""
     
-    if command -v whois >/dev/null 2>&1; then
-        local whois_output=$(whois "$domain" 2>&1)
-        echo "$whois_output"
-        
-        # Enregistrer automatiquement le résultat dans l'environnement actif
-        auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
-        
-        return 0
-    else
+    # Vérifier et installer whois si nécessaire
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+        if ! ensure_tool whois; then
+            return 1
+        fi
+    elif ! command -v whois >/dev/null 2>&1; then
         echo "❌ whois non installé"
         echo "💡 Installez-le: sudo pacman -S whois"
         return 1
     fi
+    
+    # Exécuter whois
+    local whois_output=$(whois "$domain" 2>&1)
+    echo "$whois_output"
+    
+    # Enregistrer automatiquement le résultat dans l'environnement actif
+    auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
+    
+    return 0
 }

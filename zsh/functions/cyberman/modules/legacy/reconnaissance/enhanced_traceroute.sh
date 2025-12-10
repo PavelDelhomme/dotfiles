@@ -32,17 +32,29 @@ function enhanced_traceroute() {
                 echo "🛤️  Traceroute: $domain"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo -e "\e[1;36mPerforming enhanced traceroute to $domain\e[0m"
-                if command -v traceroute >/dev/null 2>&1; then
-                    traceroute -I "$domain" 2>/dev/null | while IFS= read -r line; do
-                        ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
-                        if [ -n "$ip" ]; then
-                            if command -v whois >/dev/null 2>&1; then
+                local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+                if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+                    source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+                    if ensure_tool traceroute; then
+                        ensure_tool whois 2>/dev/null  # Optionnel pour whois
+                        traceroute -I "$domain" 2>/dev/null | while IFS= read -r line; do
+                            ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
+                            if [ -n "$ip" ] && command -v whois >/dev/null 2>&1; then
                                 whois_info=$(whois "$ip" 2>/dev/null | grep -E "Organization|Country|OrgName|CountryCode" | head -2 | sed 's/^/    /')
                                 echo -e "$line"
                                 [ -n "$whois_info" ] && echo "$whois_info"
                             else
                                 echo "$line"
                             fi
+                        done
+                    fi
+                elif command -v traceroute >/dev/null 2>&1; then
+                    traceroute -I "$domain" 2>/dev/null | while IFS= read -r line; do
+                        ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
+                        if [ -n "$ip" ] && command -v whois >/dev/null 2>&1; then
+                            whois_info=$(whois "$ip" 2>/dev/null | grep -E "Organization|Country|OrgName|CountryCode" | head -2 | sed 's/^/    /')
+                            echo -e "$line"
+                            [ -n "$whois_info" ] && echo "$whois_info"
                         else
                             echo "$line"
                         fi
@@ -75,21 +87,37 @@ function enhanced_traceroute() {
     echo -e "\e[1;36mPerforming enhanced traceroute to $domain\e[0m"
     echo ""
     
-    if command -v traceroute >/dev/null 2>&1; then
-        traceroute -I "$domain" 2>/dev/null | while IFS= read -r line; do
-            ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
-            if [ -n "$ip" ]; then
-                if command -v whois >/dev/null 2>&1; then
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+        if ensure_tool traceroute; then
+            ensure_tool whois 2>/dev/null  # Optionnel pour whois
+            traceroute -I "$domain" 2>/dev/null | while IFS= read -r line; do
+                ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
+                if [ -n "$ip" ] && command -v whois >/dev/null 2>&1; then
                     whois_info=$(whois "$ip" 2>/dev/null | grep -E "Organization|Country|OrgName|CountryCode" | head -2 | sed 's/^/    /')
                     echo -e "$line"
                     [ -n "$whois_info" ] && echo "$whois_info"
                 else
                     echo "$line"
                 fi
+            done
+            return 0
+        else
+            return 1
+        fi
+    elif command -v traceroute >/dev/null 2>&1; then
+        traceroute -I "$domain" 2>/dev/null | while IFS= read -r line; do
+            ip=$(echo "$line" | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1)
+            if [ -n "$ip" ] && command -v whois >/dev/null 2>&1; then
+                whois_info=$(whois "$ip" 2>/dev/null | grep -E "Organization|Country|OrgName|CountryCode" | head -2 | sed 's/^/    /')
+                echo -e "$line"
+                [ -n "$whois_info" ] && echo "$whois_info"
             else
                 echo "$line"
             fi
         done
+        return 0
     else
         echo "❌ traceroute non installé"
         echo "💡 Installez-le: sudo pacman -S traceroute"

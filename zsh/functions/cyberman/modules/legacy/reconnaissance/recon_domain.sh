@@ -39,19 +39,28 @@ recon_domain() {
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo ""
                 echo "📋 WHOIS:"
-                if command -v whois >/dev/null 2>&1; then
+                local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+                if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+                    source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+                    if ensure_tool whois; then
+                        whois "$domain" 2>/dev/null | head -30
+                    fi
+                elif command -v whois >/dev/null 2>&1; then
                     whois "$domain" 2>/dev/null | head -30
-                else
-                    echo "⚠️  whois non installé"
                 fi
                 echo ""
                 echo "📋 DNS:"
-                if command -v dig >/dev/null 2>&1; then
+                if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+                    source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+                    if ensure_tool dig; then
+                        dig "$domain" any +multiline +noall +answer 2>/dev/null
+                    elif ensure_tool host; then
+                        host "$domain" 2>/dev/null
+                    fi
+                elif command -v dig >/dev/null 2>&1; then
                     dig "$domain" any +multiline +noall +answer 2>/dev/null
                 elif command -v host >/dev/null 2>&1; then
                     host "$domain" 2>/dev/null
-                else
-                    echo "⚠️  dig/host non installé"
                 fi
                 echo ""
                 echo "📋 theHarvester:"
@@ -81,19 +90,28 @@ recon_domain() {
     echo ""
     
     echo "📋 WHOIS:"
-    if command -v whois >/dev/null 2>&1; then
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+        if ensure_tool whois; then
+            whois "$domain" 2>/dev/null | head -30
+        fi
+    elif command -v whois >/dev/null 2>&1; then
         whois "$domain" 2>/dev/null | head -30
-    else
-        echo "⚠️  whois non installé"
     fi
     echo ""
     echo "📋 DNS:"
-    if command -v dig >/dev/null 2>&1; then
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+        if ensure_tool dig; then
+            dig "$domain" any +multiline +noall +answer 2>/dev/null
+        elif ensure_tool host; then
+            host "$domain" 2>/dev/null
+        fi
+    elif command -v dig >/dev/null 2>&1; then
         dig "$domain" any +multiline +noall +answer 2>/dev/null
     elif command -v host >/dev/null 2>&1; then
         host "$domain" 2>/dev/null
-    else
-        echo "⚠️  dig/host non installé"
     fi
     echo ""
     echo "📋 theHarvester:"
