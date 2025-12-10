@@ -201,10 +201,44 @@ network_scanner() {
                     00-e0-4c) vendor="Realtek" ;;
                     00-e0-18) vendor="Broadcom" ;;
                     00-0d-4b) vendor="Raspberry Pi" ;;
+                    7c-16-89|7c-50-79) vendor="Bouygues Telecom" ;;
+                    00-1c-42|00-1e-67) vendor="Sagemcom" ;;
+                    00-23-24|00-23-39) vendor="Samsung" ;;
+                    00-24-36|00-24-90) vendor="Microsoft" ;;
+                    00-25-00|00-25-90) vendor="LG" ;;
+                    00-26-18|00-26-4a) vendor="Huawei" ;;
+                    00-26-bb) vendor="Xiaomi" ;;
+                    00-27-22) vendor="TP-Link" ;;
+                    00-50-f2) vendor="Cisco" ;;
+                    00-90-27) vendor="Netgear" ;;
+                    00-a0-c9) vendor="D-Link" ;;
+                    00-e0-4c) vendor="Realtek" ;;
+                    00-e0-18) vendor="Broadcom" ;;
+                    00-0d-4b) vendor="Raspberry Pi" ;;
+                    00-1a-2b) vendor="Technicolor" ;;
+                    00-1c-42) vendor="Sagemcom" ;;
+                    00-1e-67) vendor="Sagemcom" ;;
+                    00-23-24) vendor="Samsung" ;;
+                    00-23-39) vendor="Samsung" ;;
+                    00-23-6c) vendor="Apple" ;;
+                    00-23-df) vendor="Apple" ;;
+                    00-24-36) vendor="Microsoft" ;;
+                    00-24-90) vendor="Microsoft" ;;
+                    00-25-00) vendor="LG" ;;
+                    00-25-90) vendor="LG" ;;
+                    00-26-18) vendor="Huawei" ;;
+                    00-26-4a) vendor="Huawei" ;;
+                    00-26-bb) vendor="Xiaomi" ;;
+                    00-27-22) vendor="TP-Link" ;;
+                    00-50-f2) vendor="Cisco" ;;
+                    00-90-27) vendor="Netgear" ;;
+                    00-a0-c9) vendor="D-Link" ;;
+                    00-e0-4c) vendor="Realtek" ;;
+                    00-e0-18) vendor="Broadcom" ;;
                     *) 
                         # Essayer avec nmap si disponible (plus lent mais plus précis)
-                        if command -v nmap &>/dev/null; then
-                            local nmap_vendor=$(nmap --script smb-os-discovery -sn "$ip" 2>/dev/null | grep -i "MAC Address" | head -1 | sed 's/.*MAC Address: //' | sed 's/ (.*//')
+                        if command -v nmap &>/dev/null && [ -n "$ip" ]; then
+                            local nmap_vendor=$(timeout 3 nmap --script smb-os-discovery -sn "$ip" 2>/dev/null | grep -i "MAC Address" | head -1 | sed 's/.*MAC Address: //' | sed 's/ (.*//')
                             if [ -n "$nmap_vendor" ] && [ "$nmap_vendor" != "Unknown" ]; then
                                 vendor="$nmap_vendor"
                             else
@@ -248,6 +282,45 @@ network_scanner() {
                         os_info="iOS"
                     elif [[ "$hostname" =~ ^raspberrypi ]]; then
                         os_info="Raspberry Pi OS"
+                    elif [[ "$hostname" =~ bbox|router|gateway|_gateway ]]; then
+                        os_info="Router/Box"
+                        # Détection spécifique des box
+                        if [[ "$hostname" =~ bbox ]]; then
+                            vendor="Bouygues Telecom"
+                        elif [[ "$hostname" =~ livebox ]]; then
+                            vendor="Orange"
+                        elif [[ "$hostname" =~ freebox ]]; then
+                            vendor="Free"
+                        elif [[ "$hostname" =~ sfrbox ]]; then
+                            vendor="SFR"
+                        fi
+                    elif [[ "$hostname" =~ TV|tv ]]; then
+                        os_info="Smart TV"
+                    fi
+                fi
+                
+                # Méthode 4: Détection via ports ouverts (si nmap disponible)
+                if [ -z "$os_info" ] || [ "$os_info" = "Unknown" ]; then
+                    if command -v nmap &>/dev/null && [ -n "$ip" ]; then
+                        # Scan rapide des ports communs pour détecter le type d'appareil
+                        local quick_scan=$(timeout 3 nmap -F "$ip" 2>/dev/null | grep -E "open" | head -3)
+                        if [ -n "$quick_scan" ]; then
+                            if echo "$quick_scan" | grep -qE "80|443|8080"; then
+                                if echo "$quick_scan" | grep -qE "554|8554"; then
+                                    os_info="IP Camera"
+                                elif echo "$quick_scan" | grep -qE "8008|8443"; then
+                                    os_info="Smart TV/Chromecast"
+                                else
+                                    os_info="Web Server"
+                                fi
+                            elif echo "$quick_scan" | grep -qE "22|23"; then
+                                os_info="Linux/Unix Server"
+                            elif echo "$quick_scan" | grep -qE "445|139"; then
+                                os_info="Windows/SMB"
+                            elif echo "$quick_scan" | grep -qE "53"; then
+                                os_info="DNS Server"
+                            fi
+                        fi
                     fi
                 fi
                 
