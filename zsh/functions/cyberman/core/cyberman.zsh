@@ -697,6 +697,7 @@ cyberman() {
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
         echo "9.  🛠️  Utilitaires (hash, encode/decode, etc.)"
         echo "10. 🎓 Apprentissage & Labs (cyberlearn intégré)"
+        echo "11. 🔍 OSINT Tools (Outils OSINT avec IA)"
         echo "11. 🚀 Assistant de test complet"
         
         # Afficher les options rapides si un environnement est actif
@@ -1841,6 +1842,15 @@ EOF
             8) show_advanced_tools_menu ;;
             9) show_utilities_menu ;;
             10) show_learning_menu ;;
+            11) 
+                if [ -f "$HOME/dotfiles/zsh/functions/cyberman/modules/osint/osint_manager.sh" ]; then
+                    source "$HOME/dotfiles/zsh/functions/cyberman/modules/osint/osint_manager.sh"
+                    show_osint_menu
+                else
+                    echo -e "${RED}❌ Module OSINT non disponible${RESET}"
+                    sleep 2
+                fi
+                ;;
             11) show_assistant_menu ;;
             12)
                 # Accès rapide aux notes de l'environnement actif
