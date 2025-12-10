@@ -200,7 +200,9 @@ cyberman() {
         echo "8.  Web dir enum              (Énumération répertoires web)"
         echo "9.  Network map               (Cartographie réseau)"
         echo "10. Check Telnet              (Vérifier si telnet est actif)"
-        echo "11. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
+        echo "11. Network Scanner          (Scanner réseau complet en temps réel)"
+        echo "12. Network Scanner Live      (Scanner réseau live continu)"
+        echo "13. Scan toutes les cibles    (Scan complet sur toutes les cibles)"
         echo "0.  Retour au menu principal"
         echo ""
         printf "Choix: "
@@ -259,6 +261,16 @@ cyberman() {
                 read -k 1 "?Appuyez sur une touche pour continuer..."
                 ;;
             11)
+                source "$CYBER_DIR/scanning/network_scanner_integrated.sh" && network_scan_cyberman --save
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            12)
+                source "$CYBER_DIR/scanning/network_scanner_integrated.sh" && network_scan_cyberman --live --save
+                echo ""
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            13)
                 if has_targets; then
                     echo "🔄 Scan complet sur toutes les cibles..."
                     for target in "${CYBER_TARGETS[@]}"; do

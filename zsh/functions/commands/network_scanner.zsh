@@ -101,14 +101,20 @@ network_scanner() {
     
     # Fonction pour scanner le réseau
     scan_network() {
-        clear
+        if [ "$continuous" = false ]; then
+            clear
+        fi
         echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════════════════════════╗${RESET}"
         echo -e "${CYAN}${BOLD}║          SCANNER RÉSEAU EN TEMPS RÉEL                        ║${RESET}"
         echo -e "${CYAN}${BOLD}╚════════════════════════════════════════════════════════════════╝${RESET}\n"
         
         echo -e "${BLUE}Interface:${RESET} ${CYAN}$interface${RESET}"
         echo -e "${BLUE}Réseau:${RESET} ${CYAN}$network_range${RESET}"
-        echo -e "${BLUE}Heure:${RESET} ${CYAN}$(date '+%Y-%m-%d %H:%M:%S')${RESET}\n"
+        echo -e "${BLUE}Heure:${RESET} ${CYAN}$(date '+%Y-%m-%d %H:%M:%S')${RESET}"
+        if [ "$continuous" = true ]; then
+            echo -e "${YELLOW}🔄 Mode live - Mise à jour automatique${RESET}"
+        fi
+        echo ""
         
         local devices_found=0
         
