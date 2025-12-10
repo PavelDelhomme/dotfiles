@@ -129,9 +129,9 @@ pathman() {
     }
 
     # DESC: Nettoie le PATH en supprimant les doublons et répertoires invalides
-    # USAGE: clean_path
-    # EXAMPLE: clean_path
-    clean_path() {
+    # USAGE: pathman_clean_path
+    # EXAMPLE: pathman_clean_path
+    pathman_clean_path() {
         local old_IFS="$IFS"
         IFS=':'
         set -- $PATH
@@ -153,7 +153,11 @@ pathman() {
         export PATH="${new_path#:}"
         add_logs "CLEAN" "Doublons/invalid nettoyés"
         printf "${GREEN}PATH nettoyé: $PATH${RESET}\n"
-        sleep 2
+    }
+
+    # Alias pour compatibilité avec env.sh
+    clean_path() {
+        pathman_clean_path
     }
 
     # DESC: Supprime les répertoires invalides (inexistants) du PATH
@@ -220,6 +224,7 @@ pathman() {
     show_stats() {
         local cnt=0
         local invalid=0
+        local path_length=0
         local old_IFS="$IFS"
         IFS=':'
         set -- $PATH
@@ -230,11 +235,12 @@ pathman() {
             if [ ! -d "$dir" ]; then
                 invalid=$((invalid + 1))
             fi
+            path_length=$((path_length + ${#dir} + 1))  # +1 pour le séparateur
         done
         
         printf "${CYAN}Stats PATH:${RESET}\n"
         echo "$cnt au total, $invalid non résolus"
-        echo "Taille totale: ${#PATH} caractères"
+        echo "Taille totale: $path_length caractères"
         echo
         printf "Appuyez sur Entrée pour continuer... "
         read dummy
@@ -283,7 +289,7 @@ EOF
     case "$1" in
         add)
             if [ -n "$2" ]; then
-                add_to_path "$2"
+                pathman_add_to_path "$2"
             else
                 add_to_path_interactive
             fi
@@ -302,7 +308,7 @@ EOF
             return 0
             ;;
         clean)
-            clean_path
+            pathman_clean_path
             return 0
             ;;
         invalid)
@@ -348,7 +354,7 @@ EOF
             1) show_path ;;
             2) add_to_path_interactive ;;
             3) remove_from_path ;;
-            4) clean_path ;;
+            4) pathman_clean_path ;;
             5) clean_invalid_paths ;;
             6) save_path ;;
             7) restore_path ;;
@@ -362,13 +368,16 @@ EOF
     printf "${GREEN}Bye bye !${RESET}\n"
 }
 
-# Exporter les fonctions pour qu'elles soient disponibles globalement
-# (utilisées par env.sh et autres scripts)
-export -f add_to_path clean_path 2>/dev/null || true
+# Exporter les fonctions pour utilisation globale (via adapters)
+# Ces fonctions seront disponibles après le chargement de pathman()
+add_to_path() {
+    pathman_add_to_path "$@"
+}
 
-# Alias (si le shell le supporte)
-if [ "$SHELL_TYPE" = "zsh" ] || [ "$SHELL_TYPE" = "bash" ]; then
-    alias pm='pathman' 2>/dev/null || true
-    alias path-manager='pathman' 2>/dev/null || true
-fi
+clean_path() {
+    pathman_clean_path
+}
+
+# Note: Les fonctions add_to_path et clean_path sont définies dans pathman()
+# Elles seront disponibles globalement via les adapters shell qui les exportent
 

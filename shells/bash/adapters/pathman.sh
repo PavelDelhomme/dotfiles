@@ -14,6 +14,17 @@ if [ -f "$CORE_MANAGER" ]; then
     # Source le code commun
     source "$CORE_MANAGER"
     
+    # Exporter les fonctions pour utilisation globale (utilisées par env.sh)
+    export -f add_to_path clean_path 2>/dev/null || {
+        # Si export -f ne fonctionne pas, créer des wrappers
+        add_to_path() {
+            pathman_add_to_path "$@"
+        }
+        clean_path() {
+            pathman_clean_path
+        }
+    }
+    
     # Alias spécifiques Bash
     alias pm='pathman'
     alias path-manager='pathman'
