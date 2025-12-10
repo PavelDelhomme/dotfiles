@@ -184,7 +184,23 @@ show_labs_status() {
 
 # Démarrer le lab web-basics
 start_web_basics_lab() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[1;33m'
+    local CYAN='\033[0;36m'
+    local RESET='\033[0m'
+    
     echo -e "${CYAN}📦 Construction de l'image Docker...${RESET}"
+    
+    # Vérifier si le container existe déjà
+    if docker ps -a --format '{{.Names}}' | grep -q "^cyberlearn-web-basics$"; then
+        echo -e "${YELLOW}⚠️  Container existant détecté. Redémarrage...${RESET}"
+        docker start cyberlearn-web-basics 2>/dev/null && {
+            echo -e "${GREEN}✅ Lab web-basics redémarré${RESET}"
+            echo -e "${CYAN}🌐 Accédez à: http://localhost:8080${RESET}"
+            return 0
+        }
+    fi
     
     # Créer le Dockerfile pour web-basics
     local lab_dir="${CYBERLEARN_LABS_DIR}/web-basics"
@@ -193,18 +209,58 @@ start_web_basics_lab() {
     cat > "${lab_dir}/Dockerfile" <<'EOF'
 FROM ubuntu:22.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y \
     apache2 \
     php \
+    php-mysql \
+    php-sqlite3 \
     mysql-server \
     sqlite3 \
     curl \
     wget \
     nano \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Créer une application web vulnérable
-RUN echo '<?php echo "Lab Web Basics - App vulnérable"; ?>' > /var/www/html/index.php
+# Créer une application web vulnérable simple
+RUN mkdir -p /var/www/html && \
+    echo '<?php
+// Application web vulnérable pour lab
+if (isset($_GET["search"])) {
+    echo "<h2>Résultats pour: " . $_GET["search"] . "</h2>";
+    // VULNÉRABILITÉ XSS: Pas d'échappement
+}
+if (isset($_GET["id"])) {
+    // VULNÉRABILITÉ SQLi: Requête non préparée
+    $db = new SQLite3("/tmp/test.db");
+    $result = $db->query("SELECT * FROM users WHERE id=" . $_GET["id"]);
+    while ($row = $result->fetchArray()) {
+        echo "<p>User: " . $row["name"] . "</p>";
+    }
+}
+?>' > /var/www/html/index.php && \
+    echo '<!DOCTYPE html>
+<html>
+<head><title>Lab Web Basics - Application Vulnérable</title></head>
+<body>
+<h1>🔓 Lab Web Basics</h1>
+<p>Application web vulnérable pour apprendre la sécurité web</p>
+<h2>Tests à effectuer:</h2>
+<ul>
+<li>XSS: ?search=<script>alert("XSS")</script></li>
+<li>SQLi: ?id=1 OR 1=1</li>
+</ul>
+</body>
+</html>' > /var/www/html/index.html
+
+# Créer une base de données SQLite de test
+RUN sqlite3 /tmp/test.db "CREATE TABLE users(id INTEGER, name TEXT); INSERT INTO users VALUES(1, 'admin'); INSERT INTO users VALUES(2, 'user');"
+
+# Configurer Apache
+RUN a2enmod php8.1 && \
+    service apache2 start || true
 
 EXPOSE 80
 
@@ -212,11 +268,25 @@ CMD ["apache2ctl", "-D", "FOREGROUND"]
 EOF
     
     # Construire et démarrer le container
-    docker build -t cyberlearn-web-basics "$lab_dir" 2>/dev/null
-    docker run -d --name cyberlearn-web-basics -p 8080:80 cyberlearn-web-basics 2>/dev/null
+    echo -e "${CYAN}Construction de l'image...${RESET}"
+    docker build -t cyberlearn-web-basics "$lab_dir" 2>/dev/null || {
+        echo -e "${RED}❌ Erreur lors de la construction${RESET}"
+        return 1
+    }
+    
+    echo -e "${CYAN}Démarrage du container...${RESET}"
+    docker run -d --name cyberlearn-web-basics -p 8080:80 cyberlearn-web-basics 2>/dev/null || {
+        echo -e "${RED}❌ Erreur lors du démarrage${RESET}"
+        return 1
+    }
     
     echo -e "${GREEN}✅ Lab web-basics démarré${RESET}"
     echo -e "${CYAN}🌐 Accédez à: http://localhost:8080${RESET}"
+    echo ""
+    echo -e "${YELLOW}💡 Tests à effectuer:${RESET}"
+    echo "  • XSS: http://localhost:8080/?search=<script>alert('XSS')</script>"
+    echo "  • SQLi: http://localhost:8080/?id=1 OR 1=1"
+    echo ""
     echo -e "${YELLOW}💡 Utilisez 'cyberlearn lab stop web-basics' pour arrêter${RESET}"
 }
 
