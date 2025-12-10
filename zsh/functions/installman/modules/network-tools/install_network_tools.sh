@@ -203,22 +203,42 @@ install_network_tools() {
             ;;
     esac
     
-    log_info "✓ Installation des outils réseau terminée!"
-    log_info ""
-    log_info "Outils installés:"
-    log_info "  - nslookup: $(command -v nslookup &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - dig: $(command -v dig &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - traceroute: $(command -v traceroute &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - whois: $(command -v whois &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - nmap: $(command -v nmap &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - tcpdump: $(command -v tcpdump &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - iftop: $(command -v iftop &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - netcat: $(command -v nc &>/dev/null || command -v netcat &>/dev/null && echo '✓' || echo '✗')"
-    log_info "  - lsof: $(command -v lsof &>/dev/null && echo '✓' || echo '✗')"
+    echo ""
+    log_info "Installation des outils réseau terminée!"
+    echo ""
+    log_info "Résumé des outils:"
+    local tools_summary=(
+        "nslookup:$(command -v nslookup &>/dev/null && echo '✓' || echo '✗')"
+        "dig:$(command -v dig &>/dev/null && echo '✓' || echo '✗')"
+        "traceroute:$(command -v traceroute &>/dev/null && echo '✓' || echo '✗')"
+        "whois:$(command -v whois &>/dev/null && echo '✓' || echo '✗')"
+        "nmap:$(command -v nmap &>/dev/null && echo '✓' || echo '✗')"
+        "tcpdump:$(command -v tcpdump &>/dev/null && echo '✓' || echo '✗')"
+        "iftop:$(command -v iftop &>/dev/null && echo '✓' || echo '✗')"
+        "netcat:$(command -v nc &>/dev/null || command -v netcat &>/dev/null && echo '✓' || echo '✗')"
+        "lsof:$(command -v lsof &>/dev/null && echo '✓' || echo '✗')"
+    )
+    
+    for tool_status in "${tools_summary[@]}"; do
+        local tool=$(echo "$tool_status" | cut -d: -f1)
+        local status=$(echo "$tool_status" | cut -d: -f2)
+        if [ "$status" = "✓" ]; then
+            log_info "  - $tool: ${GREEN}✓${NC}"
+        else
+            log_info "  - $tool: ${RED}✗${NC}"
+        fi
+    done
+    
     if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-        log_info "  - wireshark: $(command -v wireshark &>/dev/null && echo '✓' || echo '✗ (optionnel)')"
+        local wireshark_status=$(command -v wireshark &>/dev/null && echo '✓' || echo '✗')
+        if [ "$wireshark_status" = "✓" ]; then
+            log_info "  - wireshark: ${GREEN}✓${NC} (optionnel)"
+        else
+            log_info "  - wireshark: ${RED}✗${NC} (optionnel)"
+        fi
     fi
     
+    echo ""
     return 0
 }
 
