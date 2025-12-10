@@ -136,14 +136,10 @@ fi
 #     echo -e "${YELLOW}  ⚠️ Fichier $ENV_FILE introuvable${NC}"
 
 # =============================================================================
-# ÉTAPE 3.5 : CHARGEMENT DES FONCTIONS UTILITAIRES
+# ÉTAPE 3.5 : CHARGEMENT DES COMMANDES STANDALONE (NON-MANAGERS)
 # =============================================================================
-# Charger ipinfo (informations IP et réseau)
-[ -f "$DOTFILES_ZSH_PATH/functions/ipinfo.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/ipinfo.zsh" 2>/dev/null || true
-# Charger network_scanner (scanner réseau en temps réel)
-[ -f "$DOTFILES_ZSH_PATH/functions/network_scanner.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/network_scanner.zsh" 2>/dev/null || true
-# Charger whatismyip (IP publique)
-[ -f "$DOTFILES_ZSH_PATH/functions/whatismyip.zsh" ] && source "$DOTFILES_ZSH_PATH/functions/whatismyip.zsh" 2>/dev/null || true
+# Charger toutes les commandes standalone (ipinfo, whatismyip, network_scanner, etc.)
+[ -f "$DOTFILES_ZSH_PATH/functions/commands/load_commands.sh" ] && source "$DOTFILES_ZSH_PATH/functions/commands/load_commands.sh" 2>/dev/null || true
 
 # =============================================================================
 # ÉTAPE 4 : CHARGEMENT DES FONCTIONS INDIVIDUELLES

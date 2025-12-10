@@ -104,17 +104,12 @@ load_manager "testzshman" "$DOTFILES_FISH_PATH/functions/testzshman.fish" "TESTZ
 load_manager "testman" "$DOTFILES_FISH_PATH/functions/testman.fish" "TESTMAN"
 
 
-# Charger ipinfo (informations IP et réseau)
-if test -f "$DOTFILES_FISH_PATH/functions/ipinfo.fish"
-    source "$DOTFILES_FISH_PATH/functions/ipinfo.fish" 2>/dev/null || true
-end
-# Charger network_scanner (scanner réseau en temps réel)
-if test -f "$DOTFILES_FISH_PATH/functions/network_scanner.fish"
-    source "$DOTFILES_FISH_PATH/functions/network_scanner.fish" 2>/dev/null || true
-end
-# Charger whatismyip (IP publique)
-if test -f "$DOTFILES_FISH_PATH/functions/whatismyip.fish"
-    source "$DOTFILES_FISH_PATH/functions/whatismyip.fish" 2>/dev/null || true
+# =============================================================================
+# CHARGEMENT DES COMMANDES STANDALONE (NON-MANAGERS)
+# =============================================================================
+# Charger toutes les commandes standalone (ipinfo, whatismyip, network_scanner, etc.)
+if test -f "$DOTFILES_FISH_PATH/functions/commands/load_commands.fish"
+    source "$DOTFILES_FISH_PATH/functions/commands/load_commands.fish" 2>/dev/null || true
 end
 
 # Charger update_system.fish en premier pour remplacer les alias update/upgrade
