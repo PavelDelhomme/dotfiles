@@ -119,6 +119,9 @@ network_scanner() {
             printf "${CYAN}%-18s %-18s %-20s %-25s %-20s %-20s %s${RESET}\n" "IP" "MAC" "Interface" "Vendor" "Hostname" "OS" "Status"
             echo "────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────"
             
+            # Extraire le réseau de base (ex: 192.168.1)
+            local network_base=$(echo "$network_range" | cut -d'/' -f1 | cut -d'.' -f1-3)
+            
             while IFS= read -r line; do
                 # Ignorer la ligne d'en-tête
                 [[ "$line" =~ ^IP ]] && continue
@@ -130,6 +133,27 @@ network_scanner() {
                 # Ignorer les entrées invalides
                 [[ "$mac" == "00:00:00:00:00:00" ]] && continue
                 [[ -z "$ip" ]] && continue
+                
+                # Filtrer les interfaces Docker/bridge/virtual
+                if [[ "$iface" =~ ^(br-|docker|virbr|veth|lo) ]]; then
+                    continue
+                fi
+                
+                # Filtrer les IPs Docker (172.16.0.0/12, 10.0.0.0/8 pour Docker)
+                if [[ "$ip" =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\..* ]] || [[ "$ip" =~ ^10\. ]]; then
+                    continue
+                fi
+                
+                # Filtrer pour ne garder que le réseau spécifié
+                local ip_base=$(echo "$ip" | cut -d'.' -f1-3)
+                if [ "$ip_base" != "$network_base" ]; then
+                    continue
+                fi
+                
+                # Ignorer l'IP locale
+                if [ "$ip" = "127.0.0.1" ]; then
+                    continue
+                fi
                 
                 # Récupérer le hostname
                 local hostname=""
