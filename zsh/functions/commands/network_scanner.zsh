@@ -181,15 +181,15 @@ network_scanner() {
                 fi
                 
                 # Ping pour vérifier si actif
-                local status=""
+                local device_status=""
                 if ping -c 1 -W 1 "$ip" &>/dev/null 2>&1; then
-                    status="${GREEN}●${RESET}"
+                    device_status="${GREEN}●${RESET}"
                     ((devices_found++))
                 else
-                    status="${RED}○${RESET}"
+                    device_status="${RED}○${RESET}"
                 fi
                 
-                printf "%-18s %-18s %-20s %-25s %-20s %s %s\n" "$ip" "$mac" "$iface" "$vendor" "$hostname" "$os_info" "$status"
+                printf "%-18s %-18s %-20s %-25s %-20s %s %s\n" "$ip" "$mac" "$iface" "$vendor" "$hostname" "$os_info" "$device_status"
             done < <(cat /proc/net/arp | grep -v "^IP")
         fi
         

@@ -268,9 +268,7 @@ backup_dotfiles() {
 # =============================================================================
 # FONCTION SSH AUTO SETUP
 # =============================================================================
-if [ -f "$DOTFILES_ZSH_PATH/functions/ssh_auto_setup.zsh" ]; then
-    source "$DOTFILES_ZSH_PATH/functions/ssh_auto_setup.zsh" 2>/dev/null || true
-fi
+# ssh_auto_setup est maintenant chargé via load_commands.sh dans commands/
 
 # =============================================================================
 # PROMPT POWERLEVEL10K AVEC SUPPORT GIT
