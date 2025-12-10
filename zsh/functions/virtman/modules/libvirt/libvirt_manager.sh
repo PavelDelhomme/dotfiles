@@ -312,7 +312,6 @@ show_main_menu() {
                 start_confirm=${start_confirm:-O}
                 if [[ "$start_confirm" =~ ^[oO]$ ]]; then
                     virsh start "$vm_name"
-                    sleep 2
                 else
                     continue
                 fi
@@ -343,7 +342,6 @@ show_main_menu() {
                 start_confirm=${start_confirm:-O}
                 if [[ "$start_confirm" =~ ^[oO]$ ]]; then
                     virsh start "$vm_name"
-                    sleep 2
                 else
                     continue
                 fi
@@ -371,7 +369,6 @@ show_main_menu() {
                 start_confirm=${start_confirm:-O}
                 if [[ "$start_confirm" =~ ^[oO]$ ]]; then
                     virsh start "$vm_name"
-                    sleep 2
                 else
                     continue
                 fi
@@ -681,7 +678,6 @@ if ! systemctl is-active --quiet libvirtd 2>/dev/null; then
         sudo systemctl start libvirtd
         if [ $? -eq 0 ]; then
             log_info "✓ libvirtd démarré"
-            sleep 1
         else
             log_error "Impossible de démarrer libvirtd"
             exit 1
