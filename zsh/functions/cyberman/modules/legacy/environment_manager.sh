@@ -128,6 +128,62 @@ save_environment() {
     fi
 }
 
+# DESC: Trouve un environnement qui correspond aux cibles actuelles
+# USAGE: find_environment_by_targets
+# EXAMPLE: find_environment_by_targets
+find_environment_by_targets() {
+    if [ -z "${CYBER_TARGETS+x}" ] || [ ${#CYBER_TARGETS[@]} -eq 0 ]; then
+        echo ""
+        return 1
+    fi
+    
+    if ! command -v jq >/dev/null 2>&1; then
+        echo ""
+        return 1
+    fi
+    
+    local env_dir="${CYBER_ENV_DIR}"
+    if [ ! -d "$env_dir" ]; then
+        echo ""
+        return 1
+    fi
+    
+    for env_file in "$env_dir"/*.json; do
+        [ -f "$env_file" ] || continue
+        local env_name=$(basename "$env_file" .json)
+        local env_targets=$(jq -r '.targets[]?' "$env_file" 2>/dev/null)
+        
+        if [ -z "$env_targets" ]; then
+            continue
+        fi
+        
+        # Vérifier si toutes les cibles actuelles correspondent
+        local match=true
+        local env_target_count=$(echo "$env_targets" | grep -c . || echo "0")
+        
+        # Vérifier que le nombre de cibles correspond
+        if [ "$env_target_count" -ne ${#CYBER_TARGETS[@]} ]; then
+            continue
+        fi
+        
+        # Vérifier que chaque cible actuelle est dans l'environnement
+        for current_target in "${CYBER_TARGETS[@]}"; do
+            if ! echo "$env_targets" | grep -qFx "$current_target"; then
+                match=false
+                break
+            fi
+        done
+        
+        if [ "$match" = true ]; then
+            echo "$env_name"
+            return 0
+        fi
+    done
+    
+    echo ""
+    return 1
+}
+
 # DESC: Charge un environnement sauvegardé
 # USAGE: load_environment <name>
 # EXAMPLE: load_environment "pentest_example_com"

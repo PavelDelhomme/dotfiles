@@ -605,9 +605,17 @@ cyberman() {
             fi
         fi
         
-        # Ne plus détecter automatiquement l'environnement basé sur les cibles
-        # Cela causait des problèmes de réactivation automatique après désactivation
-        # L'environnement actif est maintenant uniquement déterminé par CYBER_CURRENT_ENV et le fichier de persistance
+        # Détecter si un environnement correspond aux cibles actives
+        local matching_env=""
+        if [ -z "$current_env" ] && [ -n "${CYBER_TARGETS+x}" ] && [ ${#CYBER_TARGETS[@]} -gt 0 ]; then
+            # Charger environment_manager pour utiliser find_environment_by_targets
+            if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+                source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+                if type find_environment_by_targets >/dev/null 2>&1; then
+                    matching_env=$(find_environment_by_targets 2>/dev/null)
+                fi
+            fi
+        fi
         
         if [ -n "$current_env" ]; then
             echo -e "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}"
@@ -622,6 +630,10 @@ cyberman() {
                 local todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
                 echo -e "      ${CYAN}📌 Notes: ${notes_count} | 📜 Actions: ${history_count} | 📊 Résultats: ${results_count} | ✅ TODOs: ${todos_count} (${todos_pending} en attente)${RESET}"
             fi
+        elif [ -n "$matching_env" ]; then
+            echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
+            echo -e "   ${CYAN}💡 Environnement détecté: ${BOLD}${matching_env}${RESET} (correspond aux cibles actives)"
+            echo -e "   ${CYAN}💡 Chargez-le via: ${BOLD}Option 1 > Environnements > Charger${RESET}"
         else
             echo -e "   ${YELLOW}🌍 Aucun environnement actif${RESET}"
         fi

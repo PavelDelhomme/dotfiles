@@ -182,6 +182,18 @@ show_management_menu() {
         echo "4.  📊 Rapports (consulter, exporter)"
         echo "5.  🔒 Anonymat (configuration, vérification)"
         echo ""
+        # Proposer de charger l'environnement correspondant aux cibles si détecté
+        if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+            source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+            if type find_environment_by_targets >/dev/null 2>&1 && has_targets 2>/dev/null; then
+                local detected_env=$(find_environment_by_targets 2>/dev/null)
+                if [ -n "$detected_env" ] && ! has_active_environment 2>/dev/null; then
+                    echo -e "${CYAN}💡 Environnement détecté: ${BOLD}${detected_env}${RESET} (correspond aux cibles)"
+                    echo "6.  🔄 Charger l'environnement détecté: ${detected_env}"
+                    echo ""
+                fi
+            fi
+        fi
         echo "0.  Retour au menu principal cyberman"
         echo ""
         printf "Choix: "
@@ -194,6 +206,25 @@ show_management_menu() {
             3) show_workflow_menu ;;
             4) show_report_menu ;;
             5) show_anonymity_menu ;;
+            6)
+                # Charger l'environnement détecté
+                if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
+                    source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
+                    if type find_environment_by_targets >/dev/null 2>&1 && has_targets 2>/dev/null; then
+                        local detected_env=$(find_environment_by_targets 2>/dev/null)
+                        if [ -n "$detected_env" ]; then
+                            echo ""
+                            echo "🔄 Chargement de l'environnement: $detected_env"
+                            load_environment "$detected_env" 2>/dev/null
+                            echo ""
+                            read -k 1 "?Appuyez sur une touche pour continuer..."
+                        else
+                            echo "❌ Aucun environnement correspondant trouvé"
+                            sleep 1
+                        fi
+                    fi
+                fi
+                ;;
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
