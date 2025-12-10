@@ -15,7 +15,8 @@ fi
 
 # Répertoires de base
 CYBERMAN_DIR="${CYBERMAN_DIR:-$HOME/dotfiles/zsh/functions/cyberman}"
-CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyber}"
+# IMPORTANT: CYBER_DIR pointe vers modules/legacy, pas vers /cyber
+CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
 
 # Charger le gestionnaire de cibles
 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
@@ -1759,8 +1760,9 @@ EOF
         case "$choice" in
             1)
                 # Menu de gestion et configuration
-                # S'assurer que CYBER_DIR est défini
-                local CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+                # S'assurer que CYBER_DIR est défini correctement
+                CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
+                export CYBER_DIR
                 
                 # Charger d'abord les dépendances nécessaires
                 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
@@ -1769,23 +1771,33 @@ EOF
                 if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
                     source "$CYBER_DIR/environment_manager.sh" 2>/dev/null
                 fi
+                if [ -f "$CYBER_DIR/workflow_manager.sh" ]; then
+                    source "$CYBER_DIR/workflow_manager.sh" 2>/dev/null
+                fi
+                if [ -f "$CYBER_DIR/report_manager.sh" ]; then
+                    source "$CYBER_DIR/report_manager.sh" 2>/dev/null
+                fi
+                if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
+                    source "$CYBER_DIR/anonymity_manager.sh" 2>/dev/null
+                fi
                 
                 # Charger le menu de gestion
                 if [ -f "$CYBER_DIR/management_menu.sh" ]; then
-                    # Passer CYBER_DIR au script
-                    export CYBER_DIR
                     source "$CYBER_DIR/management_menu.sh" 2>/dev/null
                     if type show_management_menu >/dev/null 2>&1; then
                         show_management_menu
                     else
-                        echo "❌ Fonction show_management_menu non trouvée"
-                        echo "💡 Vérifiez que management_menu.sh est correctement chargé"
-                        sleep 2
+                        echo "❌ Fonction show_management_menu non trouvée après chargement"
+                        echo "💡 Fichier chargé: $CYBER_DIR/management_menu.sh"
+                        echo "💡 Vérifiez les erreurs de syntaxe dans le fichier"
+                        sleep 3
                     fi
                 else
                     echo "❌ Menu de gestion non disponible"
                     echo "💡 Fichier attendu: $CYBER_DIR/management_menu.sh"
-                    sleep 2
+                    echo "💡 Vérifiez que le fichier existe"
+                    ls -la "$CYBER_DIR/management_menu.sh" 2>/dev/null || echo "   Fichier non trouvé"
+                    sleep 3
                 fi
                 ;;
             2) show_recon_menu ;;
