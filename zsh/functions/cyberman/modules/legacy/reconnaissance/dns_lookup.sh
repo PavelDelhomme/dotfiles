@@ -32,7 +32,18 @@ function dns_lookup() {
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 echo "🎯 DNS Lookup: $domain"
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-                if command -v dig >/dev/null 2>&1; then
+                local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+                if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+                    source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+                    if ensure_tool dig; then
+                        dig +short "$domain" ANY
+                        dig "$domain" +noall +answer
+                    elif ensure_tool host; then
+                        host "$domain"
+                    elif ensure_tool nslookup; then
+                        nslookup "$domain"
+                    fi
+                elif command -v dig >/dev/null 2>&1; then
                     dig +short "$domain" ANY
                     dig "$domain" +noall +answer
                 elif command -v host >/dev/null 2>&1; then
@@ -67,7 +78,26 @@ function dns_lookup() {
     echo "🔍 Recherche DNS pour: $domain"
     echo ""
     
-    if command -v dig >/dev/null 2>&1; then
+    local UTILS_DIR="$HOME/dotfiles/zsh/functions/utils"
+    if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
+        source "$UTILS_DIR/ensure_tool.sh" 2>/dev/null
+        if ensure_tool dig; then
+            echo "📋 Enregistrements DNS:"
+            dig +short "$domain" ANY
+            echo ""
+            echo "📋 Détails complets:"
+            dig "$domain" +noall +answer
+            return 0
+        elif ensure_tool host; then
+            host "$domain"
+            return 0
+        elif ensure_tool nslookup; then
+            nslookup "$domain"
+            return 0
+        else
+            return 1
+        fi
+    elif command -v dig >/dev/null 2>&1; then
         echo "📋 Enregistrements DNS:"
         dig +short "$domain" ANY
         echo ""
