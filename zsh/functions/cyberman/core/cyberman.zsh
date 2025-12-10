@@ -648,17 +648,18 @@ cyberman() {
         echo "8.  🔧 Advanced Tools (Metasploit, Custom Scripts)"
         echo "9.  🛠️  Utilitaires (hash, encode/decode, etc.)"
         echo ""
-        echo "10. 🚀 Assistant de test complet"
+        echo "10. 🎓 Apprentissage & Labs (cyberlearn intégré)"
+        echo "11. 🚀 Assistant de test complet"
         
         # Afficher les options rapides si un environnement est actif
         if has_active_environment 2>/dev/null; then
             local current_env=$(get_current_environment 2>/dev/null)
             echo ""
             echo -e "${GREEN}📝 Environnement actif: $current_env${RESET}"
-            echo "11. 📝 Notes & Informations de l'environnement actif"
-            echo "12. 📊 Rapports (consulter, exporter)"
-            echo "13. 🔄 Workflows (créer, exécuter, gérer)"
-            echo "14. 🚫 Désactiver l'environnement actif"
+            echo "12. 📝 Notes & Informations de l'environnement actif"
+            echo "13. 📊 Rapports (consulter, exporter)"
+            echo "14. 🔄 Workflows (créer, exécuter, gérer)"
+            echo "15. 🚫 Désactiver l'environnement actif"
         fi
         echo ""
         echo "h.  Aide"
@@ -805,6 +806,315 @@ EOF
             0) return ;;
             *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
+    }
+    
+    # =========================================================================
+    # APPRENTISSAGE & LABS (CYBERLEARN INTÉGRÉ)
+    # =========================================================================
+    # DESC: Affiche le menu d'apprentissage et labs
+    # USAGE: show_learning_menu
+    # EXAMPLE: show_learning_menu
+    show_learning_menu() {
+        show_header
+        echo -e "${YELLOW}🎓 APPRENTISSAGE & LABS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        # Charger cyberlearn si disponible
+        local CYBERLEARN_DIR="${HOME}/dotfiles/zsh/functions/cyberlearn"
+        if [ -f "$CYBERLEARN_DIR/cyberlearn.zsh" ]; then
+            source "$CYBERLEARN_DIR/cyberlearn.zsh" 2>/dev/null
+        fi
+        
+        echo "1.  📖 Modules de Cours (basics, network, web, etc.)"
+        echo "2.  🧪 Labs Pratiques (environnements Docker)"
+        echo "3.  🎯 Challenges & Exercices"
+        echo "4.  📊 Ma Progression"
+        echo "5.  🏆 Badges & Certificats"
+        echo "6.  🐳 Gérer les Labs Docker"
+        echo "7.  📚 Documentation & Aide"
+        echo ""
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        
+        case "$choice" in
+            1)
+                # Modules de cours
+                if type cyberlearn >/dev/null 2>&1; then
+                    cyberlearn start-module
+                else
+                    echo "❌ cyberlearn non disponible"
+                    echo "💡 Les modules d'apprentissage seront bientôt intégrés directement"
+                    sleep 2
+                fi
+                ;;
+            2)
+                # Labs pratiques
+                if type cyberlearn >/dev/null 2>&1; then
+                    cyberlearn lab
+                else
+                    show_labs_menu_direct
+                fi
+                ;;
+            3)
+                # Challenges
+                if type cyberlearn >/dev/null 2>&1; then
+                    # Utiliser cyberlearn pour les challenges
+                    echo ""
+                    echo "🎯 Challenge du Jour:"
+                    cyberlearn 2>/dev/null || show_daily_challenge_direct
+                else
+                    show_daily_challenge_direct
+                fi
+                ;;
+            4)
+                # Progression
+                if type cyberlearn >/dev/null 2>&1; then
+                    cyberlearn progress
+                else
+                    show_progress_direct
+                fi
+                ;;
+            5)
+                # Badges
+                if type cyberlearn >/dev/null 2>&1; then
+                    # Afficher les badges via cyberlearn
+                    echo ""
+                    echo "🏆 Badges obtenus:"
+                    cyberlearn 2>/dev/null || echo "Aucun badge pour le moment"
+                else
+                    echo "🏆 Badges obtenus:"
+                    echo "  Aucun badge pour le moment"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            6)
+                # Gestion labs Docker
+                show_docker_labs_menu
+                ;;
+            7)
+                # Documentation
+                show_learning_docs
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # Menu labs direct (si cyberlearn non disponible)
+    show_labs_menu_direct() {
+        show_header
+        echo -e "${CYAN}🧪 LABS PRATIQUES${RESET}\n"
+        
+        echo "Labs disponibles:"
+        echo "1.  🕸️  web-basics - Lab Sécurité Web (XSS, SQLi)"
+        echo "2.  🌐 network-scan - Lab Scan Réseau"
+        echo "3.  🔐 crypto-basics - Lab Cryptographie"
+        echo "4.  🐧 linux-pentest - Lab Pentest Linux"
+        echo "5.  🔍 forensics-basic - Lab Forensique"
+        echo ""
+        echo "0.  Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        
+        case "$choice" in
+            1) start_lab_docker "web-basics" ;;
+            2) start_lab_docker "network-scan" ;;
+            3) start_lab_docker "crypto-basics" ;;
+            4) start_lab_docker "linux-pentest" ;;
+            5) start_lab_docker "forensics-basic" ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # Démarrer un lab Docker
+    start_lab_docker() {
+        local lab_name="$1"
+        
+        if ! command -v docker &>/dev/null; then
+            echo "❌ Docker n'est pas installé"
+            echo "💡 Installez-le avec: installman docker"
+            sleep 2
+            return 1
+        fi
+        
+        if ! docker info &>/dev/null 2>&1; then
+            echo "❌ Docker n'est pas en cours d'exécution"
+            echo "💡 Démarrez Docker avec: sudo systemctl start docker"
+            sleep 2
+            return 1
+        fi
+        
+        echo "🚀 Démarrage du lab: $lab_name"
+        
+        # Charger la fonction de lab depuis cyberlearn si disponible
+        local CYBERLEARN_DIR="${HOME}/dotfiles/zsh/functions/cyberlearn"
+        if [ -f "$CYBERLEARN_DIR/utils/labs.sh" ]; then
+            source "$CYBERLEARN_DIR/utils/labs.sh" 2>/dev/null
+            start_lab "$lab_name"
+        else
+            echo "⚠️  Système de labs non disponible"
+            echo "💡 Le lab sera bientôt intégré directement"
+        fi
+        
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
+    # Challenge du jour direct
+    show_daily_challenge_direct() {
+        show_header
+        echo -e "${CYAN}🎯 CHALLENGE DU JOUR${RESET}\n"
+        
+        local today=$(date +%Y-%m-%d)
+        local day_of_year=$(date +%j)
+        local challenge_num=$((day_of_year % 10))
+        
+        case "$challenge_num" in
+            0) local challenge="Basics: Créez un mot de passe fort et vérifiez sa force" ;;
+            1) local challenge="Network: Scannez votre réseau local et identifiez 3 hôtes actifs" ;;
+            2) local challenge="Web: Analysez les cookies d'un site web avec curl" ;;
+            3) local challenge="Crypto: Chiffrez un fichier avec GPG" ;;
+            4) local challenge="Linux: Analysez les permissions d'un fichier système" ;;
+            5) local challenge="Network: Capturez 10 paquets avec tcpdump" ;;
+            6) local challenge="Web: Testez une application web avec OWASP ZAP" ;;
+            7) local challenge="Basics: Vérifiez l'intégrité d'un fichier avec SHA256" ;;
+            8) local challenge="Network: Analysez un port ouvert avec nmap" ;;
+            9) local challenge="Web: Identifiez les vulnérabilités OWASP Top 10 sur un site" ;;
+        esac
+        
+        echo -e "${GREEN}Challenge:${RESET} $challenge"
+        echo -e "${BLUE}Date:${RESET} $today"
+        echo ""
+        echo "💡 Complétez ce challenge pour gagner des points !"
+        echo ""
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
+    # Progression directe
+    show_progress_direct() {
+        show_header
+        echo -e "${CYAN}📊 MA PROGRESSION${RESET}\n"
+        
+        local progress_file="${HOME}/.cyberlearn/progress.json"
+        if [ -f "$progress_file" ] && command -v jq &>/dev/null; then
+            local modules_completed=$(jq -r '.stats.modules_completed // 0' "$progress_file" 2>/dev/null)
+            local labs_completed=$(jq -r '.stats.labs_completed // 0' "$progress_file" 2>/dev/null)
+            
+            echo "Modules complétés: $modules_completed/10"
+            echo "Labs complétés: $labs_completed/5"
+        else
+            echo "Aucune progression enregistrée"
+            echo "💡 Commencez un module ou un lab pour démarrer !"
+        fi
+        
+        echo ""
+        read -k 1 "?Appuyez sur une touche pour continuer..."
+    }
+    
+    # Menu gestion labs Docker
+    show_docker_labs_menu() {
+        show_header
+        echo -e "${CYAN}🐳 GESTION DES LABS DOCKER${RESET}\n"
+        
+        if ! command -v docker &>/dev/null; then
+            echo "❌ Docker n'est pas installé"
+            echo "💡 Installez-le avec: installman docker"
+            sleep 2
+            return
+        fi
+        
+        echo "1.  🚀 Démarrer un lab"
+        echo "2.  🛑 Arrêter un lab"
+        echo "3.  📋 Lister les labs actifs"
+        echo "4.  🧹 Nettoyer les containers"
+        echo "5.  📊 Statut des labs"
+        echo ""
+        echo "0.  Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        
+        case "$choice" in
+            1) show_labs_menu_direct ;;
+            2)
+                echo ""
+                echo "Labs actifs:"
+                docker ps --format '{{.Names}}' | grep '^cyberlearn-' | sed 's/^cyberlearn-//' | nl || echo "  Aucun lab actif"
+                echo ""
+                printf "Nom du lab à arrêter: "
+                read -r lab_name
+                if [ -n "$lab_name" ]; then
+                    docker stop "cyberlearn-$lab_name" 2>/dev/null && docker rm "cyberlearn-$lab_name" 2>/dev/null
+                    echo "✅ Lab arrêté"
+                fi
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            3)
+                echo ""
+                echo "Labs actifs:"
+                docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'cyberlearn|NAMES' || echo "  Aucun lab actif"
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            4)
+                echo ""
+                echo "🧹 Nettoyage des containers cyberlearn..."
+                docker ps -a --filter "name=cyberlearn-" --format "{{.Names}}" | xargs -r docker rm 2>/dev/null
+                echo "✅ Nettoyage terminé"
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            5)
+                echo ""
+                echo "📊 Statut des labs:"
+                docker ps -a --format 'table {{.Names}}\t{{.Status}}' | grep -E 'cyberlearn|NAMES' || echo "  Aucun lab"
+                read -k 1 "?Appuyez sur une touche pour continuer..."
+                ;;
+            0) return ;;
+            *) echo -e "${RED}Choix invalide${RESET}"; sleep 1 ;;
+        esac
+    }
+    
+    # Documentation apprentissage
+    show_learning_docs() {
+        show_header
+        echo -e "${CYAN}📚 DOCUMENTATION APPRENTISSAGE${RESET}\n"
+        
+        cat <<EOF
+${BOLD}Modules disponibles:${RESET}
+  • Basics - Bases de la cybersécurité
+  • Network - Sécurité réseau
+  • Web - Sécurité web
+  • Crypto - Cryptographie
+  • Linux - Sécurité Linux
+  • Windows - Sécurité Windows
+  • Mobile - Sécurité mobile
+  • Forensics - Forensique numérique
+  • Pentest - Tests de pénétration
+  • Incident - Incident response
+
+${BOLD}Labs disponibles:${RESET}
+  • web-basics - Application web vulnérable (XSS, SQLi)
+  • network-scan - Environnement réseau pour scanning
+  • crypto-basics - Exercices de cryptographie
+  • linux-pentest - Machine Linux vulnérable
+  • forensics-basic - Analyse forensique de base
+
+${BOLD}Pré-requis:${RESET}
+  • Docker (pour les labs)
+  • Outils réseau (nmap, wireshark, etc.)
+  • jq (pour la progression JSON)
+
+${BOLD}Commandes rapides:${RESET}
+  • cyberlearn - Menu complet d'apprentissage
+  • cyberlearn start-module <nom> - Démarrer un module
+  • cyberlearn lab start <nom> - Démarrer un lab
+  • cyberlearn progress - Voir la progression
+
+EOF
+        read -k 1 "?Appuyez sur une touche pour continuer..."
     }
     
     # =========================================================================
@@ -1298,6 +1608,7 @@ EOF
     if [[ "$1" == "web" ]]; then show_web_menu; return; fi
     if [[ "$1" == "iot" ]]; then show_iot_menu; return; fi
     if [[ "$1" == "network" ]]; then show_network_devices_menu; return; fi
+    if [[ "$1" == "learn" ]] || [[ "$1" == "learning" ]]; then show_learning_menu; return; fi
     if [[ "$1" == "help" ]]; then show_help; return; fi
     if [[ "$1" == "load_infos" && -n "$2" ]]; then
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
@@ -1333,8 +1644,9 @@ EOF
             7) show_iot_menu ;;
             8) show_advanced_tools_menu ;;
             9) show_utilities_menu ;;
-            10) show_assistant_menu ;;
-            11)
+            10) show_learning_menu ;;
+            11) show_assistant_menu ;;
+            12)
                 # Accès rapide aux notes de l'environnement actif
                 if has_active_environment 2>/dev/null; then
                     local current_env=$(get_current_environment 2>/dev/null)
@@ -1354,7 +1666,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            12)
+            13)
                 # Accès rapide aux rapports
                 if has_active_environment 2>/dev/null; then
                     show_report_menu
@@ -1364,7 +1676,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            13)
+            14)
                 # Accès rapide aux workflows
                 if has_active_environment 2>/dev/null; then
                     show_workflow_menu
@@ -1374,7 +1686,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            14)
+            15)
                 # Désactiver l'environnement actif
                 if has_active_environment 2>/dev/null; then
                     local current_env=$(get_current_environment 2>/dev/null)
