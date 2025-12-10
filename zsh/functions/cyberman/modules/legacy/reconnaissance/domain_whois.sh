@@ -57,12 +57,25 @@ function domain_whois() {
                 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
                 if [ "$whois_available" = true ]; then
                     local whois_output=$(whois "$domain" 2>&1)
-                    echo "$whois_output"
-                    # Enregistrer automatiquement le résultat
+                    
+                    # Filtrer et formater la sortie WHOIS
+                    local formatted_output=$(echo "$whois_output" | grep -v "^%" | grep -v "^$" | grep -v "^# " | head -100)
+                    
+                    # Si c'est une IP, extraire les informations importantes
+                    if [[ "$domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                        echo -e "${CYAN}📋 Informations IP (RIPE/ARIN/APNIC):${RESET}\n"
+                        echo "$formatted_output" | grep -E "^(inetnum|netname|descr|country|admin-c|tech-c|status|route|origin|mnt-by|created|last-modified|abuse-mailbox|address|phone|fax-no|nic-hdl|role|AS)" | head -30
+                    else
+                        echo -e "${CYAN}📋 Informations domaine:${RESET}\n"
+                        echo "$formatted_output" | head -50
+                    fi
+                    
+                    # Enregistrer automatiquement le résultat (sortie complète)
                     if typeset -f auto_save_recon_result >/dev/null 2>&1; then
                         auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
                     fi
                 fi
+                echo ""
             done
             return 0
         else
@@ -90,13 +103,25 @@ function domain_whois() {
     # whois devrait déjà être disponible (vérifié au début)
     if [ "$whois_available" = true ]; then
         local whois_output=$(whois "$domain" 2>&1)
-        echo "$whois_output"
         
-        # Enregistrer automatiquement le résultat dans l'environnement actif
+        # Filtrer et formater la sortie WHOIS
+        local formatted_output=$(echo "$whois_output" | grep -v "^%" | grep -v "^$" | grep -v "^# " | head -100)
+        
+        # Si c'est une IP, extraire les informations importantes
+        if [[ "$domain" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            echo -e "${CYAN}📋 Informations IP (RIPE/ARIN/APNIC):${RESET}\n"
+            echo "$formatted_output" | grep -E "^(inetnum|netname|descr|country|admin-c|tech-c|status|route|origin|mnt-by|created|last-modified|abuse-mailbox|address|phone|fax-no|nic-hdl|role|AS)" | head -30
+        else
+            echo -e "${CYAN}📋 Informations domaine:${RESET}\n"
+            echo "$formatted_output" | head -50
+        fi
+        
+        # Enregistrer automatiquement le résultat dans l'environnement actif (sortie complète)
         if typeset -f auto_save_recon_result >/dev/null 2>&1; then
             auto_save_recon_result "whois" "WHOIS lookup pour $domain" "$whois_output" "success" 2>/dev/null
         fi
         
+        echo ""
         return 0
     else
         return 1
