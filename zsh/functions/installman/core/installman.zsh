@@ -80,8 +80,8 @@ installman() {
     # Fonction pour obtenir le statut d'installation
     get_install_status() {
         local tool_check="$1"
-        local status=$($tool_check 2>/dev/null)
-        if [ "$status" = "installed" ]; then
+        local install_status=$($tool_check 2>/dev/null)
+        if [ "$install_status" = "installed" ]; then
             echo -e "${GREEN}[✓ Installé]${RESET}"
         else
             echo -e "${YELLOW}[✗ Non installé]${RESET}"
@@ -144,8 +144,8 @@ installman() {
                     local tool_emoji="${tool_parts[3]}"
                     local tool_desc="${tool_parts[4]}"
                     local tool_check="${tool_parts[5]}"
-                    local status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    local install_status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
                     ((index++))
                     break
                 fi
@@ -162,8 +162,8 @@ installman() {
                     local tool_emoji="${tool_parts[3]}"
                     local tool_desc="${tool_parts[4]}"
                     local tool_check="${tool_parts[5]}"
-                    local status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    local install_status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
                     ((index++))
                     break
                 fi
@@ -180,8 +180,8 @@ installman() {
                     local tool_emoji="${tool_parts[3]}"
                     local tool_desc="${tool_parts[4]}"
                     local tool_check="${tool_parts[5]}"
-                    local status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    local install_status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
                     ((index++))
                     break
                 fi
@@ -198,8 +198,8 @@ installman() {
                     local tool_emoji="${tool_parts[3]}"
                     local tool_desc="${tool_parts[4]}"
                     local tool_check="${tool_parts[5]}"
-                    local status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    local install_status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
                     ((index++))
                     break
                 fi
@@ -216,8 +216,8 @@ installman() {
                     local tool_emoji="${tool_parts[3]}"
                     local tool_desc="${tool_parts[4]}"
                     local tool_check="${tool_parts[5]}"
-                    local status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    local install_status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
                     ((index++))
                     break
                 fi
@@ -234,8 +234,8 @@ installman() {
                     local tool_emoji="${tool_parts[3]}"
                     local tool_desc="${tool_parts[4]}"
                     local tool_check="${tool_parts[5]}"
-                    local status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$status"
+                    local install_status=$(get_install_status "$tool_check")
+                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
                     ((index++))
                     break
                 fi
