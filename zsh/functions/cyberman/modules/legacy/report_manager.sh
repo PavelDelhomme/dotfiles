@@ -213,7 +213,7 @@ report_summary() {
     echo "📊 Résumé: $report_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Workflow: $workflow"
-    echo "Statut: $status"
+    echo "Statut: $report_status"
     echo "Début: $started"
     echo "Fin: $ended"
     echo "Étapes: $steps_count"
