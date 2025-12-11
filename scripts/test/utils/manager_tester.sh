@@ -114,31 +114,61 @@ test_adapter_syntax() {
     fi
 }
 
-# Test 4: Vérifier que le manager peut être chargé
+# Test 4: Vérifier que le manager peut être chargé (avec timeout)
 test_manager_load() {
     local manager="$1"
     local shell_type="$2"
     local result=0
+    local timeout_cmd=""
+    
+    # Vérifier si timeout est disponible
+    if command -v timeout >/dev/null 2>&1; then
+        timeout_cmd="timeout 3"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        timeout_cmd="gtimeout 3"
+    fi
     
     case "$shell_type" in
         zsh)
-            if zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
-                echo "✅ Manager $manager peut être chargé (ZSH)"
-                return 0
+            # Utiliser timeout pour éviter les blocages lors du chargement
+            if [ -n "$timeout_cmd" ]; then
+                if $timeout_cmd zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager peut être chargé (ZSH)"
+                    return 0
+                else
+                    echo "❌ Manager $manager ne peut pas être chargé (ZSH)"
+                    return 1
+                fi
             else
-                echo "❌ Manager $manager ne peut pas être chargé (ZSH)"
-                return 1
+                # Pas de timeout, test normal
+                if zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager peut être chargé (ZSH)"
+                    return 0
+                else
+                    echo "❌ Manager $manager ne peut pas être chargé (ZSH)"
+                    return 1
+                fi
             fi
             ;;
         bash)
             local adapter_file="$DOTFILES_DIR/shells/bash/adapters/$manager.sh"
             if [ -f "$adapter_file" ]; then
-                if bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
-                    echo "✅ Manager $manager peut être chargé (Bash)"
-                    return 0
+                if [ -n "$timeout_cmd" ]; then
+                    if $timeout_cmd bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                        echo "✅ Manager $manager peut être chargé (Bash)"
+                        return 0
+                    else
+                        echo "❌ Manager $manager ne peut pas être chargé (Bash)"
+                        return 1
+                    fi
                 else
-                    echo "❌ Manager $manager ne peut pas être chargé (Bash)"
-                    return 1
+                    if bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                        echo "✅ Manager $manager peut être chargé (Bash)"
+                        return 0
+                    else
+                        echo "❌ Manager $manager ne peut pas être chargé (Bash)"
+                        return 1
+                    fi
                 fi
             else
                 echo "⚠️  Adapter Bash non trouvé: $adapter_file (peut être normal)"
@@ -148,12 +178,22 @@ test_manager_load() {
         fish)
             local adapter_file="$DOTFILES_DIR/shells/fish/adapters/$manager.fish"
             if [ -f "$adapter_file" ]; then
-                if fish -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
-                    echo "✅ Manager $manager peut être chargé (Fish)"
-                    return 0
+                if [ -n "$timeout_cmd" ]; then
+                    if $timeout_cmd fish -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                        echo "✅ Manager $manager peut être chargé (Fish)"
+                        return 0
+                    else
+                        echo "❌ Manager $manager ne peut pas être chargé (Fish)"
+                        return 1
+                    fi
                 else
-                    echo "❌ Manager $manager ne peut pas être chargé (Fish)"
-                    return 1
+                    if fish -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                        echo "✅ Manager $manager peut être chargé (Fish)"
+                        return 0
+                    else
+                        echo "❌ Manager $manager ne peut pas être chargé (Fish)"
+                        return 1
+                    fi
                 fi
             else
                 echo "⚠️  Adapter Fish non trouvé: $adapter_file (peut être normal)"
@@ -167,21 +207,42 @@ test_manager_load() {
     esac
 }
 
-# Test 5: Vérifier que le manager répond (test basique)
+# Test 5: Vérifier que le manager répond (test basique avec timeout)
 test_manager_response() {
     local manager="$1"
     local shell_type="$2"
     local result=0
+    local timeout_cmd=""
     
-    # Test simple: vérifier que la fonction existe et peut être appelée
+    # Vérifier si timeout est disponible
+    if command -v timeout >/dev/null 2>&1; then
+        timeout_cmd="timeout 2"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        timeout_cmd="gtimeout 2"
+    fi
+    
+    # Test simple: vérifier que la fonction existe et peut être appelée (avec timeout)
     case "$shell_type" in
         zsh)
-            if zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && $manager --help >/dev/null 2>&1 || $manager >/dev/null 2>&1 || true" 2>/dev/null; then
-                echo "✅ Manager $manager répond (ZSH)"
-                return 0
+            # Test avec timeout pour éviter les blocages
+            if [ -n "$timeout_cmd" ]; then
+                # Utiliser timeout pour éviter les blocages
+                if $timeout_cmd zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager répond (ZSH)"
+                    return 0
+                else
+                    echo "⚠️  Manager $manager ne répond pas (ZSH) - peut être normal"
+                    return 0  # Pas une erreur critique
+                fi
             else
-                echo "⚠️  Manager $manager ne répond pas (ZSH) - peut être normal"
-                return 0  # Pas une erreur critique
+                # Pas de timeout disponible, test minimal (juste vérifier que la fonction existe)
+                if zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager répond (ZSH)"
+                    return 0
+                else
+                    echo "⚠️  Manager $manager ne répond pas (ZSH) - peut être normal"
+                    return 0  # Pas une erreur critique
+                fi
             fi
             ;;
         *)

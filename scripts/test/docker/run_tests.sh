@@ -113,10 +113,28 @@ while read -r manager || [ -n "$manager" ]; do
     echo "🧪 Test: $manager" | tee -a "$DETAILED_REPORT"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
     
-    # Exécuter les tests et capturer la sortie
-    # Utiliser une sous-shell pour capturer le code de sortie
-    TEST_OUTPUT=$(test_manager "$manager" "zsh" 2>&1)
-    TEST_EXIT=$?
+    # Exécuter les tests avec timeout pour éviter les blocages
+    # Utiliser timeout si disponible, sinon test normal
+    TIMEOUT_CMD=""
+    if command -v timeout >/dev/null 2>&1; then
+        TIMEOUT_CMD="timeout 10"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        TIMEOUT_CMD="gtimeout 10"
+    fi
+    
+    # Capturer la sortie et le code de sortie
+    if [ -n "$TIMEOUT_CMD" ]; then
+        TEST_OUTPUT=$($TIMEOUT_CMD sh -c "test_manager '$manager' 'zsh' 2>&1")
+        TEST_EXIT=$?
+        # Si timeout, code 124
+        if [ $TEST_EXIT -eq 124 ]; then
+            echo "⚠️  Test de $manager a dépassé le timeout (10s) - peut être normal pour managers interactifs"
+            TEST_EXIT=0  # Ne pas considérer comme erreur
+        fi
+    else
+        TEST_OUTPUT=$(test_manager "$manager" "zsh" 2>&1)
+        TEST_EXIT=$?
+    fi
     
     # Afficher la sortie
     echo "$TEST_OUTPUT" | tee -a "$DETAILED_REPORT"

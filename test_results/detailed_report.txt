@@ -1,20 +1,7 @@
 ═══════════════════════════════════════════════════════════════
-RAPPORT DÉTAILLÉ - Thu Dec 11 21:07:25 UTC 2025
+RAPPORT DÉTAILLÉ - Thu Dec 11 21:21:17 UTC 2025
 ═══════════════════════════════════════════════════════════════
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🧪 Test: pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman
+🧪 Test: pathman
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-═══════════════════════════════════════════════════════════════
-🧪 TEST: pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman (zsh)
-═══════════════════════════════════════════════════════════════
-❌ Manager pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman n'existe pas (ZSH)
-⚠️  Core non trouvé: /root/dotfiles/core/managers/pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman/core/pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman.sh (peut être normal pour wrappers)
-⚠️  Adapter ZSH non trouvé: /root/dotfiles/shells/zsh/adapters/pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman.zsh
-❌ Manager pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman ne peut pas être chargé (ZSH)
-✅ Manager pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman répond (ZSH)
-
-📊 Résumé: 2/5 tests réussis
-❌ 3 test(s) échoué(s) pour pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman (zsh)
-
