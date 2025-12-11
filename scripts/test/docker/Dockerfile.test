@@ -1,0 +1,69 @@
+# =============================================================================
+# Dockerfile pour tests automatisés des managers dotfiles
+# =============================================================================
+# Description: Image Docker isolée pour tester tous les managers
+# Author: Paul Delhomme
+# Version: 1.0
+# =============================================================================
+
+FROM archlinux:latest
+
+# Variables d'environnement
+ENV DOTFILES_DIR=/root/dotfiles
+ENV HOME=/root
+ENV TERM=xterm-256color
+
+# Installer les dépendances de base
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+        base-devel \
+        git \
+        zsh \
+        bash \
+        fish \
+        python \
+        python-pip \
+        awk \
+        sed \
+        grep \
+        findutils \
+        coreutils \
+        which \
+        jq \
+        curl \
+        wget \
+        vim \
+        nano \
+        less \
+        man-db \
+        man-pages \
+        && \
+    rm -rf /var/cache/pacman/pkg/*
+
+# Créer le répertoire dotfiles
+WORKDIR /root
+
+# Copier les dotfiles (sera monté en volume en lecture seule)
+# Cette étape permet de valider la structure
+COPY . /root/dotfiles
+
+# Configurer ZSH comme shell par défaut
+RUN chsh -s /bin/zsh root
+
+# Créer les répertoires nécessaires
+RUN mkdir -p /root/.config /root/.local/share /root/.cache
+
+# Script d'initialisation pour charger les dotfiles
+RUN echo '#!/bin/sh\n\
+# Charger les dotfiles\n\
+if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
+    export DOTFILES_DIR=/root/dotfiles\n\
+    export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
+    . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
+fi\n\
+exec "$@"' > /root/entrypoint.sh && \
+    chmod +x /root/entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]
+CMD ["/bin/zsh"]
+
