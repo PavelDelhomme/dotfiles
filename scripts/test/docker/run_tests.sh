@@ -99,13 +99,10 @@ echo "════════════════════════�
 echo "" >> "$DETAILED_REPORT"
 
 # Tester chaque manager individuellement
-# Utiliser IFS pour parsing correct de la chaîne
-OLD_IFS="$IFS"
-IFS=' '
-
-for manager in $MANAGERS; do
-    # Restaurer IFS immédiatement pour éviter problèmes
-    IFS="$OLD_IFS"
+# Utiliser while read pour parsing correct (méthode robuste en sh)
+echo "$MANAGERS" | tr ' ' '\n' | while read -r manager || [ -n "$manager" ]; do
+    # Ignorer les lignes vides
+    [ -z "$manager" ] && continue
     COMPLETED=$((COMPLETED + 1))
     
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
@@ -135,13 +132,7 @@ for manager in $MANAGERS; do
     
     # Mettre à jour la progression
     progress_update "$COMPLETED" "$PASSED_TESTS" "$FAILED_TESTS"
-    
-    # Réinitialiser IFS pour la prochaine itération
-    IFS=' '
 done
-
-# Restaurer IFS final
-IFS="$OLD_IFS"
 
 # Terminer la progression
 progress_finish
