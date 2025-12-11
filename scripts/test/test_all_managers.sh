@@ -70,15 +70,23 @@ run_tests_with_compose() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Lancer avec docker-compose
-    cd "$DOTFILES_DIR/scripts/test/docker" || exit 1
+    # Aller dans le répertoire docker-compose
+    COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
+    cd "$COMPOSE_DIR" || exit 1
     
-    if docker compose -f "$DOCKER_COMPOSE_FILE" up --build --remove-orphans 2>&1; then
+    # Lancer avec docker-compose (depuis le bon répertoire)
+    if docker compose -f docker-compose.yml up --build --remove-orphans 2>&1 | grep -v "WARN\|vertexes\|statuses\|digest\|name\|started\|completed\|current\|timestamp\|id"; then
         cd "$DOTFILES_DIR" || exit 1
         return 0
     else
+        # Vérifier le code de sortie réel
+        COMPOSE_EXIT=$?
         cd "$DOTFILES_DIR" || exit 1
-        return 1
+        if [ $COMPOSE_EXIT -eq 0 ]; then
+            return 0
+        else
+            return 1
+        fi
     fi
 }
 
@@ -135,7 +143,12 @@ show_report() {
 cleanup() {
     echo ""
     echo "🧹 Nettoyage..."
-    docker compose -f "$DOCKER_COMPOSE_FILE" down 2>/dev/null || true
+    COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
+    if [ -f "$COMPOSE_DIR/docker-compose.yml" ]; then
+        cd "$COMPOSE_DIR" || return
+        docker compose -f docker-compose.yml down 2>/dev/null || true
+        cd "$DOTFILES_DIR" || return
+    fi
     docker stop "$DOCKER_CONTAINER" 2>/dev/null || true
     docker rm "$DOCKER_CONTAINER" 2>/dev/null || true
     echo "✅ Nettoyage terminé"
