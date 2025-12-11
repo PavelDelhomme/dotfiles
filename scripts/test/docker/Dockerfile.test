@@ -47,6 +47,10 @@ WORKDIR /root
 # Cette étape permet de valider la structure
 COPY . /root/dotfiles
 
+# Copier le script de test
+COPY scripts/test/docker/run_tests.sh /root/run_tests.sh
+RUN chmod +x /root/run_tests.sh
+
 # Configurer ZSH comme shell par défaut
 RUN chsh -s /bin/zsh root
 

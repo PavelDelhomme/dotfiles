@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  dotfiles-test:
+    build:
+      context: ../..
+      dockerfile: scripts/test/docker/Dockerfile.test
+    image: dotfiles-test:latest
+    container_name: dotfiles-test-container
+    volumes:
+      # Montage en lecture seule pour éviter les modifications
+      - ../../:/root/dotfiles:ro
+      # Volume pour les résultats de test (lecture/écriture)
+      - dotfiles-test-results:/root/test_results
+      # Volume pour la configuration (lecture/écriture)
+      - dotfiles-test-config:/root/.config
+    environment:
+      - DOTFILES_DIR=/root/dotfiles
+      - TEST_RESULTS_DIR=/root/test_results
+      - HOME=/root
+      - TERM=xterm-256color
+    stdin_open: true
+    tty: true
+    # Ne pas redémarrer automatiquement
+    restart: "no"
+    # Commande par défaut : lancer les tests
+    command: /bin/sh -c "cd /root/dotfiles && bash scripts/test/docker/run_tests.sh"
+
+volumes:
+  dotfiles-test-results:
+    driver: local
+  dotfiles-test-config:
+    driver: local
+

@@ -1,10 +1,10 @@
 #!/bin/sh
 # =============================================================================
-# TEST_ALL_MANAGERS - Test automatisé de tous les managers
+# TEST_ALL_MANAGERS - Test automatisé de tous les managers dans Docker
 # =============================================================================
 # Description: Teste tous les managers dans un environnement Docker sécurisé
 # Author: Paul Delhomme
-# Version: 1.0
+# Version: 2.0 - Entièrement dans Docker
 # =============================================================================
 
 # Charger progress_bar
@@ -21,30 +21,71 @@ fi
 DOCKER_IMAGE="dotfiles-test:latest"
 DOCKER_CONTAINER="dotfiles-test-container"
 TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-$DOTFILES_DIR/test_results}"
-REPORT_FILE="$TEST_RESULTS_DIR/all_managers_test_report.txt"
-
-# Liste des managers à tester
-MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman netman sshman testman testzshman moduleman multimediaman cyberlearn"
+DOCKER_COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
 
 # =============================================================================
 # Fonctions
 # =============================================================================
 
+# Vérifier que Docker est disponible
+check_docker() {
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "❌ Docker n'est pas installé"
+        echo "💡 Installez Docker avec: installman docker"
+        exit 1
+    fi
+    
+    if ! docker info >/dev/null 2>&1; then
+        echo "❌ Docker n'est pas démarré ou vous n'avez pas les permissions"
+        echo "💡 Vérifiez que Docker est démarré: sudo systemctl start docker"
+        echo "💡 Ou ajoutez-vous au groupe docker: sudo usermod -aG docker \$USER"
+        exit 1
+    fi
+}
+
 # Construire l'image Docker
 build_docker_image() {
     echo "🔨 Construction de l'image Docker..."
-    if docker build -f "$DOTFILES_DIR/scripts/test/docker/Dockerfile.test" -t "$DOCKER_IMAGE" "$DOTFILES_DIR" 2>&1; then
+    echo "   (Cela peut prendre quelques minutes la première fois)"
+    echo ""
+    
+    if docker build -f "$DOTFILES_DIR/scripts/test/docker/Dockerfile.test" \
+        -t "$DOCKER_IMAGE" \
+        "$DOTFILES_DIR" 2>&1 | grep -E "(Step|Successfully|Error|ERROR)" | head -20; then
+        echo ""
         echo "✅ Image Docker construite avec succès"
         return 0
     else
+        echo ""
         echo "❌ Erreur lors de la construction de l'image Docker"
         return 1
     fi
 }
 
-# Lancer les tests dans Docker
-run_tests_in_docker() {
-    echo "🧪 Lancement des tests dans Docker..."
+# Lancer les tests avec docker-compose (méthode recommandée)
+run_tests_with_compose() {
+    echo "🧪 Lancement des tests avec docker-compose..."
+    echo ""
+    
+    # Créer le répertoire de résultats
+    mkdir -p "$TEST_RESULTS_DIR"
+    
+    # Lancer avec docker-compose
+    cd "$DOTFILES_DIR/scripts/test/docker" || exit 1
+    
+    if docker compose -f "$DOCKER_COMPOSE_FILE" up --build --remove-orphans 2>&1; then
+        cd "$DOTFILES_DIR" || exit 1
+        return 0
+    else
+        cd "$DOTFILES_DIR" || exit 1
+        return 1
+    fi
+}
+
+# Lancer les tests avec docker run (méthode alternative)
+run_tests_with_docker() {
+    echo "🧪 Lancement des tests avec docker run..."
+    echo ""
     
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
@@ -54,50 +95,11 @@ run_tests_in_docker() {
         --name "$DOCKER_CONTAINER" \
         -v "$DOTFILES_DIR:/root/dotfiles:ro" \
         -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
+        -v "dotfiles-test-config:/root/.config:rw" \
         -e DOTFILES_DIR=/root/dotfiles \
         -e TEST_RESULTS_DIR=/root/test_results \
         "$DOCKER_IMAGE" \
-        /bin/sh -c "
-            # Charger les dotfiles
-            export DOTFILES_DIR=/root/dotfiles
-            export DOTFILES_ZSH_PATH=\"\$DOTFILES_DIR/zsh\"
-            if [ -f \"\$DOTFILES_DIR/zsh/zshrc_custom\" ]; then
-                . \"\$DOTFILES_DIR/zsh/zshrc_custom\" 2>/dev/null || true
-            fi
-            
-            # Charger manager_tester
-            if [ -f \"\$DOTFILES_DIR/scripts/test/utils/manager_tester.sh\" ]; then
-                . \"\$DOTFILES_DIR/scripts/test/utils/manager_tester.sh\"
-            fi
-            
-            # Tester chaque manager
-            echo '═══════════════════════════════════════════════════════════════'
-            echo 'TESTS AUTOMATISÉS DE TOUS LES MANAGERS'
-            echo '═══════════════════════════════════════════════════════════════'
-            echo ''
-            
-            total_managers=0
-            passed_managers=0
-            failed_managers=0
-            
-            for manager in $MANAGERS; do
-                total_managers=\$((total_managers + 1))
-                if test_manager \"\$manager\" zsh; then
-                    passed_managers=\$((passed_managers + 1))
-                else
-                    failed_managers=\$((failed_managers + 1))
-                fi
-            done
-            
-            echo ''
-            echo '═══════════════════════════════════════════════════════════════'
-            echo 'RÉSUMÉ FINAL'
-            echo '═══════════════════════════════════════════════════════════════'
-            echo "Total managers testés: \$total_managers"
-            echo "Réussis: \$passed_managers"
-            echo "Échoués: \$failed_managers"
-            echo ''
-        " 2>&1 | tee "$REPORT_FILE"
+        bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"
 }
 
 # Afficher le rapport
@@ -108,14 +110,35 @@ show_report() {
     echo "═══════════════════════════════════════════════════════════════"
     echo ""
     
+    REPORT_FILE="$TEST_RESULTS_DIR/all_managers_test_report.txt"
+    DETAILED_REPORT="$TEST_RESULTS_DIR/detailed_report.txt"
+    
     if [ -f "$REPORT_FILE" ]; then
         cat "$REPORT_FILE"
     else
         echo "⚠️  Aucun rapport trouvé"
+        if [ -f "$TEST_RESULTS_DIR/test_output.log" ]; then
+            echo ""
+            echo "📋 Sortie du conteneur:"
+            tail -50 "$TEST_RESULTS_DIR/test_output.log"
+        fi
     fi
     
     echo ""
-    echo "📁 Rapport complet disponible dans: $REPORT_FILE"
+    echo "📁 Rapports disponibles dans:"
+    echo "  - Résumé: $REPORT_FILE"
+    echo "  - Détail: $DETAILED_REPORT"
+    echo "  - Log complet: $TEST_RESULTS_DIR/test_output.log"
+}
+
+# Nettoyer les conteneurs
+cleanup() {
+    echo ""
+    echo "🧹 Nettoyage..."
+    docker compose -f "$DOCKER_COMPOSE_FILE" down 2>/dev/null || true
+    docker stop "$DOCKER_CONTAINER" 2>/dev/null || true
+    docker rm "$DOCKER_CONTAINER" 2>/dev/null || true
+    echo "✅ Nettoyage terminé"
 }
 
 # =============================================================================
@@ -123,16 +146,15 @@ show_report() {
 # =============================================================================
 main() {
     echo "═══════════════════════════════════════════════════════════════"
-    echo "🧪 TEST AUTOMATISÉ DE TOUS LES MANAGERS"
+    echo "🧪 TEST AUTOMATISÉ DE TOUS LES MANAGERS (DOCKER)"
     echo "═══════════════════════════════════════════════════════════════"
     echo ""
+    echo "📦 Tous les tests s'exécutent dans Docker (environnement isolé)"
+    echo "🔒 Aucune modification de votre système hôte"
+    echo ""
     
-    # Vérifier que Docker est disponible
-    if ! command -v docker >/dev/null 2>&1; then
-        echo "❌ Docker n'est pas installé"
-        echo "💡 Installez Docker avec: installman docker"
-        exit 1
-    fi
+    # Vérifier Docker
+    check_docker
     
     # Initialiser la progression
     total_steps=3
@@ -148,15 +170,28 @@ main() {
     fi
     
     # Étape 2: Lancer les tests
-    if run_tests_in_docker; then
-        progress_update 2 2 0
+    # Essayer docker-compose d'abord, sinon docker run
+    if command -v docker-compose >/dev/null 2>&1 || docker compose version >/dev/null 2>&1; then
+        if run_tests_with_compose; then
+            progress_update 2 2 0
+        else
+            progress_update 2 1 1
+        fi
     else
-        progress_update 2 1 1
+        echo "⚠️  docker-compose non disponible, utilisation de docker run"
+        if run_tests_with_docker; then
+            progress_update 2 2 0
+        else
+            progress_update 2 1 1
+        fi
     fi
     
     # Étape 3: Afficher le rapport
     show_report
     progress_update 3 2 1
+    
+    # Nettoyer
+    cleanup
     
     # Terminer
     progress_finish
@@ -164,7 +199,13 @@ main() {
     echo ""
     echo "✅ Tests terminés!"
     echo "📁 Résultats dans: $TEST_RESULTS_DIR"
+    echo ""
+    echo "💡 Pour voir les résultats détaillés:"
+    echo "   cat $TEST_RESULTS_DIR/detailed_report.txt"
 }
+
+# Gérer l'interruption (Ctrl+C)
+trap cleanup EXIT INT TERM
 
 # Exécuter le script principal
 main "$@"
