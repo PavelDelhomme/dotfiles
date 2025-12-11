@@ -146,18 +146,19 @@ run_tests_with_docker() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Vérifier que l'image existe (vérification plus robuste avec tags alternatifs)
-    IMAGE_EXISTS_LATEST=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -c "^${DOCKER_IMAGE}$" || echo "0")
-    IMAGE_EXISTS_AUTO=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -c "^${DOCKER_IMAGE_ALT}$" || echo "0")
+    # Détecter quelle image utiliser (vérification robuste)
+    ACTUAL_IMAGE=""
     
-    # Détecter quelle image utiliser
-    if [ "$IMAGE_EXISTS_LATEST" != "0" ]; then
+    # Vérifier d'abord latest
+    if docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${DOCKER_IMAGE}$"; then
         ACTUAL_IMAGE="$DOCKER_IMAGE"
         echo "✅ Image Docker trouvée: $ACTUAL_IMAGE"
-    elif [ "$IMAGE_EXISTS_AUTO" != "0" ]; then
+    # Sinon vérifier auto
+    elif docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${DOCKER_IMAGE_ALT}$"; then
         ACTUAL_IMAGE="$DOCKER_IMAGE_ALT"
         echo "✅ Image Docker trouvée (tag auto): $ACTUAL_IMAGE"
         echo "💡 Utilisation de l'image avec tag 'auto'"
+    # Sinon construire
     else
         echo "⚠️  Image Docker non trouvée: $DOCKER_IMAGE"
         echo "💡 Construction de l'image..."
@@ -165,15 +166,41 @@ run_tests_with_docker() {
             echo "❌ Impossible de construire l'image Docker"
             return 1
         fi
-        ACTUAL_IMAGE="$DOCKER_IMAGE"
+        # Après construction, vérifier quelle image est disponible
+        if docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${DOCKER_IMAGE}$"; then
+            ACTUAL_IMAGE="$DOCKER_IMAGE"
+        elif docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${DOCKER_IMAGE_ALT}$"; then
+            ACTUAL_IMAGE="$DOCKER_IMAGE_ALT"
+        else
+            echo "❌ Image Docker toujours introuvable après construction"
+            echo "   Images disponibles:"
+            docker images | grep -E "(REPOSITORY|dotfiles)" || docker images | head -5
+            return 1
+        fi
     fi
     
-    # Vérifier une dernière fois avant de lancer
-    if ! docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -qE "^(${DOCKER_IMAGE}|${DOCKER_IMAGE_ALT})$"; then
-        echo "❌ Image Docker toujours introuvable après construction"
+    # Vérification finale que l'image existe vraiment
+    if [ -z "$ACTUAL_IMAGE" ]; then
+        echo "❌ Aucune image Docker disponible"
         echo "   Images disponibles:"
         docker images | grep -E "(REPOSITORY|dotfiles)" || docker images | head -5
         return 1
+    fi
+    
+    # Vérifier que l'image existe vraiment avant de lancer
+    if ! docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${ACTUAL_IMAGE}$"; then
+        echo "❌ Image Docker introuvable: $ACTUAL_IMAGE"
+        echo "   Tentative de recherche alternative..."
+        # Chercher n'importe quelle image dotfiles-test
+        ALTERNATIVE_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep "^dotfiles-test:" | head -1)
+        if [ -n "$ALTERNATIVE_IMAGE" ]; then
+            echo "   → Utilisation de: $ALTERNATIVE_IMAGE"
+            ACTUAL_IMAGE="$ALTERNATIVE_IMAGE"
+        else
+            echo "   Images disponibles:"
+            docker images | grep -E "(REPOSITORY|dotfiles)" || docker images | head -5
+            return 1
+        fi
     fi
     
     # Lancer le conteneur et exécuter les tests
