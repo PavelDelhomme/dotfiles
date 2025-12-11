@@ -98,8 +98,11 @@ echo "RAPPORT DÉTAILLÉ - $(date)" >> "$DETAILED_REPORT"
 echo "═══════════════════════════════════════════════════════════════" >> "$DETAILED_REPORT"
 echo "" >> "$DETAILED_REPORT"
 
-# Tester chaque manager
-for manager in $MANAGERS; do
+# Tester chaque manager individuellement
+# Convertir la liste en tableau pour itérer correctement
+set -- $MANAGERS
+
+for manager in "$@"; do
     COMPLETED=$((COMPLETED + 1))
     
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
@@ -107,7 +110,15 @@ for manager in $MANAGERS; do
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
     
     # Exécuter les tests et capturer la sortie
-    if test_manager "$manager" "zsh" 2>&1 | tee -a "$DETAILED_REPORT"; then
+    # Utiliser une sous-shell pour capturer le code de sortie
+    TEST_OUTPUT=$(test_manager "$manager" "zsh" 2>&1)
+    TEST_EXIT=$?
+    
+    # Afficher la sortie
+    echo "$TEST_OUTPUT" | tee -a "$DETAILED_REPORT"
+    
+    # Évaluer le résultat
+    if [ $TEST_EXIT -eq 0 ]; then
         PASSED_TESTS=$((PASSED_TESTS + 1))
         echo "✅ $manager: Tous les tests passés" | tee -a "$REPORT_FILE"
     else
