@@ -70,22 +70,27 @@ run_tests_with_compose() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Utiliser le chemin absolu du docker-compose.yml
-    COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
-    
-    # Lancer avec docker-compose depuis la racine des dotfiles
-    # Le contexte dans docker-compose.yml est relatif au fichier docker-compose.yml
-    cd "$DOTFILES_DIR" || exit 1
+    # Aller dans le répertoire du docker-compose.yml
+    # Les chemins relatifs dans docker-compose.yml sont résolus depuis ce répertoire
+    COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
+    cd "$COMPOSE_DIR" || exit 1
     
     # Filtrer la sortie verbeuse de docker-compose
-    if docker compose -f "$COMPOSE_FILE" up --build --remove-orphans 2>&1 | \
-        grep -vE "(WARN|vertexes|statuses|digest|name|started|completed|current|timestamp|id|reading from stdin|\{|\})" | \
-        grep -v "^$"; then
+    COMPOSE_OUTPUT=$(docker compose up --build --remove-orphans 2>&1)
+    COMPOSE_EXIT=$?
+    
+    # Afficher la sortie filtrée
+    echo "$COMPOSE_OUTPUT" | grep -vE "(WARN|vertexes|statuses|digest|name|started|completed|current|timestamp|id|reading from stdin|\{|\}|^$)" || true
+    
+    # Retourner au répertoire original
+    cd "$DOTFILES_DIR" || exit 1
+    
+    # Vérifier le code de sortie
+    if [ $COMPOSE_EXIT -eq 0 ]; then
         return 0
     else
-        # Vérifier le code de sortie réel (grep retourne 1 si aucune ligne ne correspond)
-        # On vérifie plutôt si le conteneur a bien tourné
-        if docker ps -a --filter "name=dotfiles-test-container" --format "{{.Status}}" | grep -q "Exited"; then
+        # Vérifier si le conteneur a bien tourné malgré le code de sortie
+        if docker ps -a --filter "name=dotfiles-test-container" --format "{{.Status}}" 2>/dev/null | grep -q "Exited"; then
             return 0
         else
             return 1
