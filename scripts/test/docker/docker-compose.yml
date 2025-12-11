@@ -7,7 +7,7 @@ services:
     container_name: dotfiles-test-container
     volumes:
       # Montage en lecture seule pour éviter les modifications
-      - ../../:/root/dotfiles:ro
+      - ../..:/root/dotfiles:ro
       # Volume pour les résultats de test (lecture/écriture)
       - dotfiles-test-results:/root/test_results
       # Volume pour la configuration (lecture/écriture)
