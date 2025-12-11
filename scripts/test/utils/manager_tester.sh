@@ -247,9 +247,9 @@ test_manager_response() {
     case "$shell_type" in
         zsh)
             # Test avec timeout pour éviter les blocages
-            if [ -n "$timeout_cmd" ]; then
+            if [ -n "$timeout_path" ] && [ -x "$timeout_path" ]; then
                 # Utiliser timeout pour éviter les blocages
-                if $timeout_cmd zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                if "$timeout_path" 2 zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
                     echo "✅ Manager $manager répond (ZSH)"
                     return 0
                 else
