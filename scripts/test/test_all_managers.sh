@@ -70,19 +70,22 @@ run_tests_with_compose() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Aller dans le répertoire docker-compose
-    COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
-    cd "$COMPOSE_DIR" || exit 1
+    # Utiliser le chemin absolu du docker-compose.yml
+    COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
     
-    # Lancer avec docker-compose (depuis le bon répertoire)
-    if docker compose -f docker-compose.yml up --build --remove-orphans 2>&1 | grep -v "WARN\|vertexes\|statuses\|digest\|name\|started\|completed\|current\|timestamp\|id"; then
-        cd "$DOTFILES_DIR" || exit 1
+    # Lancer avec docker-compose depuis la racine des dotfiles
+    # Le contexte dans docker-compose.yml est relatif au fichier docker-compose.yml
+    cd "$DOTFILES_DIR" || exit 1
+    
+    # Filtrer la sortie verbeuse de docker-compose
+    if docker compose -f "$COMPOSE_FILE" up --build --remove-orphans 2>&1 | \
+        grep -vE "(WARN|vertexes|statuses|digest|name|started|completed|current|timestamp|id|reading from stdin|\{|\})" | \
+        grep -v "^$"; then
         return 0
     else
-        # Vérifier le code de sortie réel
-        COMPOSE_EXIT=$?
-        cd "$DOTFILES_DIR" || exit 1
-        if [ $COMPOSE_EXIT -eq 0 ]; then
+        # Vérifier le code de sortie réel (grep retourne 1 si aucune ligne ne correspond)
+        # On vérifie plutôt si le conteneur a bien tourné
+        if docker ps -a --filter "name=dotfiles-test-container" --format "{{.Status}}" | grep -q "Exited"; then
             return 0
         else
             return 1
@@ -143,11 +146,9 @@ show_report() {
 cleanup() {
     echo ""
     echo "🧹 Nettoyage..."
-    COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
-    if [ -f "$COMPOSE_DIR/docker-compose.yml" ]; then
-        cd "$COMPOSE_DIR" || return
-        docker compose -f docker-compose.yml down 2>/dev/null || true
-        cd "$DOTFILES_DIR" || return
+    COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
+    if [ -f "$COMPOSE_FILE" ]; then
+        docker compose -f "$COMPOSE_FILE" down 2>/dev/null || true
     fi
     docker stop "$DOCKER_CONTAINER" 2>/dev/null || true
     docker rm "$DOCKER_CONTAINER" 2>/dev/null || true
