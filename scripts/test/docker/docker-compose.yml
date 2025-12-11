@@ -1,13 +1,16 @@
 services:
   dotfiles-test:
     build:
+      # Le contexte est la racine des dotfiles (2 niveaux au-dessus de ce fichier)
       context: ../..
+      # Le dockerfile est relatif au contexte
       dockerfile: scripts/test/docker/Dockerfile.test
     image: dotfiles-test:latest
     container_name: dotfiles-test-container
     volumes:
       # Montage en lecture seule pour éviter les modifications
-      - ../..:/root/dotfiles:ro
+      # Le chemin est relatif au répertoire où docker-compose est exécuté
+      - ../../:/root/dotfiles:ro
       # Volume pour les résultats de test (lecture/écriture)
       - dotfiles-test-results:/root/test_results
       # Volume pour la configuration (lecture/écriture)

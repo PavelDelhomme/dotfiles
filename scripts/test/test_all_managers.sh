@@ -70,17 +70,30 @@ run_tests_with_compose() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Aller dans le répertoire du docker-compose.yml
-    # Les chemins relatifs dans docker-compose.yml sont résolus depuis ce répertoire
+    # Utiliser le chemin absolu du docker-compose.yml
+    COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
+    
+    # Vérifier que le fichier existe
+    if [ ! -f "$COMPOSE_FILE" ]; then
+        echo "❌ Fichier docker-compose.yml non trouvé: $COMPOSE_FILE"
+        return 1
+    fi
+    
+    # Aller dans le répertoire du docker-compose.yml pour que les chemins relatifs fonctionnent
     COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
     cd "$COMPOSE_DIR" || exit 1
     
-    # Filtrer la sortie verbeuse de docker-compose
-    COMPOSE_OUTPUT=$(docker compose up --build --remove-orphans 2>&1)
+    # Lancer docker-compose avec le fichier spécifié
+    # Utiliser --project-directory pour forcer le contexte
+    COMPOSE_OUTPUT=$(docker compose \
+        -f docker-compose.yml \
+        --project-directory "$DOTFILES_DIR" \
+        up --build --remove-orphans 2>&1)
     COMPOSE_EXIT=$?
     
-    # Afficher la sortie filtrée
-    echo "$COMPOSE_OUTPUT" | grep -vE "(WARN|vertexes|statuses|digest|name|started|completed|current|timestamp|id|reading from stdin|\{|\}|^$)" || true
+    # Filtrer la sortie verbeuse (garder seulement les messages importants)
+    echo "$COMPOSE_OUTPUT" | grep -vE "(WARN|vertexes|statuses|digest|name|started|completed|current|timestamp|id|reading from stdin|\{|\}|^$|^\s*$)" | \
+        grep -E "(Building|Creating|Starting|Running|Error|ERROR|Success|success|test|Test|TEST)" || true
     
     # Retourner au répertoire original
     cd "$DOTFILES_DIR" || exit 1
@@ -98,7 +111,7 @@ run_tests_with_compose() {
     fi
 }
 
-# Lancer les tests avec docker run (méthode alternative)
+# Lancer les tests avec docker run (méthode principale - plus fiable)
 run_tests_with_docker() {
     echo "🧪 Lancement des tests avec docker run..."
     echo ""
@@ -106,8 +119,18 @@ run_tests_with_docker() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
+    # Vérifier que l'image existe
+    if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${DOCKER_IMAGE}$"; then
+        echo "❌ Image Docker non trouvée: $DOCKER_IMAGE"
+        echo "💡 Construction de l'image..."
+        if ! build_docker_image; then
+            return 1
+        fi
+    fi
+    
     # Lancer le conteneur et exécuter les tests
-    docker run --rm \
+    echo "🚀 Démarrage du conteneur de test..."
+    if docker run --rm \
         --name "$DOCKER_CONTAINER" \
         -v "$DOTFILES_DIR:/root/dotfiles:ro" \
         -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
@@ -115,7 +138,11 @@ run_tests_with_docker() {
         -e DOTFILES_DIR=/root/dotfiles \
         -e TEST_RESULTS_DIR=/root/test_results \
         "$DOCKER_IMAGE" \
-        bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"
+        bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 # Afficher le rapport
@@ -151,10 +178,14 @@ show_report() {
 cleanup() {
     echo ""
     echo "🧹 Nettoyage..."
+    # Nettoyer docker-compose si utilisé
     COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
     if [ -f "$COMPOSE_FILE" ]; then
-        docker compose -f "$COMPOSE_FILE" down 2>/dev/null || true
+        COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
+        cd "$COMPOSE_DIR" 2>/dev/null && docker compose down 2>/dev/null || true
+        cd "$DOTFILES_DIR" 2>/dev/null || true
     fi
+    # Nettoyer le conteneur docker run
     docker stop "$DOCKER_CONTAINER" 2>/dev/null || true
     docker rm "$DOCKER_CONTAINER" 2>/dev/null || true
     echo "✅ Nettoyage terminé"
@@ -189,20 +220,12 @@ main() {
     fi
     
     # Étape 2: Lancer les tests
-    # Essayer docker-compose d'abord, sinon docker run
-    if command -v docker-compose >/dev/null 2>&1 || docker compose version >/dev/null 2>&1; then
-        if run_tests_with_compose; then
-            progress_update 2 2 0
-        else
-            progress_update 2 1 1
-        fi
+    # Utiliser docker run directement (plus simple et fiable)
+    echo "💡 Utilisation de docker run (méthode la plus fiable)"
+    if run_tests_with_docker; then
+        progress_update 2 2 0
     else
-        echo "⚠️  docker-compose non disponible, utilisation de docker run"
-        if run_tests_with_docker; then
-            progress_update 2 2 0
-        else
-            progress_update 2 1 1
-        fi
+        progress_update 2 1 1
     fi
     
     # Étape 3: Afficher le rapport
