@@ -8,11 +8,27 @@ Système de test automatisé pour tester tous les managers dotfiles dans un envi
 
 ## 🚀 Utilisation rapide
 
-### Test complet de tous les managers
+### Test complet de tous les managers (RECOMMANDÉ)
+
+**Tous les tests s'exécutent dans Docker (isolé et sécurisé)** :
 
 ```bash
 cd ~/dotfiles
 bash scripts/test/test_all_managers.sh
+```
+
+Le script :
+1. ✅ Vérifie que Docker est disponible
+2. ✅ Construit l'image Docker (si nécessaire)
+3. ✅ Lance tous les tests dans un conteneur isolé
+4. ✅ Génère des rapports détaillés
+5. ✅ Nettoie automatiquement les conteneurs
+
+### Test avec docker-compose (Alternative)
+
+```bash
+cd ~/dotfiles/scripts/test/docker
+docker compose up --build
 ```
 
 ### Test d'un manager spécifique
@@ -72,17 +88,26 @@ Le rapport de test est généré dans :
 
 ## 🐳 Docker
 
-### Construire l'image
+### ⚠️ IMPORTANT : Tous les tests s'exécutent dans Docker
+
+**Avantages** :
+- ✅ **Isolé** : Aucune modification de votre système hôte
+- ✅ **Sécurisé** : Environnement complètement isolé
+- ✅ **Reproductible** : Même environnement à chaque fois
+- ✅ **Nettoyage facile** : Suppression des conteneurs sans impact
+
+### Construire l'image manuellement
 
 ```bash
 docker build -f scripts/test/docker/Dockerfile.test -t dotfiles-test:latest .
 ```
 
-### Lancer un conteneur interactif
+### Lancer un conteneur interactif (pour debug)
 
 ```bash
 docker run --rm -it \
     -v ~/dotfiles:/root/dotfiles:ro \
+    -v ~/dotfiles/test_results:/root/test_results:rw \
     dotfiles-test:latest \
     /bin/zsh
 ```
@@ -90,6 +115,10 @@ docker run --rm -it \
 ### Nettoyer
 
 ```bash
+# Nettoyer les conteneurs et volumes de test
+docker compose -f scripts/test/docker/docker-compose.yml down -v
+
+# Supprimer l'image
 docker rmi dotfiles-test:latest
 ```
 
