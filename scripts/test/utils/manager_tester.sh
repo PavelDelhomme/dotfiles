@@ -142,8 +142,8 @@ test_manager_load() {
     case "$shell_type" in
         zsh)
             # Utiliser timeout pour éviter les blocages lors du chargement
-            if [ -n "$timeout_cmd" ]; then
-                if $timeout_cmd zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+            if [ -n "$timeout_path" ] && [ -x "$timeout_path" ]; then
+                if "$timeout_path" 3 zsh -c "source $DOTFILES_DIR/shells/zsh/adapters/$manager.zsh 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
                     echo "✅ Manager $manager peut être chargé (ZSH)"
                     return 0
                 else
@@ -164,8 +164,8 @@ test_manager_load() {
         bash)
             local adapter_file="$DOTFILES_DIR/shells/bash/adapters/$manager.sh"
             if [ -f "$adapter_file" ]; then
-                if [ -n "$timeout_cmd" ]; then
-                    if $timeout_cmd bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                if [ -n "$timeout_path" ] && [ -x "$timeout_path" ]; then
+                    if "$timeout_path" 3 bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
                         echo "✅ Manager $manager peut être chargé (Bash)"
                         return 0
                     else
@@ -189,8 +189,8 @@ test_manager_load() {
         fish)
             local adapter_file="$DOTFILES_DIR/shells/fish/adapters/$manager.fish"
             if [ -f "$adapter_file" ]; then
-                if [ -n "$timeout_cmd" ]; then
-                    if $timeout_cmd fish -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                if [ -n "$timeout_path" ] && [ -x "$timeout_path" ]; then
+                    if "$timeout_path" 3 fish -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
                         echo "✅ Manager $manager peut être chargé (Fish)"
                         return 0
                     else
