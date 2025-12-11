@@ -99,8 +99,12 @@ echo "════════════════════════�
 echo "" >> "$DETAILED_REPORT"
 
 # Tester chaque manager individuellement
-# Utiliser while read pour parsing correct (méthode robuste en sh)
-echo "$MANAGERS" | tr ' ' '\n' | while read -r manager || [ -n "$manager" ]; do
+# Créer un fichier temporaire avec les managers (une ligne par manager)
+TEMP_MANAGERS_FILE="/tmp/dotfiles_test_managers_$$"
+echo "$MANAGERS" | tr ' ' '\n' | grep -v '^$' > "$TEMP_MANAGERS_FILE"
+
+# Lire chaque manager depuis le fichier
+while read -r manager || [ -n "$manager" ]; do
     # Ignorer les lignes vides
     [ -z "$manager" ] && continue
     COMPLETED=$((COMPLETED + 1))
@@ -132,7 +136,10 @@ echo "$MANAGERS" | tr ' ' '\n' | while read -r manager || [ -n "$manager" ]; do
     
     # Mettre à jour la progression
     progress_update "$COMPLETED" "$PASSED_TESTS" "$FAILED_TESTS"
-done
+done < "$TEMP_MANAGERS_FILE"
+
+# Nettoyer le fichier temporaire
+rm -f "$TEMP_MANAGERS_FILE"
 
 # Terminer la progression
 progress_finish
