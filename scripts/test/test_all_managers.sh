@@ -50,9 +50,10 @@ build_docker_image() {
     echo "   (Cela peut prendre quelques minutes la première fois)"
     echo ""
     
-    # Construire l'image et capturer la sortie
+    # Construire l'image avec les deux tags (latest et auto) pour compatibilité
     BUILD_OUTPUT=$(docker build -f "$DOTFILES_DIR/scripts/test/docker/Dockerfile.test" \
         -t "$DOCKER_IMAGE" \
+        -t "$DOCKER_IMAGE_ALT" \
         "$DOTFILES_DIR" 2>&1)
     BUILD_EXIT=$?
     
