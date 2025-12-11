@@ -132,7 +132,7 @@ dotfiles/
 - [x] Mettre à jour `zshrc_custom` pour charger depuis adapters
 
 **Durée estimée :** 2-3 jours
-**Progression :** 100% (9 managers migrés : pathman ✅, manman ✅, searchman ⚠️, aliaman ⚠️, installman ⚠️, configman ⚠️, gitman ⚠️, fileman ⚠️, helpman ⚠️)
+**Progression :** 100% (13 managers migrés : pathman ✅, manman ✅, searchman ⚠️, aliaman ⚠️, installman ⚠️, configman ⚠️, gitman ⚠️, fileman ⚠️, helpman ⚠️, cyberman ⚠️, devman ⚠️, virtman ⚠️, miscman ⚠️)
 
 ---
 
@@ -578,7 +578,7 @@ installman/
 ---
 
 **Dernière mise à jour :** 2024-12-XX
-**Statut global :** Phase 0 - Structure Hybride (9/19 managers migrés : 2 complets, 7 wrappers)
+**Statut global :** Phase 0 - Structure Hybride (13/19 managers migrés : 2 complets, 11 wrappers)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
 **Managers migrés :**
   - ✅ **pathman** : Migration complète POSIX (core + adapters zsh/bash/fish)
@@ -590,6 +590,11 @@ installman/
   - ⚠️ **gitman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **fileman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **helpman** : Wrapper temporaire (charge ZSH original)
-**Prochaines étapes :** Migration managers complexes (cyberman, devman, virtman, miscman)
+  - ⚠️ **cyberman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **devman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **virtman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **miscman** : Wrapper temporaire (charge ZSH original)
+**Prochaines étapes :** Migration managers restants (netman, sshman, testman, testzshman, moduleman, multimediaman, cyberlearn)
 **Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
+**Utils :** ✅ progress_bar.sh et progress_utils.py créés (réutilisables partout)
 
