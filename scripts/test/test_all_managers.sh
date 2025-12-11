@@ -19,6 +19,7 @@ fi
 # Configuration
 # =============================================================================
 DOCKER_IMAGE="dotfiles-test:latest"
+DOCKER_IMAGE_ALT="dotfiles-test:auto"  # Tag alternatif possible
 DOCKER_CONTAINER="dotfiles-test-container"
 TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-$DOTFILES_DIR/test_results}"
 DOCKER_COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
@@ -58,11 +59,26 @@ build_docker_image() {
     # Afficher les lignes importantes
     echo "$BUILD_OUTPUT" | grep -E "(Step|Successfully|Error|ERROR|built|tagged)" | tail -10
     
-    # Vérifier que l'image existe maintenant
-    if [ $BUILD_EXIT -eq 0 ] && docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${DOCKER_IMAGE}$"; then
-        echo ""
-        echo "✅ Image Docker construite avec succès: $DOCKER_IMAGE"
-        return 0
+    # Vérifier que l'image existe maintenant (avec tag latest ou auto)
+    if [ $BUILD_EXIT -eq 0 ]; then
+        if docker images --format "{{.Repository}}:{{.Tag}}" | grep -qE "^(${DOCKER_IMAGE}|${DOCKER_IMAGE_ALT})$"; then
+            BUILT_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "^(${DOCKER_IMAGE}|${DOCKER_IMAGE_ALT})$" | head -1)
+            echo ""
+            echo "✅ Image Docker construite avec succès: $BUILT_IMAGE"
+            return 0
+        else
+            echo ""
+            echo "⚠️  Image construite mais tag non trouvé"
+            echo "   Images dotfiles disponibles:"
+            docker images | grep dotfiles || echo "   Aucune image dotfiles trouvée"
+            # Ne pas échouer si l'image existe avec un autre tag
+            if docker images | grep -q "dotfiles-test"; then
+                echo "   → Image existe avec un autre tag, utilisation possible"
+                return 0
+            else
+                return 1
+            fi
+        fi
     else
         echo ""
         echo "❌ Erreur lors de la construction de l'image Docker"
@@ -129,22 +145,30 @@ run_tests_with_docker() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Vérifier que l'image existe (vérification plus robuste)
-    IMAGE_EXISTS=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -c "^${DOCKER_IMAGE}$" || echo "0")
+    # Vérifier que l'image existe (vérification plus robuste avec tags alternatifs)
+    IMAGE_EXISTS_LATEST=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -c "^${DOCKER_IMAGE}$" || echo "0")
+    IMAGE_EXISTS_AUTO=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -c "^${DOCKER_IMAGE_ALT}$" || echo "0")
     
-    if [ "$IMAGE_EXISTS" = "0" ]; then
+    # Détecter quelle image utiliser
+    if [ "$IMAGE_EXISTS_LATEST" != "0" ]; then
+        ACTUAL_IMAGE="$DOCKER_IMAGE"
+        echo "✅ Image Docker trouvée: $ACTUAL_IMAGE"
+    elif [ "$IMAGE_EXISTS_AUTO" != "0" ]; then
+        ACTUAL_IMAGE="$DOCKER_IMAGE_ALT"
+        echo "✅ Image Docker trouvée (tag auto): $ACTUAL_IMAGE"
+        echo "💡 Utilisation de l'image avec tag 'auto'"
+    else
         echo "⚠️  Image Docker non trouvée: $DOCKER_IMAGE"
         echo "💡 Construction de l'image..."
         if ! build_docker_image; then
             echo "❌ Impossible de construire l'image Docker"
             return 1
         fi
-    else
-        echo "✅ Image Docker trouvée: $DOCKER_IMAGE"
+        ACTUAL_IMAGE="$DOCKER_IMAGE"
     fi
     
     # Vérifier une dernière fois avant de lancer
-    if ! docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${DOCKER_IMAGE}$"; then
+    if ! docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -qE "^(${DOCKER_IMAGE}|${DOCKER_IMAGE_ALT})$"; then
         echo "❌ Image Docker toujours introuvable après construction"
         echo "   Images disponibles:"
         docker images | grep -E "(REPOSITORY|dotfiles)" || docker images | head -5
@@ -152,7 +176,7 @@ run_tests_with_docker() {
     fi
     
     # Lancer le conteneur et exécuter les tests
-    echo "🚀 Démarrage du conteneur de test..."
+    echo "🚀 Démarrage du conteneur de test avec: $ACTUAL_IMAGE"
     echo ""
     
     if docker run --rm \
@@ -162,7 +186,7 @@ run_tests_with_docker() {
         -v "dotfiles-test-config:/root/.config:rw" \
         -e DOTFILES_DIR=/root/dotfiles \
         -e TEST_RESULTS_DIR=/root/test_results \
-        "$DOCKER_IMAGE" \
+        "$ACTUAL_IMAGE" \
         bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"; then
         return 0
     else
