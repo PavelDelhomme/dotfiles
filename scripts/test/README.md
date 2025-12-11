@@ -8,7 +8,18 @@ Système de test automatisé pour tester tous les managers dotfiles dans un envi
 
 ## 🚀 Utilisation rapide
 
-### Test complet de tous les managers (RECOMMANDÉ)
+### Test des managers migrés (RECOMMANDÉ - Test progressif)
+
+**Teste uniquement les managers déjà migrés vers la structure hybride** :
+
+```bash
+cd ~/dotfiles
+bash scripts/test/test_migrated_managers.sh
+```
+
+**Managers testés** : pathman, manman, searchman, aliaman, installman, configman, gitman, fileman, helpman, cyberman, devman, virtman, miscman (13 managers)
+
+### Test complet de tous les managers
 
 **Tous les tests s'exécutent dans Docker (isolé et sécurisé)** :
 
@@ -24,11 +35,11 @@ Le script :
 4. ✅ Génère des rapports détaillés
 5. ✅ Nettoie automatiquement les conteneurs
 
-### Test avec docker-compose (Alternative)
+### Test personnalisé (managers spécifiques)
 
 ```bash
-cd ~/dotfiles/scripts/test/docker
-docker compose up --build
+# Tester seulement pathman et manman
+TEST_MANAGERS="pathman manman" bash scripts/test/test_all_managers.sh
 ```
 
 ### Test d'un manager spécifique
