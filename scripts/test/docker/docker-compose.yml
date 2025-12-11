@@ -1,7 +1,7 @@
 services:
   dotfiles-test:
     build:
-      context: ${DOTFILES_DIR:-../../..}
+      context: ../..
       dockerfile: scripts/test/docker/Dockerfile.test
     image: dotfiles-test:latest
     container_name: dotfiles-test-container
