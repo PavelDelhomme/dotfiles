@@ -99,10 +99,13 @@ echo "════════════════════════�
 echo "" >> "$DETAILED_REPORT"
 
 # Tester chaque manager individuellement
-# Convertir la liste en tableau pour itérer correctement
-set -- $MANAGERS
+# Utiliser IFS pour parsing correct de la chaîne
+OLD_IFS="$IFS"
+IFS=' '
 
-for manager in "$@"; do
+for manager in $MANAGERS; do
+    # Restaurer IFS immédiatement pour éviter problèmes
+    IFS="$OLD_IFS"
     COMPLETED=$((COMPLETED + 1))
     
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
@@ -132,7 +135,13 @@ for manager in "$@"; do
     
     # Mettre à jour la progression
     progress_update "$COMPLETED" "$PASSED_TESTS" "$FAILED_TESTS"
+    
+    # Réinitialiser IFS pour la prochaine itération
+    IFS=' '
 done
+
+# Restaurer IFS final
+IFS="$OLD_IFS"
 
 # Terminer la progression
 progress_finish
