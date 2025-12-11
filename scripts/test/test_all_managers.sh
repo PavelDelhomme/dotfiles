@@ -49,15 +49,25 @@ build_docker_image() {
     echo "   (Cela peut prendre quelques minutes la première fois)"
     echo ""
     
-    if docker build -f "$DOTFILES_DIR/scripts/test/docker/Dockerfile.test" \
+    # Construire l'image et capturer la sortie
+    BUILD_OUTPUT=$(docker build -f "$DOTFILES_DIR/scripts/test/docker/Dockerfile.test" \
         -t "$DOCKER_IMAGE" \
-        "$DOTFILES_DIR" 2>&1 | grep -E "(Step|Successfully|Error|ERROR)" | head -20; then
+        "$DOTFILES_DIR" 2>&1)
+    BUILD_EXIT=$?
+    
+    # Afficher les lignes importantes
+    echo "$BUILD_OUTPUT" | grep -E "(Step|Successfully|Error|ERROR|built|tagged)" | tail -10
+    
+    # Vérifier que l'image existe maintenant
+    if [ $BUILD_EXIT -eq 0 ] && docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${DOCKER_IMAGE}$"; then
         echo ""
-        echo "✅ Image Docker construite avec succès"
+        echo "✅ Image Docker construite avec succès: $DOCKER_IMAGE"
         return 0
     else
         echo ""
         echo "❌ Erreur lors de la construction de l'image Docker"
+        echo "   Vérification de l'image..."
+        docker images | grep dotfiles || echo "   Aucune image dotfiles trouvée"
         return 1
     fi
 }
@@ -119,17 +129,32 @@ run_tests_with_docker() {
     # Créer le répertoire de résultats
     mkdir -p "$TEST_RESULTS_DIR"
     
-    # Vérifier que l'image existe
-    if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^${DOCKER_IMAGE}$"; then
-        echo "❌ Image Docker non trouvée: $DOCKER_IMAGE"
+    # Vérifier que l'image existe (vérification plus robuste)
+    IMAGE_EXISTS=$(docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -c "^${DOCKER_IMAGE}$" || echo "0")
+    
+    if [ "$IMAGE_EXISTS" = "0" ]; then
+        echo "⚠️  Image Docker non trouvée: $DOCKER_IMAGE"
         echo "💡 Construction de l'image..."
         if ! build_docker_image; then
+            echo "❌ Impossible de construire l'image Docker"
             return 1
         fi
+    else
+        echo "✅ Image Docker trouvée: $DOCKER_IMAGE"
+    fi
+    
+    # Vérifier une dernière fois avant de lancer
+    if ! docker images --format "{{.Repository}}:{{.Tag}}" 2>/dev/null | grep -q "^${DOCKER_IMAGE}$"; then
+        echo "❌ Image Docker toujours introuvable après construction"
+        echo "   Images disponibles:"
+        docker images | grep -E "(REPOSITORY|dotfiles)" || docker images | head -5
+        return 1
     fi
     
     # Lancer le conteneur et exécuter les tests
     echo "🚀 Démarrage du conteneur de test..."
+    echo ""
+    
     if docker run --rm \
         --name "$DOCKER_CONTAINER" \
         -v "$DOTFILES_DIR:/root/dotfiles:ro" \
@@ -141,6 +166,9 @@ run_tests_with_docker() {
         bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"; then
         return 0
     else
+        RUN_EXIT=$?
+        echo ""
+        echo "❌ Erreur lors de l'exécution du conteneur (code: $RUN_EXIT)"
         return 1
     fi
 }
