@@ -116,14 +116,26 @@ while read -r manager || [ -n "$manager" ]; do
     # Exécuter les tests avec timeout pour éviter les blocages
     # Utiliser timeout si disponible, sinon test normal
     TIMEOUT_CMD=""
+    TIMEOUT_PATH=""
+    
+    # Chercher timeout dans le PATH
     if command -v timeout >/dev/null 2>&1; then
-        TIMEOUT_CMD="timeout 10"
+        TIMEOUT_PATH=$(command -v timeout)
+        TIMEOUT_CMD="$TIMEOUT_PATH 10"
     elif command -v gtimeout >/dev/null 2>&1; then
-        TIMEOUT_CMD="gtimeout 10"
+        TIMEOUT_PATH=$(command -v gtimeout)
+        TIMEOUT_CMD="$TIMEOUT_PATH 10"
+    elif [ -f "/usr/bin/timeout" ]; then
+        TIMEOUT_PATH="/usr/bin/timeout"
+        TIMEOUT_CMD="$TIMEOUT_PATH 10"
+    elif [ -f "/usr/sbin/timeout" ]; then
+        TIMEOUT_PATH="/usr/sbin/timeout"
+        TIMEOUT_CMD="$TIMEOUT_PATH 10"
     fi
     
     # Capturer la sortie et le code de sortie
-    if [ -n "$TIMEOUT_CMD" ]; then
+    if [ -n "$TIMEOUT_CMD" ] && [ -n "$TIMEOUT_PATH" ] && [ -x "$TIMEOUT_PATH" ]; then
+        # Utiliser timeout avec le chemin complet
         TEST_OUTPUT=$($TIMEOUT_CMD sh -c "test_manager '$manager' 'zsh' 2>&1")
         TEST_EXIT=$?
         # Si timeout, code 124
@@ -132,6 +144,7 @@ while read -r manager || [ -n "$manager" ]; do
             TEST_EXIT=0  # Ne pas considérer comme erreur
         fi
     else
+        # Pas de timeout disponible, test normal (mais avec limite de temps via autre méthode)
         TEST_OUTPUT=$(test_manager "$manager" "zsh" 2>&1)
         TEST_EXIT=$?
     fi

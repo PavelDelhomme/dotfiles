@@ -121,11 +121,22 @@ test_manager_load() {
     local result=0
     local timeout_cmd=""
     
-    # Vérifier si timeout est disponible
+    # Vérifier si timeout est disponible (chercher dans plusieurs emplacements)
+    timeout_cmd=""
+    timeout_path=""
+    
     if command -v timeout >/dev/null 2>&1; then
-        timeout_cmd="timeout 3"
+        timeout_path=$(command -v timeout)
+        timeout_cmd="$timeout_path 3"
     elif command -v gtimeout >/dev/null 2>&1; then
-        timeout_cmd="gtimeout 3"
+        timeout_path=$(command -v gtimeout)
+        timeout_cmd="$timeout_path 3"
+    elif [ -f "/usr/bin/timeout" ] && [ -x "/usr/bin/timeout" ]; then
+        timeout_path="/usr/bin/timeout"
+        timeout_cmd="$timeout_path 3"
+    elif [ -f "/usr/sbin/timeout" ] && [ -x "/usr/sbin/timeout" ]; then
+        timeout_path="/usr/sbin/timeout"
+        timeout_cmd="$timeout_path 3"
     fi
     
     case "$shell_type" in
@@ -214,11 +225,22 @@ test_manager_response() {
     local result=0
     local timeout_cmd=""
     
-    # Vérifier si timeout est disponible
+    # Vérifier si timeout est disponible (chercher dans plusieurs emplacements)
+    timeout_cmd=""
+    timeout_path=""
+    
     if command -v timeout >/dev/null 2>&1; then
-        timeout_cmd="timeout 2"
+        timeout_path=$(command -v timeout)
+        timeout_cmd="$timeout_path 2"
     elif command -v gtimeout >/dev/null 2>&1; then
-        timeout_cmd="gtimeout 2"
+        timeout_path=$(command -v gtimeout)
+        timeout_cmd="$timeout_path 2"
+    elif [ -f "/usr/bin/timeout" ] && [ -x "/usr/bin/timeout" ]; then
+        timeout_path="/usr/bin/timeout"
+        timeout_cmd="$timeout_path 2"
+    elif [ -f "/usr/sbin/timeout" ] && [ -x "/usr/sbin/timeout" ]; then
+        timeout_path="/usr/sbin/timeout"
+        timeout_cmd="$timeout_path 2"
     fi
     
     # Test simple: vérifier que la fonction existe et peut être appelée (avec timeout)
