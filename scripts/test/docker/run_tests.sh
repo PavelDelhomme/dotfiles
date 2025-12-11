@@ -26,15 +26,32 @@ if [ -f "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" ]; then
 fi
 
 # Liste des managers à tester
-MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman netman sshman testman testzshman moduleman multimediaman cyberlearn"
+# Managers migrés (à tester en priorité)
+MIGRATED_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman"
+# Managers non migrés (tests basiques)
+UNMIGRATED_MANAGERS="netman sshman testman testzshman moduleman multimediaman cyberlearn"
+# Tous les managers
+ALL_MANAGERS="$MIGRATED_MANAGERS $UNMIGRATED_MANAGERS"
+
+# Utiliser les managers migrés par défaut (test progressif)
+MANAGERS="${TEST_MANAGERS:-$MIGRATED_MANAGERS}"
 
 echo "═══════════════════════════════════════════════════════════════"
-echo "🧪 TESTS AUTOMATISÉS DE TOUS LES MANAGERS (DOCKER)"
+echo "🧪 TESTS AUTOMATISÉS DES MANAGERS (DOCKER)"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 echo "📦 Environnement: Docker (isolé et sécurisé)"
 echo "📁 Dotfiles: $DOTFILES_DIR"
 echo "📊 Résultats: $TEST_RESULTS_DIR"
+echo ""
+echo "📋 Managers à tester: $(echo $MANAGERS | wc -w) managers"
+if [ "$MANAGERS" = "$MIGRATED_MANAGERS" ]; then
+    echo "   → Mode: Managers migrés uniquement (test progressif)"
+elif [ "$MANAGERS" = "$ALL_MANAGERS" ]; then
+    echo "   → Mode: Tous les managers"
+else
+    echo "   → Mode: Personnalisé"
+fi
 echo ""
 
 # Initialiser la progression
