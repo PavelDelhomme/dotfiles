@@ -577,7 +577,7 @@ installman/
 
 ---
 
-**Dernière mise à jour :** 2024-12-XX
+**Dernière mise à jour :** 2025-12-11
 **Statut global :** Phase 0 - Structure Hybride (13/19 managers migrés : 2 complets, 11 wrappers)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
 **Managers migrés :**
@@ -585,8 +585,8 @@ installman/
   - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **installman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **configman** : Wrapper temporaire (charge ZSH original)
+  - ⚠️ **installman** : Wrapper temporaire (charge ZSH original) + ✨ Nouvelles fonctionnalités
+  - ⚠️ **configman** : Wrapper temporaire (charge ZSH original) + ✨ Nouvelles fonctionnalités
   - ⚠️ **gitman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **fileman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **helpman** : Wrapper temporaire (charge ZSH original)
@@ -597,4 +597,95 @@ installman/
 **Prochaines étapes :** Migration managers restants (netman, sshman, testman, testzshman, moduleman, multimediaman, cyberlearn)
 **Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
 **Utils :** ✅ progress_bar.sh et progress_utils.py créés (réutilisables partout)
+
+---
+
+## ✨ Nouvelles Fonctionnalités (Décembre 2025)
+
+### 📦 Système de Gestion de Paquets Multi-Gestionnaires (installman)
+
+**Fonctionnalités ajoutées :**
+- ✅ Support multi-gestionnaires : pacman, yay, AUR, snap, flatpak, apt, dpkg, dnf, rpm, npm
+- ✅ Détection automatique de la distribution (Arch, Debian, Ubuntu, Fedora, Gentoo)
+- ✅ Recherche de paquets dans tous les gestionnaires
+- ✅ Installation/Suppression avec auto-détection du gestionnaire
+- ✅ Liste des paquets installés par gestionnaire
+- ✅ Informations détaillées sur les paquets
+- ✅ Installation automatique des gestionnaires manquants
+
+**Usage :**
+```bash
+installman packages    # Menu complet
+installman search vim  # Rechercher vim
+installman install vim # Installer vim
+installman remove vim  # Supprimer vim
+installman list        # Lister paquets installés
+```
+
+### 🔄 Système de Mise à Jour (installman)
+
+**Fonctionnalités ajoutées :**
+- ✅ Menu de mise à jour pour outils installés
+- ✅ Détection de version actuelle et disponible
+- ✅ Choix de version (dernière ou spécifique)
+- ✅ Mise à jour individuelle ou en masse
+- ✅ Indicateurs visuels (🆕 pour mises à jour disponibles)
+
+**Usage :**
+```bash
+installman update       # Menu de mise à jour
+installman update-all   # Mettre à jour tous les outils
+```
+
+### 🐳 Système de Test Docker Multi-Distributions
+
+**Fonctionnalités ajoutées :**
+- ✅ Conteneur `dotfiles-vm` pour tests interactifs
+- ✅ Support multi-distributions : Arch, Ubuntu, Debian, Gentoo
+- ✅ Mode persistant/éphémère (reset optionnel)
+- ✅ Volumes montés pour config et SSH
+- ✅ Test d'installation bootstrap dans conteneur propre
+- ✅ Commandes Makefile dédiées
+
+**Usage :**
+```bash
+make docker-vm              # Lancer conteneur dotfiles-vm
+make docker-vm-reset        # Réinitialiser le conteneur
+make docker-vm-shell        # Ouvrir shell dans dotfiles-vm
+make docker-vm-stop         # Arrêter dotfiles-vm
+make docker-vm-clean        # Nettoyer complètement
+make docker-test-bootstrap  # Tester installation bootstrap
+```
+
+### 📊 Gestion de Versions (configman)
+
+**Fonctionnalités ajoutées :**
+- ✅ Menu de gestion de versions (Node, Python, Java)
+- ✅ Installation/Activation de versions spécifiques
+- ✅ Liste des versions disponibles/installées
+- ✅ Support NVM, pyenv, archlinux-java
+
+**Usage :**
+```bash
+configman              # Menu principal → Option 11
+# Ou directement:
+version_manager_menu    # Menu de gestion de versions
+```
+
+### 👁️ Visualisation de Configuration (configman)
+
+**Fonctionnalités ajoutées :**
+- ✅ Vue d'ensemble complète de la configuration
+- ✅ Versions des outils (Node, Python, Java)
+- ✅ Configuration Git
+- ✅ Gestionnaires de paquets disponibles
+- ✅ Outils installés
+- ✅ Shells disponibles
+- ✅ Configuration SSH
+
+**Usage :**
+```bash
+configman              # Menu principal → Option 12
+# Affiche la vue d'ensemble complète
+```
 
