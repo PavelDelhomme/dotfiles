@@ -28,6 +28,9 @@ fi
 # Charger les fonctions de vérification
 [ -f "$INSTALLMAN_UTILS_DIR/check_installed.sh" ] && source "$INSTALLMAN_UTILS_DIR/check_installed.sh"
 
+# Charger les fonctions de gestion de version
+[ -f "$INSTALLMAN_UTILS_DIR/version_utils.sh" ] && source "$INSTALLMAN_UTILS_DIR/version_utils.sh"
+
 # =============================================================================
 # DÉFINITION DES OUTILS DISPONIBLES
 # =============================================================================
@@ -86,6 +89,285 @@ installman() {
         else
             echo -e "${YELLOW}[✗ Non installé]${RESET}"
         fi
+    }
+    
+    # Fonction pour afficher le menu de mise à jour
+    show_update_menu() {
+        show_header
+        echo -e "${YELLOW}🔄 MISE À JOUR D'OUTILS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        # Lister les outils installés avec leurs versions
+        echo -e "${BOLD}📦 Outils installés:${RESET}\n"
+        local index=1
+        local installed_tools=()
+        
+        for tool_def in "${TOOLS[@]}"; do
+            IFS=':' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_check="${tool_parts[5]}"
+            local install_status=$($tool_check 2>/dev/null)
+            
+            if [ "$install_status" = "installed" ]; then
+                local tool_emoji="${tool_parts[3]}"
+                local tool_desc="${tool_parts[4]}"
+                local current_version=$(get_current_version "$tool_name" 2>/dev/null || echo "unknown")
+                local latest_version=$(get_latest_version "$tool_name" 2>/dev/null || echo "unknown")
+                
+                # Vérifier si mise à jour disponible
+                local update_indicator=""
+                if is_update_available "$tool_name" 2>/dev/null; then
+                    update_indicator="${YELLOW}🆕${RESET}"
+                else
+                    update_indicator="${GREEN}✓${RESET}"
+                fi
+                
+                printf "  %-3s %s %-30s ${CYAN}v%s${RESET} → ${GREEN}v%s${RESET} %s\n" \
+                    "$index." "$tool_emoji" "$tool_desc" "$current_version" "$latest_version" "$update_indicator"
+                
+                installed_tools+=("$tool_def")
+                ((index++))
+            fi
+        done
+        
+        if [ ${#installed_tools[@]} -eq 0 ]; then
+            echo -e "${YELLOW}Aucun outil installé${RESET}"
+            echo ""
+            read -p "Appuyez sur Entrée pour retourner au menu principal..."
+            show_main_menu
+            return 0
+        fi
+        
+        echo ""
+        echo "0.  Retour au menu principal"
+        echo ""
+        printf "Choisir un outil à mettre à jour (numéro): "
+        read -r update_choice
+        update_choice=$(echo "$update_choice" | tr -d '[:space:]')
+        
+        if [ -z "$update_choice" ] || [ "$update_choice" = "0" ]; then
+            show_main_menu
+            return 0
+        fi
+        
+        if [[ "$update_choice" =~ ^[0-9]+$ ]]; then
+            local tool_index=$((update_choice))
+            if [ $tool_index -ge 1 ] && [ $tool_index -le ${#installed_tools[@]} ]; then
+                local tool_def="${installed_tools[$tool_index]}"
+                update_tool_from_def "$tool_def"
+            else
+                echo -e "${RED}❌ Numéro invalide: $update_choice${RESET}"
+                sleep 2
+                show_update_menu
+            fi
+        else
+            echo -e "${RED}❌ Choix invalide${RESET}"
+            sleep 2
+            show_update_menu
+        fi
+    }
+    
+    # Fonction pour mettre à jour un outil avec choix de version
+    update_tool_from_def() {
+        local tool_def="$1"
+        IFS=':' read -rA tool_parts <<< "$tool_def"
+        local tool_name="${tool_parts[1]}"
+        local tool_desc="${tool_parts[4]}"
+        local module_file="${tool_parts[6]}"
+        local install_func="${tool_parts[7]}"
+        
+        show_header
+        echo -e "${YELLOW}🔄 Mise à jour: $tool_desc${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        # Obtenir la version actuelle
+        local current_version=$(get_current_version "$tool_name" 2>/dev/null || echo "unknown")
+        echo -e "${CYAN}Version actuelle:${RESET} ${BOLD}$current_version${RESET}"
+        
+        # Obtenir les versions disponibles
+        echo -e "\n${CYAN}Versions disponibles:${RESET}"
+        local available_versions=$(get_available_versions "$tool_name" 2>/dev/null)
+        local latest_version=$(echo "$available_versions" | head -n1)
+        
+        if [ -n "$available_versions" ] && [ "$available_versions" != "latest" ]; then
+            local version_index=1
+            local versions_array=()
+            while IFS= read -r version; do
+                if [ -n "$version" ]; then
+                    if [ "$version" = "$latest_version" ]; then
+                        echo -e "  ${GREEN}${version_index}.${RESET} ${BOLD}$version${RESET} ${GREEN}(dernière)${RESET}"
+                    else
+                        echo -e "  ${version_index}. $version"
+                    fi
+                    versions_array+=("$version")
+                    ((version_index++))
+                fi
+            done <<< "$available_versions"
+        else
+            echo -e "  ${GREEN}1.${RESET} ${BOLD}latest${RESET} ${GREEN}(dernière version)${RESET}"
+            versions_array=("latest")
+        fi
+        
+        echo ""
+        echo "0.  Annuler"
+        echo ""
+        printf "Choisir une version (numéro ou version exacte): "
+        read -r version_choice
+        version_choice=$(echo "$version_choice" | tr -d '[:space:]')
+        
+        if [ -z "$version_choice" ] || [ "$version_choice" = "0" ]; then
+            show_update_menu
+            return 0
+        fi
+        
+        # Déterminer la version choisie
+        local selected_version=""
+        if [[ "$version_choice" =~ ^[0-9]+$ ]]; then
+            local version_index=$((version_choice))
+            if [ $version_index -ge 1 ] && [ $version_index -le ${#versions_array[@]} ]; then
+                selected_version="${versions_array[$version_index]}"
+            else
+                echo -e "${RED}❌ Numéro invalide${RESET}"
+                sleep 2
+                update_tool_from_def "$tool_def"
+                return 1
+            fi
+        else
+            # Version spécifique fournie
+            selected_version="$version_choice"
+        fi
+        
+        # Confirmer la mise à jour
+        echo ""
+        echo -e "${YELLOW}⚠️  Mise à jour de $tool_desc${RESET}"
+        echo -e "   ${CYAN}De:${RESET} $current_version"
+        echo -e "   ${CYAN}Vers:${RESET} $selected_version"
+        echo ""
+        read -p "Confirmer la mise à jour? (O/n): " confirm
+        confirm=${confirm:-O}
+        
+        if [[ ! "$confirm" =~ ^[oO]$ ]]; then
+            echo -e "${YELLOW}Mise à jour annulée${RESET}"
+            sleep 1
+            show_update_menu
+            return 0
+        fi
+        
+        # Exécuter la mise à jour
+        local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
+        
+        if [ -f "$full_module_path" ]; then
+            source "$full_module_path"
+            
+            # Si la fonction d'installation supporte un paramètre de version, l'utiliser
+            # Sinon, réinstaller simplement (la plupart des modules gèrent déjà la réinstallation)
+            if type "${install_func}_with_version" &>/dev/null; then
+                "${install_func}_with_version" "$selected_version"
+            else
+                # Réinstaller (les modules gèrent généralement la mise à jour via réinstallation)
+                echo -e "\n${CYAN}Mise à jour en cours...${RESET}\n"
+                $install_func
+            fi
+            
+            # Vérifier la nouvelle version
+            local new_version=$(get_current_version "$tool_name" 2>/dev/null || echo "unknown")
+            echo ""
+            if [ "$new_version" != "not_installed" ] && [ "$new_version" != "unknown" ]; then
+                echo -e "${GREEN}✅ Mise à jour terminée!${RESET}"
+                echo -e "${CYAN}Nouvelle version:${RESET} ${BOLD}$new_version${RESET}"
+            else
+                echo -e "${YELLOW}⚠️  Mise à jour terminée (version non détectable)${RESET}"
+            fi
+            
+            echo ""
+            read -p "Appuyez sur Entrée pour continuer..."
+            show_update_menu
+        else
+            echo -e "${RED}❌ Module $tool_desc non disponible: $full_module_path${RESET}"
+            sleep 2
+            show_update_menu
+        fi
+    }
+    
+    # Fonction pour mettre à jour tous les outils installés
+    update_all_tools() {
+        show_header
+        echo -e "${YELLOW}🔄 Mise à jour de tous les outils${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        local tools_to_update=()
+        
+        # Trouver tous les outils installés qui ont des mises à jour disponibles
+        for tool_def in "${TOOLS[@]}"; do
+            IFS=':' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_check="${tool_parts[5]}"
+            local install_status=$($tool_check 2>/dev/null)
+            
+            if [ "$install_status" = "installed" ]; then
+                if is_update_available "$tool_name" 2>/dev/null; then
+                    tools_to_update+=("$tool_def")
+                fi
+            fi
+        done
+        
+        if [ ${#tools_to_update[@]} -eq 0 ]; then
+            echo -e "${GREEN}✅ Tous les outils sont à jour!${RESET}"
+            echo ""
+            read -p "Appuyez sur Entrée pour retourner au menu principal..."
+            show_main_menu
+            return 0
+        fi
+        
+        echo -e "${CYAN}Outils à mettre à jour:${RESET} ${#tools_to_update[@]}"
+        echo ""
+        for tool_def in "${tools_to_update[@]}"; do
+            IFS=':' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_desc="${tool_parts[4]}"
+            local current_version=$(get_current_version "$tool_name" 2>/dev/null || echo "unknown")
+            local latest_version=$(get_latest_version "$tool_name" 2>/dev/null || echo "unknown")
+            echo -e "  • $tool_desc: ${CYAN}$current_version${RESET} → ${GREEN}$latest_version${RESET}"
+        done
+        
+        echo ""
+        read -p "Mettre à jour tous ces outils? (O/n): " confirm
+        confirm=${confirm:-O}
+        
+        if [[ ! "$confirm" =~ ^[oO]$ ]]; then
+            echo -e "${YELLOW}Mise à jour annulée${RESET}"
+            sleep 1
+            show_main_menu
+            return 0
+        fi
+        
+        # Mettre à jour chaque outil
+        local updated=0
+        local failed=0
+        
+        for tool_def in "${tools_to_update[@]}"; do
+            IFS=':' read -rA tool_parts <<< "$tool_def"
+            local tool_desc="${tool_parts[4]}"
+            
+            echo ""
+            echo -e "${CYAN}Mise à jour de $tool_desc...${RESET}"
+            if update_tool_from_def "$tool_def" 2>/dev/null; then
+                ((updated++))
+            else
+                ((failed++))
+            fi
+        done
+        
+        echo ""
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+        echo -e "${GREEN}✅ Mises à jour terminées!${RESET}"
+        echo -e "   ${GREEN}Réussies:${RESET} $updated"
+        if [ $failed -gt 0 ]; then
+            echo -e "   ${RED}Échouées:${RESET} $failed"
+        fi
+        echo ""
+        read -p "Appuyez sur Entrée pour retourner au menu principal..."
+        show_main_menu
     }
     
     # Fonction pour trouver un outil par nom/alias
@@ -243,10 +525,15 @@ installman() {
         done
         
         echo ""
+        echo -e "${BOLD}🔄 MISE À JOUR:${RESET}"
+        echo "  u.  Mettre à jour un outil"
+        echo "  ua. Mettre à jour tous les outils installés"
+        echo ""
         echo "0.  Quitter"
         echo ""
         echo -e "${CYAN}💡 Tapez le nom de l'outil (ex: 'flutter', 'docker', 'brave') puis appuyez sur Entrée${RESET}"
         echo -e "${CYAN}   Ou tapez un numéro pour sélectionner par position${RESET}"
+        echo -e "${CYAN}   Ou 'u' pour mettre à jour un outil${RESET}"
         echo ""
         printf "Choix: "
         read -r choice
@@ -274,6 +561,17 @@ installman() {
         
         # Traitement du choix
         if [ -z "$choice" ] || [ "$choice" = "0" ] || [ "$choice" = "quit" ] || [ "$choice" = "exit" ] || [ "$choice" = "q" ]; then
+            return 0
+        fi
+        
+        # Gérer les options de mise à jour
+        if [ "$choice" = "u" ] || [ "$choice" = "update" ]; then
+            show_update_menu
+            return 0
+        fi
+        
+        if [ "$choice" = "ua" ] || [ "$choice" = "update-all" ]; then
+            update_all_tools
             return 0
         fi
         
@@ -327,6 +625,17 @@ installman() {
     if [ -n "$1" ]; then
         local tool_arg=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
+        # Gérer les commandes spéciales
+        if [ "$tool_arg" = "update" ] || [ "$tool_arg" = "u" ]; then
+            show_update_menu
+            return 0
+        fi
+        
+        if [ "$tool_arg" = "update-all" ] || [ "$tool_arg" = "ua" ]; then
+            update_all_tools
+            return 0
+        fi
+        
         # Rechercher l'outil
         local found_tool=$(find_tool "$tool_arg")
         if [ -n "$found_tool" ]; then
@@ -350,11 +659,15 @@ installman() {
             echo -e "${YELLOW}Usage:${RESET}"
             echo "  installman [tool-name]     - Installer directement un outil"
             echo "  installman                 - Menu interactif"
+            echo "  installman update          - Menu de mise à jour"
+            echo "  installman update-all      - Mettre à jour tous les outils"
             echo ""
             echo -e "${CYAN}Exemples:${RESET}"
             echo "  installman flutter"
             echo "  installman docker"
             echo "  installman cursor"
+            echo "  installman update          - Mettre à jour un outil"
+            echo "  installman update-all     - Mettre à jour tous les outils"
         else
             echo -e "${RED}❌ Outil inconnu: '$1'${RESET}"
             echo ""
