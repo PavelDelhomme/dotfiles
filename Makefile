@@ -661,7 +661,7 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 			1) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
 			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
-			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo" \
+			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo"; \
 				echo "$(YELLOW)⚠️  ATTENTION: Gentoo compile depuis les sources$(NC)"; \
 				echo "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
 				echo "$(YELLOW)   Recommandé: Utilisez Arch/Ubuntu/Debian pour des tests rapides$(NC)"; \
@@ -669,8 +669,7 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 				if [[ ! "$$confirm_gentoo" =~ ^[oO]$ ]]; then \
 					echo "$(YELLOW)Annulé$(NC)"; \
 					exit 0; \
-				fi \
-				;; \
+				fi ;; \
 			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
 			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
 			7) DISTRO="centos" DOCKERFILE="scripts/test/docker/Dockerfile.centos" ;; \
@@ -757,15 +756,14 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 			1) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
 			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
-			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo" \
+			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo"; \
 				echo "$(YELLOW)⚠️  ATTENTION: Gentoo compile depuis les sources$(NC)"; \
 				echo "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
 				read -p "Continuer avec Gentoo? (o/N): " confirm_gentoo; \
 				if [[ ! "$$confirm_gentoo" =~ ^[oO]$ ]]; then \
 					echo "$(YELLOW)Annulé$(NC)"; \
 					exit 0; \
-				fi \
-				;; \
+				fi ;; \
 			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
 			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
 			7) DISTRO="centos" DOCKERFILE="scripts/test/docker/Dockerfile.centos" ;; \
