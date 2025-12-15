@@ -18,6 +18,11 @@ CYBERMAN_DIR="${CYBERMAN_DIR:-$HOME/dotfiles/zsh/functions/cyberman}"
 # IMPORTANT: CYBER_DIR pointe vers modules/legacy, pas vers /cyber
 CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
 
+# Sécuriser les dossiers cyberman au chargement
+if [ -f "$CYBERMAN_DIR/utils/secure_dirs.sh" ]; then
+    source "$CYBERMAN_DIR/utils/secure_dirs.sh" 2>/dev/null || true
+fi
+
 # Charger le gestionnaire de cibles
 if [ -f "$CYBER_DIR/target_manager.sh" ]; then
     source "$CYBER_DIR/target_manager.sh"

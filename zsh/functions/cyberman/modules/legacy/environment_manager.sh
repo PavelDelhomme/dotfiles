@@ -19,7 +19,12 @@ typeset -g CYBER_CURRENT_ENV=""
 CYBER_CURRENT_ENV_FILE="${HOME}/.cyberman/current_env.txt"
 
 # Créer les répertoires si nécessaire
+# Créer les dossiers avec permissions sécurisées
 mkdir -p "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR" "$(dirname "$CYBER_CURRENT_ENV_FILE")"
+# Sécuriser les permissions (700 pour dossiers, 600 pour fichiers)
+chmod 700 "$CYBER_ENV_DIR" "$CYBER_REPORTS_DIR" "$CYBER_WORKFLOWS_DIR" "$(dirname "$CYBER_CURRENT_ENV_FILE")" 2>/dev/null || true
+# S'assurer que l'utilisateur est propriétaire
+chown -R "$USER:$USER" "$HOME/.cyberman" 2>/dev/null || true
 
 # Charger l'environnement actif depuis le fichier de persistance si disponible
 # Seulement si la variable n'est pas déjà définie ET si le fichier existe vraiment
