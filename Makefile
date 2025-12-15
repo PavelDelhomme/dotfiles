@@ -765,15 +765,36 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 	fi
 
 docker-vm-reset: ## Réinitialiser le conteneur dotfiles-vm (supprimer et recréer)
-	@echo "$(BLUE)🔄 Réinitialisation du conteneur dotfiles-vm...$(NC)"
-	@docker stop dotfiles-vm 2>/dev/null || true
-	@docker rm dotfiles-vm 2>/dev/null || true
-	@echo "$(GREEN)✓ Conteneur réinitialisé$(NC)"
-	@echo "$(CYAN)💡 Relancez avec: make docker-vm$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(BLUE)🔄 Réinitialisation du conteneur dotfiles-vm...$(NC)"; \
+		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			docker stop dotfiles-vm 2>/dev/null || true; \
+			docker rm dotfiles-vm 2>/dev/null || true; \
+			echo "$(GREEN)✓ Conteneur supprimé$(NC)"; \
+		else \
+			echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm à supprimer$(NC)"; \
+		fi; \
+		echo "$(CYAN)💡 Relancez avec: make docker-vm$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
 
 docker-vm-shell: ## Ouvrir un shell dans dotfiles-vm en cours
-	@echo "$(BLUE)🐚 Ouverture d'un shell dans dotfiles-vm...$(NC)"
-	@docker exec -it dotfiles-vm /bin/zsh 2>/dev/null || echo "$(YELLOW)⚠️  Conteneur dotfiles-vm non trouvé. Lancez: make docker-vm$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		if docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			echo "$(BLUE)🐚 Ouverture d'un shell dans dotfiles-vm...$(NC)"; \
+			docker exec -it dotfiles-vm /bin/zsh; \
+		elif docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			echo "$(YELLOW)⚠️  Le conteneur dotfiles-vm est arrêté$(NC)"; \
+			echo "$(CYAN)💡 Démarrez-le avec: make docker-vm$(NC)"; \
+			echo "$(CYAN)   Ou redémarrez-le avec: docker start dotfiles-vm && make docker-vm-shell$(NC)"; \
+		else \
+			echo "$(YELLOW)⚠️  Conteneur dotfiles-vm non trouvé$(NC)"; \
+			echo "$(CYAN)💡 Créez-le avec: make docker-vm$(NC)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
 
 docker-vm-stop: ## Arrêter le conteneur dotfiles-vm
 	@if command -v docker >/dev/null 2>&1; then \
@@ -790,22 +811,39 @@ docker-vm-stop: ## Arrêter le conteneur dotfiles-vm
 	fi
 
 docker-vm-clean: ## Nettoyer complètement dotfiles-vm (conteneur + volumes)
-	@echo "$(BLUE)🧹 Nettoyage complet de dotfiles-vm...$(NC)"
-	@docker stop dotfiles-vm 2>/dev/null || true
-	@docker rm dotfiles-vm 2>/dev/null || true
-	@docker volume rm dotfiles-vm-config dotfiles-vm-ssh 2>/dev/null || true
-	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(BLUE)🧹 Nettoyage complet de dotfiles-vm...$(NC)"; \
+		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			docker stop dotfiles-vm 2>/dev/null || true; \
+			docker rm dotfiles-vm 2>/dev/null || true; \
+			echo "$(GREEN)✓ Conteneur supprimé$(NC)"; \
+		else \
+			echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm à supprimer$(NC)"; \
+		fi; \
+		if docker volume ls --format '{{.Name}}' | grep -q '^dotfiles-vm-'; then \
+			docker volume rm dotfiles-vm-config dotfiles-vm-ssh 2>/dev/null || true; \
+			echo "$(GREEN)✓ Volumes supprimés$(NC)"; \
+		fi; \
+		echo "$(GREEN)✓ Nettoyage terminé$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
 
 docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
-	@echo "$(BLUE)📋 Conteneurs dotfiles-vm:$(NC)"
-	@if docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' | grep -E '(NAMES|dotfiles)' || true; then \
-		echo ""; \
-		echo "$(CYAN)💡 Commandes utiles:$(NC)"; \
-		echo "  make docker-vm-shell    - Ouvrir un shell dans dotfiles-vm"; \
-		echo "  make docker-vm-stop     - Arrêter dotfiles-vm"; \
-		echo "  make docker-vm-clean    - Nettoyer complètement"; \
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(BLUE)📋 Conteneurs dotfiles-vm:$(NC)"; \
+		if docker ps -a --format '{{.Names}}' | grep -q 'dotfiles-vm'; then \
+			docker ps -a --filter "name=dotfiles-vm" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"; \
+			echo ""; \
+			echo "$(CYAN)💡 Commandes utiles:$(NC)"; \
+			echo "  make docker-vm-shell    - Ouvrir un shell dans dotfiles-vm"; \
+			echo "  make docker-vm-stop     - Arrêter dotfiles-vm"; \
+			echo "  make docker-vm-clean    - Nettoyer complètement"; \
+		else \
+			echo "$(YELLOW)Aucun conteneur dotfiles-vm trouvé$(NC)"; \
+		fi; \
 	else \
-		echo "$(YELLOW)Aucun conteneur dotfiles-vm trouvé$(NC)"; \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 
