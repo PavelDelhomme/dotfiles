@@ -297,6 +297,10 @@ EOF
 
 # Démarrer le lab network-scan
 start_network_scan_lab() {
+    # S'assurer que le dossier labs existe avec permissions sécurisées
+    mkdir -p "$CYBERLEARN_LABS_DIR" 2>/dev/null || true
+    chmod 700 "$CYBERLEARN_LABS_DIR" 2>/dev/null || true
+    chown "$USER:$USER" "$CYBERLEARN_LABS_DIR" 2>/dev/null || true
     echo -e "${CYAN}📦 Construction de l'image Docker...${RESET}"
     
     local lab_dir="${CYBERLEARN_LABS_DIR}/network-scan"
