@@ -59,6 +59,14 @@ help: ## Afficher cette aide
 	@echo "  make docker-build-test - Construire l'image Docker de test automatique"
 	@echo "  make docker-start      - Démarrer conteneur interactif (après docker-build-test)"
 	@echo ""
+	@echo "$(GREEN)Docker VM (Tests multi-distributions):$(NC)"
+	@echo "  make docker-vm         - Lancer conteneur dotfiles-vm (Arch/Ubuntu/Debian/Gentoo)"
+	@echo "  make docker-vm-reset   - Réinitialiser le conteneur dotfiles-vm"
+	@echo "  make docker-vm-shell   - Ouvrir un shell dans dotfiles-vm"
+	@echo "  make docker-vm-stop    - Arrêter dotfiles-vm"
+	@echo "  make docker-vm-clean   - Nettoyer complètement dotfiles-vm"
+	@echo "  make docker-test-bootstrap - Tester installation bootstrap dans conteneur propre"
+	@echo ""
 	@echo "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
 	@echo "  make reset             - Réinitialisation complète (remise à zéro)"
@@ -627,5 +635,115 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 		fi; \
 	else \
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi
+
+# =============================================================================
+# NOUVELLES COMMANDES DOCKER - Tests multi-distributions
+# =============================================================================
+
+docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optionnel)
+	@echo "$(BLUE)🚀 Lancement du conteneur dotfiles-vm...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(CYAN)Distribution:$(NC)"; \
+		echo "  1) Arch Linux (défaut)"; \
+		echo "  2) Ubuntu"; \
+		echo "  3) Debian"; \
+		echo "  4) Gentoo"; \
+		echo ""; \
+		read -p "Choix [défaut: 1]: " distro_choice; \
+		distro_choice=$${distro_choice:-1}; \
+		case "$$distro_choice" in \
+			1) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
+			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
+			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
+			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo" ;; \
+			*) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
+		esac; \
+		IMAGE_NAME="dotfiles-vm-$$DISTRO"; \
+		echo "$(GREEN)✓ Distribution: $$DISTRO$(NC)"; \
+		echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
+		docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
+		echo ""; \
+		echo "$(CYAN)Options:$(NC)"; \
+		echo "  1) Conteneur persistant (conserve les modifications)"; \
+		echo "  2) Conteneur éphémère (reset à la sortie)"; \
+		echo ""; \
+		read -p "Choix [défaut: 1 (persistant)]: " reset_choice; \
+		reset_choice=$${reset_choice:-1}; \
+		if [ "$$reset_choice" = "2" ]; then \
+			echo "$(YELLOW)⚠️  Mode éphémère: les modifications seront perdues$(NC)"; \
+			RM_FLAG="--rm"; \
+		else \
+			echo "$(GREEN)✓ Mode persistant: les modifications seront conservées$(NC)"; \
+			RM_FLAG=""; \
+		fi; \
+		echo ""; \
+		echo "$(BLUE)🚀 Démarrage du conteneur...$(NC)"; \
+		docker run -it $$RM_FLAG \
+			--name dotfiles-vm \
+			-v "$(PWD):/root/dotfiles:rw" \
+			-v dotfiles-vm-config:/root/.config \
+			-v dotfiles-vm-ssh:/root/.ssh \
+			-e HOME=/root \
+			-e DOTFILES_DIR=/root/dotfiles \
+			-e TERM=xterm-256color \
+			$$IMAGE_NAME:latest \
+			/bin/zsh; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		exit 1; \
+	fi
+
+docker-vm-reset: ## Réinitialiser le conteneur dotfiles-vm (supprimer et recréer)
+	@echo "$(BLUE)🔄 Réinitialisation du conteneur dotfiles-vm...$(NC)"
+	@docker stop dotfiles-vm 2>/dev/null || true
+	@docker rm dotfiles-vm 2>/dev/null || true
+	@echo "$(GREEN)✓ Conteneur réinitialisé$(NC)"
+	@echo "$(CYAN)💡 Relancez avec: make docker-vm$(NC)"
+
+docker-vm-shell: ## Ouvrir un shell dans dotfiles-vm en cours
+	@echo "$(BLUE)🐚 Ouverture d'un shell dans dotfiles-vm...$(NC)"
+	@docker exec -it dotfiles-vm /bin/zsh 2>/dev/null || echo "$(YELLOW)⚠️  Conteneur dotfiles-vm non trouvé. Lancez: make docker-vm$(NC)"
+
+docker-vm-stop: ## Arrêter le conteneur dotfiles-vm
+	@echo "$(BLUE)🛑 Arrêt du conteneur dotfiles-vm...$(NC)"
+	@docker stop dotfiles-vm 2>/dev/null && echo "$(GREEN)✓ Conteneur arrêté$(NC)" || echo "$(YELLOW)⚠️  Conteneur non trouvé$(NC)"
+
+docker-vm-clean: ## Nettoyer complètement dotfiles-vm (conteneur + volumes)
+	@echo "$(BLUE)🧹 Nettoyage complet de dotfiles-vm...$(NC)"
+	@docker stop dotfiles-vm 2>/dev/null || true
+	@docker rm dotfiles-vm 2>/dev/null || true
+	@docker volume rm dotfiles-vm-config dotfiles-vm-ssh 2>/dev/null || true
+	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
+
+docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur propre
+	@echo "$(BLUE)🧪 Test d'installation bootstrap dans conteneur propre...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(CYAN)Distribution:$(NC)"; \
+		echo "  1) Arch Linux"; \
+		echo "  2) Ubuntu"; \
+		echo "  3) Debian"; \
+		echo ""; \
+		read -p "Choix [défaut: 1]: " distro_choice; \
+		distro_choice=$${distro_choice:-1}; \
+		case "$$distro_choice" in \
+			1) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
+			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
+			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
+			*) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
+		esac; \
+		IMAGE_NAME="dotfiles-test-$$DISTRO"; \
+		echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
+		docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
+		echo "$(BLUE)🚀 Test d'installation bootstrap...$(NC)"; \
+		docker run --rm -it \
+			--name dotfiles-test-bootstrap \
+			-e HOME=/root \
+			-e TERM=xterm-256color \
+			$$IMAGE_NAME:latest \
+			/bin/bash -c "curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash"; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 		exit 1; \
 	fi

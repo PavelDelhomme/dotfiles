@@ -22,6 +22,9 @@ if [ -d "$CONFIGMAN_DIR/utils" ]; then
     shopt -u nullglob 2>/dev/null || unsetopt null_glob 2>/dev/null || true
 fi
 
+# Charger le gestionnaire de versions
+[ -f "$CONFIGMAN_DIR/utils/version_manager.sh" ] && source "$CONFIGMAN_DIR/utils/version_manager.sh"
+
 # DESC: Gestionnaire interactif complet pour les configurations système
 # USAGE: configman [category]
 # EXAMPLE: configman
@@ -52,6 +55,84 @@ configman() {
         echo -e "${RESET}"
     }
     
+    # Fonction pour afficher la vue d'ensemble de la configuration
+    show_config_overview() {
+        show_header
+        echo -e "${YELLOW}👁️  VUE D'ENSEMBLE DE LA CONFIGURATION${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        # Versions des outils
+        echo -e "${BOLD}📊 Versions des outils:${RESET}"
+        echo -e "  Node.js:   ${GREEN}$(get_current_node_version 2>/dev/null || echo "N/A")${RESET}"
+        echo -e "  Python:    ${GREEN}$(get_current_python_version 2>/dev/null || echo "N/A")${RESET}"
+        echo -e "  Java:      ${GREEN}$(get_current_java_version 2>/dev/null || echo "N/A")${RESET}"
+        echo ""
+        
+        # Configuration Git
+        echo -e "${BOLD}🔧 Configuration Git:${RESET}"
+        if command -v git &>/dev/null; then
+            echo -e "  Nom:       ${GREEN}$(git config --global user.name 2>/dev/null || echo "Non configuré")${RESET}"
+            echo -e "  Email:     ${GREEN}$(git config --global user.email 2>/dev/null || echo "Non configuré")${RESET}"
+            echo -e "  Remote:    ${GREEN}$(git config --global remote.origin.url 2>/dev/null || echo "Non configuré")${RESET}"
+        else
+            echo -e "  ${YELLOW}Git non installé${RESET}"
+        fi
+        echo ""
+        
+        # Gestionnaires de paquets
+        echo -e "${BOLD}📦 Gestionnaires de paquets:${RESET}"
+        local managers=()
+        command -v pacman &>/dev/null && managers+=("pacman")
+        command -v yay &>/dev/null && managers+=("yay")
+        command -v snap &>/dev/null && managers+=("snap")
+        command -v flatpak &>/dev/null && managers+=("flatpak")
+        command -v apt &>/dev/null && managers+=("apt")
+        command -v dnf &>/dev/null && managers+=("dnf")
+        command -v npm &>/dev/null && managers+=("npm")
+        if [ ${#managers[@]} -gt 0 ]; then
+            echo -e "  Disponibles: ${GREEN}${managers[*]}${RESET}"
+        else
+            echo -e "  ${YELLOW}Aucun gestionnaire détecté${RESET}"
+        fi
+        echo ""
+        
+        # Outils installés via installman
+        echo -e "${BOLD}🛠️  Outils installés:${RESET}"
+        local tools_installed=()
+        command -v flutter &>/dev/null && tools_installed+=("Flutter")
+        command -v dotnet &>/dev/null && tools_installed+=(".NET")
+        command -v docker &>/dev/null && tools_installed+=("Docker")
+        command -v emacs &>/dev/null && tools_installed+=("Emacs")
+        command -v java &>/dev/null && tools_installed+=("Java")
+        if [ ${#tools_installed[@]} -gt 0 ]; then
+            echo -e "  ${GREEN}${tools_installed[*]}${RESET}"
+        else
+            echo -e "  ${YELLOW}Aucun outil détecté${RESET}"
+        fi
+        echo ""
+        
+        # Shells disponibles
+        echo -e "${BOLD}🐚 Shells disponibles:${RESET}"
+        local shells=()
+        command -v zsh &>/dev/null && shells+=("zsh")
+        command -v bash &>/dev/null && shells+=("bash")
+        command -v fish &>/dev/null && shells+=("fish")
+        echo -e "  ${GREEN}${shells[*]}${RESET}"
+        echo -e "  Shell actuel: ${GREEN}${SHELL:-$0}${RESET}"
+        echo ""
+        
+        # Configuration SSH
+        echo -e "${BOLD}🔐 Configuration SSH:${RESET}"
+        if [ -f ~/.ssh/id_ed25519 ] || [ -f ~/.ssh/id_rsa ]; then
+            echo -e "  ${GREEN}Clés SSH présentes${RESET}"
+        else
+            echo -e "  ${YELLOW}Aucune clé SSH trouvée${RESET}"
+        fi
+        echo ""
+        
+        read -p "Appuyez sur Entrée pour continuer..."
+    }
+    
     # Fonction pour afficher le menu principal
     show_main_menu() {
         show_header
@@ -69,6 +150,8 @@ configman() {
         echo "8.  🌐 QEMU Network (configuration réseau NAT)"
         echo "9.  📦 QEMU Packages (installation paquets QEMU)"
         echo "10. 🔍 OSINT Tools (configuration outils OSINT et clés API)"
+        echo "11. 📊 Gestion de versions (Node, Python, Java)"
+        echo "12. 👁️  Visualisation de configuration complète"
         echo ""
         echo "0.  Quitter"
         echo ""
@@ -164,6 +247,12 @@ configman() {
                     echo -e "${RED}❌ Module OSINT Config non disponible${RESET}"
                     sleep 2
                 fi
+                ;;
+            11)
+                version_manager_menu
+                ;;
+            12)
+                show_config_overview
                 ;;
             0)
                 return 0
