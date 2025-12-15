@@ -645,9 +645,55 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 # NOUVELLES COMMANDES DOCKER - Tests multi-distributions
 # =============================================================================
 
-docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optionnel)
+docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion conteneurs existants)
 	@echo "$(BLUE)🚀 Lancement du conteneur dotfiles-vm...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
+		# Vérifier si un conteneur dotfiles-vm existe \
+		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			CONTAINER_STATUS=$$(docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$' && echo "running" || echo "stopped"); \
+			echo "$(CYAN)📦 Conteneur dotfiles-vm existant détecté ($$CONTAINER_STATUS)$(NC)"; \
+			echo ""; \
+			echo "$(CYAN)Que souhaitez-vous faire ?$(NC)"; \
+			echo "  1) Utiliser le conteneur existant (recharger dotfiles)"; \
+			echo "  2) Créer un nouveau conteneur (supprimer l'ancien)"; \
+			echo "  3) Supprimer le conteneur existant"; \
+			echo "  4) Annuler"; \
+			echo ""; \
+			read -p "Choix [défaut: 1]: " action_choice; \
+			action_choice=$${action_choice:-1}; \
+			case "$$action_choice" in \
+				1) \
+					echo "$(GREEN)✓ Utilisation du conteneur existant$(NC)"; \
+					if [ "$$CONTAINER_STATUS" = "stopped" ]; then \
+						echo "$(BLUE)🔄 Démarrage du conteneur...$(NC)"; \
+						docker start dotfiles-vm 2>/dev/null || true; \
+					fi; \
+					echo "$(BLUE)🔄 Rechargement des dotfiles...$(NC)"; \
+					docker exec -it dotfiles-vm /bin/zsh -c " \
+						export DOTFILES_DIR=/root/dotfiles; \
+						export DOTFILES_ZSH_PATH=/root/dotfiles/zsh; \
+						if [ -f /root/dotfiles/zsh/zshrc_custom ]; then \
+							. /root/dotfiles/zsh/zshrc_custom 2>/dev/null || true; \
+						fi; \
+						exec /bin/zsh"; \
+					exit 0 ;; \
+				2) \
+					echo "$(YELLOW)⚠️  Suppression de l'ancien conteneur...$(NC)"; \
+					docker stop dotfiles-vm 2>/dev/null || true; \
+					docker rm dotfiles-vm 2>/dev/null || true; \
+					echo "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
+					;; \
+				3) \
+					echo "$(YELLOW)⚠️  Suppression du conteneur...$(NC)"; \
+					docker stop dotfiles-vm 2>/dev/null || true; \
+					docker rm dotfiles-vm 2>/dev/null || true; \
+					echo "$(GREEN)✓ Conteneur supprimé$(NC)"; \
+					exit 0 ;; \
+				4|*) \
+					echo "$(YELLOW)Annulé$(NC)"; \
+					exit 0 ;; \
+			esac; \
+		fi; \
 		echo "$(CYAN)Distribution:$(NC)"; \
 		echo "  1) Arch Linux (défaut)"; \
 		echo "  2) Ubuntu"; \
@@ -703,13 +749,6 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 		fi; \
 		echo ""; \
 		echo "$(BLUE)🚀 Démarrage du conteneur...$(NC)"; \
-		# Supprimer le conteneur existant s'il existe (arrêté ou en cours d'exécution) \
-		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
-			echo "$(YELLOW)⚠️  Conteneur dotfiles-vm existant détecté, suppression...$(NC)"; \
-			docker stop dotfiles-vm 2>/dev/null || true; \
-			docker rm dotfiles-vm 2>/dev/null || true; \
-			echo "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
-		fi; \
 		docker run -it $$RM_FLAG \
 			--name dotfiles-vm \
 			-v "$(PWD):/root/dotfiles:rw" \
