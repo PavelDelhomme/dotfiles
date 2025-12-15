@@ -774,36 +774,6 @@ docker-vm-all-clean: ## Nettoyer TOUS les conteneurs dotfiles (toutes distributi
 		echo "$(YELLOW)Annulé$(NC)"; \
 	fi
 
-
-docker-vm-remove: ## Supprimer un conteneur dotfiles-vm spécifique
-	@echo "$(BLUE)🗑️  Suppression d'un conteneur dotfiles-vm...$(NC)"
-	@if command -v docker >/dev/null 2>&1; then \
-		echo "$(CYAN)Conteneurs disponibles:$(NC)"; \
-		docker ps -a --filter "name=dotfiles" --format "{{.Names}}" | while read name; do \
-			echo "  - $$name"; \
-		done; \
-		echo ""; \
-		read -p "Nom du conteneur à supprimer (ou 'all' pour tous): " container_name; \
-		if [ "$$container_name" = "all" ]; then \
-			echo "$(YELLOW)Suppression de tous les conteneurs dotfiles...$(NC)"; \
-			docker ps -a --filter "name=dotfiles" --format "{{.Names}}" | while read name; do \
-				docker stop "$$name" 2>/dev/null || true; \
-				docker rm "$$name" 2>/dev/null || true; \
-				echo "$(GREEN)✓ $$name supprimé$(NC)"; \
-			done; \
-		else \
-			if docker ps -a --format "{{.Names}}" | grep -q "^$$container_name$$"; then \
-				docker stop "$$container_name" 2>/dev/null || true; \
-				docker rm "$$container_name" 2>/dev/null || true; \
-				echo "$(GREEN)✓ $$container_name supprimé$(NC)"; \
-			else \
-				echo "$(RED)❌ Conteneur $$container_name non trouvé$(NC)"; \
-			fi; \
-		fi; \
-	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
-	fi
-
 docker-vm-access: ## Accéder à un conteneur dotfiles-vm spécifique
 	@echo "$(BLUE)🐚 Accès à un conteneur dotfiles-vm...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
