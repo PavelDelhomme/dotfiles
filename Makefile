@@ -513,7 +513,7 @@ DOTFILES_IMAGE = $(DOTFILES_DOCKER_PREFIX)-image:latest
 docker-build: ## Construire l'image Docker pour tester les dotfiles
 	@echo "$(BLUE)🔨 Construction de l'image Docker (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		docker build -t $(DOTFILES_IMAGE) . && \
+		DOCKER_BUILDKIT=0 docker build -t $(DOTFILES_IMAGE) . && \
 		echo "$(GREEN)✓ Image Docker construite avec succès (isolée: $(DOTFILES_IMAGE))$(NC)"; \
 	else \
 		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
