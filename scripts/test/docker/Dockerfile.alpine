@@ -29,7 +29,6 @@ RUN apk update && \
         vim \
         nano \
         less \
-        man \
         man-pages \
         ca-certificates \
         && \
