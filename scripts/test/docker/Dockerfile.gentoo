@@ -14,8 +14,11 @@ ENV HOME=/root
 ENV TERM=xterm-256color
 
 # Installer les dépendances de base (Gentoo utilise emerge)
+# Note: Gentoo compile depuis les sources, ce qui peut prendre beaucoup de temps
+# Utilisation de --binpkg-respect-use pour utiliser des binaires pré-compilés si disponibles
 RUN emerge --sync --quiet && \
-    emerge -q \
+    # Désactiver les sandbox features pour Docker (évite les erreurs EPERM)
+    FEATURES="-pid-sandbox -ipc-sandbox -network-sandbox" emerge --binpkg-respect-use=y -q \
         dev-vcs/git \
         net-misc/curl \
         net-misc/wget \

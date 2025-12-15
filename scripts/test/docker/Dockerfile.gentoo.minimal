@@ -1,0 +1,59 @@
+# =============================================================================
+# Dockerfile Gentoo Minimal (version optimisée)
+# =============================================================================
+# Description: Image Docker Gentoo minimale pour tests rapides
+# Author: Paul Delhomme
+# Version: 1.0
+# =============================================================================
+# NOTE: Cette version utilise uniquement des paquets binaires pré-compilés
+#       pour éviter la compilation longue. Pour une installation complète,
+#       utilisez Dockerfile.gentoo (mais cela prendra 30-60 minutes)
+
+FROM gentoo/stage3:latest
+
+# Variables d'environnement
+ENV DOTFILES_DIR=/root/dotfiles
+ENV HOME=/root
+ENV TERM=xterm-256color
+
+# Installer uniquement les outils essentiels via binaires
+# Gentoo compile depuis les sources par défaut, ce qui est très lent
+# Cette version minimale installe seulement les outils de base
+RUN emerge --sync --quiet && \
+    # Utiliser uniquement des binaires pré-compilés si disponibles
+    FEATURES="-pid-sandbox -ipc-sandbox -network-sandbox" \
+    emerge --binpkg-respect-use=y --getbinpkg=y -q \
+        dev-vcs/git \
+        net-misc/curl \
+        net-misc/wget \
+        app-shells/bash \
+        sys-apps/less \
+        app-misc/ca-certificates \
+        && \
+    # Installer zsh et fish seulement si binaires disponibles, sinon skip
+    (FEATURES="-pid-sandbox -ipc-sandbox -network-sandbox" \
+     emerge --binpkg-respect-use=y --getbinpkg=y -q app-shells/zsh 2>/dev/null || true) && \
+    (FEATURES="-pid-sandbox -ipc-sandbox -network-sandbox" \
+     emerge --binpkg-respect-use=y --getbinpkg=y -q app-shells/fish 2>/dev/null || true) && \
+    # Python3 minimal
+    (FEATURES="-pid-sandbox -ipc-sandbox -network-sandbox" \
+     emerge --binpkg-respect-use=y --getbinpkg=y -q dev-lang/python:3.12 2>/dev/null || true) && \
+    rm -rf /var/cache/distfiles/*
+
+# Créer le répertoire dotfiles
+WORKDIR /root
+
+# Script d'initialisation pour charger les dotfiles
+RUN echo '#!/bin/sh\n\
+# Charger les dotfiles\n\
+if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
+    export DOTFILES_DIR=/root/dotfiles\n\
+    export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
+    . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
+fi\n\
+exec "$@"' > /root/entrypoint.sh && \
+    chmod +x /root/entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]
+CMD ["/bin/bash"]
+
