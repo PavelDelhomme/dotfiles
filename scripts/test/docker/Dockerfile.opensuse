@@ -1,0 +1,57 @@
+# =============================================================================
+# Dockerfile openSUSE pour tests automatisés des dotfiles
+# =============================================================================
+# Description: Image Docker openSUSE isolée pour tester les dotfiles
+# Author: Paul Delhomme
+# Version: 1.0
+# =============================================================================
+
+FROM opensuse/leap:latest
+
+# Variables d'environnement
+ENV DOTFILES_DIR=/root/dotfiles
+ENV HOME=/root
+ENV TERM=xterm-256color
+
+# Installer les dépendances de base
+RUN zypper refresh && \
+    zypper install -y \
+        git \
+        curl \
+        wget \
+        zsh \
+        bash \
+        fish \
+        python3 \
+        python3-pip \
+        gcc \
+        gcc-c++ \
+        make \
+        sudo \
+        vim \
+        nano \
+        less \
+        man \
+        man-pages \
+        ca-certificates \
+        && \
+    zypper clean -a && \
+    rm -rf /var/cache/zypp/*
+
+# Créer le répertoire dotfiles
+WORKDIR /root
+
+# Script d'initialisation pour charger les dotfiles
+RUN echo '#!/bin/sh\n\
+# Charger les dotfiles\n\
+if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
+    export DOTFILES_DIR=/root/dotfiles\n\
+    export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
+    . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
+fi\n\
+exec "$@"' > /root/entrypoint.sh && \
+    chmod +x /root/entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]
+CMD ["/bin/zsh"]
+

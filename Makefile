@@ -650,6 +650,10 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 		echo "  2) Ubuntu"; \
 		echo "  3) Debian"; \
 		echo "  4) Gentoo"; \
+		echo "  5) Alpine"; \
+		echo "  6) Fedora"; \
+		echo "  7) CentOS"; \
+		echo "  8) openSUSE"; \
 		echo ""; \
 		read -p "Choix [défaut: 1]: " distro_choice; \
 		distro_choice=$${distro_choice:-1}; \
@@ -658,6 +662,10 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
 			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
 			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo" ;; \
+			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
+			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
+			7) DISTRO="centos" DOCKERFILE="scripts/test/docker/Dockerfile.centos" ;; \
+			8) DISTRO="opensuse" DOCKERFILE="scripts/test/docker/Dockerfile.opensuse" ;; \
 			*) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 		esac; \
 		IMAGE_NAME="dotfiles-vm-$$DISTRO"; \
@@ -724,6 +732,11 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 		echo "  1) Arch Linux"; \
 		echo "  2) Ubuntu"; \
 		echo "  3) Debian"; \
+		echo "  4) Gentoo"; \
+		echo "  5) Alpine"; \
+		echo "  6) Fedora"; \
+		echo "  7) CentOS"; \
+		echo "  8) openSUSE"; \
 		echo ""; \
 		read -p "Choix [défaut: 1]: " distro_choice; \
 		distro_choice=$${distro_choice:-1}; \
@@ -731,6 +744,11 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 			1) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
 			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
+			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo" ;; \
+			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
+			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
+			7) DISTRO="centos" DOCKERFILE="scripts/test/docker/Dockerfile.centos" ;; \
+			8) DISTRO="opensuse" DOCKERFILE="scripts/test/docker/Dockerfile.opensuse" ;; \
 			*) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 		esac; \
 		IMAGE_NAME="dotfiles-test-$$DISTRO"; \

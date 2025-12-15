@@ -24,6 +24,7 @@ alias ls="ls -lah --color=auto"
 alias l="ls"
 alias pacmans="sudo pacman -S --noconfirm"
 alias pacmanr="sudo pacman -Rns --noconfirm"
+alias cd_weedlyweb="cd /home/pactivisme/Documents/Projets/Perso/CPP/WeedlyWeb_SimpleBrowser && export LIBVA_DRIVER_NAME=nvidia"
 alias run_simplebrowser="weedlyweb_run"
 alias debug_build_simplebrowser="weedlyweb_debug_build"
 alias debug_simplebrowser="weedlyweb_debug"
@@ -74,4 +75,3 @@ alias cd_budget_youyou="cd /home/pactivisme/Documents/Dev/Perso/BudgetYouyou/bud
 alias cd_vtcbuilder="/home/pactivisme/Documents/Dev/Perso/VTCBuilder"
 # DESC: Looking for firle in directory
 alias lsgrep="ls | grep $1"
-alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb/weedlyweb && export LIBVA_DRIVER_NAME=nvidia"

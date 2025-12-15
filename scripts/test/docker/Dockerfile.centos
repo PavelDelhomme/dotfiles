@@ -1,0 +1,56 @@
+# =============================================================================
+# Dockerfile CentOS pour tests automatisés des dotfiles
+# =============================================================================
+# Description: Image Docker CentOS isolée pour tester les dotfiles
+# Author: Paul Delhomme
+# Version: 1.0
+# =============================================================================
+
+FROM centos:latest
+
+# Variables d'environnement
+ENV DOTFILES_DIR=/root/dotfiles
+ENV HOME=/root
+ENV TERM=xterm-256color
+
+# Installer les dépendances de base
+RUN yum update -y && \
+    yum install -y \
+        git \
+        curl \
+        wget \
+        zsh \
+        bash \
+        python3 \
+        python3-pip \
+        gcc \
+        gcc-c++ \
+        make \
+        sudo \
+        vim \
+        nano \
+        less \
+        man-db \
+        man-pages \
+        ca-certificates \
+        && \
+    yum clean all && \
+    rm -rf /var/cache/yum/*
+
+# Créer le répertoire dotfiles
+WORKDIR /root
+
+# Script d'initialisation pour charger les dotfiles
+RUN echo '#!/bin/sh\n\
+# Charger les dotfiles\n\
+if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
+    export DOTFILES_DIR=/root/dotfiles\n\
+    export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
+    . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
+fi\n\
+exec "$@"' > /root/entrypoint.sh && \
+    chmod +x /root/entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]
+CMD ["/bin/zsh"]
+

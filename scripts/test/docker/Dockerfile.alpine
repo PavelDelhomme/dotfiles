@@ -1,0 +1,54 @@
+# =============================================================================
+# Dockerfile Alpine pour tests automatisés des dotfiles
+# =============================================================================
+# Description: Image Docker Alpine isolée pour tester les dotfiles
+# Author: Paul Delhomme
+# Version: 1.0
+# =============================================================================
+
+FROM alpine:latest
+
+# Variables d'environnement
+ENV DOTFILES_DIR=/root/dotfiles
+ENV HOME=/root
+ENV TERM=xterm-256color
+
+# Installer les dépendances de base
+RUN apk update && \
+    apk add --no-cache \
+        git \
+        curl \
+        wget \
+        bash \
+        zsh \
+        fish \
+        python3 \
+        py3-pip \
+        build-base \
+        sudo \
+        vim \
+        nano \
+        less \
+        man \
+        man-pages \
+        ca-certificates \
+        && \
+    rm -rf /var/cache/apk/*
+
+# Créer le répertoire dotfiles
+WORKDIR /root
+
+# Script d'initialisation pour charger les dotfiles
+RUN echo '#!/bin/sh\n\
+# Charger les dotfiles\n\
+if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
+    export DOTFILES_DIR=/root/dotfiles\n\
+    export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
+    . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
+fi\n\
+exec "$@"' > /root/entrypoint.sh && \
+    chmod +x /root/entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]
+CMD ["/bin/zsh"]
+
