@@ -38,14 +38,14 @@ RUN apk update && \
 WORKDIR /root
 
 # Script d'initialisation pour charger les dotfiles
-RUN echo '#!/bin/sh\n\
+RUN printf '#!/bin/sh\n\
 # Charger les dotfiles\n\
 if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
     export DOTFILES_DIR=/root/dotfiles\n\
     export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
     . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
 fi\n\
-exec "$@"' > /root/entrypoint.sh && \
+exec "$@"\n' > /root/entrypoint.sh && \
     chmod +x /root/entrypoint.sh
 
 ENTRYPOINT ["/root/entrypoint.sh"]
