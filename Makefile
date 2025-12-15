@@ -666,10 +666,10 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 				echo "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
 				echo "$(YELLOW)   Recommandé: Utilisez Arch/Ubuntu/Debian pour des tests rapides$(NC)"; \
 				read -p "Continuer avec Gentoo? (o/N): " confirm_gentoo; \
-				if [[ ! "$$confirm_gentoo" =~ ^[oO]$ ]]; then \
-					echo "$(YELLOW)Annulé$(NC)"; \
-					exit 0; \
-				fi ;; \
+				case "$$confirm_gentoo" in \
+					[oO]) ;; \
+					*) echo "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
+				esac ;; \
 			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
 			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
 			7) DISTRO="centos" DOCKERFILE="scripts/test/docker/Dockerfile.centos" ;; \
