@@ -56,6 +56,39 @@ check_cmake_installed() {
     return 1
 }
 
+# DESC: Vérifie si GDB est installé
+# USAGE: check_gdb_installed
+check_gdb_installed() {
+    if command -v gdb &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si les outils C sont installés (GCC, make)
+# USAGE: check_c_tools_installed
+check_c_tools_installed() {
+    if command -v gcc &>/dev/null && command -v make &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si les outils C++ sont installés (G++, make, CMake)
+# USAGE: check_cpp_tools_installed
+check_cpp_tools_installed() {
+    if command -v g++ &>/dev/null && command -v make &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si une version spécifique de Java est installée
 # USAGE: check_java_version_installed <version>
 check_java_version_installed() {
