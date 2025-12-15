@@ -58,6 +58,9 @@ declare -a TOOLS=(
     "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
     "ssh-config:ssh,ssh-setup:🔐:Configuration SSH automatique:check_ssh_configured:ssh/install_ssh_config.sh:install_ssh_config"
     "cmake::🔧:CMake (système de build):check_cmake_installed:cmake/install_cmake.sh:install_cmake"
+    "gdb::🐛:GDB (GNU Debugger):check_gdb_installed:gdb/install_gdb.sh:install_gdb"
+    "c-tools:c,c-tools,gcc:🔧:Outils C (GCC, make):check_c_tools_installed:c/install_c.sh:install_c_tools"
+    "cpp-tools:c++,cpp,cpp-tools:⚙️:Outils C++ (G++, make, CMake):check_cpp_tools_installed:cpp/install_cpp.sh:install_cpp_tools"
 )
 
 # DESC: Gestionnaire interactif complet pour installer des outils de développement
