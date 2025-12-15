@@ -700,6 +700,13 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 		fi; \
 		echo ""; \
 		echo "$(BLUE)🚀 Démarrage du conteneur...$(NC)"; \
+		# Supprimer le conteneur existant s'il existe (arrêté ou en cours d'exécution) \
+		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			echo "$(YELLOW)⚠️  Conteneur dotfiles-vm existant détecté, suppression...$(NC)"; \
+			docker stop dotfiles-vm 2>/dev/null || true; \
+			docker rm dotfiles-vm 2>/dev/null || true; \
+			echo "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
+		fi; \
 		docker run -it $$RM_FLAG \
 			--name dotfiles-vm \
 			-v "$(PWD):/root/dotfiles:rw" \
