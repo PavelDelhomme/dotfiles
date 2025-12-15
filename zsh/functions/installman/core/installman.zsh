@@ -534,7 +534,7 @@ installman() {
         # Organiser par catégories
         echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
         local index=1
-        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "docker")
+        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "docker" "cmake")
         for tool_name in "${dev_tools[@]}"; do
             for tool_def in "${TOOLS[@]}"; do
                 IFS=':' read -rA tool_parts <<< "$tool_def"
