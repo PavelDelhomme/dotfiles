@@ -20,23 +20,26 @@ SCRIPT_DIR := $(DOTFILES_DIR)/scripts
 GREEN := \033[0;32m
 YELLOW := \033[1;33m
 BLUE := \033[0;34m
+CYAN := \033[0;36m
+RED := \033[0;31m
+MAGENTA := \033[0;35m
 NC := \033[0m
 
 help: ## Afficher cette aide
-	@echo "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
-	@echo "$(BLUE)  Dotfiles - Makefile Commands$(NC)"
-	@echo "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(BLUE)  Dotfiles - Makefile Commands$(NC)"
+	@echo -e "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
-	@echo "$(GREEN)Installation:$(NC)"
+	@echo -e "$(GREEN)Installation:$(NC)"
 	@echo "  make install          - Installation complète depuis zéro (bootstrap)"
 	@echo "  make setup             - Lancer le menu interactif setup.sh"
 	@echo "  make symlinks          - Créer les symlinks pour centraliser la config"
 	@echo "  make migrate           - Migrer configuration existante vers dotfiles"
 	@echo ""
-	@echo "$(GREEN)Validation:$(NC)"
+	@echo -e "$(GREEN)Validation:$(NC)"
 	@echo "  make validate          - Valider le setup complet"
 	@echo ""
-	@echo "$(GREEN)Tests:$(NC)"
+	@echo -e "$(GREEN)Tests:$(NC)"
 	@echo "  make test              - Lancer tous les tests"
 	@echo "  make test-all          - Test complet dans environnement isolé"
 	@echo "  make test-syntax       - Tester la syntaxe de tous les scripts"
@@ -47,7 +50,7 @@ help: ## Afficher cette aide
 	@echo "  make test-zshrc        - Tester zshrc_custom"
 	@echo "  make test-alias        - Tester les alias"
 	@echo ""
-	@echo "$(GREEN)Docker (Tests conteneurisés):$(NC)"
+	@echo -e "$(GREEN)Docker (Tests conteneurisés):$(NC)"
 	@echo "  make docker-build      - Construire l'image Docker"
 	@echo "  make docker-run        - Lancer un conteneur interactif"
 	@echo "  make docker-compose-up - Lancer avec docker-compose"
@@ -59,7 +62,7 @@ help: ## Afficher cette aide
 	@echo "  make docker-build-test - Construire l'image Docker de test automatique"
 	@echo "  make docker-start      - Démarrer conteneur interactif (après docker-build-test)"
 	@echo ""
-	@echo "$(GREEN)Docker VM (Tests multi-distributions):$(NC)"
+	@echo -e "$(GREEN)Docker VM (Tests multi-distributions):$(NC)"
 	@echo "  make docker-vm         - Lancer conteneur dotfiles-vm (Arch/Ubuntu/Debian/Gentoo)"
 	@echo "  make docker-vm-reset   - Réinitialiser le conteneur dotfiles-vm"
 	@echo "  make docker-vm-shell   - Ouvrir un shell dans dotfiles-vm"
@@ -70,18 +73,18 @@ help: ## Afficher cette aide
 	@echo "  make docker-test-install - Tester installation complète (distro + shell + mode)"
 	@echo "  make docker-test-bootstrap - Tester installation bootstrap dans conteneur propre"
 	@echo ""
-	@echo "$(GREEN)Maintenance:$(NC)"
+	@echo -e "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
 	@echo "  make reset             - Réinitialisation complète (remise à zéro)"
 	@echo "  make clean             - Nettoyer les fichiers temporaires"
 	@echo "  make generate-man      - Générer les pages man pour toutes les fonctions"
 	@echo ""
-	@echo "$(GREEN)Configuration:$(NC)"
+	@echo -e "$(GREEN)Configuration:$(NC)"
 	@echo "  make git-config        - Configurer Git (nom, email)"
 	@echo "  make git-remote        - Configurer remote Git (SSH/HTTPS)"
 	@echo "  make auto-sync         - Configurer auto-sync Git (systemd timer)"
 	@echo ""
-	@echo "$(GREEN)Corrections automatiques:$(NC)"
+	@echo -e "$(GREEN)Corrections automatiques:$(NC)"
 	@echo "  make fix               - Afficher les fixes disponibles"
 	@echo "  make fix FIX=exec          - Rendre tous les scripts exécutables"
 	@echo "  make fix FIX=timer-auto-sync - Configurer timer auto-sync"
@@ -90,7 +93,7 @@ help: ## Afficher cette aide
 	@echo "  make fix FIX=all           - Appliquer tous les fixes détectés"
 	@echo "  make fix FIX=detect        - Détecter les problèmes"
 	@echo ""
-	@echo "$(GREEN)Installations spécifiques:$(NC)"
+	@echo -e "$(GREEN)Installations spécifiques:$(NC)"
 	@echo "  make install APP=docker   - Installer Docker & Docker Compose"
 	@echo "  make install APP=go       - Installer Go (Golang)"
 	@echo "  make install APP=cursor   - Installer Cursor IDE"
@@ -98,9 +101,9 @@ help: ## Afficher cette aide
 	@echo "  make install APP=yay      - Installer yay (AUR helper - Arch Linux)"
 	@echo "  make install APP=nvm      - Installer NVM (Node Version Manager)"
 	@echo ""
-	@echo "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
+	@echo -e "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
 	@echo ""
-	@echo "$(GREEN)Menus interactifs:$(NC)"
+	@echo -e "$(GREEN)Menus interactifs:$(NC)"
 	@echo "  make menu            - Menu principal (tous les menus)"
 	@echo "  make install-menu    - Menu d'installation (applications, outils)"
 	@echo "  make config-menu     - Menu de configuration (Git, shell, symlinks)"
@@ -109,12 +112,12 @@ help: ## Afficher cette aide
 	@echo "  make fix-menu        - Menu de corrections automatiques"
 	@echo "  make validate-menu   - Afficher la validation du setup"
 	@echo ""
-	@echo "$(GREEN)Outils:$(NC)"
+	@echo -e "$(GREEN)Outils:$(NC)"
 	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
 	@echo "  make convert-zsh-to-sh - Convertir fonctions Zsh en Sh compatible"
 	@echo "  make generate-man     - Générer les pages man pour toutes les fonctions"
 	@echo ""
-	@echo "$(GREEN)Gestion des VM (tests):$(NC)"
+	@echo -e "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-list          - Lister toutes les VM"
 	@echo "  make vm-create        - Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path)"
 	@echo "  make vm-start         - Démarrer une VM (VM=name)"
@@ -126,15 +129,15 @@ help: ## Afficher cette aide
 	@echo "  make vm-test          - Tester dotfiles dans VM (VM=name)"
 	@echo "  make vm-delete        - Supprimer une VM (VM=name)"
 	@echo ""
-	@echo "$(YELLOW)Pour plus d'options, utilisez: make setup$(NC)"
+	@echo -e "$(YELLOW)Pour plus d'options, utilisez: make setup$(NC)"
 	@echo ""
 
 install-all: ## Installation complète depuis zéro (bootstrap)
-	@echo "$(BLUE)🚀 Installation complète des dotfiles...$(NC)"
+	@echo -e "$(BLUE)🚀 Installation complète des dotfiles...$(NC)"
 	@if [ -f "$(DOTFILES_DIR)/bootstrap.sh" ]; then \
 		bash "$(DOTFILES_DIR)/bootstrap.sh"; \
 	else \
-		echo "$(YELLOW)⚠️  bootstrap.sh non trouvé, clonage depuis GitHub...$(NC)"; \
+		echo -e "$(YELLOW)⚠️  bootstrap.sh non trouvé, clonage depuis GitHub...$(NC)"; \
 		curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash; \
 	fi
 
@@ -142,58 +145,58 @@ install-all: ## Installation complète depuis zéro (bootstrap)
 install: install-all ## Alias pour install-all (ou make install APP=... pour installer une app)
 
 setup: ## Lancer le menu interactif setup.sh
-	@echo "$(BLUE)📋 Menu interactif setup.sh...$(NC)"
+	@echo -e "$(BLUE)📋 Menu interactif setup.sh...$(NC)"
 	@bash "$(SCRIPT_DIR)/setup.sh"
 
 validate: ## Valider le setup complet
-	@echo "$(BLUE)✅ Validation du setup...$(NC)"
+	@echo -e "$(BLUE)✅ Validation du setup...$(NC)"
 	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"
 
 rollback: ## Rollback complet (désinstaller tout)
-	@echo "$(YELLOW)⚠️  ROLLBACK - Désinstallation complète$(NC)"
+	@echo -e "$(YELLOW)⚠️  ROLLBACK - Désinstallation complète$(NC)"
 	@printf "Continuer? (tapez 'OUI' en majuscules): "
 	@read confirm && \
 	if [ "$$confirm" = "OUI" ]; then \
 		bash "$(SCRIPT_DIR)/uninstall/rollback_all.sh"; \
 	else \
-		echo "$(YELLOW)Rollback annulé$(NC)"; \
+		echo -e "$(YELLOW)Rollback annulé$(NC)"; \
 	fi
 
 reset: ## Réinitialisation complète (remise à zéro)
-	@echo "$(YELLOW)⚠️  RÉINITIALISATION - Remise à zéro complète$(NC)"
+	@echo -e "$(YELLOW)⚠️  RÉINITIALISATION - Remise à zéro complète$(NC)"
 	@printf "Continuer? (tapez 'OUI' en majuscules): "
 	@read confirm && \
 	if [ "$$confirm" = "OUI" ]; then \
 		bash "$(SCRIPT_DIR)/uninstall/reset_all.sh"; \
 	else \
-		echo "$(YELLOW)Réinitialisation annulée$(NC)"; \
+		echo -e "$(YELLOW)Réinitialisation annulée$(NC)"; \
 	fi
 
 clean: ## Nettoyer les fichiers temporaires
-	@echo "$(BLUE)🧹 Nettoyage des fichiers temporaires...$(NC)"
+	@echo -e "$(BLUE)🧹 Nettoyage des fichiers temporaires...$(NC)"
 	@rm -f "$(DOTFILES_DIR)/logs/auto_sync.log" 2>/dev/null || true
 	@rm -f /tmp/dotfiles_auto_sync.lock 2>/dev/null || true
 	@rm -f /tmp/auto_backup_dotfiles.pid 2>/dev/null || true
-	@echo "$(GREEN)✓ Nettoyage des logs terminé$(NC)"
+	@echo -e "$(GREEN)✓ Nettoyage des logs terminé$(NC)"
 	@echo ""
-	@echo "$(BLUE)🧹 Nettoyage des fichiers de build (Gradle, etc.)...$(NC)"
+	@echo -e "$(BLUE)🧹 Nettoyage des fichiers de build (Gradle, etc.)...$(NC)"
 	@if [ -d "frontend/android" ]; then \
-		echo "$(YELLOW)  Nettoyage de frontend/android...$(NC)"; \
+		echo -e "$(YELLOW)  Nettoyage de frontend/android...$(NC)"; \
 		cd frontend/android && \
 		rm -rf .gradle build 2>/dev/null || true && \
-		echo "$(GREEN)  ✓ frontend/android/.gradle et build supprimés$(NC)" && \
+		echo -e "$(GREEN)  ✓ frontend/android/.gradle et build supprimés$(NC)" && \
 		cd ../..; \
 	else \
-		echo "$(YELLOW)  ⚠️  frontend/android non trouvé, ignoré$(NC)"; \
+		echo -e "$(YELLOW)  ⚠️  frontend/android non trouvé, ignoré$(NC)"; \
 	fi
-	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
+	@echo -e "$(GREEN)✓ Nettoyage terminé$(NC)"
 
 symlinks: ## Créer les symlinks pour centraliser la config
-	@echo "$(BLUE)🔗 Création des symlinks...$(NC)"
+	@echo -e "$(BLUE)🔗 Création des symlinks...$(NC)"
 	@bash "$(SCRIPT_DIR)/config/create_symlinks.sh"
 
 migrate: ## Migrer configuration existante vers dotfiles
-	@echo "$(BLUE)🔄 Migration de la configuration existante...$(NC)"
+	@echo -e "$(BLUE)🔄 Migration de la configuration existante...$(NC)"
 	@bash "$(SCRIPT_DIR)/migrate_existing_user.sh"
 
 # Configuration Git
@@ -221,27 +224,27 @@ endif
 
 # Alias pour compatibilité (déprécié, utiliser make install APP=...)
 install-docker: ## [DÉPRÉCIÉ] Installer Docker (utiliser: make install APP=docker)
-	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=docker$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=docker$(NC)"
 	@bash "$(SCRIPT_DIR)/install/dev/install_docker.sh"
 
 install-go: ## [DÉPRÉCIÉ] Installer Go (utiliser: make install APP=go)
-	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=go$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=go$(NC)"
 	@bash "$(SCRIPT_DIR)/install/dev/install_go.sh"
 
 install-cursor: ## [DÉPRÉCIÉ] Installer Cursor (utiliser: make install APP=cursor)
-	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=cursor$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=cursor$(NC)"
 	@bash "$(SCRIPT_DIR)/install/apps/install_cursor.sh"
 
 install-brave: ## [DÉPRÉCIÉ] Installer Brave (utiliser: make install APP=brave)
-	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=brave$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=brave$(NC)"
 	@bash "$(SCRIPT_DIR)/install/apps/install_brave.sh"
 
 install-yay: ## [DÉPRÉCIÉ] Installer yay (utiliser: make install APP=yay)
-	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=yay$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=yay$(NC)"
 	@bash "$(SCRIPT_DIR)/install/tools/install_yay.sh"
 
 install-nvm: ## [DÉPRÉCIÉ] Installer NVM (utiliser: make install APP=nvm)
-	@echo "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=nvm$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette commande est dépréciée. Utilisez: make install APP=nvm$(NC)"
 	@bash "$(SCRIPT_DIR)/install/tools/install_nvm.sh"
 
 # Gestion des VM
@@ -308,12 +311,12 @@ convert-zsh-to-sh: ## Convertir les fonctions Zsh en Sh compatible
 
 # Détection du shell actuel
 detect-shell: ## Détecter et afficher le shell actuel
-	@echo "$(BLUE)Shell actuel:$(NC)"
+	@echo -e "$(BLUE)Shell actuel:$(NC)"
 	@echo "  Shell: $$SHELL"
 	@echo "  Nom: $$(basename "$$SHELL")"
 	@echo "  Version: $$($$SHELL --version 2>/dev/null | head -n1 || echo "non disponible")"
 	@echo ""
-	@echo "$(BLUE)Shells disponibles:$(NC)"
+	@echo -e "$(BLUE)Shells disponibles:$(NC)"
 	@for shell in zsh bash fish sh; do \
 		if command -v $$shell >/dev/null 2>&1; then \
 			echo "  ✓ $$shell: $$(which $$shell)"; \
@@ -332,19 +335,19 @@ generate-man: ## Générer les pages man pour toutes les fonctions
 test: test-all ## Lancer tous les tests (alias pour test-all)
 
 test-all: ## Test complet dans environnement isolé
-	@echo "$(BLUE)🧪 Test complet des dotfiles...$(NC)"
+	@echo -e "$(BLUE)🧪 Test complet des dotfiles...$(NC)"
 	@if [ -f "$(SCRIPT_DIR)/test/test_dotfiles.sh" ]; then \
 		bash "$(SCRIPT_DIR)/test/test_dotfiles.sh"; \
 	else \
-		echo "$(YELLOW)⚠️  Script de test non trouvé$(NC)"; \
-		echo "$(YELLOW)   Création du script de test...$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Script de test non trouvé$(NC)"; \
+		echo -e "$(YELLOW)   Création du script de test...$(NC)"; \
 		make test-syntax test-managers test-scripts test-libs test-zshrc test-alias; \
 	fi
 
 test-syntax: ## Tester la syntaxe de tous les scripts
-	@echo "$(BLUE)🔍 Test de syntaxe des scripts...$(NC)"
+	@echo -e "$(BLUE)🔍 Test de syntaxe des scripts...$(NC)"
 	@echo ""
-	@echo "$(GREEN)Test syntaxe Zsh (managers):$(NC)"
+	@echo -e "$(GREEN)Test syntaxe Zsh (managers):$(NC)"
 	@for manager in pathman netman aliaman miscman searchman cyberman devman gitman helpman configman installman fileman virtman manman moduleman; do \
 		if [ -f "$(DOTFILES_DIR)/zsh/functions/$$manager.zsh" ]; then \
 			if zsh -n "$(DOTFILES_DIR)/zsh/functions/$$manager.zsh" 2>/dev/null; then \
@@ -355,7 +358,7 @@ test-syntax: ## Tester la syntaxe de tous les scripts
 		fi; \
 	done
 	@echo ""
-	@echo "$(GREEN)Test syntaxe Bash (scripts config):$(NC)"
+	@echo -e "$(GREEN)Test syntaxe Bash (scripts config):$(NC)"
 	@find "$(DOTFILES_DIR)/zsh/functions/configman/modules" -name "*.sh" 2>/dev/null | while read script; do \
 		if bash -n "$$script" 2>/dev/null; then \
 			echo "  ✓ $$(basename $$script)"; \
@@ -371,7 +374,7 @@ test-syntax: ## Tester la syntaxe de tous les scripts
 		fi; \
 	done
 	@echo ""
-	@echo "$(GREEN)Test syntaxe bibliothèques:$(NC)"
+	@echo -e "$(GREEN)Test syntaxe bibliothèques:$(NC)"
 	@if [ -f "$(SCRIPT_DIR)/lib/common.sh" ]; then \
 		if bash -n "$(SCRIPT_DIR)/lib/common.sh" 2>/dev/null; then \
 			echo "  ✓ common.sh"; \
@@ -381,7 +384,7 @@ test-syntax: ## Tester la syntaxe de tous les scripts
 	fi
 
 test-managers: ## Tester tous les managers
-	@echo "$(BLUE)🔍 Test des managers...$(NC)"
+	@echo -e "$(BLUE)🔍 Test des managers...$(NC)"
 	@for manager in pathman netman aliaman miscman searchman cyberman devman gitman helpman configman installman fileman virtman manman moduleman; do \
 		if [ -f "$(DOTFILES_DIR)/zsh/functions/$$manager.zsh" ]; then \
 			echo "  ✓ $$manager existe"; \
@@ -390,7 +393,7 @@ test-managers: ## Tester tous les managers
 		fi; \
 	done
 	@echo ""
-	@echo "$(GREEN)Structures modulaires:$(NC)"
+	@echo -e "$(GREEN)Structures modulaires:$(NC)"
 	@for manager in cyberman fileman virtman configman; do \
 		if [ -d "$(DOTFILES_DIR)/zsh/functions/$$manager/core" ] && \
 		   [ -d "$(DOTFILES_DIR)/zsh/functions/$$manager/modules" ] && \
@@ -403,27 +406,27 @@ test-managers: ## Tester tous les managers
 
 test-manager: ## Tester un manager spécifique (usage: make test-manager MANAGER=aliaman)
 	@if [ -z "$(MANAGER)" ]; then \
-		echo "$(YELLOW)⚠️  Usage: make test-manager MANAGER=<nom>$(NC)"; \
-		echo "$(YELLOW)   Exemples: make test-manager MANAGER=aliaman$(NC)"; \
-		echo "$(YELLOW)            make test-manager MANAGER=cyberman$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Usage: make test-manager MANAGER=<nom>$(NC)"; \
+		echo -e "$(YELLOW)   Exemples: make test-manager MANAGER=aliaman$(NC)"; \
+		echo -e "$(YELLOW)            make test-manager MANAGER=cyberman$(NC)"; \
 		exit 1; \
 	fi
-	@echo "$(BLUE)🔍 Test du manager: $(MANAGER)$(NC)"
+	@echo -e "$(BLUE)🔍 Test du manager: $(MANAGER)$(NC)"
 	@if [ -f "$(DOTFILES_DIR)/zsh/functions/$(MANAGER).zsh" ]; then \
-		echo "$(GREEN)✓ Fichier trouvé$(NC)"; \
+		echo -e "$(GREEN)✓ Fichier trouvé$(NC)"; \
 		if zsh -n "$(DOTFILES_DIR)/zsh/functions/$(MANAGER).zsh" 2>/dev/null; then \
-			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+			echo -e "$(GREEN)✓ Syntaxe valide$(NC)"; \
 		else \
-			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+			echo -e "$(RED)✗ Erreur de syntaxe$(NC)"; \
 			zsh -n "$(DOTFILES_DIR)/zsh/functions/$(MANAGER).zsh" 2>&1 || true; \
 		fi; \
 	else \
-		echo "$(RED)✗ Fichier non trouvé$(NC)"; \
+		echo -e "$(RED)✗ Fichier non trouvé$(NC)"; \
 	fi
 
 test-scripts: ## Tester les scripts de configuration
-	@echo "$(BLUE)🔍 Test des scripts de configuration...$(NC)"
-	@echo "$(GREEN)Scripts configman:$(NC)"
+	@echo -e "$(BLUE)🔍 Test des scripts de configuration...$(NC)"
+	@echo -e "$(GREEN)Scripts configman:$(NC)"
 	@find "$(DOTFILES_DIR)/zsh/functions/configman/modules" -name "*.sh" 2>/dev/null | while read script; do \
 		if bash -n "$$script" 2>/dev/null; then \
 			echo "  ✓ $$(basename $$script)"; \
@@ -431,7 +434,7 @@ test-scripts: ## Tester les scripts de configuration
 			echo "  ✗ $$(basename $$script)"; \
 		fi; \
 	done
-	@echo "$(GREEN)Scripts virtman:$(NC)"
+	@echo -e "$(GREEN)Scripts virtman:$(NC)"
 	@find "$(DOTFILES_DIR)/zsh/functions/virtman/modules" -name "*.sh" 2>/dev/null | while read script; do \
 		if bash -n "$$script" 2>/dev/null; then \
 			echo "  ✓ $$(basename $$script)"; \
@@ -441,67 +444,67 @@ test-scripts: ## Tester les scripts de configuration
 	done
 
 test-libs: ## Tester les bibliothèques communes
-	@echo "$(BLUE)🔍 Test des bibliothèques communes...$(NC)"
+	@echo -e "$(BLUE)🔍 Test des bibliothèques communes...$(NC)"
 	@if [ -f "$(SCRIPT_DIR)/lib/common.sh" ]; then \
-		echo "$(GREEN)✓ common.sh existe$(NC)"; \
+		echo -e "$(GREEN)✓ common.sh existe$(NC)"; \
 		if bash -n "$(SCRIPT_DIR)/lib/common.sh" 2>/dev/null; then \
-			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+			echo -e "$(GREEN)✓ Syntaxe valide$(NC)"; \
 		else \
-			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+			echo -e "$(RED)✗ Erreur de syntaxe$(NC)"; \
 		fi; \
 	else \
-		echo "$(RED)✗ common.sh non trouvé$(NC)"; \
+		echo -e "$(RED)✗ common.sh non trouvé$(NC)"; \
 	fi
 	@if [ -f "$(SCRIPT_DIR)/lib/actions_logger.sh" ]; then \
-		echo "$(GREEN)✓ actions_logger.sh existe$(NC)"; \
+		echo -e "$(GREEN)✓ actions_logger.sh existe$(NC)"; \
 	fi
 	@if [ -f "$(SCRIPT_DIR)/lib/install_logger.sh" ]; then \
-		echo "$(GREEN)✓ install_logger.sh existe$(NC)"; \
+		echo -e "$(GREEN)✓ install_logger.sh existe$(NC)"; \
 	fi
 
 test-zshrc: ## Tester zshrc_custom
-	@echo "$(BLUE)🔍 Test de zshrc_custom...$(NC)"
+	@echo -e "$(BLUE)🔍 Test de zshrc_custom...$(NC)"
 	@if [ -f "$(DOTFILES_DIR)/zsh/zshrc_custom" ]; then \
-		echo "$(GREEN)✓ zshrc_custom existe$(NC)"; \
+		echo -e "$(GREEN)✓ zshrc_custom existe$(NC)"; \
 		if zsh -n "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; then \
-			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+			echo -e "$(GREEN)✓ Syntaxe valide$(NC)"; \
 		else \
-			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+			echo -e "$(RED)✗ Erreur de syntaxe$(NC)"; \
 			zsh -n "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>&1 | head -5 || true; \
 		fi; \
 		if grep -q "module_status" "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; then \
-			echo "$(GREEN)✓ Variable 'status' corrigée (module_status)$(NC)"; \
+			echo -e "$(GREEN)✓ Variable 'status' corrigée (module_status)$(NC)"; \
 		else \
 			if grep -E "local status=|status=" "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null | grep -v "module_status" | grep -v "#"; then \
-				echo "$(YELLOW)⚠️  Variable 'status' potentiellement en conflit$(NC)"; \
+				echo -e "$(YELLOW)⚠️  Variable 'status' potentiellement en conflit$(NC)"; \
 			else \
-				echo "$(GREEN)✓ Pas de conflit de variable 'status'$(NC)"; \
+				echo -e "$(GREEN)✓ Pas de conflit de variable 'status'$(NC)"; \
 			fi; \
 		fi; \
 	else \
-		echo "$(RED)✗ zshrc_custom non trouvé$(NC)"; \
+		echo -e "$(RED)✗ zshrc_custom non trouvé$(NC)"; \
 	fi
 
 test-alias: ## Tester les alias
-	@echo "$(BLUE)🔍 Test des alias...$(NC)"
+	@echo -e "$(BLUE)🔍 Test des alias...$(NC)"
 	@if [ -f "$(DOTFILES_DIR)/zsh/aliases.zsh" ]; then \
-		echo "$(GREEN)✓ aliases.zsh existe$(NC)"; \
+		echo -e "$(GREEN)✓ aliases.zsh existe$(NC)"; \
 		if zsh -n "$(DOTFILES_DIR)/zsh/aliases.zsh" 2>/dev/null; then \
-			echo "$(GREEN)✓ Syntaxe valide$(NC)"; \
+			echo -e "$(GREEN)✓ Syntaxe valide$(NC)"; \
 		else \
-			echo "$(RED)✗ Erreur de syntaxe$(NC)"; \
+			echo -e "$(RED)✗ Erreur de syntaxe$(NC)"; \
 		fi; \
 		if grep -q "alias_status" "$(DOTFILES_DIR)/zsh/functions/aliaman.zsh" 2>/dev/null; then \
-			echo "$(GREEN)✓ aliaman: variable 'status' corrigée (alias_status)$(NC)"; \
+			echo -e "$(GREEN)✓ aliaman: variable 'status' corrigée (alias_status)$(NC)"; \
 		else \
 			if grep -E "local status=|status=" "$(DOTFILES_DIR)/zsh/functions/aliaman.zsh" 2>/dev/null | grep -v "alias_status" | grep -v "#"; then \
-				echo "$(YELLOW)⚠️  aliaman: Variable 'status' potentiellement en conflit$(NC)"; \
+				echo -e "$(YELLOW)⚠️  aliaman: Variable 'status' potentiellement en conflit$(NC)"; \
 			else \
-				echo "$(GREEN)✓ aliaman: Pas de conflit de variable 'status'$(NC)"; \
+				echo -e "$(GREEN)✓ aliaman: Pas de conflit de variable 'status'$(NC)"; \
 			fi; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  aliases.zsh non trouvé (optionnel)$(NC)"; \
+		echo -e "$(YELLOW)⚠️  aliases.zsh non trouvé (optionnel)$(NC)"; \
 	fi
 
 ################################################################################
@@ -514,17 +517,17 @@ DOTFILES_CONTAINER = $(DOTFILES_DOCKER_PREFIX)-container
 DOTFILES_IMAGE = $(DOTFILES_DOCKER_PREFIX)-image:latest
 
 docker-build: ## Construire l'image Docker pour tester les dotfiles
-	@echo "$(BLUE)🔨 Construction de l'image Docker (isolée avec préfixe)...$(NC)"
+	@echo -e "$(BLUE)🔨 Construction de l'image Docker (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		DOCKER_BUILDKIT=0 docker build -t $(DOTFILES_IMAGE) . && \
-		echo "$(GREEN)✓ Image Docker construite avec succès (isolée: $(DOTFILES_IMAGE))$(NC)"; \
+		echo -e "$(GREEN)✓ Image Docker construite avec succès (isolée: $(DOTFILES_IMAGE))$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
 docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles
-	@echo "$(BLUE)🚀 Lancement du conteneur Docker (isolé avec préfixe)...$(NC)"
+	@echo -e "$(BLUE)🚀 Lancement du conteneur Docker (isolé avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		docker run -it --rm \
 			--name $(DOTFILES_CONTAINER) \
@@ -536,22 +539,22 @@ docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles
 			-e TERM=xterm-256color \
 			$(DOTFILES_IMAGE); \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
 docker-compose-up: ## Lancer avec docker-compose (isolé avec préfixe)
-	@echo "$(BLUE)🚀 Lancement avec docker-compose (isolé avec préfixe)...$(NC)"
+	@echo -e "$(BLUE)🚀 Lancement avec docker-compose (isolé avec préfixe)...$(NC)"
 	@if command -v docker-compose >/dev/null 2>&1 || docker compose version >/dev/null 2>&1; then \
 		docker compose -p $(DOTFILES_DOCKER_PREFIX) up -d && \
 		docker compose -p $(DOTFILES_DOCKER_PREFIX) exec dotfiles-test /bin/zsh; \
 	else \
-		echo "$(YELLOW)⚠️  docker-compose n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  docker-compose n'est pas installé$(NC)"; \
 		exit 1; \
 	fi
 
 docker-test: docker-build ## Tester les dotfiles dans Docker (build + run, isolé)
-	@echo "$(BLUE)🧪 Test des dotfiles dans Docker (isolé avec préfixe)...$(NC)"
+	@echo -e "$(BLUE)🧪 Test des dotfiles dans Docker (isolé avec préfixe)...$(NC)"
 	@docker run --rm \
 		--name $(DOTFILES_CONTAINER) \
 		-v "$(PWD):/root/dotfiles:ro" \
@@ -559,54 +562,54 @@ docker-test: docker-build ## Tester les dotfiles dans Docker (build + run, isol�
 		/bin/zsh -c "source /root/dotfiles/zsh/zshrc_custom && echo '✓ Dotfiles chargés avec succès' && zsh -c 'type installman >/dev/null && echo \"✓ installman disponible\" || echo \"✗ installman non disponible\"'"
 
 docker-stop: ## Arrêter UNIQUEMENT les conteneurs Docker dotfiles-test
-	@echo "$(BLUE)🛑 Arrêt UNIQUEMENT des conteneurs Docker dotfiles-test...$(NC)"
-	@docker ps --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-test en cours$(NC)"
+	@echo -e "$(BLUE)🛑 Arrêt UNIQUEMENT des conteneurs Docker dotfiles-test...$(NC)"
+	@docker ps --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || echo -e "$(YELLOW)⚠️  Aucun conteneur dotfiles-test en cours$(NC)"
 	@docker compose -p $(DOTFILES_DOCKER_PREFIX) down 2>/dev/null || true
 
 docker-clean: ## Nettoyer UNIQUEMENT les images et volumes Docker dotfiles-test
-	@echo "$(BLUE)🧹 Nettoyage UNIQUEMENT des conteneurs/images/volumes dotfiles-test...$(NC)"
-	@echo "$(YELLOW)⚠️  Vos autres conteneurs Docker ne seront PAS touchés$(NC)"
+	@echo -e "$(BLUE)🧹 Nettoyage UNIQUEMENT des conteneurs/images/volumes dotfiles-test...$(NC)"
+	@echo -e "$(YELLOW)⚠️  Vos autres conteneurs Docker ne seront PAS touchés$(NC)"
 	@docker ps -a --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker stop 2>/dev/null || true
 	@docker ps -a --filter "name=$(DOTFILES_DOCKER_PREFIX)" --format "{{.Names}}" | xargs -r docker rm 2>/dev/null || true
 	@docker images --filter "reference=$(DOTFILES_DOCKER_PREFIX)*" --format "{{.Repository}}:{{.Tag}}" | xargs -r docker rmi 2>/dev/null || true
 	@docker compose -p $(DOTFILES_DOCKER_PREFIX) down -v 2>/dev/null || true
-	@echo "$(GREEN)✓ Nettoyage terminé (uniquement dotfiles-test)$(NC)"
+	@echo -e "$(GREEN)✓ Nettoyage terminé (uniquement dotfiles-test)$(NC)"
 
 docker-shell: ## Ouvrir un shell dans le conteneur dotfiles-test en cours d'exécution
-	@echo "$(BLUE)🐚 Ouverture d'un shell dans le conteneur dotfiles-test...$(NC)"
-	@docker exec -it $(DOTFILES_CONTAINER) /bin/zsh 2>/dev/null || docker compose -p $(DOTFILES_DOCKER_PREFIX) exec dotfiles-test /bin/zsh 2>/dev/null || echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-test en cours d'exécution$(NC)"
+	@echo -e "$(BLUE)🐚 Ouverture d'un shell dans le conteneur dotfiles-test...$(NC)"
+	@docker exec -it $(DOTFILES_CONTAINER) /bin/zsh 2>/dev/null || docker compose -p $(DOTFILES_DOCKER_PREFIX) exec dotfiles-test /bin/zsh 2>/dev/null || echo -e "$(YELLOW)⚠️  Aucun conteneur dotfiles-test en cours d'exécution$(NC)"
 
 docker-test-auto: ## Tester l'installation complète et automatique dans Docker isolé
-	@echo "$(BLUE)🧪 Test d'installation automatique complète dans Docker...$(NC)"
+	@echo -e "$(BLUE)🧪 Test d'installation automatique complète dans Docker...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		if [ -f "test-docker.sh" ]; then \
 			bash test-docker.sh; \
 		else \
-			echo "$(YELLOW)⚠️  Script test-docker.sh non trouvé$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Script test-docker.sh non trouvé$(NC)"; \
 			exit 1; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
 docker-build-test: ## Construire l'image Docker de test automatique (isolée)
-	@echo "$(BLUE)🔨 Construction de l'image Docker de test (isolée avec préfixe)...$(NC)"
+	@echo -e "$(BLUE)🔨 Construction de l'image Docker de test (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		DOCKER_BUILDKIT=0 docker build -f Dockerfile.test -t $(DOTFILES_DOCKER_PREFIX):auto . && \
-		echo "$(GREEN)✓ Image Docker de test construite avec succès (isolée: $(DOTFILES_DOCKER_PREFIX):auto)$(NC)"; \
+		echo -e "$(GREEN)✓ Image Docker de test construite avec succès (isolée: $(DOTFILES_DOCKER_PREFIX):auto)$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
 docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfiles (après docker-build-test)
-	@echo "$(BLUE)🚀 Démarrage d'un conteneur Docker interactif...$(NC)"
+	@echo -e "$(BLUE)🚀 Démarrage d'un conteneur Docker interactif...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		if docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "$(DOTFILES_DOCKER_PREFIX):auto"; then \
-			echo "$(GREEN)✓ Image $(DOTFILES_DOCKER_PREFIX):auto trouvée$(NC)"; \
+			echo -e "$(GREEN)✓ Image $(DOTFILES_DOCKER_PREFIX):auto trouvée$(NC)"; \
 			echo ""; \
-			echo "$(CYAN)🐚 Choisissez le shell:$(NC)"; \
+			echo -e "$(CYAN)🐚 Choisissez le shell:$(NC)"; \
 			echo "  1) zsh (recommandé - toutes les fonctionnalités)"; \
 			echo "  2) bash (test de compatibilité basique)"; \
 			echo "  3) fish (test de compatibilité basique)"; \
@@ -619,7 +622,7 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 				3) SELECTED_SHELL_CMD="/usr/bin/fish" ;; \
 				*) SELECTED_SHELL_CMD="/bin/zsh" ;; \
 			esac; \
-			echo "$(GREEN)✓ Shell: $$SELECTED_SHELL_CMD$(NC)"; \
+			echo -e "$(GREEN)✓ Shell: $$SELECTED_SHELL_CMD$(NC)"; \
 			docker run -it --rm \
 				--name $(DOTFILES_CONTAINER) \
 				-v "$(PWD):/root/dotfiles:ro" \
@@ -631,13 +634,13 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 				$(DOTFILES_DOCKER_PREFIX):auto \
 				$$SELECTED_SHELL_CMD; \
 		else \
-			echo "$(YELLOW)⚠️  Image $(DOTFILES_DOCKER_PREFIX):auto non trouvée$(NC)"; \
-			echo "$(YELLOW)   Construisez d'abord l'image avec: make docker-build-test$(NC)"; \
-			echo "$(YELLOW)   Ou utilisez: make docker-test-auto$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Image $(DOTFILES_DOCKER_PREFIX):auto non trouvée$(NC)"; \
+			echo -e "$(YELLOW)   Construisez d'abord l'image avec: make docker-build-test$(NC)"; \
+			echo -e "$(YELLOW)   Ou utilisez: make docker-test-auto$(NC)"; \
 			exit 1; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
@@ -646,14 +649,14 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 # =============================================================================
 
 docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion conteneurs existants)
-	@echo "$(BLUE)🚀 Lancement du conteneur dotfiles-vm...$(NC)"
+	@echo -e "$(BLUE)🚀 Lancement du conteneur dotfiles-vm...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		# Vérifier si un conteneur dotfiles-vm existe \
 		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
 			CONTAINER_STATUS=$$(docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$' && echo "running" || echo "stopped"); \
-			echo "$(CYAN)📦 Conteneur dotfiles-vm existant détecté ($$CONTAINER_STATUS)$(NC)"; \
+			echo -e "$(CYAN)📦 Conteneur dotfiles-vm existant détecté ($$CONTAINER_STATUS)$(NC)"; \
 			echo ""; \
-			echo "$(CYAN)Que souhaitez-vous faire ?$(NC)"; \
+			echo -e "$(CYAN)Que souhaitez-vous faire ?$(NC)"; \
 			echo "  1) Utiliser le conteneur existant (recharger dotfiles)"; \
 			echo "  2) Créer un nouveau conteneur (supprimer l'ancien)"; \
 			echo "  3) Supprimer le conteneur existant"; \
@@ -663,12 +666,12 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			action_choice=$${action_choice:-1}; \
 			case "$$action_choice" in \
 				1) \
-					echo "$(GREEN)✓ Utilisation du conteneur existant$(NC)"; \
+					echo -e "$(GREEN)✓ Utilisation du conteneur existant$(NC)"; \
 					if [ "$$CONTAINER_STATUS" = "stopped" ]; then \
-						echo "$(BLUE)🔄 Démarrage du conteneur...$(NC)"; \
+						echo -e "$(BLUE)🔄 Démarrage du conteneur...$(NC)"; \
 						docker start dotfiles-vm 2>/dev/null || true; \
 					fi; \
-					echo "$(BLUE)🔄 Rechargement des dotfiles...$(NC)"; \
+					echo -e "$(BLUE)🔄 Rechargement des dotfiles...$(NC)"; \
 					docker exec -it dotfiles-vm /bin/zsh -c " \
 						export DOTFILES_DIR=/root/dotfiles; \
 						export DOTFILES_ZSH_PATH=/root/dotfiles/zsh; \
@@ -678,23 +681,23 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 						exec /bin/zsh"; \
 					exit 0 ;; \
 				2) \
-					echo "$(YELLOW)⚠️  Suppression de l'ancien conteneur...$(NC)"; \
+					echo -e "$(YELLOW)⚠️  Suppression de l'ancien conteneur...$(NC)"; \
 					docker stop dotfiles-vm 2>/dev/null || true; \
 					docker rm dotfiles-vm 2>/dev/null || true; \
-					echo "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
+					echo -e "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
 					;; \
 				3) \
-					echo "$(YELLOW)⚠️  Suppression du conteneur...$(NC)"; \
+					echo -e "$(YELLOW)⚠️  Suppression du conteneur...$(NC)"; \
 					docker stop dotfiles-vm 2>/dev/null || true; \
 					docker rm dotfiles-vm 2>/dev/null || true; \
-					echo "$(GREEN)✓ Conteneur supprimé$(NC)"; \
+					echo -e "$(GREEN)✓ Conteneur supprimé$(NC)"; \
 					exit 0 ;; \
 				4|*) \
-					echo "$(YELLOW)Annulé$(NC)"; \
+					echo -e "$(YELLOW)Annulé$(NC)"; \
 					exit 0 ;; \
 			esac; \
 		fi; \
-		echo "$(CYAN)Distribution:$(NC)"; \
+		echo -e "$(CYAN)Distribution:$(NC)"; \
 		echo "  1) Arch Linux (défaut)"; \
 		echo "  2) Ubuntu"; \
 		echo "  3) Debian"; \
@@ -711,13 +714,13 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
 			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
 			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo"; \
-				echo "$(YELLOW)⚠️  ATTENTION: Gentoo compile depuis les sources$(NC)"; \
-				echo "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
-				echo "$(YELLOW)   Recommandé: Utilisez Arch/Ubuntu/Debian pour des tests rapides$(NC)"; \
+				echo -e "$(YELLOW)⚠️  ATTENTION: Gentoo compile depuis les sources$(NC)"; \
+				echo -e "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
+				echo -e "$(YELLOW)   Recommandé: Utilisez Arch/Ubuntu/Debian pour des tests rapides$(NC)"; \
 				read -p "Continuer avec Gentoo? (o/N): " confirm_gentoo; \
 				case "$$confirm_gentoo" in \
 					[oO]) ;; \
-					*) echo "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
+					*) echo -e "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
 				esac ;; \
 			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
 			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
@@ -726,29 +729,29 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			*) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 		esac; \
 		IMAGE_NAME="dotfiles-vm-$$DISTRO"; \
-		echo "$(GREEN)✓ Distribution: $$DISTRO$(NC)"; \
+		echo -e "$(GREEN)✓ Distribution: $$DISTRO$(NC)"; \
 		if [ "$$DISTRO" = "gentoo" ]; then \
-			echo "$(YELLOW)⏳ Construction en cours... (peut prendre 30-60 minutes)$(NC)"; \
+			echo -e "$(YELLOW)⏳ Construction en cours... (peut prendre 30-60 minutes)$(NC)"; \
 		else \
-			echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
+			echo -e "$(BLUE)🔨 Construction de l'image...$(NC)"; \
 		fi; \
 		DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
 		echo ""; \
-		echo "$(CYAN)Options:$(NC)"; \
+		echo -e "$(CYAN)Options:$(NC)"; \
 		echo "  1) Conteneur persistant (conserve les modifications)"; \
 		echo "  2) Conteneur éphémère (reset à la sortie)"; \
 		echo ""; \
 		read -p "Choix [défaut: 1 (persistant)]: " reset_choice; \
 		reset_choice=$${reset_choice:-1}; \
 		if [ "$$reset_choice" = "2" ]; then \
-			echo "$(YELLOW)⚠️  Mode éphémère: les modifications seront perdues$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Mode éphémère: les modifications seront perdues$(NC)"; \
 			RM_FLAG="--rm"; \
 		else \
-			echo "$(GREEN)✓ Mode persistant: les modifications seront conservées$(NC)"; \
+			echo -e "$(GREEN)✓ Mode persistant: les modifications seront conservées$(NC)"; \
 			RM_FLAG=""; \
 		fi; \
 		echo ""; \
-		echo "$(BLUE)🚀 Démarrage du conteneur...$(NC)"; \
+		echo -e "$(BLUE)🚀 Démarrage du conteneur...$(NC)"; \
 		docker run -it $$RM_FLAG \
 			--name dotfiles-vm \
 			-v "$(PWD):/root/dotfiles:rw" \
@@ -760,111 +763,111 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			$$IMAGE_NAME:latest \
 			/bin/zsh; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
 	fi
 
 docker-vm-reset: ## Réinitialiser le conteneur dotfiles-vm (supprimer et recréer)
 	@if command -v docker >/dev/null 2>&1; then \
-		echo "$(BLUE)🔄 Réinitialisation du conteneur dotfiles-vm...$(NC)"; \
+		echo -e "$(BLUE)🔄 Réinitialisation du conteneur dotfiles-vm...$(NC)"; \
 		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
 			docker stop dotfiles-vm 2>/dev/null || true; \
 			docker rm dotfiles-vm 2>/dev/null || true; \
-			echo "$(GREEN)✓ Conteneur supprimé$(NC)"; \
+			echo -e "$(GREEN)✓ Conteneur supprimé$(NC)"; \
 		else \
-			echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm à supprimer$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm à supprimer$(NC)"; \
 		fi; \
-		echo "$(CYAN)💡 Relancez avec: make docker-vm$(NC)"; \
+		echo -e "$(CYAN)💡 Relancez avec: make docker-vm$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 docker-vm-shell: ## Ouvrir un shell dans dotfiles-vm en cours
 	@if command -v docker >/dev/null 2>&1; then \
 		if docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
-			echo "$(BLUE)🐚 Ouverture d'un shell dans dotfiles-vm...$(NC)"; \
+			echo -e "$(BLUE)🐚 Ouverture d'un shell dans dotfiles-vm...$(NC)"; \
 			docker exec -it dotfiles-vm /bin/zsh; \
 		elif docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
-			echo "$(YELLOW)⚠️  Le conteneur dotfiles-vm est arrêté$(NC)"; \
-			echo "$(CYAN)💡 Démarrez-le avec: make docker-vm$(NC)"; \
-			echo "$(CYAN)   Ou redémarrez-le avec: docker start dotfiles-vm && make docker-vm-shell$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Le conteneur dotfiles-vm est arrêté$(NC)"; \
+			echo -e "$(CYAN)💡 Démarrez-le avec: make docker-vm$(NC)"; \
+			echo -e "$(CYAN)   Ou redémarrez-le avec: docker start dotfiles-vm && make docker-vm-shell$(NC)"; \
 		else \
-			echo "$(YELLOW)⚠️  Conteneur dotfiles-vm non trouvé$(NC)"; \
-			echo "$(CYAN)💡 Créez-le avec: make docker-vm$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Conteneur dotfiles-vm non trouvé$(NC)"; \
+			echo -e "$(CYAN)💡 Créez-le avec: make docker-vm$(NC)"; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 docker-vm-stop: ## Arrêter le conteneur dotfiles-vm
 	@if command -v docker >/dev/null 2>&1; then \
 		if docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
-			echo "$(BLUE)🛑 Arrêt du conteneur dotfiles-vm...$(NC)"; \
-			docker stop dotfiles-vm 2>/dev/null && echo "$(GREEN)✓ Conteneur arrêté$(NC)"; \
+			echo -e "$(BLUE)🛑 Arrêt du conteneur dotfiles-vm...$(NC)"; \
+			docker stop dotfiles-vm 2>/dev/null && echo -e "$(GREEN)✓ Conteneur arrêté$(NC)"; \
 		elif docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
-			echo "$(YELLOW)⚠️  Le conteneur dotfiles-vm est déjà arrêté$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Le conteneur dotfiles-vm est déjà arrêté$(NC)"; \
 		else \
-			echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm trouvé$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm trouvé$(NC)"; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 docker-vm-clean: ## Nettoyer complètement dotfiles-vm (conteneur + volumes)
 	@if command -v docker >/dev/null 2>&1; then \
-		echo "$(BLUE)🧹 Nettoyage complet de dotfiles-vm...$(NC)"; \
+		echo -e "$(BLUE)🧹 Nettoyage complet de dotfiles-vm...$(NC)"; \
 		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
 			docker stop dotfiles-vm 2>/dev/null || true; \
 			docker rm dotfiles-vm 2>/dev/null || true; \
-			echo "$(GREEN)✓ Conteneur supprimé$(NC)"; \
+			echo -e "$(GREEN)✓ Conteneur supprimé$(NC)"; \
 		else \
-			echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm à supprimer$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm à supprimer$(NC)"; \
 		fi; \
 		if docker volume ls --format '{{.Name}}' | grep -q '^dotfiles-vm-'; then \
 			docker volume rm dotfiles-vm-config dotfiles-vm-ssh 2>/dev/null || true; \
-			echo "$(GREEN)✓ Volumes supprimés$(NC)"; \
+			echo -e "$(GREEN)✓ Volumes supprimés$(NC)"; \
 		fi; \
-		echo "$(GREEN)✓ Nettoyage terminé$(NC)"; \
+		echo -e "$(GREEN)✓ Nettoyage terminé$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
 	@if command -v docker >/dev/null 2>&1; then \
-		echo "$(BLUE)📋 Conteneurs dotfiles-vm:$(NC)"; \
+		echo -e "$(BLUE)📋 Conteneurs dotfiles-vm:$(NC)"; \
 		if docker ps -a --format '{{.Names}}' | grep -q 'dotfiles-vm'; then \
 			docker ps -a --filter "name=dotfiles-vm" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"; \
 			echo ""; \
-			echo "$(CYAN)💡 Commandes utiles:$(NC)"; \
+			echo -e "$(CYAN)💡 Commandes utiles:$(NC)"; \
 			echo "  make docker-vm-shell    - Ouvrir un shell dans dotfiles-vm"; \
 			echo "  make docker-vm-stop     - Arrêter dotfiles-vm"; \
 			echo "  make docker-vm-clean    - Nettoyer complètement"; \
 		else \
-			echo "$(YELLOW)Aucun conteneur dotfiles-vm trouvé$(NC)"; \
+			echo -e "$(YELLOW)Aucun conteneur dotfiles-vm trouvé$(NC)"; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 
 docker-vm-all-clean: ## Nettoyer TOUS les conteneurs dotfiles (toutes distributions)
-	@echo "$(BLUE)🧹 Nettoyage de TOUS les conteneurs dotfiles...$(NC)"
-	@echo "$(YELLOW)⚠️  Cette action va supprimer tous les conteneurs dotfiles-vm et dotfiles-test-*$(NC)"
+	@echo -e "$(BLUE)🧹 Nettoyage de TOUS les conteneurs dotfiles...$(NC)"
+	@echo -e "$(YELLOW)⚠️  Cette action va supprimer tous les conteneurs dotfiles-vm et dotfiles-test-*$(NC)"
 	@read -p "Continuer? (o/N): " confirm; \
 	if [ "$$confirm" = "o" ] || [ "$$confirm" = "O" ]; then \
-		echo "$(BLUE)Arrêt des conteneurs...$(NC)"; \
+		echo -e "$(BLUE)Arrêt des conteneurs...$(NC)"; \
 		docker ps -a --format '{{.Names}}' | grep -E '^dotfiles' | xargs -r docker stop 2>/dev/null || true; \
-		echo "$(BLUE)Suppression des conteneurs...$(NC)"; \
+		echo -e "$(BLUE)Suppression des conteneurs...$(NC)"; \
 		docker ps -a --format '{{.Names}}' | grep -E '^dotfiles' | xargs -r docker rm 2>/dev/null || true; \
-		echo "$(GREEN)✓ Tous les conteneurs dotfiles supprimés$(NC)"; \
+		echo -e "$(GREEN)✓ Tous les conteneurs dotfiles supprimés$(NC)"; \
 	else \
-		echo "$(YELLOW)Annulé$(NC)"; \
+		echo -e "$(YELLOW)Annulé$(NC)"; \
 	fi
 
 docker-vm-access: ## Accéder à un conteneur dotfiles-vm spécifique
-	@echo "$(BLUE)🐚 Accès à un conteneur dotfiles-vm...$(NC)"
+	@echo -e "$(BLUE)🐚 Accès à un conteneur dotfiles-vm...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		echo "$(CYAN)Conteneurs disponibles:$(NC)"; \
+		echo -e "$(CYAN)Conteneurs disponibles:$(NC)"; \
 		docker ps -a --filter "name=dotfiles" --format "{{.Names}}\t{{.Status}}" | nl -w2 -s') ' || echo "Aucun conteneur trouvé"; \
 		echo ""; \
 		read -p "Nom du conteneur (ou numéro): " container_input; \
@@ -875,28 +878,28 @@ docker-vm-access: ## Accéder à un conteneur dotfiles-vm spécifique
 			container_name="$$container_input"; \
 		fi; \
 		if [ -z "$$container_name" ]; then \
-			echo "$(RED)❌ Conteneur non trouvé$(NC)"; \
+			echo -e "$(RED)❌ Conteneur non trouvé$(NC)"; \
 			exit 1; \
 		fi; \
 		if docker ps --format "{{.Names}}" | grep -q "^$$container_name$$"; then \
-			echo "$(GREEN)✓ Ouverture du shell dans $$container_name...$(NC)"; \
+			echo -e "$(GREEN)✓ Ouverture du shell dans $$container_name...$(NC)"; \
 			docker exec -it "$$container_name" /bin/zsh 2>/dev/null || docker exec -it "$$container_name" /bin/bash 2>/dev/null || docker exec -it "$$container_name" /bin/sh; \
 		else \
-			echo "$(YELLOW)⚠️  Conteneur arrêté, démarrage...$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Conteneur arrêté, démarrage...$(NC)"; \
 			docker start "$$container_name" && \
 			docker exec -it "$$container_name" /bin/zsh 2>/dev/null || docker exec -it "$$container_name" /bin/bash 2>/dev/null || docker exec -it "$$container_name" /bin/sh; \
 		fi; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
 docker-test-install: ## Tester l'installation complète des dotfiles (interactif: distro + shell + mode)
 	@bash "$(PWD)/scripts/test/docker/test_full_install.sh"
 
 docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur propre
-	@echo "$(BLUE)🧪 Test d'installation bootstrap dans conteneur propre...$(NC)"
+	@echo -e "$(BLUE)🧪 Test d'installation bootstrap dans conteneur propre...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		echo "$(CYAN)Distribution:$(NC)"; \
+		echo -e "$(CYAN)Distribution:$(NC)"; \
 		echo "  1) Arch Linux"; \
 		echo "  2) Ubuntu"; \
 		echo "  3) Debian"; \
@@ -913,12 +916,12 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 			2) DISTRO="ubuntu" DOCKERFILE="scripts/test/docker/Dockerfile.ubuntu" ;; \
 			3) DISTRO="debian" DOCKERFILE="scripts/test/docker/Dockerfile.debian" ;; \
 			4) DISTRO="gentoo" DOCKERFILE="scripts/test/docker/Dockerfile.gentoo"; \
-				echo "$(YELLOW)⚠️  ATTENTION: Gentoo compile depuis les sources$(NC)"; \
-				echo "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
+				echo -e "$(YELLOW)⚠️  ATTENTION: Gentoo compile depuis les sources$(NC)"; \
+				echo -e "$(YELLOW)   Cela peut prendre 30-60 minutes ou plus$(NC)"; \
 				read -p "Continuer avec Gentoo? (o/N): " confirm_gentoo; \
 				case "$$confirm_gentoo" in \
 					[oO]) ;; \
-					*) echo "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
+					*) echo -e "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
 				esac ;; \
 			5) DISTRO="alpine" DOCKERFILE="scripts/test/docker/Dockerfile.alpine" ;; \
 			6) DISTRO="fedora" DOCKERFILE="scripts/test/docker/Dockerfile.fedora" ;; \
@@ -927,15 +930,15 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 			*) DISTRO="arch" DOCKERFILE="scripts/test/docker/Dockerfile.test" ;; \
 		esac; \
 		IMAGE_NAME="dotfiles-test-$$DISTRO"; \
-		echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
+		echo -e "$(BLUE)🔨 Construction de l'image...$(NC)"; \
 		DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
-		echo "$(BLUE)🚀 Test d'installation bootstrap...$(NC)"; \
+		echo -e "$(BLUE)🚀 Test d'installation bootstrap...$(NC)"; \
 		# Supprimer le conteneur existant s'il existe \
 		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-test-bootstrap$$'; then \
-			echo "$(YELLOW)⚠️  Conteneur dotfiles-test-bootstrap existant détecté, suppression...$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Conteneur dotfiles-test-bootstrap existant détecté, suppression...$(NC)"; \
 			docker stop dotfiles-test-bootstrap 2>/dev/null || true; \
 			docker rm dotfiles-test-bootstrap 2>/dev/null || true; \
-			echo "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
+			echo -e "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
 		fi; \
 		docker run --rm -it \
 			--name dotfiles-test-bootstrap \
@@ -944,6 +947,6 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 			$$IMAGE_NAME:latest \
 			/bin/bash -c "curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash"; \
 	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 		exit 1; \
 	fi
