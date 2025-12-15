@@ -43,5 +43,5 @@ RUN printf '#!/bin/sh\n# Charger les dotfiles\nif [ -f "$DOTFILES_DIR/zsh/zshrc_
     chmod +x /root/entrypoint.sh
 
 ENTRYPOINT ["/root/entrypoint.sh"]
-CMD ["/bin/zsh"]
+CMD ["/bin/bash"]
 

@@ -745,6 +745,43 @@ docker-vm-clean: ## Nettoyer complètement dotfiles-vm (conteneur + volumes)
 	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
 
 docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
+	@echo "$(BLUE)📋 Conteneurs dotfiles-vm:$(NC)"
+	@if docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Image}}' | grep -E '(NAMES|dotfiles)' || true; then \
+		echo ""; \
+		echo "$(CYAN)💡 Commandes utiles:$(NC)"; \
+		echo "  make docker-vm-shell    - Ouvrir un shell dans dotfiles-vm"; \
+		echo "  make docker-vm-stop     - Arrêter dotfiles-vm"; \
+		echo "  make docker-vm-clean    - Nettoyer complètement"; \
+	else \
+		echo "$(YELLOW)Aucun conteneur dotfiles-vm trouvé$(NC)"; \
+	fi
+
+docker-vm-remove: ## Supprimer un conteneur dotfiles-vm spécifique
+	@echo "$(BLUE)🗑️  Suppression de conteneur dotfiles-vm...$(NC)"
+	@if [ -z "$(CONTAINER)" ]; then \
+		echo "$(YELLOW)Usage: make docker-vm-remove CONTAINER=nom_du_conteneur$(NC)"; \
+		echo "$(CYAN)Conteneurs disponibles:$(NC)"; \
+		docker ps -a --format '{{.Names}}' | grep -E 'dotfiles|^dotfiles' || echo "Aucun"; \
+	else \
+		docker stop "$(CONTAINER)" 2>/dev/null || true; \
+		docker rm "$(CONTAINER)" 2>/dev/null && echo "$(GREEN)✓ Conteneur $(CONTAINER) supprimé$(NC)" || echo "$(YELLOW)⚠️  Conteneur $(CONTAINER) non trouvé$(NC)"; \
+	fi
+
+docker-vm-all-clean: ## Nettoyer TOUS les conteneurs dotfiles (toutes distributions)
+	@echo "$(BLUE)🧹 Nettoyage de TOUS les conteneurs dotfiles...$(NC)"
+	@echo "$(YELLOW)⚠️  Cette action va supprimer tous les conteneurs dotfiles-vm et dotfiles-test-*$(NC)"
+	@read -p "Continuer? (o/N): " confirm; \
+	if [ "$$confirm" = "o" ] || [ "$$confirm" = "O" ]; then \
+		echo "$(BLUE)Arrêt des conteneurs...$(NC)"; \
+		docker ps -a --format '{{.Names}}' | grep -E '^dotfiles' | xargs -r docker stop 2>/dev/null || true; \
+		echo "$(BLUE)Suppression des conteneurs...$(NC)"; \
+		docker ps -a --format '{{.Names}}' | grep -E '^dotfiles' | xargs -r docker rm 2>/dev/null || true; \
+		echo "$(GREEN)✓ Tous les conteneurs dotfiles supprimés$(NC)"; \
+	else \
+		echo "$(YELLOW)Annulé$(NC)"; \
+	fi
+
+docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
 	@echo "$(BLUE)📋 Liste des conteneurs dotfiles-vm...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		echo ""; \
