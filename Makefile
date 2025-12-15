@@ -663,7 +663,7 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec reset optio
 		IMAGE_NAME="dotfiles-vm-$$DISTRO"; \
 		echo "$(GREEN)✓ Distribution: $$DISTRO$(NC)"; \
 		echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
-		docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
+		DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
 		echo ""; \
 		echo "$(CYAN)Options:$(NC)"; \
 		echo "  1) Conteneur persistant (conserve les modifications)"; \
@@ -735,7 +735,7 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 		esac; \
 		IMAGE_NAME="dotfiles-test-$$DISTRO"; \
 		echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
-		docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
+		DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
 		echo "$(BLUE)🚀 Test d'installation bootstrap...$(NC)"; \
 		docker run --rm -it \
 			--name dotfiles-test-bootstrap \
