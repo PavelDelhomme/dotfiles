@@ -31,6 +31,9 @@ fi
 # Charger les fonctions de gestion de version
 [ -f "$INSTALLMAN_UTILS_DIR/version_utils.sh" ] && source "$INSTALLMAN_UTILS_DIR/version_utils.sh"
 
+# Charger les fonctions de gestion de paquets
+[ -f "$INSTALLMAN_UTILS_DIR/package_manager.sh" ] && source "$INSTALLMAN_UTILS_DIR/package_manager.sh"
+
 # =============================================================================
 # DÉFINITION DES OUTILS DISPONIBLES
 # =============================================================================
@@ -370,6 +373,118 @@ installman() {
         show_main_menu
     }
     
+    # =============================================================================
+    # FONCTIONS DE GESTION DE PAQUETS
+    # =============================================================================
+    
+    # DESC: Menu de gestion des paquets
+    show_package_manager_menu() {
+        show_header
+        echo -e "${YELLOW}📦 GESTIONNAIRES DE PAQUETS${RESET}"
+        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        
+        local available_managers=($(detect_package_managers))
+        local distro=$(detect_distro)
+        
+        echo -e "${CYAN}Distribution:${RESET} ${BOLD}$distro${RESET}"
+        echo -e "${CYAN}Gestionnaires:${RESET} ${available_managers[*]}"
+        echo ""
+        echo "1. 🔍 Rechercher un paquet"
+        echo "2. 📥 Installer un paquet"
+        echo "3. 🗑️  Supprimer un paquet"
+        echo "4. 📋 Lister les paquets installés"
+        echo "5. ℹ️  Informations sur un paquet"
+        echo "6. 🔧 Installer/Configurer les gestionnaires"
+        echo ""
+        echo "0. Retour"
+        echo ""
+        printf "Choix: "
+        read -r choice
+        
+        case "$choice" in
+            1) package_search_interactive ;;
+            2) package_install_interactive ;;
+            3) package_remove_interactive ;;
+            4) package_list_interactive ;;
+            5) package_info_interactive ;;
+            6) install_package_managers ;;
+            0) show_main_menu ;;
+            *) show_package_manager_menu ;;
+        esac
+    }
+    
+    package_search_interactive() {
+        show_header
+        echo -e "${YELLOW}🔍 RECHERCHE${RESET}\n"
+        printf "Paquet: "
+        read -r pkg
+        [ -z "$pkg" ] && { show_package_manager_menu; return; }
+        echo ""
+        search_package "$pkg"
+        echo ""
+        read -p "Appuyez sur Entrée..."
+        show_package_manager_menu
+    }
+    
+    package_install_interactive() {
+        show_header
+        echo -e "${YELLOW}📥 INSTALLATION${RESET}\n"
+        printf "Paquet: "
+        read -r pkg
+        [ -z "$pkg" ] && { show_package_manager_menu; return; }
+        echo ""
+        if install_package "$pkg" "auto"; then
+            echo -e "${GREEN}✅ Installé!${RESET}"
+        else
+            echo -e "${RED}❌ Échec${RESET}"
+        fi
+        echo ""
+        read -p "Appuyez sur Entrée..."
+        show_package_manager_menu
+    }
+    
+    package_remove_interactive() {
+        show_header
+        echo -e "${YELLOW}🗑️  SUPPRESSION${RESET}\n"
+        printf "Paquet: "
+        read -r pkg
+        [ -z "$pkg" ] && { show_package_manager_menu; return; }
+        echo ""
+        read -p "Confirmer? (o/N): " confirm
+        [[ "$confirm" =~ ^[oO]$ ]] && remove_package "$pkg" "auto"
+        echo ""
+        read -p "Appuyez sur Entrée..."
+        show_package_manager_menu
+    }
+    
+    package_list_interactive() {
+        show_header
+        echo -e "${YELLOW}📋 PAQUETS INSTALLÉS${RESET}\n"
+        list_installed_packages "all" | less -R
+        show_package_manager_menu
+    }
+    
+    package_info_interactive() {
+        show_header
+        echo -e "${YELLOW}ℹ️  INFORMATIONS${RESET}\n"
+        printf "Paquet: "
+        read -r pkg
+        [ -z "$pkg" ] && { show_package_manager_menu; return; }
+        echo ""
+        get_package_info "$pkg" "auto" | less -R
+        show_package_manager_menu
+    }
+    
+    install_package_managers() {
+        show_header
+        echo -e "${YELLOW}🔧 INSTALLATION GESTIONNAIRES${RESET}\n"
+        local script="$DOTFILES_DIR/scripts/install/system/package_managers.sh"
+        [ -f "$script" ] && bash "$script" || echo -e "${RED}Script non trouvé${RESET}"
+        echo ""
+        read -p "Appuyez sur Entrée..."
+        show_package_manager_menu
+    }
+    
     # Fonction pour trouver un outil par nom/alias
     find_tool() {
         local search_term="$1"
@@ -529,6 +644,13 @@ installman() {
         echo "  u.  Mettre à jour un outil"
         echo "  ua. Mettre à jour tous les outils installés"
         echo ""
+        echo -e "${BOLD}📦 GESTIONNAIRES DE PAQUETS:${RESET}"
+        echo "  p.  Gérer les paquets (pacman, yay, snap, flatpak, apt, dnf, npm)"
+        echo "  ps. Rechercher un paquet"
+        echo "  pi. Installer un paquet"
+        echo "  pr. Supprimer un paquet"
+        echo "  pl. Lister les paquets installés"
+        echo ""
         echo "0.  Quitter"
         echo ""
         echo -e "${CYAN}💡 Tapez le nom de l'outil (ex: 'flutter', 'docker', 'brave') puis appuyez sur Entrée${RESET}"
@@ -572,6 +694,32 @@ installman() {
         
         if [ "$choice" = "ua" ] || [ "$choice" = "update-all" ]; then
             update_all_tools
+            return 0
+        fi
+        
+        # Gérer les options de gestion de paquets
+        if [ "$choice" = "p" ] || [ "$choice" = "packages" ]; then
+            show_package_manager_menu
+            return 0
+        fi
+        
+        if [ "$choice" = "ps" ] || [ "$choice" = "search" ]; then
+            package_search_interactive
+            return 0
+        fi
+        
+        if [ "$choice" = "pi" ] || [ "$choice" = "install" ]; then
+            package_install_interactive
+            return 0
+        fi
+        
+        if [ "$choice" = "pr" ] || [ "$choice" = "remove" ]; then
+            package_remove_interactive
+            return 0
+        fi
+        
+        if [ "$choice" = "pl" ] || [ "$choice" = "list" ]; then
+            package_list_interactive
             return 0
         fi
         
@@ -633,6 +781,43 @@ installman() {
         
         if [ "$tool_arg" = "update-all" ] || [ "$tool_arg" = "ua" ]; then
             update_all_tools
+            return 0
+        fi
+        
+        if [ "$tool_arg" = "packages" ] || [ "$tool_arg" = "p" ]; then
+            show_package_manager_menu
+            return 0
+        fi
+        
+        if [ "$tool_arg" = "search" ] || [ "$tool_arg" = "ps" ]; then
+            if [ -n "$2" ]; then
+                package_search_interactive "$2"
+            else
+                package_search_interactive
+            fi
+            return 0
+        fi
+        
+        if [ "$tool_arg" = "install" ] || [ "$tool_arg" = "pi" ]; then
+            if [ -n "$2" ]; then
+                package_install_interactive "$2"
+            else
+                package_install_interactive
+            fi
+            return 0
+        fi
+        
+        if [ "$tool_arg" = "remove" ] || [ "$tool_arg" = "pr" ]; then
+            if [ -n "$2" ]; then
+                package_remove_interactive "$2"
+            else
+                package_remove_interactive
+            fi
+            return 0
+        fi
+        
+        if [ "$tool_arg" = "list" ] || [ "$tool_arg" = "pl" ]; then
+            package_list_interactive
             return 0
         fi
         
