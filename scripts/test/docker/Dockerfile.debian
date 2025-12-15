@@ -40,14 +40,7 @@ RUN apt-get update && \
 WORKDIR /root
 
 # Script d'initialisation pour charger les dotfiles
-RUN echo '#!/bin/sh\n\
-# Charger les dotfiles\n\
-if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then\n\
-    export DOTFILES_DIR=/root/dotfiles\n\
-    export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n\
-    . "$DOTFILES_DIR/zsh/zshrc_custom"\n\
-fi\n\
-exec "$@"' > /root/entrypoint.sh && \
+RUN printf '#!/bin/sh\n# Entrypoint pour charger les dotfiles\nexport DOTFILES_DIR=/root/dotfiles\nexport DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n# Message d aide pour quitter\nif [ -t 0 ]; then\n    echo ""\n    echo "💡 Pour quitter le conteneur: tapez exit ou appuyez sur Ctrl+D"\n    echo ""\nfi\nexec "$@"\n' > /root/entrypoint.sh && \
     chmod +x /root/entrypoint.sh
 
 ENTRYPOINT ["/root/entrypoint.sh"]
