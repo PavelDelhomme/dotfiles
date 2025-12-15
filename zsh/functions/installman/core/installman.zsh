@@ -61,6 +61,9 @@ declare -a TOOLS=(
     "gdb::🐛:GDB (GNU Debugger):check_gdb_installed:gdb/install_gdb.sh:install_gdb"
     "c-tools:c,c-tools,gcc:🔧:Outils C (GCC, make):check_c_tools_installed:c/install_c.sh:install_c_tools"
     "cpp-tools:c++,cpp,cpp-tools:⚙️:Outils C++ (G++, make, CMake):check_cpp_tools_installed:cpp/install_cpp.sh:install_cpp_tools"
+    "tor::🔒:Tor (anonymisation réseau):check_tor_installed:tor/install_tor.sh:install_tor"
+    "tor-browser:torbrowser,tor-browser:🌐:Tor Browser (navigateur anonyme):check_tor_browser_installed:tor/install_tor_browser.sh:install_tor_browser"
+    "tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation"
 )
 
 # DESC: Gestionnaire interactif complet pour installer des outils de développement
