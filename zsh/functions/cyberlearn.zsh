@@ -14,8 +14,11 @@ CYBERLEARN_PROGRESS_FILE="${CYBERLEARN_DATA_DIR}/progress.json"
 CYBERLEARN_LABS_DIR="${CYBERLEARN_DATA_DIR}/labs"
 CYBERLEARN_MODULES_DIR="${CYBERLEARN_DIR}/modules"
 
-# Créer les répertoires nécessaires
+# Créer les répertoires nécessaires avec permissions sécurisées
 mkdir -p "$CYBERLEARN_DATA_DIR" "$CYBERLEARN_LABS_DIR" "$CYBERLEARN_MODULES_DIR"
+# Sécuriser les permissions (700 pour dossiers, 600 pour fichiers)
+chmod 700 "$CYBERLEARN_DATA_DIR" "$CYBERLEARN_LABS_DIR" 2>/dev/null || true
+chown "$USER:$USER" "$CYBERLEARN_DATA_DIR" 2>/dev/null || true
 
 # Charger les utilitaires
 [ -f "$CYBERLEARN_DIR/utils/progress.sh" ] && source "$CYBERLEARN_DIR/utils/progress.sh"

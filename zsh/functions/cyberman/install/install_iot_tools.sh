@@ -124,6 +124,10 @@ fi
 # Créer les répertoires nécessaires pour IoT
 echo -e "${CYAN}📁 Création des répertoires IoT...${RESET}"
 mkdir -p ~/.cyberman/{scans/iot,reports/iot,config/iot}
+# Sécuriser les permissions (700 pour dossiers, 600 pour fichiers)
+chmod -R 700 ~/.cyberman 2>/dev/null || true
+find ~/.cyberman -type f -exec chmod 600 {} \; 2>/dev/null || true
+chown -R "$USER:$USER" ~/.cyberman 2>/dev/null || true
 
 # Configuration initiale IoT
 echo -e "${CYAN}⚙️  Configuration initiale IoT...${RESET}"

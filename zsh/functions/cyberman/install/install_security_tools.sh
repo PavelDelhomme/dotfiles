@@ -125,6 +125,10 @@ fi
 # Créer les répertoires nécessaires
 echo -e "${CYAN}📁 Création des répertoires...${RESET}"
 mkdir -p ~/.cyberman/{scans/{nuclei,xss,sqlmap,fuzzer},templates/nuclei,reports,config}
+# Sécuriser les permissions (700 pour dossiers, 600 pour fichiers)
+chmod -R 700 ~/.cyberman 2>/dev/null || true
+find ~/.cyberman -type f -exec chmod 600 {} \; 2>/dev/null || true
+chown -R "$USER:$USER" ~/.cyberman 2>/dev/null || true
 
 # Mettre à jour les templates Nuclei
 if command -v nuclei >/dev/null 2>&1; then

@@ -12,6 +12,11 @@ CYBERLEARN_PROGRESS_FILE="${CYBERLEARN_DATA_DIR}/progress.json"
 
 # Initialiser le fichier de progression s'il n'existe pas
 init_progress() {
+    # S'assurer que le dossier existe avec permissions sécurisées
+    mkdir -p "$CYBERLEARN_DATA_DIR" 2>/dev/null || true
+    chmod 700 "$CYBERLEARN_DATA_DIR" 2>/dev/null || true
+    chown "$USER:$USER" "$CYBERLEARN_DATA_DIR" 2>/dev/null || true
+    
     if [ ! -f "$CYBERLEARN_PROGRESS_FILE" ]; then
         cat > "$CYBERLEARN_PROGRESS_FILE" <<EOF
 {
