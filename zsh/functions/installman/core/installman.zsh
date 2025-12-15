@@ -57,6 +57,7 @@ declare -a TOOLS=(
     "network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools"
     "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
     "ssh-config:ssh,ssh-setup:🔐:Configuration SSH automatique:check_ssh_configured:ssh/install_ssh_config.sh:install_ssh_config"
+    "cmake::🔧:CMake (système de build):check_cmake_installed:cmake/install_cmake.sh:install_cmake"
 )
 
 # DESC: Gestionnaire interactif complet pour installer des outils de développement

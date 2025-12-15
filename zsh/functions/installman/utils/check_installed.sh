@@ -45,6 +45,17 @@ check_emacs_installed() {
     return 1
 }
 
+# DESC: Vérifie si CMake est installé
+# USAGE: check_cmake_installed
+check_cmake_installed() {
+    if command -v cmake &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si une version spécifique de Java est installée
 # USAGE: check_java_version_installed <version>
 check_java_version_installed() {
