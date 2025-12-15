@@ -69,17 +69,39 @@ install_tor_navigation() {
         fi
     fi
     
+    # Proposer la configuration du proxy
+    if [ "$tor_installed" = true ]; then
+        echo ""
+        read -p "Configurer le proxy Tor pour navigation? (O/n): " configure_proxy
+        configure_proxy=${configure_proxy:-O}
+        if [[ "$configure_proxy" =~ ^[oO]$ ]]; then
+            [ -f "$INSTALLMAN_MODULES_DIR/tor/configure_tor_proxy.sh" ] && source "$INSTALLMAN_MODULES_DIR/tor/configure_tor_proxy.sh"
+            configure_tor_proxy
+        fi
+    fi
+    
     # Résumé
     echo ""
     log_info "📊 Résumé de l'installation:"
     if [ "$tor_installed" = true ]; then
         log_info "✅ Tor installé"
-        log_info "💡 Utilisez avec: curl --socks5-hostname 127.0.0.1:9050 http://example.com"
-        log_info "💡 Ou configurez votre navigateur pour utiliser le proxy SOCKS5: 127.0.0.1:9050"
+        log_info ""
+        log_info "💡 Navigation via Tor (sans navigateur):"
+        log_info "   - Proxy SOCKS5: 127.0.0.1:9050"
+        log_info "   - Test: curl --socks5-hostname 127.0.0.1:9050 https://check.torproject.org"
+        log_info "   - wget: wget --proxy=on --proxy-type=socks5 --proxy-host=127.0.0.1 --proxy-port=9050 http://example.com"
+        log_info "   - Scripts: tor-curl et tor-wget créés dans ~/.local/bin"
+        log_info ""
+        log_info "💡 Configuration navigateur (Firefox/Chrome):"
+        log_info "   - Type: SOCKS5"
+        log_info "   - Hôte: 127.0.0.1"
+        log_info "   - Port: 9050"
+        log_info "   - DNS via proxy: Activé (pour Firefox)"
     fi
     if [ "$browser_installed" = true ]; then
         log_info "✅ Tor Browser installé"
         log_info "💡 Lancez avec: tor-browser ou torbrowser-launcher"
+        log_info "💡 Tor Browser inclut Tor intégré, navigation anonyme complète"
     fi
     
     if [ "$tor_installed" = true ] || [ "$browser_installed" = true ]; then

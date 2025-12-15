@@ -44,12 +44,14 @@ install_tor_browser() {
     local install_success=false
     
     case "$distro" in
-        arch)
-            log_step "Installation via pacman/yay (Arch Linux)..."
+        arch|manjaro)
+            log_step "Installation via pacman/yay/pamac (Arch Linux/Manjaro)..."
             if sudo pacman -S --noconfirm torbrowser-launcher 2>/dev/null; then
                 install_success=true
             elif command -v yay &>/dev/null; then
                 yay -S --noconfirm torbrowser-launcher && install_success=true
+            elif command -v pamac &>/dev/null; then
+                sudo pamac install --no-confirm torbrowser-launcher && install_success=true
             else
                 log_warn "Installation manuelle nécessaire..."
                 install_tor_browser_manual

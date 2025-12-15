@@ -43,14 +43,16 @@ install_tor() {
     local install_success=false
     
     case "$distro" in
-        arch)
-            log_step "Installation via pacman (Arch Linux)..."
+        arch|manjaro)
+            log_step "Installation via pacman (Arch Linux/Manjaro)..."
             if sudo pacman -S --noconfirm tor 2>/dev/null; then
                 install_success=true
             else
                 log_warn "Échec installation via pacman, essai avec yay..."
                 if command -v yay &>/dev/null; then
                     yay -S --noconfirm tor && install_success=true
+                elif command -v pamac &>/dev/null; then
+                    sudo pamac install --no-confirm tor && install_success=true
                 fi
             fi
             ;;
@@ -112,11 +114,11 @@ install_tor() {
         log_error "❌ Échec de l'installation de Tor"
         log_warn "💡 Installez manuellement:"
         case "$distro" in
-            arch) echo "   sudo pacman -S tor" ;;
+            arch|manjaro) echo "   sudo pacman -S tor" ;;
             debian|ubuntu) echo "   sudo apt-get install tor" ;;
             fedora) echo "   sudo dnf install tor" ;;
             alpine) echo "   sudo apk add tor" ;;
-            gentoo) echo "   sudo emerge tor" ;;
+            gentoo) echo "   sudo emerge net-misc/tor" ;;
             opensuse) echo "   sudo zypper install tor" ;;
             centos) echo "   sudo yum install tor" ;;
             *) echo "   Utilisez le gestionnaire de paquets de votre distribution" ;;
