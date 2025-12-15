@@ -655,12 +655,31 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
 			CONTAINER_STATUS=$$(docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$' && echo "running" || echo "stopped"); \
 			echo -e "$(CYAN)📦 Conteneur dotfiles-vm existant détecté ($$CONTAINER_STATUS)$(NC)"; \
+			IMAGE_NAME=$$(docker inspect --format='{{.Config.Image}}' dotfiles-vm 2>/dev/null || echo "unknown"); \
+			CONTAINER_ARCH=$$(docker inspect --format='{{.Architecture}}' dotfiles-vm 2>/dev/null || echo "unknown"); \
+			HOST_ARCH=$$(uname -m); \
+			echo -e "$(BLUE)   Image: $$IMAGE_NAME$(NC)"; \
+			echo -e "$(BLUE)   Architecture: $$CONTAINER_ARCH (hôte: $$HOST_ARCH)$(NC)"; \
+			INTEGRITY_CHECK=0; \
+			if [ "$$CONTAINER_ARCH" != "$$HOST_ARCH" ] && [ "$$CONTAINER_ARCH" != "unknown" ]; then \
+				echo -e "$(YELLOW)⚠️  Architecture différente détectée$(NC)"; \
+				INTEGRITY_CHECK=1; \
+			fi; \
+			if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$$IMAGE_NAME$$"; then \
+				echo -e "$(YELLOW)⚠️  L'image n'existe plus$(NC)"; \
+				INTEGRITY_CHECK=1; \
+			fi; \
+			if [ "$$INTEGRITY_CHECK" = "1" ]; then \
+				echo -e "$(YELLOW)⚠️  Problèmes d'intégrité détectés$(NC)"; \
+				echo ""; \
+			fi; \
 			echo ""; \
 			echo -e "$(CYAN)Que souhaitez-vous faire ?$(NC)"; \
 			echo "  1) Utiliser le conteneur existant (recharger dotfiles)"; \
-			echo "  2) Créer un nouveau conteneur (supprimer l'ancien)"; \
-			echo "  3) Supprimer le conteneur existant"; \
-			echo "  4) Annuler"; \
+			echo "  2) Vérifier l'intégrité du conteneur"; \
+			echo "  3) Créer un nouveau conteneur (supprimer l'ancien)"; \
+			echo "  4) Supprimer le conteneur existant"; \
+			echo "  5) Annuler"; \
 			echo ""; \
 			read -p "Choix [défaut: 1]: " action_choice; \
 			action_choice=$${action_choice:-1}; \
@@ -669,7 +688,12 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 					echo -e "$(GREEN)✓ Utilisation du conteneur existant$(NC)"; \
 					if [ "$$CONTAINER_STATUS" = "stopped" ]; then \
 						echo -e "$(BLUE)🔄 Démarrage du conteneur...$(NC)"; \
-						docker start dotfiles-vm 2>/dev/null || true; \
+						if ! docker start dotfiles-vm 2>/dev/null; then \
+							echo -e "$(RED)❌ Impossible de démarrer le conteneur$(NC)"; \
+							echo -e "$(YELLOW)   Le conteneur est peut-être corrompu$(NC)"; \
+							echo -e "$(YELLOW)   Recommandation: Recréer le conteneur (option 3)$(NC)"; \
+							exit 1; \
+						fi; \
 					fi; \
 					echo -e "$(BLUE)🔄 Rechargement des dotfiles...$(NC)"; \
 					docker exec -it dotfiles-vm /bin/zsh -c " \
@@ -678,21 +702,41 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 						if [ -f /root/dotfiles/zsh/zshrc_custom ]; then \
 							. /root/dotfiles/zsh/zshrc_custom 2>/dev/null || true; \
 						fi; \
-						exec /bin/zsh"; \
+						exec /bin/zsh" 2>/dev/null || { \
+							echo -e "$(RED)❌ Erreur lors de l'exécution$(NC)"; \
+							echo -e "$(YELLOW)   Le conteneur est peut-être corrompu$(NC)"; \
+							echo -e "$(YELLOW)   Recommandation: Recréer le conteneur (option 3)$(NC)"; \
+							exit 1; \
+						}; \
 					exit 0 ;; \
 				2) \
+					echo -e "$(BLUE)🔍 Vérification de l'intégrité...$(NC)"; \
+					if [ -f "$(PWD)/scripts/test/docker/check_container_integrity.sh" ]; then \
+						bash "$(PWD)/scripts/test/docker/check_container_integrity.sh" dotfiles-vm; \
+						INTEGRITY_RESULT=$$?; \
+						echo ""; \
+						if [ $$INTEGRITY_RESULT -eq 0 ]; then \
+							echo -e "$(GREEN)✅ Conteneur intègre, vous pouvez l'utiliser$(NC)"; \
+						else \
+							echo -e "$(YELLOW)⚠️  Problèmes détectés, recommandation: recréer le conteneur$(NC)"; \
+						fi; \
+					else \
+						echo -e "$(YELLOW)⚠️  Script de vérification non trouvé$(NC)"; \
+					fi; \
+					exit 0 ;; \
+				3) \
 					echo -e "$(YELLOW)⚠️  Suppression de l'ancien conteneur...$(NC)"; \
 					docker stop dotfiles-vm 2>/dev/null || true; \
 					docker rm dotfiles-vm 2>/dev/null || true; \
 					echo -e "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
 					;; \
-				3) \
+				4) \
 					echo -e "$(YELLOW)⚠️  Suppression du conteneur...$(NC)"; \
 					docker stop dotfiles-vm 2>/dev/null || true; \
 					docker rm dotfiles-vm 2>/dev/null || true; \
 					echo -e "$(GREEN)✓ Conteneur supprimé$(NC)"; \
 					exit 0 ;; \
-				4|*) \
+				5|*) \
 					echo -e "$(YELLOW)Annulé$(NC)"; \
 					exit 0 ;; \
 			esac; \
@@ -752,6 +796,24 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 		fi; \
 		echo ""; \
 		echo -e "$(BLUE)🚀 Démarrage du conteneur...$(NC)"; \
+		# Vérifier que l'image existe avant de lancer \
+		if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$$IMAGE_NAME:latest$$"; then \
+			echo -e "$(RED)❌ L'image $$IMAGE_NAME:latest n'existe plus$(NC)"; \
+			echo -e "$(YELLOW)   Reconstruction de l'image...$(NC)"; \
+			DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
+		fi; \
+		# Vérifier l'architecture de l'image \
+		IMAGE_ARCH=$$(docker inspect --format='{{.Architecture}}' $$IMAGE_NAME:latest 2>/dev/null || echo "unknown"); \
+		HOST_ARCH=$$(uname -m); \
+		if [ "$$IMAGE_ARCH" != "$$HOST_ARCH" ] && [ "$$IMAGE_ARCH" != "unknown" ]; then \
+			echo -e "$(YELLOW)⚠️  Architecture différente: image=$$IMAGE_ARCH, hôte=$$HOST_ARCH$(NC)"; \
+			echo -e "$(YELLOW)   Le conteneur peut ne pas fonctionner correctement$(NC)"; \
+			read -p "Continuer quand même? (o/N): " continue_arch; \
+			case "$$continue_arch" in \
+				[oO]) ;; \
+				*) echo -e "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
+			esac; \
+		fi; \
 		docker run -it $$RM_FLAG \
 			--name dotfiles-vm \
 			-v "$(PWD):/root/dotfiles:rw" \
@@ -761,7 +823,11 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			-e DOTFILES_DIR=/root/dotfiles \
 			-e TERM=xterm-256color \
 			$$IMAGE_NAME:latest \
-			/bin/zsh; \
+			/bin/zsh || { \
+				echo -e "$(RED)❌ Erreur lors du démarrage du conteneur$(NC)"; \
+				echo -e "$(YELLOW)   Vérifiez les logs avec: docker logs dotfiles-vm$(NC)"; \
+				exit 1; \
+			}; \
 	else \
 		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. Installez-le avec: installman docker$(NC)"; \
 		exit 1; \
