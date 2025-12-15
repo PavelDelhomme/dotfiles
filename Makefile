@@ -776,8 +776,18 @@ docker-vm-shell: ## Ouvrir un shell dans dotfiles-vm en cours
 	@docker exec -it dotfiles-vm /bin/zsh 2>/dev/null || echo "$(YELLOW)⚠️  Conteneur dotfiles-vm non trouvé. Lancez: make docker-vm$(NC)"
 
 docker-vm-stop: ## Arrêter le conteneur dotfiles-vm
-	@echo "$(BLUE)🛑 Arrêt du conteneur dotfiles-vm...$(NC)"
-	@docker stop dotfiles-vm 2>/dev/null && echo "$(GREEN)✓ Conteneur arrêté$(NC)" || echo "$(YELLOW)⚠️  Conteneur non trouvé$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		if docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			echo "$(BLUE)🛑 Arrêt du conteneur dotfiles-vm...$(NC)"; \
+			docker stop dotfiles-vm 2>/dev/null && echo "$(GREEN)✓ Conteneur arrêté$(NC)"; \
+		elif docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+			echo "$(YELLOW)⚠️  Le conteneur dotfiles-vm est déjà arrêté$(NC)"; \
+		else \
+			echo "$(YELLOW)⚠️  Aucun conteneur dotfiles-vm trouvé$(NC)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
 
 docker-vm-clean: ## Nettoyer complètement dotfiles-vm (conteneur + volumes)
 	@echo "$(BLUE)🧹 Nettoyage complet de dotfiles-vm...$(NC)"
