@@ -855,6 +855,9 @@ docker-vm-access: ## Accéder à un conteneur dotfiles-vm spécifique
 		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
 	fi
 
+docker-test-install: ## Tester l'installation complète des dotfiles (interactif: distro + shell + mode)
+	@bash "$(PWD)/scripts/test/docker/test_full_install.sh"
+
 docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur propre
 	@echo "$(BLUE)🧪 Test d'installation bootstrap dans conteneur propre...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
