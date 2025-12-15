@@ -744,6 +744,80 @@ docker-vm-clean: ## Nettoyer complètement dotfiles-vm (conteneur + volumes)
 	@docker volume rm dotfiles-vm-config dotfiles-vm-ssh 2>/dev/null || true
 	@echo "$(GREEN)✓ Nettoyage terminé$(NC)"
 
+docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
+	@echo "$(BLUE)📋 Liste des conteneurs dotfiles-vm...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo ""; \
+		echo "$(CYAN)Conteneurs en cours d'exécution:$(NC)"; \
+		docker ps --filter "name=dotfiles" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "Aucun"; \
+		echo ""; \
+		echo "$(CYAN)Conteneurs arrêtés:$(NC)"; \
+		docker ps -a --filter "name=dotfiles" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "Aucun"; \
+		echo ""; \
+		echo "$(CYAN)Images dotfiles-vm:$(NC)"; \
+		docker images --filter "reference=dotfiles-vm-*" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" || echo "Aucune"; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
+
+docker-vm-remove: ## Supprimer un conteneur dotfiles-vm spécifique
+	@echo "$(BLUE)🗑️  Suppression d'un conteneur dotfiles-vm...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(CYAN)Conteneurs disponibles:$(NC)"; \
+		docker ps -a --filter "name=dotfiles" --format "{{.Names}}" | while read name; do \
+			echo "  - $$name"; \
+		done; \
+		echo ""; \
+		read -p "Nom du conteneur à supprimer (ou 'all' pour tous): " container_name; \
+		if [ "$$container_name" = "all" ]; then \
+			echo "$(YELLOW)Suppression de tous les conteneurs dotfiles...$(NC)"; \
+			docker ps -a --filter "name=dotfiles" --format "{{.Names}}" | while read name; do \
+				docker stop "$$name" 2>/dev/null || true; \
+				docker rm "$$name" 2>/dev/null || true; \
+				echo "$(GREEN)✓ $$name supprimé$(NC)"; \
+			done; \
+		else \
+			if docker ps -a --format "{{.Names}}" | grep -q "^$$container_name$$"; then \
+				docker stop "$$container_name" 2>/dev/null || true; \
+				docker rm "$$container_name" 2>/dev/null || true; \
+				echo "$(GREEN)✓ $$container_name supprimé$(NC)"; \
+			else \
+				echo "$(RED)❌ Conteneur $$container_name non trouvé$(NC)"; \
+			fi; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
+
+docker-vm-access: ## Accéder à un conteneur dotfiles-vm spécifique
+	@echo "$(BLUE)🐚 Accès à un conteneur dotfiles-vm...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		echo "$(CYAN)Conteneurs disponibles:$(NC)"; \
+		docker ps -a --filter "name=dotfiles" --format "{{.Names}}\t{{.Status}}" | nl -w2 -s') ' || echo "Aucun conteneur trouvé"; \
+		echo ""; \
+		read -p "Nom du conteneur (ou numéro): " container_input; \
+		container_name=""; \
+		if echo "$$container_input" | grep -q '^[0-9]\+$$'; then \
+			container_name=$$(docker ps -a --filter "name=dotfiles" --format "{{.Names}}" | sed -n "$${container_input}p"); \
+		else \
+			container_name="$$container_input"; \
+		fi; \
+		if [ -z "$$container_name" ]; then \
+			echo "$(RED)❌ Conteneur non trouvé$(NC)"; \
+			exit 1; \
+		fi; \
+		if docker ps --format "{{.Names}}" | grep -q "^$$container_name$$"; then \
+			echo "$(GREEN)✓ Ouverture du shell dans $$container_name...$(NC)"; \
+			docker exec -it "$$container_name" /bin/zsh 2>/dev/null || docker exec -it "$$container_name" /bin/bash 2>/dev/null || docker exec -it "$$container_name" /bin/sh; \
+		else \
+			echo "$(YELLOW)⚠️  Conteneur arrêté, démarrage...$(NC)"; \
+			docker start "$$container_name" && \
+			docker exec -it "$$container_name" /bin/zsh 2>/dev/null || docker exec -it "$$container_name" /bin/bash 2>/dev/null || docker exec -it "$$container_name" /bin/sh; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+	fi
+
 docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur propre
 	@echo "$(BLUE)🧪 Test d'installation bootstrap dans conteneur propre...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
