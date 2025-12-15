@@ -781,6 +781,13 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 		echo "$(BLUE)🔨 Construction de l'image...$(NC)"; \
 		DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
 		echo "$(BLUE)🚀 Test d'installation bootstrap...$(NC)"; \
+		# Supprimer le conteneur existant s'il existe \
+		if docker ps -a --format '{{.Names}}' | grep -q '^dotfiles-test-bootstrap$$'; then \
+			echo "$(YELLOW)⚠️  Conteneur dotfiles-test-bootstrap existant détecté, suppression...$(NC)"; \
+			docker stop dotfiles-test-bootstrap 2>/dev/null || true; \
+			docker rm dotfiles-test-bootstrap 2>/dev/null || true; \
+			echo "$(GREEN)✓ Ancien conteneur supprimé$(NC)"; \
+		fi; \
 		docker run --rm -it \
 			--name dotfiles-test-bootstrap \
 			-e HOME=/root \
