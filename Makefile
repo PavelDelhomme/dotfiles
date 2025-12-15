@@ -784,21 +784,6 @@ docker-vm-all-clean: ## Nettoyer TOUS les conteneurs dotfiles (toutes distributi
 		echo "$(YELLOW)Annulé$(NC)"; \
 	fi
 
-docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
-	@echo "$(BLUE)📋 Liste des conteneurs dotfiles-vm...$(NC)"
-	@if command -v docker >/dev/null 2>&1; then \
-		echo ""; \
-		echo "$(CYAN)Conteneurs en cours d'exécution:$(NC)"; \
-		docker ps --filter "name=dotfiles" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "Aucun"; \
-		echo ""; \
-		echo "$(CYAN)Conteneurs arrêtés:$(NC)"; \
-		docker ps -a --filter "name=dotfiles" --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" || echo "Aucun"; \
-		echo ""; \
-		echo "$(CYAN)Images dotfiles-vm:$(NC)"; \
-		docker images --filter "reference=dotfiles-vm-*" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}" || echo "Aucune"; \
-	else \
-		echo "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
-	fi
 
 docker-vm-remove: ## Supprimer un conteneur dotfiles-vm spécifique
 	@echo "$(BLUE)🗑️  Suppression d'un conteneur dotfiles-vm...$(NC)"
