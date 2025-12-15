@@ -75,6 +75,7 @@ install_tor_navigation() {
         read -p "Configurer le proxy Tor pour navigation? (O/n): " configure_proxy
         configure_proxy=${configure_proxy:-O}
         if [[ "$configure_proxy" =~ ^[oO]$ ]]; then
+            INSTALLMAN_MODULES_DIR="$INSTALLMAN_DIR/modules"
             [ -f "$INSTALLMAN_MODULES_DIR/tor/configure_tor_proxy.sh" ] && source "$INSTALLMAN_MODULES_DIR/tor/configure_tor_proxy.sh"
             configure_tor_proxy
         fi
@@ -113,6 +114,7 @@ install_tor_navigation() {
 }
 
 # Charger les fonctions d'installation
+INSTALLMAN_MODULES_DIR="$INSTALLMAN_DIR/modules"
 [ -f "$INSTALLMAN_MODULES_DIR/tor/install_tor.sh" ] && source "$INSTALLMAN_MODULES_DIR/tor/install_tor.sh"
 [ -f "$INSTALLMAN_MODULES_DIR/tor/install_tor_browser.sh" ] && source "$INSTALLMAN_MODULES_DIR/tor/install_tor_browser.sh"
 
