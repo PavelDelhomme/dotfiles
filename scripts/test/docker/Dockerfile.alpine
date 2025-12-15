@@ -40,7 +40,7 @@ WORKDIR /root
 # Script d'initialisation pour charger les dotfiles
 # Ne pas charger zshrc_custom dans l'entrypoint (il utilise typeset qui n'existe pas dans sh)
 # Le shell (zsh/bash) chargera automatiquement zshrc_custom via son fichier de config
-RUN printf '#!/bin/sh\n# Entrypoint simple - ne pas charger zshrc_custom ici\n# zshrc_custom sera chargé automatiquement par zsh via .zshrc\n# ou manuellement si nécessaire\nexport DOTFILES_DIR=/root/dotfiles\nexport DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\nexec "$@"\n' > /root/entrypoint.sh && \
+RUN printf '#!/bin/sh\n# Entrypoint simple - ne pas charger zshrc_custom ici\n# zshrc_custom sera chargé automatiquement par zsh via .zshrc\n# ou manuellement si nécessaire\nexport DOTFILES_DIR=/root/dotfiles\nexport DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"\n# Message d'\''aide pour quitter\nif [ -t 0 ]; then\n    echo ""\n    echo "💡 Pour quitter le conteneur: tapez '\''exit'\'' ou appuyez sur Ctrl+D"\n    echo ""\nfi\nexec "$@"\n' > /root/entrypoint.sh && \
     chmod +x /root/entrypoint.sh
 
 ENTRYPOINT ["/root/entrypoint.sh"]

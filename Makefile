@@ -759,16 +759,6 @@ docker-vm-list: ## Lister tous les conteneurs dotfiles-vm
 		echo "$(YELLOW)Aucun conteneur dotfiles-vm trouvé$(NC)"; \
 	fi
 
-docker-vm-remove: ## Supprimer un conteneur dotfiles-vm spécifique
-	@echo "$(BLUE)🗑️  Suppression de conteneur dotfiles-vm...$(NC)"
-	@if [ -z "$(CONTAINER)" ]; then \
-		echo "$(YELLOW)Usage: make docker-vm-remove CONTAINER=nom_du_conteneur$(NC)"; \
-		echo "$(CYAN)Conteneurs disponibles:$(NC)"; \
-		docker ps -a --format '{{.Names}}' | grep -E 'dotfiles|^dotfiles' || echo "Aucun"; \
-	else \
-		docker stop "$(CONTAINER)" 2>/dev/null || true; \
-		docker rm "$(CONTAINER)" 2>/dev/null && echo "$(GREEN)✓ Conteneur $(CONTAINER) supprimé$(NC)" || echo "$(YELLOW)⚠️  Conteneur $(CONTAINER) non trouvé$(NC)"; \
-	fi
 
 docker-vm-all-clean: ## Nettoyer TOUS les conteneurs dotfiles (toutes distributions)
 	@echo "$(BLUE)🧹 Nettoyage de TOUS les conteneurs dotfiles...$(NC)"
