@@ -703,7 +703,17 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 					echo -e "$(GREEN)✓ Utilisation du conteneur existant$(NC)"; \
 					if [ "$$CONTAINER_STATUS" = "stopped" ]; then \
 						echo -e "$(BLUE)🔄 Démarrage du conteneur...$(NC)"; \
-						if ! docker start dotfiles-vm 2>/dev/null; then \
+						# Attendre un peu après le démarrage pour que le conteneur soit prêt \
+						if docker start dotfiles-vm >/dev/null 2>&1; then \
+							sleep 1; \
+							# Vérifier que le conteneur est bien démarré \
+							if ! docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$'; then \
+								echo -e "$(RED)❌ Le conteneur s'est arrêté immédiatement$(NC)"; \
+								echo -e "$(YELLOW)   Le conteneur est peut-être corrompu$(NC)"; \
+								echo -e "$(YELLOW)   Recommandation: Recréer le conteneur (option 3)$(NC)"; \
+								exit 1; \
+							fi; \
+						else \
 							echo -e "$(RED)❌ Impossible de démarrer le conteneur$(NC)"; \
 							echo -e "$(YELLOW)   Le conteneur est peut-être corrompu$(NC)"; \
 							echo -e "$(YELLOW)   Recommandation: Recréer le conteneur (option 3)$(NC)"; \
