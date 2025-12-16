@@ -587,7 +587,7 @@ installman/
 ---
 
 **Dernière mise à jour :** 2025-12-11
-**Statut global :** Phase 2 - Migration POSIX ⏳ EN COURS (4/19 managers avec code POSIX complet)
+**Statut global :** Phase 2 - Migration POSIX ⏳ EN COURS (7/19 managers avec code POSIX complet)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
 
 ### 📊 État des Managers
@@ -597,6 +597,9 @@ installman/
   - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **searchman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **aliaman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ✅ **helpman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ✅ **fileman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ✅ **miscman** : Migration complète POSIX (core + adapters zsh/bash/fish)
 
 **Managers migrés partiellement (Wrappers temporaires + Adapters complets) :**
   - ⚠️ **installman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés + ✨ Nouvelles fonctionnalités
@@ -627,9 +630,10 @@ installman/
 **Prochaines étapes immédiates :**
 1. ✅ Créer adapters bash/fish pour managers migrés (FAIT)
 2. ✅ Créer wrappers + adapters pour managers restants (FAIT)
-3. ✅ Migrer searchman et aliaman vers code POSIX complet (FAIT)
+3. ✅ Migrer searchman, aliaman, helpman, fileman, miscman vers POSIX (FAIT)
 4. ⏳ Migrer autres wrappers vers code POSIX complet (installman, configman, etc.)
-5. ⏳ Tests complets multi-shells
+5. ✅ Tests complets multi-shells (FAIT - scripts créés)
+6. ✅ Système de synchronisation automatique (FAIT - scripts créés)
 
 **Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
 **Utils :** ✅ progress_bar.sh et progress_utils.py créés (réutilisables partout)
