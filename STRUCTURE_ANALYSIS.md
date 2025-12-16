@@ -1,8 +1,114 @@
 # 📊 Analyse Complète de la Structure des Dotfiles
 
-**Date :** 2024-12-08  
+**Date :** 2024-12-11  
 **Auteur :** Analyse exhaustive  
-**Version :** 2.0 - Complète
+**Version :** 3.0 - Architecture Hybride avec Code Partagé
+
+---
+
+## 🏗️ Architecture Hybride (Choix Technique)
+
+### Vue d'ensemble
+
+Le projet utilise une **architecture hybride** avec code partagé POSIX pour maximiser la compatibilité et minimiser la duplication de code.
+
+**Principe fondamental :**
+- **Code commun POSIX** dans `core/managers/` (compatible avec tous les shells)
+- **Adapters shell-spécifiques** dans `shells/{zsh,bash,fish}/adapters/` (chargent le core)
+- **Migration progressive** : Wrappers temporaires pour managers complexes
+
+### Structure de l'Architecture Hybride
+
+```
+dotfiles/
+├── core/                              # Code commun POSIX
+│   ├── managers/                      # Managers avec code partagé
+│   │   ├── pathman/
+│   │   │   ├── core/
+│   │   │   │   └── pathman.sh         # Code POSIX commun (100% migré)
+│   │   │   └── config/
+│   │   │       └── pathman.conf       # Configuration
+│   │   ├── manman/
+│   │   │   └── core/
+│   │   │       └── manman.sh          # Code POSIX commun (100% migré)
+│   │   ├── searchman/
+│   │   │   └── core/
+│   │   │       └── searchman.sh       # Wrapper temporaire (charge ZSH)
+│   │   ├── installman/
+│   │   │   └── core/
+│   │   │       └── installman.sh       # Wrapper temporaire (charge ZSH)
+│   │   └── [autres managers...]
+│   └── utils/                         # Utilitaires partagés
+│       ├── progress_bar.sh            # Barre de progression (POSIX)
+│       └── [autres utils...]
+│
+└── shells/                            # Adapters shell-spécifiques
+    ├── zsh/
+    │   └── adapters/
+    │       ├── pathman.zsh            # Adapter ZSH (charge core)
+    │       ├── manman.zsh
+    │       ├── searchman.zsh
+    │       └── [autres adapters...]
+    ├── bash/
+    │   └── adapters/
+    │       ├── pathman.sh             # Adapter Bash (charge core)
+    │       └── manman.sh
+    └── fish/
+        └── adapters/
+            ├── pathman.fish           # Adapter Fish (charge core)
+            └── manman.fish
+```
+
+### Avantages de l'Architecture Hybride
+
+1. **Code commun POSIX** : Un seul fichier core par manager (évite duplication)
+2. **Adapters légers** : Chaque shell charge simplement le core (quelques lignes)
+3. **Maintenance simplifiée** : Modifications dans core/ propagées automatiquement
+4. **Migration progressive** : Wrappers temporaires pour managers complexes
+5. **Compatibilité maximale** : Code POSIX fonctionne partout (sh, bash, zsh, fish)
+
+### Choix Techniques
+
+- **Core en POSIX sh** : Compatible avec tous les shells (sh, bash, zsh, fish)
+- **Adapters shell-spécifiques** : Gèrent uniquement les différences de syntaxe mineures
+- **Wrappers temporaires** : Pour managers complexes qui nécessitent encore ZSH
+- **Migration progressive** : Managers simples d'abord (pathman, manman), complexes ensuite
+
+### Exemple Concret : pathman
+
+**Core POSIX** (`core/managers/pathman/core/pathman.sh`) :
+```bash
+#!/bin/sh
+# Code POSIX compatible avec tous les shells
+# Fonctions, logique métier, etc.
+```
+
+**Adapter ZSH** (`shells/zsh/adapters/pathman.zsh`) :
+```zsh
+# Charger le core
+source "$DOTFILES_DIR/core/managers/pathman/core/pathman.sh"
+
+# Aliases ZSH-spécifiques si nécessaire
+alias pathman='pathman'
+```
+
+**Adapter Bash** (`shells/bash/adapters/pathman.sh`) :
+```bash
+# Charger le core
+source "$DOTFILES_DIR/core/managers/pathman/core/pathman.sh"
+
+# Aliases Bash-spécifiques si nécessaire
+alias pathman='pathman'
+```
+
+**Adapter Fish** (`shells/fish/adapters/pathman.fish`) :
+```fish
+# Charger le core via bash (Fish peut exécuter sh)
+bash -c "source '$DOTFILES_DIR/core/managers/pathman/core/pathman.sh'"
+
+# Aliases Fish-spécifiques si nécessaire
+alias pathman='pathman'
+```
 
 ---
 

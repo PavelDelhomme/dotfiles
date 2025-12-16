@@ -580,9 +580,14 @@ installman/
 **Dernière mise à jour :** 2025-12-11
 **Statut global :** Phase 0 - Structure Hybride (13/19 managers migrés : 2 complets, 11 wrappers)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
-**Managers migrés :**
+
+### 📊 État des Managers
+
+**Managers migrés complètement (Core POSIX + Adapters) :**
   - ✅ **pathman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+
+**Managers migrés partiellement (Wrappers temporaires) :**
   - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **installman** : Wrapper temporaire (charge ZSH original) + ✨ Nouvelles fonctionnalités
@@ -594,9 +599,25 @@ installman/
   - ⚠️ **devman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **virtman** : Wrapper temporaire (charge ZSH original)
   - ⚠️ **miscman** : Wrapper temporaire (charge ZSH original)
-**Prochaines étapes :** Migration managers restants (netman, sshman, testman, testzshman, moduleman, multimediaman, cyberlearn)
+
+**Managers à migrer :**
+  - ❌ **netman** : Non migré
+  - ❌ **sshman** : Non migré
+  - ❌ **testman** : Non migré
+  - ❌ **testzshman** : Non migré
+  - ❌ **moduleman** : Non migré
+  - ❌ **multimediaman** : Non migré
+  - ❌ **cyberlearn** : Non migré
+
+**Prochaines étapes :**
+1. Continuer migration managers restants (netman, sshman, testman, etc.)
+2. Migrer progressivement les wrappers vers code POSIX complet
+3. Créer adapters bash/fish pour tous les managers
+4. Tests complets multi-shells
+
 **Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
 **Utils :** ✅ progress_bar.sh et progress_utils.py créés (réutilisables partout)
+**Docker :** ✅ Tests multi-distributions fonctionnels (Arch, Ubuntu, Debian, Gentoo, Alpine, Fedora, CentOS, openSUSE)
 
 ---
 
