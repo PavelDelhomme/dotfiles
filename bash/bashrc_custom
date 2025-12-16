@@ -58,22 +58,23 @@ load_manager() {
 }
 
 # Charger les managers (même ordre que ZSH)
-# Charger pathman depuis la nouvelle structure hybride
+# Charger depuis la nouvelle structure hybride (adapters)
 load_manager "pathman" "$DOTFILES_DIR/shells/bash/adapters/pathman.sh" "PATHMAN"
+load_manager "manman" "$DOTFILES_DIR/shells/bash/adapters/manman.sh" "MANMAN"
+load_manager "searchman" "$DOTFILES_DIR/shells/bash/adapters/searchman.sh" "SEARCHMAN"
+load_manager "aliaman" "$DOTFILES_DIR/shells/bash/adapters/aliaman.sh" "ALIAMAN"
+load_manager "installman" "$DOTFILES_DIR/shells/bash/adapters/installman.sh" "INSTALLMAN"
+load_manager "configman" "$DOTFILES_DIR/shells/bash/adapters/configman.sh" "CONFIGMAN"
+load_manager "gitman" "$DOTFILES_DIR/shells/bash/adapters/gitman.sh" "GITMAN"
+load_manager "fileman" "$DOTFILES_DIR/shells/bash/adapters/fileman.sh" "FILEMAN"
+load_manager "helpman" "$DOTFILES_DIR/shells/bash/adapters/helpman.sh" "HELPMAN"
+load_manager "cyberman" "$DOTFILES_DIR/shells/bash/adapters/cyberman.sh" "CYBERMAN"
+load_manager "devman" "$DOTFILES_DIR/shells/bash/adapters/devman.sh" "DEVMAN"
+load_manager "virtman" "$DOTFILES_DIR/shells/bash/adapters/virtman.sh" "VIRTMAN"
+load_manager "miscman" "$DOTFILES_DIR/shells/bash/adapters/miscman.sh" "MISCMAN"
+# Managers non migrés (chargent depuis functions/)
 load_manager "netman" "$DOTFILES_BASH_PATH/functions/netman.sh" "NETMAN"
-load_manager "aliaman" "$DOTFILES_BASH_PATH/functions/aliaman.sh" "ALIAMAN"
-load_manager "miscman" "$DOTFILES_BASH_PATH/functions/miscman.sh" "MISCMAN"
-load_manager "searchman" "$DOTFILES_BASH_PATH/functions/searchman.sh" "SEARCHMAN"
-load_manager "cyberman" "$DOTFILES_BASH_PATH/functions/cyberman.sh" "CYBERMAN"
-load_manager "devman" "$DOTFILES_BASH_PATH/functions/devman.sh" "DEVMAN"
-load_manager "gitman" "$DOTFILES_BASH_PATH/functions/gitman.sh" "GITMAN"
-load_manager "helpman" "$DOTFILES_BASH_PATH/functions/helpman.sh" "HELPMAN"
-load_manager "manman" "$DOTFILES_BASH_PATH/functions/manman.sh" "MANMAN"
-load_manager "configman" "$DOTFILES_BASH_PATH/functions/configman.sh" "CONFIGMAN"
-load_manager "installman" "$DOTFILES_BASH_PATH/functions/installman.sh" "INSTALLMAN"
 load_manager "moduleman" "$DOTFILES_BASH_PATH/functions/moduleman.sh" "MODULEMAN"
-load_manager "fileman" "$DOTFILES_BASH_PATH/functions/fileman.sh" "FILEMAN"
-load_manager "virtman" "$DOTFILES_BASH_PATH/functions/virtman.sh" "VIRTMAN"
 load_manager "sshman" "$DOTFILES_BASH_PATH/functions/sshman.sh" "SSHMAN"
 load_manager "testzshman" "$DOTFILES_BASH_PATH/functions/testzshman.sh" "TESTZSHMAN"
 load_manager "testman" "$DOTFILES_BASH_PATH/functions/testman.sh" "TESTMAN"
