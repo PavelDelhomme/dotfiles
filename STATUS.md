@@ -587,7 +587,7 @@ installman/
 ---
 
 **Dernière mise à jour :** 2025-12-11
-**Statut global :** Phase 1 - Adapters Complets ✅ TERMINÉE (19/19 managers avec adapters zsh/bash/fish)
+**Statut global :** Phase 2 - Migration POSIX ⏳ EN COURS (4/19 managers avec code POSIX complet)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
 
 ### 📊 État des Managers
@@ -595,10 +595,10 @@ installman/
 **Managers migrés complètement (Core POSIX + Adapters zsh/bash/fish) :**
   - ✅ **pathman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ✅ **searchman** : Migration complète POSIX (core + adapters zsh/bash/fish)
+  - ✅ **aliaman** : Migration complète POSIX (core + adapters zsh/bash/fish)
 
 **Managers migrés partiellement (Wrappers temporaires + Adapters complets) :**
-  - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
-  - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
   - ⚠️ **installman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés + ✨ Nouvelles fonctionnalités
   - ⚠️ **configman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés + ✨ Nouvelles fonctionnalités
   - ⚠️ **gitman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
@@ -627,8 +627,9 @@ installman/
 **Prochaines étapes immédiates :**
 1. ✅ Créer adapters bash/fish pour managers migrés (FAIT)
 2. ✅ Créer wrappers + adapters pour managers restants (FAIT)
-3. ⏳ Migrer wrappers vers code POSIX complet (searchman, aliaman, installman, configman, etc.)
-4. ⏳ Tests complets multi-shells
+3. ✅ Migrer searchman et aliaman vers code POSIX complet (FAIT)
+4. ⏳ Migrer autres wrappers vers code POSIX complet (installman, configman, etc.)
+5. ⏳ Tests complets multi-shells
 
 **Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
 **Utils :** ✅ progress_bar.sh et progress_utils.py créés (réutilisables partout)
