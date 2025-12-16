@@ -110,6 +110,88 @@ bash -c "source '$DOTFILES_DIR/core/managers/pathman/core/pathman.sh'"
 alias pathman='pathman'
 ```
 
+### Système de Chargement des Managers
+
+Chaque shell charge les managers via la fonction `load_manager()` qui cherche les adapters dans `shells/{shell}/adapters/`.
+
+**ZSH** (`zsh/zshrc_custom`) :
+```zsh
+# Fonction pour charger un manager
+load_manager() {
+    local manager_name="$1"
+    local manager_file="$2"
+    local display_name="$3"
+    local var_name="MODULE_${manager_name}"
+    local module_status="${(P)var_name:-enabled}"
+    
+    if [ "$module_status" = "enabled" ]; then
+        if [ -f "$manager_file" ]; then
+            source "$manager_file" >/dev/null 2>&1 || true
+        fi
+    fi
+}
+
+# Charger tous les managers depuis les adapters
+load_manager "pathman" "$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh" "PATHMAN"
+load_manager "manman" "$DOTFILES_DIR/shells/zsh/adapters/manman.zsh" "MANMAN"
+# ... autres managers
+```
+
+**Bash** (`bash/bashrc_custom`) :
+```bash
+# Fonction pour charger un manager
+load_manager() {
+    local manager_name="$1"
+    local manager_file="$2"
+    
+    if [ -f "$manager_file" ]; then
+        source "$manager_file" 2>/dev/null || true
+    fi
+}
+
+# Charger tous les managers depuis les adapters
+load_manager "pathman" "$DOTFILES_DIR/shells/bash/adapters/pathman.sh"
+load_manager "manman" "$DOTFILES_DIR/shells/bash/adapters/manman.sh"
+# ... autres managers
+```
+
+**Fish** (`fish/config_custom.fish`) :
+```fish
+# Fonction pour charger un manager
+function load_manager
+    set manager $argv[1]
+    set adapter_path "$DOTFILES_DIR/shells/fish/adapters/$manager.fish"
+    
+    if test -f "$adapter_path"
+        source "$adapter_path" 2>/dev/null
+    end
+end
+
+# Charger tous les managers depuis les adapters
+load_manager pathman
+load_manager manman
+# ... autres managers
+```
+
+### Flux de Chargement
+
+1. **Shell démarre** → Charge `zshrc_custom` / `bashrc_custom` / `config_custom.fish`
+2. **load_manager()** → Cherche l'adapter dans `shells/{shell}/adapters/{manager}.*`
+3. **Adapter** → Source le core depuis `core/managers/{manager}/core/{manager}.sh`
+4. **Core** → Fonctions disponibles dans le shell
+
+### Migration Progressive
+
+**Phase actuelle :**
+- ✅ **pathman, manman** : Core POSIX complet + adapters zsh/bash/fish
+- ⚠️ **searchman, aliaman, installman, etc.** : Wrappers temporaires (chargent ZSH original)
+- ❌ **netman, sshman, etc.** : Non migrés (chargent depuis `zsh/functions/`)
+
+**Objectif final :**
+- Tous les managers avec core POSIX complet
+- Tous les adapters créés pour zsh/bash/fish
+- Plus de wrappers temporaires
+
 ---
 
 ## 📁 Structure Complète et Exhaustive
