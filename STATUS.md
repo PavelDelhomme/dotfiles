@@ -578,46 +578,54 @@ installman/
 ---
 
 **Dernière mise à jour :** 2025-12-11
-**Statut global :** Phase 0 - Structure Hybride (13/19 managers migrés : 2 complets, 11 wrappers)
+**Statut global :** Phase 1 - Adapters Complets (13/19 managers avec adapters zsh/bash/fish)
 **Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
 
 ### 📊 État des Managers
 
-**Managers migrés complètement (Core POSIX + Adapters) :**
+**Managers migrés complètement (Core POSIX + Adapters zsh/bash/fish) :**
   - ✅ **pathman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **manman** : Migration complète POSIX (core + adapters zsh/bash/fish)
 
-**Managers migrés partiellement (Wrappers temporaires) :**
-  - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **installman** : Wrapper temporaire (charge ZSH original) + ✨ Nouvelles fonctionnalités
-  - ⚠️ **configman** : Wrapper temporaire (charge ZSH original) + ✨ Nouvelles fonctionnalités
-  - ⚠️ **gitman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **fileman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **helpman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **cyberman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **devman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **virtman** : Wrapper temporaire (charge ZSH original)
-  - ⚠️ **miscman** : Wrapper temporaire (charge ZSH original)
+**Managers migrés partiellement (Wrappers temporaires + Adapters complets) :**
+  - ⚠️ **searchman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **aliaman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **installman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés + ✨ Nouvelles fonctionnalités
+  - ⚠️ **configman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés + ✨ Nouvelles fonctionnalités
+  - ⚠️ **gitman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **fileman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **helpman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **cyberman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **devman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **virtman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
+  - ⚠️ **miscman** : Wrapper temporaire (charge ZSH original) + ✅ Adapters zsh/bash/fish créés
 
-**Managers à migrer :**
-  - ❌ **netman** : Non migré
-  - ❌ **sshman** : Non migré
-  - ❌ **testman** : Non migré
-  - ❌ **testzshman** : Non migré
-  - ❌ **moduleman** : Non migré
-  - ❌ **multimediaman** : Non migré
-  - ❌ **cyberlearn** : Non migré
+**Managers à migrer (Non migrés) :**
+  - ❌ **netman** : Non migré (charge depuis zsh/functions/)
+  - ❌ **sshman** : Non migré (charge depuis zsh/functions/)
+  - ❌ **testman** : Non migré (charge depuis zsh/functions/)
+  - ❌ **testzshman** : Non migré (charge depuis zsh/functions/)
+  - ❌ **moduleman** : Non migré (charge depuis zsh/functions/)
+  - ❌ **multimediaman** : Non migré (charge depuis zsh/functions/)
+  - ❌ **cyberlearn** : Non migré (charge depuis zsh/functions/)
 
-**Prochaines étapes :**
-1. Continuer migration managers restants (netman, sshman, testman, etc.)
-2. Migrer progressivement les wrappers vers code POSIX complet
-3. Créer adapters bash/fish pour tous les managers
-4. Tests complets multi-shells
+**Progression globale :**
+- ✅ Phase 0 : Structure Hybride (13/19 managers avec wrappers/adapters)
+- ✅ Phase 1 : Adapters Complets (13/19 managers avec adapters zsh/bash/fish)
+- ⏳ Phase 2 : Migration POSIX Complète (wrappers → code POSIX)
+- ⏳ Phase 3 : Managers Restants (netman, sshman, testman, testzshman, moduleman, multimediaman, cyberlearn)
+- ⏳ Phase 4 : Tests Complets Multi-Shells
+
+**Prochaines étapes immédiates :**
+1. ✅ Créer adapters bash/fish pour managers migrés (FAIT)
+2. ⏳ Migrer wrappers vers code POSIX complet (searchman, aliaman, etc.)
+3. ⏳ Créer wrappers + adapters pour managers restants (netman, sshman, etc.)
+4. ⏳ Tests complets multi-shells
 
 **Tests :** ✅ Tests syntaxe passés pour tous les managers migrés
 **Utils :** ✅ progress_bar.sh et progress_utils.py créés (réutilisables partout)
 **Docker :** ✅ Tests multi-distributions fonctionnels (Arch, Ubuntu, Debian, Gentoo, Alpine, Fedora, CentOS, openSUSE)
+**Chargement :** ✅ bashrc_custom et config_custom.fish mis à jour pour charger depuis adapters
 
 ---
 
