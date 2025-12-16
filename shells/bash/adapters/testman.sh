@@ -1,19 +1,19 @@
-#!/bin/zsh
+#!/bin/bash
 # =============================================================================
-# SSMAN ADAPTER - Adapter ZSH pour sshman
+# TESTMAN ADAPTER - Adapter Bash pour testman
 # =============================================================================
-# Description: Charge le core POSIX de sshman et adapte pour ZSH
+# Description: Charge le core POSIX de testman et adapte pour Bash
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSMAN_CORE="$DOTFILES_DIR/core/managers/sshman/core/sshman.sh"
+TESTMAN_CORE="$DOTFILES_DIR/core/managers/testman/core/testman.sh"
 
-if [ -f "$SSMAN_CORE" ]; then
-    source "$SSMAN_CORE"
+if [ -f "$TESTMAN_CORE" ]; then
+    source "$TESTMAN_CORE"
 else
-    echo "❌ Erreur: sshman core non trouvé: $SSMAN_CORE"
+    echo "❌ Erreur: testman core non trouvé: $TESTMAN_CORE"
     return 1
 fi
 

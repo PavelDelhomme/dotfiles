@@ -1,19 +1,19 @@
-#!/bin/zsh
 # =============================================================================
-# SSMAN ADAPTER - Adapter ZSH pour sshman
+# SSMAN ADAPTER - Adapter Fish pour sshman
 # =============================================================================
-# Description: Charge le core POSIX de sshman et adapte pour ZSH
+# Description: Charge le core POSIX de sshman et adapte pour Fish
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================
 
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSMAN_CORE="$DOTFILES_DIR/core/managers/sshman/core/sshman.sh"
+set -g DOTFILES_DIR "$HOME/dotfiles"
+set -g SSMAN_CORE "$DOTFILES_DIR/core/managers/sshman/core/sshman.sh"
 
-if [ -f "$SSMAN_CORE" ]; then
-    source "$SSMAN_CORE"
+if test -f "$SSMAN_CORE"
+    # Fish ne peut pas sourcer directement .sh, on utilise bash
+    bash -c "source '$SSMAN_CORE'"
 else
     echo "❌ Erreur: sshman core non trouvé: $SSMAN_CORE"
     return 1
-fi
+end
 

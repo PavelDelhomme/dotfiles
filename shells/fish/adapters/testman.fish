@@ -1,19 +1,19 @@
-#!/bin/zsh
 # =============================================================================
-# TESTMAN ADAPTER - Adapter ZSH pour testman
+# TESTMAN ADAPTER - Adapter Fish pour testman
 # =============================================================================
-# Description: Charge le core POSIX de testman et adapte pour ZSH
+# Description: Charge le core POSIX de testman et adapte pour Fish
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================
 
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-TESTMAN_CORE="$DOTFILES_DIR/core/managers/testman/core/testman.sh"
+set -g DOTFILES_DIR "$HOME/dotfiles"
+set -g TESTMAN_CORE "$DOTFILES_DIR/core/managers/testman/core/testman.sh"
 
-if [ -f "$TESTMAN_CORE" ]; then
-    source "$TESTMAN_CORE"
+if test -f "$TESTMAN_CORE"
+    # Fish ne peut pas sourcer directement .sh, on utilise bash
+    bash -c "source '$TESTMAN_CORE'"
 else
     echo "❌ Erreur: testman core non trouvé: $TESTMAN_CORE"
     return 1
-fi
+end
 

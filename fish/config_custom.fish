@@ -98,12 +98,14 @@ load_manager "cyberman" "$DOTFILES_DIR/shells/fish/adapters/cyberman.fish" "CYBE
 load_manager "devman" "$DOTFILES_DIR/shells/fish/adapters/devman.fish" "DEVMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/fish/adapters/virtman.fish" "VIRTMAN"
 load_manager "miscman" "$DOTFILES_DIR/shells/fish/adapters/miscman.fish" "MISCMAN"
-# Managers non migrés (chargent depuis functions/)
-load_manager "netman" "$DOTFILES_FISH_PATH/functions/netman.fish" "NETMAN"
-load_manager "moduleman" "$DOTFILES_FISH_PATH/functions/moduleman.fish" "MODULEMAN"
-load_manager "sshman" "$DOTFILES_FISH_PATH/functions/sshman.fish" "SSHMAN"
-load_manager "testzshman" "$DOTFILES_FISH_PATH/functions/testzshman.fish" "TESTZSHMAN"
-load_manager "testman" "$DOTFILES_FISH_PATH/functions/testman.fish" "TESTMAN"
+# Managers restants (wrappers temporaires)
+load_manager "netman" "$DOTFILES_DIR/shells/fish/adapters/netman.fish" "NETMAN"
+load_manager "moduleman" "$DOTFILES_DIR/shells/fish/adapters/moduleman.fish" "MODULEMAN"
+load_manager "sshman" "$DOTFILES_DIR/shells/fish/adapters/sshman.fish" "SSHMAN"
+load_manager "testzshman" "$DOTFILES_DIR/shells/fish/adapters/testzshman.fish" "TESTZSHMAN"
+load_manager "testman" "$DOTFILES_DIR/shells/fish/adapters/testman.fish" "TESTMAN"
+load_manager "multimediaman" "$DOTFILES_DIR/shells/fish/adapters/multimediaman.fish" "MULTIMEDIAMAN"
+load_manager "cyberlearn" "$DOTFILES_DIR/shells/fish/adapters/cyberlearn.fish" "CYBERLEARN"
 
 
 # =============================================================================

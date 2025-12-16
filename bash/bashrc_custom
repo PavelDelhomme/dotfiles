@@ -72,12 +72,14 @@ load_manager "cyberman" "$DOTFILES_DIR/shells/bash/adapters/cyberman.sh" "CYBERM
 load_manager "devman" "$DOTFILES_DIR/shells/bash/adapters/devman.sh" "DEVMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/bash/adapters/virtman.sh" "VIRTMAN"
 load_manager "miscman" "$DOTFILES_DIR/shells/bash/adapters/miscman.sh" "MISCMAN"
-# Managers non migrés (chargent depuis functions/)
-load_manager "netman" "$DOTFILES_BASH_PATH/functions/netman.sh" "NETMAN"
-load_manager "moduleman" "$DOTFILES_BASH_PATH/functions/moduleman.sh" "MODULEMAN"
-load_manager "sshman" "$DOTFILES_BASH_PATH/functions/sshman.sh" "SSHMAN"
-load_manager "testzshman" "$DOTFILES_BASH_PATH/functions/testzshman.sh" "TESTZSHMAN"
-load_manager "testman" "$DOTFILES_BASH_PATH/functions/testman.sh" "TESTMAN"
+# Managers restants (wrappers temporaires)
+load_manager "netman" "$DOTFILES_DIR/shells/bash/adapters/netman.sh" "NETMAN"
+load_manager "moduleman" "$DOTFILES_DIR/shells/bash/adapters/moduleman.sh" "MODULEMAN"
+load_manager "sshman" "$DOTFILES_DIR/shells/bash/adapters/sshman.sh" "SSHMAN"
+load_manager "testzshman" "$DOTFILES_DIR/shells/bash/adapters/testzshman.sh" "TESTZSHMAN"
+load_manager "testman" "$DOTFILES_DIR/shells/bash/adapters/testman.sh" "TESTMAN"
+load_manager "multimediaman" "$DOTFILES_DIR/shells/bash/adapters/multimediaman.sh" "MULTIMEDIAMAN"
+load_manager "cyberlearn" "$DOTFILES_DIR/shells/bash/adapters/cyberlearn.sh" "CYBERLEARN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)

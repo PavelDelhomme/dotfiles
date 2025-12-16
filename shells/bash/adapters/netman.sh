@@ -1,19 +1,19 @@
-#!/bin/zsh
+#!/bin/bash
 # =============================================================================
-# SSMAN ADAPTER - Adapter ZSH pour sshman
+# NETMAN ADAPTER - Adapter Bash pour netman
 # =============================================================================
-# Description: Charge le core POSIX de sshman et adapte pour ZSH
+# Description: Charge le core POSIX de netman et adapte pour Bash
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSMAN_CORE="$DOTFILES_DIR/core/managers/sshman/core/sshman.sh"
+NETMAN_CORE="$DOTFILES_DIR/core/managers/netman/core/netman.sh"
 
-if [ -f "$SSMAN_CORE" ]; then
-    source "$SSMAN_CORE"
+if [ -f "$NETMAN_CORE" ]; then
+    source "$NETMAN_CORE"
 else
-    echo "❌ Erreur: sshman core non trouvé: $SSMAN_CORE"
+    echo "❌ Erreur: netman core non trouvé: $NETMAN_CORE"
     return 1
 fi
 

@@ -1,19 +1,19 @@
 #!/bin/zsh
 # =============================================================================
-# SSMAN ADAPTER - Adapter ZSH pour sshman
+# MULTIMEDIAMAN ADAPTER - Adapter ZSH pour multimediaman
 # =============================================================================
-# Description: Charge le core POSIX de sshman et adapte pour ZSH
+# Description: Charge le core POSIX de multimediaman et adapte pour ZSH
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSMAN_CORE="$DOTFILES_DIR/core/managers/sshman/core/sshman.sh"
+MULTIMEDIAMAN_CORE="$DOTFILES_DIR/core/managers/multimediaman/core/multimediaman.sh"
 
-if [ -f "$SSMAN_CORE" ]; then
-    source "$SSMAN_CORE"
+if [ -f "$MULTIMEDIAMAN_CORE" ]; then
+    source "$MULTIMEDIAMAN_CORE"
 else
-    echo "❌ Erreur: sshman core non trouvé: $SSMAN_CORE"
+    echo "❌ Erreur: multimediaman core non trouvé: $MULTIMEDIAMAN_CORE"
     return 1
 fi
 

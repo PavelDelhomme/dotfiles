@@ -1,8 +1,8 @@
-#!/bin/zsh
+#!/bin/bash
 # =============================================================================
-# SSMAN ADAPTER - Adapter ZSH pour sshman
+# SSMAN ADAPTER - Adapter Bash pour sshman
 # =============================================================================
-# Description: Charge le core POSIX de sshman et adapte pour ZSH
+# Description: Charge le core POSIX de sshman et adapte pour Bash
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================

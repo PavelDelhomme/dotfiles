@@ -1,19 +1,19 @@
-#!/bin/zsh
+#!/bin/bash
 # =============================================================================
-# SSMAN ADAPTER - Adapter ZSH pour sshman
+# CYBERLEARN ADAPTER - Adapter Bash pour cyberlearn
 # =============================================================================
-# Description: Charge le core POSIX de sshman et adapte pour ZSH
+# Description: Charge le core POSIX de cyberlearn et adapte pour Bash
 # Author: Paul Delhomme
 # Version: 2.0
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSMAN_CORE="$DOTFILES_DIR/core/managers/sshman/core/sshman.sh"
+CYBERLEARN_CORE="$DOTFILES_DIR/core/managers/cyberlearn/core/cyberlearn.sh"
 
-if [ -f "$SSMAN_CORE" ]; then
-    source "$SSMAN_CORE"
+if [ -f "$CYBERLEARN_CORE" ]; then
+    source "$CYBERLEARN_CORE"
 else
-    echo "❌ Erreur: sshman core non trouvé: $SSMAN_CORE"
+    echo "❌ Erreur: cyberlearn core non trouvé: $CYBERLEARN_CORE"
     return 1
 fi
 
