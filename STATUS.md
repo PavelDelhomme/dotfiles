@@ -550,11 +550,14 @@ installman/
 ## 🎯 Prochaines actions immédiates
 
 1. ✅ Documentation complète (FAIT)
-2. ⏳ Créer structure de base Fish/Bash
-3. ⏳ Créer convertisseur avancé
-4. ⏳ Migrer installman comme pilote
-5. ⏳ Tester et valider l'approche
-6. ⏳ Continuer progressivement
+2. ✅ Créer structure de base Fish/Bash (FAIT)
+3. ✅ Créer adapters pour tous les managers (FAIT)
+4. ⏳ Migrer wrappers vers code POSIX complet (EN COURS)
+   - Commencer par searchman et aliaman
+   - Puis managers moyens
+   - Enfin managers complexes
+5. ⏳ Tests complets multi-shells
+6. ⏳ Système de synchronisation automatique
 
 ---
 
