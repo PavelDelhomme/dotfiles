@@ -24,7 +24,11 @@ fi
 # TODO: Migrer complètement vers POSIX
 netman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    # Essayer d'abord le chemin direct, puis le chemin avec core/
     NETMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/netman.zsh"
+    if [ ! -f "$NETMAN_ORIGINAL" ]; then
+        NETMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/netman/core/netman.zsh"
+    fi
     
     if [ -f "$NETMAN_ORIGINAL" ]; then
         # Charger le fichier ZSH original (temporaire)

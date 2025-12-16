@@ -24,7 +24,11 @@ fi
 # TODO: Migrer complètement vers POSIX
 multimediaman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    # Essayer d'abord le chemin direct, puis le chemin avec core/
     MULTIMEDIAMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/multimediaman.zsh"
+    if [ ! -f "$MULTIMEDIAMAN_ORIGINAL" ]; then
+        MULTIMEDIAMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/multimediaman/core/multimediaman.zsh"
+    fi
     
     if [ -f "$MULTIMEDIAMAN_ORIGINAL" ]; then
         # Charger le fichier ZSH original (temporaire)

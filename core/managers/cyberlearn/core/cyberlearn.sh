@@ -24,7 +24,11 @@ fi
 # TODO: Migrer complètement vers POSIX
 cyberlearn() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    # Essayer d'abord le chemin direct, puis le chemin avec core/
     CYBERLEARN_ORIGINAL="$DOTFILES_DIR/zsh/functions/cyberlearn.zsh"
+    if [ ! -f "$CYBERLEARN_ORIGINAL" ]; then
+        CYBERLEARN_ORIGINAL="$DOTFILES_DIR/zsh/functions/cyberlearn/core/cyberlearn.zsh"
+    fi
     
     if [ -f "$CYBERLEARN_ORIGINAL" ]; then
         # Charger le fichier ZSH original (temporaire)

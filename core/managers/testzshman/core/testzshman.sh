@@ -24,7 +24,11 @@ fi
 # TODO: Migrer complètement vers POSIX
 testzshman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    # Essayer d'abord le chemin direct, puis le chemin avec core/
     TESTZSHMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/testzshman.zsh"
+    if [ ! -f "$TESTZSHMAN_ORIGINAL" ]; then
+        TESTZSHMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/testzshman/core/testzshman.zsh"
+    fi
     
     if [ -f "$TESTZSHMAN_ORIGINAL" ]; then
         # Charger le fichier ZSH original (temporaire)

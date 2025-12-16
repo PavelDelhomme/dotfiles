@@ -24,7 +24,11 @@ fi
 # TODO: Migrer complètement vers POSIX
 moduleman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    # Essayer d'abord le chemin direct, puis le chemin avec core/
     MODULEMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/moduleman.zsh"
+    if [ ! -f "$MODULEMAN_ORIGINAL" ]; then
+        MODULEMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/moduleman/core/moduleman.zsh"
+    fi
     
     if [ -f "$MODULEMAN_ORIGINAL" ]; then
         # Charger le fichier ZSH original (temporaire)

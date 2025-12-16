@@ -24,7 +24,11 @@ fi
 # TODO: Migrer complètement vers POSIX
 sshman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    # Essayer d'abord le chemin direct, puis le chemin avec core/
     SSMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/sshman.zsh"
+    if [ ! -f "$SSMAN_ORIGINAL" ]; then
+        SSMAN_ORIGINAL="$DOTFILES_DIR/zsh/functions/sshman/core/sshman.zsh"
+    fi
     
     if [ -f "$SSMAN_ORIGINAL" ]; then
         # Charger le fichier ZSH original (temporaire)
