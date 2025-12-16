@@ -25,43 +25,20 @@ NC='\033[0m'
 
 printf "${BLUE}🧪 Test: $MANAGER dans $SHELL_TYPE${NC}\n"
 
-# Charger les dotfiles selon le shell
+# Vérifier si le manager existe dans le bon shell
 case "$SHELL_TYPE" in
     zsh)
-        if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
-            export DOTFILES_DIR="$DOTFILES_DIR"
-            . "$DOTFILES_DIR/zsh/zshrc_custom" >/dev/null 2>&1 || true
-        fi
-        ;;
-    bash)
-        if [ -f "$DOTFILES_DIR/bash/bashrc_custom" ]; then
-            export DOTFILES_DIR="$DOTFILES_DIR"
-            . "$DOTFILES_DIR/bash/bashrc_custom" >/dev/null 2>&1 || true
-        fi
-        ;;
-    fish)
-        # Fish nécessite une approche différente
-        if [ -f "$DOTFILES_DIR/fish/config_custom.fish" ]; then
-            export DOTFILES_DIR="$DOTFILES_DIR"
-            fish -c "source $DOTFILES_DIR/fish/config_custom.fish" >/dev/null 2>&1 || true
-        fi
-        ;;
-esac
-
-# Vérifier si le manager existe
-case "$SHELL_TYPE" in
-    zsh)
-        if command -v "$MANAGER" >/dev/null 2>&1; then
+        if zsh -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/zsh/zshrc_custom' ] && source '$DOTFILES_DIR/zsh/zshrc_custom' >/dev/null 2>&1; command -v $MANAGER" >/dev/null 2>&1; then
             printf "${GREEN}✅ $MANAGER existe dans $SHELL_TYPE${NC}\n"
             
             # Test de syntaxe
-            if type "$MANAGER" >/dev/null 2>&1; then
+            if zsh -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/zsh/zshrc_custom' ] && source '$DOTFILES_DIR/zsh/zshrc_custom' >/dev/null 2>&1; type $MANAGER" >/dev/null 2>&1; then
                 printf "${GREEN}✅ Syntaxe OK${NC}\n"
                 
                 # Test de réponse (version ou help)
-                if "$MANAGER" --version >/dev/null 2>&1 || \
-                   "$MANAGER" --help >/dev/null 2>&1 || \
-                   "$MANAGER" help >/dev/null 2>&1; then
+                if zsh -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/zsh/zshrc_custom' ] && source '$DOTFILES_DIR/zsh/zshrc_custom' >/dev/null 2>&1; $MANAGER --version" >/dev/null 2>&1 || \
+                   zsh -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/zsh/zshrc_custom' ] && source '$DOTFILES_DIR/zsh/zshrc_custom' >/dev/null 2>&1; $MANAGER --help" >/dev/null 2>&1 || \
+                   zsh -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/zsh/zshrc_custom' ] && source '$DOTFILES_DIR/zsh/zshrc_custom' >/dev/null 2>&1; $MANAGER help" >/dev/null 2>&1; then
                     printf "${GREEN}✅ $MANAGER répond correctement${NC}\n"
                     exit 0
                 else
@@ -78,17 +55,17 @@ case "$SHELL_TYPE" in
         fi
         ;;
     bash)
-        if command -v "$MANAGER" >/dev/null 2>&1; then
+        if bash -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/bash/bashrc_custom' ] && source '$DOTFILES_DIR/bash/bashrc_custom' >/dev/null 2>&1; command -v $MANAGER" >/dev/null 2>&1; then
             printf "${GREEN}✅ $MANAGER existe dans $SHELL_TYPE${NC}\n"
             
             # Test de syntaxe
-            if type "$MANAGER" >/dev/null 2>&1; then
+            if bash -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/bash/bashrc_custom' ] && source '$DOTFILES_DIR/bash/bashrc_custom' >/dev/null 2>&1; type $MANAGER" >/dev/null 2>&1; then
                 printf "${GREEN}✅ Syntaxe OK${NC}\n"
                 
                 # Test de réponse
-                if "$MANAGER" --version >/dev/null 2>&1 || \
-                   "$MANAGER" --help >/dev/null 2>&1 || \
-                   "$MANAGER" help >/dev/null 2>&1; then
+                if bash -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/bash/bashrc_custom' ] && source '$DOTFILES_DIR/bash/bashrc_custom' >/dev/null 2>&1; $MANAGER --version" >/dev/null 2>&1 || \
+                   bash -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/bash/bashrc_custom' ] && source '$DOTFILES_DIR/bash/bashrc_custom' >/dev/null 2>&1; $MANAGER --help" >/dev/null 2>&1 || \
+                   bash -c "export DOTFILES_DIR='$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/bash/bashrc_custom' ] && source '$DOTFILES_DIR/bash/bashrc_custom' >/dev/null 2>&1; $MANAGER help" >/dev/null 2>&1; then
                     printf "${GREEN}✅ $MANAGER répond correctement${NC}\n"
                     exit 0
                 else
@@ -106,13 +83,13 @@ case "$SHELL_TYPE" in
         ;;
     fish)
         # Fish nécessite une approche différente
-        if fish -c "type $MANAGER" >/dev/null 2>&1; then
+        if fish -c "set -gx DOTFILES_DIR '$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/fish/config_custom.fish' ]; and source '$DOTFILES_DIR/fish/config_custom.fish' >/dev/null 2>&1; type $MANAGER" >/dev/null 2>&1; then
             printf "${GREEN}✅ $MANAGER existe dans $SHELL_TYPE${NC}\n"
             
             # Test de réponse
-            if fish -c "$MANAGER --version" >/dev/null 2>&1 || \
-               fish -c "$MANAGER --help" >/dev/null 2>&1 || \
-               fish -c "$MANAGER help" >/dev/null 2>&1; then
+            if fish -c "set -gx DOTFILES_DIR '$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/fish/config_custom.fish' ]; and source '$DOTFILES_DIR/fish/config_custom.fish' >/dev/null 2>&1; $MANAGER --version" >/dev/null 2>&1 || \
+               fish -c "set -gx DOTFILES_DIR '$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/fish/config_custom.fish' ]; and source '$DOTFILES_DIR/fish/config_custom.fish' >/dev/null 2>&1; $MANAGER --help" >/dev/null 2>&1 || \
+               fish -c "set -gx DOTFILES_DIR '$DOTFILES_DIR'; [ -f '$DOTFILES_DIR/fish/config_custom.fish' ]; and source '$DOTFILES_DIR/fish/config_custom.fish' >/dev/null 2>&1; $MANAGER help" >/dev/null 2>&1; then
                 printf "${GREEN}✅ $MANAGER répond correctement${NC}\n"
                 exit 0
             else
@@ -129,4 +106,3 @@ case "$SHELL_TYPE" in
         exit 1
         ;;
 esac
-

@@ -7,7 +7,7 @@
 # Version: 1.0
 # =============================================================================
 
-set -euo pipefail
+set -uo pipefail  # -e désactivé pour permettre la continuation même en cas d'erreur
 
 # Couleurs
 RED='\033[0;31m'
@@ -55,13 +55,21 @@ test_manager_in_shell() {
     fi
     
     # Lancer le test
+    local shell_cmd
+    case "$shell_type" in
+        zsh) shell_cmd="/bin/zsh" ;;
+        bash) shell_cmd="/bin/bash" ;;
+        fish) shell_cmd="/usr/bin/fish" ;;
+        *) shell_cmd="/bin/sh" ;;
+    esac
+    
     if docker run --rm \
         --name "$container_name" \
         -v "$DOTFILES_DIR:/root/dotfiles:ro" \
         -e DOTFILES_DIR=/root/dotfiles \
         dotfiles-test:latest \
-        "$shell_type" \
-        -c "cd /root/dotfiles && $SCRIPT_DIR/docker/manager_tester.sh $manager $shell_type" \
+        "$shell_cmd" \
+        -c "cd /root/dotfiles && bash scripts/test/docker/test_manager_multi_shell.sh $manager $shell_type" \
         2>&1 | tee "/tmp/test_${shell_type}_${manager}.log"
     then
         printf "${GREEN}✅ $manager ($shell_type): OK${NC}\n"
@@ -130,8 +138,8 @@ main() {
     printf "${YELLOW}🔨 Vérification de l'image Docker...${NC}\n"
     if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^dotfiles-test:latest$"; then
         printf "${YELLOW}⚠️  Image Docker non trouvée, construction...${NC}\n"
-        cd "$DOCKER_DIR"
-        docker build -f Dockerfile.test -t dotfiles-test:latest . || {
+        cd "$DOTFILES_DIR"
+        DOCKER_BUILDKIT=0 docker build -f "$DOCKER_DIR/Dockerfile.test" -t dotfiles-test:latest . || {
             printf "${RED}❌ Erreur lors de la construction de l'image${NC}\n"
             return 1
         }

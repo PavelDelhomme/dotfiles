@@ -80,8 +80,7 @@ cyberman() {
         echo "║                  CYBERMAN - Cyber Security Manager             ║"
         echo "║                  Gestionnaire Sécurité Cyber ZSH              ║"
         echo "╚════════════════════════════════════════════════════════════════╝"
-        printf "${RESET}
-"    }
+        printf "${RESET} "    }
     
     # =========================================================================
     # CATÉGORIE 1: RECONNAISSANCE & INFORMATION GATHERING
@@ -92,8 +91,7 @@ cyberman() {
     show_recon_menu() {
         while true; do
             show_header
-            printf "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET}
-"            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+            printf "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET} "            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "            echo "1.  WHOIS domain              - Informations domaine"
             echo "2.  DNS Lookup                - Requêtes DNS"
             echo "3.  DNSEnum scan              - Énumération DNS"
@@ -106,8 +104,8 @@ cyberman() {
             echo "10. Get robots.txt            - Récupération robots.txt"
             echo "0.  Retour au menu principal"
             echo ""
-            printf "Choix: 
-"            read choice
+            printf "Choix: "
+        read choice
             # Nettoyer le choix
             choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
             case "$choice" in
@@ -200,8 +198,7 @@ cyberman() {
     # EXAMPLE: show_scan_menu
     show_scan_menu() {
         show_header
-        printf "${YELLOW}🔎 SCANNING & ENUMERATION${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🔎 SCANNING & ENUMERATION${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Port scan                 - Scan de ports"
         echo "2.  Scan ports                - Alternative scan ports"
         echo "3.  Web port scan             - Scan ports web"
@@ -218,8 +215,8 @@ cyberman() {
         echo "14. Scan toutes les cibles    - Scan complet sur toutes les cibles"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         # Nettoyer le choix
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
@@ -317,8 +314,7 @@ cyberman() {
     # EXAMPLE: show_vuln_menu
     show_vuln_menu() {
         show_header
-        printf "${YELLOW}🛡️ VULNERABILITY ASSESSMENT & SESSION${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🛡️ VULNERABILITY ASSESSMENT & SESSION${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Nmap vuln scan            - Scan vulnérabilités Nmap"
         echo "2.  Vuln scan                 - Scan vulnérabilités général"
         echo "3.  Scan vulns                - Alternative scan vulnérabilités"
@@ -330,8 +326,8 @@ cyberman() {
         echo "9.  Scan vuln toutes cibles   - Scan vulnérabilités sur toutes les cibles"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         # Nettoyer le choix
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
@@ -410,8 +406,7 @@ cyberman() {
     # EXAMPLE: show_attack_menu
     show_attack_menu() {
         show_header
-        printf "${YELLOW}⚔️ NETWORK ATTACKS & EXPLOITATION${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}⚔️ NETWORK ATTACKS & EXPLOITATION${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  ARP Spoof                 - Attaque ARP spoofing"
         echo "2.  Brute SSH                 - Brute force SSH"
         echo "3.  Password crack            - Cracking de mots de passe"
@@ -419,8 +414,8 @@ cyberman() {
         echo "5.  Web traceroute            - Traceroute web"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         # Nettoyer le choix
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
@@ -442,14 +437,13 @@ cyberman() {
     # EXAMPLE: show_analysis_menu
     show_analysis_menu() {
         show_header
-        printf "${YELLOW}📡 NETWORK ANALYSIS & MONITORING${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}📡 NETWORK ANALYSIS & MONITORING${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Sniff traffic             - Capture trafic réseau"
         echo "2.  Wifi scan                 - Scan réseaux Wi-Fi"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         # Nettoyer le choix
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
@@ -516,8 +510,7 @@ cyberman() {
     # EXAMPLE: show_target_menu
     show_target_menu() {
         show_header
-        printf "${YELLOW}🎯 GESTION DES CIBLES${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🎯 GESTION DES CIBLES${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 
 "
         if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
@@ -535,15 +528,15 @@ cyberman() {
         echo "5.  Afficher les cibles"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         # Nettoyer le choix
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1)
                 echo ""
-                printf "🎯 Entrez la cible (IP, domaine ou URL): 
-"                read target
+                printf "🎯 Entrez la cible (IP, domaine ou URL): "
+        read target
                 if [ -n "$target" ]; then
                     add_target "$target"
                     echo ""
@@ -554,8 +547,8 @@ cyberman() {
                 echo ""
                 echo "🎯 Entrez les cibles - séparées par des espaces: "
                 echo "Exemple: 192.168.1.1 192.168.1.2 example.com"
-                printf "Cibles: 
-"                read targets
+                printf "Cibles: "
+        read targets
                 if [ -n "$targets" ]; then
                     add_target $targets
                     echo ""
@@ -567,8 +560,8 @@ cyberman() {
                     echo ""
                     show_targets
                     echo ""
-                    printf "🎯 Entrez l'index ou le nom de la cible à supprimer: 
-"                    read target
+                    printf "🎯 Entrez l'index ou le nom de la cible à supprimer: "
+        read target
                     if [ -n "$target" ]; then
                         remove_target "$target"
                         echo ""
@@ -582,8 +575,8 @@ cyberman() {
             4)
                 if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
                     echo ""
-                    printf "⚠️  Êtes-vous sûr de vouloir supprimer toutes les cibles? (o/N): 
-"                    read confirm
+                    printf "⚠️  Êtes-vous sûr de vouloir supprimer toutes les cibles? (o/N): "
+        read confirm
                     if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
                         clear_targets
                         echo ""
@@ -650,28 +643,26 @@ cyberman() {
         fi
         
         if [ -n "$current_env" ]; then
-            printf "   ${GREEN}🌍 Environnement actif: ${BOLD}${current_env}${RESET}
-
-"
+            printf "   ${GREEN}🌍 Environnement actif: ${BOLD}%s${RESET}\n" "${current_env}"
             # Afficher les statistiques de l'environnement actif
             env_file="${HOME}/.cyberman/environments/${current_env}.json"
             if [ -f "$env_file" ] && command -v jq >/dev/null 2>&1; then
-                notes_count=$- jq '.notes | length' "$env_file" 2>/dev/null || echo "0"
-                history_count=$- jq '.history | length' "$env_file" 2>/dev/null || echo "0"
-                results_count=$- jq '.results | length' "$env_file" 2>/dev/null || echo "0"
-                todos_count=$- jq '.todos | length' "$env_file" 2>/dev/null || echo "0"
-                todos_pending=$- jq '[.todos[]? | select(.status == "pending"] | length' "$env_file" 2>/dev/null || echo "0")
+                notes_count=$(jq '.notes | length' "$env_file" 2>/dev/null || echo "0")
+                history_count=$(jq '.history | length' "$env_file" 2>/dev/null || echo "0")
+                results_count=$(jq '.results | length' "$env_file" 2>/dev/null || echo "0")
+                todos_count=$(jq '.todos | length' "$env_file" 2>/dev/null || echo "0")
+                todos_pending=$(jq '[.todos[]? | select(.status == "pending")] | length' "$env_file" 2>/dev/null || echo "0")
                 todos_info=$(printf "%s (%s en attente)" "${todos_count}" "${todos_pending}")
                 printf "      ${CYAN}📌 Notes: %s | 📜 Actions: %s | 📊 Résultats: %s | ✅ TODOs: %s${RESET}\n" "${notes_count}" "${history_count}" "${results_count}" "${todos_info}"
             fi
         elif [ -n "$matching_env" ]; then
             printf "   ${YELLOW}🌍 Aucun environnement actif${RESET}\n"
             env_info="'(correspond aux cibles actives)'"
-            printf "   ${CYAN}💡 Environnement détecté: ${BOLD}%s${RESET} %s
-" "${matching_env}" "${env_info}"
-            printf "   ${CYAN}💡 Chargez-le via: ${BOLD}Option 1 > Environnements > Charger${RESET}\n"        else
-            printf "   ${YELLOW}🌍 Aucun environnement actif${RESET}
-"        fi
+            printf "   ${CYAN}💡 Environnement détecté: ${BOLD}%s${RESET} %s\n" "${matching_env}" "${env_info}"
+            printf "   ${CYAN}💡 Chargez-le via: ${BOLD}Option 1 > Environnements > Charger${RESET}\n"
+        else
+            printf "   ${YELLOW}🌍 Aucun environnement actif${RESET}\n"
+        fi
         
         # Afficher les cibles configurées
         # S'assurer que les cibles sont chargées
@@ -683,22 +674,22 @@ cyberman() {
         
         # Vérifier si has_targets existe et l'utiliser
         if type has_targets >/dev/null 2>&1 && has_targets 2>/dev/null; then
-            printf "   ${GREEN}🎯 Cibles actives: $- echo "$CYBER_TARGETS" | wc -w${RESET}"
+            printf "   ${GREEN}🎯 Cibles actives: $(echo "$CYBER_TARGETS" | wc -w)${RESET}\n"
             i=1
             for target in $CYBER_TARGETS; do
-                printf "      ${GREEN}$i.${RESET} $target
-"                i=$((i + 1))
+                printf "      ${GREEN}$i.${RESET} $target\n"
+                i=$((i + 1))
             done
-        elif [ -n "${CYBER_TARGETS+x}" ] && [ $- echo "$CYBER_TARGETS" | wc -w -gt 0 ]; then
-            printf "   ${GREEN}🎯 Cibles actives: $- echo "$CYBER_TARGETS" | wc -w${RESET}"
+        elif [ -n "${CYBER_TARGETS+x}" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
+            printf "   ${GREEN}🎯 Cibles actives: $(echo "$CYBER_TARGETS" | wc -w)${RESET}\n"
             i=1
             for target in $CYBER_TARGETS; do
-                printf "      ${GREEN}$i.${RESET} $target
-"                i=$((i + 1))
+                printf "      ${GREEN}$i.${RESET} $target\n"
+                i=$((i + 1))
             done
         else
-            printf "   ${YELLOW}🎯 Aucune cible configurée${RESET}
-"        fi
+            printf "   ${YELLOW}🎯 Aucune cible configurée${RESET}\n"
+        fi
         echo ""
         
         printf "${CYAN}${BOLD}Menu principal${RESET}\n
@@ -781,8 +772,7 @@ EOF
     # EXAMPLE: show_anonymity_menu
     show_anonymity_menu() {
         show_header
-        printf "${YELLOW}🔒 GESTION DE L'ANONYMAT${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🔒 GESTION DE L'ANONYMAT${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 
 "
         echo "1.  Vérifier l'anonymat"
@@ -793,8 +783,8 @@ EOF
         echo "6.  Exécuter un workflow avec anonymat"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1)
@@ -817,8 +807,8 @@ EOF
                 if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
                     . "$CYBER_DIR/anonymity_manager.sh"
                     echo ""
-                    printf "🔒 Commande à exécuter avec anonymat: 
-"                    read cmd
+                    printf "🔒 Commande à exécuter avec anonymat: "
+        read cmd
                     if [ -n "$cmd" ]; then
                         run_with_anonymity $cmd
                         echo ""
@@ -830,8 +820,8 @@ EOF
                 if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
                     . "$CYBER_DIR/anonymity_manager.sh"
                     echo ""
-                    printf "🔧 IP à usurper: 
-"                    read fake_ip
+                    printf "🔧 IP à usurper: "
+        read fake_ip
                     if [ -n "$fake_ip" ]; then
                         setup_ip_spoofing "$fake_ip"
                         echo ""
@@ -843,8 +833,8 @@ EOF
                 if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
                     . "$CYBER_DIR/anonymity_manager.sh"
                     echo ""
-                    printf "🔧 IP usurpée à supprimer: 
-"                    read fake_ip
+                    printf "🔧 IP usurpée à supprimer: "
+        read fake_ip
                     if [ -n "$fake_ip" ]; then
                         remove_ip_spoofing "$fake_ip"
                         echo ""
@@ -859,8 +849,8 @@ EOF
                     echo ""
                     list_workflows
                     echo ""
-                    printf "📝 Nom du workflow: 
-"                    read workflow_name
+                    printf "📝 Nom du workflow: "
+        read workflow_name
                     if [ -n "$workflow_name" ]; then
                         run_workflow_anonymized "$workflow_name"
                         echo ""
@@ -881,8 +871,7 @@ EOF
     # EXAMPLE: show_utilities_menu
     show_utilities_menu() {
         show_header
-        printf "${YELLOW}🛠️  UTILITAIRES${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🛠️  UTILITAIRES${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 
 "
         echo "1.  🔐 Calculer un hash - MD5, SHA1, SHA256, etc."
@@ -893,8 +882,8 @@ EOF
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         
         case "$choice" in
@@ -928,11 +917,11 @@ EOF
                 ;;
             3)
                 echo ""
-                printf "🔍 Rechercher: 
-"                read search_term
+                printf "🔍 Rechercher: "
+        read search_term
                 if [ -n "$search_term" ]; then
-                    printf "📁 Dans le répertoire (ou . pour courant): 
-"                    read search_dir
+                    printf "📁 Dans le répertoire (ou . pour courant): "
+        read search_dir
                     search_dir="${search_dir:-.}"
                     if [ -d "$search_dir" ]; then
                         echo ""
@@ -946,8 +935,8 @@ EOF
                 ;;
             4)
                 echo ""
-                printf "Longueur du mot de passe (défaut: 16): 
-"                read length
+                printf "Longueur du mot de passe (défaut: 16): "
+        read length
                 length="${length:-16}"
                 if command -v openssl &>/dev/null; then
                     echo "Mot de passe généré:"
@@ -962,8 +951,8 @@ EOF
                 ;;
             5)
                 echo ""
-                printf "Valeur à convertir: 
-"                read value
+                printf "Valeur à convertir: "
+        read value
                 if [ -n "$value" ]; then
                     echo ""
                     echo "Conversions:"
@@ -998,8 +987,7 @@ EOF
     # EXAMPLE: show_learning_menu
     show_learning_menu() {
         show_header
-        printf "${YELLOW}🎓 APPRENTISSAGE & LABS${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🎓 APPRENTISSAGE & LABS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 
 "
         # Charger cyberlearn si disponible
@@ -1018,8 +1006,8 @@ EOF
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         
         case "$choice" in
@@ -1101,8 +1089,8 @@ EOF
         echo ""
         echo "0.  Retour"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         
         case "$choice" in
             1) start_lab_docker "web-basics" ;;
@@ -1171,8 +1159,7 @@ EOF
             9) challenge="Web: Identifiez les vulnérabilités OWASP Top 10 sur un site" ;;
         esac
         
-        printf "${GREEN}Challenge:${RESET} $challenge
-"        printf "${BLUE}Date:${RESET} $today
+        printf "${GREEN}Challenge:${RESET} $challenge "        printf "${BLUE}Date:${RESET} $today
 "        echo ""
         echo "💡 Complétez ce challenge pour gagner des points !"
         echo ""
@@ -1222,8 +1209,8 @@ EOF
         echo ""
         echo "0.  Retour"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         
         case "$choice" in
             1) show_labs_menu_direct ;;
@@ -1232,8 +1219,8 @@ EOF
                 echo "Labs actifs:"
                 docker ps --format '{{.Names}}' | grep '^cyberlearn-' | sed 's/^cyberlearn-//' | nl || echo "  Aucun lab actif"
                 echo ""
-                printf "Nom du lab à arrêter: 
-"                read lab_name
+                printf "Nom du lab à arrêter: "
+        read lab_name
                 if [ -n "$lab_name" ]; then
                     docker stop "cyberlearn-$lab_name" 2>/dev/null && docker rm "cyberlearn-$lab_name" 2>/dev/null
                     echo "✅ Lab arrêté"
@@ -1313,8 +1300,7 @@ EOF
     # EXAMPLE: show_assistant_menu
     show_assistant_menu() {
         show_header
-        printf "${YELLOW}🚀 ASSISTANT DE TEST COMPLET${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🚀 ASSISTANT DE TEST COMPLET${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 
 "
         echo "L'assistant vous guidera à travers:"
@@ -1325,8 +1311,8 @@ EOF
         echo "  • Exécution des tests"
         echo "  • Consultation des rapports"
         echo ""
-        printf "Lancer l'assistant? (O/n): 
-"        read confirm
+        printf "Lancer l'assistant? (O/n): "
+        read confirm
         if [ "$confirm" != "n" ] && [ "$confirm" != "N" ]; then
             if [ -f "$CYBER_DIR/assistant.sh" ]; then
                 . "$CYBER_DIR/assistant.sh"
@@ -1346,8 +1332,7 @@ EOF
     # EXAMPLE: show_web_menu
     show_web_menu() {
         show_header
-        printf "${YELLOW}🌐 WEB SECURITY & TESTING${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🌐 WEB SECURITY & TESTING${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "🔍 SCANNERS DE VULNÉRABILITÉS:"
         echo "1.  Nuclei Scanner             - Scanner complet de vulnérabilités"
         echo "2.  XSS Scanner                 - XSStrike, Dalfox, Nuclei XSS"
@@ -1373,8 +1358,8 @@ EOF
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         
         # Charger les modules de sécurité
@@ -1441,8 +1426,7 @@ EOF
     # EXAMPLE: show_iot_menu
     show_iot_menu() {
         show_header
-        printf "${YELLOW}📱 IoT DEVICES & EMBEDDED SYSTEMS${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}📱 IoT DEVICES & EMBEDDED SYSTEMS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  IoT device scan           - Scan appareils IoT"
         echo "2.  MQTT scan                 - Scan serveurs MQTT"
         echo "3.  CoAP scan                 - Scan CoAP"
@@ -1455,8 +1439,8 @@ EOF
         echo "10. BACnet scan               - Scan BACnet"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1) echo "⚠️  Fonction IoT device scan à implémenter" ; sleep 2 ;;
@@ -1482,15 +1466,14 @@ EOF
     # EXAMPLE: show_network_tools_menu
     show_network_tools_menu() {
         show_header
-        printf "${YELLOW}📡 NETWORK TOOLS${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}📡 NETWORK TOOLS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  📊 Network Analysis & Monitoring"
         echo "2.  ⚔️  Network Attacks & Exploitation"
         echo "3.  🔌 Network Devices & Infrastructure"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1) show_analysis_menu ;;
@@ -1509,15 +1492,14 @@ EOF
     # EXAMPLE: show_advanced_tools_menu
     show_advanced_tools_menu() {
         show_header
-        printf "${YELLOW}🔧 ADVANCED TOOLS${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🔧 ADVANCED TOOLS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  🎯 Metasploit Framework"
         echo "2.  📜 Custom Nmap Scripts"
         echo "3.  🔨 Custom Exploitation Scripts"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1) show_metasploit_menu ;;
@@ -1532,8 +1514,7 @@ EOF
     # USAGE: show_metasploit_menu
     show_metasploit_menu() {
         show_header
-        printf "${YELLOW}🎯 METASPLOIT FRAMEWORK${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🎯 METASPLOIT FRAMEWORK${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Lancer msfconsole"
         echo "2.  Rechercher un exploit"
         echo "3.  Rechercher un payload"
@@ -1542,8 +1523,8 @@ EOF
         echo "6.  Générer un payload"
         echo "0.  Retour"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1)
@@ -1556,24 +1537,24 @@ EOF
                 fi
                 ;;
             2)
-                printf "🔍 Rechercher un exploit: 
-"                read search_term
+                printf "🔍 Rechercher un exploit: "
+        read search_term
                 if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "search exploit $search_term; exit"
                 fi
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             3)
-                printf "🔍 Rechercher un payload: 
-"                read search_term
+                printf "🔍 Rechercher un payload: "
+        read search_term
                 if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "search payload $search_term; exit"
                 fi
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             4)
-                printf "🔍 Rechercher un auxiliary: 
-"                read search_term
+                printf "🔍 Rechercher un auxiliary: "
+        read search_term
                 if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "search auxiliary $search_term; exit"
                 fi
@@ -1603,8 +1584,7 @@ EOF
     # USAGE: show_custom_nmap_menu
     show_custom_nmap_menu() {
         show_header
-        printf "${YELLOW}📜 CUSTOM NMAP SCRIPTS${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}📜 CUSTOM NMAP SCRIPTS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Lister les scripts nmap disponibles"
         echo "2.  Exécuter un script nmap personnalisé"
         echo "3.  Créer un script nmap personnalisé"
@@ -1612,8 +1592,8 @@ EOF
         echo "5.  Scan avec scripts exploit"
         echo "0.  Retour"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1)
@@ -1623,8 +1603,8 @@ EOF
                         echo "📜 Scripts nmap disponibles:"
                         ls -1 "$scripts_dir"/*.nse 2>/dev/null | wc -l | xargs echo "   Total:"
                         echo ""
-                        printf "Afficher la liste complète? (o/N): 
-"                        read show_all
+                        printf "Afficher la liste complète? (o/N): "
+        read show_all
                         if [ "$show_all" = "o" ] || [ "$show_all" = "O" ]; then
                             ls -1 "$scripts_dir"/*.nse 2>/dev/null | head -50
                         fi
@@ -1638,8 +1618,8 @@ EOF
                 ;;
             2)
                 if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
-                    printf "📜 Nom du script (sans .nse): 
-"                    read script_name
+                    printf "📜 Nom du script (sans .nse): "
+        read script_name
                     if [ -n "$script_name" ]; then
                         for target in $CYBER_TARGETS; do
                             echo "🎯 Scan avec script $script_name sur $target"
@@ -1687,15 +1667,14 @@ EOF
     # USAGE: show_custom_exploit_menu
     show_custom_exploit_menu() {
         show_header
-        printf "${YELLOW}🔨 CUSTOM EXPLOITATION SCRIPTS${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🔨 CUSTOM EXPLOITATION SCRIPTS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Lister les scripts personnalisés"
         echo "2.  Exécuter un script personnalisé"
         echo "3.  Créer un nouveau script"
         echo "0.  Retour"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1)
@@ -1715,8 +1694,8 @@ EOF
                     echo "📜 Scripts disponibles:"
                     ls -1 "$scripts_dir"/*.sh 2>/dev/null | nl
                     echo ""
-                    printf "📝 Nom du script: 
-"                    read script_name
+                    printf "📝 Nom du script: "
+        read script_name
                     if [ -n "$script_name" ] && [ -f "$scripts_dir/$script_name" ]; then
                         bash "$scripts_dir/$script_name"
                     else
@@ -1745,8 +1724,7 @@ EOF
     # EXAMPLE: show_network_devices_menu
     show_network_devices_menu() {
         show_header
-        printf "${YELLOW}🔌 NETWORK DEVICES & INFRASTRUCTURE${RESET}
-"        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
+        printf "${YELLOW}🔌 NETWORK DEVICES & INFRASTRUCTURE${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 "        echo "1.  Router scan               - Scan routeurs"
         echo "2.  Switch scan               - Scan switches"
         echo "3.  Firewall scan             - Scan pare-feu"
@@ -1761,8 +1739,8 @@ EOF
         echo "12. BGP scan                  - Scan BGP"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
             1) echo "⚠️  Fonction Router scan à implémenter" ; sleep 2 ;;
@@ -1799,7 +1777,7 @@ EOF
     if [ "$1" == "network" ]; then show_network_devices_menu; return; fi
     if [ "$1" == "learn" ] || [ "$1" == "learning" ]; then show_learning_menu; return; fi
     if [ "$1" == "help" ]; then show_help; return; fi
-    if [ "$1" == "load_infos" && -n "$2" ]; then
+    if [ "$1" == "load_infos" ] && [ -n "$2" ]; then
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
             . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
             load_infos "$2"
@@ -1810,8 +1788,8 @@ EOF
     # Menu interactif principal
     while true; do
         show_main_menu
-        printf "Choix: 
-"        read choice
+        printf "Choix: "
+        read choice
         # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
         choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
         case "$choice" in
@@ -1871,8 +1849,7 @@ EOF
                     . "$HOME/dotfiles/zsh/functions/cyberman/modules/osint/osint_manager.sh"
                     show_osint_menu
                 else
-                    printf "${RED}❌ Module OSINT non disponible${RESET}
-"                    sleep 2
+                    printf "${RED}❌ Module OSINT non disponible${RESET} "                    sleep 2
                 fi
                 ;;
             11) show_assistant_menu ;;
@@ -1934,8 +1911,8 @@ EOF
                     current_env=$- command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo ""
                     if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
                         . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
-                        printf "⚠️  Voulez-vous désactiver l'environnement '$current_env'? (o/N): 
-"                        read confirm
+                        printf "⚠️  Voulez-vous désactiver l'environnement '$current_env'? (o/N): "
+        read confirm
                         if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
                             deactivate_environment
                             # Forcer la mise à jour immédiate - IMPORTANT: faire ça AVANT de recharger
@@ -1960,13 +1937,14 @@ EOF
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
     done
-    printf "${GREEN}Au revoir !${RESET}
-\n"
+    printf "${GREEN}Au revoir !${RESET}\n"
 }
 
 # Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
 # echo "🛡️ CYBERMAN chargé - Tapez 'cyberman' ou 'cm' pour démarrer"
 
-# Alias
-alias cm='cyberman'
+# Alias (défini dans une fonction pour compatibilité POSIX)
+if [ -n "$ZSH_VERSION" ] || [ -n "$BASH_VERSION" ]; then
+    alias cm='cyberman' 2>/dev/null || true
+fi
 
