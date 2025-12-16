@@ -1761,7 +1761,7 @@ EOF
     }
     
     # Gestion des arguments rapides
-    if [ "$1" == "recon" ]; then show_recon_menu; return; fi
+    if [ "$1" = "recon" ]; then show_recon_menu; return; fi
     if [ "$1" = "scan" ]; then show_scan_menu; return; fi
     if [ "$1" = "vuln" ]; then show_vuln_menu; return; fi
     if [ "$1" = "attack" ]; then show_attack_menu; return; fi

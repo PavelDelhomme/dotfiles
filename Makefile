@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -1057,6 +1057,24 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 ################################################################################
 # TESTS MULTI-SHELLS - Tests complets dans tous les shells
 ################################################################################
+
+test-sync: ## Tester le système de synchronisation automatique
+	@echo -e "$(BLUE)🧪 Tests de synchronisation...$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/scripts/test/test_sync.sh" ]; then \
+		bash "$(DOTFILES_DIR)/scripts/test/test_sync.sh"; \
+	else \
+		echo -e "$(RED)❌ Script test_sync.sh non trouvé$(NC)"; \
+		exit 1; \
+	fi
+
+test-all-complete: ## Lancer tous les tests complets (syntaxe, managers, multi-shells, sync)
+	@echo -e "$(BLUE)🧪 Tests complets de tous les systèmes...$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/scripts/test/test_all_complete.sh" ]; then \
+		bash "$(DOTFILES_DIR)/scripts/test/test_all_complete.sh"; \
+	else \
+		echo -e "$(RED)❌ Script test_all_complete.sh non trouvé$(NC)"; \
+		exit 1; \
+	fi
 
 test-multi-shells: ## Tester tous les managers dans ZSH, Bash et Fish
 	@echo -e "$(BLUE)🧪 Tests multi-shells de tous les managers...$(NC)"
