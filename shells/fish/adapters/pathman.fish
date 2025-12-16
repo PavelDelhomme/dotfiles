@@ -1,22 +1,23 @@
 # =============================================================================
-# PATHMAN ADAPTER - Wrapper Fish pour pathman
+# PATHMAN ADAPTER - Adapter Fish pour pathman
 # =============================================================================
-# Description: Adapter Fish pour charger pathman depuis core/
-# Author: Auto-generated
-# Version: 1.0
+# Description: Charge le core POSIX de pathman et adapte pour Fish
+# Author: Paul Delhomme
+# Version: 2.0
 # =============================================================================
 
-# Note: Fish ne peut pas sourcer directement .sh, on utilise l'ancienne version
-# pour l'instant jusqu'à ce qu'on crée une version Fish du code commun
-# ou un wrapper qui convertit les fonctions
+set -g DOTFILES_DIR "$HOME/dotfiles"
+set -g PATHMAN_CORE "$DOTFILES_DIR/core/managers/pathman/core/pathman.sh"
 
-# Pour l'instant, on garde l'ancienne version Fish
-if test -f "$HOME/dotfiles/fish/functions/pathman/core/pathman.fish"
-    source "$HOME/dotfiles/fish/functions/pathman/core/pathman.fish"
+if test -f "$PATHMAN_CORE"
+    # Fish ne peut pas sourcer directement .sh, on utilise bash
+    bash -c "source '$PATHMAN_CORE'"
 else
-    echo "❌ Erreur: pathman Fish non trouvé"
+    echo "❌ Erreur: pathman core non trouvé: $PATHMAN_CORE"
     return 1
 end
 
-# TODO: Créer une version Fish du code commun ou un wrapper de conversion
+# Alias
+alias pm='pathman'
+alias path-manager='pathman'
 
