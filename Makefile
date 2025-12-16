@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells convert-manager
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -1051,5 +1051,44 @@ docker-test-bootstrap: ## Tester l'installation bootstrap dans un conteneur prop
 			/bin/bash -c "curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash"; \
 	else \
 		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; \
+		exit 1; \
+	fi
+
+################################################################################
+# TESTS MULTI-SHELLS - Tests complets dans tous les shells
+################################################################################
+
+test-multi-shells: ## Tester tous les managers dans ZSH, Bash et Fish
+	@echo -e "$(BLUE)🧪 Tests multi-shells de tous les managers...$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/scripts/test/test_multi_shells.sh" ]; then \
+		bash "$(DOTFILES_DIR)/scripts/test/test_multi_shells.sh"; \
+	else \
+		echo -e "$(RED)❌ Script test_multi_shells.sh non trouvé$(NC)"; \
+		exit 1; \
+	fi
+
+################################################################################
+# SYNCHRONISATION AUTOMATIQUE - Conversion et synchronisation des managers
+################################################################################
+
+sync-managers: ## Synchroniser tous les managers (ZSH → POSIX → Bash/Fish)
+	@echo -e "$(BLUE)🔄 Synchronisation de tous les managers...$(NC)"
+	@if [ -f "$(DOTFILES_DIR)/scripts/tools/sync_managers.sh" ]; then \
+		bash "$(DOTFILES_DIR)/scripts/tools/sync_managers.sh" --all; \
+	else \
+		echo -e "$(RED)❌ Script sync_managers.sh non trouvé$(NC)"; \
+		exit 1; \
+	fi
+
+sync-manager: ## Synchroniser un manager spécifique (usage: make sync-manager MANAGER=pathman)
+	@echo -e "$(BLUE)🔄 Synchronisation du manager $(CYAN)$(MANAGER)$(NC)..."
+	@if [ -z "$(MANAGER)" ]; then \
+		echo -e "$(RED)❌ Spécifiez un manager: make sync-manager MANAGER=pathman$(NC)"; \
+		exit 1; \
+	fi
+	@if [ -f "$(DOTFILES_DIR)/scripts/tools/sync_managers.sh" ]; then \
+		bash "$(DOTFILES_DIR)/scripts/tools/sync_managers.sh" --manager "$(MANAGER)"; \
+	else \
+		echo -e "$(RED)❌ Script sync_managers.sh non trouvé$(NC)"; \
 		exit 1; \
 	fi
