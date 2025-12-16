@@ -107,7 +107,7 @@ cyberman() {
             printf "Choix: "
         read choice
             # Nettoyer le choix
-            choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
             case "$choice" in
                 1) 
                     . "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois
@@ -165,7 +165,7 @@ cyberman() {
                     printf "Appuyez sur une touche pour continuer..."; read dummy
                     ;;
                 12)
-                    if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                    if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                         echo "🔄 Reconnaissance sur toutes les cibles..."
                         for target in $CYBER_TARGETS; do
                             echo ""
@@ -218,7 +218,7 @@ cyberman() {
         printf "Choix: "
         read choice
         # Nettoyer le choix
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) 
                 . "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan
@@ -286,7 +286,7 @@ cyberman() {
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             14)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     echo "🔄 Scan complet sur toutes les cibles..."
                     for target in $CYBER_TARGETS; do
                         echo ""
@@ -329,7 +329,7 @@ cyberman() {
         printf "Choix: "
         read choice
         # Nettoyer le choix
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) 
                 . "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan
@@ -372,7 +372,7 @@ cyberman() {
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             9)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     echo "🔄 Scan de vulnérabilités sur toutes les cibles..."
                     for target in $CYBER_TARGETS; do
                         echo ""
@@ -417,7 +417,7 @@ cyberman() {
         printf "Choix: "
         read choice
         # Nettoyer le choix
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) . "$CYBER_DIR/attacks/arp_spoof.sh" && ensure_tool arpspoof && arp_spoof ;;
             2) . "$CYBER_DIR/attacks/brute_ssh.sh" && ensure_tool hydra && brute_ssh ;;
@@ -445,7 +445,7 @@ cyberman() {
         printf "Choix: "
         read choice
         # Nettoyer le choix
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) . "$CYBER_DIR/analysis/sniff_traffic.sh" && ensure_tool tcpdump && sniff_traffic ;;
             2) . "$CYBER_DIR/analysis/wifi_scan.sh" && wifi_scan ;;
@@ -513,7 +513,7 @@ cyberman() {
         printf "${YELLOW}🎯 GESTION DES CIBLES${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
 
 "
-        if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+        if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
             show_targets
             echo ""
         else
@@ -531,7 +531,7 @@ cyberman() {
         printf "Choix: "
         read choice
         # Nettoyer le choix
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 echo ""
@@ -556,7 +556,7 @@ cyberman() {
                 fi
                 ;;
             3)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     echo ""
                     show_targets
                     echo ""
@@ -573,7 +573,7 @@ cyberman() {
                 fi
                 ;;
             4)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     echo ""
                     printf "⚠️  Êtes-vous sûr de vouloir supprimer toutes les cibles? (o/N): "
         read confirm
@@ -589,7 +589,7 @@ cyberman() {
                 ;;
             5)
                 echo ""
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     show_targets
                 else
                     echo "⚠️  Aucune cible configurée"
@@ -626,13 +626,13 @@ cyberman() {
             # Charger seulement si la variable n'est pas définie (première fois)
             . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
             if [ -f "$CYBER_DIR/environment_manager.sh" ] && command -v has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
-                current_env=$- command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo ""
+                current_env=$(command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo "")
             fi
         fi
         
         # Détecter si un environnement correspond aux cibles actives
         matching_env=""
-        if [ -z "$current_env" ] && [ -n "${CYBER_TARGETS+x}" ] && [ $- echo "$CYBER_TARGETS" | wc -w -gt 0 ]; then
+        if [ -z "$current_env" ] && [ -n "${CYBER_TARGETS+x}" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
             # Charger environment_manager pour utiliser find_environment_by_targets
             if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
                 . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
@@ -708,7 +708,7 @@ cyberman() {
         
         # Afficher les options rapides si un environnement est actif
         if [ -f "$CYBER_DIR/environment_manager.sh" ] && command -v has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
-            current_env=$- command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo ""
+            current_env=$(command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo "")
             echo ""
             printf "${GREEN}📝 Environnement actif: $current_env${RESET}
 "            echo "13. 📝 Notes & Informations de l'environnement actif"
@@ -785,7 +785,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 if [ -f "$CYBER_DIR/anonymity_manager.sh" ]; then
@@ -884,7 +884,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         
         case "$choice" in
             1)
@@ -960,13 +960,13 @@ EOF
                     if [ "$value" =~ ^0x[0-9A-Fa-f]+$ ] || [ "$value" =~ ^[0-9A-Fa-f]+$ ]; then
                         hex_val="${value#0x}"
                         echo "  Hex: $hex_val"
-                        echo "  Decimal: $- (16#$hex_val)"
-                        echo "  Binary: $- echo "obase=2; ibase=16; $hex_val" | bc 2>/dev/null || echo "N/A""
+                        echo "  Decimal: $((16#$hex_val))"
+                        echo "  Binary: $(echo "obase=2; ibase=16; $hex_val" | bc 2>/dev/null || echo "N/A")"
                     # Decimal to hex
                     elif [ "$value" =~ ^[0-9]+$ ]; then
                         echo "  Decimal: $value"
-                        echo "  Hex: $- printf "%x" $value"
-                        echo "  Binary: $- echo "obase=2; $value" | bc 2>/dev/null || echo "N/A""
+                        echo "  Hex: $(printf "%x" "$value")"
+                        echo "  Binary: $(echo "obase=2; $value" | bc 2>/dev/null || echo "N/A")"
                     else
                         echo "  Format non reconnu. Utilisez hex - 0x... ou ... ou decimal"
                     fi
@@ -1008,7 +1008,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         
         case "$choice" in
             1)
@@ -1360,7 +1360,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         
         # Charger les modules de sécurité
         CYBERMAN_DIR="$HOME/dotfiles/zsh/functions/cyberman"
@@ -1441,7 +1441,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) echo "⚠️  Fonction IoT device scan à implémenter" ; sleep 2 ;;
             2) echo "⚠️  Fonction MQTT scan à implémenter" ; sleep 2 ;;
@@ -1474,7 +1474,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) show_analysis_menu ;;
             2) show_attack_menu ;;
@@ -1500,7 +1500,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) show_metasploit_menu ;;
             2) show_custom_nmap_menu ;;
@@ -1525,7 +1525,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 if command -v msfconsole >/dev/null 2>&1; then
@@ -1594,7 +1594,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 if command -v nmap >/dev/null 2>&1; then
@@ -1617,7 +1617,7 @@ EOF
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             2)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     printf "📜 Nom du script (sans .nse): "
         read script_name
                     if [ -n "$script_name" ]; then
@@ -1637,7 +1637,7 @@ EOF
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             4)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     for target in $CYBER_TARGETS; do
                         echo "🎯 Scan vuln sur $target"
                         nmap --script vuln "$target"
@@ -1648,7 +1648,7 @@ EOF
                 printf "Appuyez sur une touche pour continuer..."; read dummy
                 ;;
             5)
-                if [ -n "$CYBER_TARGETS" ] && [ "$- echo "$CYBER_TARGETS" | wc -w" -gt 0 ]; then
+                if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
                     for target in $CYBER_TARGETS; do
                         echo "🎯 Scan exploit sur $target"
                         nmap --script exploit "$target"
@@ -1675,7 +1675,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 scripts_dir="$HOME/.cyberman/scripts"
@@ -1741,7 +1741,7 @@ EOF
         echo ""
         printf "Choix: "
         read choice
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) echo "⚠️  Fonction Router scan à implémenter" ; sleep 2 ;;
             2) echo "⚠️  Fonction Switch scan à implémenter" ; sleep 2 ;;
@@ -1762,22 +1762,22 @@ EOF
     
     # Gestion des arguments rapides
     if [ "$1" == "recon" ]; then show_recon_menu; return; fi
-    if [ "$1" == "scan" ]; then show_scan_menu; return; fi
-    if [ "$1" == "vuln" ]; then show_vuln_menu; return; fi
-    if [ "$1" == "attack" ]; then show_attack_menu; return; fi
-    if [ "$1" == "analysis" ]; then show_analysis_menu; return; fi
-    if [ "$1" == "privacy" ]; then show_privacy_menu; return; fi
-    if [ "$1" == "env" ]; then show_environment_menu; return; fi
-    if [ "$1" == "workflow" ]; then show_workflow_menu; return; fi
-    if [ "$1" == "report" ]; then show_report_menu; return; fi
-    if [ "$1" == "anon" ]; then show_anonymity_menu; return; fi
-    if [ "$1" == "assistant" ]; then show_assistant_menu; return; fi
-    if [ "$1" == "web" ]; then show_web_menu; return; fi
-    if [ "$1" == "iot" ]; then show_iot_menu; return; fi
-    if [ "$1" == "network" ]; then show_network_devices_menu; return; fi
-    if [ "$1" == "learn" ] || [ "$1" == "learning" ]; then show_learning_menu; return; fi
-    if [ "$1" == "help" ]; then show_help; return; fi
-    if [ "$1" == "load_infos" ] && [ -n "$2" ]; then
+    if [ "$1" = "scan" ]; then show_scan_menu; return; fi
+    if [ "$1" = "vuln" ]; then show_vuln_menu; return; fi
+    if [ "$1" = "attack" ]; then show_attack_menu; return; fi
+    if [ "$1" = "analysis" ]; then show_analysis_menu; return; fi
+    if [ "$1" = "privacy" ]; then show_privacy_menu; return; fi
+    if [ "$1" = "env" ]; then show_environment_menu; return; fi
+    if [ "$1" = "workflow" ]; then show_workflow_menu; return; fi
+    if [ "$1" = "report" ]; then show_report_menu; return; fi
+    if [ "$1" = "anon" ]; then show_anonymity_menu; return; fi
+    if [ "$1" = "assistant" ]; then show_assistant_menu; return; fi
+    if [ "$1" = "web" ]; then show_web_menu; return; fi
+    if [ "$1" = "iot" ]; then show_iot_menu; return; fi
+    if [ "$1" = "network" ]; then show_network_devices_menu; return; fi
+    if [ "$1" = "learn" ] || [ "$1" = "learning" ]; then show_learning_menu; return; fi
+    if [ "$1" = "help" ]; then show_help; return; fi
+    if [ "$1" = "load_infos" ] && [ -n "$2" ]; then
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
             . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
             load_infos "$2"
@@ -1791,7 +1791,7 @@ EOF
         printf "Choix: "
         read choice
         # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
-        choice=$- echo "$choice" | tr -d '[:space:]' | head -c 2
+        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
                 # Menu de gestion et configuration
@@ -1856,7 +1856,7 @@ EOF
             13)
                 # Accès rapide aux notes de l'environnement actif
                 if [ -f "$CYBER_DIR/environment_manager.sh" ] && command -v has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
-                    current_env=$- command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo ""
+                    current_env=$(command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo "")
                     if [ -f "$CYBER_DIR/management_menu.sh" ]; then
                         . "$CYBER_DIR/management_menu.sh"
                         show_environment_info_menu
@@ -1908,7 +1908,7 @@ EOF
             16)
                 # Désactiver l'environnement actif
                 if [ -f "$CYBER_DIR/environment_manager.sh" ] && command -v has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
-                    current_env=$- command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo ""
+                    current_env=$(command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo "")
                     if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
                         . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
                         printf "⚠️  Voulez-vous désactiver l'environnement '$current_env'? (o/N): "

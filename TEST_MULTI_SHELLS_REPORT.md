@@ -1,6 +1,6 @@
 # 📊 Rapport de Tests Multi-Shells
 
-**Date:** mar. 16 déc. 2025 18:12:36 CET
+**Date:** mar. 16 déc. 2025 18:44:32 CET
 **Dotfiles:** /home/pactivisme/dotfiles
 
 ## Résultats par Shell
@@ -44,7 +44,7 @@
 | installman | ✅ OK | [Voir](/tmp/test_bash_installman.log) |
 | configman | ✅ OK | [Voir](/tmp/test_bash_configman.log) |
 | gitman | ✅ OK | [Voir](/tmp/test_bash_gitman.log) |
-| cyberman | ❌ ÉCHEC | [Voir](/tmp/test_bash_cyberman.log) |
+| cyberman | ✅ OK | [Voir](/tmp/test_bash_cyberman.log) |
 | devman | ✅ OK | [Voir](/tmp/test_bash_devman.log) |
 | virtman | ✅ OK | [Voir](/tmp/test_bash_virtman.log) |
 | netman | ✅ OK | [Voir](/tmp/test_bash_netman.log) |
@@ -83,6 +83,6 @@
 ## Résumé Global
 
 - **Total:** 60 tests
-- **Réussis:** 59
-- **Échoués:** 1
-- **Taux de réussite:** 98%
+- **Réussis:** 60
+- **Échoués:** 0
+- **Taux de réussite:** 100%
