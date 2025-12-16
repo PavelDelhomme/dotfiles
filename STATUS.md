@@ -132,7 +132,13 @@ dotfiles/
 - [x] Mettre à jour `zshrc_custom` pour charger depuis adapters
 
 **Durée estimée :** 2-3 jours
-**Progression :** 100% (13 managers migrés : pathman ✅, manman ✅, searchman ⚠️, aliaman ⚠️, installman ⚠️, configman ⚠️, gitman ⚠️, fileman ⚠️, helpman ⚠️, cyberman ⚠️, devman ⚠️, virtman ⚠️, miscman ⚠️)
+**Progression :** 100% ✅ TERMINÉE
+**État :** ✅ TERMINÉE - Tous les 19 managers ont des wrappers dans core/ et des adapters zsh/bash/fish complets
+
+**Managers migrés :**
+- ✅ pathman, manman (core POSIX complet)
+- ⚠️ searchman, aliaman, installman, configman, gitman, fileman, helpman, cyberman, devman, virtman, miscman (wrappers temporaires + adapters complets)
+- ⚠️ netman, sshman, testman, testzshman, moduleman, multimediaman, cyberlearn (wrappers temporaires + adapters complets)
 
 ---
 
