@@ -50,11 +50,33 @@ if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^${IMAGE_NAME}
     INTEGRITY_ISSUES=1
 fi
 
-# Vérifier l'architecture
-CONTAINER_ARCH=$(docker inspect --format='{{.Architecture}}' "$CONTAINER_NAME" 2>/dev/null)
+# Vérifier l'architecture (normaliser x86_64=amd64, arm64=aarch64)
+CONTAINER_ARCH=$(docker inspect --format='{{.Architecture}}' "$CONTAINER_NAME" 2>/dev/null || echo "")
 HOST_ARCH=$(uname -m)
-if [ "$CONTAINER_ARCH" != "$HOST_ARCH" ]; then
-    echo -e "${YELLOW}⚠️  Architecture différente: conteneur=$CONTAINER_ARCH, hôte=$HOST_ARCH${NC}"
+
+# Normaliser les architectures
+case "$HOST_ARCH" in
+    x86_64) NORMALIZED_HOST_ARCH="amd64" ;;
+    arm64) NORMALIZED_HOST_ARCH="aarch64" ;;
+    *) NORMALIZED_HOST_ARCH="$HOST_ARCH" ;;
+esac
+
+if [ -n "$CONTAINER_ARCH" ]; then
+    case "$CONTAINER_ARCH" in
+        x86_64) NORMALIZED_CONTAINER_ARCH="amd64" ;;
+        arm64) NORMALIZED_CONTAINER_ARCH="aarch64" ;;
+        *) NORMALIZED_CONTAINER_ARCH="$CONTAINER_ARCH" ;;
+    esac
+    
+    # Vérifier seulement si les architectures normalisées sont différentes
+    if [ "$NORMALIZED_CONTAINER_ARCH" != "$NORMALIZED_HOST_ARCH" ]; then
+        echo -e "${YELLOW}⚠️  Architecture différente: conteneur=$CONTAINER_ARCH, hôte=$HOST_ARCH${NC}"
+        INTEGRITY_ISSUES=1
+    else
+        echo -e "${GREEN}✅ Architecture compatible: $CONTAINER_ARCH${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  Architecture du conteneur non détectable${NC}"
     INTEGRITY_ISSUES=1
 fi
 

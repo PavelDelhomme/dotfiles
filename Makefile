@@ -656,13 +656,28 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			CONTAINER_STATUS=$$(docker ps --format '{{.Names}}' | grep -q '^dotfiles-vm$$' && echo "running" || echo "stopped"); \
 			echo -e "$(CYAN)📦 Conteneur dotfiles-vm existant détecté ($$CONTAINER_STATUS)$(NC)"; \
 			IMAGE_NAME=$$(docker inspect --format='{{.Config.Image}}' dotfiles-vm 2>/dev/null || echo "unknown"); \
-			CONTAINER_ARCH=$$(docker inspect --format='{{.Architecture}}' dotfiles-vm 2>/dev/null || echo "unknown"); \
+			CONTAINER_ARCH=$$(docker inspect --format='{{.Architecture}}' dotfiles-vm 2>/dev/null || echo ""); \
 			HOST_ARCH=$$(uname -m); \
+			# Normaliser les architectures (x86_64 = amd64, arm64 = aarch64) \
+			case "$$HOST_ARCH" in \
+				x86_64) NORMALIZED_HOST_ARCH="amd64" ;; \
+				arm64) NORMALIZED_HOST_ARCH="aarch64" ;; \
+				*) NORMALIZED_HOST_ARCH="$$HOST_ARCH" ;; \
+			esac; \
+			case "$$CONTAINER_ARCH" in \
+				x86_64) NORMALIZED_CONTAINER_ARCH="amd64" ;; \
+				arm64) NORMALIZED_CONTAINER_ARCH="aarch64" ;; \
+				"") NORMALIZED_CONTAINER_ARCH="" ;; \
+				*) NORMALIZED_CONTAINER_ARCH="$$CONTAINER_ARCH" ;; \
+			esac; \
 			echo -e "$(BLUE)   Image: $$IMAGE_NAME$(NC)"; \
-			echo -e "$(BLUE)   Architecture: $$CONTAINER_ARCH (hôte: $$HOST_ARCH)$(NC)"; \
+			if [ -n "$$CONTAINER_ARCH" ]; then \
+				echo -e "$(BLUE)   Architecture: $$CONTAINER_ARCH (hôte: $$HOST_ARCH)$(NC)"; \
+			fi; \
 			INTEGRITY_CHECK=0; \
-			if [ "$$CONTAINER_ARCH" != "$$HOST_ARCH" ] && [ "$$CONTAINER_ARCH" != "unknown" ]; then \
-				echo -e "$(YELLOW)⚠️  Architecture différente détectée$(NC)"; \
+			# Vérifier l'architecture seulement si elle est définie et différente \
+			if [ -n "$$NORMALIZED_CONTAINER_ARCH" ] && [ "$$NORMALIZED_CONTAINER_ARCH" != "$$NORMALIZED_HOST_ARCH" ]; then \
+				echo -e "$(YELLOW)⚠️  Architecture différente détectée (conteneur: $$CONTAINER_ARCH, hôte: $$HOST_ARCH)$(NC)"; \
 				INTEGRITY_CHECK=1; \
 			fi; \
 			if ! docker images --format '{{.Repository}}:{{.Tag}}' | grep -q "^$$IMAGE_NAME$$"; then \
@@ -802,17 +817,29 @@ docker-vm: ## Lancer conteneur de test dotfiles-vm (interactif, avec gestion con
 			echo -e "$(YELLOW)   Reconstruction de l'image...$(NC)"; \
 			DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
 		fi; \
-		# Vérifier l'architecture de l'image \
-		IMAGE_ARCH=$$(docker inspect --format='{{.Architecture}}' $$IMAGE_NAME:latest 2>/dev/null || echo "unknown"); \
+		# Vérifier l'architecture de l'image et normaliser \
+		IMAGE_ARCH=$$(docker inspect --format='{{.Architecture}}' $$IMAGE_NAME:latest 2>/dev/null || echo ""); \
 		HOST_ARCH=$$(uname -m); \
-		if [ "$$IMAGE_ARCH" != "$$HOST_ARCH" ] && [ "$$IMAGE_ARCH" != "unknown" ]; then \
-			echo -e "$(YELLOW)⚠️  Architecture différente: image=$$IMAGE_ARCH, hôte=$$HOST_ARCH$(NC)"; \
-			echo -e "$(YELLOW)   Le conteneur peut ne pas fonctionner correctement$(NC)"; \
-			read -p "Continuer quand même? (o/N): " continue_arch; \
-			case "$$continue_arch" in \
-				[oO]) ;; \
-				*) echo -e "$(YELLOW)Annulé$(NC)"; exit 0 ;; \
+		# Normaliser les architectures (x86_64 = amd64, arm64 = aarch64) \
+		case "$$HOST_ARCH" in \
+			x86_64) NORMALIZED_HOST_ARCH="amd64" ;; \
+			arm64) NORMALIZED_HOST_ARCH="aarch64" ;; \
+			*) NORMALIZED_HOST_ARCH="$$HOST_ARCH" ;; \
+		esac; \
+		if [ -n "$$IMAGE_ARCH" ]; then \
+			case "$$IMAGE_ARCH" in \
+				x86_64) NORMALIZED_IMAGE_ARCH="amd64" ;; \
+				arm64) NORMALIZED_IMAGE_ARCH="aarch64" ;; \
+				*) NORMALIZED_IMAGE_ARCH="$$IMAGE_ARCH" ;; \
 			esac; \
+			# Vérifier seulement si les architectures normalisées sont différentes \
+			if [ "$$NORMALIZED_IMAGE_ARCH" != "$$NORMALIZED_HOST_ARCH" ]; then \
+				echo -e "$(YELLOW)⚠️  Architecture différente: image=$$IMAGE_ARCH, hôte=$$HOST_ARCH$(NC)"; \
+				echo -e "$(YELLOW)   Le conteneur peut ne pas fonctionner correctement$(NC)"; \
+				echo -e "$(YELLOW)   Reconstruction automatique de l'image pour votre architecture...$(NC)"; \
+				DOCKER_BUILDKIT=0 docker build -f $$DOCKERFILE -t $$IMAGE_NAME:latest . || exit 1; \
+				echo -e "$(GREEN)✓ Image reconstruite pour votre architecture$(NC)"; \
+			fi; \
 		fi; \
 		docker run -it $$RM_FLAG \
 			--name dotfiles-vm \
