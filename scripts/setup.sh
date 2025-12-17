@@ -227,23 +227,24 @@ show_menu() {
     echo "2.  Configuration remote Git (SSH/HTTPS)"
     echo ""
     echo "3.  Installation paquets de base (btop, curl, wget, etc.)"
-    echo "4.  Installation Powerlevel10k (thème Zsh avec support Git)"
-    echo "5.  Installation gestionnaires (yay, snap, flatpak)"
+    echo "4.  Installation complète Zsh (Oh My Zsh + Powerlevel10k + plugins + Nerd Fonts)"
+    echo "5.  Installation Powerlevel10k uniquement (thème Zsh avec support Git)"
+    echo "6.  Installation gestionnaires (yay, snap, flatpak)"
     echo ""
-    echo "6.  Installation QEMU/KVM (paquets)"
-    echo "7.  Configuration réseau QEMU"
-    echo "8.  Configuration libvirt (permissions)"
+    echo "7.  Installation QEMU/KVM (paquets)"
+    echo "8.  Configuration réseau QEMU"
+    echo "9.  Configuration libvirt (permissions)"
     echo ""
-    echo "8.  Installation Cursor"
-    echo "9.  Installation PortProton"
+    echo "10. Installation Cursor"
+    echo "11. Installation PortProton"
     echo ""
-    echo "10. Installation complète système (tout SAUF Git)"
+    echo "12. Installation complète système (tout SAUF Git)"
     echo "11. Configuration complète QEMU (tout)"
     echo ""
-    echo "12. Configuration auto-sync Git (systemd timer)"
-    echo "13. Activer/Désactiver auto-sync Git"
-    echo "14. Tester synchronisation manuellement"
-    echo "15. Afficher statut auto-sync"
+    echo "13. Configuration auto-sync Git (systemd timer)"
+    echo "14. Activer/Désactiver auto-sync Git"
+    echo "15. Tester synchronisation manuellement"
+    echo "16. Afficher statut auto-sync"
     echo ""
     echo "16. Installation Docker & Docker Compose"
     echo "17. Installation Docker Desktop (optionnel)"
@@ -373,12 +374,18 @@ while true; do
             ;;
         3)
             run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
-            echo ""
-            printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
-            read -r install_p10k
-            install_p10k=${install_p10k:-o}
-            if [[ "$install_p10k" =~ ^[oO]$ ]]; then
-                run_script "$SCRIPT_DIR/install/system/install_powerlevel10k.sh" "Powerlevel10k"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        4)
+            # Installation complète Zsh (Oh My Zsh + Powerlevel10k + plugins + Nerd Fonts)
+            if [ -f "$DOTFILES_DIR/install_zsh_complete.sh" ]; then
+                run_script "$DOTFILES_DIR/install_zsh_complete.sh" "Installation complète Zsh"
+            else
+                log_error "Script install_zsh_complete.sh non trouvé"
             fi
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -387,6 +394,15 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         5)
+            # Installation Powerlevel10k uniquement
+            run_script "$SCRIPT_DIR/config/setup_p10k.sh" "Powerlevel10k"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        6)
             run_script "$SCRIPT_DIR/install/system/package_managers.sh" "Gestionnaires de paquets"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -402,7 +418,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        7)
+        8)
             run_script "$SCRIPT_DIR/config/qemu_network.sh" "Configuration réseau QEMU"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -410,7 +426,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        8)
+        9)
             run_script "$SCRIPT_DIR/config/qemu_libvirt.sh" "Configuration libvirt"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -418,7 +434,7 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        9)
+        10)
             run_script "$SCRIPT_DIR/install/apps/install_cursor.sh" "Installation Cursor"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
@@ -426,15 +442,15 @@ while true; do
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        10)
-            run_script "$SCRIPT_DIR/install/apps/install_portproton.sh" "Installation PortProton"
+        11)
+            run_script "$SCRIPT_DIR/install/apps/install_portproton_native.sh" "Installation PortProton"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
             fi
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
-        10)
+        12)
             log_section "Installation complète système (sans Git)"
             log_info "Cette option installe tous les composants SAUF la configuration Git"
             echo ""
