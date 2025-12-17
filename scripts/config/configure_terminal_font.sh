@@ -29,6 +29,7 @@ elif [ -n "$XDG_CURRENT_DESKTOP" ]; then
         *alacritty*) TERMINAL="alacritty" ;;
         *konsole*) TERMINAL="konsole" ;;
         *gnome-terminal*) TERMINAL="gnome-terminal" ;;
+        *kgx*) TERMINAL="gnome-console" ;;
         *xterm*) TERMINAL="xterm" ;;
         *st*) TERMINAL="st" ;;
         *urxvt*) TERMINAL="urxvt" ;;
@@ -121,9 +122,22 @@ EOF
         echo "  5. Cliquez sur OK"
         ;;
         
-    gnome-terminal|tilix)
+    gnome-terminal|gnome-console|tilix)
         log_section "Configuration pour $TERMINAL"
-        log_info "Pour configurer $TERMINAL:"
+        if [ "$TERMINAL" = "gnome-console" ]; then
+            # GNOME Console utilise dconf
+            log_info "Configuration via dconf pour GNOME Console..."
+            if command -v dconf >/dev/null 2>&1; then
+                dconf write /org/gnome/Console/font "'MesloLGS NF 12'" 2>/dev/null && {
+                    log_info "✓ Police configurée via dconf"
+                } || {
+                    log_warn "⚠️  Impossible de configurer via dconf, configuration manuelle requise"
+                }
+            else
+                log_warn "⚠️  dconf non trouvé, configuration manuelle requise"
+            fi
+        fi
+        log_info "Pour configurer manuellement $TERMINAL:"
         echo "  1. Ouvrez les préférences du terminal"
         echo "  2. Allez dans l'onglet 'Apparence' ou 'Polices'"
         echo "  3. Sélectionnez 'MesloLGS NF' dans la liste des polices"
