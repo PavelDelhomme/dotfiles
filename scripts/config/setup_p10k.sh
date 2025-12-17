@@ -18,7 +18,14 @@ source "$SCRIPT_DIR/lib/common.sh" || {
 log_section "Installation et configuration de Powerlevel10k"
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+# Chercher .p10k.zsh à la racine de dotfiles
 P10K_DOTFILES="$DOTFILES_DIR/.p10k.zsh"
+if [ ! -f "$P10K_DOTFILES" ]; then
+    # Essayer aussi dans le répertoire courant si on est dans dotfiles
+    if [ -f "$HOME/dotfiles/.p10k.zsh" ]; then
+        P10K_DOTFILES="$HOME/dotfiles/.p10k.zsh"
+    fi
+fi
 P10K_HOME="$HOME/.p10k.zsh"
 
 # Vérifier si Powerlevel10k est déjà installé
