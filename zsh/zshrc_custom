@@ -328,11 +328,14 @@ if [[ ! $+functions[gitstatus_start] ]] && [[ -f /usr/share/zsh-theme-powerlevel
     source /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh 2>/dev/null || true
 fi
 
-# Étape 1: Charger P10k DIRECTEMENT (sans prompt Manjaro pour éviter les conflits)
-# Le prompt Manjaro charge /usr/share/zsh/p10k.zsh qui a VCS_DISABLED_WORKDIR_PATTERN='~'
-# et VCS_DISABLE_GITSTATUS_FORMATTING=true, ce qui empêche gitstatus de fonctionner
-# SOLUTION: Charger P10k directement pour avoir le contrôle total
-if [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]]; then
+# Étape 1: Charger P10k via Oh My Zsh (si Oh My Zsh est configuré)
+# Si Oh My Zsh est chargé, le thème powerlevel10k/powerlevel10k sera déjà chargé
+# Sinon, charger P10k directement
+if [[ -n "$ZSH" ]] && [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
+    # Oh My Zsh est chargé, le thème sera chargé automatiquement
+    # Pas besoin de charger P10k manuellement
+    :
+elif [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]]; then
     # Powerlevel10k système (Arch/Manjaro) - chargement direct
     source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 elif [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
@@ -340,7 +343,7 @@ elif [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
     # Mais on chargera notre config après pour écraser
     source /usr/share/zsh/manjaro-zsh-prompt
 elif [[ -f "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
-    # Powerlevel10k Oh-My-Zsh
+    # Powerlevel10k Oh-My-Zsh (fallback si Oh My Zsh n'est pas chargé)
     source "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme"
 fi
 
