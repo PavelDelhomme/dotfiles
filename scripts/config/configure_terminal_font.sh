@@ -54,6 +54,11 @@ if ! fc-list | grep -qi "meslo.*nerd"; then
     }
 fi
 
+# Normaliser le nom du terminal
+if echo "$TERMINAL" | grep -qi "kgx"; then
+    TERMINAL="gnome-console"
+fi
+
 log_info "Terminal détecté: ${TERMINAL:-inconnu}"
 
 ################################################################################
