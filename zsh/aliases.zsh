@@ -82,8 +82,8 @@ alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb/weedlyweb 
 
 
 # PortProton (version native)
-alias portproton='bash /home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh'
-alias pp='bash /home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh'
+alias portproton='bash $HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh'
+alias pp='bash $HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh'
 
 # PortProton helper functions (version native)
 portproton-install-game() {
