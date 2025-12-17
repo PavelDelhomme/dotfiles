@@ -65,7 +65,6 @@ alias gca="git commit -a -m"
 # Alias ghs pour ghostscript (la commande système gs)
 # L'alias gs="git status" ci-dessus a la priorité sur la commande système
 alias ghs="command gs"
-alias cd_jobbingtrack="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrackProject/JobbingTrack"
 alias cd_flutter_cooking_recipe="cd /home/pactivisme/Documents/Dev/Perso/cookingRecipes/flutter_cooking_recipe"
 alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions"
 alias cd_auto_apply="cd /home/pactivisme/Documents/Dev/Perso/auto_apply/auto_apply/"
@@ -96,3 +95,6 @@ portproton-run() {
     fi
     bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" "$1"
 }
+alias cd_resa_youyou="cd /home/pactivisme/Documents/Dev/Perso/resa_youyou"
+alias cd_dotfiles="cd /home/pactivisme/dotfiles"
+alias cd_jobbingtrack="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrack"
