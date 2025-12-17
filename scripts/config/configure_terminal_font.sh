@@ -21,20 +21,27 @@ log_section "Configuration de la police Nerd Font dans le terminal"
 TERMINAL=""
 if [ -n "$TERM_PROGRAM" ]; then
     TERMINAL="$TERM_PROGRAM"
-elif [ -n "$XDG_CURRENT_DESKTOP" ]; then
-    # Détecter via le processus parent
-    PARENT_CMD=$(ps -o comm= -p $(ps -o ppid= -p $$) 2>/dev/null || echo "")
-    case "$PARENT_CMD" in
-        *kitty*) TERMINAL="kitty" ;;
-        *alacritty*) TERMINAL="alacritty" ;;
-        *konsole*) TERMINAL="konsole" ;;
-        *gnome-terminal*) TERMINAL="gnome-terminal" ;;
-        *kgx*) TERMINAL="gnome-console" ;;
-        *xterm*) TERMINAL="xterm" ;;
-        *st*) TERMINAL="st" ;;
-        *urxvt*) TERMINAL="urxvt" ;;
-        *tilix*) TERMINAL="tilix" ;;
-    esac
+fi
+
+# Détecter via le processus parent
+PARENT_CMD=$(ps -o comm= -p $(ps -o ppid= -p $$) 2>/dev/null || echo "")
+case "$PARENT_CMD" in
+    *kitty*) TERMINAL="kitty" ;;
+    *alacritty*) TERMINAL="alacritty" ;;
+    *konsole*) TERMINAL="konsole" ;;
+    *gnome-terminal*) TERMINAL="gnome-terminal" ;;
+    *kgx*) TERMINAL="gnome-console" ;;
+    *xterm*) TERMINAL="xterm" ;;
+    *st*) TERMINAL="st" ;;
+    *urxvt*) TERMINAL="urxvt" ;;
+    *tilix*) TERMINAL="tilix" ;;
+esac
+
+# Détecter via le nom de la fenêtre ou d'autres méthodes
+if [ -z "$TERMINAL" ] || [ "$TERMINAL" = "unknown" ]; then
+    if echo "$PARENT_CMD" | grep -qi "kgx"; then
+        TERMINAL="gnome-console"
+    fi
 fi
 
 # Vérifier si MesloLGS NF est installée
