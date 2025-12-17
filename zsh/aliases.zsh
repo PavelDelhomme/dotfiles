@@ -77,22 +77,27 @@ alias lsgrep="ls | grep $1"
 alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb/weedlyweb && export LIBVA_DRIVER_NAME=nvidia"
 
 # PortProton helpers
-alias portproton='flatpak run ru.linux_gaming.PortProton'
-alias pp='flatpak run ru.linux_gaming.PortProton'
 
 # PortProton helper functions
+
+
+# PortProton (version native)
+alias portproton='bash /home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh'
+alias pp='bash /home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh'
+
+# PortProton helper functions (version native)
 portproton-install-game() {
-    if [ $# -lt 1 ]; then
+    if [ 0 -lt 1 ]; then
         echo "Usage: portproton-install-game <installer.exe>"
         return 1
     fi
-    flatpak run ru.linux_gaming.PortProton "$1"
+    bash "/home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh" ""
 }
 
 portproton-run() {
-    if [ $# -lt 1 ]; then
+    if [ 0 -lt 1 ]; then
         echo "Usage: portproton-run <game.exe>"
         return 1
     fi
-    flatpak run ru.linux_gaming.PortProton "$1"
+    bash "/home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh" ""
 }

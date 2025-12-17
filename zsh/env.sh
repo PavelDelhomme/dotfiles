@@ -107,3 +107,6 @@ export NDK_HOME="$ANDROID_HOME/ndk"
 # Affiche un message de confirmation
 echo "✔️  ~/dotfiles/zsh/env.sh chargé avec succès"
 
+
+# Local bin (PortProton, etc.)
+export PATH="$PATH:/home/pactivisme/.local/bin"

@@ -257,26 +257,25 @@ else
 fi
 
 ################################################################################
-# 8. PORTPROTON
+# 8. PORTPROTON (version native)
 ################################################################################
-log_section "8. Installation PortProton"
+log_section "8. Installation PortProton (version native)"
 
-if [ -f "$SCRIPT_DIR/apps/install_portproton.sh" ]; then
-    bash "$SCRIPT_DIR/apps/install_portproton.sh"
+if [ -f "$SCRIPT_DIR/apps/install_portproton_native.sh" ]; then
+    bash "$SCRIPT_DIR/apps/install_portproton_native.sh"
 else
-    log_info "Installation PortProton..."
-    if command -v flatpak >/dev/null 2>&1; then
-        flatpak install -y flathub ru.linux_gaming.PortProton || {
+    log_info "Installation PortProton native..."
+    PORTPROTON_DIR="$HOME/.local/share/PortProton"
+    if [ ! -d "$PORTPROTON_DIR" ]; then
+        mkdir -p "$PORTPROTON_DIR"
+        cd "$PORTPROTON_DIR"
+        git clone https://github.com/Castro-Fidel/PortWINE.git . || {
             log_warn "Installation PortProton échouée"
         }
-        
-        # Configurer les permissions
-        flatpak override --user ru.linux_gaming.PortProton --filesystem=~/Games 2>/dev/null || true
-        flatpak override --user ru.linux_gaming.PortProton --filesystem=xdg-download 2>/dev/null || true
-        
+        chmod +x data_from_portwine/scripts/*.sh 2>/dev/null || true
         log_info "✓ PortProton installé"
     else
-        log_warn "flatpak requis pour installer PortProton"
+        log_info "✓ PortProton déjà installé"
     fi
 fi
 
