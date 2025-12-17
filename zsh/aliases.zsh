@@ -76,28 +76,23 @@ alias cd_vtcbuilder="/home/pactivisme/Documents/Dev/Perso/VTCBuilder"
 alias lsgrep="ls | grep $1"
 alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb/weedlyweb && export LIBVA_DRIVER_NAME=nvidia"
 
-# PortProton helpers
-
-# PortProton helper functions
-
-
 # PortProton (version native)
 alias portproton='bash $HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh'
 alias pp='bash $HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh'
 
 # PortProton helper functions (version native)
 portproton-install-game() {
-    if [ 0 -lt 1 ]; then
+    if [ $# -lt 1 ]; then
         echo "Usage: portproton-install-game <installer.exe>"
         return 1
     fi
-    bash "/home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh" ""
+    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" "$1"
 }
 
 portproton-run() {
-    if [ 0 -lt 1 ]; then
+    if [ $# -lt 1 ]; then
         echo "Usage: portproton-run <game.exe>"
         return 1
     fi
-    bash "/home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh" ""
+    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" "$1"
 }
