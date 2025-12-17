@@ -728,6 +728,58 @@ done
 export SELECTED_SHELL_FOR_SETUP="$SELECTED_SHELL"
 
 ################################################################################
+# 4.1. INSTALLATION COMPLÈTE ZSH (OPTIONNEL)
+################################################################################
+if [ "$SELECTED_SHELL" = "zsh" ] || [ "$SELECTED_SHELL" = "both" ]; then
+    log_section "Installation complète Zsh + Oh My Zsh + Powerlevel10k"
+    
+    echo ""
+    log_info "Souhaitez-vous installer automatiquement Zsh complet avec:"
+    echo "  - Oh My Zsh"
+    echo "  - Powerlevel10k (thème avec support Git)"
+    echo "  - Plugins Zsh (autosuggestions, syntax-highlighting, completions)"
+    echo "  - Nerd Fonts (support emojis/icônes)"
+    echo ""
+    echo "  1. Oui, installer tout automatiquement (recommandé)"
+    echo "  2. Non, passer cette étape"
+    echo ""
+    
+    zsh_install_choice=""
+    while [ -z "$zsh_install_choice" ]; do
+        printf "Votre choix [défaut: 1]: "
+        if [ -t 0 ]; then
+            IFS= read -r zsh_install_choice </dev/tty 2>/dev/null || IFS= read -r zsh_install_choice
+        else
+            IFS= read -r zsh_install_choice 2>/dev/null || read -r zsh_install_choice
+        fi
+        zsh_install_choice=$(echo "$zsh_install_choice" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        zsh_install_choice=${zsh_install_choice:-1}
+        
+        case "$zsh_install_choice" in
+            1)
+                if [ -f "$DOTFILES_DIR/install_zsh_complete.sh" ]; then
+                    log_info "Installation complète de Zsh..."
+                    bash "$DOTFILES_DIR/install_zsh_complete.sh" || {
+                        log_warn "⚠️  Installation Zsh complète échouée, continuons..."
+                    }
+                else
+                    log_warn "⚠️  Script install_zsh_complete.sh non trouvé"
+                fi
+                break
+                ;;
+            2)
+                log_info "Installation Zsh complète ignorée"
+                break
+                ;;
+            *)
+                log_error "Choix invalide, veuillez entrer 1 ou 2"
+                zsh_install_choice=""
+                ;;
+        esac
+    done
+fi
+
+################################################################################
 # 5. CRÉER LES SYMLINKS (CENTRALISATION CONFIGURATION)
 ################################################################################
 log_section "Création des symlinks pour centraliser la configuration"
