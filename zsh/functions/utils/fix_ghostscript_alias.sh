@@ -21,9 +21,10 @@ if [ -n "$GS_BINARY" ] && [ -x "$GS_BINARY" ]; then
     # Ghostscript se trouve généralement dans /usr/bin/gs
     if [ -f "$GS_BINARY" ]; then
         # S'assurer que gs pointe vers git status (priorité sur le binaire)
+        # L'alias gs="git status" a la priorité sur la commande système
         alias gs="git status" 2>/dev/null || true
         
-        # Créer l'alias ghs pour ghostscript si pas déjà défini
+        # Créer l'alias ghs pour ghostscript (la commande système gs)
         if ! alias ghs >/dev/null 2>&1; then
             alias ghs="command gs"
             # Messages désactivés pour éviter l'avertissement Powerlevel10k

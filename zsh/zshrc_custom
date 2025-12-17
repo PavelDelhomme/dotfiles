@@ -331,6 +331,37 @@ if [[ -f "$DOTFILES_PATH/.p10k.zsh" ]]; then
     fi
 fi
 
+
+# =============================================================================
+# CHARGEMENT DES PLUGINS ZSH-USERS
+# =============================================================================
+# Charger zsh-autosuggestions (suggestions automatiques)
+if [[ -f "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    source "$HOME/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" 2>/dev/null || true
+fi
+
+# Charger zsh-syntax-highlighting (coloration syntaxique)
+# IMPORTANT: Doit être chargé en dernier parmi les plugins
+if [[ -f "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null || true
+fi
+
+# Charger zsh-completions (completions supplémentaires)
+# Ajouter le répertoire au fpath pour les completions
+if [[ -d "$HOME/.zsh/zsh-completions/src" ]]; then
+    fpath=("$HOME/.zsh/zsh-completions/src" $fpath)
+fi
+
+# Initialiser le système de complétion (une seule fois)
+autoload -Uz compinit
+# Vérifier si compinit doit être réexécuté (si .zcompdump est plus récent que compinit)
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
+
+
 # =============================================================================
 # FIN DU CHARGEMENT
 # =============================================================================

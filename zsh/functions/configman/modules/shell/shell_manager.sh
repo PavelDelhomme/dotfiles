@@ -118,6 +118,17 @@ set_default_shell() {
     fi
 }
 
+install_zsh_plugins() {
+    log_section "Installation des plugins ZSH"
+    
+    if [ -f "$DOTFILES_DIR/scripts/config/install_zsh_plugins.sh" ]; then
+        bash "$DOTFILES_DIR/scripts/config/install_zsh_plugins.sh"
+    else
+        log_error "Script d'installation des plugins non trouvé"
+        return 1
+    fi
+}
+
 configure_shell() {
     local shell_name="$1"
     
@@ -155,6 +166,16 @@ configure_shell() {
                 fi
             else
                 log_info "✓ .zshrc déjà configuré"
+            fi
+            
+            # Proposer d'installer les plugins ZSH
+            echo ""
+            log_info "Souhaitez-vous installer les plugins ZSH (autosuggestions, syntax-highlighting, completions)?"
+            printf "Installer les plugins? (o/n) [défaut: o]: "
+            read -r install_plugins
+            install_plugins=${install_plugins:-o}
+            if [[ "$install_plugins" =~ ^[oO]$ ]]; then
+                install_zsh_plugins
             fi
             ;;
         fish)
@@ -258,6 +279,8 @@ show_shell_menu() {
     ((index++))
     echo "  $index. Configurer un shell (créer les symlinks)"
     ((index++))
+    echo "  $index. Installer les plugins ZSH (autosuggestions, syntax-highlighting, completions)"
+    ((index++))
     echo "  $index. Changer le shell par défaut"
     ((index++))
     echo "  $index. Retour au menu principal"
@@ -315,6 +338,12 @@ show_shell_menu() {
         printf "Appuyez sur Entrée pour continuer... "
         read -r dummy
     elif [ "$choice" -eq $((shell_count+3)) ]; then
+        # Installer les plugins ZSH
+        install_zsh_plugins
+        echo ""
+        printf "Appuyez sur Entrée pour continuer... "
+        read -r dummy
+    elif [ "$choice" -eq $((shell_count+4)) ]; then
         # Changer le shell par défaut
         log_section "Changer le shell par défaut"
         echo "Vers quel shell voulez-vous changer?"
@@ -337,7 +366,7 @@ show_shell_menu() {
         echo ""
         printf "Appuyez sur Entrée pour continuer... "
         read -r dummy
-    elif [ "$choice" -eq $((shell_count+4)) ]; then
+    elif [ "$choice" -eq $((shell_count+5)) ]; then
         return 0
     else
         log_error "Choix invalide"
@@ -371,6 +400,9 @@ elif [ -n "$1" ]; then
                 return 1 2>/dev/null || exit 1
             fi
             configure_shell "$2"
+            ;;
+        install-plugins)
+            install_zsh_plugins
             ;;
         set-default)
             if [ -z "$2" ]; then

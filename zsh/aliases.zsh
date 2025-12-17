@@ -75,3 +75,24 @@ alias cd_vtcbuilder="/home/pactivisme/Documents/Dev/Perso/VTCBuilder"
 # DESC: Looking for firle in directory
 alias lsgrep="ls | grep $1"
 alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb/weedlyweb && export LIBVA_DRIVER_NAME=nvidia"
+
+# PortProton helpers
+alias portproton='flatpak run ru.linux_gaming.PortProton'
+alias pp='flatpak run ru.linux_gaming.PortProton'
+
+# PortProton helper functions
+portproton-install-game() {
+    if [ $# -lt 1 ]; then
+        echo "Usage: portproton-install-game <installer.exe>"
+        return 1
+    fi
+    flatpak run ru.linux_gaming.PortProton "$1"
+}
+
+portproton-run() {
+    if [ $# -lt 1 ]; then
+        echo "Usage: portproton-run <game.exe>"
+        return 1
+    fi
+    flatpak run ru.linux_gaming.PortProton "$1"
+}

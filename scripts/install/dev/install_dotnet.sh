@@ -39,9 +39,15 @@ DISTRO=$(detect_distro)
 if command -v dotnet &> /dev/null; then
     CURRENT_VERSION=$(dotnet --version 2>/dev/null || echo "unknown")
     log_info ".NET ${CURRENT_VERSION} est déjà installé"
-    read -p "Réinstaller/mettre à jour? (o/N): " reinstall_choice
-    if [[ ! "$reinstall_choice" =~ ^[oO]$ ]]; then
-        log_info "Installation ignorée"
+    # Mode non-interactif: ne pas réinstaller si déjà présent
+    if [ -z "$NON_INTERACTIVE" ]; then
+        read -p "Réinstaller/mettre à jour? (o/N): " reinstall_choice
+        if [[ ! "$reinstall_choice" =~ ^[oO]$ ]]; then
+            log_info "Installation ignorée"
+            exit 0
+        fi
+    else
+        log_info "Mode non-interactif: .NET déjà installé, passage à la suite"
         exit 0
     fi
 fi

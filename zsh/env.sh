@@ -4,12 +4,18 @@ fi
 
 # === Export des variables d'environnement ===
 
-# Java (pour Android Studio)
-#export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+# Java (pour Android Studio et Flutter)
+export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-17-openjdk}"
+export PATH="$PATH:$JAVA_HOME/bin"
 
 # Android SDK
-export ANDROID_HOME="$HOME/Android/Sdk"
+export ANDROID_HOME="${ANDROID_HOME:-/opt/android-sdk}"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
+# Fallback vers l'ancien emplacement si /opt/android-sdk n'existe pas
+if [ ! -d "$ANDROID_HOME" ]; then
+    export ANDROID_HOME="$HOME/Android/Sdk"
+    export ANDROID_SDK_ROOT="$ANDROID_HOME"
+fi
 export CHROME_EXECUTABLE="/usr/bin/chromium"
 
 CMDLINE_TOOLS="$ANDROID_HOME/cmdline-tools/latest/bin"
@@ -35,7 +41,7 @@ export DOTNET_PATH="$HOME/.dotnet/tools"
 # === Ajout des chemins au PATH ===
 # Vérifier si add_to_path est disponible (fonction définie dans pathman.zsh)
 if command -v add_to_path >/dev/null 2>&1 || type add_to_path >/dev/null 2>&1 || declare -f add_to_path >/dev/null 2>&1; then
-    add_to_path "/usr/lib/jvm/java-17-openjdk/bin" 2>/dev/null || true
+    add_to_path "$JAVA_HOME/bin" 2>/dev/null || true
     add_to_path "$CMDLINE_TOOLS" 2>/dev/null || true
     add_to_path "$PLATFORM_TOOLS" 2>/dev/null || true
     add_to_path "$ANDROID_TOOLS" 2>/dev/null || true
@@ -43,10 +49,22 @@ if command -v add_to_path >/dev/null 2>&1 || type add_to_path >/dev/null 2>&1 ||
     add_to_path "/opt/flutter/bin" 2>/dev/null || true
     add_to_path "$EMACSDIR" 2>/dev/null || true
     add_to_path "$DOTNET_PATH" 2>/dev/null || true
-    # Android Platform Tools (ADB)
-    add_to_path "/opt/android-sdk/platform-tools" 2>/dev/null || true
-    # Android Build Tools
-    add_to_path "drwxr-xr-x 1 root root 586  2 déc.  22:17 /opt/android-sdk/build-tools/36.1.0" 2>/dev/null || true
+    # Android Platform Tools (ADB) - /opt/android-sdk
+    if [ -d "/opt/android-sdk/platform-tools" ]; then
+        add_to_path "/opt/android-sdk/platform-tools" 2>/dev/null || true
+    fi
+    # Android Build Tools - /opt/android-sdk
+    if [ -d "/opt/android-sdk/build-tools" ]; then
+        LATEST_BUILD_TOOLS=$(ls -td /opt/android-sdk/build-tools/*/ 2>/dev/null | head -1)
+        if [ -n "$LATEST_BUILD_TOOLS" ]; then
+            add_to_path "${LATEST_BUILD_TOOLS%/}" 2>/dev/null || true
+        fi
+    fi
+    # Android SDK Tools - /opt/android-sdk
+    if [ -d "/opt/android-sdk/tools" ]; then
+        add_to_path "/opt/android-sdk/tools" 2>/dev/null || true
+        add_to_path "/opt/android-sdk/tools/bin" 2>/dev/null || true
+    fi
     # .NET Tools
     add_to_path "/home/pactivisme/.dotnet/tools" 2>/dev/null || true
 else
