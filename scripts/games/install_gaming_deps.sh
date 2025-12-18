@@ -8,11 +8,21 @@
 set -e
 
 # Charger la bibliothèque commune
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-source "$SCRIPT_DIR/lib/common.sh" || {
-    echo "Erreur: Impossible de charger la bibliothèque commune"
-    exit 1
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ -f "$SCRIPT_DIR/lib/common.sh" ]; then
+    source "$SCRIPT_DIR/lib/common.sh"
+else
+    # Fallback si common.sh n'est pas trouvé
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    NC='\033[0m'
+    log_info() { echo -e "${GREEN}[✓]${NC} $1"; }
+    log_warn() { echo -e "${YELLOW}[!]${NC} $1"; }
+    log_error() { echo -e "${RED}[✗]${NC} $1" >&2; }
+    log_section() { echo -e "\n${BLUE}═══════════════════════════════════${NC}\n${BLUE}$1${NC}\n${BLUE}═══════════════════════════════════${NC}"; }
+fi
 
 log_section "Installation dépendances gaming"
 
@@ -61,13 +71,22 @@ case "$DISTRO" in
         fi
         
         # Drivers Vulkan selon la carte graphique
+        # Note: Sur Arch, Vulkan pour NVIDIA est inclus dans nvidia-utils
         if [ "$GPU_VENDOR" = "nvidia" ]; then
-            if ! pacman -Qi vulkan-nvidia >/dev/null 2>&1; then
-                log_info "Installation de vulkan-nvidia (NVIDIA)..."
-                sudo pacman -S --noconfirm vulkan-nvidia
-                log_info "✓ vulkan-nvidia installé"
+            if ! pacman -Qi nvidia-utils >/dev/null 2>&1; then
+                log_info "Installation de nvidia-utils (contient Vulkan pour NVIDIA)..."
+                sudo pacman -S --noconfirm nvidia-utils
+                log_info "✓ nvidia-utils installé"
             else
-                log_info "✓ vulkan-nvidia déjà installé"
+                log_info "✓ nvidia-utils déjà installé (Vulkan inclus)"
+            fi
+            
+            if ! pacman -Qi lib32-nvidia-utils >/dev/null 2>&1; then
+                log_info "Installation de lib32-nvidia-utils (support 32-bit)..."
+                sudo pacman -S --noconfirm lib32-nvidia-utils
+                log_info "✓ lib32-nvidia-utils installé"
+            else
+                log_info "✓ lib32-nvidia-utils déjà installé"
             fi
         elif [ "$GPU_VENDOR" = "intel" ]; then
             if ! pacman -Qi vulkan-intel >/dev/null 2>&1; then
@@ -105,15 +124,7 @@ case "$DISTRO" in
             log_info "✓ lib32-vulkan-icd-loader déjà installé"
         fi
         
-        if [ "$GPU_VENDOR" = "nvidia" ]; then
-            if ! pacman -Qi lib32-vulkan-nvidia >/dev/null 2>&1; then
-                log_info "Installation de lib32-vulkan-nvidia..."
-                sudo pacman -S --noconfirm lib32-vulkan-nvidia
-                log_info "✓ lib32-vulkan-nvidia installé"
-            else
-                log_info "✓ lib32-vulkan-nvidia déjà installé"
-            fi
-        fi
+        # lib32-nvidia-utils déjà installé ci-dessus, pas besoin de le réinstaller
         
         # PulseAudio/PipeWire (audio)
         if ! pacman -Qi pipewire pipewire-pulse >/dev/null 2>&1 && ! pacman -Qi pulseaudio >/dev/null 2>&1; then
