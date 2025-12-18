@@ -92,8 +92,29 @@ portproton-run() {
         echo "Usage: portproton-run <game.exe>"
         return 1
     fi
-    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" --run "$1"
+    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" "$1"
 }
+
+# Fonction spécifique pour lancer ULTRAKILL
+ultrakill() {
+    local ultrakill_path="/home/pactivisme/Documents/Games/ULTRAKILL/ULTRAKILL.exe"
+    
+    if [ ! -f "$ultrakill_path" ]; then
+        echo "❌ ULTRAKILL.exe non trouvé dans: $ultrakill_path"
+        echo ""
+        echo "💡 Vérifiez que le jeu est bien installé dans ce dossier"
+        return 1
+    fi
+    
+    echo "🎮 Lancement d'ULTRAKILL avec PortProton..."
+    echo "📍 Chemin: $ultrakill_path"
+    echo ""
+    
+    # Lancer avec PortProton
+    cd "$(dirname "$ultrakill_path")"
+    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" "$ultrakill_path"
+}
+
 
 portproton-uninstall-game() {
     if [ $# -lt 1 ]; then
@@ -388,3 +409,78 @@ alias cd_jobbingtrack="cd /home/pactivisme/Documents/Dev/Perso/JobbingTrack"
 alias start_thm_machine="sudo openvpn /home/pactivisme/Téléchargements/eu-west-1-Pachavel-regular.ovpn"
 alias cd_budget_youyou="cd /home/pactivisme/Documents/Dev/Perso/budget-web-youyou"
 alias cd_taskflow="cd /home/pactivisme/Documents/Dev/Perso/taskflow/taskflow"
+
+# PortProton helper functions (version native)
+portproton-install-game() {
+    if [ 0 -lt 1 ]; then
+        echo "Usage: portproton-install-game <installer.exe>"
+        return 1
+    fi
+    bash "/home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh" ""
+}
+
+portproton-run() {
+    if [ 0 -lt 1 ]; then
+        echo "Usage: portproton-run <game.exe>"
+        return 1
+    fi
+    bash "/home/pactivisme/.local/share/PortProton/data_from_portwine/scripts/start.sh" ""
+}
+
+portproton-uninstall-game() {
+    if [ 0 -lt 1 ]; then
+        echo "Usage: portproton-uninstall-game <nom_du_jeu>"
+        echo ""
+        echo "Jeux installés dans PortProton:"
+        if [ -d "/home/pactivisme/Games/PortProton/games" ]; then
+            ls -1 "/home/pactivisme/Games/PortProton/games" 2>/dev/null | sed 's/^/  - /' || echo "  (aucun jeu trouvé)"
+        else
+            echo "  (dossier games non trouvé)"
+        fi
+        return 1
+    fi
+    
+    local game_name="$1"
+    local game_dir="$HOME/Games/PortProton/games/$game_name"
+    local prefix_dir="$HOME/Games/PortProton/prefix/$game_name"
+    
+    echo "🔍 Recherche du jeu: $game_name"
+    
+    # Vérifier si le jeu existe
+    if [ ! -d "$game_dir" ] && [ ! -d "$prefix_dir" ]; then
+        echo "❌ Jeu '$game_name' non trouvé dans PortProton"
+        echo ""
+        echo "Jeux disponibles:"
+        if [ -d "$HOME/Games/PortProton/games" ]; then
+            ls -1 "$HOME/Games/PortProton/games" 2>/dev/null | sed 's/^/  - /' || echo "  (aucun jeu)"
+        fi
+        return 1
+    fi
+    
+    # Confirmation
+    echo "⚠️  Vous allez supprimer:"
+    [ -d "$game_dir" ] && echo "  - Dossier du jeu: $game_dir"
+    [ -d "$prefix_dir" ] && echo "  - Préfixe Wine: $prefix_dir"
+    echo ""
+    printf "Continuer? (o/N): "
+    read -r confirm
+    
+    if [[ ! "$confirm" =~ ^[oO]$ ]]; then
+        echo "❌ Désinstallation annulée"
+        return 1
+    fi
+    
+    # Supprimer le dossier du jeu
+    if [ -d "$game_dir" ]; then
+        echo "🗑️  Suppression du dossier du jeu..."
+        rm -rf "$game_dir" && echo "✓ Dossier du jeu supprimé" || echo "⚠️  Erreur lors de la suppression du dossier du jeu"
+    fi
+    
+    # Supprimer le préfixe Wine
+    if [ -d "$prefix_dir" ]; then
+        echo "🗑️  Suppression du préfixe Wine..."
+        rm -rf "$prefix_dir" && echo "✓ Préfixe Wine supprimé" || echo "⚠️  Erreur lors de la suppression du préfixe"
+    fi
+    
+    echo "✅ Jeu '$game_name' désinstallé avec succès"
+}
