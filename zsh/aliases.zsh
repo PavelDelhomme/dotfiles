@@ -110,9 +110,9 @@ ultrakill() {
     echo "📍 Chemin: $ultrakill_path"
     echo ""
     
-    # Lancer avec PortProton
+    # Lancer avec PortProton (option --launch pour lancement direct)
     cd "$(dirname "$ultrakill_path")"
-    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" "$ultrakill_path"
+    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" --launch "$ultrakill_path"
 }
 
 

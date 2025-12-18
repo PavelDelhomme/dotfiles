@@ -97,6 +97,7 @@ cd "$ULTRAKILL_DIR"
 export DXVK_HUD=1  # Afficher les stats DXVK (optionnel)
 export WINEDEBUG=-all  # Désactiver les logs Wine (optionnel, pour performance)
 
-# Lancer le jeu
-exec bash "$PORTPROTON_SCRIPT" "$ULTRAKILL_EXE"
+# Lancer le jeu avec l'option --launch pour un lancement direct
+# Cela évite l'interface graphique et lance directement le jeu
+exec bash "$PORTPROTON_SCRIPT" --launch "$ULTRAKILL_EXE"
 
