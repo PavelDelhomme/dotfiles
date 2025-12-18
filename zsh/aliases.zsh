@@ -116,6 +116,12 @@ ultrakill() {
     export __VK_LAYER_NV_optimus=NVIDIA_only
     export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
     
+    # Forcer l'écran principal (DP-1) - Écran 0
+    export SDL_VIDEO_FULLSCREEN_DISPLAY=0
+    export SDL_VIDEODRIVER=x11
+    export DISPLAY=:0
+    export WINE_DISPLAY=:0
+    
     # Lancer avec PortProton (option --launch pour lancement direct)
     cd "$(dirname "$ultrakill_path")"
     bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" --launch "$ultrakill_path"

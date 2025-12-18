@@ -110,7 +110,31 @@ else
     echo -e "${YELLOW}⚠️  Fichier Vulkan NVIDIA non trouvé${NC}"
 fi
 
-echo -e "${BLUE}🚀 Lancement avec PortProton (NVIDIA forcé)...${NC}"
+# Configuration multi-écrans - Forcer l'écran principal (DP-1)
+echo -e "${BLUE}🖥️  Configuration écran:${NC}"
+PRIMARY_DISPLAY=$(xrandr --listactivemonitors 2>/dev/null | grep -E "^\s*0:" | awk '{print $4}' | sed 's/\+//' || echo "DP-1")
+echo -e "${GREEN}✓ Écran principal détecté: $PRIMARY_DISPLAY${NC}"
+
+# Variables d'environnement pour forcer l'écran principal
+# SDL_VIDEO_FULLSCREEN_DISPLAY force SDL à utiliser un écran spécifique
+export SDL_VIDEO_FULLSCREEN_DISPLAY=0  # 0 = premier écran (DP-1)
+export SDL_VIDEODRIVER=x11  # Forcer X11
+export DISPLAY=:0  # Forcer display 0
+
+# Pour Wine/X11, forcer la position de la fenêtre sur l'écran principal
+# L'écran principal (DP-1) est à la position +1920+0
+export WINE_DISPLAY=:0
+
+# Utiliser gamescope pour forcer l'affichage sur l'écran principal
+# gamescope peut forcer une sortie spécifique
+if command -v gamescope >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ gamescope disponible (peut forcer l'écran)${NC}"
+    # Option: utiliser gamescope avec --output pour forcer DP-1
+    # Mais PortProton gère déjà gamescope, donc on configure via variables
+fi
+
+echo ""
+echo -e "${BLUE}🚀 Lancement avec PortProton (NVIDIA + Écran principal)...${NC}"
 echo ""
 
 # Lancer le jeu avec l'option --launch pour un lancement direct
