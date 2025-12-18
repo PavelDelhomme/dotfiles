@@ -91,11 +91,27 @@ echo ""
 cd "$ULTRAKILL_DIR"
 
 # Lancer avec PortProton
-# Options possibles:
-# - --run : Lancer un exécutable
-# - Variables d'environnement pour forcer la détection vidéo/audio
-export DXVK_HUD=1  # Afficher les stats DXVK (optionnel)
+# Forcer l'utilisation de la carte NVIDIA RTX 3060
+# Variables d'environnement pour NVIDIA offload
+export __NV_PRIME_RENDER_OFFLOAD=1
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export __VK_LAYER_NV_optimus=NVIDIA_only
+
+# Variables d'environnement pour Wine/PortProton
+export DXVK_HUD=1  # Afficher les stats DXVK (optionnel, pour debug)
 export WINEDEBUG=-all  # Désactiver les logs Wine (optionnel, pour performance)
+export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json  # Forcer Vulkan NVIDIA
+
+# Vérifier que NVIDIA est utilisé
+echo -e "${BLUE}🎮 Configuration GPU:${NC}"
+if [ -f /usr/share/vulkan/icd.d/nvidia_icd.json ]; then
+    echo -e "${GREEN}✓ Vulkan NVIDIA configuré${NC}"
+else
+    echo -e "${YELLOW}⚠️  Fichier Vulkan NVIDIA non trouvé${NC}"
+fi
+
+echo -e "${BLUE}🚀 Lancement avec PortProton (NVIDIA forcé)...${NC}"
+echo ""
 
 # Lancer le jeu avec l'option --launch pour un lancement direct
 # Cela évite l'interface graphique et lance directement le jeu
