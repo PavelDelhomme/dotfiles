@@ -110,6 +110,12 @@ ultrakill() {
     echo "📍 Chemin: $ultrakill_path"
     echo ""
     
+    # Forcer l'utilisation de la carte NVIDIA RTX 3060
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export __VK_LAYER_NV_optimus=NVIDIA_only
+    export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
+    
     # Lancer avec PortProton (option --launch pour lancement direct)
     cd "$(dirname "$ultrakill_path")"
     bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" --launch "$ultrakill_path"
