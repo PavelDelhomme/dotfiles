@@ -17,9 +17,76 @@ source "$SCRIPT_DIR/lib/common.sh" || {
 log_section "Installation PortProton (version native)"
 
 ################################################################################
+# ÉTAPE 0: Installation des dépendances (gamescope)
+################################################################################
+echo "[0/5] Installation des dépendances..."
+
+# Détecter la distribution
+if [ -f /etc/arch-release ]; then
+    DISTRO="arch"
+elif [ -f /etc/debian_version ]; then
+    DISTRO="debian"
+elif [ -f /etc/fedora-release ]; then
+    DISTRO="fedora"
+else
+    DISTRO="unknown"
+fi
+
+# Installer gamescope selon la distribution
+if [ "$DISTRO" = "arch" ]; then
+    if ! pacman -Qi gamescope >/dev/null 2>&1; then
+        log_info "Installation de gamescope (requis pour PortProton)..."
+        if command -v yay >/dev/null 2>&1; then
+            yay -S --noconfirm gamescope || {
+                log_warn "Échec avec yay, tentative avec pacman..."
+                sudo pacman -S --noconfirm gamescope || {
+                    log_warn "Impossible d'installer gamescope automatiquement"
+                    log_info "Vous pouvez l'installer manuellement avec: sudo pacman -S gamescope"
+                }
+            }
+        else
+            sudo pacman -S --noconfirm gamescope || {
+                log_warn "Impossible d'installer gamescope automatiquement"
+                log_info "Vous pouvez l'installer manuellement avec: sudo pacman -S gamescope"
+            }
+        fi
+        log_info "✓ gamescope installé"
+    else
+        log_info "✓ gamescope déjà installé"
+    fi
+elif [ "$DISTRO" = "debian" ]; then
+    if ! dpkg -l | grep -q "^ii.*gamescope"; then
+        log_info "Installation de gamescope (requis pour PortProton)..."
+        sudo apt-get update -qq
+        sudo apt-get install -y gamescope || {
+            log_warn "gamescope non disponible dans les dépôts Debian"
+            log_info "Vous devrez peut-être l'installer depuis les sources ou un PPA"
+        }
+        log_info "✓ gamescope installé"
+    else
+        log_info "✓ gamescope déjà installé"
+    fi
+elif [ "$DISTRO" = "fedora" ]; then
+    if ! rpm -q gamescope >/dev/null 2>&1; then
+        log_info "Installation de gamescope (requis pour PortProton)..."
+        sudo dnf install -y gamescope || {
+            log_warn "gamescope non disponible dans les dépôts Fedora"
+            log_info "Vous devrez peut-être l'installer depuis les sources"
+        }
+        log_info "✓ gamescope installé"
+    else
+        log_info "✓ gamescope déjà installé"
+    fi
+else
+    log_warn "Distribution non détectée, gamescope ne sera pas installé automatiquement"
+    log_info "Assurez-vous d'installer gamescope manuellement si nécessaire"
+fi
+
+################################################################################
 # ÉTAPE 1: Installation PortProton native
 ################################################################################
-echo "[1/4] Installation PortProton native..."
+echo ""
+echo "[1/5] Installation PortProton native..."
 
 PORTPROTON_DIR="$HOME/.local/share/PortProton"
 PORTPROTON_BIN="$PORTPROTON_DIR/data_from_portwine/scripts/start.sh"
@@ -55,7 +122,7 @@ fi
 # ÉTAPE 2: Configuration des dossiers
 ################################################################################
 echo ""
-echo "[2/4] Configuration des dossiers..."
+echo "[2/5] Configuration des dossiers..."
 
 # Créer dossiers pour jeux et préfixes Wine
 mkdir -p ~/Games/PortProton
@@ -70,7 +137,7 @@ log_info "  - ~/Games/PortProton/games (jeux installés)"
 # ÉTAPE 3: Création alias et helper
 ################################################################################
 echo ""
-echo "[3/4] Création alias et scripts helper..."
+echo "[3/5] Création alias et scripts helper..."
 
 ALIASES_FILE="$HOME/dotfiles/zsh/aliases.zsh"
 
@@ -192,7 +259,7 @@ log_info "✓ Alias et fonctions créés (recharger avec: source ~/.zshrc)"
 # ÉTAPE 4: Création script wrapper dans PATH
 ################################################################################
 echo ""
-echo "[4/4] Création script wrapper..."
+echo "[4/5] Création script wrapper..."
 
 LOCAL_BIN="$HOME/.local/bin"
 mkdir -p "$LOCAL_BIN"
@@ -227,6 +294,7 @@ log_section "Installation terminée!"
 
 echo ""
 echo "📦 PortProton (version native) installé et configuré"
+echo "📦 gamescope installé (dépendance requise)"
 echo ""
 echo "🎮 Utilisation:"
 echo ""
