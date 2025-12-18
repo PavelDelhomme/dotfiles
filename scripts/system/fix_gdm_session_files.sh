@@ -159,14 +159,35 @@ echo -e "${CYAN}⚙️  Étape 5: Vérification de la configuration GDM${NC}"
 GDM_CUSTOM_CONF="/etc/gdm/custom.conf"
 if [ -f "$GDM_CUSTOM_CONF" ]; then
     echo -e "${GREEN}✓ Fichier de configuration GDM trouvé${NC}"
+    
     # Vérifier si Wayland est désactivé (peut causer des problèmes)
     if grep -q "^WaylandEnable=false" "$GDM_CUSTOM_CONF" 2>/dev/null; then
         echo -e "${YELLOW}⚠️  Wayland est désactivé dans GDM${NC}"
-        echo -e "${CYAN}💡 Cela peut causer des problèmes. Voulez-vous le réactiver?${NC}"
-        read -p "Réactiver Wayland? (o/N): " confirm
-        if [[ "$confirm" =~ ^[oO]$ ]]; then
-            sudo sed -i 's/^WaylandEnable=false/#WaylandEnable=false/' "$GDM_CUSTOM_CONF" 2>/dev/null || true
-            echo -e "${GREEN}✓ Wayland réactivé${NC}"
+        echo -e "${CYAN}💡 Réactivation de Wayland...${NC}"
+        sudo sed -i 's/^WaylandEnable=false/WaylandEnable=true/' "$GDM_CUSTOM_CONF" 2>/dev/null || true
+        echo -e "${GREEN}✓ Wayland réactivé${NC}"
+    fi
+    
+    # Vérifier et configurer la session par défaut
+    if ! grep -q "^DefaultSession=" "$GDM_CUSTOM_CONF" 2>/dev/null; then
+        echo -e "${YELLOW}⚠️  Session par défaut non configurée${NC}"
+        echo -e "${CYAN}💡 Configuration de Wayland comme session par défaut...${NC}"
+        # Supprimer toute ligne DefaultSession existante
+        sudo sed -i '/^DefaultSession=/d' "$GDM_CUSTOM_CONF" 2>/dev/null || true
+        # Ajouter DefaultSession dans la section [daemon]
+        if ! grep -q "^\[daemon\]" "$GDM_CUSTOM_CONF" 2>/dev/null; then
+            sudo sed -i '1i[daemon]' "$GDM_CUSTOM_CONF" 2>/dev/null || true
+        fi
+        sudo sed -i '/^\[daemon\]/a DefaultSession=gnome-wayland.desktop' "$GDM_CUSTOM_CONF" 2>/dev/null || true
+        echo -e "${GREEN}✓ Session par défaut configurée (Wayland)${NC}"
+    else
+        current_session=$(grep "^DefaultSession=" "$GDM_CUSTOM_CONF" 2>/dev/null | cut -d'=' -f2)
+        echo -e "${GREEN}✓ Session par défaut: $current_session${NC}"
+        if [ "$current_session" != "gnome-wayland.desktop" ]; then
+            echo -e "${YELLOW}⚠️  Session par défaut n'est pas Wayland${NC}"
+            echo -e "${CYAN}💡 Mise à jour vers Wayland...${NC}"
+            sudo sed -i 's/^DefaultSession=.*/DefaultSession=gnome-wayland.desktop/' "$GDM_CUSTOM_CONF" 2>/dev/null || true
+            echo -e "${GREEN}✓ Session par défaut mise à jour${NC}"
         fi
     fi
 else
