@@ -188,6 +188,27 @@ uninstall-run() {
             return 1
         fi
         
+        # Vérifier s'il y a un script uninstall.sh dans le dossier
+        if [ -f "$install_path/uninstall.sh" ] && [ -x "$install_path/uninstall.sh" ]; then
+            echo "📜 Script de désinstallation trouvé: $install_path/uninstall.sh"
+            printf "Utiliser le script de désinstallation? (O/n): "
+            read -r use_script
+            if [[ ! "$use_script" =~ ^[nN]$ ]]; then
+                echo "🔄 Exécution du script de désinstallation..."
+                cd "$install_path" && bash "./uninstall.sh" && echo "✅ Jeu désinstallé avec succès (via script)" || {
+                    echo "⚠️  Le script a échoué, suppression manuelle..."
+                    sudo rm -rf "$install_path" && echo "✅ Jeu désinstallé avec succès" || {
+                        echo "⚠️  Erreur lors de la suppression, tentative sans sudo..."
+                        rm -rf "$install_path" && echo "✅ Jeu désinstallé avec succès" || {
+                            echo "❌ Impossible de supprimer le dossier"
+                            return 1
+                        }
+                    }
+                }
+                return 0
+            fi
+        fi
+        
         echo "🗑️  Suppression de $install_path..."
         sudo rm -rf "$install_path" && echo "✅ Jeu désinstallé avec succès" || {
             echo "⚠️  Erreur lors de la suppression, tentative sans sudo..."
