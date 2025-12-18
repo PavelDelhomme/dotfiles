@@ -203,6 +203,9 @@ uninstall-run() {
     echo "🔍 Recherche du jeu: $game_name"
     
     local search_paths=(
+        "$HOME/$game_name"  # Home directory (ex: ~/ULTRAKILL)
+        "$HOME/${game_name^^}"  # Home directory majuscules
+        "$HOME/${game_name,,}"  # Home directory minuscules
         "/opt/$game_name"
         "/opt/${game_name^^}"  # Majuscules
         "/opt/${game_name,,}"  # Minuscules
@@ -225,7 +228,7 @@ uninstall-run() {
     # Si aucun chemin trouvé, chercher avec find
     if [ ${#found_paths[@]} -eq 0 ]; then
         echo "🔍 Recherche approfondie..."
-        local found=$(find /opt "$HOME/Games" "$HOME/.local/share" -maxdepth 2 -type d -iname "*$game_name*" 2>/dev/null | head -5)
+        local found=$(find "$HOME" /opt "$HOME/Games" "$HOME/.local/share" -maxdepth 2 -type d -iname "*$game_name*" 2>/dev/null | head -5)
         if [ -n "$found" ]; then
             while IFS= read -r line; do
                 found_paths+=("$line")
@@ -291,10 +294,21 @@ uninstall-run() {
             fi
             
             for path in "${found_paths[@]}"; do
-                echo "🗑️  Suppression de $path..."
-                sudo rm -rf "$path" && echo "✓ $path supprimé" || {
-                    rm -rf "$path" && echo "✓ $path supprimé" || echo "⚠️  Erreur: $path"
-                }
+                # Vérifier s'il y a un script uninstall.sh
+                if [ -f "$path/uninstall.sh" ] && [ -x "$path/uninstall.sh" ]; then
+                    echo "📜 Script de désinstallation trouvé pour $path"
+                    cd "$path" && bash "./uninstall.sh" && echo "✓ $path supprimé (via script)" || {
+                        echo "🗑️  Suppression manuelle de $path..."
+                        sudo rm -rf "$path" && echo "✓ $path supprimé" || {
+                            rm -rf "$path" && echo "✓ $path supprimé" || echo "⚠️  Erreur: $path"
+                        }
+                    }
+                else
+                    echo "🗑️  Suppression de $path..."
+                    sudo rm -rf "$path" && echo "✓ $path supprimé" || {
+                        rm -rf "$path" && echo "✓ $path supprimé" || echo "⚠️  Erreur: $path"
+                    }
+                fi
             done
             echo "✅ Tous les emplacements supprimés"
         elif [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le ${#found_paths[@]} ]; then
@@ -306,6 +320,27 @@ uninstall-run() {
             if [[ ! "$confirm" =~ ^[oO]$ ]]; then
                 echo "❌ Désinstallation annulée"
                 return 1
+            fi
+            
+            # Vérifier s'il y a un script uninstall.sh dans le dossier
+            if [ -f "$install_path/uninstall.sh" ] && [ -x "$install_path/uninstall.sh" ]; then
+                echo "📜 Script de désinstallation trouvé: $install_path/uninstall.sh"
+                printf "Utiliser le script de désinstallation? (O/n): "
+                read -r use_script
+                if [[ ! "$use_script" =~ ^[nN]$ ]]; then
+                    echo "🔄 Exécution du script de désinstallation..."
+                    cd "$install_path" && bash "./uninstall.sh" && echo "✅ Jeu désinstallé avec succès (via script)" || {
+                        echo "⚠️  Le script a échoué, suppression manuelle..."
+                        sudo rm -rf "$install_path" && echo "✅ Jeu désinstallé avec succès" || {
+                            echo "⚠️  Erreur lors de la suppression, tentative sans sudo..."
+                            rm -rf "$install_path" && echo "✅ Jeu désinstallé avec succès" || {
+                                echo "❌ Impossible de supprimer le dossier"
+                                return 1
+                            }
+                        }
+                    }
+                    return 0
+                fi
             fi
             
             echo "🗑️  Suppression de $install_path..."
