@@ -116,14 +116,18 @@ PRIMARY_DISPLAY=$(xrandr --listactivemonitors 2>/dev/null | grep -E "^\s*0:" | a
 echo -e "${GREEN}✓ Écran principal détecté: $PRIMARY_DISPLAY${NC}"
 
 # Variables d'environnement pour forcer l'écran principal
+# IMPORTANT: Ces variables sont locales au processus du jeu uniquement
+# Elles ne doivent PAS affecter les autres applications
 # SDL_VIDEO_FULLSCREEN_DISPLAY force SDL à utiliser un écran spécifique
-export SDL_VIDEO_FULLSCREEN_DISPLAY=0  # 0 = premier écran (DP-1)
-export SDL_VIDEODRIVER=x11  # Forcer X11
-export DISPLAY=:0  # Forcer display 0
+# On utilise env -i pour isoler l'environnement si nécessaire, mais ici
+# on les exporte seulement dans le contexte de ce script
+SDL_VIDEO_FULLSCREEN_DISPLAY=0  # 0 = premier écran (DP-1) - SANS export
+SDL_VIDEODRIVER=x11  # Forcer X11 - SANS export
+# DISPLAY est déjà défini globalement, on ne le modifie pas
+# WINE_DISPLAY n'est pas nécessaire, Wine utilise DISPLAY par défaut
 
-# Pour Wine/X11, forcer la position de la fenêtre sur l'écran principal
-# L'écran principal (DP-1) est à la position +1920+0
-export WINE_DISPLAY=:0
+# Exporter uniquement pour le processus du jeu (via env dans exec)
+# On passe ces variables directement à la commande plutôt que de les exporter globalement
 
 # Utiliser gamescope pour forcer l'affichage sur l'écran principal
 # gamescope peut forcer une sortie spécifique
@@ -138,6 +142,8 @@ echo -e "${BLUE}🚀 Lancement avec PortProton (NVIDIA + Écran principal)...${N
 echo ""
 
 # Lancer le jeu avec l'option --launch pour un lancement direct
+# Passer les variables SDL uniquement au processus du jeu (pas d'export global)
 # Cela évite l'interface graphique et lance directement le jeu
-exec bash "$PORTPROTON_SCRIPT" --launch "$ULTRAKILL_EXE"
+env SDL_VIDEO_FULLSCREEN_DISPLAY=0 SDL_VIDEODRIVER=x11 \
+    bash "$PORTPROTON_SCRIPT" --launch "$ULTRAKILL_EXE"
 
