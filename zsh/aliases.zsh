@@ -96,35 +96,27 @@ portproton-run() {
 }
 
 # Fonction spécifique pour lancer ULTRAKILL
+# Utilise le script dédié qui gère les variables d'environnement localement
 ultrakill() {
-    local ultrakill_path="/home/pactivisme/Documents/Games/ULTRAKILL/ULTRAKILL.exe"
+    local script_path="$HOME/dotfiles/scripts/games/run_ultrakill.sh"
     
-    if [ ! -f "$ultrakill_path" ]; then
-        echo "❌ ULTRAKILL.exe non trouvé dans: $ultrakill_path"
+    if [ ! -f "$script_path" ]; then
+        echo "❌ Script de lancement non trouvé: $script_path"
         echo ""
-        echo "💡 Vérifiez que le jeu est bien installé dans ce dossier"
-        return 1
+        echo "💡 Utilisation directe de PortProton..."
+        local ultrakill_path="/home/pactivisme/Documents/Games/ULTRAKILL/ULTRAKILL.exe"
+        if [ ! -f "$ultrakill_path" ]; then
+            echo "❌ ULTRAKILL.exe non trouvé dans: $ultrakill_path"
+            return 1
+        fi
+        cd "$(dirname "$ultrakill_path")"
+        bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" --launch "$ultrakill_path"
+        return
     fi
     
-    echo "🎮 Lancement d'ULTRAKILL avec PortProton..."
-    echo "📍 Chemin: $ultrakill_path"
-    echo ""
-    
-    # Forcer l'utilisation de la carte NVIDIA RTX 3060
-    export __NV_PRIME_RENDER_OFFLOAD=1
-    export __GLX_VENDOR_LIBRARY_NAME=nvidia
-    export __VK_LAYER_NV_optimus=NVIDIA_only
-    export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
-    
-    # Forcer l'écran principal (DP-1) - Écran 0
-    export SDL_VIDEO_FULLSCREEN_DISPLAY=0
-    export SDL_VIDEODRIVER=x11
-    export DISPLAY=:0
-    export WINE_DISPLAY=:0
-    
-    # Lancer avec PortProton (option --launch pour lancement direct)
-    cd "$(dirname "$ultrakill_path")"
-    bash "$HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh" --launch "$ultrakill_path"
+    # Utiliser le script qui gère toutes les variables d'environnement localement
+    # (sans les exporter dans le shell parent)
+    bash "$script_path"
 }
 
 
