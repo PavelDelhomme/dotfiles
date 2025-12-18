@@ -223,22 +223,26 @@ uninstall-run() {
     # Chercher le jeu dans les emplacements courants
     echo "🔍 Recherche du jeu: $game_name"
     
-    local search_paths=(
+    # Convertir en majuscules et minuscules (syntaxe zsh)
+    local game_name_upper=$(echo "$game_name" | tr '[:lower:]' '[:upper:]')
+    local game_name_lower=$(echo "$game_name" | tr '[:upper:]' '[:lower:]')
+    
+    typeset -a search_paths=(
         "$HOME/$game_name"  # Home directory (ex: ~/ULTRAKILL)
-        "$HOME/${game_name^^}"  # Home directory majuscules
-        "$HOME/${game_name,,}"  # Home directory minuscules
+        "$HOME/$game_name_upper"  # Home directory majuscules
+        "$HOME/$game_name_lower"  # Home directory minuscules
         "/opt/$game_name"
-        "/opt/${game_name^^}"  # Majuscules
-        "/opt/${game_name,,}"  # Minuscules
+        "/opt/$game_name_upper"  # Majuscules
+        "/opt/$game_name_lower"  # Minuscules
         "$HOME/Games/$game_name"
-        "$HOME/Games/${game_name^^}"
-        "$HOME/Games/${game_name,,}"
+        "$HOME/Games/$game_name_upper"
+        "$HOME/Games/$game_name_lower"
         "$HOME/.local/share/$game_name"
-        "$HOME/.local/share/${game_name^^}"
-        "$HOME/.local/share/${game_name,,}"
+        "$HOME/.local/share/$game_name_upper"
+        "$HOME/.local/share/$game_name_lower"
     )
     
-    local found_paths=()
+    typeset -a found_paths=()
     
     for path in "${search_paths[@]}"; do
         if [ -d "$path" ]; then
