@@ -488,3 +488,4 @@ portproton-uninstall-game() {
     
     echo "✅ Jeu '$game_name' désinstallé avec succès"
 }
+alias buy_coffe="ssh terminal.shop"
