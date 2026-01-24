@@ -122,32 +122,37 @@ md2pdf() {
         
         # Détecter la distribution
         if command -v pacman &>/dev/null; then
-            echo -e "  ${CYAN}sudo pacman -S pandoc texlive-core texlive-bin${RESET}"
+            echo -e "  ${CYAN}sudo pacman -S pandoc${RESET}"
         elif command -v apt &>/dev/null; then
-            echo -e "  ${CYAN}sudo apt install pandoc texlive-latex-base texlive-latex-extra${RESET}"
+            echo -e "  ${CYAN}sudo apt install pandoc${RESET}"
         elif command -v dnf &>/dev/null; then
-            echo -e "  ${CYAN}sudo dnf install pandoc texlive-scheme-basic${RESET}"
+            echo -e "  ${CYAN}sudo dnf install pandoc${RESET}"
         else
-            echo -e "  ${CYAN}Installez pandoc et un moteur LaTeX pour votre distribution${RESET}"
+            echo -e "  ${CYAN}Installez pandoc pour votre distribution${RESET}"
         fi
         return 1
     fi
     
-    # Vérifier qu'un moteur LaTeX est disponible
-    if ! command -v pdflatex &>/dev/null && ! command -v xelatex &>/dev/null && ! command -v lualatex &>/dev/null; then
-        echo -e "${YELLOW}⚠️  Aucun moteur LaTeX trouvé (pdflatex, xelatex, lualatex)${RESET}" >&2
-        echo -e "${YELLOW}💡 Installation recommandée:${RESET}"
+    # Vérifier que wkhtmltopdf est installé
+    if ! command -v wkhtmltopdf &>/dev/null; then
+        echo -e "${RED}✗ 'wkhtmltopdf' n'est pas installé${RESET}" >&2
+        echo -e "${YELLOW}💡 Installation:${RESET}"
         echo ""
         
+        # Détecter la distribution
         if command -v pacman &>/dev/null; then
-            echo -e "  ${CYAN}sudo pacman -S texlive-core texlive-bin${RESET}"
+            echo -e "  ${CYAN}sudo pacman -S wkhtmltopdf${RESET}"
+            if command -v yay &>/dev/null; then
+                echo -e "  ${CYAN}ou: yay -S wkhtmltopdf-static${RESET}"
+            fi
         elif command -v apt &>/dev/null; then
-            echo -e "  ${CYAN}sudo apt install texlive-latex-base texlive-latex-extra${RESET}"
+            echo -e "  ${CYAN}sudo apt install wkhtmltopdf${RESET}"
         elif command -v dnf &>/dev/null; then
-            echo -e "  ${CYAN}sudo dnf install texlive-scheme-basic${RESET}"
+            echo -e "  ${CYAN}sudo dnf install wkhtmltopdf${RESET}"
+        else
+            echo -e "  ${CYAN}Installez wkhtmltopdf pour votre distribution${RESET}"
         fi
-        echo ""
-        echo -e "${YELLOW}⚠️  Tentative de conversion sans LaTeX (peut échouer)...${RESET}"
+        return 1
     fi
     
     echo -e "${CYAN}${BOLD}╔════════════════════════════════════════════════════════════════╗${RESET}"
@@ -165,102 +170,59 @@ md2pdf() {
         echo -e "${GREEN}✓ Répertoire créé: $output_dir${RESET}"
     fi
     
-    # Construire la commande pandoc selon le style
-    local pandoc_cmd="pandoc"
-    local pandoc_args=()
+    # Créer un fichier HTML temporaire
+    local html_file="${input_file%.*}.html"
+    local temp_html=$(mktemp --suffix=.html)
     
-    # Options de base
-    pandoc_args+=("$input_file")
-    pandoc_args+=("-o" "$output_file")
-    pandoc_args+=("--pdf-engine=pdflatex")
-    
-    # Options de style selon le choix
-    case "$style" in
-        github)
-            pandoc_args+=("--variable=geometry:margin=2cm")
-            pandoc_args+=("--variable=fontsize:11pt")
-            pandoc_args+=("--variable=colorlinks:true")
-            pandoc_args+=("--variable=linkcolor:blue")
-            pandoc_args+=("--variable=urlcolor:blue")
-            pandoc_args+=("--highlight-style=github")
-            ;;
-        minimal)
-            pandoc_args+=("--variable=geometry:margin=3cm")
-            pandoc_args+=("--variable=fontsize:12pt")
-            pandoc_args+=("--variable=colorlinks:false")
-            pandoc_args+=("--variable=fontfamily:times")
-            pandoc_args+=("--highlight-style=tango")
-            ;;
-        elegant)
-            pandoc_args+=("--variable=geometry:margin=2.5cm")
-            pandoc_args+=("--variable=fontsize:11pt")
-            pandoc_args+=("--variable=colorlinks:true")
-            pandoc_args+=("--variable=linkcolor:blue")
-            pandoc_args+=("--variable=fontfamily:palatino")
-            pandoc_args+=("--variable=linestretch:1.2")
-            pandoc_args+=("--highlight-style=pygments")
-            ;;
-        default|*)
-            pandoc_args+=("--variable=geometry:margin=2.5cm")
-            pandoc_args+=("--variable=fontsize:11pt")
-            pandoc_args+=("--variable=colorlinks:true")
-            pandoc_args+=("--variable=linkcolor:blue")
-            pandoc_args+=("--variable=urlcolor:blue")
-            pandoc_args+=("--variable=citecolor:blue")
-            pandoc_args+=("--highlight-style=tango")
-            pandoc_args+=("--variable=linestretch:1.1")
-            ;;
-    esac
-    
-    # Options supplémentaires pour un meilleur rendu
-    pandoc_args+=("--standalone")
-    pandoc_args+=("--toc")
-    pandoc_args+=("--toc-depth=3")
-    pandoc_args+=("--number-sections")
-    
-    # Afficher la commande (mode debug)
-    if [ "${MD2PDF_DEBUG:-false}" = "true" ]; then
-        echo -e "${CYAN}🔧 Commande:${RESET} $pandoc_cmd ${pandoc_args[*]}"
-        echo ""
-    fi
-    
-    # Exécuter la conversion
-    echo -e "${YELLOW}🔄 Conversion en cours...${RESET}"
-    if $pandoc_cmd "${pandoc_args[@]}" 2>&1; then
-        echo ""
-        echo -e "${GREEN}✅ Conversion réussie!${RESET}"
-        echo -e "${GREEN}📄 PDF créé: $output_file${RESET}"
-        
-        # Afficher la taille du fichier
-        if command -v du &>/dev/null; then
-            local file_size=$(du -h "$output_file" | cut -f1)
-            echo -e "${CYAN}📊 Taille: $file_size${RESET}"
-        fi
-        
-        # Ouvrir le PDF si demandé
-        if [ "$open_after" = true ]; then
-            echo ""
-            echo -e "${CYAN}🔓 Ouverture du PDF...${RESET}"
-            if command -v xdg-open &>/dev/null; then
-                xdg-open "$output_file" 2>/dev/null &
-            elif command -v open &>/dev/null; then
-                open "$output_file" 2>/dev/null &
-            elif command -v evince &>/dev/null; then
-                evince "$output_file" 2>/dev/null &
-            else
-                echo -e "${YELLOW}⚠️  Aucun visualiseur PDF trouvé${RESET}"
-            fi
-        fi
-        
-        return 0
-    else
-        echo ""
-        echo -e "${RED}✗ Erreur lors de la conversion${RESET}" >&2
-        echo -e "${YELLOW}💡 Vérifiez que pandoc et un moteur LaTeX sont correctement installés${RESET}" >&2
+    # Étape 1: Conversion Markdown → HTML avec pandoc
+    echo -e "${YELLOW}🔄 Étape 1/2: Conversion Markdown → HTML...${RESET}"
+    if ! pandoc "$input_file" -o "$temp_html" --from markdown-smart --standalone --toc --toc-depth=3 --number-sections 2>&1; then
+        echo -e "${RED}✗ Erreur lors de la conversion Markdown → HTML${RESET}" >&2
+        rm -f "$temp_html"
         return 1
     fi
+    
+    # Étape 2: Conversion HTML → PDF avec wkhtmltopdf
+    echo -e "${YELLOW}🔄 Étape 2/2: Conversion HTML → PDF...${RESET}"
+    if ! wkhtmltopdf --encoding UTF-8 --enable-local-file-access "$temp_html" "$output_file" 2>&1; then
+        echo -e "${RED}✗ Erreur lors de la conversion HTML → PDF${RESET}" >&2
+        rm -f "$temp_html"
+        return 1
+    fi
+    
+    # Nettoyer le fichier HTML temporaire
+    rm -f "$temp_html"
+    
+    echo ""
+    echo -e "${GREEN}✅ Conversion réussie!${RESET}"
+    echo -e "${GREEN}📄 PDF créé: $output_file${RESET}"
+    
+    # Afficher la taille du fichier
+    if command -v du &>/dev/null; then
+        local file_size=$(du -h "$output_file" | cut -f1)
+        echo -e "${CYAN}📊 Taille: $file_size${RESET}"
+    fi
+    
+    # Ouvrir le PDF si demandé
+    if [ "$open_after" = true ]; then
+        echo ""
+        echo -e "${CYAN}🔓 Ouverture du PDF...${RESET}"
+        if command -v xdg-open &>/dev/null; then
+            xdg-open "$output_file" 2>/dev/null &
+        elif command -v open &>/dev/null; then
+            open "$output_file" 2>/dev/null &
+        elif command -v evince &>/dev/null; then
+            evince "$output_file" 2>/dev/null &
+        else
+            echo -e "${YELLOW}⚠️  Aucun visualiseur PDF trouvé${RESET}"
+        fi
+    fi
+    
+    return 0
 }
 
-# Alias
-alias convert='md2pdf'
+# Alias (seulement si convert n'est pas déjà défini)
+if ! command -v convert &>/dev/null || [[ "$(which convert)" == *"md2pdf"* ]]; then
+    alias convert='md2pdf'
+fi
 

@@ -71,6 +71,7 @@ alias cd_streammake="cd /home/pactivisme/Documents/Dev/Perso/StreamMake"
 alias cd_vtcbuilder="/home/pactivisme/Documents/Dev/Perso/VTCBuilder"
 # DESC: Looking for firle in directory
 alias lsgrep="ls | grep $1"
+alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb/weedlyweb && export LIBVA_DRIVER_NAME=nvidia"
 
 # PortProton (version native)
 alias portproton='bash $HOME/.local/share/PortProton/data_from_portwine/scripts/start.sh'
@@ -488,4 +489,3 @@ portproton-uninstall-game() {
 }
 alias buy_coffe="ssh terminal.shop"
 alias cd_flutter_cooking_recipes="cd /home/pactivisme/Documents/Dev/Perso/cooking_recipes"
-alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb"

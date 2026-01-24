@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$SCRIPT_DIR/lib/common.sh" || { echo "Erreur: Impossible de charger la bibliothèque commune"; exit 1; }
 
-log_section "Installation Pandoc et LaTeX pour conversion MD → PDF"
+log_section "Installation Pandoc et wkhtmltopdf pour conversion MD → PDF"
 
 # Détecter la distribution
 if command -v pacman &>/dev/null; then
@@ -53,32 +53,30 @@ fi
 
 echo ""
 
-# Vérifier si un moteur LaTeX est installé
-if command -v pdflatex &>/dev/null || command -v xelatex &>/dev/null || command -v lualatex &>/dev/null; then
-    log_success "Moteur LaTeX déjà installé"
-    if command -v pdflatex &>/dev/null; then
-        local latex_version=$(pdflatex --version | head -1)
-        log_info "  → $latex_version"
-    fi
+# Vérifier si wkhtmltopdf est installé
+if command -v wkhtmltopdf &>/dev/null; then
+    local wkhtmltopdf_version=$(wkhtmltopdf --version 2>/dev/null | head -1 || echo "installé")
+    log_success "wkhtmltopdf déjà installé ($wkhtmltopdf_version)"
 else
-    log_info "Installation d'un moteur LaTeX..."
+    log_info "Installation de wkhtmltopdf..."
     case "$DISTRO" in
         arch)
             if command -v yay &>/dev/null; then
-                yay -S --noconfirm texlive-core texlive-bin texlive-latexextra || \
-                sudo pacman -S --noconfirm texlive-core texlive-bin texlive-latexextra
+                yay -S --noconfirm wkhtmltopdf-static || \
+                yay -S --noconfirm wkhtmltopdf || \
+                sudo pacman -S --noconfirm wkhtmltopdf
             else
-                sudo pacman -S --noconfirm texlive-core texlive-bin texlive-latexextra
+                sudo pacman -S --noconfirm wkhtmltopdf
             fi
             ;;
         debian)
-            sudo apt install -y texlive-latex-base texlive-latex-extra texlive-latex-recommended
+            sudo apt install -y wkhtmltopdf
             ;;
         fedora)
-            sudo dnf install -y texlive-scheme-basic texlive-collection-latexextra
+            sudo dnf install -y wkhtmltopdf
             ;;
     esac
-    log_success "Moteur LaTeX installé"
+    log_success "wkhtmltopdf installé"
 fi
 
 echo ""
@@ -87,5 +85,10 @@ echo ""
 echo "💡 Vous pouvez maintenant utiliser:"
 echo "   md2pdf fichier.md"
 echo "   convert fichier.md"
+echo ""
+echo "📝 La conversion utilise:"
+echo "   1. pandoc (Markdown → HTML)"
+echo "   2. wkhtmltopdf (HTML → PDF)"
+echo "   → Préserve les graphiques et le style!"
 echo ""
 

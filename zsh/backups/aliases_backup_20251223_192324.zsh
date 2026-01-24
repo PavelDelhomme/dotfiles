@@ -488,4 +488,4 @@ portproton-uninstall-game() {
 }
 alias buy_coffe="ssh terminal.shop"
 alias cd_flutter_cooking_recipes="cd /home/pactivisme/Documents/Dev/Perso/cooking_recipes"
-alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb"
+alias cd_weedlyweb="cd /home/pactivisme/Document/Dev/Perso/weedlyweb"
