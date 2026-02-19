@@ -65,7 +65,6 @@ alias gca="git commit -a -m"
 # Alias ghs pour ghostscript (la commande système gs)
 # L'alias gs="git status" ci-dessus a la priorité sur la commande système
 alias ghs="command gs"
-alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions"
 alias cd_auto_apply="cd /home/pactivisme/Documents/Dev/Perso/auto_apply/auto_apply/"
 alias cd_streammake="cd /home/pactivisme/Documents/Dev/Perso/StreamMake"
 alias cd_vtcbuilder="/home/pactivisme/Documents/Dev/Perso/VTCBuilder"
@@ -489,3 +488,7 @@ portproton-uninstall-game() {
 alias buy_coffe="ssh terminal.shop"
 alias cd_flutter_cooking_recipes="cd /home/pactivisme/Documents/Dev/Perso/cooking_recipes"
 alias cd_weedlyweb="cd /home/pactivisme/Documents/Dev/Perso/weedlyweb"
+alias cd_mods_project_zomboid="cd /home/pactivisme/.local/share/PortProton/data/prefixes/DEFAULT/drive_c/Program\ Files\ (x86)/Project\ Zomboid/mods"
+alias cd_project_zomboid="cd /home/pactivisme/PortProton/data/prefixes/DEFAULT/drive_c/users/pactivisme/Zomboid"
+alias cd_labcyber="cd /home/pactivisme/Documents/Cyber/LabCyber"
+alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions/CMS_CRM_SOLUTIONS"

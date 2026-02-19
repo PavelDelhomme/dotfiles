@@ -64,6 +64,13 @@ declare -a TOOLS=(
     "tor::🔒:Tor (anonymisation réseau):check_tor_installed:tor/install_tor.sh:install_tor"
     "tor-browser:torbrowser,tor-browser:🌐:Tor Browser (navigateur anonyme):check_tor_browser_installed:tor/install_tor_browser.sh:install_tor_browser"
     "tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation"
+    "wine::🍷:Wine (compatibilité Windows):check_wine_installed:wine/install_wine.sh:install_wine"
+    "portproton:portproton,pp:🎮:PortProton (jeux Windows):check_portproton_installed:portproton/install_portproton.sh:install_portproton"
+    "protonmail:proton-mail,protonmail:📧:Proton Mail (Bridge):check_protonmail_installed:protonmail/install_protonmail.sh:install_protonmail"
+    "bluemail:bluemail,bluemail:📬:BlueMail:check_bluemail_installed:bluemail/install_bluemail.sh:install_bluemail"
+    "snap:snapd,snap:📦:Snap (snapd):check_snap_installed:snap/install_snap.sh:install_snap"
+    "nextcloud:nextcloud-client,sync-nextcloud:☁️:Nextcloud (synchronisation):check_nextcloud_installed:nextcloud/install_nextcloud.sh:install_nextcloud"
+    "db-browser:sqlitebrowser,db-browser:🗄️:DB Browser for SQLite:check_db_browser_installed:db-browser/install_db_browser.sh:install_db_browser"
 )
 
 # DESC: Gestionnaire interactif complet pour installer des outils de développement
@@ -531,119 +538,138 @@ installman() {
         return 1
     }
     
+    # Ordre d'affichage du menu (par catégorie) — utilisé pour la numérotation
+    build_menu_order() {
+        local order_names=(
+            "flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25"
+            "android-studio" "android-tools" "docker" "cmake" "gdb" "c-tools" "cpp-tools"
+            "brave" "cursor" "handbrake" "db-browser"
+            "wine" "portproton"
+            "protonmail" "bluemail"
+            "snap" "nextcloud"
+            "android-licenses" "network-tools" "qemu" "ssh-config"
+            "tor" "tor-browser" "tor-navigation"
+        )
+        local menu_list=()
+        for name in "${order_names[@]}"; do
+            for tool_def in "${TOOLS[@]}"; do
+                local parts=("${(@s/:/)tool_def}")
+                [ ${#parts[@]} -lt 7 ] && continue
+                if [ "${parts[1]}" = "$name" ]; then
+                    menu_list+=("$tool_def")
+                    break
+                fi
+            done
+        done
+        # Ajouter tout outil non encore dans la liste
+        for tool_def in "${TOOLS[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            if [[ " ${order_names[*]} " != *" $name "* ]]; then
+                menu_list+=("$tool_def")
+            fi
+        done
+        echo "${(F)menu_list}"
+    }
+    
     # Fonction pour afficher le menu principal
     show_main_menu() {
         show_header
         echo -e "${YELLOW}📦 INSTALLATION D'OUTILS ET APPLICATIONS${RESET}"
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
-        # Organiser par catégories
-        echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
+        local menu_order=("${(@f)$(build_menu_order)}")
         local index=1
-        local dev_tools=("flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25" "android-studio" "android-tools" "docker" "cmake")
-        for tool_name in "${dev_tools[@]}"; do
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                if [ "${tool_parts[1]}" = "$tool_name" ]; then
-                    local tool_emoji="${tool_parts[3]}"
-                    local tool_desc="${tool_parts[4]}"
-                    local tool_check="${tool_parts[5]}"
-                    local install_status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-                    ((index++))
-                    break
-                fi
-            done
+        
+        echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == flutter || "$name" == dotnet || "$name" == emacs || "$name" == java8 || "$name" == java11 || "$name" == java17 || "$name" == java21 || "$name" == java25 || "$name" == android-studio || "$name" == android-tools || "$name" == docker || "$name" == cmake || "$name" == gdb || "$name" == c-tools || "$name" == cpp-tools ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
         done
         
         echo ""
-        echo -e "${BOLD}🌐 APPLICATIONS:${RESET}"
-        local app_tools=("brave" "cursor")
-        for tool_name in "${app_tools[@]}"; do
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                if [ "${tool_parts[1]}" = "$tool_name" ]; then
-                    local tool_emoji="${tool_parts[3]}"
-                    local tool_desc="${tool_parts[4]}"
-                    local tool_check="${tool_parts[5]}"
-                    local install_status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-                    ((index++))
-                    break
-                fi
-            done
+        echo -e "${BOLD}🌐 APPLICATIONS & MULTIMÉDIA:${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == brave || "$name" == cursor || "$name" == handbrake || "$name" == db-browser ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
         done
         
         echo ""
-        echo -e "${BOLD}🎬 MULTIMÉDIA:${RESET}"
-        local media_tools=("handbrake")
-        for tool_name in "${media_tools[@]}"; do
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                if [ "${tool_parts[1]}" = "$tool_name" ]; then
-                    local tool_emoji="${tool_parts[3]}"
-                    local tool_desc="${tool_parts[4]}"
-                    local tool_check="${tool_parts[5]}"
-                    local install_status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-                    ((index++))
-                    break
-                fi
-            done
+        echo -e "${BOLD}🎮 JEUX (Wine / PortProton):${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == wine || "$name" == portproton ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
         done
         
         echo ""
-        echo -e "${BOLD}⚙️  CONFIGURATION ANDROID:${RESET}"
-        local android_config_tools=("android-licenses")
-        for tool_name in "${android_config_tools[@]}"; do
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                if [ "${tool_parts[1]}" = "$tool_name" ]; then
-                    local tool_emoji="${tool_parts[3]}"
-                    local tool_desc="${tool_parts[4]}"
-                    local tool_check="${tool_parts[5]}"
-                    local install_status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-                    ((index++))
-                    break
-                fi
-            done
+        echo -e "${BOLD}📧 COURRIEL:${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == protonmail || "$name" == bluemail ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
         done
         
         echo ""
-        echo -e "${BOLD}🌐 RÉSEAU:${RESET}"
-        local network_tools=("network-tools")
-        for tool_name in "${network_tools[@]}"; do
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                if [ "${tool_parts[1]}" = "$tool_name" ]; then
-                    local tool_emoji="${tool_parts[3]}"
-                    local tool_desc="${tool_parts[4]}"
-                    local tool_check="${tool_parts[5]}"
-                    local install_status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-                    ((index++))
-                    break
-                fi
-            done
+        echo -e "${BOLD}☁️ SYNC & CLOUD:${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == snap || "$name" == nextcloud ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
         done
         
         echo ""
-        echo -e "${BOLD}🖥️  SYSTÈME & VIRTUALISATION:${RESET}"
-        local sys_tools=("qemu")
-        for tool_name in "${sys_tools[@]}"; do
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                if [ "${tool_parts[1]}" = "$tool_name" ]; then
-                    local tool_emoji="${tool_parts[3]}"
-                    local tool_desc="${tool_parts[4]}"
-                    local tool_check="${tool_parts[5]}"
-                    local install_status=$(get_install_status "$tool_check")
-                    printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-                    ((index++))
-                    break
-                fi
-            done
+        echo -e "${BOLD}⚙️ CONFIG, RÉSEAU & SYSTÈME:${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == android-licenses || "$name" == network-tools || "$name" == qemu || "$name" == ssh-config ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
+        done
+        
+        echo ""
+        echo -e "${BOLD}🔒 CONFIDENTIALITÉ (Tor):${RESET}"
+        for tool_def in "${menu_order[@]}"; do
+            local parts=("${(@s/:/)tool_def}")
+            [ ${#parts[@]} -lt 7 ] && continue
+            local name="${parts[1]}"
+            [[ "$name" == tor || "$name" == tor-browser || "$name" == tor-navigation ]] || continue
+            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+            local install_status=$(get_install_status "$tool_check")
+            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
+            ((index++))
         done
         
         echo ""
@@ -658,15 +684,20 @@ installman() {
         echo "  pr. Supprimer un paquet"
         echo "  pl. Lister les paquets installés"
         echo ""
+        echo -e "${BOLD}🔗 VÉRIFICATION:${RESET}"
+        echo "  check-urls  Vérifier les URLs de téléchargement (sans installer)"
+        echo ""
         echo "0.  Quitter"
         echo ""
-        echo -e "${CYAN}💡 Tapez le nom de l'outil (ex: 'flutter', 'docker', 'brave') puis appuyez sur Entrée${RESET}"
-        echo -e "${CYAN}   Ou tapez un numéro pour sélectionner par position${RESET}"
+        echo -e "${CYAN}💡 Tapez le nom (ex: brave, cursor, portproton) ou le numéro puis Entrée${RESET}"
         echo -e "${CYAN}   Ou 'u' pour mettre à jour un outil${RESET}"
         echo ""
         printf "Choix: "
         read -r choice
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+        
+        # Réutiliser l'ordre du menu pour le choix par numéro
+        local menu_order=("${(@f)$(build_menu_order)}")
         
         # Fonction pour installer un outil
         install_tool_from_def() {
@@ -676,9 +707,7 @@ installman() {
             local tool_desc="${tool_parts[4]}"
             local module_file="${tool_parts[6]}"
             local install_func="${tool_parts[7]}"
-            
             local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
-            
             if [ -f "$full_module_path" ]; then
                 source "$full_module_path"
                 $install_func
@@ -688,53 +717,51 @@ installman() {
             fi
         }
         
-        # Traitement du choix
         if [ -z "$choice" ] || [ "$choice" = "0" ] || [ "$choice" = "quit" ] || [ "$choice" = "exit" ] || [ "$choice" = "q" ]; then
             return 0
         fi
         
-        # Gérer les options de mise à jour
         if [ "$choice" = "u" ] || [ "$choice" = "update" ]; then
             show_update_menu
             return 0
         fi
-        
         if [ "$choice" = "ua" ] || [ "$choice" = "update-all" ]; then
             update_all_tools
             return 0
         fi
-        
-        # Gérer les options de gestion de paquets
         if [ "$choice" = "p" ] || [ "$choice" = "packages" ]; then
             show_package_manager_menu
             return 0
         fi
-        
         if [ "$choice" = "ps" ] || [ "$choice" = "search" ]; then
             package_search_interactive
             return 0
         fi
-        
         if [ "$choice" = "pi" ] || [ "$choice" = "install" ]; then
             package_install_interactive
             return 0
         fi
-        
         if [ "$choice" = "pr" ] || [ "$choice" = "remove" ]; then
             package_remove_interactive
             return 0
         fi
-        
         if [ "$choice" = "pl" ] || [ "$choice" = "list" ]; then
             package_list_interactive
             return 0
         fi
+        if [ "$choice" = "check-urls" ] || [ "$choice" = "urls" ] || [ "$choice" = "checkurls" ]; then
+            url_script="$DOTFILES_DIR/scripts/install/check_download_urls.sh"
+            [ -f "$url_script" ] && bash "$url_script" || echo -e "${RED}Script introuvable${RESET}"
+            echo ""
+            read -p "Appuyez sur Entrée pour continuer..."
+            show_main_menu
+            return 0
+        fi
         
-        # Vérifier si c'est un numéro
         if [[ "$choice" =~ ^[0-9]+$ ]]; then
             local tool_index=$((choice))
-            if [ $tool_index -ge 1 ] && [ $tool_index -le ${#TOOLS[@]} ]; then
-                local tool_def="${TOOLS[$tool_index]}"
+            if [ $tool_index -ge 1 ] && [ $tool_index -le ${#menu_order[@]} ]; then
+                local tool_def="${menu_order[$tool_index]}"
                 install_tool_from_def "$tool_def"
             else
                 echo -e "${RED}❌ Numéro invalide: $choice${RESET}"
@@ -742,14 +769,12 @@ installman() {
                 show_main_menu
             fi
         else
-            # Rechercher par nom/alias
             local found_tool=$(find_tool "$choice")
             if [ -n "$found_tool" ]; then
                 install_tool_from_def "$found_tool"
             else
                 echo -e "${RED}❌ Outil non trouvé: '$choice'${RESET}"
                 echo ""
-                echo -e "${YELLOW}Outils disponibles:${RESET}"
                 for tool_def in "${TOOLS[@]}"; do
                     IFS=':' read -rA tool_parts <<< "$tool_def"
                     echo "  - ${tool_parts[1]}"
@@ -828,6 +853,16 @@ installman() {
             return 0
         fi
         
+        if [ "$tool_arg" = "check-urls" ] || [ "$tool_arg" = "urls" ] || [ "$tool_arg" = "checkurls" ]; then
+            local url_script="$DOTFILES_DIR/scripts/install/check_download_urls.sh"
+            if [ -f "$url_script" ] && [ -x "$url_script" ]; then
+                bash "$url_script"
+            else
+                [ -f "$url_script" ] && bash "$url_script" || echo -e "${RED}Script introuvable: $url_script${RESET}"
+            fi
+            return 0
+        fi
+        
         # Rechercher l'outil
         local found_tool=$(find_tool "$tool_arg")
         if [ -n "$found_tool" ]; then
@@ -853,6 +888,7 @@ installman() {
             echo "  installman                 - Menu interactif"
             echo "  installman update          - Menu de mise à jour"
             echo "  installman update-all      - Mettre à jour tous les outils"
+            echo "  installman check-urls      - Vérifier les URLs de téléchargement (sans installer)"
             echo ""
             echo -e "${CYAN}Exemples:${RESET}"
             echo "  installman flutter"

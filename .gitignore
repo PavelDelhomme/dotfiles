@@ -18,5 +18,6 @@ zsh/aliases_doc.json
 *.save
 *.bak
 *.backup
+zsh/backups/
 scripts/.ssh/
 scripts/.gitconfig

@@ -54,6 +54,22 @@ get_current_version() {
                 echo "not_installed"
             fi
             ;;
+        cursor)
+            if [ -x "/opt/cursor.appimage" ]; then
+                /opt/cursor.appimage --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            elif command -v cursor &>/dev/null; then
+                cursor --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        brave)
+            if command -v brave &>/dev/null || command -v brave-browser &>/dev/null; then
+                (brave --version 2>/dev/null || brave-browser --version 2>/dev/null) | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            else
+                echo "not_installed"
+            fi
+            ;;
         *)
             # Pour les autres outils, essayer de détecter via command --version
             if command -v "$tool_name" &>/dev/null; then
@@ -101,6 +117,10 @@ get_available_versions() {
             # Pour Java, les versions sont fixes
             local java_version=$(echo "$tool_name" | sed 's/java//')
             echo "$java_version"
+            ;;
+        cursor)
+            # Cursor Linux: téléchargement toujours "latest" depuis downloader.cursor.sh
+            echo "latest"
             ;;
         *)
             # Pour les autres outils, on propose "latest"

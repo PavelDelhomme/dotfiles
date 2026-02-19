@@ -41,11 +41,16 @@ if [ "$SKIP_CHECK" = false ]; then
         if command -v cursor &> /dev/null; then
             CURSOR_VERSION=$(cursor --version 2>/dev/null || echo "version inconnue")
             log_info "Version actuelle: $CURSOR_VERSION"
+        elif [ -x /opt/cursor.appimage ]; then
+            CURSOR_VERSION=$(/opt/cursor.appimage --version 2>/dev/null || echo "version inconnue")
+            log_info "Version actuelle: $CURSOR_VERSION"
         fi
-        read -p "Mettre à jour? (o/n): " update_choice
-        if [[ "$update_choice" =~ ^[nN]$ ]]; then
-            log_info "Installation annulée"
-            exit 0
+        if [ "${NON_INTERACTIVE:-0}" != "1" ]; then
+            read -p "Mettre à jour? (o/n): " update_choice
+            if [[ "$update_choice" =~ ^[nN]$ ]]; then
+                log_info "Installation annulée"
+                exit 0
+            fi
         fi
         UPDATE_ONLY=true
         # Nettoyer l'ancienne installation
@@ -108,12 +113,16 @@ if ! curl -s --head --fail "https://downloader.cursor.sh" > /dev/null 2>&1; then
     exit 1
 fi
 
-# Télécharger l'AppImage
+# Télécharger l'AppImage (URL principale + fallback pour Linux)
 log_info "Téléchargement en cours..."
+CURSOR_URL_ALT="https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
 if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
-    log_error "Erreur lors du téléchargement de Cursor"
-    log_warn "Vérifiez votre connexion internet et réessayez"
-    exit 1
+    log_warn "Premier miroir échoué, tentative fallback..."
+    if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL_ALT" 2>/dev/null; then
+        log_error "Erreur lors du téléchargement de Cursor"
+        log_warn "Vérifiez votre connexion internet et réessayez"
+        exit 1
+    fi
 fi
 
 sudo chmod +x /opt/cursor.appimage
@@ -244,12 +253,14 @@ fi
 CURSOR_URL="https://downloader.cursor.sh/linux/appImage/x64"
 log_info "Téléchargement depuis: $CURSOR_URL"
 
+CURSOR_URL_ALT="https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
 if sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
     sudo chmod +x /opt/cursor.appimage
     log_info "✅ Cursor mis à jour!"
-    if [ -n "$CURSOR_VERSION" ]; then
-        log_info "Version installée: $CURSOR_VERSION"
-    fi
+    echo "Relancez Cursor pour utiliser la nouvelle version"
+elif sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL_ALT" 2>/dev/null; then
+    sudo chmod +x /opt/cursor.appimage
+    log_info "✅ Cursor mis à jour (miroir de secours)!"
     echo "Relancez Cursor pour utiliser la nouvelle version"
 else
     log_error "❌ Erreur lors de la mise à jour"

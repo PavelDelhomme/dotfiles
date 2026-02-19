@@ -2,10 +2,82 @@
 # =============================================================================
 # CHECK INSTALLED - Utilitaires pour vérifier les installations
 # =============================================================================
-# Description: Fonctions pour vérifier si un outil est installé
+# Description: Fonctions pour vérifier si un outil est installé (toute distro, toute méthode)
 # Author: Paul Delhomme
-# Version: 1.0
+# Version: 1.1
 # =============================================================================
+
+# =============================================================================
+# HELPERS GÉNÉRIQUES (détection multi-distro / multi-méthode)
+# =============================================================================
+
+# DESC: Retourne 0 si un binaire est trouvé dans le PATH (liste de noms)
+# USAGE: _check_binaries name1 name2 ...
+_check_binaries() {
+    for name in "$@"; do
+        command -v "$name" &>/dev/null && return 0
+    done
+    return 1
+}
+
+# DESC: Retourne 0 si un fichier .desktop correspondant existe (nom ou contenu Exec/Name)
+# USAGE: _check_desktop_pattern pattern
+_check_desktop_pattern() {
+    local pattern="$1"
+    local dirs=("/usr/share/applications" "$HOME/.local/share/applications")
+    local f list
+    for dir in "${dirs[@]}"; do
+        [ ! -d "$dir" ] && continue
+        # Liste des .desktop (find évite les soucis de glob vide)
+        list=("${(@f)$(find "$dir" -maxdepth 2 -name "*.desktop" -type f 2>/dev/null)}")
+        for f in "${list[@]}"; do
+            [ ! -f "$f" ] && continue
+            echo "${f:t}" | grep -qi "$pattern" && return 0
+            grep -qiE "^(Exec|Name|Comment)=.*$pattern" "$f" 2>/dev/null && return 0
+        done
+    done
+    return 1
+}
+
+# DESC: Retourne 0 si un paquet est installé (pacman, dpkg, rpm, snap, flatpak)
+# USAGE: _check_package pkg1 pkg2 ... (au moins un trouvé)
+_check_package() {
+    if command -v pacman &>/dev/null; then
+        for pkg in "$@"; do
+            pacman -Qq "$pkg" 2>/dev/null && return 0
+        done
+    fi
+    if command -v dpkg &>/dev/null; then
+        for pkg in "$@"; do
+            dpkg -l "$pkg" 2>/dev/null | grep -q "^ii" && return 0
+        done
+    fi
+    if command -v rpm &>/dev/null; then
+        for pkg in "$@"; do
+            rpm -q "$pkg" 2>/dev/null && return 0
+        done
+    fi
+    if command -v snap &>/dev/null; then
+        for pkg in "$@"; do
+            snap list 2>/dev/null | awk '{print $1}' | grep -qi "^${pkg}$" && return 0
+        done
+    fi
+    if command -v flatpak &>/dev/null; then
+        for pkg in "$@"; do
+            flatpak list --app 2>/dev/null | grep -qi "$pkg" && return 0
+        done
+    fi
+    return 1
+}
+
+# DESC: Retourne 0 si un chemin exécutable existe
+# USAGE: _check_paths /path1 /path2 ...
+_check_paths() {
+    for p in "$@"; do
+        [ -x "$p" ] && [ -f "$p" ] && return 0
+    done
+    return 1
+}
 
 # =============================================================================
 # FONCTIONS DE VÉRIFICATION
@@ -241,73 +313,48 @@ check_android_sdk_installed() {
     return 1
 }
 
-# DESC: Vérifie si Docker est installé
+# DESC: Vérifie si Docker est installé (binaire, socket, paquet)
 # USAGE: check_docker_installed
 check_docker_installed() {
-    if command -v docker &>/dev/null; then
-        echo "installed"
-        return 0
-    fi
+    _check_binaries docker docker.io && { echo "installed"; return 0; }
+    _check_package docker docker.io docker-ce docker-ce-cli containerd.io && { echo "installed"; return 0; }
+    [[ -S /var/run/docker.sock ]] && { echo "installed"; return 0; }
     echo "not_installed"
     return 1
 }
 
-# DESC: Vérifie si Brave est installé
+# DESC: Vérifie si Brave est installé (toute distro: binaire, .desktop, paquet, flatpak, snap)
 # USAGE: check_brave_installed
 check_brave_installed() {
-    if command -v brave &>/dev/null || command -v brave-browser &>/dev/null; then
-        echo "installed"
-        return 0
-    fi
+    _check_binaries brave brave-browser brave-browser-stable && { echo "installed"; return 0; }
+    _check_paths /usr/bin/brave /usr/bin/brave-browser /usr/lib/brave/brave /usr/lib64/brave/brave && { echo "installed"; return 0; }
+    _check_desktop_pattern "brave" && { echo "installed"; return 0; }
+    _check_package brave-bin brave-browser com.brave.Browser && { echo "installed"; return 0; }
+    # Fichiers .desktop nommés exactement (Arch: brave-bin.desktop)
+    [[ -f /usr/share/applications/brave-bin.desktop ]] && { echo "installed"; return 0; }
+    [[ -f /usr/share/applications/brave-browser.desktop ]] && { echo "installed"; return 0; }
+    [[ -f $HOME/.local/share/applications/brave-bin.desktop ]] && { echo "installed"; return 0; }
+    [[ -f $HOME/.local/share/applications/brave-browser.desktop ]] && { echo "installed"; return 0; }
     echo "not_installed"
     return 1
 }
 
-# DESC: Vérifie si Cursor est installé
+# DESC: Vérifie si Cursor est installé (AppImage, binaire, .desktop, toute méthode)
 # USAGE: check_cursor_installed
 check_cursor_installed() {
-    # Vérifier si la commande cursor est dans le PATH
-    if command -v cursor &>/dev/null; then
-        echo "installed"
-        return 0
+    _check_binaries cursor && { echo "installed"; return 0; }
+    _check_paths /opt/cursor.appimage /opt/cursor/cursor /usr/local/bin/cursor "$HOME/.local/bin/cursor" \
+        "$HOME/Applications/cursor.AppImage" "$HOME/Applications/Cursor.AppImage" \
+        "$HOME/Applications/cursor" "$HOME/Applications/Cursor" \
+        "/Applications/cursor.AppImage" "/Applications/Cursor.AppImage" "/Applications/cursor" "/Applications/Cursor" && { echo "installed"; return 0; }
+    _check_desktop_pattern "cursor" && { echo "installed"; return 0; }
+    [[ -f $HOME/.local/share/applications/cursor.desktop ]] && { echo "installed"; return 0; }
+    [[ -f /usr/share/applications/cursor.desktop ]] && { echo "installed"; return 0; }
+    if [[ -d "$HOME/Applications" ]]; then
+        for f in "$HOME/Applications"/cursor*.AppImage "$HOME/Applications"/Cursor*.AppImage; do
+            [[ -f "$f" ]] && [[ -x "$f" ]] && { echo "installed"; return 0; }
+        done
     fi
-    
-    # Vérifier dans ~/Applications/ (AppImage)
-    local cursor_paths=(
-        "$HOME/Applications/cursor.AppImage"
-        "$HOME/Applications/Cursor.AppImage"
-        "$HOME/Applications/cursor"
-        "$HOME/Applications/Cursor"
-        "/Applications/cursor.AppImage"
-        "/Applications/Cursor.AppImage"
-        "/Applications/cursor"
-        "/Applications/Cursor"
-        "/opt/cursor/cursor"
-        "/usr/local/bin/cursor"
-        "$HOME/.local/bin/cursor"
-    )
-    
-    for cursor_path in "${cursor_paths[@]}"; do
-        if [ -f "$cursor_path" ] && [ -x "$cursor_path" ]; then
-            echo "installed"
-            return 0
-        fi
-    done
-    
-    # Vérifier aussi les variantes avec extension
-    local cursor_variants=(
-        "$HOME/Applications/cursor*.AppImage"
-        "$HOME/Applications/Cursor*.AppImage"
-    )
-    
-    for pattern in "${cursor_variants[@]}"; do
-        # Utiliser find pour éviter les problèmes de glob
-        if find "$HOME/Applications" -maxdepth 1 -iname "cursor*.AppImage" -type f 2>/dev/null | grep -q .; then
-            echo "installed"
-            return 0
-        fi
-    done
-    
     echo "not_installed"
     return 1
 }
@@ -360,13 +407,14 @@ check_ssh_configured() {
     return 1
 }
 
-# DESC: Vérifie si HandBrake est installé (CLI ou GUI)
+# DESC: Vérifie si HandBrake est installé (CLI, GUI, toute distro: ghb, HandBrakeCLI, flatpak, .desktop)
 # USAGE: check_handbrake_installed
 check_handbrake_installed() {
-    if command -v HandBrakeCLI &>/dev/null || command -v HandBrake &>/dev/null || command -v handbrake &>/dev/null; then
-        echo "installed"
-        return 0
-    fi
+    _check_binaries HandBrakeCLI HandBrake handbrake handbrake-cli ghb && { echo "installed"; return 0; }
+    _check_paths /usr/bin/HandBrakeCLI /usr/bin/handbrake /usr/bin/ghb /usr/bin/HandBrake && { echo "installed"; return 0; }
+    _check_desktop_pattern "handbrake" && { echo "installed"; return 0; }
+    _check_desktop_pattern "ghb" && { echo "installed"; return 0; }
+    _check_package handbrake handbrake-cli HandBrake-cli fr.handbrake.ghb org.handbrake.HandBrake && { echo "installed"; return 0; }
     echo "not_installed"
     return 1
 }
@@ -393,6 +441,109 @@ check_network_tools_installed() {
         echo "installed"
         return 0
     fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Wine est installé (binaire, paquet toute distro)
+# USAGE: check_wine_installed
+check_wine_installed() {
+    _check_binaries wine wine64 wine32 && { echo "installed"; return 0; }
+    _check_package wine wine-staging wine64 wine32 wine-devel && { echo "installed"; return 0; }
+    _check_paths /usr/bin/wine /usr/bin/wine64 && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si PortProton est installé (native)
+# USAGE: check_portproton_installed
+check_portproton_installed() {
+    local pp_paths=(
+        "$HOME/PortProton/PortProton/data_from_portwine/scripts/start.sh"
+        "$HOME/Games/PortProton/data_from_portwine/scripts/start.sh"
+        "/opt/portproton/data_from_portwine/scripts/start.sh"
+    )
+    for p in "${pp_paths[@]}"; do
+        [ -f "$p" ] && [ -x "$p" ] && { echo "installed"; return 0; }
+    done
+    if command -v portproton &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Proton Mail (client/bridge) est installé
+# USAGE: check_protonmail_installed
+check_protonmail_installed() {
+    if command -v protonmail-bridge &>/dev/null || command -v proton-mail &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    if flatpak list --app 2>/dev/null | grep -qi "proton.*mail\|ProtonMail"; then
+        echo "installed"
+        return 0
+    fi
+    if [ -f /usr/share/applications/protonmail*.desktop ] || [ -f "$HOME/.local/share/applications/protonmail*.desktop" ]; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si BlueMail est installé
+# USAGE: check_bluemail_installed
+check_bluemail_installed() {
+    if command -v bluemail &>/dev/null || command -v BlueMail &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    if flatpak list --app 2>/dev/null | grep -qi "bluemail\|BlueMail\|com.bluemail"; then
+        echo "installed"
+        return 0
+    fi
+    if [ -f /usr/share/applications/bluemail*.desktop ] || [ -f "$HOME/.local/share/applications/bluemail*.desktop" ]; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Snap est installé (snapd)
+# USAGE: check_snap_installed
+check_snap_installed() {
+    if command -v snap &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    if systemctl is-enabled snapd &>/dev/null || systemctl is-active snapd &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si le client Nextcloud (sync) est installé
+# USAGE: check_nextcloud_installed
+check_nextcloud_installed() {
+    _check_binaries nextcloud nextcloudcmd nextcloud-desktop && { echo "installed"; return 0; }
+    _check_desktop_pattern "nextcloud" && { echo "installed"; return 0; }
+    _check_package nextcloud-client nextcloud-desktop com.nextcloud.desktopclient.nextcloud && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si DB Browser for SQLite est installé
+# USAGE: check_db_browser_installed
+check_db_browser_installed() {
+    _check_binaries sqlitebrowser db-browser-for-sqlite && { echo "installed"; return 0; }
+    _check_desktop_pattern "sqlitebrowser" && { echo "installed"; return 0; }
+    _check_desktop_pattern "db-browser" && { echo "installed"; return 0; }
+    _check_package sqlitebrowser db-browser-for-sqlite org.sqlitebrowser.sqlitebrowser && { echo "installed"; return 0; }
     echo "not_installed"
     return 1
 }

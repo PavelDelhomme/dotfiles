@@ -29,13 +29,28 @@ INSTALL_SCRIPT="$SCRIPTS_DIR/install/apps/install_cursor.sh"
 install_cursor() {
     log_step "Installation de Cursor IDE..."
     
-    # Vérifier si déjà installé
-    if command -v cursor &>/dev/null; then
-        log_info "Cursor est déjà installé"
-        read -p "Réinstaller? (o/N): " reinstall
-        if [[ ! "$reinstall" =~ ^[oO]$ ]]; then
-            return 0
+    # Charger la vérification d'installation si disponible
+    [ -f "$INSTALLMAN_DIR/utils/check_installed.sh" ] && source "$INSTALLMAN_DIR/utils/check_installed.sh"
+    local already_installed=""
+    if [ -f "/opt/cursor.appimage" ] && [ -x "/opt/cursor.appimage" ]; then
+        already_installed=1
+    elif command -v cursor &>/dev/null; then
+        already_installed=1
+    fi
+    
+    if [ -n "$already_installed" ]; then
+        log_info "Cursor est déjà installé — mise à jour vers la dernière version..."
+        if [ -f "$INSTALL_SCRIPT" ]; then
+            NON_INTERACTIVE=1 bash "$INSTALL_SCRIPT" --update-only || {
+                log_error "Échec de la mise à jour de Cursor"
+                return 1
+            }
+        else
+            log_error "Script d'installation Cursor introuvable: $INSTALL_SCRIPT"
+            return 1
         fi
+        log_info "✓ Cursor mis à jour!"
+        return 0
     fi
     
     if [ -f "$INSTALL_SCRIPT" ]; then
