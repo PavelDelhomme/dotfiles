@@ -2,9 +2,25 @@
 
 Ce fichier documente toutes les modifications apportées aux dotfiles depuis le début de la refactorisation complète.
 
-**Version :** 2.11.0  
+**Version :** 2.12.0  
 **Date de création :** Décembre 2024  
-**Dernière mise à jour :** Décembre 2024
+**Dernière mise à jour :** Février 2025
+
+---
+
+## 📋 INSTALLMAN TUI + LOGGING (Fév. 2025)
+
+### Modifications
+- ✅ **TUI core** (`scripts/lib/tui_core.sh`) : adaptation à la taille du terminal (tui_lines, tui_cols, tui_menu_height), pagination des menus.
+- ✅ **Menu installman paginé** : en terminal petit ou non scrollable, affichage par pages avec `n` (suivant) / `p` (précédant) ; numérotation globale (1 à N) inchangée.
+- ✅ **Logging installman** (`scripts/lib/installman_log.sh`) : chaque action (install, check-urls, etc.) est enregistrée dans `dotfiles/logs/installman.log` avec timestamp, cible, statut (success/failed) et détail d’erreur.
+- ✅ Option **logs** dans le menu installman pour afficher les derniers logs.
+- ✅ Vérification des URLs (check-urls) et installations loggées pour reprise / diagnostic.
+
+### Fichiers concernés
+- `scripts/lib/tui_core.sh` (nouveau)
+- `scripts/lib/installman_log.sh` (nouveau)
+- `zsh/functions/installman/core/installman.zsh` (menu paginé, intégration TUI + log)
 
 ---
 

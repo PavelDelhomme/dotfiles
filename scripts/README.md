@@ -2,10 +2,18 @@
 
 Cette structure organise tous les scripts d'installation, de synchronisation et de gestion de VM.
 
+## Bibliothèques (`lib/`)
+
+- **`lib/common.sh`** : couleurs, logging, détection distro (bash).
+- **`lib/tui_core.sh`** : TUI adaptatif (POSIX sh) — taille terminal (`tui_lines`, `tui_cols`), hauteur menu (`tui_menu_height`), pour menus paginés.
+- **`lib/installman_log.sh`** : journal des actions installman (timestamp, action, cible, succès/échec) dans `dotfiles/logs/installman.log`.
+- **`lib/install_logger.sh`**, **`lib/actions_logger.sh`** : logs d’installation et d’actions.
+
 ## Structure
 
 ```
 scripts/
+├── lib/               # Bibliothèques partagées (TUI, logs, common)
 ├── install/          # Scripts d'installation des outils
 │   ├── apps/                      # Applications utilisateur
 │   │   ├── install_brave.sh       # Brave Browser

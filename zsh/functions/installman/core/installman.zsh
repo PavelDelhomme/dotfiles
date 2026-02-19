@@ -34,6 +34,10 @@ fi
 # Charger les fonctions de gestion de paquets
 [ -f "$INSTALLMAN_UTILS_DIR/package_manager.sh" ] && source "$INSTALLMAN_UTILS_DIR/package_manager.sh"
 
+# TUI (taille terminal, pagination) et logging installman
+[ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ] && source "$DOTFILES_DIR/scripts/lib/tui_core.sh"
+[ -f "$DOTFILES_DIR/scripts/lib/installman_log.sh" ] && source "$DOTFILES_DIR/scripts/lib/installman_log.sh"
+
 # =============================================================================
 # DÉFINITION DES OUTILS DISPONIBLES
 # =============================================================================
@@ -573,230 +577,183 @@ installman() {
         echo "${(F)menu_list}"
     }
     
-    # Fonction pour afficher le menu principal
-    show_main_menu() {
-        show_header
-        echo -e "${YELLOW}📦 INSTALLATION D'OUTILS ET APPLICATIONS${RESET}"
-        echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        
-        local menu_order=("${(@f)$(build_menu_order)}")
-        local index=1
-        
-        echo -e "${BOLD}💻 DÉVELOPPEMENT:${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == flutter || "$name" == dotnet || "$name" == emacs || "$name" == java8 || "$name" == java11 || "$name" == java17 || "$name" == java21 || "$name" == java25 || "$name" == android-studio || "$name" == android-tools || "$name" == docker || "$name" == cmake || "$name" == gdb || "$name" == c-tools || "$name" == cpp-tools ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}🌐 APPLICATIONS & MULTIMÉDIA:${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == brave || "$name" == cursor || "$name" == handbrake || "$name" == db-browser ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}🎮 JEUX (Wine / PortProton):${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == wine || "$name" == portproton ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}📧 COURRIEL:${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == protonmail || "$name" == bluemail ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}☁️ SYNC & CLOUD:${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == snap || "$name" == nextcloud ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}⚙️ CONFIG, RÉSEAU & SYSTÈME:${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == android-licenses || "$name" == network-tools || "$name" == qemu || "$name" == ssh-config ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}🔒 CONFIDENTIALITÉ (Tor):${RESET}"
-        for tool_def in "${menu_order[@]}"; do
-            local parts=("${(@s/:/)tool_def}")
-            [ ${#parts[@]} -lt 7 ] && continue
-            local name="${parts[1]}"
-            [[ "$name" == tor || "$name" == tor-browser || "$name" == tor-navigation ]] || continue
-            local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-            local install_status=$(get_install_status "$tool_check")
-            printf "  %-3s %s %-30s %s\n" "$index." "$tool_emoji" "$tool_desc" "$install_status"
-            ((index++))
-        done
-        
-        echo ""
-        echo -e "${BOLD}🔄 MISE À JOUR:${RESET}"
-        echo "  u.  Mettre à jour un outil"
-        echo "  ua. Mettre à jour tous les outils installés"
-        echo ""
-        echo -e "${BOLD}📦 GESTIONNAIRES DE PAQUETS:${RESET}"
-        echo "  p.  Gérer les paquets (pacman, yay, snap, flatpak, apt, dnf, npm)"
-        echo "  ps. Rechercher un paquet"
-        echo "  pi. Installer un paquet"
-        echo "  pr. Supprimer un paquet"
-        echo "  pl. Lister les paquets installés"
-        echo ""
-        echo -e "${BOLD}🔗 VÉRIFICATION:${RESET}"
-        echo "  check-urls  Vérifier les URLs de téléchargement (sans installer)"
-        echo ""
-        echo "0.  Quitter"
-        echo ""
-        echo -e "${CYAN}💡 Tapez le nom (ex: brave, cursor, portproton) ou le numéro puis Entrée${RESET}"
-        echo -e "${CYAN}   Ou 'u' pour mettre à jour un outil${RESET}"
-        echo ""
-        printf "Choix: "
-        read -r choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
-        
-        # Réutiliser l'ordre du menu pour le choix par numéro
-        local menu_order=("${(@f)$(build_menu_order)}")
-        
-        # Fonction pour installer un outil
-        install_tool_from_def() {
-            local tool_def="$1"
-            IFS=':' read -rA tool_parts <<< "$tool_def"
-            local tool_name="${tool_parts[1]}"
-            local tool_desc="${tool_parts[4]}"
-            local module_file="${tool_parts[6]}"
-            local install_func="${tool_parts[7]}"
-            local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
-            if [ -f "$full_module_path" ]; then
-                source "$full_module_path"
-                $install_func
-            else
-                echo -e "${RED}❌ Module $tool_desc non disponible: $full_module_path${RESET}"
-                sleep 2
-            fi
-        }
-        
-        if [ -z "$choice" ] || [ "$choice" = "0" ] || [ "$choice" = "quit" ] || [ "$choice" = "exit" ] || [ "$choice" = "q" ]; then
-            return 0
-        fi
-        
-        if [ "$choice" = "u" ] || [ "$choice" = "update" ]; then
-            show_update_menu
-            return 0
-        fi
-        if [ "$choice" = "ua" ] || [ "$choice" = "update-all" ]; then
-            update_all_tools
-            return 0
-        fi
-        if [ "$choice" = "p" ] || [ "$choice" = "packages" ]; then
-            show_package_manager_menu
-            return 0
-        fi
-        if [ "$choice" = "ps" ] || [ "$choice" = "search" ]; then
-            package_search_interactive
-            return 0
-        fi
-        if [ "$choice" = "pi" ] || [ "$choice" = "install" ]; then
-            package_install_interactive
-            return 0
-        fi
-        if [ "$choice" = "pr" ] || [ "$choice" = "remove" ]; then
-            package_remove_interactive
-            return 0
-        fi
-        if [ "$choice" = "pl" ] || [ "$choice" = "list" ]; then
-            package_list_interactive
-            return 0
-        fi
-        if [ "$choice" = "check-urls" ] || [ "$choice" = "urls" ] || [ "$choice" = "checkurls" ]; then
-            url_script="$DOTFILES_DIR/scripts/install/check_download_urls.sh"
-            [ -f "$url_script" ] && bash "$url_script" || echo -e "${RED}Script introuvable${RESET}"
-            echo ""
-            read -p "Appuyez sur Entrée pour continuer..."
-            show_main_menu
-            return 0
-        fi
-        
-        if [[ "$choice" =~ ^[0-9]+$ ]]; then
-            local tool_index=$((choice))
-            if [ $tool_index -ge 1 ] && [ $tool_index -le ${#menu_order[@]} ]; then
-                local tool_def="${menu_order[$tool_index]}"
-                install_tool_from_def "$tool_def"
-            else
-                echo -e "${RED}❌ Numéro invalide: $choice${RESET}"
-                sleep 2
-                show_main_menu
+    # Fonction pour installer un outil (avec log)
+    install_tool_from_def() {
+        local tool_def="$1"
+        IFS=':' read -rA tool_parts <<< "$tool_def"
+        local tool_name="${tool_parts[1]}"
+        local tool_desc="${tool_parts[4]}"
+        local module_file="${tool_parts[6]}"
+        local install_func="${tool_parts[7]}"
+        local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
+        if [ -f "$full_module_path" ]; then
+            source "$full_module_path"
+            $install_func
+            local ret=$?
+            if type log_installman_action &>/dev/null; then
+                [ $ret -eq 0 ] && log_installman_action "install" "$tool_name" "success" "" || log_installman_action "install" "$tool_name" "failed" "exit code $ret"
             fi
         else
-            local found_tool=$(find_tool "$choice")
-            if [ -n "$found_tool" ]; then
-                install_tool_from_def "$found_tool"
-            else
-                echo -e "${RED}❌ Outil non trouvé: '$choice'${RESET}"
-                echo ""
-                for tool_def in "${TOOLS[@]}"; do
-                    IFS=':' read -rA tool_parts <<< "$tool_def"
-                    echo "  - ${tool_parts[1]}"
-                done
-                echo ""
-                sleep 2
-                show_main_menu
-            fi
+            echo -e "${RED}❌ Module $tool_desc non disponible: $full_module_path${RESET}"
+            type log_installman_action &>/dev/null && log_installman_action "install" "$tool_name" "failed" "module not found"
+            sleep 2
         fi
+    }
+    
+    # Menu principal adaptatif (pagination si terminal petit)
+    show_main_menu() {
+        local menu_order=("${(@f)$(build_menu_order)}")
+        local total=${#menu_order[@]}
+        local per_page=15
+        if type tui_menu_height &>/dev/null; then
+            per_page=$(tui_menu_height 14)
+            [ -z "$per_page" ] || [ "$per_page" -lt 5 ] && per_page=15
+        fi
+        local total_pages=$(( (total + per_page - 1) / per_page ))
+        local page=0
+        
+        while true; do
+            show_header
+            echo -e "${YELLOW}📦 INSTALLATION D'OUTILS ET APPLICATIONS${RESET}"
+            echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            
+            local start=$(( page * per_page + 1 ))
+            local end=$(( (page + 1) * per_page ))
+            [ $end -gt $total ] && end=$total
+            
+            for (( i = start; i <= end; i++ )); do
+                local tool_def="${menu_order[$i]}"
+                local parts=("${(@s/:/)tool_def}")
+                [ ${#parts[@]} -lt 7 ] && continue
+                local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+                local install_status=$(get_install_status "$tool_check")
+                printf "  %-3s %s %-30s %s\n" "$i." "$tool_emoji" "$tool_desc" "$install_status"
+            done
+            
+            echo ""
+            echo -e "${BOLD}  u.${RESET} Mise à jour   ${BOLD}ua.${RESET} Mise à jour tout   ${BOLD}p.${RESET} Paquets   ${BOLD}check-urls${RESET}   ${BOLD}logs${RESET}"
+            echo -e "  ${BOLD}0.${RESET} Quitter"
+            if [ $total_pages -gt 1 ]; then
+                echo -e "${CYAN}  --- Page $((page+1))/$total_pages (n=suivant p=précédant) ---${RESET}"
+            fi
+            echo ""
+            printf "Choix: "
+            read -r choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+            
+            if [ "$choice" = "n" ] && [ $total_pages -gt 1 ]; then
+                page=$(( page + 1 ))
+                [ $page -ge $total_pages ] && page=$(( total_pages - 1 ))
+                continue
+            fi
+            if [ "$choice" = "p" ] && [ $total_pages -gt 1 ]; then
+                page=$(( page - 1 ))
+                [ $page -lt 0 ] && page=0
+                continue
+            fi
+            
+            if [ -z "$choice" ] || [ "$choice" = "0" ] || [ "$choice" = "quit" ] || [ "$choice" = "exit" ] || [ "$choice" = "q" ]; then
+                return 0
+            fi
+            if [ "$choice" = "u" ] || [ "$choice" = "update" ]; then
+                show_update_menu
+                return 0
+            fi
+            if [ "$choice" = "ua" ] || [ "$choice" = "update-all" ]; then
+                update_all_tools
+                return 0
+            fi
+            if [ "$choice" = "p" ] || [ "$choice" = "packages" ]; then
+                show_package_manager_menu
+                return 0
+            fi
+            if [ "$choice" = "ps" ] || [ "$choice" = "search" ]; then
+                package_search_interactive
+                return 0
+            fi
+            if [ "$choice" = "pi" ] || [ "$choice" = "install" ]; then
+                package_install_interactive
+                return 0
+            fi
+            if [ "$choice" = "pr" ] || [ "$choice" = "remove" ]; then
+                package_remove_interactive
+                return 0
+            fi
+            if [ "$choice" = "pl" ] || [ "$choice" = "list" ]; then
+                package_list_interactive
+                return 0
+            fi
+            if [ "$choice" = "check-urls" ] || [ "$choice" = "urls" ] || [ "$choice" = "checkurls" ]; then
+                url_script="$DOTFILES_DIR/scripts/install/check_download_urls.sh"
+                if [ -f "$url_script" ]; then
+                    if bash "$url_script" 2>&1; then
+                        type log_installman_action &>/dev/null && log_installman_action "check-urls" "" "success" ""
+                    else
+                        type log_installman_action &>/dev/null && log_installman_action "check-urls" "" "failed" "script exit non-zero"
+                    fi
+                else
+                    echo -e "${RED}Script introuvable${RESET}"
+                    type log_installman_action &>/dev/null && log_installman_action "check-urls" "" "failed" "script not found"
+                fi
+                echo ""
+                read "?Appuyez sur Entrée pour continuer..."
+                continue
+            fi
+            if [ "$choice" = "logs" ]; then
+                type show_installman_logs &>/dev/null && show_installman_logs 80 || true
+                echo ""
+                read "?Appuyez sur Entrée pour continuer..."
+                continue
+            fi
+            
+            if [[ "$choice" =~ ^[0-9]+$ ]]; then
+                local tool_index=$((choice))
+                if [ $tool_index -ge 1 ] && [ $tool_index -le $total ]; then
+                    install_tool_from_def "${menu_order[$tool_index]}"
+                else
+                    echo -e "${RED}❌ Numéro invalide: $choice${RESET}"
+                    sleep 2
+                    continue
+                fi
+            else
+                local found_tool=$(find_tool "$choice")
+                if [ -n "$found_tool" ]; then
+                    install_tool_from_def "$found_tool"
+                else
+                    echo -e "${RED}❌ Outil non trouvé: '$choice'${RESET}"
+                    echo ""
+                    for tool_def in "${TOOLS[@]}"; do
+                        IFS=':' read -rA tool_parts <<< "$tool_def"
+                        echo "  - ${tool_parts[1]}"
+                    done
+                    echo ""
+                    sleep 2
+                    continue
+                fi
+            fi
+            echo ""
+            read "?Appuyez sur Entrée pour revenir au menu..."
+        done
     }
     
     # Fonction pour installer un outil (utilisée par les arguments en ligne de commande)
     install_tool() {
-        local tool_name="$1"
+        local tool_desc="$1"
         local module_file="$2"
         local install_func="$3"
+        local tool_name="${4:-}"  # optionnel, pour le log
         
         if [ -f "$module_file" ]; then
             source "$module_file"
             $install_func
+            local ret=$?
+            if type log_installman_action &>/dev/null && [ -n "$tool_name" ]; then
+                [ $ret -eq 0 ] && log_installman_action "install" "$tool_name" "success" "" || log_installman_action "install" "$tool_name" "failed" "exit $ret"
+            fi
+            return $ret
         else
-            echo -e "${RED}❌ Module $tool_name non disponible${RESET}"
+            echo -e "${RED}❌ Module $tool_desc non disponible${RESET}"
+            type log_installman_action &>/dev/null && log_installman_action "install" "$tool_name" "failed" "module not found"
             return 1
         fi
     }
@@ -855,10 +812,15 @@ installman() {
         
         if [ "$tool_arg" = "check-urls" ] || [ "$tool_arg" = "urls" ] || [ "$tool_arg" = "checkurls" ]; then
             local url_script="$DOTFILES_DIR/scripts/install/check_download_urls.sh"
-            if [ -f "$url_script" ] && [ -x "$url_script" ]; then
-                bash "$url_script"
+            if [ -f "$url_script" ]; then
+                if bash "$url_script" 2>&1; then
+                    type log_installman_action &>/dev/null && log_installman_action "check-urls" "" "success" ""
+                else
+                    type log_installman_action &>/dev/null && log_installman_action "check-urls" "" "failed" "script exit non-zero"
+                fi
             else
-                [ -f "$url_script" ] && bash "$url_script" || echo -e "${RED}Script introuvable: $url_script${RESET}"
+                echo -e "${RED}Script introuvable: $url_script${RESET}"
+                type log_installman_action &>/dev/null && log_installman_action "check-urls" "" "failed" "script not found"
             fi
             return 0
         fi
@@ -867,11 +829,12 @@ installman() {
         local found_tool=$(find_tool "$tool_arg")
         if [ -n "$found_tool" ]; then
             IFS=':' read -rA tool_parts <<< "$found_tool"
+            local tool_name="${tool_parts[1]}"
             local tool_desc="${tool_parts[4]}"
             local module_file="${tool_parts[6]}"
             local install_func="${tool_parts[7]}"
             local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
-            install_tool "$tool_desc" "$full_module_path" "$install_func"
+            install_tool "$tool_desc" "$full_module_path" "$install_func" "$tool_name"
         elif [ "$tool_arg" = "list" ] || [ "$tool_arg" = "help" ] || [ "$tool_arg" = "--help" ] || [ "$tool_arg" = "-h" ]; then
             echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
             echo ""
