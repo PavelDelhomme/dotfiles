@@ -7,6 +7,10 @@
 # Version: 1.0
 # =============================================================================
 
+# TUI commune (taille terminal, pagination) — même base que installman
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+[[ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]] && source "$DOTFILES_DIR/scripts/lib/tui_core.sh"
+
 # DESC: Gestionnaire interactif complet pour gérer le PATH système. Permet d'ajouter, retirer, nettoyer et sauvegarder les répertoires du PATH avec une interface utilisateur conviviale.
 # USAGE: pathman [command] [args]
 # EXAMPLE: pathman
@@ -21,17 +25,19 @@ pathman() {
     local CYAN='\033[0;36m'
     local BOLD='\033[1m'
     local RESET='\033[0m'
-    local PATH_BACKUP_FILE="$HOME/dotfiles/zsh/PATH_SAVE"
-    local PATH_LOG_FILE="$HOME/dotfiles/zsh/path_log.txt"
+    # Répertoire inscriptible (XDG) pour Docker / dotfiles en lecture seule
+    local PATHMAN_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/pathman"
+    local PATH_BACKUP_FILE="${PATH_BACKUP_FILE:-$PATHMAN_CONFIG_DIR/PATH_SAVE}"
+    local PATH_LOG_FILE="${PATH_LOG_FILE:-$PATHMAN_CONFIG_DIR/path_log.txt}"
     local DEFAULT_PATH="$HOME/.local/bin:/usr/local/bin:/usr/sbin:/sbin:/usr/local/bin:/bin:/usr/local/games:/snap/bin:/home/pactivisme/.dotnet/tools"
     local MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\n0) Export\nh) Aide\nq) Quitter\n"
 
-    # DESC: S'assure que le fichier de log du PATH existe
+    # DESC: S'assure que le répertoire et le fichier de log existent (écrit dans XDG)
     # USAGE: ensure_path_log
     ensure_path_log() {
         if [[ ! -f "$PATH_LOG_FILE" ]]; then
-            mkdir -p "$(dirname "$PATH_LOG_FILE")"
-            touch "$PATH_LOG_FILE"
+            mkdir -p "$(dirname "$PATH_LOG_FILE")" 2>/dev/null || return 1
+            touch "$PATH_LOG_FILE" 2>/dev/null || return 1
         fi
     }
 
@@ -43,14 +49,52 @@ pathman() {
         echo "[$(date)] [$log_type] $message : $PATH" >> "$PATH_LOG_FILE"
     }
 
-    # DESC: Affiche le contenu complet du PATH de manière formatée
+    # DESC: Affiche le contenu du PATH (paginé si beaucoup d'entrées, TUI commune)
     # USAGE: show_path
     show_path() {
-        echo -e "${CYAN}Contenu du PATH :${RESET}"
-        echo "$PATH" | tr ':' '\n' | nl -w2 -s". "
+        local path_entries=("${(@s/:/)PATH}")
+        local total=${#path_entries[@]}
+        local per_page=15
+        if type tui_menu_height &>/dev/null; then
+            per_page=$(tui_menu_height 10)
+            [[ -z "$per_page" || "$per_page" -lt 5 ]] && per_page=15
+        fi
+        local total_pages=$(( (total + per_page - 1) / per_page ))
+        local page=0
+        local choice
+
+        while true; do
+            clear
+            echo -e "${CYAN}${BOLD}Contenu du PATH${RESET} (${total} entrées)"
+            echo -e "${BLUE}════════════════════════════════════════${RESET}"
+            local start=$(( page * per_page + 1 ))
+            local end=$(( (page + 1) * per_page ))
+            [[ $end -gt $total ]] && end=$total
+            for (( i = start; i <= end; i++ )); do
+                printf "  %3d. %s\n" "$i" "${path_entries[$i]}"
+            done
+            echo ""
+            if [[ $total_pages -gt 1 ]]; then
+                echo -e "${CYAN}  --- Page $((page+1))/$total_pages (n=suivant p=précédant) ---${RESET}"
+            fi
+            echo -e "  ${BOLD}Entrée${RESET}=retour au menu"
+            echo ""
+            read -r "choice?Votre choix: "
+            choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+
+            if [[ "$choice" == "n" ]] && [[ $total_pages -gt 1 ]]; then
+                page=$(( page + 1 ))
+                [[ $page -ge $total_pages ]] && page=$(( total_pages - 1 ))
+                continue
+            fi
+            if [[ "$choice" == "p" ]] && [[ $total_pages -gt 1 ]]; then
+                page=$(( page - 1 ))
+                [[ $page -lt 0 ]] && page=0
+                continue
+            fi
+            [[ -z "$choice" || "$choice" == "q" || "$choice" == "0" ]] && break
+        done
         add_logs "SHOW" "Affichage du PATH"
-        echo
-        read -k 1 "?Appuyez sur une touche pour continuer..."
     }
 
     # DESC: Ajoute un répertoire au PATH de manière interactive
@@ -149,9 +193,17 @@ pathman() {
     # DESC: Affiche les logs des modifications du PATH
     # USAGE: show_logs
     show_logs() {
-        ensure_path_log
-        echo -e "${CYAN}Logs PATH :${RESET}"
-        tail -20 "$PATH_LOG_FILE"
+        if [[ ! -f "$PATH_LOG_FILE" ]]; then
+            echo -e "${YELLOW}Aucun log encore (répertoire: $(dirname "$PATH_LOG_FILE"))${RESET}"
+            read -k 1 "?Appuyez sur une touche pour continuer..."
+            return
+        fi
+        echo -e "${CYAN}Logs PATH :${RESET} $PATH_LOG_FILE"
+        if [[ ! -s "$PATH_LOG_FILE" ]]; then
+            echo -e "${YELLOW}Aucun log pour l'instant. Utilisez les options 1-7 pour générer des entrées.${RESET}"
+        else
+            tail -30 "$PATH_LOG_FILE"
+        fi
         echo
         read -k 1 "?Appuyez sur une touche pour continuer..."
     }

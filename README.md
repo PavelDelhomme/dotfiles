@@ -2120,23 +2120,36 @@ docker compose up             # Lancer avec docker compose (plugin)
 
 **🔒 Isolation complète :** Les conteneurs de test utilisent le préfixe `dotfiles-test-*` et ne touchent **JAMAIS** vos autres conteneurs Docker existants.
 
-**Installation automatique et tests :**
+**Entrer dans l'environnement de test (recommandé) :**
 
 ```bash
-# Tester l'installation automatique complète (recommandé)
-make docker-test-auto
+# Entrer dans le conteneur (construit l'image si besoin). Dotfiles montés en lecture seule.
+make docker-in
 
-# Construire l'image de test uniquement
-make docker-build-test
+# Avec un autre shell : zsh (défaut), bash, fish, sh
+make docker-in SHELL=bash
+make docker-in SHELL=fish
 
-# Démarrer un conteneur interactif pour tester en live (après docker-build-test)
-make docker-start
+# Reconstruire l'image après modification du Dockerfile
+make docker-rebuild
+make docker-in
+```
 
-# Lancer un conteneur interactif pour tester
+**Autres commandes Docker :**
+
+```bash
+# Construire l'image
+make docker-build
+
+# Lancer un conteneur interactif (zsh)
 make docker-run
 
-# Tester rapidement les dotfiles
+# Tester rapidement les dotfiles (une commande)
 make docker-test
+
+# Installation automatique complète (image Dockerfile.test)
+make docker-build-test
+make docker-start
 
 # Nettoyer UNIQUEMENT les conteneurs dotfiles-test
 make docker-clean

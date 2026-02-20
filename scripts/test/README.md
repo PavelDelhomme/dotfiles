@@ -8,6 +8,35 @@ Système de test automatisé pour tester tous les managers dotfiles dans un envi
 
 ## 🚀 Utilisation rapide
 
+### Entrer dans l'environnement Docker (recommandé)
+
+Pour tester les dotfiles (pathman TUI, installman, etc.) **sans toucher à ton PC** :
+
+```bash
+make docker-in
+```
+
+- Construit l'image si elle n'existe pas.
+- Monte tes dotfiles en lecture seule (`PWD` → `/root/dotfiles`).
+- Ouvre un **zsh** avec la config chargée (pathman, installman, etc.).
+
+Choisir un autre shell :
+
+```bash
+make docker-in SHELL=bash
+make docker-in SHELL=fish
+make docker-in SHELL=sh
+```
+
+**Pas besoin de rebuild** pour les changements de dotfiles : le repo est monté en volume, les modifs sont prises en compte à chaque `make docker-in`. Rebuild uniquement si tu modifies le **Dockerfile** (nouveaux paquets, etc.) :
+
+```bash
+make docker-rebuild
+make docker-in
+```
+
+Dans le conteneur, pathman écrit ses logs dans `~/.config/dotfiles/pathman/` (répertoire inscriptible). Le menu fzf est disponible si `fzf` est installé (inclus dans l'image) : `dfmenu pathman` ou `dotfiles-menu --file share/menus/pathman.menu`.
+
 ### Vérification multi-shell (installman)
 
 Vérifie que `installman` fonctionne depuis zsh, bash et sh :

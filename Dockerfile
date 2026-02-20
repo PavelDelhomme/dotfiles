@@ -5,10 +5,12 @@ FROM archlinux:latest
 ENV DOTFILES_DIR=/root/dotfiles
 ENV HOME=/root
 
-# Installer les dépendances nécessaires
+# Installer les dépendances nécessaires (zsh, bash, fish pour tests multi-shell)
 RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm \
         zsh \
+        bash \
+        fish \
         git \
         vim \
         curl \
@@ -20,7 +22,9 @@ RUN pacman -Syu --noconfirm && \
         man-pages \
         openssh \
         python \
-        python-pip
+        python-pip \
+        make \
+        fzf
 
 # Installer Oh My Zsh (optionnel)
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true

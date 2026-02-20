@@ -66,7 +66,7 @@ if command -v add_to_path >/dev/null 2>&1 || type add_to_path >/dev/null 2>&1 ||
         add_to_path "/opt/android-sdk/tools/bin" 2>/dev/null || true
     fi
     # .NET Tools
-    add_to_path "/home/pactivisme/.dotnet/tools" 2>/dev/null || true
+    add_to_path "$HOME/.dotnet/tools" 2>/dev/null || true
 else
     # Fallback: ajouter directement au PATH si la fonction n'est pas disponible
     for dir in "/usr/lib/jvm/java-17-openjdk/bin" "$CMDLINE_TOOLS" "$PLATFORM_TOOLS" "$ANDROID_TOOLS" "$PUB_FLUTTER_BIN" "/opt/flutter/bin" "$EMACSDIR" "$DOTNET_PATH"; do
@@ -109,4 +109,4 @@ echo "✔️  ~/dotfiles/zsh/env.sh chargé avec succès"
 
 
 # Local bin (PortProton, etc.)
-export PATH="$PATH:/home/pactivisme/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"

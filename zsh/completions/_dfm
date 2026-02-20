@@ -1,0 +1,13 @@
+#compdef dfm dfmenu dotfiles_menu_run
+# Complétion pour dfm / dfmenu : propose les noms de menus (share/menus/*.menu)
+
+local -a menus
+local dir="${DOTFILES_DIR:-$HOME/dotfiles}/share/menus"
+
+if [[ -d "$dir" ]]; then
+  for f in "$dir"/*.menu; do
+    [[ -f "$f" ]] && menus+=("$(basename "$f" .menu)")
+  done
+fi
+
+(( ${#menus[@]} )) && _describe 'menu' menus

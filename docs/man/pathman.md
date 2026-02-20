@@ -66,7 +66,7 @@ $ pathman show
 ## FICHIERS
 
 - `~/dotfiles/zsh/PATH_SAVE` - Fichier de sauvegarde du PATH
-- `~/dotfiles/zsh/path_log.txt` - Logs des modifications
+- `~/.config/dotfiles/pathman/path_log.txt` - Logs des modifications (répertoire inscriptible, compatible Docker/RO)
 
 ## VOIR AUSSI
 

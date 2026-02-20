@@ -34,18 +34,19 @@ pathman() {
     BOLD='\033[1m'
     RESET='\033[0m'
     
-    # Fichiers de configuration (utiliser shared pour logs)
-    PATH_BACKUP_FILE="${PATH_BACKUP_FILE:-$HOME/dotfiles/shells/$SHELL_TYPE/config/PATH_SAVE}"
-    PATH_LOG_FILE="${PATH_LOG_FILE:-$HOME/dotfiles/shells/$SHELL_TYPE/config/path_log.txt}"
+    # Fichiers de configuration (répertoire inscriptible: XDG ou ~/.config pour Docker/RO)
+    PATHMAN_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/pathman"
+    PATH_BACKUP_FILE="${PATH_BACKUP_FILE:-$PATHMAN_CONFIG_DIR/PATH_SAVE}"
+    PATH_LOG_FILE="${PATH_LOG_FILE:-$PATHMAN_CONFIG_DIR/path_log.txt}"
     DEFAULT_PATH="${DEFAULT_PATH:-$HOME/.local/bin:/usr/local/bin:/usr/sbin:/sbin:/usr/local/bin:/bin:/usr/local/games:/snap/bin}"
     MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\n0) Export\nh) Aide\nq) Quitter\n"
 
-    # DESC: S'assure que le fichier de log du PATH existe
+    # DESC: S'assure que le répertoire et le fichier de log existent
     # USAGE: ensure_path_log
     ensure_path_log() {
         if [ ! -f "$PATH_LOG_FILE" ]; then
-            mkdir -p "$(dirname "$PATH_LOG_FILE")"
-            touch "$PATH_LOG_FILE"
+            mkdir -p "$(dirname "$PATH_LOG_FILE")" 2>/dev/null || true
+            touch "$PATH_LOG_FILE" 2>/dev/null || true
         fi
     }
 
@@ -166,9 +167,21 @@ pathman() {
     # DESC: Affiche les logs des modifications du PATH
     # USAGE: show_logs
     show_logs() {
-        ensure_path_log
-        printf "${CYAN}Logs PATH :${RESET}\n"
-        tail -20 "$PATH_LOG_FILE"
+        if [ ! -f "$PATH_LOG_FILE" ]; then
+            ensure_path_log
+            if [ ! -f "$PATH_LOG_FILE" ]; then
+                printf "${YELLOW}Aucun log encore (répertoire: %s)${RESET}\n" "$(dirname "$PATH_LOG_FILE")"
+                printf "Appuyez sur Entrée pour continuer... "
+                read dummy
+                return
+            fi
+        fi
+        printf "${CYAN}Logs PATH :${RESET} %s\n" "$PATH_LOG_FILE"
+        if [ ! -s "$PATH_LOG_FILE" ]; then
+            printf "${YELLOW}Aucun log pour l'instant. Utilisez les options 1-7 pour générer des entrées.${RESET}\n"
+        else
+            tail -30 "$PATH_LOG_FILE"
+        fi
         echo
         printf "Appuyez sur Entrée pour continuer... "
         read dummy
@@ -239,6 +252,16 @@ EOF
         printf "Appuyez sur Entrée pour revenir au menu... "
         read dummy
     }
+
+    # Sans argument : tenter le menu fzf (dotfiles-menu) si disponible
+    DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ $# -eq 0 ] && [ -f "$DOTFILES_DIR/share/menus/pathman.menu" ] && command -v fzf >/dev/null 2>&1 && [ -x "$DOTFILES_DIR/bin/dotfiles-menu" ]; then
+        cmd=$("$DOTFILES_DIR/bin/dotfiles-menu" --file "$DOTFILES_DIR/share/menus/pathman.menu" --header "PATHMAN" 2>/dev/null) || true
+        if [ -n "$cmd" ]; then
+            eval "$cmd"
+            return 0
+        fi
+    fi
 
     # Gestion des arguments rapides
     case "$1" in

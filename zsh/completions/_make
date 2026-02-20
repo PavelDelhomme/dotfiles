@@ -1,0 +1,23 @@
+#compdef make gmake
+# Completion pour les cibles Makefile (Makefile, makefile, GNUmakefile).
+# Utilise "make -qp" pour obtenir les cibles (y compris avec include).
+# Chargé si ce répertoire est dans fpath (zshrc_custom).
+
+local -a targets
+local makefile
+
+for makefile in Makefile makefile GNUmakefile; do
+  [[ -f $makefile ]] && break
+done
+
+[[ -z $makefile ]] && return 0
+
+targets=(
+  ${(f)"$(command make -qp 2>/dev/null | awk -F':' '
+    /^[a-zA-Z0-9][a-zA-Z0-9_.%-]*:([^=]|$)/ && !/^Makefile/ && !/^\./ {
+      split($1, A, / /);
+      for (i in A) if (A[i] != "") print A[i]
+    }' | sort -u)"}
+)
+
+[[ -n $targets ]] && compadd -a targets

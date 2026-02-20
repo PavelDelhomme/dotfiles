@@ -1,0 +1,13 @@
+# pathman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm pathman ou pmm
+Voir le PATH|pathman show
+Ajouter un répertoire|pathman add
+Retirer un répertoire|pathman remove
+Nettoyer le PATH|pathman clean
+Nettoyer invalid|pathman invalid
+Sauvegarder|pathman save
+Restaurer|pathman restore
+Logs|pathman logs
+Statistiques|pathman stats
+Export|pathman export
+Quitter (ne rien faire)|true

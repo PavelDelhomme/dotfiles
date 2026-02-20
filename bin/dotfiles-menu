@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# =============================================================================
+# dotfiles-menu - Menu générique basé sur fzf (cross-shell)
+# =============================================================================
+# Lit des lignes "label|command" (fichier ou stdin), affiche un menu fzf,
+# imprime la commande sélectionnée sur stdout. Le shell appelant peut faire
+# eval "$(dotfiles-menu ...)" pour exécuter dans le shell courant.
+#
+# Usage:
+#   dotfiles-menu [--file FILE] [--header "Titre"] [--no-fzf]
+#   echo "Label|commande" | dotfiles-menu
+# =============================================================================
+
+set -e
+
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+HEADER="Choisir une option"
+INPUT_FILE=""
+NO_FZF=""
+FZF_OPTS=(--height=20 --layout=reverse --border=rounded --margin=1)
+
+OUTPUT_FILE=""
+
+usage() {
+    echo "Usage: dotfiles-menu [--file FILE] [--header \"Titre\"] [--no-fzf] [--output-file FILE]"
+    echo "       cat menu.txt | dotfiles-menu"
+    echo ""
+    echo "  --file FILE        Fichier contenant des lignes label|command"
+    echo "  --header STR       En-tête du menu fzf"
+    echo "  --no-fzf           Afficher avec cat/select si fzf absent (fallback)"
+    echo "  --output-file FILE Écrire la commande choisie dans FILE (au lieu de stdout, pour TTY)"
+    echo ""
+    echo "Format des lignes: label|command (le premier | sépare label et commande)"
+    exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --file)         INPUT_FILE="$2"; shift 2 ;;
+        --header)       HEADER="$2"; shift 2 ;;
+        --no-fzf)       NO_FZF=1; shift ;;
+        --output-file)  OUTPUT_FILE="$2"; shift 2 ;;
+        -h|--help) usage ;;
+        --) shift; break ;;
+        *) break ;;
+    esac
+done
+
+# Lire les entrées: fichier, stdin, ou arguments restants (lignes)
+# Ignorer les lignes vides et les commentaires (#)
+read_input() {
+    if [[ -n "$INPUT_FILE" ]] && [[ -f "$INPUT_FILE" ]]; then
+        grep -v '^[[:space:]]*#' "$INPUT_FILE" | grep -v '^[[:space:]]*$' || true
+    elif [[ $# -gt 0 ]]; then
+        printf '%s\n' "$@"
+    else
+        cat | grep -v '^[[:space:]]*#' | grep -v '^[[:space:]]*$' || true
+    fi
+}
+
+SELECTED=""
+if command -v fzf &>/dev/null && [[ -z "$NO_FZF" ]]; then
+    SELECTED=$(read_input "$@" | fzf --with-nth=1 --delimiter='|' \
+        --header="$HEADER" \
+        "${FZF_OPTS[@]}" \
+        --exit-0 \
+        --select-1 2>/dev/null || true)
+else
+    # Fallback sans fzf : même source (.menu), affichage numéroté
+    MAPFILE=()
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        MAPFILE+=("$line")
+    done < <(read_input "$@")
+    if [[ ${#MAPFILE[@]} -eq 0 ]]; then
+        exit 1
+    fi
+    echo "" >&2
+    echo "  --- $HEADER ---" >&2
+    echo "  (fzf non installé — installez fzf pour le menu interactif)" >&2
+    echo "" >&2
+    for i in "${!MAPFILE[@]}"; do
+        label="${MAPFILE[$i]%%|*}"
+        printf "  %2d) %s\n" "$((i+1))" "$label" >&2
+    done
+    echo "   0) Quitter" >&2
+    echo "" >&2
+    read -r -p "  Choix [0=quitter]: " num 2>/dev/null || true
+    if [[ -z "$num" ]] || [[ "$num" == "0" ]]; then
+        exit 1
+    fi
+    idx=$((num - 1))
+    if [[ $idx -ge 0 ]] && [[ $idx -lt ${#MAPFILE[@]} ]]; then
+        SELECTED="${MAPFILE[$idx]}"
+    else
+        exit 1
+    fi
+fi
+
+if [[ -z "$SELECTED" ]]; then
+    [[ -n "$OUTPUT_FILE" ]] && : > "$OUTPUT_FILE"
+    exit 1
+fi
+
+# Partie commande (après le premier |)
+cmd="${SELECTED#*|}"
+
+if [[ -n "$OUTPUT_FILE" ]]; then
+    printf '%s' "$cmd" > "$OUTPUT_FILE"
+else
+    echo "$cmd"
+fi

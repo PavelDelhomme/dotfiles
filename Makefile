@@ -51,16 +51,17 @@ help: ## Afficher cette aide
 	@echo "  make test-alias        - Tester les alias"
 	@echo ""
 	@echo -e "$(GREEN)Docker (Tests conteneurisés):$(NC)"
+	@echo "  make docker-in         - Entrer dans le conteneur (build si besoin). DOCKER_SHELL=zsh (défaut)"
 	@echo "  make docker-build      - Construire l'image Docker"
-	@echo "  make docker-run        - Lancer un conteneur interactif"
+	@echo "  make docker-rebuild   - Reconstruire l'image (nocache)"
+	@echo "  make docker-run        - Lancer un conteneur interactif (zsh)"
 	@echo "  make docker-compose-up - Lancer avec docker-compose"
 	@echo "  make docker-test       - Tester les dotfiles dans Docker"
 	@echo "  make docker-shell      - Ouvrir un shell dans le conteneur"
 	@echo "  make docker-stop       - Arrêter le conteneur"
 	@echo "  make docker-clean      - Nettoyer images et volumes Docker"
-	@echo "  make docker-test-auto  - Tester installation automatique complète (isolé)"
-	@echo "  make docker-build-test - Construire l'image Docker de test automatique"
-	@echo "  make docker-start      - Démarrer conteneur interactif (après docker-build-test)"
+	@echo "  make docker-build-test - Construire l'image de test auto (Dockerfile.test)"
+	@echo "  make docker-start      - Conteneur interactif après docker-build-test (choix shell)"
 	@echo ""
 	@echo -e "$(GREEN)Docker VM (Tests multi-distributions):$(NC)"
 	@echo "  make docker-vm         - Lancer conteneur dotfiles-vm (Arch/Ubuntu/Debian/Gentoo)"
@@ -72,6 +73,9 @@ help: ## Afficher cette aide
 	@echo "  make docker-vm-all-clean - Nettoyer TOUS les conteneurs dotfiles"
 	@echo "  make docker-test-install - Tester installation complète (distro + shell + mode)"
 	@echo "  make docker-test-bootstrap - Tester installation bootstrap dans conteneur propre"
+	@echo ""
+	@echo -e "$(GREEN)Complétion Zsh:$(NC)"
+	@echo "  (Complétion make/Makefile chargée automatiquement après install via zsh/completions)"
 	@echo ""
 	@echo -e "$(GREEN)Maintenance:$(NC)"
 	@echo "  make rollback          - Rollback complet (désinstaller tout)"
@@ -111,6 +115,7 @@ help: ## Afficher cette aide
 	@echo "  make vm-menu         - Menu interactif de gestion des VM"
 	@echo "  make fix-menu        - Menu de corrections automatiques"
 	@echo "  make validate-menu   - Afficher la validation du setup"
+	@echo "  make dfmenu MENU=pathman - Menu fzf (dotfiles-menu)"
 	@echo ""
 	@echo -e "$(GREEN)Outils:$(NC)"
 	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
@@ -304,6 +309,10 @@ fix-menu: ## Menu de corrections automatiques
 
 validate-menu: ## Menu de validation (affiche le résultat de validate)
 	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"
+
+# Menu générique fzf (label|command) — MENU=pathman pour share/menus/pathman.menu
+dfmenu: ## Menu dotfiles-menu (make dfmenu MENU=pathman)
+	@zsh -c 'source "$(DOTFILES_DIR)/shared/config.sh" 2>/dev/null; source "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; dotfiles_menu_run "$(MENU)"'
 
 # Outils de conversion
 convert-zsh-to-sh: ## Convertir les fonctions Zsh en Sh compatible
@@ -516,6 +525,9 @@ DOTFILES_DOCKER_PREFIX = dotfiles-test
 DOTFILES_CONTAINER = $(DOTFILES_DOCKER_PREFIX)-container
 DOTFILES_IMAGE = $(DOTFILES_DOCKER_PREFIX)-image:latest
 
+# Shell dans le conteneur (zsh par défaut). Ne pas utiliser SHELL (réservé par Make)
+DOCKER_SHELL ?= zsh
+
 docker-build: ## Construire l'image Docker pour tester les dotfiles
 	@echo -e "$(BLUE)🔨 Construction de l'image Docker (isolée avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
@@ -526,7 +538,70 @@ docker-build: ## Construire l'image Docker pour tester les dotfiles
 		exit 1; \
 	fi
 
-docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles
+docker-rebuild: ## Reconstruire l'image Docker (sans cache)
+	@echo -e "$(BLUE)🔨 Reconstruction de l'image Docker (nocache)...$(NC)"
+	@if command -v docker >/dev/null 2>&1; then \
+		DOCKER_BUILDKIT=0 docker build --no-cache -t $(DOTFILES_IMAGE) . && \
+		echo -e "$(GREEN)✓ Image reconstruite$(NC)"; \
+	else \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; exit 1; \
+	fi
+
+# Entrer dans l'environnement de test Docker (build si image absente). DOCKER_SHELL=zsh|bash|fish|sh
+docker-in: ## Entrer dans le conteneur (make docker-in ou make docker-in DOCKER_SHELL=bash)
+	@if ! command -v docker >/dev/null 2>&1; then \
+		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. installman docker$(NC)"; exit 1; \
+	fi; \
+	if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^$(DOTFILES_IMAGE)$$"; then \
+		echo -e "$(BLUE)📦 Image absente, construction...$(NC)"; \
+		$(MAKE) docker-build; \
+	fi; \
+	SH="$(DOCKER_SHELL)"; \
+	echo -e "$(GREEN)🐚 Shell: $$SH$(NC)"; \
+	case "$$SH" in \
+		zsh) \
+			docker run -it --rm \
+				--name $(DOTFILES_CONTAINER) \
+				-v "$(PWD):/root/dotfiles:ro" \
+				-v dotfiles-test-config:/root/.config \
+				-v dotfiles-test-ssh:/root/.ssh \
+				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
+				$(DOTFILES_IMAGE) /bin/zsh ;; \
+		bash) \
+			docker run -it --rm \
+				--name $(DOTFILES_CONTAINER) \
+				-v "$(PWD):/root/dotfiles:ro" \
+				-v dotfiles-test-config:/root/.config \
+				-v dotfiles-test-ssh:/root/.ssh \
+				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
+				$(DOTFILES_IMAGE) /bin/bash -c 'source /root/dotfiles/shared/config.sh 2>/dev/null; [ -f /root/dotfiles/bash/bashrc_custom ] && source /root/dotfiles/bash/bashrc_custom; exec /bin/bash' ;; \
+		fish) \
+			docker run -it --rm \
+				--name $(DOTFILES_CONTAINER) \
+				-v "$(PWD):/root/dotfiles:ro" \
+				-v dotfiles-test-config:/root/.config \
+				-v dotfiles-test-ssh:/root/.ssh \
+				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
+				$(DOTFILES_IMAGE) /bin/bash -c 'source /root/dotfiles/shared/config.sh 2>/dev/null; [ -f /root/dotfiles/fish/config_custom.fish ] && source /root/dotfiles/fish/config_custom.fish; exec fish' ;; \
+		sh) \
+			docker run -it --rm \
+				--name $(DOTFILES_CONTAINER) \
+				-v "$(PWD):/root/dotfiles:ro" \
+				-v dotfiles-test-config:/root/.config \
+				-v dotfiles-test-ssh:/root/.ssh \
+				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
+				$(DOTFILES_IMAGE) /bin/sh ;; \
+		*) \
+			docker run -it --rm \
+				--name $(DOTFILES_CONTAINER) \
+				-v "$(PWD):/root/dotfiles:ro" \
+				-v dotfiles-test-config:/root/.config \
+				-v dotfiles-test-ssh:/root/.ssh \
+				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
+				$(DOTFILES_IMAGE) /bin/zsh ;; \
+	esac
+
+docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles (zsh)
 	@echo -e "$(BLUE)🚀 Lancement du conteneur Docker (isolé avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
 		docker run -it --rm \
