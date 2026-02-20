@@ -25,6 +25,10 @@ fi
 # Charger le gestionnaire de versions
 [ -f "$CONFIGMAN_DIR/utils/version_manager.sh" ] && source "$CONFIGMAN_DIR/utils/version_manager.sh"
 
+# Log commun des managers (optionnel)
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+[ -f "$DOTFILES_DIR/scripts/lib/managers_log.sh" ] && source "$DOTFILES_DIR/scripts/lib/managers_log.sh"
+
 # DESC: Gestionnaire interactif complet pour les configurations système
 # USAGE: configman [category]
 # EXAMPLE: configman
@@ -275,7 +279,8 @@ configman() {
     if [ -n "$1" ]; then
         # Réinitialiser CONFIGMAN_MODULES_DIR (variable locale, pas exportée)
         CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
-        
+        type log_manager_action &>/dev/null && log_manager_action "configman" "run" "$1" "start" ""
+
         case "$1" in
             git)
                 if [ -f "$CONFIGMAN_MODULES_DIR/git/git_config.sh" ]; then

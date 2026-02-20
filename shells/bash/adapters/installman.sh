@@ -1,19 +1,21 @@
 #!/bin/bash
 # =============================================================================
-# INSTALLMAN ADAPTER - Adapter Bash pour installman
+# INSTALLMAN ADAPTER - Bash : appelle le core unique (Zsh) via entry script
 # =============================================================================
-# Description: Charge le core POSIX de installman et adapte pour Bash
-# Author: Paul Delhomme
-# Version: 2.0
+# Base unique = zsh/functions/installman (pagination, log, tous les outils).
+# Ce script définit la fonction installman pour lancer l'entrée commune.
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-INSTALLMAN_CORE="$DOTFILES_DIR/core/managers/installman/core/installman.sh"
+INSTALLMAN_ENTRY="$DOTFILES_DIR/core/managers/installman/installman_entry.sh"
 
-if [ -f "$INSTALLMAN_CORE" ]; then
-    source "$INSTALLMAN_CORE"
-else
-    echo "❌ Erreur: installman core non trouvé: $INSTALLMAN_CORE"
-    return 1
-fi
+installman() {
+    if [[ -x "$INSTALLMAN_ENTRY" || -f "$INSTALLMAN_ENTRY" ]]; then
+        "$INSTALLMAN_ENTRY" "$@"
+    else
+        echo "❌ installman entry non trouvé: $INSTALLMAN_ENTRY"
+        return 1
+    fi
+}
 
+export -f installman 2>/dev/null || true

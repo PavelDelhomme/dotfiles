@@ -1,19 +1,17 @@
 # =============================================================================
-# INSTALLMAN ADAPTER - Adapter Fish pour installman
+# INSTALLMAN ADAPTER - Fish : appelle le core unique (Zsh) via entry script
 # =============================================================================
-# Description: Charge le core POSIX de installman et adapte pour Fish
-# Author: Paul Delhomme
-# Version: 2.0
+# Base unique = zsh/functions/installman. Ce wrapper lance l'entrée commune.
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
-set -g INSTALLMAN_CORE "$DOTFILES_DIR/core/managers/installman/core/installman.sh"
+set -g DOTFILES_DIR (string default "$HOME/dotfiles" $DOTFILES_DIR)
+set -g INSTALLMAN_ENTRY "$DOTFILES_DIR/core/managers/installman/installman_entry.sh"
 
-if test -f "$INSTALLMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$INSTALLMAN_CORE'"
-else
-    echo "❌ Erreur: installman core non trouvé: $INSTALLMAN_CORE"
-    return 1
+function installman
+    if test -f "$INSTALLMAN_ENTRY"
+        sh "$INSTALLMAN_ENTRY" $argv
+    else
+        echo "❌ installman entry non trouvé: $INSTALLMAN_ENTRY"
+        return 1
+    end
 end
-

@@ -24,6 +24,26 @@ Ce fichier documente toutes les modifications apportées aux dotfiles depuis le 
 
 ---
 
+## 📋 BASE UNIQUE MULTI-SHELL + DOCKER + LOG MANAGERS (Fév. 2025)
+
+### Modifications
+- ✅ **Entrée unique installman** (`core/managers/installman/installman_entry.sh`) : un seul script exécutable par sh/bash/zsh/fish, qui lance le core Zsh avec les arguments.
+- ✅ **Adapters par shell** : Zsh charge directement le core ; Bash et Fish définissent la commande `installman` qui appelle l’entry script (pas de doublon de logique).
+- ✅ **Log générique managers** (`scripts/lib/managers_log.sh`) : `log_manager_action manager action target status details` → `logs/managers.log` ; réutilisable par configman et autres *man.
+- ✅ **Test Docker bootstrap** (`scripts/test/docker/run_dotfiles_bootstrap.sh`) : bootstrap + vérification installman + vérification multi-shell dans le conteneur.
+- ✅ **Vérification multi-shell** (`scripts/test/verify_multishell.sh`) : teste `installman help` depuis zsh, bash, sh.
+- ✅ **Docs** : `docs/MULTISHELL_REPORT.md` et `docs/STATUS.md` mis à jour (entry, adapters, Docker, logs).
+
+### Fichiers concernés
+- `core/managers/installman/installman_entry.sh` (nouveau)
+- `shells/zsh/adapters/installman.zsh`, `shells/bash/adapters/installman.sh`, `shells/fish/adapters/installman.fish`
+- `scripts/lib/managers_log.sh` (nouveau)
+- `scripts/test/docker/run_dotfiles_bootstrap.sh` (nouveau)
+- `scripts/test/verify_multishell.sh` (nouveau)
+- `docs/MULTISHELL_REPORT.md`, `docs/STATUS.md`
+
+---
+
 ## 📋 RÉSUMÉ GÉNÉRAL
 
 Refactorisation complète du système de dotfiles avec :

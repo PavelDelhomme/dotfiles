@@ -18,15 +18,16 @@ _installman_log_ensure_dir() {
 # Log une action installman
 # Usage: log_installman_action "install" "cursor" "success" ""
 #        log_installman_action "check-urls" "" "failed" "HTTP empty"
+# Note: on évite le nom "status" (variable en lecture seule en zsh)
 log_installman_action() {
     local action="$1"   # install | update | update-all | check-urls | package-search | ...
     local target="$2"   # nom outil ou ""
-    local status="$3"   # success | failed | skipped | error
+    local outcome="$3" # success | failed | skipped | error
     local details="$4"  # message d'erreur ou détail
     _installman_log_ensure_dir
     local ts
     ts=$(date '+%Y-%m-%d %H:%M:%S')
-    local line="[$ts] [installman] [$action] [$status] target=$target"
+    local line="[$ts] [installman] [$action] [$outcome] target=$target"
     [ -n "$details" ] && line="$line | $details"
     echo "$line" >> "$INSTALLMAN_LOG_FILE" 2>/dev/null
 }

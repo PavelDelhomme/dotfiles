@@ -1,19 +1,15 @@
-#!/bin/zsh
 # =============================================================================
-# INSTALLMAN ADAPTER - Adapter ZSH pour installman
+# INSTALLMAN ADAPTER - Zsh : charge le core Zsh (implémentation canonique)
 # =============================================================================
-# Description: Charge le core POSIX de installman et adapte pour ZSH
-# Author: Paul Delhomme
-# Version: 2.0
+# Base unique = ce core (pagination, log, tous les outils). Pas de sous-processus.
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-INSTALLMAN_CORE="$DOTFILES_DIR/core/managers/installman/core/installman.sh"
+INSTALLMAN_CORE="$DOTFILES_DIR/zsh/functions/installman/core/installman.zsh"
 
-if [ -f "$INSTALLMAN_CORE" ]; then
+if [[ -f "$INSTALLMAN_CORE" ]]; then
     source "$INSTALLMAN_CORE"
 else
-    echo "❌ Erreur: installman core non trouvé: $INSTALLMAN_CORE"
+    echo "❌ installman core non trouvé: $INSTALLMAN_CORE"
     return 1
 fi
-

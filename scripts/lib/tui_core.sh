@@ -81,3 +81,19 @@ tui_pagination_bar() {
     echo ""
     echo "  --- Page $((cur+1))/$tot (n=suivant p=précédant 0=retour) ---"
 }
+
+# =============================================================================
+# PATTERN MENU PAGINÉ (réutilisable par installman, configman, etc.)
+# =============================================================================
+# 1) Obtenir le nombre d'items par page:
+#    per_page=$(tui_menu_height 14)   # 14 = lignes réservées (header + barre + prompt)
+#    [ -z "$per_page" ] || [ "$per_page" -lt 5 ] && per_page=15
+# 2) Nombre de pages: total_pages=$(( (total_items + per_page - 1) / per_page ))
+# 3) Boucle: page=0; while true; do
+#      - Afficher header + slice des items: start=$(( page*per_page + 1 )); end=$(( (page+1)*per_page ))
+#      - Afficher barre: "Page $((page+1))/$total_pages (n=suivant p=précédant)"
+#      - Lire choice
+#      - Si choice = "n" et total_pages>1: page=$((page+1)); continue
+#      - Si choice = "p" et total_pages>1: page=$((page-1)); continue
+#      - Sinon traiter le choix (numéro, lettre, 0=quitter)
+# =============================================================================

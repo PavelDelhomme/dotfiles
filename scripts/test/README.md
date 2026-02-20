@@ -8,6 +8,24 @@ Système de test automatisé pour tester tous les managers dotfiles dans un envi
 
 ## 🚀 Utilisation rapide
 
+### Vérification multi-shell (installman)
+
+Vérifie que `installman` fonctionne depuis zsh, bash et sh :
+
+```bash
+bash scripts/test/verify_multishell.sh
+```
+
+### Test bootstrap dans Docker
+
+Bootstrap + vérification installman + multi-shell dans le conteneur (à lancer depuis l’hôte, avec les dotfiles montés) :
+
+```bash
+docker run --rm -v ~/dotfiles:/root/dotfiles -w /root/dotfiles dotfiles-test:latest bash scripts/test/docker/run_dotfiles_bootstrap.sh
+```
+
+Ou depuis le répertoire dotfiles : `bash scripts/test/docker/run_dotfiles_bootstrap.sh` (s’exécute dans l’environnement courant).
+
 ### Test des managers migrés (RECOMMANDÉ - Test progressif)
 
 **Teste uniquement les managers déjà migrés vers la structure hybride** :
@@ -112,6 +130,15 @@ Le rapport de test est généré dans :
 ```bash
 docker build -f scripts/test/docker/Dockerfile.test -t dotfiles-test:latest .
 ```
+
+### Lancer le test bootstrap (rapide)
+
+```bash
+docker compose -f scripts/test/docker/docker-compose.yml run --rm dotfiles-test \
+  bash -c "bash /root/dotfiles/scripts/test/docker/run_dotfiles_bootstrap.sh"
+```
+
+(Remplace la commande par défaut qui lance `run_tests.sh`.)
 
 ### Lancer un conteneur interactif (pour debug)
 

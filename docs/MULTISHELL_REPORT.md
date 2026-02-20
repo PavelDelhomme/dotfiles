@@ -2,36 +2,44 @@
 
 ## Vue d’ensemble
 
-Les dotfiles visent une base **unique** utilisable par **plusieurs shells** (sh, bash, zsh, fish).  
-Ce qui est commun est dans `scripts/`, `core/` et éventuellement `shared/`.  
-Ce qui est spécifique à un shell est dans `zsh/`, `bash/`, `fish/`, `shells/`.
+Les dotfiles visent une **base unique** utilisable par **tous les shells** (sh, bash, zsh, fish).  
+- **Implémentation canonique** : Zsh (`zsh/functions/installman/`, `configman/`, etc.).  
+- **Point d’entrée unique** : `core/managers/installman/installman_entry.sh` (invoque le core Zsh avec les arguments).  
+- **Librairies partagées** : `scripts/lib/` (TUI, logs, common).
 
-## Base commune (indépendante du shell)
+## Base commune
 
 | Emplacement | Rôle |
 |-------------|------|
-| `scripts/lib/common.sh` | Logging, couleurs, détection distro (bash) |
+| `core/managers/installman/installman_entry.sh` | **Entrée unique** : exécutable par tout shell, lance le core Zsh |
+| `zsh/functions/installman/core/installman.zsh` | **Implémentation canonique** (menu paginé, log, tous les outils) |
 | `scripts/lib/tui_core.sh` | Taille terminal, pagination (POSIX sh) |
-| `scripts/lib/installman_log.sh` | Log des actions installman (bash) |
+| `scripts/lib/installman_log.sh` | Log installman → `logs/installman.log` |
+| `scripts/lib/managers_log.sh` | Log générique pour tous les *man → `logs/managers.log` |
 | `scripts/install/*.sh` | Scripts d’installation (bash/sh) |
-| `core/managers/installman/` | Version POSIX de installman (sh) |
 
 ## Par shell
 
-| Shell | Chargement | Gestionnaires (*man) |
-|-------|------------|----------------------|
-| **Zsh** | `zshrc` → `zshrc_custom`, `aliases.zsh`, `functions/*.zsh` | `zsh/functions/installman/`, `configman/`, etc. |
-| **Bash** | `~/.bashrc` → dotfiles bash | `bash/functions/installman/` |
-| **Fish** | `config.fish`, `aliases.fish` | `fish/functions/installman/` |
+| Shell | Installman |
+|-------|------------|
+| **Zsh** | Charge directement le core (`shells/zsh/adapters/installman.zsh` → `zsh/.../installman.zsh`). Pas de sous-processus. |
+| **Bash** | `shells/bash/adapters/installman.sh` définit `installman()` qui exécute `installman_entry.sh` (zsh). |
+| **Fish** | `shells/fish/adapters/installman.fish` définit `installman` qui exécute `installman_entry.sh` (sh puis zsh). |
 
-## Installman
+## Vérification multi-shell
 
-- **Zsh** : implémentation principale dans `zsh/functions/installman/` (menu paginé, log, TUI).
-- **Bash/Fish** : adaptateurs dans `shells/*/adapters/installman.*` ou `bash/functions/installman/`, `fish/functions/installman/` qui peuvent appeler la même logique (scripts ou core) pour garder une seule base.
-- **Logs** : tous les shells peuvent écrire dans le même fichier `dotfiles/logs/installman.log` via `scripts/lib/installman_log.sh` (sourcé ou appelé depuis le script d’installation).
+```bash
+bash scripts/test/verify_multishell.sh
+```
 
-## Utilisation des logs installman
+Vérifie que `installman help` fonctionne depuis zsh, bash et sh.
 
-- Fichier : `$DOTFILES_DIR/logs/installman.log`
-- Depuis le menu : option **logs** dans installman.
-- En ligne de commande : `show_installman_logs` (si la lib est sourcée) ou `tail -f ~/dotfiles/logs/installman.log`.
+## Docker / VM pour tests
+
+- **Docker** : `scripts/test/docker/` (Dockerfile.test, docker-compose.yml). Lancer les tests : `docker-compose -f scripts/test/docker/docker-compose.yml run --rm dotfiles-test`. Test bootstrap : `bash scripts/test/docker/run_dotfiles_bootstrap.sh` (à lancer depuis l’hôte ou dans le conteneur).
+- **VM** : `scripts/vm/` (QEMU/KVM, snapshots). Voir `scripts/vm/README.md`.
+
+## Logs
+
+- **Installman** : `$DOTFILES_DIR/logs/installman.log` (option **logs** dans le menu installman).  
+- **Tous les managers** : `$DOTFILES_DIR/logs/managers.log` si utilisation de `log_manager_action` (voir `scripts/lib/managers_log.sh`).
