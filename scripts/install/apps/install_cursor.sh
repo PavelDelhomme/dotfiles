@@ -138,25 +138,19 @@ TEMP_HTML=$(mktemp)
 trap 'rm -f "$TEMP_HTML"' EXIT
 
 if curl -s -L "https://cursor.com/download" -o "$TEMP_HTML" 2>/dev/null; then
-    # Extraire la version depuis le lien qui correspond exactement à notre format (évite 2.4 si la page liste plusieurs versions)
+    # Extraire la version affichée sur la page (ex: 2.5) pour le log
     CURSOR_VERSION=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+$')
-    if [ -z "$CURSOR_VERSION" ]; then
-        # Fallback: n'importe quel lien Linux
-        CURSOR_VERSION=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/linux-[^/]+/cursor/[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+$')
-    fi
-    if [ -n "$CURSOR_VERSION" ]; then
-        CURSOR_URL="https://api2.cursor.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/${CURSOR_VERSION}"
-        log_info "Dernière version (cursor.com/download): $CURSOR_VERSION"
-    fi
+    [ -z "$CURSOR_VERSION" ] && CURSOR_VERSION=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/linux-[^/]+/cursor/[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+$')
+    [ -n "$CURSOR_VERSION" ] && log_info "Dernière branche (cursor.com/download): $CURSOR_VERSION"
 fi
 
-if [ -z "$CURSOR_URL" ]; then
-    CURSOR_URL="https://api2.cursor.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/latest"
-    log_warn "Version non détectée depuis la page, utilisation de 'latest'"
-fi
+# Toujours utiliser /latest pour le téléchargement : le serveur renvoie la dernière build (ex: 2.5.30)
+# plutôt que la version "fixe" de la page (ex: 2.5) qui peut être une build plus ancienne
+CURSOR_URL="https://api2.cursor.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/latest"
+log_info "Téléchargement via /latest (dernière build disponible)"
 
 log_info "Format: $CURSOR_FORMAT | Arch: $CURSOR_ARCH"
-log_info "Téléchargement depuis: $CURSOR_URL"
+log_info "URL: $CURSOR_URL"
 
 ################################################################################
 # Téléchargement et installation selon le format
