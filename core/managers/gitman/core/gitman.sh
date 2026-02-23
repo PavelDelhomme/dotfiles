@@ -54,6 +54,50 @@ gitman() {
         printf "${RESET}"
     }
     
+    # DESC: Estime le temps passé par auteur (toutes branches, refs locaux + distants déjà récupérés)
+    # USAGE: appelé par gitman time-spent [--fetch]
+    # Algorithme: pour chaque auteur, somme des min(écart entre 2 commits consécutifs, 2h) = temps de session estimé
+    gitman_time_spent() {
+        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            printf "${RED}❌ Pas un dépôt Git (exécuter depuis la racine du projet)${RESET}\n"
+            return 1
+        fi
+        do_fetch=0
+        [ "$1" = "--fetch" ] && do_fetch=1 && shift
+        if [ "$do_fetch" -eq 1 ]; then
+            printf "${CYAN}Récupération des refs distantes...${RESET}\n"
+            git fetch --all 2>/dev/null || true
+        fi
+        max_gap_sec="${GITMAN_TIME_MAX_GAP:-7200}"
+        # Format: timestamp TAB auteur (toutes branches/refs)
+        raw=$(git log --all --format='%at	%an' 2>/dev/null) || { printf "${RED}❌ git log --all a échoué${RESET}\n"; return 1; }
+        [ -z "$raw" ] && printf "${YELLOW}Aucun commit trouvé.${RESET}\n" && return 0
+        printf "${BOLD}⏱ Temps estimé (toutes branches, refs locaux + distants)${RESET}\n"
+        printf "${BLUE}   Écart max entre 2 commits = même session = %s secondes${RESET}\n\n" "$max_gap_sec"
+        # Tri par auteur puis par date; awk: par auteur somme min(diff, max_gap)
+        echo "$raw" | sort -t'	' -k2,2 -k1,1n | awk -F'\t' -v max_gap="$max_gap_sec" '
+        BEGIN { prev_ts=0; prev_author=""; total_sec=0 }
+        {
+            ts=$1; author=$2
+            if (prev_author != "" && prev_author == author && prev_ts > 0) {
+                d = ts - prev_ts
+                if (d < 0) d = -d
+                if (d > max_gap) d = max_gap
+                sum[author] += d
+                total_sec += d
+            }
+            prev_ts=ts; prev_author=author
+            count[author]++
+        }
+        END {
+            for (a in count) {
+                h = sum[a] / 3600
+                printf "  %-40s %6.1f h  (%d commits)\n", a, h, count[a]
+            }
+            printf "  %-40s %6.1f h  (total)\n", "TOTAL", total_sec/3600
+        }'
+    }
+    
     # Fonction pour configurer l'identité Git
     configure_git_identity() {
         printf "${CYAN}⚙️  Configuration de l'identité Git${RESET}\n"
@@ -118,6 +162,9 @@ gitman() {
         echo "20. Clean"
         echo "21. Reset"
         echo "22. Stash"
+        echo ""
+        echo "⏱ TEMPS ESTIMÉ:"
+        echo "23. Temps passé (par auteur, toutes branches)"
         echo ""
         echo "0.  Quitter"
         echo ""
@@ -411,6 +458,13 @@ gitman() {
                 printf "Appuyez sur Entrée pour continuer... "
                 read dummy
                 ;;
+            23)
+                echo ""
+                gitman_time_spent
+                echo ""
+                printf "Appuyez sur Entrée pour continuer... "
+                read dummy
+                ;;
             0) return ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
@@ -565,6 +619,9 @@ gitman() {
                 target="${3:-HEAD}"
                 git reset --"$type" "$target"
                 ;;
+            time-spent|stats-time|time)
+                gitman_time_spent "$2"
+                ;;
             stash)
                 action="${2:-list}"
                 case "$action" in
@@ -623,6 +680,8 @@ gitman() {
                 echo "  clean               - Nettoie les fichiers non trackés"
                 echo "  reset [type] [target] - Reset (soft/mixed/hard)"
                 echo "  stash [action]      - Gestion des stashes"
+                echo "  time-spent [--fetch] - Temps estimé par auteur (toutes branches)"
+                echo "                         Variable: GITMAN_TIME_MAX_GAP (sec, défaut 7200)"
                 echo ""
                 echo "Sans argument: menu interactif"
                 ;;

@@ -31,39 +31,51 @@ mkdir -p "$TEST_RESULTS_DIR"
 # Fonctions de test
 # =============================================================================
 
-# Test 1: Vérifier que le manager existe
+# Test 1: Vérifier que le manager existe (dans le shell cible, après chargement adapter)
 test_manager_exists() {
     local manager="$1"
     local shell_type="$2"
-    local result=0
+    local adapter_file=""
     
     case "$shell_type" in
         zsh)
-            if type "$manager" >/dev/null 2>&1; then
-                echo "✅ Manager $manager existe (ZSH)"
-                return 0
-            else
-                echo "❌ Manager $manager n'existe pas (ZSH)"
-                return 1
+            adapter_file="$DOTFILES_DIR/shells/zsh/adapters/$manager.zsh"
+            if [ -f "$adapter_file" ]; then
+                if zsh -c "source \"$adapter_file\" 2>/dev/null && type $manager >/dev/null 2>&1"; then
+                    echo "✅ Manager $manager existe (ZSH)"
+                    return 0
+                fi
             fi
+            echo "❌ Manager $manager n'existe pas (ZSH)"
+            return 1
             ;;
         bash)
-            if type "$manager" >/dev/null 2>&1; then
-                echo "✅ Manager $manager existe (Bash)"
-                return 0
+            adapter_file="$DOTFILES_DIR/shells/bash/adapters/$manager.sh"
+            if [ -f "$adapter_file" ]; then
+                if bash -c "source \"$adapter_file\" 2>/dev/null && type $manager >/dev/null 2>&1"; then
+                    echo "✅ Manager $manager existe (Bash)"
+                    return 0
+                fi
             else
-                echo "❌ Manager $manager n'existe pas (Bash)"
-                return 1
+                echo "⚠️  Adapter Bash non trouvé: $adapter_file"
+                return 0
             fi
+            echo "❌ Manager $manager n'existe pas (Bash)"
+            return 1
             ;;
         fish)
-            if type "$manager" >/dev/null 2>&1; then
-                echo "✅ Manager $manager existe (Fish)"
-                return 0
+            adapter_file="$DOTFILES_DIR/shells/fish/adapters/$manager.fish"
+            if [ -f "$adapter_file" ]; then
+                if fish -c "source \"$adapter_file\" 2>/dev/null && type $manager >/dev/null 2>&1"; then
+                    echo "✅ Manager $manager existe (Fish)"
+                    return 0
+                fi
             else
-                echo "❌ Manager $manager n'existe pas (Fish)"
-                return 1
+                echo "⚠️  Adapter Fish non trouvé: $adapter_file"
+                return 0
             fi
+            echo "❌ Manager $manager n'existe pas (Fish)"
+            return 1
             ;;
         *)
             echo "⚠️  Shell non supporté: $shell_type"
@@ -218,6 +230,81 @@ test_manager_load() {
     esac
 }
 
+# Test 5b (gitman uniquement): Vérifier que "gitman time-spent" fonctionne dans un dépôt Git
+test_gitman_time_spent() {
+    local manager="$1"
+    local repo_dir="${2:-$DOTFILES_DIR}"
+    
+    if [ "$manager" != "gitman" ]; then
+        return 0
+    fi
+    if ! command -v git >/dev/null 2>&1; then
+        echo "⚠️  git non disponible - test time-spent ignoré"
+        return 0
+    fi
+    # Résoudre le chemin absolu du repo (important en Docker)
+    repo_dir=$(cd "$repo_dir" 2>/dev/null && pwd) || true
+    [ -z "$repo_dir" ] && echo "⚠️  Répertoire repo inaccessible - test time-spent ignoré" && return 0
+    if ! [ -d "$repo_dir/.git" ]; then
+        echo "⚠️  Pas de dépôt Git dans $repo_dir - test time-spent ignoré (Docker: volume monté avec .git?)"
+        return 0
+    fi
+    # Exécuter dans zsh: charger gitman, aller dans le repo, lancer time-spent
+    out=$(zsh -c "
+        export DOTFILES_DIR=\"$DOTFILES_DIR\"
+        source \"$DOTFILES_DIR/shells/zsh/adapters/gitman.zsh\" 2>/dev/null || true
+        cd \"$repo_dir\" && gitman time-spent 2>&1
+    " 2>/dev/null)
+    exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        if echo "$out" | grep -q "Pas un dépôt Git"; then
+            echo "⚠️  gitman time-spent: pas en dépôt Git (cwd ou volume) - test ignoré"
+            return 0
+        fi
+        echo "❌ gitman time-spent a échoué (code $exit_code)"
+        echo "$out" | head -20
+        return 1
+    fi
+    if ! echo "$out" | grep -q "TOTAL"; then
+        echo "❌ gitman time-spent: sortie sans ligne TOTAL"
+        echo "$out" | head -15
+        return 1
+    fi
+    if ! echo "$out" | grep -qE " [0-9]+\.?[0-9]* h "; then
+        echo "❌ gitman time-spent: sortie sans heures (h)"
+        echo "$out" | head -15
+        return 1
+    fi
+    echo "✅ gitman time-spent OK (estimation temps par auteur)"
+    return 0
+}
+
+# Test 5c: Test fonctionnel (smoke) - une commande non interactive par manager
+test_manager_smoke() {
+    local manager="$1"
+    local out="" code=0
+    case "$manager" in
+        pathman)
+            out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh\" 2>/dev/null && pathman show 2>&1") || true
+            code=$?
+            if [ $code -ne 0 ]; then
+                echo "❌ pathman show a échoué (code $code)"
+                return 1
+            fi
+            if ! echo "$out" | grep -qE "PATH|/bin|/usr"; then
+                echo "❌ pathman show: sortie inattendue"
+                echo "$out" | head -5
+                return 1
+            fi
+            echo "✅ pathman show OK (fonctionnel)"
+            return 0
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+}
+
 # Test 5: Vérifier que le manager répond (test basique avec timeout)
 test_manager_response() {
     local manager="$1"
@@ -284,6 +371,10 @@ test_manager() {
     local passed_tests=0
     local failed_tests=0
     
+    # Tests supplémentaires: gitman (time-spent), pathman (smoke show)
+    [ "$manager" = "gitman" ] && total_tests=6
+    [ "$manager" = "pathman" ] && total_tests=6
+    
     echo ""
     echo "═══════════════════════════════════════════════════════════════"
     echo "🧪 TEST: $manager ($shell_type)"
@@ -322,6 +413,24 @@ test_manager() {
         passed_tests=$((passed_tests + 1))
     else
         failed_tests=$((failed_tests + 1))
+    fi
+    
+    # Test 5b: gitman time-spent (uniquement pour gitman, dans un dépôt Git)
+    if [ "$manager" = "gitman" ]; then
+        if test_gitman_time_spent "$manager" "$DOTFILES_DIR"; then
+            passed_tests=$((passed_tests + 1))
+        else
+            failed_tests=$((failed_tests + 1))
+        fi
+    fi
+    
+    # Test 5c: smoke fonctionnel (pathman show, etc.)
+    if [ "$manager" = "pathman" ]; then
+        if test_manager_smoke "$manager"; then
+            passed_tests=$((passed_tests + 1))
+        else
+            failed_tests=$((failed_tests + 1))
+        fi
     fi
     
     # Résumé

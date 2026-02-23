@@ -1,4 +1,26 @@
 ═══════════════════════════════════════════════════════════════
-RAPPORT DE TEST - Thu Dec 11 22:03:05 UTC 2025
+RAPPORT DE TEST - Mon Feb 23 13:29:16 UTC 2026
 ═══════════════════════════════════════════════════════════════
+
+✅ pathman: Tous les tests passés
+✅ manman: Tous les tests passés
+✅ searchman: Tous les tests passés
+✅ aliaman: Tous les tests passés
+✅ installman: Tous les tests passés
+✅ configman: Tous les tests passés
+❌ gitman: Certains tests ont échoué
+✅ fileman: Tous les tests passés
+✅ helpman: Tous les tests passés
+❌ cyberman: Certains tests ont échoué
+✅ devman: Tous les tests passés
+✅ virtman: Tous les tests passés
+✅ miscman: Tous les tests passés
+
+═══════════════════════════════════════════════════════════════
+RÉSUMÉ FINAL
+═══════════════════════════════════════════════════════════════
+Total managers testés: 13
+Managers réussis: 11
+Managers échoués: 2
+Total tests: 66
 

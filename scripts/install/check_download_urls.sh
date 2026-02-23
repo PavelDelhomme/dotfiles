@@ -16,6 +16,7 @@ NC='\033[0m'
 # type_attendu: appimage -> vérifier application/x-executable ou octet-stream + taille > 1M
 CURSOR_URL_PRIMARY="https://downloader.cursor.sh/linux/appImage/x64"
 CURSOR_URL_ALT="https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
+CHROME_DEB_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
 FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.5-stable.tar.xz"
 NVM_URL="https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh"
 FLATHUB_URL="https://dl.flathub.org/repo/flathub.flatpakrepo"
@@ -108,6 +109,8 @@ cursor_ok=0
 check_url "Cursor (primary)"    "$CURSOR_URL_PRIMARY" "appimage" && cursor_ok=1
 check_url "Cursor (fallback)"   "$CURSOR_URL_ALT"    "appimage" && cursor_ok=1
 [ $cursor_ok -eq 0 ] && err=1
+check_url "Cursor (download page)" "https://cursor.com/download" "html" || true
+check_url "Google Chrome .deb"  "$CHROME_DEB_URL"   "any"      || err=1
 check_url "Flutter stable"      "$FLUTTER_URL"      "archive"  || err=1
 check_url "NVM install script"  "$NVM_URL"          "any"      || err=1
 check_url "Flathub repo"        "$FLATHUB_URL"      "any"      || err=1

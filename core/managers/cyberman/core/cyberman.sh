@@ -75,12 +75,13 @@ cyberman() {
     # Fonction pour afficher le header
     show_header() {
         clear
-        printf "${CYAN}${BOLD}
-"        echo "╔════════════════════════════════════════════════════════════════╗"
+        printf "${CYAN}${BOLD}\n"
+        echo "╔════════════════════════════════════════════════════════════════╗"
         echo "║                  CYBERMAN - Cyber Security Manager             ║"
         echo "║                  Gestionnaire Sécurité Cyber ZSH              ║"
         echo "╚════════════════════════════════════════════════════════════════╝"
-        printf "${RESET} "    }
+        printf "${RESET}\n"
+    }
     
     # =========================================================================
     # CATÉGORIE 1: RECONNAISSANCE & INFORMATION GATHERING
@@ -91,8 +92,9 @@ cyberman() {
     show_recon_menu() {
         while true; do
             show_header
-            printf "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET} "            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"            echo "1.  WHOIS domain              - Informations domaine"
+            printf "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET}\n"
+            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            echo "1.  WHOIS domain              - Informations domaine"
             echo "2.  DNS Lookup                - Requêtes DNS"
             echo "3.  DNSEnum scan              - Énumération DNS"
             echo "4.  Find subdomains           - Recherche sous-domaines"
@@ -198,8 +200,9 @@ cyberman() {
     # EXAMPLE: show_scan_menu
     show_scan_menu() {
         show_header
-        printf "${YELLOW}🔎 SCANNING & ENUMERATION${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Port scan                 - Scan de ports"
+        printf "${YELLOW}🔎 SCANNING & ENUMERATION${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Port scan                 - Scan de ports"
         echo "2.  Scan ports                - Alternative scan ports"
         echo "3.  Web port scan             - Scan ports web"
         echo "4.  Scan web ports            - Alternative scan ports web"
@@ -314,8 +317,9 @@ cyberman() {
     # EXAMPLE: show_vuln_menu
     show_vuln_menu() {
         show_header
-        printf "${YELLOW}🛡️ VULNERABILITY ASSESSMENT & SESSION${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Nmap vuln scan            - Scan vulnérabilités Nmap"
+        printf "${YELLOW}🛡️ VULNERABILITY ASSESSMENT & SESSION${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Nmap vuln scan            - Scan vulnérabilités Nmap"
         echo "2.  Vuln scan                 - Scan vulnérabilités général"
         echo "3.  Scan vulns                - Alternative scan vulnérabilités"
         echo "4.  Nikto scan                - Scan Nikto"
@@ -406,8 +410,9 @@ cyberman() {
     # EXAMPLE: show_attack_menu
     show_attack_menu() {
         show_header
-        printf "${YELLOW}⚔️ NETWORK ATTACKS & EXPLOITATION${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  ARP Spoof                 - Attaque ARP spoofing"
+        printf "${YELLOW}⚔️ NETWORK ATTACKS & EXPLOITATION${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  ARP Spoof                 - Attaque ARP spoofing"
         echo "2.  Brute SSH                 - Brute force SSH"
         echo "3.  Password crack            - Cracking de mots de passe"
         echo "4.  Deauth attack             - Attaque désauthentification Wi-Fi"
@@ -437,8 +442,9 @@ cyberman() {
     # EXAMPLE: show_analysis_menu
     show_analysis_menu() {
         show_header
-        printf "${YELLOW}📡 NETWORK ANALYSIS & MONITORING${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Sniff traffic             - Capture trafic réseau"
+        printf "${YELLOW}📡 NETWORK ANALYSIS & MONITORING${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Sniff traffic             - Capture trafic réseau"
         echo "2.  Wifi scan                 - Scan réseaux Wi-Fi"
         echo "0.  Retour au menu principal"
         echo ""
@@ -510,9 +516,8 @@ cyberman() {
     # EXAMPLE: show_target_menu
     show_target_menu() {
         show_header
-        printf "${YELLOW}🎯 GESTION DES CIBLES${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-
-"
+        printf "${YELLOW}🎯 GESTION DES CIBLES${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
             show_targets
             echo ""
@@ -612,9 +617,7 @@ cyberman() {
         show_header
         
         # Afficher l'environnement actif et les cibles configurées
-        printf "${CYAN}${BOLD}État actuel:${RESET}
-"
-"        
+        printf "${CYAN}${BOLD}État actuel:${RESET}\n"        
         # Afficher l'environnement actif
         # IMPORTANT: Utiliser directement la variable globale si elle existe
         # Ne pas recharger systématiquement car cela pourrait réactiver un environnement désactivé
@@ -772,9 +775,8 @@ EOF
     # EXAMPLE: show_anonymity_menu
     show_anonymity_menu() {
         show_header
-        printf "${YELLOW}🔒 GESTION DE L'ANONYMAT${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-
-"
+        printf "${YELLOW}🔒 GESTION DE L'ANONYMAT${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo "1.  Vérifier l'anonymat"
         echo "2.  Afficher les informations d'anonymat"
         echo "3.  Exécuter une commande avec anonymat"
@@ -871,9 +873,8 @@ EOF
     # EXAMPLE: show_utilities_menu
     show_utilities_menu() {
         show_header
-        printf "${YELLOW}🛠️  UTILITAIRES${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-
-"
+        printf "${YELLOW}🛠️  UTILITAIRES${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo "1.  🔐 Calculer un hash - MD5, SHA1, SHA256, etc."
         echo "2.  🔄 Encoder/Décoder - Base64, URL, Hex, etc."
         echo "3.  🔍 Rechercher dans les fichiers"
@@ -987,9 +988,8 @@ EOF
     # EXAMPLE: show_learning_menu
     show_learning_menu() {
         show_header
-        printf "${YELLOW}🎓 APPRENTISSAGE & LABS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-
-"
+        printf "${YELLOW}🎓 APPRENTISSAGE & LABS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         # Charger cyberlearn si disponible
         CYBERLEARN_DIR="${HOME}/dotfiles/zsh/functions/cyberlearn"
         if [ -f "$CYBERLEARN_DIR/cyberlearn.zsh" ]; then
@@ -1300,9 +1300,8 @@ EOF
     # EXAMPLE: show_assistant_menu
     show_assistant_menu() {
         show_header
-        printf "${YELLOW}🚀 ASSISTANT DE TEST COMPLET${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-
-"
+        printf "${YELLOW}🚀 ASSISTANT DE TEST COMPLET${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo "L'assistant vous guidera à travers:"
         echo "  • Configuration des cibles"
         echo "  • Configuration de l'anonymat"
@@ -1332,8 +1331,9 @@ EOF
     # EXAMPLE: show_web_menu
     show_web_menu() {
         show_header
-        printf "${YELLOW}🌐 WEB SECURITY & TESTING${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "🔍 SCANNERS DE VULNÉRABILITÉS:"
+        printf "${YELLOW}🌐 WEB SECURITY & TESTING${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "🔍 SCANNERS DE VULNÉRABILITÉS:"
         echo "1.  Nuclei Scanner             - Scanner complet de vulnérabilités"
         echo "2.  XSS Scanner                 - XSStrike, Dalfox, Nuclei XSS"
         echo "3.  SQL Injection - SQLMap      - Test injection SQL"
@@ -1426,8 +1426,9 @@ EOF
     # EXAMPLE: show_iot_menu
     show_iot_menu() {
         show_header
-        printf "${YELLOW}📱 IoT DEVICES & EMBEDDED SYSTEMS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  IoT device scan           - Scan appareils IoT"
+        printf "${YELLOW}📱 IoT DEVICES & EMBEDDED SYSTEMS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  IoT device scan           - Scan appareils IoT"
         echo "2.  MQTT scan                 - Scan serveurs MQTT"
         echo "3.  CoAP scan                 - Scan CoAP"
         echo "4.  Zigbee scan               - Scan réseaux Zigbee"
@@ -1466,8 +1467,9 @@ EOF
     # EXAMPLE: show_network_tools_menu
     show_network_tools_menu() {
         show_header
-        printf "${YELLOW}📡 NETWORK TOOLS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  📊 Network Analysis & Monitoring"
+        printf "${YELLOW}📡 NETWORK TOOLS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  📊 Network Analysis & Monitoring"
         echo "2.  ⚔️  Network Attacks & Exploitation"
         echo "3.  🔌 Network Devices & Infrastructure"
         echo "0.  Retour au menu principal"
@@ -1492,8 +1494,9 @@ EOF
     # EXAMPLE: show_advanced_tools_menu
     show_advanced_tools_menu() {
         show_header
-        printf "${YELLOW}🔧 ADVANCED TOOLS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  🎯 Metasploit Framework"
+        printf "${YELLOW}🔧 ADVANCED TOOLS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  🎯 Metasploit Framework"
         echo "2.  📜 Custom Nmap Scripts"
         echo "3.  🔨 Custom Exploitation Scripts"
         echo "0.  Retour au menu principal"
@@ -1514,8 +1517,9 @@ EOF
     # USAGE: show_metasploit_menu
     show_metasploit_menu() {
         show_header
-        printf "${YELLOW}🎯 METASPLOIT FRAMEWORK${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Lancer msfconsole"
+        printf "${YELLOW}🎯 METASPLOIT FRAMEWORK${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Lancer msfconsole"
         echo "2.  Rechercher un exploit"
         echo "3.  Rechercher un payload"
         echo "4.  Rechercher un auxiliary"
@@ -1584,8 +1588,9 @@ EOF
     # USAGE: show_custom_nmap_menu
     show_custom_nmap_menu() {
         show_header
-        printf "${YELLOW}📜 CUSTOM NMAP SCRIPTS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Lister les scripts nmap disponibles"
+        printf "${YELLOW}📜 CUSTOM NMAP SCRIPTS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Lister les scripts nmap disponibles"
         echo "2.  Exécuter un script nmap personnalisé"
         echo "3.  Créer un script nmap personnalisé"
         echo "4.  Scan avec scripts vuln"
@@ -1667,8 +1672,9 @@ EOF
     # USAGE: show_custom_exploit_menu
     show_custom_exploit_menu() {
         show_header
-        printf "${YELLOW}🔨 CUSTOM EXPLOITATION SCRIPTS${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Lister les scripts personnalisés"
+        printf "${YELLOW}🔨 CUSTOM EXPLOITATION SCRIPTS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Lister les scripts personnalisés"
         echo "2.  Exécuter un script personnalisé"
         echo "3.  Créer un nouveau script"
         echo "0.  Retour"
@@ -1724,8 +1730,9 @@ EOF
     # EXAMPLE: show_network_devices_menu
     show_network_devices_menu() {
         show_header
-        printf "${YELLOW}🔌 NETWORK DEVICES & INFRASTRUCTURE${RESET} "        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n
-"        echo "1.  Router scan               - Scan routeurs"
+        printf "${YELLOW}🔌 NETWORK DEVICES & INFRASTRUCTURE${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "1.  Router scan               - Scan routeurs"
         echo "2.  Switch scan               - Scan switches"
         echo "3.  Firewall scan             - Scan pare-feu"
         echo "4.  SNMP scan                 - Scan SNMP"
@@ -1849,7 +1856,8 @@ EOF
                     . "$HOME/dotfiles/zsh/functions/cyberman/modules/osint/osint_manager.sh"
                     show_osint_menu
                 else
-                    printf "${RED}❌ Module OSINT non disponible${RESET} "                    sleep 2
+                    printf "${RED}❌ Module OSINT non disponible${RESET}\n"
+                    sleep 2
                 fi
                 ;;
             11) show_assistant_menu ;;
@@ -1938,6 +1946,7 @@ EOF
         esac
     done
     printf "${GREEN}Au revoir !${RESET}\n"
+    }
 }
 
 # Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k

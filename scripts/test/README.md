@@ -6,6 +6,22 @@ Système de test automatisé pour tester tous les managers dotfiles dans un envi
 
 ---
 
+## 🛡️ Comment tester sans impacter ta machine
+
+| Objectif | Où | Commande | Impact hôte |
+|----------|-----|----------|--------------|
+| **Vérifier le projet** (syntaxe core, adapters, scripts, URLs) | Local **ou** Docker | `make test-checks` | Aucun (lecture seule) |
+| **Tester les managers** (pathman, gitman, installman, etc.) | **Docker** | `make test` | Aucun (conteneur isolé) |
+| **Tester à la main** (installman list, pathman show, etc.) | **Docker** | `make docker-in` | Aucun (volume en lecture seule) |
+| **Validation complète** (PATH, services, structure, symlinks) | Local (ou Docker) | `make validate` | Aucun (vérifications uniquement) |
+| **Suite complète** (checks + managers Docker + multi-shell + sync) | Local | `bash scripts/test/test_all_complete.sh` | Managers en Docker, reste local |
+
+- **Docker** : tes dotfiles sont montés en **lecture seule** dans le conteneur. Tu peux lancer `make test` et `make docker-in` sans modifier ton système.
+- **test-checks** : vérifie la syntaxe des cores POSIX, des adapters ZSH, des scripts install, et les URLs de téléchargement (Cursor, Chrome, Flutter…). Utilisable partout.
+- **testman / testzshman** : si tu les utilises, tu peux les lancer **dans le conteneur** après `make docker-in` pour tester tes modules ZSH sans toucher à l’hôte.
+
+---
+
 ## 🚀 Utilisation rapide
 
 ### Entrer dans l'environnement Docker (recommandé)
@@ -129,11 +145,15 @@ scripts/test/
 
 Pour chaque manager, les tests suivants sont effectués :
 
-1. **Existence** : Vérifier que le manager existe dans le shell
+1. **Existence** : Vérifier que le manager existe dans le shell cible (après chargement de l'adapter)
 2. **Syntaxe core** : Vérifier la syntaxe du fichier core POSIX
 3. **Syntaxe adapter** : Vérifier la syntaxe de l'adapter shell
 4. **Chargement** : Vérifier que le manager peut être chargé
 5. **Réponse** : Vérifier que le manager répond aux commandes
+6. **Tests fonctionnels (smoke)** :
+   - **gitman** : `gitman time-spent` (dans le dépôt dotfiles ; ignoré si pas de .git, ex. en Docker sans volume)
+   - **pathman** : `pathman show` (vérifie que la commande affiche le PATH)
+   - D’autres commandes non interactives peuvent être ajoutées par manager dans `manager_tester.sh`
 
 ---
 

@@ -494,6 +494,7 @@ INSTALL_SCRIPTS=(
     "$SCRIPT_DIR/install/system/packages_base.sh:packages_base.sh"
     "$SCRIPT_DIR/install/system/package_managers.sh:package_managers.sh"
     "$SCRIPT_DIR/install/apps/install_brave.sh:install_brave.sh"
+    "$SCRIPT_DIR/install/apps/install_chrome.sh:install_chrome.sh"
     "$SCRIPT_DIR/install/apps/install_cursor.sh:install_cursor.sh"
     "$SCRIPT_DIR/install/apps/install_portproton.sh:install_portproton.sh"
     "$SCRIPT_DIR/install/dev/install_docker.sh:install_docker.sh"

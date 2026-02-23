@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-checks test-docker test-docker-manager test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -40,11 +40,14 @@ help: ## Afficher cette aide
 	@echo "  make validate          - Valider le setup complet"
 	@echo ""
 	@echo -e "$(GREEN)Tests:$(NC)"
-	@echo "  make test              - Lancer tous les tests"
-	@echo "  make test-all          - Test complet dans environnement isolé"
+	@echo "  make test              - Tout tester (Docker + managers migrés). Vérif manuelle possible après."
+	@echo "  make test-docker       - Tests complets dans Docker (managers migrés, dont gitman time-spent)"
+	@echo "  make test-docker-manager MANAGER=gitman - Tester un seul manager dans Docker"
+	@echo "  make test-checks       - Vérif. projet (syntaxe core/adapters/scripts + URLs), Docker ou local"
+	@echo "  make test-all          - Test local (syntaxe + présence managers, sans Docker)"
 	@echo "  make test-syntax       - Tester la syntaxe de tous les scripts"
-	@echo "  make test-managers     - Tester tous les managers"
-	@echo "  make test-manager MANAGER=aliaman - Tester un manager spécifique"
+	@echo "  make test-managers     - Vérifier présence et structure des managers"
+	@echo "  make test-manager MANAGER=aliaman - Tester un manager spécifique (local)"
 	@echo "  make test-scripts      - Tester les scripts de configuration"
 	@echo "  make test-libs         - Tester les bibliothèques communes"
 	@echo "  make test-zshrc        - Tester zshrc_custom"
@@ -341,16 +344,35 @@ generate-man: ## Générer les pages man pour toutes les fonctions
 # Tests
 ################################################################################
 
-test: test-all ## Lancer tous les tests (alias pour test-all)
+# Une commande pour tout tester (Docker + managers). Tu peux vérifier manuellement après.
+test: test-docker ## Lancer tous les tests (Docker, managers migrés). Vérification manuelle possible après.
 
-test-all: ## Test complet dans environnement isolé
-	@echo -e "$(BLUE)🧪 Test complet des dotfiles...$(NC)"
+# Tests complets dans Docker : build image si besoin, lance tous les managers migrés (pathman, gitman, etc.).
+test-docker: ## Tests complets dans Docker (managers migrés, dont gitman time-spent)
+	@echo -e "$(BLUE)🧪 Tests complets (Docker) - managers migrés...$(NC)"
+	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/test_migrated_managers.sh"
+	@echo ""
+	@echo -e "$(GREEN)💡 Vérification manuelle :$(NC) make docker-in puis pathman, gitman time-spent, etc."
+
+# Tester un seul manager dans Docker (ex: make test-docker-manager MANAGER=gitman)
+test-docker-manager: ## Tester un manager dans Docker (usage: make test-docker-manager MANAGER=gitman)
+	@if [ -z "$(MANAGER)" ]; then \
+		echo -e "$(YELLOW)⚠️  Usage: make test-docker-manager MANAGER=gitman$(NC)"; \
+		exit 1; \
+	fi
+	@DOTFILES_DIR="$(DOTFILES_DIR)" TEST_MANAGERS="$(MANAGER)" bash "$(SCRIPT_DIR)/test/test_all_managers.sh"
+
+# Vérifications du projet (syntaxe core, adapters, scripts install, URLs). Utilisable en local ou dans Docker.
+test-checks: ## Vérifier tout le projet (syntaxe + URLs). Lance scripts/test/run_checks.sh
+	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/run_checks.sh"
+
+test-all: ## Test local (syntaxe + présence managers, sans Docker)
+	@echo -e "$(BLUE)🧪 Test local des dotfiles (sans Docker)...$(NC)"
 	@if [ -f "$(SCRIPT_DIR)/test/test_dotfiles.sh" ]; then \
 		bash "$(SCRIPT_DIR)/test/test_dotfiles.sh"; \
 	else \
-		echo -e "$(YELLOW)⚠️  Script de test non trouvé$(NC)"; \
-		echo -e "$(YELLOW)   Création du script de test...$(NC)"; \
-		make test-syntax test-managers test-scripts test-libs test-zshrc test-alias; \
+		echo -e "$(YELLOW)   Fallback: syntaxe + managers$(NC)"; \
+		$(MAKE) test-syntax test-managers test-scripts test-libs test-zshrc test-alias; \
 	fi
 
 test-syntax: ## Tester la syntaxe de tous les scripts

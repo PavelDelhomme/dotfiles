@@ -339,6 +339,18 @@ check_brave_installed() {
     return 1
 }
 
+# DESC: Vérifie si Google Chrome est installé
+# USAGE: check_chrome_installed
+check_chrome_installed() {
+    _check_binaries google-chrome google-chrome-stable && { echo "installed"; return 0; }
+    _check_paths /usr/bin/google-chrome /usr/bin/google-chrome-stable /opt/google/chrome/google-chrome && { echo "installed"; return 0; }
+    _check_desktop_pattern "google-chrome" "chrome" && { echo "installed"; return 0; }
+    _check_package google-chrome google-chrome-stable && { echo "installed"; return 0; }
+    [[ -f /usr/share/applications/google-chrome.desktop ]] && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si Cursor est installé (AppImage, binaire, .desktop, toute méthode)
 # USAGE: check_cursor_installed
 check_cursor_installed() {

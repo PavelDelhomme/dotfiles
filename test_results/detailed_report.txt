@@ -1,7 +1,215 @@
 ═══════════════════════════════════════════════════════════════
-RAPPORT DÉTAILLÉ - Thu Dec 11 22:03:05 UTC 2025
+RAPPORT DÉTAILLÉ - Mon Feb 23 13:29:16 UTC 2026
 ═══════════════════════════════════════════════════════════════
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🧪 Test: pathman
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: pathman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager pathman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/pathman/core/pathman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/pathman.zsh
+✅ Manager pathman peut être chargé (ZSH)
+✅ Manager pathman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour pathman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: manman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: manman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager manman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/manman/core/manman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/manman.zsh
+✅ Manager manman peut être chargé (ZSH)
+✅ Manager manman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour manman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: searchman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: searchman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager searchman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/searchman/core/searchman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/searchman.zsh
+✅ Manager searchman peut être chargé (ZSH)
+✅ Manager searchman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour searchman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: aliaman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: aliaman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager aliaman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/aliaman/core/aliaman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/aliaman.zsh
+✅ Manager aliaman peut être chargé (ZSH)
+✅ Manager aliaman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour aliaman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: installman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: installman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager installman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/installman/core/installman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/installman.zsh
+✅ Manager installman peut être chargé (ZSH)
+✅ Manager installman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour installman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: configman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: configman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager configman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/configman/core/configman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/configman.zsh
+✅ Manager configman peut être chargé (ZSH)
+✅ Manager configman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour configman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: gitman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: gitman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager gitman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/gitman/core/gitman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/gitman.zsh
+✅ Manager gitman peut être chargé (ZSH)
+✅ Manager gitman répond (ZSH)
+❌ gitman time-spent a échoué (code 1)
+[0;31m❌ Pas un dépôt Git (exécuter depuis la racine du projet)[0m
+
+📊 Résumé: 5/6 tests réussis
+❌ 1 test(s) échoué(s) pour gitman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: fileman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: fileman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager fileman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/fileman/core/fileman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/fileman.zsh
+✅ Manager fileman peut être chargé (ZSH)
+✅ Manager fileman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour fileman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: helpman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: helpman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager helpman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/helpman/core/helpman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/helpman.zsh
+✅ Manager helpman peut être chargé (ZSH)
+✅ Manager helpman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour helpman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: cyberman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: cyberman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager cyberman existe (ZSH)
+❌ Erreur de syntaxe dans core: /root/dotfiles/core/managers/cyberman/core/cyberman.sh
+/root/dotfiles/core/managers/cyberman/core/cyberman.sh: line 1951: syntax error: unexpected end of file from `{' command on line 41
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/cyberman.zsh
+✅ Manager cyberman peut être chargé (ZSH)
+✅ Manager cyberman répond (ZSH)
+
+📊 Résumé: 4/5 tests réussis
+❌ 1 test(s) échoué(s) pour cyberman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: devman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: devman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager devman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/devman/core/devman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/devman.zsh
+✅ Manager devman peut être chargé (ZSH)
+✅ Manager devman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour devman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: virtman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: virtman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager virtman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/virtman/core/virtman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/virtman.zsh
+✅ Manager virtman peut être chargé (ZSH)
+✅ Manager virtman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour virtman (zsh)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧪 Test: miscman
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+═══════════════════════════════════════════════════════════════
+🧪 TEST: miscman (zsh)
+═══════════════════════════════════════════════════════════════
+✅ Manager miscman existe (ZSH)
+✅ Syntaxe core valide: /root/dotfiles/core/managers/miscman/core/miscman.sh
+✅ Syntaxe adapter ZSH valide: /root/dotfiles/shells/zsh/adapters/miscman.zsh
+✅ Manager miscman peut être chargé (ZSH)
+✅ Manager miscman répond (ZSH)
+
+📊 Résumé: 5/5 tests réussis
+✅ Tous les tests passés pour miscman (zsh)
+

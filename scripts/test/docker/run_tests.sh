@@ -6,8 +6,7 @@
 # Author: Paul Delhomme
 # Version: 1.0
 # =============================================================================
-
-set -e
+# Pas de set -e : on teste TOUS les managers même si l'un échoue, puis on affiche le résumé.
 
 DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
 TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-/root/test_results}"
@@ -62,6 +61,7 @@ progress_init "$TOTAL_MANAGERS" "Test des managers"
 echo "🔧 Chargement des dotfiles..."
 export DOTFILES_DIR="$DOTFILES_DIR"
 export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"
+export TEST_RESULTS_DIR="$TEST_RESULTS_DIR"
 
 if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
     # Charger en silence pour éviter les erreurs non critiques
@@ -128,19 +128,16 @@ while read -r manager || [ -n "$manager" ]; do
         TIMEOUT_PATH="/usr/sbin/timeout"
     fi
     
-    # Capturer la sortie et le code de sortie
+    # Capturer la sortie et le code de sortie. Le sous-shell doit charger manager_tester.sh pour avoir test_manager.
     if [ -n "$TIMEOUT_PATH" ] && [ -x "$TIMEOUT_PATH" ]; then
-        # Utiliser timeout avec le chemin complet (séparer chemin et arguments)
-        TEST_OUTPUT=$("$TIMEOUT_PATH" 10 sh -c "test_manager '$manager' 'zsh' 2>&1")
+        TEST_OUTPUT=$("$TIMEOUT_PATH" 10 sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'zsh'"' 2>&1')
         TEST_EXIT=$?
-        # Si timeout, code 124
         if [ $TEST_EXIT -eq 124 ]; then
             echo "⚠️  Test de $manager a dépassé le timeout (10s) - peut être normal pour managers interactifs"
-            TEST_EXIT=0  # Ne pas considérer comme erreur
+            TEST_EXIT=0
         fi
     else
-        # Pas de timeout disponible, test normal (mais avec limite de temps via autre méthode)
-        TEST_OUTPUT=$(test_manager "$manager" "zsh" 2>&1)
+        TEST_OUTPUT=$(sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'zsh'"' 2>&1')
         TEST_EXIT=$?
     fi
     
@@ -156,7 +153,12 @@ while read -r manager || [ -n "$manager" ]; do
         echo "❌ $manager: Certains tests ont échoué" | tee -a "$REPORT_FILE"
     fi
     
-    TOTAL_TESTS=$((TOTAL_TESTS + 5))  # 5 tests par manager
+    # gitman et pathman ont 6 tests (dont time-spent / smoke), les autres 5
+    if [ "$manager" = "gitman" ] || [ "$manager" = "pathman" ]; then
+        TOTAL_TESTS=$((TOTAL_TESTS + 6))
+    else
+        TOTAL_TESTS=$((TOTAL_TESTS + 5))
+    fi
     
     echo "" | tee -a "$DETAILED_REPORT"
     

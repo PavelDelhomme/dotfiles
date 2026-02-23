@@ -74,54 +74,54 @@ if ! curl -s --head --fail "https://cursor.com" > /dev/null 2>&1; then
     exit 1
 fi
 
-log_info "Vérification de la dernière version disponible sur cursor.com..."
+log_info "Récupération du lien officiel depuis https://cursor.com/download ..."
 
-# Télécharger la page cursor.com et chercher la version "Latest"
-# On cherche dans le HTML le badge "Latest" ou les informations de version
+# Détecter l'architecture (x64 ou arm64)
+CURSOR_ARCH="x64"
+if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then
+    CURSOR_ARCH="arm64"
+fi
+
 CURSOR_VERSION=""
+CURSOR_URL=""
 TEMP_HTML=$(mktemp)
 
-# Télécharger la page cursor.com
-if curl -s -L "https://cursor.com" -o "$TEMP_HTML" 2>/dev/null; then
-    # Chercher le badge "Latest" ou une indication de version
-    # On peut aussi chercher dans les meta tags ou les données structurées
-    CURSOR_VERSION=$(grep -oP '(?<=Latest|latest|version|Version)[^<]*[0-9]+\.[0-9]+\.[0-9]+' "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
-    
-    # Alternative: chercher dans le texte "Download for Linux" ou similaire
-    if [ -z "$CURSOR_VERSION" ]; then
-        CURSOR_VERSION=$(grep -iE "(version|v)[\s:]+[0-9]+\.[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
+# Télécharger la page officielle cursor.com/download (même source que le site)
+if curl -s -L "https://cursor.com/download" -o "$TEMP_HTML" 2>/dev/null; then
+    # Extraire l'URL Linux AppImage depuis la page (lien officiel identique au site)
+    # Format observé: https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/2.5
+    CURSOR_URL=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/linux-${CURSOR_ARCH}/cursor/[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1)
+    if [ -z "$CURSOR_URL" ]; then
+        # Fallback: lien avec "latest"
+        CURSOR_URL=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/linux-${CURSOR_ARCH}/cursor/[^\"]+" "$TEMP_HTML" 2>/dev/null | head -n1)
     fi
+    CURSOR_VERSION=$(echo "$CURSOR_URL" | grep -oE '[0-9]+\.[0-9]+$' | head -n1)
 fi
-
 rm -f "$TEMP_HTML"
 
-if [ -n "$CURSOR_VERSION" ]; then
-    log_info "Dernière version détectée: $CURSOR_VERSION"
-else
-    log_warn "Impossible de détecter la version, utilisation de la version par défaut"
+# Fallbacks si la page n'a pas livré d'URL (réseau ou changement de page)
+if [ -z "$CURSOR_URL" ]; then
+    CURSOR_URL="https://api2.cursor.sh/updates/download/golden/linux-${CURSOR_ARCH}/cursor/latest"
+    log_warn "Utilisation du miroir par défaut (latest)"
 fi
-
-# URL de téléchargement pour Linux AppImage x64
-CURSOR_URL="https://downloader.cursor.sh/linux/appImage/x64"
+if [ -n "$CURSOR_VERSION" ]; then
+    log_info "Dernière version (cursor.com/download): $CURSOR_VERSION"
+fi
 
 log_info "Téléchargement depuis: $CURSOR_URL"
 
-# Vérifier que downloader.cursor.sh est accessible
-if ! curl -s --head --fail "https://downloader.cursor.sh" > /dev/null 2>&1; then
-    log_error "Impossible de se connecter à downloader.cursor.sh"
-    log_warn "Vérifiez votre connexion internet et votre résolution DNS"
-    exit 1
-fi
-
-# Télécharger l'AppImage (URL principale + fallback pour Linux)
+# Télécharger l'AppImage (URL officielle + fallbacks)
 log_info "Téléchargement en cours..."
-CURSOR_URL_ALT="https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
+CURSOR_URL_LEGACY="https://downloader.cursor.sh/linux/appImage/${CURSOR_ARCH}"
 if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
-    log_warn "Premier miroir échoué, tentative fallback..."
-    if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL_ALT" 2>/dev/null; then
-        log_error "Erreur lors du téléchargement de Cursor"
-        log_warn "Vérifiez votre connexion internet et réessayez"
-        exit 1
+    log_warn "Premier miroir échoué, tentative downloader.cursor.sh..."
+    if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL_LEGACY" 2>/dev/null; then
+        log_warn "Tentative avec /latest..."
+        if ! sudo curl -L --progress-bar -o /opt/cursor.appimage "https://api2.cursor.sh/updates/download/golden/linux-${CURSOR_ARCH}/cursor/latest" 2>/dev/null; then
+            log_error "Erreur lors du téléchargement de Cursor"
+            log_warn "Vérifiez https://cursor.com/download et votre connexion"
+            exit 1
+        fi
     fi
 fi
 
@@ -221,49 +221,31 @@ echo "════════════════════════�
 
 mkdir -p ~/.local/bin
 
-cat > ~/.local/bin/update-cursor <<'UPDATESCRIPT'
+cat > ~/.local/bin/update-cursor <<UPDATESCRIPT
 #!/bin/bash
-# Charger la bibliothèque commune si disponible
-SCRIPT_DIR="$HOME/dotfiles/scripts"
-if [ -f "$SCRIPT_DIR/lib/common.sh" ]; then
-    source "$SCRIPT_DIR/lib/common.sh"
+# Mise à jour Cursor depuis https://cursor.com/download
+SCRIPT_DIR="\$HOME/dotfiles/scripts"
+[ -f "\$SCRIPT_DIR/lib/common.sh" ] && source "\$SCRIPT_DIR/lib/common.sh"
+
+log_section "Mise à jour de Cursor (cursor.com/download)"
+
+ARCH="x64"; [ "\$(uname -m)" = "aarch64" ] || [ "\$(uname -m)" = "arm64" ] && ARCH="arm64"
+TEMP_HTML=\$(mktemp)
+CURSOR_URL=""
+
+if curl -s -L "https://cursor.com/download" -o "\$TEMP_HTML" 2>/dev/null; then
+    CURSOR_URL=\$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/linux-\${ARCH}/cursor/[0-9]+\.[0-9]+" "\$TEMP_HTML" 2>/dev/null | head -n1)
 fi
+rm -f "\$TEMP_HTML"
+[ -z "\$CURSOR_URL" ] && CURSOR_URL="https://api2.cursor.sh/updates/download/golden/linux-\${ARCH}/cursor/latest"
 
-log_section "Mise à jour de Cursor"
-
-# Vérifier la dernière version
-log_info "Vérification de la dernière version..."
-
-TEMP_HTML=$(mktemp)
-CURSOR_VERSION=""
-
-if curl -s -L "https://cursor.com" -o "$TEMP_HTML" 2>/dev/null; then
-    CURSOR_VERSION=$(grep -oP '(?<=Latest|latest|version|Version)[^<]*[0-9]+\.[0-9]+\.[0-9]+' "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
-    if [ -z "$CURSOR_VERSION" ]; then
-        CURSOR_VERSION=$(grep -iE "(version|v)[\s:]+[0-9]+\.[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)
-    fi
-fi
-rm -f "$TEMP_HTML"
-
-if [ -n "$CURSOR_VERSION" ]; then
-    log_info "Dernière version disponible: $CURSOR_VERSION"
-fi
-
-# Télécharger la dernière version
-CURSOR_URL="https://downloader.cursor.sh/linux/appImage/x64"
-log_info "Téléchargement depuis: $CURSOR_URL"
-
-CURSOR_URL_ALT="https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
-if sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL" 2>/dev/null; then
+log_info "Téléchargement depuis: \$CURSOR_URL"
+if sudo curl -L --progress-bar -o /opt/cursor.appimage "\$CURSOR_URL" 2>/dev/null; then
     sudo chmod +x /opt/cursor.appimage
     log_info "✅ Cursor mis à jour!"
     echo "Relancez Cursor pour utiliser la nouvelle version"
-elif sudo curl -L --progress-bar -o /opt/cursor.appimage "$CURSOR_URL_ALT" 2>/dev/null; then
-    sudo chmod +x /opt/cursor.appimage
-    log_info "✅ Cursor mis à jour (miroir de secours)!"
-    echo "Relancez Cursor pour utiliser la nouvelle version"
 else
-    log_error "❌ Erreur lors de la mise à jour"
+    log_error "❌ Erreur lors de la mise à jour. Vérifiez https://cursor.com/download"
     exit 1
 fi
 UPDATESCRIPT

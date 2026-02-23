@@ -214,6 +214,7 @@ run_tests_with_docker() {
         -v "dotfiles-test-config:/root/.config:rw" \
         -e DOTFILES_DIR=/root/dotfiles \
         -e TEST_RESULTS_DIR=/root/test_results \
+        ${TEST_MANAGERS:+-e "TEST_MANAGERS=$TEST_MANAGERS"} \
         "$ACTUAL_IMAGE" \
         bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"; then
         return 0

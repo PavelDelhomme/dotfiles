@@ -70,6 +70,13 @@ get_current_version() {
                 echo "not_installed"
             fi
             ;;
+        chrome|google-chrome)
+            if command -v google-chrome &>/dev/null || command -v google-chrome-stable &>/dev/null; then
+                (google-chrome --version 2>/dev/null || google-chrome-stable --version 2>/dev/null) | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            else
+                echo "not_installed"
+            fi
+            ;;
         *)
             # Pour les autres outils, essayer de détecter via command --version
             if command -v "$tool_name" &>/dev/null; then

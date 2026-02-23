@@ -65,11 +65,11 @@ run_test() {
     echo ""
 }
 
-# Test 1: Tests de syntaxe
-run_test "Tests de syntaxe" "$DOTFILES_DIR/scripts/test/test_syntax.sh"
+# Test 1: Vérifications projet (syntaxe core/adapters/scripts install + URLs)
+run_test "Vérifications projet (syntaxe + URLs)" "$DOTFILES_DIR/scripts/test/run_checks.sh"
 
-# Test 2: Tests des managers
-run_test "Tests des managers" "$DOTFILES_DIR/scripts/test/test_managers.sh"
+# Test 2: Tests des managers migrés (Docker)
+run_test "Tests des managers migrés (Docker)" "$DOTFILES_DIR/scripts/test/test_migrated_managers.sh"
 
 # Test 3: Tests multi-shells
 run_test "Tests multi-shells" "$DOTFILES_DIR/scripts/test/test_multi_shells.sh"

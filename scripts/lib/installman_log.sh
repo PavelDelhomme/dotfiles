@@ -5,14 +5,28 @@
 # Chaque action (install, update, check-urls, etc.) est enregistrée avec
 # timestamp, résultat et erreur éventuelle pour reprise / diagnostic.
 # Utilisable par tout shell (sourcé depuis installman).
+# En environnement read-only (ex: Docker avec dotfiles montés :ro), les logs
+# sont écrits dans un répertoire inscriptible (XDG_STATE_HOME ou ~/.local/state).
 # =============================================================================
 
-INSTALLMAN_LOG_DIR="${DOTFILES_DIR:-$HOME/dotfiles}/logs"
-INSTALLMAN_LOG_FILE="${INSTALLMAN_LOG_FILE:-$INSTALLMAN_LOG_DIR/installman.log}"
+_installman_log_init() {
+    local default_dir="${DOTFILES_DIR:-$HOME/dotfiles}/logs"
+    if [ -n "$INSTALLMAN_LOG_FILE" ]; then
+        INSTALLMAN_LOG_DIR="${INSTALLMAN_LOG_FILE%/*}"
+        return
+    fi
+    INSTALLMAN_LOG_DIR="$default_dir"
+    if ! mkdir -p "$INSTALLMAN_LOG_DIR" 2>/dev/null || ! [ -w "$INSTALLMAN_LOG_DIR" ]; then
+        INSTALLMAN_LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/logs"
+        mkdir -p "$INSTALLMAN_LOG_DIR" 2>/dev/null || true
+    fi
+    INSTALLMAN_LOG_FILE="${INSTALLMAN_LOG_DIR}/installman.log"
+}
+_installman_log_init
 
 # Crée le répertoire de logs si besoin
 _installman_log_ensure_dir() {
-    [ -n "$INSTALLMAN_LOG_DIR" ] && mkdir -p "$INSTALLMAN_LOG_DIR" 2>/dev/null
+    [ -n "$INSTALLMAN_LOG_DIR" ] && mkdir -p "$INSTALLMAN_LOG_DIR" 2>/dev/null || true
 }
 
 # Log une action installman

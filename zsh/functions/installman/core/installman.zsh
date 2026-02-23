@@ -56,6 +56,7 @@ declare -a TOOLS=(
     "android-licenses:android-license,licenses:📝:Accepter licences Android SDK:check_android_licenses_accepted:android/accept_android_licenses.sh:accept_android_licenses"
     "docker::🐳:Docker & Docker Compose:check_docker_installed:docker/install_docker.sh:install_docker"
     "brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave"
+    "chrome:google-chrome:🌐:Google Chrome:check_chrome_installed:chrome/install_chrome.sh:install_chrome"
     "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
     "handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake"
     "network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools"
@@ -547,7 +548,7 @@ installman() {
         local order_names=(
             "flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25"
             "android-studio" "android-tools" "docker" "cmake" "gdb" "c-tools" "cpp-tools"
-            "brave" "cursor" "handbrake" "db-browser"
+            "brave" "chrome" "cursor" "handbrake" "db-browser"
             "wine" "portproton"
             "protonmail" "bluemail"
             "snap" "nextcloud"
