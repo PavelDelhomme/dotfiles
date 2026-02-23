@@ -59,6 +59,8 @@ get_current_version() {
                 /opt/cursor.appimage --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
             elif command -v cursor &>/dev/null; then
                 cursor --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            elif [ -f /usr/share/cursor/resources/app/product.json ]; then
+                grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' /usr/share/cursor/resources/app/product.json 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown"
             else
                 echo "not_installed"
             fi
@@ -126,7 +128,7 @@ get_available_versions() {
             echo "$java_version"
             ;;
         cursor)
-            # Cursor Linux: téléchargement toujours "latest" depuis downloader.cursor.sh
+            # Version lue dynamiquement depuis https://cursor.com/download lors de l'install/update
             echo "latest"
             ;;
         *)

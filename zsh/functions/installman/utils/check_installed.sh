@@ -351,10 +351,14 @@ check_chrome_installed() {
     return 1
 }
 
-# DESC: Vérifie si Cursor est installé (AppImage, binaire, .desktop, toute méthode)
+# DESC: Vérifie si Cursor est installé (AppImage, paquet /usr/share/cursor, binaire, .desktop)
 # USAGE: check_cursor_installed
 check_cursor_installed() {
     _check_binaries cursor && { echo "installed"; return 0; }
+    # Installation type paquet: /usr/bin/cursor -> /usr/share/cursor/cursor et resources/app
+    _check_paths /usr/bin/cursor /usr/share/cursor/cursor && { echo "installed"; return 0; }
+    [[ -d /usr/share/cursor/resources/app ]] && { echo "installed"; return 0; }
+    # AppImage et autres chemins
     _check_paths /opt/cursor.appimage /opt/cursor/cursor /usr/local/bin/cursor "$HOME/.local/bin/cursor" \
         "$HOME/Applications/cursor.AppImage" "$HOME/Applications/Cursor.AppImage" \
         "$HOME/Applications/cursor" "$HOME/Applications/Cursor" \

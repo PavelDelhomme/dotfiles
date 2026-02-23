@@ -112,6 +112,27 @@ installman() {
             echo -e "${YELLOW}[✗ Non installé]${RESET}"
         fi
     }
+
+    # Statut + versions (installée et/ou dernière disponible) pour le menu principal
+    get_install_status_with_versions() {
+        local tool_check="$1"
+        local tool_name="$2"
+        local install_status=$($tool_check 2>/dev/null)
+        local current="" latest="" version_info=""
+        if [ "$install_status" = "installed" ]; then
+            current=$(get_current_version "$tool_name" 2>/dev/null || echo "unknown")
+            if [ -n "$current" ] && [ "$current" != "unknown" ] && [ "$current" != "not_installed" ]; then
+                version_info=" ${CYAN}$current${RESET}"
+            fi
+            echo -e "${GREEN}[✓ Installé]${RESET}$version_info"
+        else
+            latest=$(get_latest_version "$tool_name" 2>/dev/null || echo "unknown")
+            if [ -n "$latest" ] && [ "$latest" != "unknown" ] && [ "$latest" != "latest" ]; then
+                version_info=" ${RESET}(dernière: ${CYAN}$latest${RESET})"
+            fi
+            echo -e "${YELLOW}[✗ Non installé]${RESET}$version_info"
+        fi
+    }
     
     # Fonction pour afficher le menu de mise à jour
     show_update_menu() {
@@ -626,8 +647,8 @@ installman() {
                 local tool_def="${menu_order[$i]}"
                 local parts=("${(@s/:/)tool_def}")
                 [ ${#parts[@]} -lt 7 ] && continue
-                local tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
-                local install_status=$(get_install_status "$tool_check")
+                local tool_name="${parts[1]}" tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+                local install_status=$(get_install_status_with_versions "$tool_check" "$tool_name")
                 printf "  %-3s %s %-30s %s\n" "$i." "$tool_emoji" "$tool_desc" "$install_status"
             done
             
