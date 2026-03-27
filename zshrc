@@ -37,3 +37,8 @@ elif [ -n "$BASH_VERSION" ]; then
     # Afficher un message
     echo "ℹ️  Configuration Bash chargée (mode unifié avec Zsh)"
 fi
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/pactivisme/.lmstudio/bin"
+# End of LM Studio CLI section
+

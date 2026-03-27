@@ -16,6 +16,7 @@ alias gco='git checkout'
 alias gcl='git clone'
 alias gst='git stash'
 alias gpo='git push origin'
+# Note: utilise « gpo main » (pas gpo origin/main). Pour accepter origin/main → utiliser zsh + aliases.zsh (fonction gpo).
 alias gca='git commit -a -m'
 
 # Alias système (compatibles)

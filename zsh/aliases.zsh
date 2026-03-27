@@ -57,7 +57,16 @@ alias cd_cloudity="cd /home/pactivisme/Documents/Dev/Perso/Cloudity/Cloudity"
 alias ipc="ip -c add"
 alias gst="git status"
 alias git_account="ssh -T git@github.com"
-alias gpo="git push origin"
+# gpo: push vers origin. Usage: gpo [branch] — ex. gpo main ou gpo (branche courante). Si tu tapes gpo origin/main, on pousse bien « main ».
+gpo() {
+  if [[ $# -eq 0 ]]; then
+    git push origin HEAD
+  elif [[ "$1" == origin/* ]]; then
+    git push origin "${1#origin/}"
+  else
+    git push origin "$@"
+  fi
+}
 alias playwright_test="npx playwright test"
 alias playwright_test_web_interface="npx playwright test --ui-port=4020"
 alias gca="git commit -a -m"
@@ -492,3 +501,10 @@ alias cd_mods_project_zomboid="cd /home/pactivisme/.local/share/PortProton/data/
 alias cd_project_zomboid="cd /home/pactivisme/PortProton/data/prefixes/DEFAULT/drive_c/users/pactivisme/Zomboid"
 alias cd_labcyber="cd /home/pactivisme/Documents/Cyber/LabCyber"
 alias cd_cms_crm_solutions="cd /home/pactivisme/Documents/Dev/Perso/CMS_CRM_Solutions/CMS_CRM_SOLUTIONS"
+alias cd_kenshi-like="cd /home/pactivisme/Jeux/KenshiLikeDev/KenshiLike"
+alias cd_homelab-sentinel="cd /home/pactivisme/Documents/Dev/Perso/homelab/homelab-sentinel/"
+alias homelab-push="cd /home/pactivisme/Documents/Dev/Perso/homelab/homelab-sentinel && make update-native"
+alias kenshi="sh /home/pactivisme/Jeux/Kenshi_v1.0.68_Linux/Kenshi/start.sh"
+alias vintage-story="portproton /data/jeux/vintagestory-linux/PlayVintageStory"
+alias lmstudio="lms"
+alias lmstudio_update="curl -fsSL https://lmstudio.ai/install.sh | bash"
