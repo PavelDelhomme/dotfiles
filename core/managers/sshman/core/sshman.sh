@@ -381,6 +381,8 @@ sshman() {
     
     # Gestion des arguments en ligne de commande
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log sshman "$@"
         case "$1" in
             auto-setup)
                 if [ -f "$SSHMAN_MODULES_DIR/ssh_auto_setup.sh" ]; then

@@ -193,6 +193,8 @@ devman() {
     
     # Gestion des arguments en ligne de commande
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log devman "$@"
         case "$1" in
             docker)
                 if [ -f "$DEV_DIR/docker.sh" ]; then

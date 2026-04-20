@@ -34,6 +34,11 @@ manman() {
     
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     DOTFILES_FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
+    if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
+        # shellcheck source=managers_log_posix.sh
+        . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
+        managers_log_line "manman" "invoke" "menu" "info" "session interactive"
+    fi
     
     # Détecter tous les gestionnaires disponibles (utiliser un fichier temporaire)
     managers_file=$(mktemp)
@@ -66,6 +71,7 @@ manman() {
     check_manager "sshman" "🔐 Gestionnaire SSH" "sshman"
     check_manager "testzshman" "🧪 Gestionnaire tests ZSH/dotfiles" "testzshman"
     check_manager "testman" "🧪 Gestionnaire tests applications" "testman"
+    check_manager "doctorman" "🩺 Diagnostic dotfiles / dev" "doctorman"
 
     clear
     printf "${CYAN}${BOLD}"

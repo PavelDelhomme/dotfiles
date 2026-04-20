@@ -98,6 +98,7 @@ MODULE_virtman=enabled
 MODULE_sshman=enabled
 MODULE_testzshman=enabled
 MODULE_testman=enabled
+MODULE_doctorman=enabled
 EOF
     }
     
@@ -145,7 +146,8 @@ fileman:FILEMAN - Gestionnaire fichiers
 virtman:VIRTMAN - Gestionnaire virtualisation
 sshman:SSHMAN - Gestionnaire SSH
 testzshman:TESTZSHMAN - Gestionnaire tests ZSH/dotfiles
-testman:TESTMAN - Gestionnaire tests applications"
+testman:TESTMAN - Gestionnaire tests applications
+doctorman:DOCTORMAN - Diagnostic dotfiles / dev"
         
         index=1
         echo "$managers" | while IFS=: read -r manager_name manager_desc; do
@@ -167,7 +169,7 @@ testman:TESTMAN - Gestionnaire tests applications"
         
         case "$choice" in
             0) return 0 ;;
-            [1-9]|1[0-8])
+            [1-9]|1[0-9])
                 selected_index=$choice
                 manager_index=1
                 echo "$managers" | while IFS=: read -r manager_name manager_desc; do
@@ -259,6 +261,8 @@ testman:TESTMAN - Gestionnaire tests applications"
     
     # Si un argument est fourni, exécuter la commande directement
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log moduleman "$@"
         case "$1" in
             enable|activer)
                 if [ -n "$2" ]; then
@@ -279,7 +283,7 @@ testman:TESTMAN - Gestionnaire tests applications"
             list|liste)
                 load_config
                 printf "${CYAN}Modules disponibles:${RESET}\n"
-                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman"
+                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman doctorman"
                 for manager in $managers_list; do
                     status=$(get_module_status "$manager")
                     if [ "$status" = "enabled" ]; then
@@ -292,7 +296,7 @@ testman:TESTMAN - Gestionnaire tests applications"
             status|statut)
                 load_config
                 printf "${CYAN}Statut des modules:${RESET}\n"
-                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman"
+                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman doctorman"
                 for manager in $managers_list; do
                     status=$(get_module_status "$manager")
                     if [ "$status" = "enabled" ]; then

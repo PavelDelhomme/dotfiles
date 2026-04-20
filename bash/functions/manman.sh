@@ -76,6 +76,9 @@ manman() {
     if [ -f "$DOTFILES_FUNCTIONS_DIR/testman.zsh" ]; then
         managers+=("testman:🧪 Gestionnaire tests applications|testman")
     fi
+    if [ -f "$DOTFILES_FUNCTIONS_DIR/doctorman.zsh" ]; then
+        managers+=("doctorman:🩺 Diagnostic dotfiles / dev|doctorman")
+    fi
 
     clear
     echo -e "${CYAN}${BOLD}"

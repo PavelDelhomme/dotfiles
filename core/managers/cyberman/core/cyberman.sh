@@ -1768,6 +1768,10 @@ EOF
     }
     
     # Gestion des arguments rapides
+    if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log cyberman "$@"
+    fi
     if [ "$1" = "recon" ]; then show_recon_menu; return; fi
     if [ "$1" = "scan" ]; then show_scan_menu; return; fi
     if [ "$1" = "vuln" ]; then show_vuln_menu; return; fi

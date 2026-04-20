@@ -927,6 +927,8 @@ EOF
     
     # Si un argument est fourni, lancer directement la commande
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log cyberlearn "$@"
         cmd=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
         case "$cmd" in

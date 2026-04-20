@@ -450,6 +450,10 @@ searchman() {
     }
     
     # Gestion des arguments rapides
+    if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log searchman "$@"
+    fi
     case "$1" in
         history)
             if [ -n "$2" ]; then

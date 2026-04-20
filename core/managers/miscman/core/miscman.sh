@@ -246,6 +246,10 @@ miscman() {
     }
     
     # Gestion des arguments rapides
+    if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log miscman "$@"
+    fi
     case "$1" in
         genpass|password)
             gen_password "$2"

@@ -86,6 +86,7 @@ MODULE_virtman=enabled
 MODULE_sshman=enabled
 MODULE_testzshman=enabled
 MODULE_testman=enabled
+MODULE_doctorman=enabled
 EOF
     }
     
@@ -127,6 +128,7 @@ EOF
             "sshman:SSHMAN - Gestionnaire SSH"
             "testzshman:TESTZSHMAN - Gestionnaire tests ZSH/dotfiles"
             "testman:TESTMAN - Gestionnaire tests applications"
+            "doctorman:DOCTORMAN - Diagnostic dotfiles / dev"
         )
         
         local index=1
@@ -155,7 +157,7 @@ EOF
             0)
                 return 0
                 ;;
-            [1-9]|1[0-8])
+            [1-9]|1[0-9])
                 local selected_index=$choice
                 local manager_index=1
                 for manager_info in "${managers[@]}"; do
@@ -255,7 +257,7 @@ EOF
             list|liste)
                 load_config
                 echo -e "${CYAN}Modules disponibles:${RESET}"
-                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman" "fileman" "virtman" "sshman" "testzshman" "testman")
+                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman" "fileman" "virtman" "sshman" "testzshman" "testman" "doctorman")
                 for manager in "${managers[@]}"; do
                     local var_name="MODULE_${manager}"
                     local status="${(P)var_name:-enabled}"
@@ -269,7 +271,7 @@ EOF
             status|statut)
                 load_config
                 echo -e "${CYAN}Statut des modules:${RESET}"
-                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman" "fileman" "virtman" "sshman" "testzshman" "testman")
+                local managers=("pathman" "netman" "aliaman" "miscman" "searchman" "cyberman" "devman" "gitman" "helpman" "manman" "configman" "installman" "moduleman" "fileman" "virtman" "sshman" "testzshman" "testman" "doctorman")
                 for manager in "${managers[@]}"; do
                     local var_name="MODULE_${manager}"
                     local status="${(P)var_name:-enabled}"

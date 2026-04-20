@@ -140,6 +140,7 @@ load_manager "virtman" "$DOTFILES_DIR/shells/zsh/adapters/virtman.zsh" "VIRTMAN"
 load_manager "sshman" "$DOTFILES_DIR/shells/zsh/adapters/sshman.zsh" "SSHMAN"
 load_manager "testzshman" "$DOTFILES_DIR/shells/zsh/adapters/testzshman.zsh" "TESTZSHMAN"
 load_manager "testman" "$DOTFILES_DIR/shells/zsh/adapters/testman.zsh" "TESTMAN"
+load_manager "doctorman" "$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh" "DOCTORMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)

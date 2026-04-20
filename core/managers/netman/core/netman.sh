@@ -799,6 +799,12 @@ $line"
     
     # Gestion des arguments en ligne de commande
     if [ -n "$1" ]; then
+        _nmdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        if [ -f "$_nmdf/scripts/lib/managers_log_posix.sh" ]; then
+            # shellcheck source=managers_log_posix.sh
+            . "$_nmdf/scripts/lib/managers_log_posix.sh"
+            managers_cli_log netman "$@"
+        fi
         case "$1" in
             ports)
                 manage_ports

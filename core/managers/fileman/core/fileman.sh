@@ -125,6 +125,8 @@ fileman() {
     
     # Si un argument est fourni, lancer directement le module
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log fileman "$@"
         case "$1" in
             archive|arch)
                 if [ -f "$FILEMAN_MODULES_DIR/archive/archive_manager.sh" ]; then

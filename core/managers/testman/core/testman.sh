@@ -585,6 +585,8 @@ testman() {
     
     # Si des arguments sont fournis, exécuter directement
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log testman "$@"
         lang=$(echo "$1" | tr '[:upper:]' '[:lower:]')
         test_type="$2"
         test_dir="${3:-.}"

@@ -35,6 +35,11 @@ helpman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     HELPMAN_DIR="$DOTFILES_DIR/zsh/functions/helpman"
     FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
+    if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
+        # shellcheck source=managers_log_posix.sh
+        . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
+        managers_log_line "helpman" "invoke" "menu" "info" "session interactive"
+    fi
     
     while true; do
         clear

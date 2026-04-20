@@ -44,6 +44,7 @@ MANAGERS=(
     "sshman"
     "testman"
     "testzshman"
+    "doctorman"
     "moduleman"
     "manman"
 )

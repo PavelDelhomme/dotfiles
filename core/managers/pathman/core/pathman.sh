@@ -378,6 +378,12 @@ add_to_path() {
             if command -v add_logs >/dev/null 2>&1; then
                 add_logs "ADD" "Ajout: $dir" 2>/dev/null || true
             fi
+            _pmdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+            if [ -f "$_pmdf/scripts/lib/managers_log_posix.sh" ]; then
+                # shellcheck source=managers_log_posix.sh
+                . "$_pmdf/scripts/lib/managers_log_posix.sh"
+                managers_log_line "pathman" "add_path" "$dir" "success" "PATH updated"
+            fi
             ;;
     esac
 }

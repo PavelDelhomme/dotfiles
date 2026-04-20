@@ -88,6 +88,7 @@ MODULE_manman=enabled
 MODULE_configman=enabled
 MODULE_installman=enabled
 MODULE_moduleman=enabled
+MODULE_doctorman=enabled
 EOF
 end
 
@@ -109,8 +110,8 @@ function show_main_menu
     
     source $MODULEMAN_CONFIG_FILE 2>/dev/null || true
     
-    set -l managers pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman
-    set -l descriptions "PATHMAN - Gestionnaire PATH" "NETMAN - Gestionnaire réseau" "ALIAMAN - Gestionnaire alias" "MISCMAN - Gestionnaire divers" "SEARCHMAN - Gestionnaire recherche" "CYBERMAN - Gestionnaire cybersécurité" "DEVMAN - Gestionnaire développement" "GITMAN - Gestionnaire Git" "HELPMAN - Gestionnaire aide/documentation" "MANMAN - Manager of Managers" "CONFIGMAN - Gestionnaire configurations" "INSTALLMAN - Gestionnaire installations" "MODULEMAN - Gestionnaire modules (ce menu)"
+    set -l managers pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman doctorman
+    set -l descriptions "PATHMAN - Gestionnaire PATH" "NETMAN - Gestionnaire réseau" "ALIAMAN - Gestionnaire alias" "MISCMAN - Gestionnaire divers" "SEARCHMAN - Gestionnaire recherche" "CYBERMAN - Gestionnaire cybersécurité" "DEVMAN - Gestionnaire développement" "GITMAN - Gestionnaire Git" "HELPMAN - Gestionnaire aide/documentation" "MANMAN - Manager of Managers" "CONFIGMAN - Gestionnaire configurations" "INSTALLMAN - Gestionnaire installations" "MODULEMAN - Gestionnaire modules (ce menu)" "DOCTORMAN - Diagnostic dotfiles / dev"
     
     set -l index 1
     for i in (seq (count $managers))
@@ -212,7 +213,7 @@ end
 function list_modules
     source $MODULEMAN_CONFIG_FILE 2>/dev/null || true
     echo "📋 Modules disponibles:"
-    set -l managers pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman
+    set -l managers pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman doctorman
     for manager in $managers
         set -l var_name "MODULE_$manager"
         set -l status (eval "echo \$$var_name")
@@ -231,7 +232,7 @@ end
 function show_status
     source $MODULEMAN_CONFIG_FILE 2>/dev/null || true
     echo "📊 Statut des modules:"
-    set -l managers pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman
+    set -l managers pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman doctorman
     for manager in $managers
         set -l var_name "MODULE_$manager"
         set -l status (eval "echo \$$var_name")

@@ -104,6 +104,7 @@ load_manager "moduleman" "$DOTFILES_DIR/shells/fish/adapters/moduleman.fish" "MO
 load_manager "sshman" "$DOTFILES_DIR/shells/fish/adapters/sshman.fish" "SSHMAN"
 load_manager "testzshman" "$DOTFILES_DIR/shells/fish/adapters/testzshman.fish" "TESTZSHMAN"
 load_manager "testman" "$DOTFILES_DIR/shells/fish/adapters/testman.fish" "TESTMAN"
+load_manager "doctorman" "$DOTFILES_DIR/shells/fish/adapters/doctorman.fish" "DOCTORMAN"
 load_manager "multimediaman" "$DOTFILES_DIR/shells/fish/adapters/multimediaman.fish" "MULTIMEDIAMAN"
 load_manager "cyberlearn" "$DOTFILES_DIR/shells/fish/adapters/cyberlearn.fish" "CYBERLEARN"
 

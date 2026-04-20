@@ -80,6 +80,9 @@ function manman
     if test -f "$DOTFILES_FUNCTIONS_DIR/testman.zsh"
         set -a managers "testman:🧪 Gestionnaire tests applications|testman"
     end
+    if test -f "$DOTFILES_FUNCTIONS_DIR/doctorman.zsh"
+        set -a managers "doctorman:🩺 Diagnostic dotfiles / dev|doctorman"
+    end
 
     clear
     echo -e "$CYAN$BOLD"

@@ -4,10 +4,10 @@
 # =============================================================================
 # Description: Gestionnaire de tests pour ZSH et les dotfiles
 # Author: Paul Delhomme
-# Version: 2.0 - Migration POSIX Complète
+# Version: 2.0 - Migration POSIX Complete
 # =============================================================================
 
-# Détecter le shell pour adapter certaines syntaxes
+# Detecter le shell pour adapter certaines syntaxes
 if [ -n "$ZSH_VERSION" ]; then
     SHELL_TYPE="zsh"
 elif [ -n "$BASH_VERSION" ]; then
@@ -75,6 +75,7 @@ testzshman() {
         echo "  6. 📝 Test de la syntaxe ZSH"
         echo "  7. 🎓 Test de cyberlearn (modules, labs, progression)"
         echo "  8. 🚀 Test complet (tous les tests)"
+        echo "  9. Journalisation (actions_logger / managers_log, hermetique)"
         echo ""
         printf "${YELLOW}  0.${RESET} Quitter\n"
         echo ""
@@ -106,6 +107,9 @@ testzshman() {
                 ;;
             8)
                 test_all
+                ;;
+            9)
+                test_logging
                 ;;
             0)
                 return 0
@@ -148,6 +152,99 @@ testzshman() {
         echo ""
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} disponibles, ${RED}%d${RESET} manquants\n" "$success" "$failed"
+    }
+    
+    # Journalisation : tests hermétiques (sans toucher à ~/dotfiles/logs) + audit statique
+    test_logging() {
+        show_header
+        printf "${CYAN}📋 Journalisation (actions_logger / managers_log)${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        
+        printf "${YELLOW}A) Test hermetique (fichiers temporaires, bash uniquement pour les libs)${RESET}\n"
+        if ! command -v bash >/dev/null 2>&1; then
+            printf "${RED}✗${RESET} bash absent: impossible de sourcer actions_logger / managers_log\n\n"
+            return 1
+        fi
+        
+        _tzm_logroot=$(mktemp -d 2>/dev/null) || {
+            printf "${RED}✗${RESET} mktemp -d a echoue\n\n"
+            return 1
+        }
+        _tzm_hermetic=$(mktemp 2>/dev/null) || {
+            printf "${RED}✗${RESET} mktemp fichier hermetique a echoue\n\n"
+            rm -rf "$_tzm_logroot"
+            return 1
+        }
+        # Script separe (evite heredoc dans if: zsh -n / parse capricieux)
+        {
+            echo "set -e"
+            echo "[ -n \"\${DOTFILES_DIR}\" ] || exit 1"
+            echo "[ -f \"\${DOTFILES_DIR}/scripts/lib/managers_log.sh\" ] || exit 2"
+            echo "[ -f \"\${DOTFILES_DIR}/scripts/lib/actions_logger.sh\" ] || exit 3"
+            echo ". \"\${DOTFILES_DIR}/scripts/lib/managers_log.sh\""
+            echo ". \"\${DOTFILES_DIR}/scripts/lib/actions_logger.sh\""
+            echo "log_manager_action \"testzshman\" \"verify\" \"logging\" \"success\" \"hermetic managers_log\""
+            echo "log_action \"test\" \"testzshman\" \"execute\" \"success\" \"hermetic actions_logger\""
+            echo "grep -q testzshman \"\${MANAGERS_LOG_FILE}\" || exit 4"
+            echo "grep -q testzshman \"\${ACTIONS_LOG_FILE}\" || exit 5"
+        } > "$_tzm_hermetic" || {
+            rm -f "$_tzm_hermetic"
+            rm -rf "$_tzm_logroot"
+            return 1
+        }
+        
+        if DOTFILES_DIR="$DOTFILES_DIR" ACTIONS_LOG_FILE="$_tzm_logroot/actions.log" MANAGERS_LOG_FILE="$_tzm_logroot/managers.log" bash "$_tzm_hermetic"
+        then
+            printf "${GREEN}✓${RESET} Ecriture managers.log + actions.log dans un repertoire temporaire OK\n"
+        else
+            printf "${RED}✗${RESET} Test hermetique echoue (codes 2-3 = libs manquantes, 4-5 = contenu absent)\n"
+            rm -f "$_tzm_hermetic"
+            rm -rf "$_tzm_logroot"
+            return 1
+        fi
+        rm -f "$_tzm_hermetic"
+        rm -rf "$_tzm_logroot"
+        
+        echo ""
+        printf "${YELLOW}B) Audit statique: qui reference managers_log / log_manager_action / actions_logger ?${RESET}\n"
+        printf "${CYAN}Depot scanne:${RESET} %s\n" "$DOTFILES_DIR"
+        printf "${CYAN}Portee grep:${RESET} core/managers/<nom>/, zsh/functions/<nom>/, shells/zsh|bash|fish/adapters/<nom>.*\n\n"
+        
+        # Liste explicite (IFS: sous zsh hors emulate sh, for x in $str ne scinde pas les mots)
+        for _mgr in pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman cyberlearn multimediaman doctorman; do
+            _has_m=0
+            _has_a=0
+            for _base in "$DOTFILES_DIR/core/managers/$_mgr" "$DOTFILES_DIR/zsh/functions/$_mgr"; do
+                [ -d "$_base" ] || continue
+                if grep -rqE 'managers_log\.sh|managers_log_posix\.sh|log_manager_action|managers_log_line|managers_cli_log' "$_base" 2>/dev/null; then
+                    _has_m=1
+                fi
+                if grep -rqE 'actions_logger\.sh|log_alias_action|log_path_action|log_config_action|log_function_action|\blog_action\b' "$_base" 2>/dev/null; then
+                    _has_a=1
+                fi
+            done
+            for _ad in "$DOTFILES_DIR/shells/zsh/adapters/${_mgr}.zsh" "$DOTFILES_DIR/shells/bash/adapters/${_mgr}.sh" "$DOTFILES_DIR/shells/fish/adapters/${_mgr}.fish"; do
+                [ -f "$_ad" ] || continue
+                if grep -qE 'managers_log\.sh|managers_log_posix\.sh|log_manager_action|managers_log_line|managers_cli_log' "$_ad" 2>/dev/null; then
+                    _has_m=1
+                fi
+                if grep -qE 'actions_logger\.sh|log_alias_action|log_path_action|log_config_action|log_function_action|\blog_action\b' "$_ad" 2>/dev/null; then
+                    _has_a=1
+                fi
+            done
+            _col_m="-"
+            _col_a="-"
+            [ "$_has_m" -eq 1 ] && _col_m="oui"
+            [ "$_has_a" -eq 1 ] && _col_a="oui"
+            printf "%-14s  %-18s  %s\n" "$_mgr" "$_col_m" "$_col_a"
+        done
+        
+        echo ""
+        printf "${CYAN}Legende:${RESET} colonne 1 = journal managers (fichier logs/managers.log). Colonne 2 = actions_logger / log_action (aliases, PATH dans scripts) : souvent \"-\" sauf miscman/alias_utils.\n\n"
+        printf "${GREEN}Resume:${RESET} A OK = les libs ecrivent bien dans un rep temporaire.\n"
+        printf "   B = grep dans le depot (pas un test runtime de ta session).\n"
+        printf "   Si \"Depot scanne\" n est pas ton repo dotfiles, exporte DOTFILES_DIR avant testzshman.\n\n"
+        printf "${CYAN}Note:${RESET} le \"£\" avant le cadre vient en general du terminal, pas des scripts.\n\n"
     }
     
     # Test des fonctions ZSH
@@ -529,6 +626,8 @@ $cyberlearn_dir/labs"
     
     # Si un argument est fourni, exécuter directement
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log testzshman "$@"
         case "$1" in
             managers|manager)
                 test_managers
@@ -551,6 +650,9 @@ $cyberlearn_dir/labs"
             cyberlearn|cyber)
                 test_cyberlearn
                 ;;
+            logging|logs|logger)
+                test_logging
+                ;;
             all|complete)
                 test_all
                 ;;
@@ -567,6 +669,7 @@ $cyberlearn_dir/labs"
                 echo "  symlinks   - Test des symlinks"
                 echo "  syntax     - Test de la syntaxe"
                 echo "  cyberlearn - Test de cyberlearn"
+                echo "  logging    - actions_logger / managers_log (hermétique + audit statique)"
                 echo "  all        - Tous les tests"
                 echo ""
                 echo "Sans argument: menu interactif"
@@ -582,6 +685,7 @@ $cyberlearn_dir/labs"
                 echo "  testzshman symlinks   - Test des symlinks"
                 echo "  testzshman syntax    - Test de la syntaxe"
                 echo "  testzshman cyberlearn - Test de cyberlearn"
+                echo "  testzshman logging    - Journalisation (sans toucher aux logs réels)"
                 echo "  testzshman all       - Tous les tests"
                 return 1
                 ;;

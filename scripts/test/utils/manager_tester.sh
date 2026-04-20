@@ -299,6 +299,21 @@ test_manager_smoke() {
             echo "✅ pathman show OK (fonctionnel)"
             return 0
             ;;
+        doctorman)
+            out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh\" 2>/dev/null && doctorman help 2>&1") || true
+            code=$?
+            if [ $code -ne 0 ]; then
+                echo "❌ doctorman help a échoué (code $code)"
+                return 1
+            fi
+            if ! echo "$out" | grep -q "DOCTORMAN"; then
+                echo "❌ doctorman help: sortie inattendue"
+                echo "$out" | head -5
+                return 1
+            fi
+            echo "✅ doctorman help OK (fonctionnel)"
+            return 0
+            ;;
         *)
             return 0
             ;;
@@ -374,6 +389,7 @@ test_manager() {
     # Tests supplémentaires: gitman (time-spent), pathman (smoke show)
     [ "$manager" = "gitman" ] && total_tests=6
     [ "$manager" = "pathman" ] && total_tests=6
+    [ "$manager" = "doctorman" ] && total_tests=6
     
     echo ""
     echo "═══════════════════════════════════════════════════════════════"
@@ -426,6 +442,13 @@ test_manager() {
     
     # Test 5c: smoke fonctionnel (pathman show, etc.)
     if [ "$manager" = "pathman" ]; then
+        if test_manager_smoke "$manager"; then
+            passed_tests=$((passed_tests + 1))
+        else
+            failed_tests=$((failed_tests + 1))
+        fi
+    fi
+    if [ "$manager" = "doctorman" ]; then
         if test_manager_smoke "$manager"; then
             passed_tests=$((passed_tests + 1))
         else

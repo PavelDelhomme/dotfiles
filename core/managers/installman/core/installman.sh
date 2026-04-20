@@ -161,7 +161,20 @@ tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur)
         if [ -f "$full_module_path" ]; then
             . "$full_module_path"
             if command -v "$install_func" >/dev/null 2>&1; then
-                $install_func
+                if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
+                    # shellcheck source=managers_log_posix.sh
+                    . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
+                    managers_log_line "installman" "install_start" "$tool_name" "info" "module=$module_file"
+                fi
+                if $install_func; then
+                    if command -v managers_log_line >/dev/null 2>&1; then
+                        managers_log_line "installman" "install" "$tool_name" "success" ""
+                    fi
+                else
+                    if command -v managers_log_line >/dev/null 2>&1; then
+                        managers_log_line "installman" "install" "$tool_name" "failed" ""
+                    fi
+                fi
             else
                 printf "${RED}❌ Fonction d'installation %s non disponible${RESET}\n" "$install_func"
                 sleep 2
@@ -1002,6 +1015,8 @@ $tool_def"
     
     # Si un argument est fourni, lancer directement le module
     if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log installman "$@"
         tool_arg=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         
         # Gérer les commandes spéciales

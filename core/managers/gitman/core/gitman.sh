@@ -481,6 +481,8 @@ gitman() {
         done
     else
         # Commandes directes
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log gitman "$@"
         case "$1" in
             whoami)
                 # Charger les fonctions depuis legacy si nécessaire
