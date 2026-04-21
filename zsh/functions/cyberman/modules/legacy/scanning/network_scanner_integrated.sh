@@ -61,8 +61,8 @@ function network_scan_cyberman() {
     done
     
     # Charger network_scanner
-    if [ -f "$HOME/dotfiles/zsh/functions/commands/network_scanner.zsh" ]; then
-        source "$HOME/dotfiles/zsh/functions/commands/network_scanner.zsh"
+    if [ -f "$HOME/dotfiles/zsh/functions/commands/network/network_scanner.zsh" ]; then
+        source "$HOME/dotfiles/zsh/functions/commands/network/network_scanner.zsh"
     else
         echo -e "${RED}❌ network_scanner non disponible${RESET}"
         return 1

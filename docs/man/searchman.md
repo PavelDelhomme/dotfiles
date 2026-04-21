@@ -26,10 +26,12 @@ Le gestionnaire offre les fonctionnalités suivantes :
 Sans argument, lance le menu interactif principal.
 
 **command** peut être :
-- **history** [*pattern*] - Rechercher dans l'historique
-- **files** [*pattern*] - Rechercher dans les fichiers
-- **code** [*pattern*] - Rechercher dans le code source
-- **explore** [*directory*] - Explorer un répertoire
+- **ping** — test non interactif (CI)
+- **help** — aide des sous-commandes CLI
+- **cmd** | **in-path** | **which-path** *nom* — la commande est-elle dans le PATH ? (`command -v`, entrées PATH, `which -a`)
+- **locate** | **outside** | **find-bin** *nom* — `whereis` puis recherche d’exécutables du même nom sous des répertoires usuels (`SEARCHMAN_FIND_ROOTS` pour en ajouter)
+- **resolve** | **where** *nom* — **cmd** puis **locate** (ex. vérifier *flutter*)
+- **history**, **files**, **process**, **logs**, **functions**, **stats** — modes interactifs (menus)
 
 ## EXEMPLES
 

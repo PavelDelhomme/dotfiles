@@ -40,10 +40,10 @@ help: ## Afficher cette aide
 	@echo "  make validate          - Valider le setup complet"
 	@echo ""
 	@echo -e "$(GREEN)Tests:$(NC)"
-	@echo "  make test              - Docker + managers migrés (matrice zsh/bash/fish via run_tests)"
-	@echo "  make test-full         - Comme test-docker-full (matrice + sous-commandes dans le conteneur)"
-	@echo "  make test-docker       - Tests dans Docker (liste migrée = scripts/test/config/migrated_managers.list)"
-	@echo "  make test-docker-full  - Docker + matrice sous-commandes (RUN_SUBCOMMAND_MATRIX=1)"
+	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (zsh/bash/fish/sh)"
+	@echo "  make test-full         - Alias de test-docker (même flux)"
+	@echo "  make test-docker       - Managers migrés + matrice subcommands dans le même conteneur"
+	@echo "  make test-docker-full  - Alias de test-docker"
 	@echo "  make test-subcommands   - Matrice sous-commandes × shells (Docker, image dotfiles-test)"
 	@echo "  make test-subcommands-quick - Idem SUBCOMMAND_TIER=quick dans Docker"
 	@echo "  make test-docker-manager MANAGER=gitman - Tester un seul manager dans Docker"
@@ -349,22 +349,19 @@ generate-man: ## Générer les pages man pour toutes les fonctions
 ################################################################################
 
 # Docker + managers migrés (matrice shells dans run_tests.sh).
-test: test-docker ## Lancer les tests Docker (managers migrés, zsh/bash/fish)
+test: test-docker ## Lancer les tests Docker (managers migrés + matrice sous-commandes)
 
-# Tests complets dans Docker : build image si besoin, lance tous les managers migrés (pathman, gitman, etc.).
-test-docker: ## Tests dans Docker (liste scripts/test/config/migrated_managers.list)
-	@echo -e "$(BLUE)🧪 Tests Docker — managers migrés (matrice shells)...$(NC)"
-	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/test_migrated_managers.sh"
-	@echo ""
-	@echo -e "$(GREEN)💡 Matrice sous-commandes (conteneur dédié) :$(NC) make test-subcommands"
-	@echo -e "$(GREEN)💡 Tout en un run (manager_tester + matrice) :$(NC) make test-docker-full"
-
-# Docker + matrice sous-commandes (même conteneur, RUN_SUBCOMMAND_MATRIX=1).
-test-docker-full: ## Docker + manager_tester multi-shell + scripts/test/manager_subcommand_matrix.sh
-	@echo -e "$(BLUE)🧪 Tests Docker complets (shells + sous-commandes)...$(NC)"
+# Tests dans Docker : manager_tester (zsh/bash/fish) puis matrice subcommands × shells (dont sh).
+test-docker: ## Tests dans Docker (migrated_managers.list + scripts/test/subcommands/)
+	@echo -e "$(BLUE)🧪 Tests Docker — managers migrés + matrice sous-commandes...$(NC)"
 	@RUN_SUBCOMMAND_MATRIX=1 DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/test_migrated_managers.sh"
+	@echo ""
+	@echo -e "$(GREEN)💡 Matrice sous-commandes seule (log dédié) :$(NC) make test-subcommands"
 
-test-full: test-docker-full ## Alias de test-docker-full
+# Alias historique : identique à test-docker.
+test-docker-full: test-docker ## Alias : même flux que test-docker
+
+test-full: test-docker ## Alias : tests Docker complets
 
 # Matrice sous-commandes : toujours dans Docker (image Dockerfile.test).
 test-subcommands: ## Matrice invocations × zsh/bash/fish dans Docker (SUBCOMMAND_TIER=full)

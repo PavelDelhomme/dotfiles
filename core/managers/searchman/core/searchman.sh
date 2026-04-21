@@ -445,8 +445,96 @@ searchman() {
         done
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
+    # --- CLI : commande dans le PATH / hors PATH (ex. flutter, gcc) ---
+    # USAGE: searchman cmd <nom> | searchman locate <nom> | searchman resolve <nom>
+    sm_print_cli_help() {
+        printf "%s\n" "searchman — recherche d'exécutables"
+        printf "%s\n" "  cmd|in-path|which-path <nom>   Commande résolue par le shell + entrées PATH + which -a"
+        printf "%s\n" "  locate|outside|find-bin <nom> whereis + recherche dans les répertoires usuels (hors seul PATH)"
+        printf "%s\n" "  resolve|where <nom>            cmd puis locate (vue d'ensemble)"
+        printf "%s\n" "  ping                           test non interactif (CI)"
+        printf "%s\n" "Variable optionnelle : SEARCHMAN_FIND_ROOTS=\"/chemin1 /chemin2\" (espaces) pour élargir la recherche."
+    }
+    
+    sm_cmd_in_path() {
+        local name="$1"
+        local _rest _dir c _sm_cmd_missing
+        _sm_cmd_missing=0
+        if [ -z "$name" ]; then
+            printf "%sUsage:%s searchman cmd <commande>\n" "$RED" "$RESET" >&2
+            return 2
+        fi
+        printf "${BOLD}${CYAN}══ Commande « %s » (PATH) ══${RESET}\n" "$name"
+        if c=$(command -v "$name" 2>/dev/null); then
+            printf "${GREEN}Accessible au terminal${RESET} (command -v) : %s\n" "$c"
+            ls -l "$c" 2>/dev/null || true
+        else
+            printf "${RED}Non résolue par command -v${RESET} (non dans le PATH courant ou non exécutable)\n"
+            _sm_cmd_missing=1
+        fi
+        printf "\n${CYAN}Binaires explicites dans les entrées du PATH :${RESET}\n"
+        _rest=$PATH
+        while [ -n "$_rest" ]; do
+            _dir="${_rest%%:*}"
+            case "$_rest" in
+                *:*) _rest="${_rest#*:}" ;;
+                *) _rest="" ;;
+            esac
+            [ -z "$_dir" ] && continue
+            if [ -f "$_dir/$name" ] && [ -x "$_dir/$name" ]; then
+                printf "  %s/%s\n" "$_dir" "$name"
+            fi
+        done
+        if command -v which >/dev/null 2>&1; then
+            printf "\n${CYAN}which -a :${RESET}\n"
+            which -a "$name" 2>/dev/null || printf "  (aucune)\n"
+        fi
+        echo
+        return "$_sm_cmd_missing"
+    }
+    
+    sm_find_outside_path() {
+        local name="$1"
+        local root _rest _dir f
+        if [ -z "$name" ]; then
+            printf "%sUsage:%s searchman locate <commande>\n" "$RED" "$RESET" >&2
+            return 2
+        fi
+        printf "${BOLD}${CYAN}══ « %s » hors PATH (indices + recherche ciblée) ══${RESET}\n" "$name"
+        if command -v whereis >/dev/null 2>&1; then
+            printf "\n${CYAN}whereis :${RESET}\n"
+            whereis "$name" 2>/dev/null || true
+        else
+            printf "${YELLOW}(whereis absent — ignoré)${RESET}\n"
+        fi
+        printf "\n${CYAN}Fichiers exécutables du même nom (profondeur limitée) :${RESET}\n"
+        # Racines : surcharge possible par SEARCHMAN_FIND_ROOTS (liste séparée par espaces)
+        _rest="${SEARCHMAN_FIND_ROOTS:-/usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /opt $HOME/.local/bin $HOME/.cargo/bin $HOME/flutter/bin $HOME/development $HOME/.pub-cache/bin $HOME/snap}"
+        for root in $_rest; do
+            [ -z "$root" ] && continue
+            [ -d "$root" ] || continue
+            find "$root" -maxdepth 5 \( -name "$name" -o -name "${name}.exe" \) -type f 2>/dev/null | while IFS= read -r f; do
+                [ -x "$f" ] || continue
+                printf "  %s\n" "$f"
+            done
+        done | sort -u | head -n 40
+        echo
+    }
+    
+    sm_resolve_cmd() {
+        local name="$1"
+        if [ -z "$name" ]; then
+            printf "%sUsage:%s searchman resolve <commande>\n" "$RED" "$RESET" >&2
+            return 2
+        fi
+        sm_cmd_in_path "$name"
+        sm_find_outside_path "$name"
     }
     
     # Gestion des arguments rapides
@@ -455,6 +543,26 @@ searchman() {
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log searchman "$@"
     fi
     case "$1" in
+        ping)
+            printf "searchman: ok\n"
+            return 0
+            ;;
+        help|-h|--help)
+            sm_print_cli_help
+            return 0
+            ;;
+        cmd|in-path|which-path)
+            sm_cmd_in_path "$2"
+            return $?
+            ;;
+        locate|outside|find-bin)
+            sm_find_outside_path "$2"
+            return 0
+            ;;
+        resolve|where)
+            sm_resolve_cmd "$2"
+            return 0
+            ;;
         history)
             if [ -n "$2" ]; then
                 search_history_advanced
@@ -528,10 +636,13 @@ searchman() {
                 echo "  • Statistiques d'utilisation détaillées"
                 echo
                 echo "Raccourcis:"
-                echo "  searchman                  - Lance le gestionnaire"
-                echo "  searchman history <terme>  - Recherche dans l'historique"
-                echo "  searchman files <motif>    - Recherche de fichiers"
-                echo "  searchman process <nom>     - Recherche de processus"
+                echo "  searchman                      - Lance le gestionnaire"
+                echo "  searchman cmd <cmd>            - Où est la commande dans le PATH ?"
+                echo "  searchman locate <cmd>         - Indices whereis + disques usuels"
+                echo "  searchman resolve <cmd>        - cmd + locate (ex. flutter, gcc)"
+                echo "  searchman history <terme>      - Recherche dans l'historique"
+                echo "  searchman files <motif>        - Recherche de fichiers"
+                echo "  searchman process <nom>        - Recherche de processus"
                 echo
                 printf "Appuyez sur Entrée pour continuer... "
                 read dummy

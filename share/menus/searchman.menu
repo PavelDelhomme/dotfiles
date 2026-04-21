@@ -1,0 +1,13 @@
+# searchman - Menu dotfiles-menu (label|command)
+# Même convention que pathman.menu (dfm / dotfiles-menu)
+Ping (test CI)|searchman ping
+Exemple : où est sh (PATH)|searchman cmd sh
+Exemple : indices sh hors PATH|searchman locate sh
+Exemple : resolve /usr/bin/true|searchman resolve true
+Historique (interactif)|searchman history
+Fichiers (interactif)|searchman files
+Processus (interactif)|searchman process
+Logs (interactif)|searchman logs
+Statistiques (interactif)|searchman stats
+Aide CLI (cmd / locate / resolve)|searchman help
+Quitter (ne rien faire)|true

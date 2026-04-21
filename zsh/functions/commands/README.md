@@ -6,9 +6,11 @@ Ce répertoire contient les commandes et fonctions qui ne sont **pas** des manag
 
 Les commandes standalone sont des fonctions utilitaires simples qui peuvent être utilisées directement en ligne de commande, sans interface interactive.
 
+Les fichiers à la **racine** de `commands/` sont chargés, ainsi que ceux dans les **sous-dossiers** (un niveau), par exemple `commands/network/*.zsh`.
+
 ## Commandes disponibles
 
-### Réseau
+### Réseau (`commands/network/`)
 - **ipinfo** - Affiche les informations IP (privée, publique, DNS, gateway, etc.)
 - **whatismyip** - Affiche l'adresse IP publique
 - **network_scanner** - Scanner réseau en temps réel
@@ -18,7 +20,7 @@ Les commandes standalone sont des fonctions utilitaires simples qui peuvent êtr
 Pour ajouter une nouvelle commande standalone :
 
 1. Créez le fichier dans le répertoire approprié :
-   - `zsh/functions/commands/ma_commande.zsh` (pour ZSH)
+   - `zsh/functions/commands/ma_commande.zsh` ou `zsh/functions/commands/<thème>/ma_commande.zsh` (pour ZSH)
    - `bash/functions/commands/ma_commande.sh` (pour Bash)
    - `fish/functions/commands/ma_commande.fish` (pour Fish)
 
