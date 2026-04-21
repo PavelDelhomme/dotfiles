@@ -18,6 +18,9 @@ else
     SHELL_TYPE="sh"
 fi
 
+# NOTE (zsh) : ne pas utiliser « IFS=: ; set -- $PATH » pour parcourir le PATH — zsh ne scinde pas sans sh_word_split.
+# Utiliser une boucle %% : / # : sur une copie (voir show_path, clean_invalid_paths, show_stats, clean_path).
+
 # DESC: Gestionnaire interactif complet pour gérer le PATH système
 # USAGE: pathman [command] [args]
 # EXAMPLE: pathman
@@ -41,33 +44,52 @@ pathman() {
     DEFAULT_PATH="${DEFAULT_PATH:-$HOME/.local/bin:/usr/local/bin:/usr/sbin:/sbin:/usr/local/bin:/bin:/usr/local/games:/snap/bin}"
     MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\n0) Export\nh) Aide\nq) Quitter\n"
 
-    # DESC: S'assure que le répertoire et le fichier de log existent
+    # DESC: S'assure que le répertoire et le fichier de log existent (repli /tmp si RO, ex. Docker)
     # USAGE: ensure_path_log
     ensure_path_log() {
-        if [ ! -f "$PATH_LOG_FILE" ]; then
-            mkdir -p "$(dirname "$PATH_LOG_FILE")" 2>/dev/null || true
-            touch "$PATH_LOG_FILE" 2>/dev/null || true
+        local _pl_dir
+        _pl_dir=$(dirname "$PATH_LOG_FILE")
+        if mkdir -p "$_pl_dir" 2>/dev/null && ( : >>"$PATH_LOG_FILE" ) 2>/dev/null; then
+            [ -f "$PATH_LOG_FILE" ] || touch "$PATH_LOG_FILE" 2>/dev/null || true
+            return 0
         fi
+        PATH_LOG_FILE="${TMPDIR:-/tmp}/dotfiles-pathman.log"
+        mkdir -p "$(dirname "$PATH_LOG_FILE")" 2>/dev/null || true
+        touch "$PATH_LOG_FILE" 2>/dev/null || true
     }
 
-    # DESC: Ajoute une entrée dans le log du PATH
+    # DESC: Ajoute une entrée dans le log du PATH (ne fait jamais échouer l’appelant si écriture impossible)
     # USAGE: add_logs <log_type> <message>
     add_logs() {
         local log_type="$1"
         local message="$2"
         ensure_path_log
-        echo "[$(date)] [$log_type] $message : $PATH" >> "$PATH_LOG_FILE"
+        echo "[$(date)] [$log_type] $message : $PATH" >> "$PATH_LOG_FILE" 2>/dev/null || true
     }
 
     # DESC: Affiche le contenu complet du PATH de manière formatée
     # USAGE: show_path
     show_path() {
         printf "${CYAN}Contenu du PATH :${RESET}\n"
-        echo "$PATH" | tr ':' '\n' | awk '{printf "%2d. %s\n", NR, $0}'
+        local _pw_n=0
+        local _pw_rest=$PATH
+        local _pw_dir
+        while [ -n "$_pw_rest" ]; do
+            _pw_dir="${_pw_rest%%:*}"
+            case "$_pw_rest" in
+                *:*) _pw_rest="${_pw_rest#*:}" ;;
+                *) _pw_rest="" ;;
+            esac
+            [ -z "$_pw_dir" ] && continue
+            _pw_n=$((_pw_n + 1))
+            printf "%2d. %s\n" "$_pw_n" "$_pw_dir"
+        done
         add_logs "SHOW" "Affichage du PATH"
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
 
     # DESC: Ajoute un répertoire au PATH (version interactive)
@@ -120,20 +142,23 @@ pathman() {
     # USAGE: clean_invalid_paths
     clean_invalid_paths() {
         local new_path=""
-        local old_IFS="$IFS"
-        IFS=':'
-        set -- $PATH
-        IFS="$old_IFS"
-        
-        for dir in "$@"; do
+        local _ci_rest=$PATH
+        local dir
+        while [ -n "$_ci_rest" ]; do
+            dir="${_ci_rest%%:*}"
+            case "$_ci_rest" in
+                *:*) _ci_rest="${_ci_rest#*:}" ;;
+                *) _ci_rest="" ;;
+            esac
+            [ -z "$dir" ] && continue
             if [ -d "$dir" ]; then
-                new_path="$new_path:$dir"
+                new_path="${new_path}${new_path:+:}$dir"
             else
-                printf "${RED}Inexistant retiré: $dir${RESET}\n"
+                printf "${RED}Inexistant retiré: %s${RESET}\n" "$dir"
                 add_logs "REMOVE" "Inexistant: $dir"
             fi
         done
-        export PATH="${new_path#:}"
+        export PATH="$new_path"
         add_logs "CLEAN" "Invalid retirés"
         sleep 2
     }
@@ -171,8 +196,10 @@ pathman() {
             ensure_path_log
             if [ ! -f "$PATH_LOG_FILE" ]; then
                 printf "${YELLOW}Aucun log encore (répertoire: %s)${RESET}\n" "$(dirname "$PATH_LOG_FILE")"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                if [ -t 0 ]; then
+                    printf "Appuyez sur Entrée pour continuer... "
+                    read dummy
+                fi
                 return
             fi
         fi
@@ -183,8 +210,10 @@ pathman() {
             tail -30 "$PATH_LOG_FILE"
         fi
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
 
     # DESC: Affiche les statistiques d'utilisation du PATH
@@ -193,25 +222,30 @@ pathman() {
         local cnt=0
         local invalid=0
         local path_length=0
-        local old_IFS="$IFS"
-        IFS=':'
-        set -- $PATH
-        IFS="$old_IFS"
-        
-        for dir in "$@"; do
+        local _st_rest=$PATH
+        local dir
+        while [ -n "$_st_rest" ]; do
+            dir="${_st_rest%%:*}"
+            case "$_st_rest" in
+                *:*) _st_rest="${_st_rest#*:}" ;;
+                *) _st_rest="" ;;
+            esac
+            [ -z "$dir" ] && continue
             cnt=$((cnt + 1))
             if [ ! -d "$dir" ]; then
                 invalid=$((invalid + 1))
             fi
-            path_length=$((path_length + ${#dir} + 1))  # +1 pour le séparateur
+            path_length=$((path_length + ${#dir} + 1))
         done
         
         printf "${CYAN}Stats PATH:${RESET}\n"
         echo "$cnt au total, $invalid non résolus"
         echo "Taille totale: $path_length caractères"
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
 
     # DESC: Exporte le PATH dans un fichier texte
@@ -249,8 +283,10 @@ q) Quitter
 
 Commandes rapides : pathman add /mon/chemin
 EOF
-        printf "Appuyez sur Entrée pour revenir au menu... "
-        read dummy
+        if [ -t 0 ]; then
+            printf "Appuyez sur Entrée pour revenir au menu... "
+            read dummy
+        fi
     }
 
     # Sans argument : tenter le menu fzf (dotfiles-menu) si disponible
@@ -392,25 +428,28 @@ add_to_path() {
 # USAGE: clean_path
 # EXAMPLE: clean_path
 clean_path() {
-    local old_IFS="$IFS"
-    IFS=':'
-    set -- $PATH
-    IFS="$old_IFS"
     local new_path=""
     local seen=""
-    
-    for dir in "$@"; do
-        if [ -n "$dir" ] && [ -d "$dir" ]; then
+    local _cp_rest=$PATH
+    local dir
+    while [ -n "$_cp_rest" ]; do
+        dir="${_cp_rest%%:*}"
+        case "$_cp_rest" in
+            *:*) _cp_rest="${_cp_rest#*:}" ;;
+            *) _cp_rest="" ;;
+        esac
+        [ -z "$dir" ] && continue
+        if [ -d "$dir" ]; then
             case ":$seen:" in
                 *":$dir:"*) ;;
                 *)
-                    new_path="$new_path:$dir"
+                    new_path="${new_path}${new_path:+:}$dir"
                     seen="$seen:$dir"
                     ;;
             esac
         fi
     done
-    export PATH="${new_path#:}"
+    export PATH="$new_path"
     echo "✅ PATH nettoyé"
     # Log si pathman est chargé et add_logs disponible
     if command -v add_logs >/dev/null 2>&1; then

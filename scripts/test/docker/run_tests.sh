@@ -14,6 +14,12 @@ TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-/root/test_results}"
 # Créer le répertoire de résultats
 mkdir -p "$TEST_RESULTS_DIR"
 
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh"
+    dotfiles_docker_git_trust_repo 2>/dev/null || true
+fi
+
 # Charger progress_bar
 if [ -f "$DOTFILES_DIR/core/utils/progress_bar.sh" ]; then
     . "$DOTFILES_DIR/core/utils/progress_bar.sh"
@@ -24,16 +30,23 @@ if [ -f "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" ]; then
     . "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh"
 fi
 
-# Liste des managers à tester
-# Managers migrés (à tester en priorité)
-MIGRATED_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman"
-# Managers non migrés (tests basiques)
-UNMIGRATED_MANAGERS="netman sshman testman testzshman moduleman multimediaman cyberlearn"
-# Tous les managers
+# Listes canoniques (scripts/test/config/*.list)
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh"
+    MIGRATED_MANAGERS=$(dotfiles_migrated_managers_space)
+    UNMIGRATED_MANAGERS=$(dotfiles_unmigrated_managers_space)
+else
+    MIGRATED_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman"
+    UNMIGRATED_MANAGERS="netman sshman testman testzshman moduleman multimediaman cyberlearn"
+fi
 ALL_MANAGERS="$MIGRATED_MANAGERS $UNMIGRATED_MANAGERS"
 
 # Utiliser les managers migrés par défaut (test progressif)
 MANAGERS="${TEST_MANAGERS:-$MIGRATED_MANAGERS}"
+
+# Matrice shells : zsh bash fish (override avec TEST_SHELLS="zsh" pour aller plus vite)
+TEST_SHELLS="${TEST_SHELLS:-zsh bash fish}"
 
 echo "═══════════════════════════════════════════════════════════════"
 echo "🧪 TESTS AUTOMATISÉS DES MANAGERS (DOCKER)"
@@ -44,6 +57,7 @@ echo "📁 Dotfiles: $DOTFILES_DIR"
 echo "📊 Résultats: $TEST_RESULTS_DIR"
 echo ""
 echo "📋 Managers à tester: $(echo $MANAGERS | wc -w) managers"
+echo "🐚 Shells (manager_tester): $TEST_SHELLS"
 if [ "$MANAGERS" = "$MIGRATED_MANAGERS" ]; then
     echo "   → Mode: Managers migrés uniquement (test progressif)"
 elif [ "$MANAGERS" = "$ALL_MANAGERS" ]; then
@@ -53,9 +67,11 @@ else
 fi
 echo ""
 
-# Initialiser la progression
-TOTAL_MANAGERS=$(echo "$MANAGERS" | wc -w)
-progress_init "$TOTAL_MANAGERS" "Test des managers"
+# Progression = une cellule (manager × shell)
+NM=$(echo "$MANAGERS" | wc -w)
+NS=$(echo "$TEST_SHELLS" | wc -w)
+TOTAL_CELLS=$((NM * NS))
+progress_init "$TOTAL_CELLS" "Test des managers (matrice shells)"
 
 # Charger les dotfiles
 echo "🔧 Chargement des dotfiles..."
@@ -103,67 +119,61 @@ echo "" >> "$DETAILED_REPORT"
 TEMP_MANAGERS_FILE="/tmp/dotfiles_test_managers_$$"
 echo "$MANAGERS" | tr ' ' '\n' | grep -v '^$' > "$TEMP_MANAGERS_FILE"
 
+TIMEOUT_PATH=""
+if command -v timeout >/dev/null 2>&1; then
+    TIMEOUT_PATH=$(command -v timeout)
+elif command -v gtimeout >/dev/null 2>&1; then
+    TIMEOUT_PATH=$(command -v gtimeout)
+elif [ -f "/usr/bin/timeout" ] && [ -x "/usr/bin/timeout" ]; then
+    TIMEOUT_PATH="/usr/bin/timeout"
+elif [ -f "/usr/sbin/timeout" ] && [ -x "/usr/sbin/timeout" ]; then
+    TIMEOUT_PATH="/usr/sbin/timeout"
+fi
+
 # Lire chaque manager depuis le fichier
 while read -r manager || [ -n "$manager" ]; do
-    # Ignorer les lignes vides
     [ -z "$manager" ] && continue
-    COMPLETED=$((COMPLETED + 1))
-    
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
-    echo "🧪 Test: $manager" | tee -a "$DETAILED_REPORT"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
-    
-    # Exécuter les tests avec timeout pour éviter les blocages
-    # Utiliser timeout si disponible, sinon test normal
-    TIMEOUT_PATH=""
-    
-    # Chercher timeout dans le PATH
-    if command -v timeout >/dev/null 2>&1; then
-        TIMEOUT_PATH=$(command -v timeout)
-    elif command -v gtimeout >/dev/null 2>&1; then
-        TIMEOUT_PATH=$(command -v gtimeout)
-    elif [ -f "/usr/bin/timeout" ] && [ -x "/usr/bin/timeout" ]; then
-        TIMEOUT_PATH="/usr/bin/timeout"
-    elif [ -f "/usr/sbin/timeout" ] && [ -x "/usr/sbin/timeout" ]; then
-        TIMEOUT_PATH="/usr/sbin/timeout"
-    fi
-    
-    # Capturer la sortie et le code de sortie. Le sous-shell doit charger manager_tester.sh pour avoir test_manager.
-    if [ -n "$TIMEOUT_PATH" ] && [ -x "$TIMEOUT_PATH" ]; then
-        TEST_OUTPUT=$("$TIMEOUT_PATH" 10 sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'zsh'"' 2>&1')
-        TEST_EXIT=$?
-        if [ $TEST_EXIT -eq 124 ]; then
-            echo "⚠️  Test de $manager a dépassé le timeout (10s) - peut être normal pour managers interactifs"
-            TEST_EXIT=0
+
+    for shell in $TEST_SHELLS; do
+        COMPLETED=$((COMPLETED + 1))
+
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
+        echo "🧪 Test: $manager ($shell)" | tee -a "$DETAILED_REPORT"
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
+
+        if [ -n "$TIMEOUT_PATH" ] && [ -x "$TIMEOUT_PATH" ]; then
+            TEST_OUTPUT=$("$TIMEOUT_PATH" 30 sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'$shell'"' 2>&1')
+            TEST_EXIT=$?
+            if [ "$TEST_EXIT" -eq 124 ]; then
+                echo "⚠️  Timeout (30s) $manager ($shell)" | tee -a "$DETAILED_REPORT"
+                TEST_EXIT=1
+            fi
+        else
+            TEST_OUTPUT=$(sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'$shell'"' 2>&1')
+            TEST_EXIT=$?
         fi
-    else
-        TEST_OUTPUT=$(sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'zsh'"' 2>&1')
-        TEST_EXIT=$?
-    fi
-    
-    # Afficher la sortie
-    echo "$TEST_OUTPUT" | tee -a "$DETAILED_REPORT"
-    
-    # Évaluer le résultat
-    if [ $TEST_EXIT -eq 0 ]; then
-        PASSED_TESTS=$((PASSED_TESTS + 1))
-        echo "✅ $manager: Tous les tests passés" | tee -a "$REPORT_FILE"
-    else
-        FAILED_TESTS=$((FAILED_TESTS + 1))
-        echo "❌ $manager: Certains tests ont échoué" | tee -a "$REPORT_FILE"
-    fi
-    
-    # gitman et pathman ont 6 tests (dont time-spent / smoke), les autres 5
-    if [ "$manager" = "gitman" ] || [ "$manager" = "pathman" ]; then
-        TOTAL_TESTS=$((TOTAL_TESTS + 6))
-    else
-        TOTAL_TESTS=$((TOTAL_TESTS + 5))
-    fi
-    
-    echo "" | tee -a "$DETAILED_REPORT"
-    
-    # Mettre à jour la progression
-    progress_update "$COMPLETED" "$PASSED_TESTS" "$FAILED_TESTS"
+
+        echo "$TEST_OUTPUT" | tee -a "$DETAILED_REPORT"
+
+        if [ "$TEST_EXIT" -eq 0 ]; then
+            PASSED_TESTS=$((PASSED_TESTS + 1))
+            echo "✅ $manager ($shell): OK" | tee -a "$REPORT_FILE"
+        else
+            FAILED_TESTS=$((FAILED_TESTS + 1))
+            echo "❌ $manager ($shell): échec" | tee -a "$REPORT_FILE"
+        fi
+
+        if [ "$manager" = "pathman" ] || [ "$manager" = "doctorman" ]; then
+            TOTAL_TESTS=$((TOTAL_TESTS + 6))
+        elif [ "$manager" = "gitman" ] && [ "$shell" = "zsh" ]; then
+            TOTAL_TESTS=$((TOTAL_TESTS + 6))
+        else
+            TOTAL_TESTS=$((TOTAL_TESTS + 5))
+        fi
+
+        echo "" | tee -a "$DETAILED_REPORT"
+        progress_update "$COMPLETED" "$PASSED_TESTS" "$FAILED_TESTS"
+    done
 done < "$TEMP_MANAGERS_FILE"
 
 # Nettoyer le fichier temporaire
@@ -177,9 +187,9 @@ echo "" | tee -a "$REPORT_FILE"
 echo "═══════════════════════════════════════════════════════════════" | tee -a "$REPORT_FILE"
 echo "RÉSUMÉ FINAL" | tee -a "$REPORT_FILE"
 echo "═══════════════════════════════════════════════════════════════" | tee -a "$REPORT_FILE"
-echo "Total managers testés: $TOTAL_MANAGERS" | tee -a "$REPORT_FILE"
-echo "Managers réussis: $PASSED_TESTS" | tee -a "$REPORT_FILE"
-echo "Managers échoués: $FAILED_TESTS" | tee -a "$REPORT_FILE"
+echo "Total cellules (manager × shell): $TOTAL_CELLS" | tee -a "$REPORT_FILE"
+echo "Cellules réussies: $PASSED_TESTS" | tee -a "$REPORT_FILE"
+echo "Cellules en échec: $FAILED_TESTS" | tee -a "$REPORT_FILE"
 echo "Total tests: $TOTAL_TESTS" | tee -a "$REPORT_FILE"
 echo "" | tee -a "$REPORT_FILE"
 
@@ -189,8 +199,8 @@ echo "✅ TESTS TERMINÉS"
 echo "═══════════════════════════════════════════════════════════════"
 echo ""
 echo "📊 Résultats:"
-echo "  ✅ Réussis: $PASSED_TESTS/$TOTAL_MANAGERS"
-echo "  ❌ Échoués: $FAILED_TESTS/$TOTAL_MANAGERS"
+echo "  ✅ Réussis: $PASSED_TESTS/$TOTAL_CELLS"
+echo "  ❌ Échoués: $FAILED_TESTS/$TOTAL_CELLS"
 echo ""
 echo "📁 Rapports disponibles dans:"
 echo "  - Résumé: $REPORT_FILE"
@@ -200,9 +210,24 @@ echo ""
 # Code de sortie basé sur les résultats
 if [ "$FAILED_TESTS" -eq 0 ]; then
     echo "🎉 Tous les tests sont passés !"
-    exit 0
+    _matrix_rc=0
 else
-    echo "⚠️  $FAILED_TESTS manager(s) ont des problèmes"
-    exit 1
+    echo "⚠️  $FAILED_TESTS cellule(s) en échec"
+    _matrix_rc=1
 fi
+
+# Matrice sous-commandes (optionnel : RUN_SUBCOMMAND_MATRIX=1 ou make test-docker-full)
+if [ "${RUN_SUBCOMMAND_MATRIX:-0}" = "1" ] && command -v bash >/dev/null 2>&1; then
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "🧪 Matrice sous-commandes (scripts/test/manager_subcommand_matrix.sh)"
+    echo "═══════════════════════════════════════════════════════════════"
+    export TEST_MANAGERS="$MANAGERS"
+    export TEST_SHELLS
+    if ! bash "$DOTFILES_DIR/scripts/test/manager_subcommand_matrix.sh"; then
+        _matrix_rc=1
+    fi
+fi
+
+exit "$_matrix_rc"
 

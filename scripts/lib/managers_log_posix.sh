@@ -15,7 +15,12 @@ managers_log_line() {
     df="${DOTFILES_DIR:-${HOME:-/}/dotfiles}"
     lf="${MANAGERS_LOG_FILE:-$df/logs/managers.log}"
     dird=$(dirname "$lf")
-    mkdir -p "$dird" 2>/dev/null || return 0
+    mkdir -p "$dird" 2>/dev/null || true
+    if ! ( : >>"$lf" ) 2>/dev/null; then
+        lf="${TMPDIR:-/tmp}/dotfiles-managers.log"
+        dird=$(dirname "$lf")
+        mkdir -p "$dird" 2>/dev/null || true
+    fi
     ts=$(date '+%Y-%m-%d %H:%M:%S')
     if [ -n "$details" ]; then
         printf '[%s] [%s] [%s] [%s] target=%s | %s\n' "$ts" "$manager" "$action" "$outcome" "$target" "$details" >>"$lf" 2>/dev/null || true

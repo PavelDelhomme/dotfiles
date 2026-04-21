@@ -1,0 +1,4 @@
+# export / invalid : pas d’attente stdin ; show : sans Entrée si stdin n’est pas un TTY
+export
+invalid
+show

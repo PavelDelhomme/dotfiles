@@ -1,0 +1,16 @@
+# Managers migrés (hybride core POSIX + adapters) — source unique pour tests / Docker
+# Un nom par ligne ; lignes # ignorées
+pathman
+manman
+searchman
+aliaman
+installman
+configman
+gitman
+fileman
+helpman
+cyberman
+devman
+virtman
+miscman
+doctorman

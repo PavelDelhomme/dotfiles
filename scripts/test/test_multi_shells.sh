@@ -24,8 +24,14 @@ SCRIPT_DIR="$DOTFILES_DIR/scripts/test"
 DOCKER_DIR="$SCRIPT_DIR/docker"
 REPORT_FILE="$DOTFILES_DIR/TEST_MULTI_SHELLS_REPORT.md"
 
-# Liste des managers à tester
-MANAGERS="pathman manman searchman aliaman helpman fileman miscman installman configman gitman cyberman devman virtman netman sshman testman testzshman moduleman multimediaman cyberlearn"
+# Liste des managers (migrés + non migrés) depuis scripts/test/config/*.list
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh"
+    MANAGERS=$(dotfiles_matrix_managers_space)
+else
+    MANAGERS="pathman manman searchman aliaman helpman fileman miscman installman configman gitman cyberman devman virtman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn"
+fi
 
 # Liste des shells à tester
 SHELLS="zsh bash fish"
@@ -65,8 +71,11 @@ test_manager_in_shell() {
     
     if docker run --rm \
         --name "$container_name" \
+        -w /root/dotfiles \
         -v "$DOTFILES_DIR:/root/dotfiles:ro" \
         -e DOTFILES_DIR=/root/dotfiles \
+        -e HOME=/root \
+        -e DOTFILES_DOCKER_TEST=1 \
         dotfiles-test:latest \
         "$shell_cmd" \
         -c "cd /root/dotfiles && bash scripts/test/docker/test_manager_multi_shell.sh $manager $shell_type" \

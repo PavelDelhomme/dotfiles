@@ -209,11 +209,17 @@ run_tests_with_docker() {
     
     if docker run --rm \
         --name "$DOCKER_CONTAINER" \
+        -w /root/dotfiles \
         -v "$DOTFILES_DIR:/root/dotfiles:ro" \
         -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
         -v "dotfiles-test-config:/root/.config:rw" \
         -e DOTFILES_DIR=/root/dotfiles \
+        -e HOME=/root \
         -e TEST_RESULTS_DIR=/root/test_results \
+        -e MANAGERS_LOG_FILE=/root/test_results/managers_docker_tests.log \
+        -e DOTFILES_DOCKER_TEST=1 \
+        -e "RUN_SUBCOMMAND_MATRIX=${RUN_SUBCOMMAND_MATRIX:-0}" \
+        ${TEST_SHELLS:+-e "TEST_SHELLS=$TEST_SHELLS"} \
         ${TEST_MANAGERS:+-e "TEST_MANAGERS=$TEST_MANAGERS"} \
         "$ACTUAL_IMAGE" \
         bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"; then

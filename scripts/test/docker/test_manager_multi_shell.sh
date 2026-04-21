@@ -15,6 +15,12 @@ SHELL_TYPE="$2"
 
 DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
 
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh"
+    dotfiles_docker_git_trust_repo 2>/dev/null || true
+fi
+
 # Couleurs
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -81,27 +87,38 @@ case "$SHELL_TYPE" in
         fi
         ;;
     fish)
-        # Fish nécessite une approche différente - charger directement l'adapter
-        # pour éviter les problèmes avec config_custom.fish qui plante
-        FISH_ADAPTER="$DOTFILES_DIR/shells/fish/adapters/${MANAGER}.fish"
-        if [ -f "$FISH_ADAPTER" ]; then
-            # Vérifier si le core existe (c'est suffisant pour valider la migration)
-            CORE_FILE="$DOTFILES_DIR/core/managers/${MANAGER}/core/${MANAGER}.sh"
-            if [ -f "$CORE_FILE" ]; then
-                # Le core existe, considérer comme OK même si Fish ne peut pas le charger directement
-                # (les adapters Fish utilisent bash -c pour charger les cores POSIX)
-                printf "${GREEN}✅ $MANAGER existe dans $SHELL_TYPE (core POSIX disponible)${NC}\n"
-                printf "${GREEN}✅ Syntaxe OK${NC}\n"
-                printf "${GREEN}✅ $MANAGER chargé avec succès${NC}\n"
-                exit 0
-            else
-                printf "${RED}❌ Core POSIX non trouvé: $CORE_FILE${NC}\n"
-                exit 1
-            fi
-        else
-            printf "${RED}❌ Adapter Fish non trouvé: $FISH_ADAPTER${NC}\n"
+        CORE_FILE="$DOTFILES_DIR/core/managers/${MANAGER}/core/${MANAGER}.sh"
+        BRIDGE="$DOTFILES_DIR/scripts/test/utils/fish_run_posix_inv.fish"
+        SUB_LIST="$DOTFILES_DIR/scripts/test/subcommands/${MANAGER}.list"
+
+        if [ ! -f "$CORE_FILE" ]; then
+            printf "${RED}❌ Core POSIX non trouvé: $CORE_FILE${NC}\n"
             exit 1
         fi
+        if [ -f "$SUB_LIST" ] && grep -q '^@skip' "$SUB_LIST" 2>/dev/null; then
+            printf "${GREEN}✅ $MANAGER (fish) — @skip liste subcommands (CLI non testée ici)${NC}\n"
+            exit 0
+        fi
+        FIRST_INV="help"
+        if [ -f "$SUB_LIST" ]; then
+            FIRST_INV=$(grep -v '^#' "$SUB_LIST" | grep -v '^$' | grep -v '^@' | head -n1)
+        fi
+        [ -z "$FIRST_INV" ] && FIRST_INV="help"
+        case "$MANAGER" in
+            pathman) FIRST_INV="show" ;;
+        esac
+        if [ ! -f "$BRIDGE" ] || ! command -v fish >/dev/null 2>&1; then
+            printf "${RED}❌ Fish ou pont $BRIDGE indisponible${NC}\n"
+            exit 1
+        fi
+        export DOTFILES_DIR
+        if fish "$BRIDGE" "$MANAGER" "$CORE_FILE" $FIRST_INV >/dev/null 2>&1; then
+            printf "${GREEN}✅ $MANAGER existe dans $SHELL_TYPE (pont POSIX, inv: $FIRST_INV)${NC}\n"
+            printf "${GREEN}✅ Syntaxe / exécution OK${NC}\n"
+            exit 0
+        fi
+        printf "${RED}❌ $MANAGER (fish) échec avec: $FIRST_INV${NC}\n"
+        exit 1
         ;;
     *)
         printf "${RED}❌ Shell non supporté: $SHELL_TYPE${NC}\n"

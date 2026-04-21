@@ -282,36 +282,75 @@ test_gitman_time_spent() {
 # Test 5c: Test fonctionnel (smoke) - une commande non interactive par manager
 test_manager_smoke() {
     local manager="$1"
+    local shell_type="${2:-zsh}"
     local out="" code=0
+    local core="$DOTFILES_DIR/core/managers/$manager/core/${manager}.sh"
+    local bridge="$DOTFILES_DIR/scripts/test/utils/fish_run_posix_inv.fish"
     case "$manager" in
         pathman)
-            out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh\" 2>/dev/null && pathman show 2>&1") || true
+            case "$shell_type" in
+                zsh)
+                    out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh\" 2>/dev/null && pathman show 2>&1") || true
+                    ;;
+                bash)
+                    out=$(bash -c "source \"$DOTFILES_DIR/shells/bash/adapters/pathman.sh\" 2>/dev/null && pathman show 2>&1") || true
+                    ;;
+                fish)
+                    if [ -f "$bridge" ] && [ -f "$core" ]; then
+                        out=$(fish "$bridge" pathman "$core" show 2>&1) || true
+                    else
+                        echo "⚠️  pathman smoke fish ignoré (pont absent)"
+                        return 0
+                    fi
+                    ;;
+                *)
+                    out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh\" 2>/dev/null && pathman show 2>&1") || true
+                    ;;
+            esac
             code=$?
             if [ $code -ne 0 ]; then
-                echo "❌ pathman show a échoué (code $code)"
+                echo "❌ pathman show a échoué (code $code) [$shell_type]"
                 return 1
             fi
-            if ! echo "$out" | grep -qE "PATH|/bin|/usr"; then
-                echo "❌ pathman show: sortie inattendue"
+            if ! echo "$out" | grep -qE "Contenu du PATH|/bin|/usr"; then
+                echo "❌ pathman show: sortie inattendue [$shell_type]"
                 echo "$out" | head -5
                 return 1
             fi
-            echo "✅ pathman show OK (fonctionnel)"
+            echo "✅ pathman show OK (fonctionnel, $shell_type)"
             return 0
             ;;
         doctorman)
-            out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh\" 2>/dev/null && doctorman help 2>&1") || true
+            case "$shell_type" in
+                zsh)
+                    out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh\" 2>/dev/null && doctorman help 2>&1") || true
+                    ;;
+                bash)
+                    out=$(bash -c "source \"$DOTFILES_DIR/shells/bash/adapters/doctorman.sh\" 2>/dev/null && doctorman help 2>&1") || true
+                    ;;
+                fish)
+                    if [ -f "$bridge" ] && [ -f "$core" ]; then
+                        out=$(fish "$bridge" doctorman "$core" help 2>&1) || true
+                    else
+                        echo "⚠️  doctorman smoke fish ignoré (pont absent)"
+                        return 0
+                    fi
+                    ;;
+                *)
+                    out=$(zsh -c "source \"$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh\" 2>/dev/null && doctorman help 2>&1") || true
+                    ;;
+            esac
             code=$?
             if [ $code -ne 0 ]; then
-                echo "❌ doctorman help a échoué (code $code)"
+                echo "❌ doctorman help a échoué (code $code) [$shell_type]"
                 return 1
             fi
             if ! echo "$out" | grep -q "DOCTORMAN"; then
-                echo "❌ doctorman help: sortie inattendue"
+                echo "❌ doctorman help: sortie inattendue [$shell_type]"
                 echo "$out" | head -5
                 return 1
             fi
-            echo "✅ doctorman help OK (fonctionnel)"
+            echo "✅ doctorman help OK (fonctionnel, $shell_type)"
             return 0
             ;;
         *)
@@ -369,6 +408,47 @@ test_manager_response() {
                 fi
             fi
             ;;
+        bash)
+            local adapter_file="$DOTFILES_DIR/shells/bash/adapters/$manager.sh"
+            if [ ! -f "$adapter_file" ]; then
+                echo "⚠️  Adapter Bash absent — test réponse ignoré"
+                return 0
+            fi
+            if [ -n "$timeout_path" ] && [ -x "$timeout_path" ]; then
+                if "$timeout_path" 2 bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager répond (Bash)"
+                    return 0
+                fi
+            else
+                if bash -c "source $adapter_file 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager répond (Bash)"
+                    return 0
+                fi
+            fi
+            echo "⚠️  Manager $manager ne répond pas (Bash) — peut être normal"
+            return 0
+            ;;
+        fish)
+            local adapter_file="$DOTFILES_DIR/shells/fish/adapters/$manager.fish"
+            local core_pf="$DOTFILES_DIR/core/managers/$manager/core/${manager}.sh"
+            local bridge_pf="$DOTFILES_DIR/scripts/test/utils/fish_run_posix_inv.fish"
+            inv=help
+            case "$manager" in pathman) inv=show ;; esac
+            if [ -f "$bridge_pf" ] && [ -f "$core_pf" ] && command -v fish >/dev/null 2>&1; then
+                if fish "$bridge_pf" "$manager" "$core_pf" $inv >/dev/null 2>&1; then
+                    echo "✅ Manager $manager répond (Fish / pont POSIX)"
+                    return 0
+                fi
+            fi
+            if [ -f "$adapter_file" ]; then
+                if fish -c "source \"$adapter_file\" 2>/dev/null && type $manager >/dev/null 2>&1" 2>/dev/null; then
+                    echo "✅ Manager $manager répond (Fish)"
+                    return 0
+                fi
+            fi
+            echo "⚠️  Manager $manager ne répond pas (Fish) — peut être normal"
+            return 0
+            ;;
         *)
             echo "⚠️  Test de réponse non implémenté pour $shell_type"
             return 0
@@ -386,8 +466,8 @@ test_manager() {
     local passed_tests=0
     local failed_tests=0
     
-    # Tests supplémentaires: gitman (time-spent), pathman (smoke show)
-    [ "$manager" = "gitman" ] && total_tests=6
+    # Tests supplémentaires : time-spent (gitman, zsh seulement), smoke pathman/doctorman
+    [ "$manager" = "gitman" ] && [ "$shell_type" = "zsh" ] && total_tests=6
     [ "$manager" = "pathman" ] && total_tests=6
     [ "$manager" = "doctorman" ] && total_tests=6
     
@@ -431,8 +511,8 @@ test_manager() {
         failed_tests=$((failed_tests + 1))
     fi
     
-    # Test 5b: gitman time-spent (uniquement pour gitman, dans un dépôt Git)
-    if [ "$manager" = "gitman" ]; then
+    # Test 5b: gitman time-spent (une fois, zsh — même logique qu’avant la matrice)
+    if [ "$manager" = "gitman" ] && [ "$shell_type" = "zsh" ]; then
         if test_gitman_time_spent "$manager" "$DOTFILES_DIR"; then
             passed_tests=$((passed_tests + 1))
         else
@@ -442,14 +522,14 @@ test_manager() {
     
     # Test 5c: smoke fonctionnel (pathman show, etc.)
     if [ "$manager" = "pathman" ]; then
-        if test_manager_smoke "$manager"; then
+        if test_manager_smoke "$manager" "$shell_type"; then
             passed_tests=$((passed_tests + 1))
         else
             failed_tests=$((failed_tests + 1))
         fi
     fi
     if [ "$manager" = "doctorman" ]; then
-        if test_manager_smoke "$manager"; then
+        if test_manager_smoke "$manager" "$shell_type"; then
             passed_tests=$((passed_tests + 1))
         else
             failed_tests=$((failed_tests + 1))

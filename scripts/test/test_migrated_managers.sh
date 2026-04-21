@@ -9,9 +9,14 @@
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 
-# Exporter la variable pour le script de test
-export TEST_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman"
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh"
+    TEST_MANAGERS=$(dotfiles_migrated_managers_space)
+    export TEST_MANAGERS
+else
+    export TEST_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman"
+fi
 
-# Lancer le script principal avec les managers migrés
 exec "$DOTFILES_DIR/scripts/test/test_all_managers.sh"
 
