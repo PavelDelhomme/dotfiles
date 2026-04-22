@@ -564,3 +564,60 @@ check_db_browser_installed() {
     return 1
 }
 
+# DESC: Ollama (binaire ollama)
+# USAGE: check_ollama_installed
+check_ollama_installed() {
+    if command -v ollama &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Flatpak + dépôt flathub configuré
+# USAGE: check_flatpak_stack_installed
+check_flatpak_stack_installed() {
+    command -v flatpak &>/dev/null || { echo "not_installed"; return 1; }
+    if flatpak remotes 2>/dev/null | grep -qi flathub; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Pyenv (PYENV_ROOT ou PATH)
+# USAGE: check_pyenv_installed
+check_pyenv_installed() {
+    local root="${PYENV_ROOT:-$HOME/.pyenv}"
+    if [[ -x "$root/bin/pyenv" ]] || command -v pyenv &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Projet utilisateur cloné (répertoire .git)
+# USAGE: check_user_project_installed
+check_user_project_installed() {
+    local url="${DOTFILES_USER_PROJECT_GIT_URL:-}"
+    local dir="${DOTFILES_USER_PROJECT_DIR:-}"
+    if [[ -z "$url" ]]; then
+        echo "not_installed"
+        return 1
+    fi
+    if [[ -z "$dir" ]]; then
+        local base
+        base=$(basename "$url" .git)
+        dir="$HOME/src/$base"
+    fi
+    if [[ -d "$dir/.git" ]]; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+

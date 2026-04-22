@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test test-all test-checks test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -40,12 +40,14 @@ help: ## Afficher cette aide
 	@echo "  make validate          - Valider le setup complet"
 	@echo ""
 	@echo -e "$(GREEN)Tests:$(NC)"
-	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (zsh/bash/fish/sh)"
+	@echo "  make tests | test-menu - Menu interactif (shells, managers, Docker / local, aide)"
+	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (sans menu ; CI)"
 	@echo "  make test-full         - Alias de test-docker (même flux)"
 	@echo "  make test-docker       - Managers migrés + matrice subcommands dans le même conteneur"
 	@echo "  make test-docker-full  - Alias de test-docker"
 	@echo "  make test-subcommands   - Matrice sous-commandes × shells (Docker, image dotfiles-test)"
 	@echo "  make test-subcommands-quick - Idem SUBCOMMAND_TIER=quick dans Docker"
+	@echo "  make test-help           - Variables TEST_* / fichier test.local.env / bac à sable"
 	@echo "  make test-docker-manager MANAGER=gitman - Tester un seul manager dans Docker"
 	@echo "  make test-checks       - Vérif. projet (syntaxe core/adapters/scripts + URLs), Docker ou local"
 	@echo "  make test-all          - Test local (syntaxe + présence managers, sans Docker)"
@@ -111,12 +113,14 @@ help: ## Afficher cette aide
 	@echo "  make install APP=brave    - Installer Brave Browser"
 	@echo "  make install APP=yay      - Installer yay (AUR helper - Arch Linux)"
 	@echo "  make install APP=nvm      - Installer NVM (Node Version Manager)"
+	@echo "  (installman zsh)          - installman help | ollama | flatpak-stack | pyenv | snap | user-project"
 	@echo ""
 	@echo -e "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
 	@echo ""
 	@echo -e "$(GREEN)Menus interactifs:$(NC)"
 	@echo "  make menu            - Menu principal (tous les menus)"
 	@echo "  make install-menu    - Menu d'installation (applications, outils)"
+	@echo "  make tests           - Menu des tests dotfiles (Docker, options expliquées)"
 	@echo "  make config-menu     - Menu de configuration (Git, shell, symlinks)"
 	@echo "  make shell-menu      - Menu de gestion des shells (zsh/fish/bash)"
 	@echo "  make vm-menu         - Menu interactif de gestion des VM"
@@ -348,6 +352,10 @@ generate-man: ## Générer les pages man pour toutes les fonctions
 # Tests
 ################################################################################
 
+# Menu interactif : shells, managers, tier, bac à sable, lancement Docker / local.
+tests test-menu: ## Menu interactif des tests (explications, sans modifier le shell courant)
+	@bash "$(SCRIPT_DIR)/test/test_menu.sh"
+
 # Docker + managers migrés (matrice shells dans run_tests.sh).
 test: test-docker ## Lancer les tests Docker (managers migrés + matrice sous-commandes)
 
@@ -370,6 +378,30 @@ test-subcommands: ## Matrice invocations × zsh/bash/fish dans Docker (SUBCOMMAN
 
 test-subcommands-quick: ## Matrice « quick » dans Docker (SUBCOMMAND_TIER=quick)
 	@DOTFILES_DIR="$(DOTFILES_DIR)" SUBCOMMAND_TIER=quick bash "$(SCRIPT_DIR)/test/docker/run_subcommand_matrix_docker.sh"
+
+# Aide : personnaliser shells / managers / bac à sable (sans toucher au shell interactif).
+test-help: ## Afficher comment filtrer les tests Docker et isoler le dépôt
+	@echo ""
+	@echo "══ Tests Docker — personnalisation ══"
+	@echo ""
+	@echo "Les cibles test-docker / test-subcommands lancent uniquement des conteneurs :"
+	@echo "elles ne source pas votre ~/dotfiles dans le shell courant."
+	@echo ""
+	@echo "Sur la ligne de commande (prioritaire sur le fichier local) :"
+	@echo "  make test-subcommands TEST_SHELLS=zsh TEST_MANAGERS=\"searchman pathman\""
+	@echo "  make test-docker TEST_SHELLS=zsh TEST_MANAGERS=searchman"
+	@echo "  SUBCOMMAND_TIER=quick make test-subcommands"
+	@echo ""
+	@echo "Fichier persistant (non versionné, voir .gitignore) :"
+	@echo "  cp $(DOTFILES_DIR)/scripts/test/config/test.local.env.example \\"
+	@echo "     $(DOTFILES_DIR)/scripts/test/config/test.local.env"
+	@echo "  # puis éditer test.local.env : TEST_SHELLS, TEST_MANAGERS, SUBCOMMAND_TIER, etc."
+	@echo ""
+	@echo "Bac à sable : le conteneur monte une copie sous /tmp au lieu de votre arbre :"
+	@echo "  TEST_DOTFILES_ISOLATE=1 make test-subcommands TEST_MANAGERS=searchman"
+	@echo ""
+	@echo "Autre fichier d’env : DOTFILES_TEST_USER_ENV=/chemin/vars.env make test-docker"
+	@echo ""
 
 # Tester un seul manager dans Docker (ex: make test-docker-manager MANAGER=gitman)
 test-docker-manager: ## Tester un manager dans Docker (usage: make test-docker-manager MANAGER=gitman)

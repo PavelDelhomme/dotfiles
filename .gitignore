@@ -14,6 +14,9 @@ zsh/aliases_doc.json
 # Fichier d'environnement avec informations sensibles
 .env
 
+# Préférences locales pour les tests Docker (voir scripts/test/config/test.local.env.example)
+scripts/test/config/test.local.env
+
 # Fichiers de sauvegarde
 *.save
 *.bak

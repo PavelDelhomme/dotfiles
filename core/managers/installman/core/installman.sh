@@ -84,7 +84,12 @@ c-tools:c,c-tools,gcc:🔧:Outils C (GCC, make):check_c_tools_installed:c/instal
 cpp-tools:c++,cpp,cpp-tools:⚙️:Outils C++ (G++, make, CMake):check_cpp_tools_installed:cpp/install_cpp.sh:install_cpp_tools
 tor::🔒:Tor (anonymisation réseau):check_tor_installed:tor/install_tor.sh:install_tor
 tor-browser:torbrowser,tor-browser:🌐:Tor Browser (navigateur anonyme):check_tor_browser_installed:tor/install_tor_browser.sh:install_tor_browser
-tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation"
+tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation
+snap:snapd:📦:Snapd (daemon snap):check_snap_installed:snap/install_snap.sh:install_snap
+ollama::🦙:Ollama (LLM local):check_ollama_installed:ollama/install_ollama.sh:install_ollama
+flatpak-stack:flatpak,flathub:📦:Flatpak + dépôt Flathub:check_flatpak_stack_installed:flatpak/install_flatpak_stack.sh:install_flatpak_stack
+pyenv:python-pyenv,python-versions,python:🐍:Pyenv (Python côte à côte):check_pyenv_installed:python-tools/install_pyenv.sh:install_pyenv
+user-project:userrepo:📂:Clone projet Git (DOTFILES_USER_PROJECT_GIT_URL):check_user_project_installed:user-project/install_user_project.sh:install_user_project"
     
     # Fonction pour afficher le header
     show_header() {

@@ -6,6 +6,11 @@
 #   SUBCOMMAND_TIER (full|quick), TEST_SUBCOMMAND_TIMEOUT, TEST_RESULTS_DIR
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_host_env.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_host_env.sh"
+    dotfiles_test_load_user_env
+fi
 DOCKER_IMAGE="dotfiles-test:latest"
 DOCKER_IMAGE_ALT="dotfiles-test:auto"
 DOCKER_CONTAINER="dotfiles-test-subcmd-matrix"
@@ -58,15 +63,24 @@ echo "🧪 Matrice sous-commandes dans Docker"
 echo "   Image: $ACTUAL_IMAGE"
 echo "   DOTFILES_DIR (hôte): $DOTFILES_DIR"
 echo "   SUBCOMMAND_TIER: ${SUBCOMMAND_TIER:-full}"
+echo "   TEST_SHELLS (si défini): ${TEST_SHELLS:-défaut matrice = zsh bash fish sh}"
+echo "   TEST_MANAGERS (si défini): ${TEST_MANAGERS:-défaut = managers migrés}"
 echo "═══════════════════════════════════════════════════════════════"
 
 # Arrêter un ancien conteneur du même nom (run précédent interrompu)
 docker rm -f "$DOCKER_CONTAINER" 2>/dev/null || true
 
+if ! dotfiles_test_prepare_docker_mount; then
+    echo "❌ Préparation du montage Docker (bac à sable) échouée"
+    exit 1
+fi
+_vol="${DOTFILES_DOCKER_MOUNT:-$DOTFILES_DIR}"
+trap 'dotfiles_test_isolate_cleanup' EXIT INT TERM
+
 docker run --rm \
     --name "$DOCKER_CONTAINER" \
     -w /root/dotfiles \
-    -v "$DOTFILES_DIR:/root/dotfiles:ro" \
+    -v "$_vol:/root/dotfiles:ro" \
     -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
     -v "dotfiles-test-config:/root/.config:rw" \
     -e DOTFILES_DIR=/root/dotfiles \

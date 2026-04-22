@@ -9,6 +9,11 @@
 
 # Charger progress_bar
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_host_env.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_host_env.sh"
+    dotfiles_test_load_user_env
+fi
 PROGRESS_BAR="$DOTFILES_DIR/core/utils/progress_bar.sh"
 
 if [ -f "$PROGRESS_BAR" ]; then
@@ -206,11 +211,20 @@ run_tests_with_docker() {
     # Lancer le conteneur et exécuter les tests
     echo "🚀 Démarrage du conteneur de test avec: $ACTUAL_IMAGE"
     echo ""
+    if ! dotfiles_test_prepare_docker_mount; then
+        echo "❌ Préparation du montage Docker (bac à sable) échouée"
+        return 1
+    fi
+    _vol="${DOTFILES_DOCKER_MOUNT:-$DOTFILES_DIR}"
+    echo "   Bind mount hôte → conteneur: $_vol (lecture seule)"
+    echo "   TEST_SHELLS=${TEST_SHELLS:-zsh bash fish}"
+    echo "   TEST_MANAGERS=${TEST_MANAGERS:-'(défaut : managers migrés — migrated_managers.list)'}"
+    echo ""
     
     if docker run --rm \
         --name "$DOCKER_CONTAINER" \
         -w /root/dotfiles \
-        -v "$DOTFILES_DIR:/root/dotfiles:ro" \
+        -v "$_vol:/root/dotfiles:ro" \
         -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
         -v "dotfiles-test-config:/root/.config:rw" \
         -e DOTFILES_DIR=/root/dotfiles \
@@ -219,6 +233,7 @@ run_tests_with_docker() {
         -e MANAGERS_LOG_FILE=/root/test_results/managers_docker_tests.log \
         -e DOTFILES_DOCKER_TEST=1 \
         -e "RUN_SUBCOMMAND_MATRIX=${RUN_SUBCOMMAND_MATRIX:-0}" \
+        -e "SUBCOMMAND_TIER=${SUBCOMMAND_TIER:-full}" \
         ${TEST_SHELLS:+-e "TEST_SHELLS=$TEST_SHELLS"} \
         ${TEST_MANAGERS:+-e "TEST_MANAGERS=$TEST_MANAGERS"} \
         "$ACTUAL_IMAGE" \
@@ -265,6 +280,7 @@ show_report() {
 cleanup() {
     echo ""
     echo "🧹 Nettoyage..."
+    dotfiles_test_isolate_cleanup 2>/dev/null || true
     # Nettoyer docker-compose si utilisé
     COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
     if [ -f "$COMPOSE_FILE" ]; then
