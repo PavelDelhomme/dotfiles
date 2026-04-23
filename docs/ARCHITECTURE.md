@@ -1,60 +1,69 @@
 # Architecture des Dotfiles
 
-## 📁 Structure des Fichiers de Configuration ZSH
+## Bac à sable `DOTFILES_GOOD/` (nouvelle structure, additif)
 
-### Fichiers ZSH : `zshrc`, `.zshrc`, et `zshrc_custom`
+Un répertoire **`DOTFILES_GOOD/`** à la racine du dépôt prépare une arborescence plus claire (**`lib/`**, **`shared/env`**, **`shared/menus/`**, **`core/`**, **`run/`** pour sorties temporaires, etc.) **sans déplacer** les fichiers actuellement utilisés en production.
 
-Le projet utilise trois fichiers différents pour la configuration ZSH :
+- **Bootstrap POSIX** : `DOTFILES_GOOD/lib/bootstrap_posix.sh` définit `DOTFILES_GOOD_ROOT`, assure `DOTFILES_DIR`, puis charge dans l’ordre `shared/env/*.sh`, `shared/functions/*.sh`, `shared/aliases.sh`. Lors d’un **`.` / `source`**, `$0` n’est pas fiable : exporter **`DOTFILES_DIR`** (ou garder le clone sous **`$HOME/dotfiles`**) avant de sourcer ce fichier.
+- **Snippets** : `DOTFILES_GOOD/snippets/` documente des **fins de** `.zshrc` / `.bashrc` / `config.fish` **minces** (POSIX commun + couche shell), sans être branchés par défaut.
+- **Test** : `make test-dotfiles-good` (smoke `sh -n` + sourcing).
 
-#### 1. `~/dotfiles/zshrc` (Wrapper à la racine)
-- **Rôle** : Wrapper intelligent qui détecte le shell actif (ZSH, Fish, Bash)
-- **Emplacement** : `~/dotfiles/zshrc` (à la racine du projet)
-- **Fonction** :
-  - Détecte automatiquement le shell en cours d'exécution
-  - Source la configuration appropriée selon le shell
-  - Pour ZSH : source `zsh/zshrc_custom`
-  - Pour Fish : affiche un message (config doit être dans `.config/fish/config.fish`)
-  - Pour Bash : charge les variables d'environnement et alias compatibles
+Voir `DOTFILES_GOOD/README.md` pour le plan de migration progressive.
 
-#### 2. `~/.zshrc` (Symlink dans le HOME)
-- **Rôle** : Point d'entrée standard de ZSH (chargé automatiquement au démarrage)
-- **Emplacement** : `~/.zshrc` (dans votre répertoire HOME)
-- **Fonction** : Symlink vers `~/dotfiles/zshrc`
-- **Création** : Automatique lors de l'installation via `create_symlinks.sh`
+---
 
-#### 3. `~/dotfiles/zsh/zshrc_custom` (Configuration principale)
-- **Rôle** : Configuration ZSH complète et principale
-- **Emplacement** : `~/dotfiles/zsh/zshrc_custom`
-- **Contenu** :
-  - Chargement des managers (installman, configman, etc.)
-  - Variables d'environnement
-  - Aliases
-  - Fonctions
-  - Configuration Powerlevel10k
-  - Toute la logique de configuration ZSH
+## Fichiers d’entrée shell : ce qui est vrai aujourd’hui
 
-### Pourquoi cette architecture ?
+### Important : pas de « symlink unique pour tous les shells »
 
-1. **Flexibilité multi-shells** : Le wrapper `zshrc` permet de supporter ZSH, Fish et Bash avec un seul symlink
-2. **Modularité** : La vraie configuration est dans `zshrc_custom`, facile à modifier
-3. **Compatibilité** : ZSH charge automatiquement `~/.zshrc`, donc on utilise un symlink
-4. **Centralisation** : Tout est dans `~/dotfiles/` pour faciliter la synchronisation
+- **`~/.zshrc`** ne peut être lu **que par Zsh**. Un symlink vers un fichier du dépôt ne configure **pas** Fish ni Bash.
+- **Fish** lit `~/.config/fish/config.fish` (ou l’équivalent XDG), pas `.zshrc`.
+- **Bash** lit `~/.bashrc` (selon mode login/interactif).
 
-### Flux de chargement
+Toute doc qui suggère qu’un seul fichier « wrapper » à la racine du dépôt suffit à **tout** les shells est **incorrecte** : au mieux ce fichier peut **détecter** le shell et charger des morceaux adaptés, mais **Fish ne passera jamais** par un fichier Zsh nommé `~/.zshrc`.
+
+### Deux patterns coexistent dans le dépôt
+
+#### A) Fichiers **`.zshrc`** et **`.bashrc`** à la racine du dépôt (recommandé, cohérent multi-shell)
+
+- Rôle : point d’entrée **versionné**, prêt à être symlinké vers `$HOME` **pour ce shell uniquement** (`~/.zshrc` → `dotfiles/.zshrc`, `~/.bashrc` → `dotfiles/.bashrc`).
+- Ordre typique :
+  1. Sourcer **`shared/config.sh`** (POSIX / sh-bash-zsh : `DOTFILES_DIR`, `env.sh`, `aliases.sh`, fonctions `shared/functions/*.sh`).
+  2. Sourcer la couche **spécifique** : `zsh/zshrc_custom` ou `bash/bashrc_custom`.
+
+La logique **réutilisable** est donc dans **`shared/config.sh`** (+ `shared/env.sh`, etc.), pas dans le fichier Zsh « géant » seul.
+
+#### B) Fichier **`zshrc`** (sans point) à la racine — historique
+
+- Ancien script qui teste `ZSH_VERSION` / `BASH_VERSION` / `FISH_VERSION` et branche des chemins différents.
+- **Limites** : mélange Zsh/Bash, messages pour Fish au lieu d’un vrai chargement ; ne remplace pas `config.fish`.
+- Si `~/.zshrc` pointe encore vers **`~/dotfiles/zshrc`**, c’est un choix d’installation **Zsh seulement** ; ce n’est pas un modèle universel.
+
+### Flux cible (documentation)
 
 ```
-ZSH démarre
-    ↓
-Charge ~/.zshrc (symlink)
-    ↓
-Pointe vers ~/dotfiles/zshrc (wrapper)
-    ↓
-Détecte ZSH_VERSION
-    ↓
-Source ~/dotfiles/zsh/zshrc_custom
-    ↓
-Configuration complète chargée ✅
+Zsh : ~/.zshrc  →  dotfiles/.zshrc  →  shared/config.sh (POSIX)  →  zsh/zshrc_custom (Zsh)
+Bash: ~/.bashrc → dotfiles/.bashrc →  shared/config.sh (POSIX)  →  bash/bashrc_custom
+Fish: ~/.config/fish/config.fish  →  adapters fish + éventuellement bash pour blocs POSIX
 ```
+
+À terme, le bloc POSIX pourra être **`DOTFILES_GOOD/lib/bootstrap_posix.sh`** ou l’équivalent fusionné avec `shared/config.sh`, **après** validation dans les conteneurs (`make test`).
+
+---
+
+## Fichiers ZSH détaillés (référence)
+
+### `~/dotfiles/zsh/zshrc_custom`
+
+- **Rôle** : configuration Zsh « lourde » (prompt, complétion, chargement des fonctions `zsh/functions/`, etc.).
+- **Ne doit pas** contenir toute la logique d’environnement réutilisable par Bash : celle-ci appartient à **`shared/config.sh`** (ou au futur bootstrap `DOTFILES_GOOD`).
+
+### Symlinks dans `$HOME`
+
+- **`~/.zshrc` → `~/dotfiles/.zshrc`** (ou vers `~/dotfiles/zshrc` si ancien bootstrap) : uniquement Zsh.
+- Autres dotfiles : voir scripts de symlinks / install.
+
+---
 
 ## 🐳 Structure Docker pour Tests
 
@@ -120,6 +129,8 @@ zsh/functions/
     └── install/           # Scripts d'installation
 ```
 
+La cible hybride documentée dans **`STATUS.md`** est que la logique POSIX vive sous **`core/managers/<nom>/core/*.sh`** avec des adapters dans **`shells/{zsh,bash,fish}/`**.
+
 ## 🔄 Flux d'Installation
 
 ### Installation automatique
@@ -140,25 +151,25 @@ Création symlinks (optionnel)
 Lancement setup.sh (menu interactif)
 ```
 
-### Structure après installation
+### Structure après installation (schéma simplifié)
 
 ```
 ~/
-├── .zshrc → ~/dotfiles/zshrc (symlink)
+├── .zshrc → ~/dotfiles/.zshrc   (recommandé)  OU  ~/dotfiles/zshrc (historique)
+├── .bashrc → ~/dotfiles/.bashrc
 ├── .gitconfig → ~/dotfiles/.gitconfig (symlink)
 ├── .p10k.zsh → ~/dotfiles/.p10k.zsh (symlink)
 └── dotfiles/
-    ├── zshrc (wrapper)
-    ├── zsh/
-    │   └── zshrc_custom (config principale)
-    ├── test-docker.sh (tests Docker)
+    ├── shared/config.sh      # POSIX commun (env, alias, fonctions)
+    ├── zsh/zshrc_custom      # Zsh spécifique
+    ├── DOTFILES_GOOD/        # Bac à sable futur (additif)
     └── ...
 ```
 
 ## 📝 Notes importantes
 
 - **`test-docker.sh` à la racine** : Nécessaire car appelé directement par le Makefile
-- **Wrapper `zshrc`** : Permet la compatibilité multi-shells
-- **`zshrc_custom`** : Contient toute la vraie configuration ZSH
+- **Entrées shell** : une par shell (`.zshrc`, `.bashrc`, `config.fish`) ; le cœur réutilisable est **`shared/config.sh`** (et/ou `DOTFILES_GOOD/lib/bootstrap_posix.sh` en expérimentation)
+- **`zshrc_custom`** : Zsh spécifique ; pas le seul endroit pour variables d’environnement partagées
 - **Symlinks** : Centralisent la configuration dans `~/dotfiles/`
 - **Isolation Docker** : Préfixe `dotfiles-test-*` pour ne pas toucher vos autres conteneurs

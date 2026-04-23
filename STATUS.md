@@ -15,6 +15,7 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 | **Tests Docker, `DOTFILES_TEST_MANAGERS`, bac à sable** | `make test-help`, `make sandbox-guide`, `scripts/test/SANDBOX.md` |
 | **Multi-shell / installman** | `docs/MULTISHELL_REPORT.md`, `shells/README.md` |
 | **Plan TUI / logs / modules** | `docs/ACTION_PLAN_ARCHITECTURE.md` |
+| **Entrées shell, wrapper, bac à sable DOTFILES_GOOD** | `docs/ARCHITECTURE.md`, `DOTFILES_GOOD/README.md` |
 | **Guides de migration historiques** | `docs/migrations/` |
 
 Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des commandes de test est volontairement dans `make test-help` pour ne pas diverger.
@@ -41,8 +42,9 @@ Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des
 3. **Arborescence idéale documentée** : `scripts/`, `docs/`, `core/`, `shared/`, `shells/`, `bin/` (optionnel), `logs/` (runtime, gitignored), éventuellement **`config/`** pour exemples — les dotfiles à la racine restent des **entrées d’installation**, pas du code métier.  
 4. **Bootstrap unifié** : un seul chemin documenté (`install_zsh_complete.sh` / Makefile / script unique) qui pose `DOTFILES_DIR`, symlinks, et charge **uniquement** les adapters `shells/`.
 
-**Prochaines tâches concrètes (ordre recommandé)**  
-- [ ] Cartographier dans `docs/ARCHITECTURE.md` (ou tableau ici) chaque manager : **source de vérité** = `core/` oui/non, **résidu** dans `zsh/functions`.  
+**Prochaines tâches concrètes (ordre recommandé)**
+- [x] **Bac à sable `DOTFILES_GOOD/`** : arborescence additive (`lib/bootstrap_posix.sh`, `shared/env`, `shared/menus`, `snippets/`, `run/` pour runtime gitignored) ; **aucun** déplacement des chemins prod ; smoke **`make test-dotfiles-good`**. Doc **`docs/ARCHITECTURE.md`** corrigée : pas de prétention « un seul symlink pour Zsh + Fish + Bash » — entrées **distinctes** par shell + noyau POSIX (`shared/config.sh` et/ou bootstrap `DOTFILES_GOOD`).
+- [ ] Cartographier dans `docs/ARCHITECTURE.md` (ou tableau ici) chaque manager : **source de vérité** = `core/` oui/non, **résidu** dans `zsh/functions`.
 - [ ] Déplacer progressivement les modules **installman** (et utilitaires) référencés uniquement par le core vers un arbre sous `core/managers/installman/` en gardant des **wrappers** un ligne si besoin.  
 - [ ] Réduire les `read` / `clear` hors TTY dans les menus encore appelés par erreur depuis la CI.  
 - [ ] Garder **`make test`** comme garde-fou à chaque étape de déplacement.

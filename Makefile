@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -404,6 +404,9 @@ test-docker-manager: ## Tester un manager dans Docker (usage: make test-docker-m
 # Vérifications du projet (syntaxe core, adapters, scripts install, URLs). Utilisable en local ou dans Docker.
 test-checks: ## Vérifier tout le projet (syntaxe + URLs). Lance scripts/test/run_checks.sh
 	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/run_checks.sh"
+
+test-dotfiles-good: ## Smoke du bac à sable DOTFILES_GOOD/ (POSIX, sans toucher prod)
+	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/check_dotfiles_good.sh"
 
 test-all: ## Test local (syntaxe + présence managers, sans Docker)
 	@echo -e "$(BLUE)🧪 Test local des dotfiles (sans Docker)...$(NC)"
