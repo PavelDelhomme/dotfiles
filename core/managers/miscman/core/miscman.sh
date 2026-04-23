@@ -271,6 +271,16 @@ miscman() {
             extract_archive
             return 0
             ;;
+        help|h|-h|--help)
+            printf '%s\n' "MISCMAN — outils divers"
+            printf '%s\n' "  miscman genpass [n]   Générer un mot de passe (défaut 16)"
+            printf '%s\n' "  miscman sysinfo       Infos système"
+            printf '%s\n' "  miscman copy          Copie de fichier avancée"
+            printf '%s\n' "  miscman backup        Sauvegarde"
+            printf '%s\n' "  miscman extract       Extraire une archive"
+            printf '%s\n' "Sans argument : menu interactif."
+            return 0
+            ;;
     esac
     
     # Menu principal

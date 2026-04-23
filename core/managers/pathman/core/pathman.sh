@@ -133,9 +133,11 @@ pathman() {
     clean_path_internal() {
         # Utiliser la fonction globale clean_path
         clean_path
-        add_logs "CLEAN" "Doublons/invalid nettoyés"
-        printf "${GREEN}PATH nettoyé: $PATH${RESET}\n"
-        sleep 2
+        if [ "${PATHMAN_QUIET:-0}" != 1 ]; then
+            add_logs "CLEAN" "Doublons/invalid nettoyés"
+            printf "${GREEN}PATH nettoyé: $PATH${RESET}\n"
+            sleep 2
+        fi
     }
 
     # DESC: Supprime les répertoires invalides (inexistants) du PATH
@@ -151,16 +153,24 @@ pathman() {
                 *) _ci_rest="" ;;
             esac
             [ -z "$dir" ] && continue
+            while [ "$dir" != "/" ] && [ "${dir%/}" != "$dir" ]; do
+                dir="${dir%/}"
+            done
+            [ -z "$dir" ] && continue
             if [ -d "$dir" ]; then
                 new_path="${new_path}${new_path:+:}$dir"
             else
-                printf "${RED}Inexistant retiré: %s${RESET}\n" "$dir"
-                add_logs "REMOVE" "Inexistant: $dir"
+                if [ "${PATHMAN_QUIET:-0}" != 1 ]; then
+                    printf "${RED}Inexistant retiré: %s${RESET}\n" "$dir"
+                    add_logs "REMOVE" "Inexistant: $dir"
+                fi
             fi
         done
         export PATH="$new_path"
-        add_logs "CLEAN" "Invalid retirés"
-        sleep 2
+        if [ "${PATHMAN_QUIET:-0}" != 1 ]; then
+            add_logs "CLEAN" "Invalid retirés"
+            sleep 2
+        fi
     }
 
     # DESC: Sauvegarde le PATH actuel dans un fichier de sauvegarde
@@ -324,11 +334,21 @@ EOF
             return 0
             ;;
         clean)
-            clean_path_internal
+            if [ "$2" = "--export-path" ]; then
+                PATHMAN_QUIET=1 clean_path
+                printf '%s\n' "$PATH"
+            else
+                clean_path_internal
+            fi
             return 0
             ;;
         invalid)
-            clean_invalid_paths
+            if [ "$2" = "--export-path" ]; then
+                PATHMAN_QUIET=1 clean_invalid_paths
+                printf '%s\n' "$PATH"
+            else
+                clean_invalid_paths
+            fi
             return 0
             ;;
         stats)
@@ -439,6 +459,11 @@ clean_path() {
             *) _cp_rest="" ;;
         esac
         [ -z "$dir" ] && continue
+        # Fusionner /foo et /foo/ (même entrée répétée avec slash final)
+        while [ "$dir" != "/" ] && [ "${dir%/}" != "$dir" ]; do
+            dir="${dir%/}"
+        done
+        [ -z "$dir" ] && continue
         if [ -d "$dir" ]; then
             case ":$seen:" in
                 *":$dir:"*) ;;
@@ -450,10 +475,12 @@ clean_path() {
         fi
     done
     export PATH="$new_path"
-    echo "✅ PATH nettoyé"
-    # Log si pathman est chargé et add_logs disponible
-    if command -v add_logs >/dev/null 2>&1; then
-        add_logs "CLEAN" "Doublons/invalid nettoyés" 2>/dev/null || true
+    if [ "${PATHMAN_QUIET:-0}" != 1 ]; then
+        echo "✅ PATH nettoyé"
+        # Log si pathman est chargé et add_logs disponible
+        if command -v add_logs >/dev/null 2>&1; then
+            add_logs "CLEAN" "Doublons/invalid nettoyés" 2>/dev/null || true
+        fi
     fi
 }
 

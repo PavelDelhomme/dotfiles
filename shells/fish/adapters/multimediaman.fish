@@ -6,12 +6,17 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g MULTIMEDIAMAN_CORE "$DOTFILES_DIR/core/managers/multimediaman/core/multimediaman.sh"
 
 if test -f "$MULTIMEDIAMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$MULTIMEDIAMAN_CORE'"
+    function multimediaman
+        bash -c 'source "$1"; shift; multimediaman "$@"' _ "$MULTIMEDIAMAN_CORE" $argv
+    end
 else
     echo "❌ Erreur: multimediaman core non trouvé: $MULTIMEDIAMAN_CORE"
     return 1

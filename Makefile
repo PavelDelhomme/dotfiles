@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -47,7 +47,10 @@ help: ## Afficher cette aide
 	@echo "  make test-docker-full  - Alias de test-docker"
 	@echo "  make test-subcommands   - Matrice sous-commandes × shells (Docker, image dotfiles-test)"
 	@echo "  make test-subcommands-quick - Idem SUBCOMMAND_TIER=quick dans Docker"
-	@echo "  make test-help           - Variables TEST_* / fichier test.local.env / bac à sable"
+	@echo "  make test-help           - Aide complète : DOTFILES_TEST_MANAGERS, bac à sable, fichiers .env"
+	@echo "  make sandbox-guide       - Afficher scripts/test/SANDBOX.md (Docker live, chemins conteneur)"
+	@echo "  Filtrer les managers :   DOTFILES_TEST_MANAGERS=pathman,installman make test"
+	@echo "  (alias explicite)        TEST_MANAGERS=\"pathman installman\" make test-subcommands"
 	@echo "  make test-docker-manager MANAGER=gitman - Tester un seul manager dans Docker"
 	@echo "  make test-checks       - Vérif. projet (syntaxe core/adapters/scripts + URLs), Docker ou local"
 	@echo "  make test-all          - Test local (syntaxe + présence managers, sans Docker)"
@@ -60,7 +63,7 @@ help: ## Afficher cette aide
 	@echo "  make test-alias        - Tester les alias"
 	@echo ""
 	@echo -e "$(GREEN)Docker (Tests conteneurisés):$(NC)"
-	@echo "  make docker-in         - Entrer dans le conteneur (build si besoin). DOCKER_SHELL=zsh (défaut)"
+	@echo "  make docker-in         - Entrer dans le conteneur (bac à sable live). DOCKER_SHELL=zsh|bash|fish|sh"
 	@echo "  make docker-build      - Construire l'image Docker"
 	@echo "  make docker-rebuild   - Reconstruire l'image (nocache)"
 	@echo "  make docker-run        - Lancer un conteneur interactif (zsh)"
@@ -380,28 +383,15 @@ test-subcommands-quick: ## Matrice « quick » dans Docker (SUBCOMMAND_TIER=quic
 	@DOTFILES_DIR="$(DOTFILES_DIR)" SUBCOMMAND_TIER=quick bash "$(SCRIPT_DIR)/test/docker/run_subcommand_matrix_docker.sh"
 
 # Aide : personnaliser shells / managers / bac à sable (sans toucher au shell interactif).
-test-help: ## Afficher comment filtrer les tests Docker et isoler le dépôt
-	@echo ""
-	@echo "══ Tests Docker — personnalisation ══"
-	@echo ""
-	@echo "Les cibles test-docker / test-subcommands lancent uniquement des conteneurs :"
-	@echo "elles ne source pas votre ~/dotfiles dans le shell courant."
-	@echo ""
-	@echo "Sur la ligne de commande (prioritaire sur le fichier local) :"
-	@echo "  make test-subcommands TEST_SHELLS=zsh TEST_MANAGERS=\"searchman pathman\""
-	@echo "  make test-docker TEST_SHELLS=zsh TEST_MANAGERS=searchman"
-	@echo "  SUBCOMMAND_TIER=quick make test-subcommands"
-	@echo ""
-	@echo "Fichier persistant (non versionné, voir .gitignore) :"
-	@echo "  cp $(DOTFILES_DIR)/scripts/test/config/test.local.env.example \\"
-	@echo "     $(DOTFILES_DIR)/scripts/test/config/test.local.env"
-	@echo "  # puis éditer test.local.env : TEST_SHELLS, TEST_MANAGERS, SUBCOMMAND_TIER, etc."
-	@echo ""
-	@echo "Bac à sable : le conteneur monte une copie sous /tmp au lieu de votre arbre :"
-	@echo "  TEST_DOTFILES_ISOLATE=1 make test-subcommands TEST_MANAGERS=searchman"
-	@echo ""
-	@echo "Autre fichier d’env : DOTFILES_TEST_USER_ENV=/chemin/vars.env make test-docker"
-	@echo ""
+test-help: ## Aide tests : DOTFILES_TEST_MANAGERS, TEST_*, docker-in, SANDBOX.md
+	@bash "$(SCRIPT_DIR)/test/print_test_help.sh"
+
+sandbox-guide: ## Afficher le guide bac à sable (conteneur, chemins, commandes)
+	@if [ -f "$(DOTFILES_DIR)/scripts/test/SANDBOX.md" ]; then \
+		${PAGER:-cat} "$(DOTFILES_DIR)/scripts/test/SANDBOX.md"; \
+	else \
+		echo "Fichier SANDBOX.md introuvable"; exit 1; \
+	fi
 
 # Tester un seul manager dans Docker (ex: make test-docker-manager MANAGER=gitman)
 test-docker-manager: ## Tester un manager dans Docker (usage: make test-docker-manager MANAGER=gitman)

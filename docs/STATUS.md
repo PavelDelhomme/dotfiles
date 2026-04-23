@@ -6,6 +6,8 @@ Ce fichier documente toutes les modifications apportées aux dotfiles depuis le 
 **Date de création :** Décembre 2024  
 **Dernière mise à jour :** Février 2025
 
+> **2026-04 — Pointeur** : le suivi **migration + tests Docker** vivant est **`STATUS.md`** à la racine du dépôt (section *État des tests Docker*, `make test` en deux phases). Ce fichier `docs/STATUS.md` reste un **journal historique** des refactors ; ne pas le confondre avec le STATUS racine.
+
 ---
 
 ## 📋 INSTALLMAN TUI + LOGGING (Fév. 2025)

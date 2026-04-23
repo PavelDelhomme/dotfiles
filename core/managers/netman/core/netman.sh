@@ -422,8 +422,11 @@ $line"
         done
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        # Non bloquant hors TTY (tests Docker / CI / pipes)
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
     
     # Fonction pour scanner un port spécifique

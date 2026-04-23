@@ -11,6 +11,17 @@
 # - dotfiles_test_isolate_cleanup : supprime la copie temporaire.
 # =============================================================================
 
+# Si TEST_MANAGERS est vide : DOTFILES_TEST_MANAGERS (espaces ou virgules) devient TEST_MANAGERS.
+dotfiles_test_apply_manager_filter() {
+    if [ -n "${TEST_MANAGERS:-}" ]; then
+        return 0
+    fi
+    _dtm="${DOTFILES_TEST_MANAGERS:-}"
+    [ -z "$_dtm" ] && return 0
+    TEST_MANAGERS=$(printf '%s' "$_dtm" | tr ',' ' ' | tr -s '[:space:]' ' ' | sed 's/^ //;s/ $//')
+    export TEST_MANAGERS
+}
+
 dotfiles_test_load_user_env() {
     _root="${DOTFILES_DIR:-$HOME/dotfiles}"
     _f="${DOTFILES_TEST_USER_ENV:-$_root/scripts/test/config/test.local.env}"
@@ -21,6 +32,7 @@ dotfiles_test_load_user_env() {
         . "$_f"
         set +a
     fi
+    dotfiles_test_apply_manager_filter
 }
 
 dotfiles_test_prepare_docker_mount() {

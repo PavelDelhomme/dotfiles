@@ -20,6 +20,12 @@ export MANAGERS_LOG_FILE="${MANAGERS_LOG_FILE:-$TEST_RESULTS_DIR/managers_subcom
 # shellcheck source=/dev/null
 . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh"
 
+if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_host_env.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_host_env.sh"
+    dotfiles_test_apply_manager_filter
+fi
+
 if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh" ]; then
     # shellcheck source=/dev/null
     . "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh"
@@ -155,7 +161,7 @@ for mgr in $MANAGERS; do
         continue
     fi
     if grep -q '^@skip' "$SUBCMD_DIR/${mgr}.list" 2>/dev/null; then
-        echo "⏭  $mgr — @skip (menu / CLI interactive uniquement)"
+        echo "⏭  $mgr — @skip dans scripts/test/subcommands/${mgr}.list (volontaire : trop interactif pour la matrice CI ; tester à la main ou make test-docker-manager MANAGER=$mgr)"
         continue
     fi
     lines_file=$(mktemp)
@@ -186,8 +192,10 @@ for mgr in $MANAGERS; do
 done
 
 echo ""
-echo "📊 Exécutions: $runs | Échecs: $failures"
+echo "📊 Matrice sous-commandes — exécutions: $runs | échecs: $failures"
 if [ "$failures" -gt 0 ]; then
+    echo "⚠️  Corriger les lignes « ❌ échec: … » ci-dessus ou adapter scripts/test/subcommands/*.list (invocations non interactives uniquement)."
     exit 1
 fi
+echo "✅ Matrice sous-commandes : OK"
 exit 0

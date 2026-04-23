@@ -39,7 +39,16 @@ install_cursor() {
     fi
     
     if [ -n "$already_installed" ]; then
-        log_info "Cursor est déjà installé — mise à jour vers la dernière version..."
+        log_info "Cursor est déjà installé sur ce système."
+        if [[ -n "${INSTALLMAN_ASSUME_YES:-}" || -n "${DOTFILES_NONINTERACTIVE:-}" || -n "${CI:-}" ]]; then
+            log_info "Mode non interactif : pas de mise à jour automatique (évite de lancer l’IDE)."
+            return 0
+        fi
+        read -r "?Lancer la mise à jour Cursor (script install ; peut ouvrir l’application) ? (o/N) " _cu
+        if [[ "$_cu" != o && "$_cu" != O && "$_cu" != y && "$_cu" != Y ]]; then
+            log_info "Mise à jour ignorée."
+            return 0
+        fi
         if [ -f "$INSTALL_SCRIPT" ]; then
             NON_INTERACTIVE=1 bash "$INSTALL_SCRIPT" --update-only || {
                 log_error "Échec de la mise à jour de Cursor"

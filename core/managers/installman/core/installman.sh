@@ -123,33 +123,51 @@ user-project:userrepo:📂:Clone projet Git (DOTFILES_USER_PROJECT_GIT_URL):chec
     find_tool() {
         search_term="$1"
         search_term=$(echo "$search_term" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
-        
-        echo "$TOOLS" | while IFS= read -r tool_def; do
-            if [ -z "$tool_def" ]; then
+        _ft_line=""; _ft_name=""; _ft_aliases=""; _ft_alias=""; _ft_oldifs=""
+        while IFS= read -r _ft_line; do
+            if [ -z "$_ft_line" ]; then
                 continue
             fi
-            
-            tool_name=$(parse_tool_def "$tool_def" 1)
-            tool_aliases_str=$(parse_tool_def "$tool_def" 2)
-            
-            # Vérifier si le terme correspond au nom principal
-            if [ "$tool_name" = "$search_term" ]; then
-                echo "$tool_def"
+            _ft_name=$(parse_tool_def "$_ft_line" 1)
+            _ft_aliases=$(parse_tool_def "$_ft_line" 2)
+            if [ "$_ft_name" = "$search_term" ]; then
+                printf '%s\n' "$_ft_line"
                 return 0
             fi
-            
-            # Vérifier les alias (séparés par des virgules)
-            if [ -n "$tool_aliases_str" ]; then
-                echo "$tool_aliases_str" | tr ',' '\n' | while IFS= read -r alias; do
-                    alias=$(echo "$alias" | tr -d '[:space:]')
-                    if [ "$alias" = "$search_term" ]; then
-                        echo "$tool_def"
+            if [ -n "$_ft_aliases" ]; then
+                _ft_oldifs=$IFS
+                IFS=,
+                for _ft_alias in $_ft_aliases; do
+                    IFS="$_ft_oldifs"
+                    _ft_alias=$(echo "$_ft_alias" | tr -d '[:space:]')
+                    if [ "$_ft_alias" = "$search_term" ]; then
+                        printf '%s\n' "$_ft_line"
                         return 0
                     fi
                 done
+                IFS="$_ft_oldifs"
             fi
-        done
-        
+        done <<EOF
+$TOOLS
+EOF
+        return 1
+    }
+    
+    # Première entrée TOOLS dont le nom (champ 1) correspond exactement
+    find_tool_def_by_name() {
+        _td_name_want="$1"
+        while IFS= read -r _td_line; do
+            if [ -z "$_td_line" ]; then
+                continue
+            fi
+            _td_cur=$(parse_tool_def "$_td_line" 1)
+            if [ "$_td_cur" = "$_td_name_want" ]; then
+                printf '%s\n' "$_td_line"
+                return 0
+            fi
+        done <<EOF
+$TOOLS
+EOF
         return 1
     }
     
@@ -201,7 +219,7 @@ user-project:userrepo:📂:Clone projet Git (DOTFILES_USER_PROJECT_GIT_URL):chec
         index=1
         installed_tools_list=""
         
-        echo "$TOOLS" | while IFS= read -r tool_def; do
+        while IFS= read -r tool_def; do
             if [ -z "$tool_def" ]; then
                 continue
             fi
@@ -247,7 +265,9 @@ $tool_def"
                     index=$((index + 1))
                 fi
             fi
-        done
+        done <<EOF
+$TOOLS
+EOF
         
         if [ -z "$installed_tools_list" ]; then
             printf "${YELLOW}Aucun outil installé${RESET}\n"
@@ -275,13 +295,15 @@ $tool_def"
                 tool_index=$update_choice
                 tool_count=0
                 selected_tool=""
-                echo "$installed_tools_list" | while IFS= read -r tool_def; do
+                while IFS= read -r tool_def; do
                     tool_count=$((tool_count + 1))
                     if [ "$tool_count" -eq "$tool_index" ]; then
                         selected_tool="$tool_def"
                         break
                     fi
-                done
+                done <<EOF
+$installed_tools_list
+EOF
                 
                 if [ -n "$selected_tool" ]; then
                     update_tool_from_def "$selected_tool"
@@ -457,7 +479,7 @@ $version"
         tools_to_update_list=""
         
         # Trouver tous les outils installés qui ont des mises à jour disponibles
-        echo "$TOOLS" | while IFS= read -r tool_def; do
+        while IFS= read -r tool_def; do
             if [ -z "$tool_def" ]; then
                 continue
             fi
@@ -478,7 +500,9 @@ $tool_def"
                     fi
                 fi
             fi
-        done
+        done <<EOF
+$TOOLS
+EOF
         
         tool_count=$(echo "$tools_to_update_list" | grep -c . || echo "0")
         if [ "$tool_count" -eq 0 ]; then
@@ -492,7 +516,7 @@ $tool_def"
         
         printf "${CYAN}Outils à mettre à jour:${RESET} %d\n" "$tool_count"
         echo ""
-        echo "$tools_to_update_list" | while IFS= read -r tool_def; do
+        while IFS= read -r tool_def; do
             if [ -z "$tool_def" ]; then
                 continue
             fi
@@ -506,7 +530,9 @@ $tool_def"
                 latest_version=$(get_latest_version "$tool_name" 2>/dev/null || echo "unknown")
             fi
             printf "  • %s: ${CYAN}%s${RESET} → ${GREEN}%s${RESET}\n" "$tool_desc" "$current_version" "$latest_version"
-        done
+        done <<EOF
+$tools_to_update_list
+EOF
         
         echo ""
         printf "Mettre à jour tous ces outils? (O/n): "
@@ -518,7 +544,7 @@ $tool_def"
                 updated=0
                 failed=0
                 
-                echo "$tools_to_update_list" | while IFS= read -r tool_def; do
+                while IFS= read -r tool_def; do
                     if [ -z "$tool_def" ]; then
                         continue
                     fi
@@ -531,7 +557,9 @@ $tool_def"
                     else
                         failed=$((failed + 1))
                     fi
-                done
+                done <<EOF
+$tools_to_update_list
+EOF
                 
                 echo ""
                 printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
@@ -724,174 +752,126 @@ $tool_def"
         dev_tools="flutter dotnet emacs java8 java11 java17 java21 java25 android-studio android-tools docker cmake"
         
         for tool_name in $dev_tools; do
-            echo "$TOOLS" | while IFS= read -r tool_def; do
-                if [ -z "$tool_def" ]; then
-                    continue
-                fi
-                current_tool_name=$(parse_tool_def "$tool_def" 1)
-                if [ "$current_tool_name" = "$tool_name" ]; then
-                    tool_emoji=$(parse_tool_def "$tool_def" 3)
-                    tool_desc=$(parse_tool_def "$tool_def" 4)
-                    tool_check=$(parse_tool_def "$tool_def" 5)
-                    install_status=""
-                    if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
-                        install_status=$($tool_check 2>/dev/null)
-                    fi
-                    if [ "$install_status" = "installed" ]; then
-                        status_str="${GREEN}[✓ Installé]${RESET}"
-                    else
-                        status_str="${YELLOW}[✗ Non installé]${RESET}"
-                    fi
-                    printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
-                    index=$((index + 1))
-                    break
-                fi
-            done
+            tool_def=$(find_tool_def_by_name "$tool_name") || continue
+            tool_emoji=$(parse_tool_def "$tool_def" 3)
+            tool_desc=$(parse_tool_def "$tool_def" 4)
+            tool_check=$(parse_tool_def "$tool_def" 5)
+            install_status=""
+            if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
+                install_status=$($tool_check 2>/dev/null)
+            fi
+            if [ "$install_status" = "installed" ]; then
+                status_str="${GREEN}[✓ Installé]${RESET}"
+            else
+                status_str="${YELLOW}[✗ Non installé]${RESET}"
+            fi
+            printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
+            index=$((index + 1))
         done
         
         echo ""
         printf "${BOLD}🌐 APPLICATIONS:${RESET}\n"
         app_tools="brave cursor"
         for tool_name in $app_tools; do
-            echo "$TOOLS" | while IFS= read -r tool_def; do
-                if [ -z "$tool_def" ]; then
-                    continue
-                fi
-                current_tool_name=$(parse_tool_def "$tool_def" 1)
-                if [ "$current_tool_name" = "$tool_name" ]; then
-                    tool_emoji=$(parse_tool_def "$tool_def" 3)
-                    tool_desc=$(parse_tool_def "$tool_def" 4)
-                    tool_check=$(parse_tool_def "$tool_def" 5)
-                    install_status=""
-                    if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
-                        install_status=$($tool_check 2>/dev/null)
-                    fi
-                    if [ "$install_status" = "installed" ]; then
-                        status_str="${GREEN}[✓ Installé]${RESET}"
-                    else
-                        status_str="${YELLOW}[✗ Non installé]${RESET}"
-                    fi
-                    printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
-                    index=$((index + 1))
-                    break
-                fi
-            done
+            tool_def=$(find_tool_def_by_name "$tool_name") || continue
+            tool_emoji=$(parse_tool_def "$tool_def" 3)
+            tool_desc=$(parse_tool_def "$tool_def" 4)
+            tool_check=$(parse_tool_def "$tool_def" 5)
+            install_status=""
+            if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
+                install_status=$($tool_check 2>/dev/null)
+            fi
+            if [ "$install_status" = "installed" ]; then
+                status_str="${GREEN}[✓ Installé]${RESET}"
+            else
+                status_str="${YELLOW}[✗ Non installé]${RESET}"
+            fi
+            printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
+            index=$((index + 1))
         done
         
         echo ""
         printf "${BOLD}🎬 MULTIMÉDIA:${RESET}\n"
         media_tools="handbrake"
         for tool_name in $media_tools; do
-            echo "$TOOLS" | while IFS= read -r tool_def; do
-                if [ -z "$tool_def" ]; then
-                    continue
-                fi
-                current_tool_name=$(parse_tool_def "$tool_def" 1)
-                if [ "$current_tool_name" = "$tool_name" ]; then
-                    tool_emoji=$(parse_tool_def "$tool_def" 3)
-                    tool_desc=$(parse_tool_def "$tool_def" 4)
-                    tool_check=$(parse_tool_def "$tool_def" 5)
-                    install_status=""
-                    if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
-                        install_status=$($tool_check 2>/dev/null)
-                    fi
-                    if [ "$install_status" = "installed" ]; then
-                        status_str="${GREEN}[✓ Installé]${RESET}"
-                    else
-                        status_str="${YELLOW}[✗ Non installé]${RESET}"
-                    fi
-                    printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
-                    index=$((index + 1))
-                    break
-                fi
-            done
+            tool_def=$(find_tool_def_by_name "$tool_name") || continue
+            tool_emoji=$(parse_tool_def "$tool_def" 3)
+            tool_desc=$(parse_tool_def "$tool_def" 4)
+            tool_check=$(parse_tool_def "$tool_def" 5)
+            install_status=""
+            if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
+                install_status=$($tool_check 2>/dev/null)
+            fi
+            if [ "$install_status" = "installed" ]; then
+                status_str="${GREEN}[✓ Installé]${RESET}"
+            else
+                status_str="${YELLOW}[✗ Non installé]${RESET}"
+            fi
+            printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
+            index=$((index + 1))
         done
         
         echo ""
         printf "${BOLD}⚙️  CONFIGURATION ANDROID:${RESET}\n"
         android_config_tools="android-licenses"
         for tool_name in $android_config_tools; do
-            echo "$TOOLS" | while IFS= read -r tool_def; do
-                if [ -z "$tool_def" ]; then
-                    continue
-                fi
-                current_tool_name=$(parse_tool_def "$tool_def" 1)
-                if [ "$current_tool_name" = "$tool_name" ]; then
-                    tool_emoji=$(parse_tool_def "$tool_def" 3)
-                    tool_desc=$(parse_tool_def "$tool_def" 4)
-                    tool_check=$(parse_tool_def "$tool_def" 5)
-                    install_status=""
-                    if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
-                        install_status=$($tool_check 2>/dev/null)
-                    fi
-                    if [ "$install_status" = "installed" ]; then
-                        status_str="${GREEN}[✓ Installé]${RESET}"
-                    else
-                        status_str="${YELLOW}[✗ Non installé]${RESET}"
-                    fi
-                    printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
-                    index=$((index + 1))
-                    break
-                fi
-            done
+            tool_def=$(find_tool_def_by_name "$tool_name") || continue
+            tool_emoji=$(parse_tool_def "$tool_def" 3)
+            tool_desc=$(parse_tool_def "$tool_def" 4)
+            tool_check=$(parse_tool_def "$tool_def" 5)
+            install_status=""
+            if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
+                install_status=$($tool_check 2>/dev/null)
+            fi
+            if [ "$install_status" = "installed" ]; then
+                status_str="${GREEN}[✓ Installé]${RESET}"
+            else
+                status_str="${YELLOW}[✗ Non installé]${RESET}"
+            fi
+            printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
+            index=$((index + 1))
         done
         
         echo ""
         printf "${BOLD}🌐 RÉSEAU:${RESET}\n"
         network_tools="network-tools"
         for tool_name in $network_tools; do
-            echo "$TOOLS" | while IFS= read -r tool_def; do
-                if [ -z "$tool_def" ]; then
-                    continue
-                fi
-                current_tool_name=$(parse_tool_def "$tool_def" 1)
-                if [ "$current_tool_name" = "$tool_name" ]; then
-                    tool_emoji=$(parse_tool_def "$tool_def" 3)
-                    tool_desc=$(parse_tool_def "$tool_def" 4)
-                    tool_check=$(parse_tool_def "$tool_def" 5)
-                    install_status=""
-                    if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
-                        install_status=$($tool_check 2>/dev/null)
-                    fi
-                    if [ "$install_status" = "installed" ]; then
-                        status_str="${GREEN}[✓ Installé]${RESET}"
-                    else
-                        status_str="${YELLOW}[✗ Non installé]${RESET}"
-                    fi
-                    printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
-                    index=$((index + 1))
-                    break
-                fi
-            done
+            tool_def=$(find_tool_def_by_name "$tool_name") || continue
+            tool_emoji=$(parse_tool_def "$tool_def" 3)
+            tool_desc=$(parse_tool_def "$tool_def" 4)
+            tool_check=$(parse_tool_def "$tool_def" 5)
+            install_status=""
+            if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
+                install_status=$($tool_check 2>/dev/null)
+            fi
+            if [ "$install_status" = "installed" ]; then
+                status_str="${GREEN}[✓ Installé]${RESET}"
+            else
+                status_str="${YELLOW}[✗ Non installé]${RESET}"
+            fi
+            printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
+            index=$((index + 1))
         done
         
         echo ""
         printf "${BOLD}🖥️  SYSTÈME & VIRTUALISATION:${RESET}\n"
         sys_tools="qemu"
         for tool_name in $sys_tools; do
-            echo "$TOOLS" | while IFS= read -r tool_def; do
-                if [ -z "$tool_def" ]; then
-                    continue
-                fi
-                current_tool_name=$(parse_tool_def "$tool_def" 1)
-                if [ "$current_tool_name" = "$tool_name" ]; then
-                    tool_emoji=$(parse_tool_def "$tool_def" 3)
-                    tool_desc=$(parse_tool_def "$tool_def" 4)
-                    tool_check=$(parse_tool_def "$tool_def" 5)
-                    install_status=""
-                    if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
-                        install_status=$($tool_check 2>/dev/null)
-                    fi
-                    if [ "$install_status" = "installed" ]; then
-                        status_str="${GREEN}[✓ Installé]${RESET}"
-                    else
-                        status_str="${YELLOW}[✗ Non installé]${RESET}"
-                    fi
-                    printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
-                    index=$((index + 1))
-                    break
-                fi
-            done
+            tool_def=$(find_tool_def_by_name "$tool_name") || continue
+            tool_emoji=$(parse_tool_def "$tool_def" 3)
+            tool_desc=$(parse_tool_def "$tool_def" 4)
+            tool_check=$(parse_tool_def "$tool_def" 5)
+            install_status=""
+            if [ -n "$tool_check" ] && command -v "$tool_check" >/dev/null 2>&1; then
+                install_status=$($tool_check 2>/dev/null)
+            fi
+            if [ "$install_status" = "installed" ]; then
+                status_str="${GREEN}[✓ Installé]${RESET}"
+            else
+                status_str="${YELLOW}[✗ Non installé]${RESET}"
+            fi
+            printf "  %-3d %s %-30s %s\n" "$index" "$tool_emoji" "$tool_desc" "$status_str"
+            index=$((index + 1))
         done
         
         echo ""
@@ -955,7 +935,8 @@ $tool_def"
                 tool_index=$choice
                 tool_count=0
                 selected_tool=""
-                echo "$TOOLS" | while IFS= read -r tool_def; do
+                # Pas de pipe : sinon le sous-shell perd selected_tool (sh/bash)
+                while IFS= read -r tool_def; do
                     if [ -z "$tool_def" ]; then
                         continue
                     fi
@@ -964,7 +945,9 @@ $tool_def"
                         selected_tool="$tool_def"
                         break
                     fi
-                done
+                done <<EOF
+$TOOLS
+EOF
                 
                 if [ -n "$selected_tool" ]; then
                     install_tool_from_def "$selected_tool"
@@ -983,13 +966,15 @@ $tool_def"
                     printf "${RED}❌ Outil non trouvé: '%s'${RESET}\n" "$choice"
                     echo ""
                     printf "${YELLOW}Outils disponibles:${RESET}\n"
-                    echo "$TOOLS" | while IFS= read -r tool_def; do
+                    while IFS= read -r tool_def; do
                         if [ -z "$tool_def" ]; then
                             continue
                         fi
                         tool_name=$(parse_tool_def "$tool_def" 1)
                         echo "  - $tool_name"
-                    done
+                    done <<EOF
+$TOOLS
+EOF
                     echo ""
                     sleep 2
                     show_main_menu
@@ -1081,7 +1066,7 @@ $tool_def"
             help|--help|-h|list)
                 printf "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}\n"
                 echo ""
-                echo "$TOOLS" | while IFS= read -r tool_def; do
+                while IFS= read -r tool_def; do
                     if [ -z "$tool_def" ]; then
                         continue
                     fi
@@ -1089,7 +1074,9 @@ $tool_def"
                     tool_emoji=$(parse_tool_def "$tool_def" 3)
                     tool_desc=$(parse_tool_def "$tool_def" 4)
                     printf "  ${GREEN}%s${RESET} %s - %s\n" "$tool_name" "$tool_emoji" "$tool_desc"
-                done
+                done <<EOF
+$TOOLS
+EOF
                 echo ""
                 printf "${YELLOW}Usage:${RESET}\n"
                 echo "  installman [tool-name]     - Installer directement un outil"
@@ -1117,13 +1104,15 @@ $tool_def"
                     printf "${RED}❌ Outil inconnu: '%s'${RESET}\n" "$1"
                     echo ""
                     printf "${YELLOW}Outils disponibles:${RESET}\n"
-                    echo "$TOOLS" | while IFS= read -r tool_def; do
+                    while IFS= read -r tool_def; do
                         if [ -z "$tool_def" ]; then
                             continue
                         fi
                         tool_name=$(parse_tool_def "$tool_def" 1)
                         echo "  - $tool_name"
-                    done
+                    done <<EOF
+$TOOLS
+EOF
                     echo ""
                     echo "Usage: installman [tool-name]"
                     echo "   ou: install-tool [tool-name] (alias)"

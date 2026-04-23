@@ -286,6 +286,16 @@ test_manager_smoke() {
     local out="" code=0
     local core="$DOTFILES_DIR/core/managers/$manager/core/${manager}.sh"
     local bridge="$DOTFILES_DIR/scripts/test/utils/fish_run_posix_inv.fish"
+    local fish_to_bin=""
+    if command -v timeout >/dev/null 2>&1; then
+        fish_to_bin=$(command -v timeout)
+    elif command -v gtimeout >/dev/null 2>&1; then
+        fish_to_bin=$(command -v gtimeout)
+    elif [ -x /usr/bin/timeout ]; then
+        fish_to_bin=/usr/bin/timeout
+    elif [ -x /usr/sbin/timeout ]; then
+        fish_to_bin=/usr/sbin/timeout
+    fi
     case "$manager" in
         pathman)
             case "$shell_type" in
@@ -297,7 +307,11 @@ test_manager_smoke() {
                     ;;
                 fish)
                     if [ -f "$bridge" ] && [ -f "$core" ]; then
-                        out=$(fish "$bridge" pathman "$core" show 2>&1) || true
+                        if [ -n "$fish_to_bin" ]; then
+                            out=$("$fish_to_bin" 25 fish "$bridge" pathman "$core" show 2>&1) || true
+                        else
+                            out=$(fish "$bridge" pathman "$core" show 2>&1) || true
+                        fi
                     else
                         echo "⚠️  pathman smoke fish ignoré (pont absent)"
                         return 0
@@ -330,7 +344,11 @@ test_manager_smoke() {
                     ;;
                 fish)
                     if [ -f "$bridge" ] && [ -f "$core" ]; then
-                        out=$(fish "$bridge" doctorman "$core" help 2>&1) || true
+                        if [ -n "$fish_to_bin" ]; then
+                            out=$("$fish_to_bin" 25 fish "$bridge" doctorman "$core" help 2>&1) || true
+                        else
+                            out=$(fish "$bridge" doctorman "$core" help 2>&1) || true
+                        fi
                     else
                         echo "⚠️  doctorman smoke fish ignoré (pont absent)"
                         return 0
@@ -435,9 +453,16 @@ test_manager_response() {
             inv=help
             case "$manager" in pathman) inv=show ;; esac
             if [ -f "$bridge_pf" ] && [ -f "$core_pf" ] && command -v fish >/dev/null 2>&1; then
-                if fish "$bridge_pf" "$manager" "$core_pf" $inv >/dev/null 2>&1; then
-                    echo "✅ Manager $manager répond (Fish / pont POSIX)"
-                    return 0
+                if [ -n "$timeout_path" ] && [ -x "$timeout_path" ]; then
+                    if "$timeout_path" 25 fish "$bridge_pf" "$manager" "$core_pf" $inv >/dev/null 2>&1; then
+                        echo "✅ Manager $manager répond (Fish / pont POSIX)"
+                        return 0
+                    fi
+                else
+                    if fish "$bridge_pf" "$manager" "$core_pf" $inv >/dev/null 2>&1; then
+                        echo "✅ Manager $manager répond (Fish / pont POSIX)"
+                        return 0
+                    fi
                 fi
             fi
             if [ -f "$adapter_file" ]; then

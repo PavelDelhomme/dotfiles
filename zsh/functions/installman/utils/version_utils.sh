@@ -40,12 +40,24 @@ get_current_version() {
             fi
             ;;
         java8|java11|java17|java21|java25)
+            # Ne pas utiliser le java par défaut du PATH pour toutes les entrées (sinon même version affichée partout)
             local java_version=$(echo "$tool_name" | sed 's/java//')
-            if command -v "java${java_version}" &>/dev/null || command -v java &>/dev/null; then
-                java -version 2>&1 | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
-            else
-                echo "not_installed"
+            local jbin=""
+            for jbin in \
+                "/usr/lib/jvm/java-${java_version}-openjdk/bin/java" \
+                "/usr/lib/jvm/java-${java_version}-openjdk-amd64/bin/java" \
+                "/usr/lib/jvm/java-${java_version}-oracle/bin/java" \
+                "/usr/lib/jvm/jdk-${java_version}/bin/java"; do
+                if [[ -x "$jbin" ]]; then
+                    "$jbin" -version 2>&1 | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+                    return 0
+                fi
+            done
+            if command -v "java-${java_version}-openjdk" &>/dev/null; then
+                "java-${java_version}-openjdk" -version 2>&1 | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+                return 0
             fi
+            echo "not_installed"
             ;;
         emacs)
             if command -v emacs &>/dev/null; then
@@ -55,15 +67,23 @@ get_current_version() {
             fi
             ;;
         cursor)
-            if [ -x "/opt/cursor.appimage" ]; then
-                /opt/cursor.appimage --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
-            elif command -v cursor &>/dev/null; then
-                cursor --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
-            elif [ -f /usr/share/cursor/resources/app/product.json ]; then
+            # Ne jamais exécuter l’AppImage / le binaire cursor pour lire la version : ça peut lancer l’IDE.
+            if [[ -f /usr/share/cursor/resources/app/product.json ]]; then
                 grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' /usr/share/cursor/resources/app/product.json 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown"
-            else
-                echo "not_installed"
+                return 0
             fi
+            local df
+            for df in "$HOME/.local/share/applications/cursor.desktop" /usr/share/applications/cursor.desktop; do
+                if [[ -f "$df" ]] && grep -qE '^Version=' "$df" 2>/dev/null; then
+                    grep -m1 '^Version=' "$df" | cut -d= -f2- | tr -d ' ' || echo "unknown"
+                    return 0
+                fi
+            done
+            if [[ -x /opt/cursor.appimage ]] || command -v cursor &>/dev/null || [[ -d /usr/share/cursor/resources/app ]]; then
+                echo "unknown"
+                return 0
+            fi
+            echo "not_installed"
             ;;
         brave)
             if command -v brave &>/dev/null || command -v brave-browser &>/dev/null; then
@@ -78,6 +98,81 @@ get_current_version() {
             else
                 echo "not_installed"
             fi
+            ;;
+        c-tools)
+            if command -v gcc &>/dev/null && command -v make &>/dev/null; then
+                local gv mv
+                gv=$(gcc --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "?")
+                mv=$(make --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1 || echo "?")
+                echo "gcc ${gv} / make ${mv}"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        cpp-tools)
+            if command -v g++ &>/dev/null && command -v cmake &>/dev/null; then
+                local gv cv
+                gv=$(g++ --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "?")
+                cv=$(cmake --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "?")
+                echo "g++ ${gv} / cmake ${cv}"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        handbrake)
+            if command -v HandBrakeCLI &>/dev/null; then
+                HandBrakeCLI --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            elif command -v ghb &>/dev/null; then
+                ghb --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        db-browser)
+            if command -v sqlitebrowser &>/dev/null || command -v db-browser-for-sqlite &>/dev/null; then
+                (sqlitebrowser --version 2>/dev/null || db-browser-for-sqlite --version 2>/dev/null) | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        nextcloud)
+            if command -v nextcloudcmd &>/dev/null || command -v nextcloud &>/dev/null; then
+                (nextcloudcmd --version 2>/dev/null || nextcloud --version 2>/dev/null) | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        portproton)
+            local pp="$HOME/PortProton/PortProton/data_from_portwine/scripts/start.sh"
+            if [[ -f "$pp" ]]; then
+                grep -m1 -E '^#.*[Vv]ersion|Version' "$pp" 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -n1 || echo "installed"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        protonmail)
+            if command -v protonmail-bridge &>/dev/null; then
+                protonmail-bridge --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
+            elif command -v flatpak &>/dev/null; then
+                flatpak list --app 2>/dev/null | grep -i protonmail | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "flatpak"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        bluemail)
+            if command -v flatpak &>/dev/null; then
+                flatpak list --app 2>/dev/null | grep -iE 'bluemail|BlueMail' | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "flatpak"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        network-tools)
+            local n=0 t=0
+            for x in nslookup dig traceroute whois nmap tcpdump iftop nc netcat lsof; do
+                ((t++))
+                command -v "$x" &>/dev/null && ((n++))
+            done
+            echo "${n}/${t}"
             ;;
         *)
             # Pour les autres outils, essayer de détecter via command --version

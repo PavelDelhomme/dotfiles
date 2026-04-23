@@ -218,29 +218,77 @@ run_tests_with_docker() {
     _vol="${DOTFILES_DOCKER_MOUNT:-$DOTFILES_DIR}"
     echo "   Bind mount hôte → conteneur: $_vol (lecture seule)"
     echo "   TEST_SHELLS=${TEST_SHELLS:-zsh bash fish}"
+    echo "   DOTFILES_TEST_MANAGERS=${DOTFILES_TEST_MANAGERS:-'(non défini — voir make test-help)'}"
     echo "   TEST_MANAGERS=${TEST_MANAGERS:-'(défaut : managers migrés — migrated_managers.list)'}"
     echo ""
-    
-    if docker run --rm \
-        --name "$DOCKER_CONTAINER" \
-        -w /root/dotfiles \
-        -v "$_vol:/root/dotfiles:ro" \
-        -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
-        -v "dotfiles-test-config:/root/.config:rw" \
-        -e DOTFILES_DIR=/root/dotfiles \
-        -e HOME=/root \
-        -e TEST_RESULTS_DIR=/root/test_results \
-        -e MANAGERS_LOG_FILE=/root/test_results/managers_docker_tests.log \
-        -e DOTFILES_DOCKER_TEST=1 \
-        -e "RUN_SUBCOMMAND_MATRIX=${RUN_SUBCOMMAND_MATRIX:-0}" \
-        -e "SUBCOMMAND_TIER=${SUBCOMMAND_TIER:-full}" \
-        ${TEST_SHELLS:+-e "TEST_SHELLS=$TEST_SHELLS"} \
-        ${TEST_MANAGERS:+-e "TEST_MANAGERS=$TEST_MANAGERS"} \
-        "$ACTUAL_IMAGE" \
-        bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$TEST_RESULTS_DIR/test_output.log"; then
+    # --env-file : valeurs avec espaces (TEST_SHELLS) sans casser les arguments docker
+    _docker_envf=$(mktemp "${TMPDIR:-/tmp}/dotfiles-docker-env.XXXXXX") || return 1
+    printf 'TEST_SHELLS=%s\n' "${TEST_SHELLS:-zsh bash fish}" > "$_docker_envf"
+    [ -n "${TEST_MANAGERS:-}" ] && printf 'TEST_MANAGERS=%s\n' "$TEST_MANAGERS" >> "$_docker_envf"
+    _log="$TEST_RESULTS_DIR/test_output.log"
+    : > "$_log" 2>/dev/null || true
+    echo ""
+    echo "📺 Sortie du conteneur en direct ci-dessous (copie identique dans : $_log)"
+    echo "───────────────────────────────────────────────────────────────"
+
+    # tee + pipefail (bash) : affichage live ET code de sortie = celui de docker, pas de tee
+    if command -v bash >/dev/null 2>&1 && command -v tee >/dev/null 2>&1; then
+        export _D_LOG="$_log"
+        export _D_ENV="$_docker_envf"
+        export _D_VOL="$_vol"
+        export _D_IMG="$ACTUAL_IMAGE"
+        export _D_CN="$DOCKER_CONTAINER"
+        export _D_TR="$TEST_RESULTS_DIR"
+        export _D_RSMB="${RUN_SUBCOMMAND_MATRIX:-0}"
+        export _D_ST="${SUBCOMMAND_TIER:-full}"
+        bash -c 'set -o pipefail
+docker run --rm \
+  --name "$_D_CN" \
+  --env-file "$_D_ENV" \
+  -w /root/dotfiles \
+  -v "$_D_VOL:/root/dotfiles:ro" \
+  -v "$_D_TR:/root/test_results:rw" \
+  -v "dotfiles-test-config:/root/.config:rw" \
+  -e DOTFILES_DIR=/root/dotfiles \
+  -e HOME=/root \
+  -e TEST_RESULTS_DIR=/root/test_results \
+  -e MANAGERS_LOG_FILE=/root/test_results/managers_docker_tests.log \
+  -e DOTFILES_DOCKER_TEST=1 \
+  -e "RUN_SUBCOMMAND_MATRIX=$_D_RSMB" \
+  -e "SUBCOMMAND_TIER=$_D_ST" \
+  "$_D_IMG" \
+  bash /root/dotfiles/scripts/test/docker/run_tests.sh 2>&1 | tee "$_D_LOG"
+exit "${PIPESTATUS[0]}"'
+        _dr=$?
+        unset _D_LOG _D_ENV _D_VOL _D_IMG _D_CN _D_TR _D_RSMB _D_ST
+    else
+        echo "⚠️  bash ou tee absent : sortie seulement vers le fichier (pas de flux terminal)."
+        docker run --rm \
+            --name "$DOCKER_CONTAINER" \
+            --env-file "$_docker_envf" \
+            -w /root/dotfiles \
+            -v "$_vol:/root/dotfiles:ro" \
+            -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
+            -v "dotfiles-test-config:/root/.config:rw" \
+            -e DOTFILES_DIR=/root/dotfiles \
+            -e HOME=/root \
+            -e TEST_RESULTS_DIR=/root/test_results \
+            -e MANAGERS_LOG_FILE=/root/test_results/managers_docker_tests.log \
+            -e DOTFILES_DOCKER_TEST=1 \
+            -e "RUN_SUBCOMMAND_MATRIX=${RUN_SUBCOMMAND_MATRIX:-0}" \
+            -e "SUBCOMMAND_TIER=${SUBCOMMAND_TIER:-full}" \
+            "$ACTUAL_IMAGE" \
+            bash /root/dotfiles/scripts/test/docker/run_tests.sh > "$_log" 2>&1
+        _dr=$?
+    fi
+    rm -f "$_docker_envf" 2>/dev/null || true
+    echo ""
+    echo "───────────────────────────────────────────────────────────────"
+    echo "── Fin du flux conteneur — journal : $_log"
+    if [ "$_dr" -eq 0 ]; then
         return 0
     else
-        RUN_EXIT=$?
+        RUN_EXIT=$_dr
         echo ""
         echo "❌ Erreur lors de l'exécution du conteneur (code: $RUN_EXIT)"
         return 1
@@ -309,9 +357,12 @@ main() {
     # Vérifier Docker
     check_docker
     
-    # Initialiser la progression
+    # Initialiser la progression (3 = build image, exécution conteneur, rapport — pas « 3 managers »)
     total_steps=3
-    progress_init "$total_steps" "Test des managers"
+    progress_init "$total_steps" "Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport)"
+    echo "💡 Les barres [n/3] comptent les étapes ci-dessus, pas le nombre de managers testés."
+    echo "   Bac à sable : dotfiles en lecture seule dans le conteneur, résultats dans $TEST_RESULTS_DIR"
+    echo ""
     
     # Étape 1: Construire l'image
     if build_docker_image; then
@@ -325,15 +376,22 @@ main() {
     # Étape 2: Lancer les tests
     # Utiliser docker run directement (plus simple et fiable)
     echo "💡 Utilisation de docker run (méthode la plus fiable)"
+    _docker_tests_rc=0
     if run_tests_with_docker; then
         progress_update 2 2 0
+        _docker_tests_rc=0
     else
         progress_update 2 1 1
+        _docker_tests_rc=1
     fi
     
     # Étape 3: Afficher le rapport
     show_report
-    progress_update 3 2 1
+    if [ "$_docker_tests_rc" -eq 0 ]; then
+        progress_update 3 3 0
+    else
+        progress_update 3 2 1
+    fi
     
     # Nettoyer
     cleanup

@@ -17,6 +17,9 @@ zsh/aliases_doc.json
 # Préférences locales pour les tests Docker (voir scripts/test/config/test.local.env.example)
 scripts/test/config/test.local.env
 
+# Sorties des tests Docker / matrice (régénérées à chaque run)
+test_results/
+
 # Fichiers de sauvegarde
 *.save
 *.bak

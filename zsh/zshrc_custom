@@ -191,15 +191,8 @@ if [ -d "$FUNCTIONS_DIR" ]; then
     local loaded_count=0
     local error_count=0
     
-    # Charger installman et configman en premier (gestionnaires d'installation/configuration)
-    # Vérifier si activés via moduleman
-    local installman_status="${MODULE_installman:-enabled}"
+    # configman en premier si activé (installman est déjà chargé via shells/zsh/adapters/installman.zsh)
     local configman_status="${MODULE_configman:-enabled}"
-    
-    if [ "$installman_status" = "enabled" ] && [ -f "$FUNCTIONS_DIR/installman.zsh" ]; then
-        source "$FUNCTIONS_DIR/installman.zsh" 2>/dev/null && ((loaded_count++)) || ((error_count++))
-    # Messages désactivés pour éviter l'avertissement Powerlevel10k
-    fi
     
     if [ "$configman_status" = "enabled" ] && [ -f "$FUNCTIONS_DIR/configman.zsh" ]; then
         source "$FUNCTIONS_DIR/configman.zsh" >/dev/null 2>&1 && ((loaded_count++)) || ((error_count++))

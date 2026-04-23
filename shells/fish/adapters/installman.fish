@@ -4,12 +4,18 @@
 # Base unique = zsh/functions/installman. Ce wrapper lance l'entrée commune.
 # =============================================================================
 
-set -g DOTFILES_DIR (string default "$HOME/dotfiles" $DOTFILES_DIR)
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g INSTALLMAN_ENTRY "$DOTFILES_DIR/core/managers/installman/installman_entry.sh"
 
 function installman
     if test -f "$INSTALLMAN_ENTRY"
-        sh "$INSTALLMAN_ENTRY" $argv
+        set -l _df "$DOTFILES_DIR"
+        test -n "$_df"; or set _df "$HOME/dotfiles"
+        env DOTFILES_DIR="$_df" sh "$INSTALLMAN_ENTRY" $argv
     else
         echo "❌ installman entry non trouvé: $INSTALLMAN_ENTRY"
         return 1

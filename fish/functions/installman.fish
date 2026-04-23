@@ -1,27 +1,27 @@
 # =============================================================================
-# INSTALLMAN - Installation Manager pour Fish (Wrapper)
+# INSTALLMAN - Délégation vers l’entrée unique (même logique que shells/fish/adapters)
 # =============================================================================
-# Wrapper pour charger installman depuis le répertoire dotfiles
-# Compatible avec la structure ZSH mais adapté pour Fish
+# Ancien chemin : source ce fichier → fonction installman → installman_entry.sh
 # =============================================================================
 
-# Détecter le répertoire dotfiles
 if not set -q DOTFILES_DIR
     if test -d "$HOME/dotfiles"
         set -g DOTFILES_DIR "$HOME/dotfiles"
     else
-        echo "❌ Répertoire dotfiles introuvable"
+        echo "❌ Répertoire dotfiles introuvable (définir DOTFILES_DIR)" >&2
         return 1
     end
 end
 
-set -g INSTALLMAN_CORE "$DOTFILES_DIR/fish/functions/installman/core/installman.fish"
+set -g INSTALLMAN_ENTRY "$DOTFILES_DIR/core/managers/installman/installman_entry.sh"
 
-# Charger le core si disponible
-if test -f "$INSTALLMAN_CORE"
-    source "$INSTALLMAN_CORE"
-else
-    echo "❌ installman (Fish) non trouvé. Exécutez la conversion d'abord."
-    return 1
+function installman
+    if test -f "$INSTALLMAN_ENTRY"
+        set -l _df "$DOTFILES_DIR"
+        test -n "$_df"; or set _df "$HOME/dotfiles"
+        env DOTFILES_DIR="$_df" sh "$INSTALLMAN_ENTRY" $argv
+    else
+        echo "❌ installman entry non trouvé: $INSTALLMAN_ENTRY" >&2
+        return 1
+    end
 end
-

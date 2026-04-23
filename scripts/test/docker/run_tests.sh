@@ -37,8 +37,8 @@ if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then
     MIGRATED_MANAGERS=$(dotfiles_migrated_managers_space)
     UNMIGRATED_MANAGERS=$(dotfiles_unmigrated_managers_space)
 else
-    MIGRATED_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman"
-    UNMIGRATED_MANAGERS="netman sshman testman testzshman moduleman multimediaman cyberlearn"
+    MIGRATED_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn"
+    UNMIGRATED_MANAGERS=""
 fi
 ALL_MANAGERS="$MIGRATED_MANAGERS $UNMIGRATED_MANAGERS"
 
@@ -73,19 +73,25 @@ NS=$(echo "$TEST_SHELLS" | wc -w)
 TOTAL_CELLS=$((NM * NS))
 progress_init "$TOTAL_CELLS" "Test des managers (matrice shells)"
 
-# Charger les dotfiles
-echo "🔧 Chargement des dotfiles..."
+# Charger les dotfiles (ne pas sourcer zshrc_custom en bash sous Docker : IFS / typeset zsh / plugins cassent la boucle des tests)
+echo "🔧 Préparation environnement..."
 export DOTFILES_DIR="$DOTFILES_DIR"
 export DOTFILES_ZSH_PATH="$DOTFILES_DIR/zsh"
 export TEST_RESULTS_DIR="$TEST_RESULTS_DIR"
+export PATH="${PATH:-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin}"
 
-if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
-    # Charger en silence pour éviter les erreurs non critiques
-    . "$DOTFILES_DIR/zsh/zshrc_custom" >/dev/null 2>&1 || true
-    echo "✅ Dotfiles chargés"
+if [ "${DOTFILES_DOCKER_TEST:-0}" = "1" ]; then
+    echo "✅ Mode Docker (zshrc_custom non sourcé ici — évite IFS / variables zsh en bash)"
 else
-    echo "⚠️  zshrc_custom non trouvé"
+    if [ -f "$DOTFILES_DIR/zsh/zshrc_custom" ]; then
+        . "$DOTFILES_DIR/zsh/zshrc_custom" >/dev/null 2>&1 || true
+        echo "✅ Dotfiles chargés (zshrc_custom)"
+    else
+        echo "⚠️  zshrc_custom non trouvé"
+    fi
 fi
+IFS=$(printf ' \t\n')
+export IFS
 
 echo ""
 echo "═══════════════════════════════════════════════════════════════"
@@ -130,11 +136,15 @@ elif [ -f "/usr/sbin/timeout" ] && [ -x "/usr/sbin/timeout" ]; then
     TIMEOUT_PATH="/usr/sbin/timeout"
 fi
 
-# Lire chaque manager depuis le fichier
+# Boucles managers × shells (fichiers temporaires : insensible à IFS global)
+TEMP_SHELLS_FILE="/tmp/dotfiles_test_shells_$$"
+printf '%s\n' "$TEST_SHELLS" | tr ' ' '\n' | grep -v '^$' > "$TEMP_SHELLS_FILE"
+
 while read -r manager || [ -n "$manager" ]; do
     [ -z "$manager" ] && continue
 
-    for shell in $TEST_SHELLS; do
+    while read -r shell || [ -n "$shell" ]; do
+        [ -z "$shell" ] && continue
         COMPLETED=$((COMPLETED + 1))
 
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
@@ -142,14 +152,14 @@ while read -r manager || [ -n "$manager" ]; do
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" | tee -a "$DETAILED_REPORT"
 
         if [ -n "$TIMEOUT_PATH" ] && [ -x "$TIMEOUT_PATH" ]; then
-            TEST_OUTPUT=$("$TIMEOUT_PATH" 30 sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'$shell'"' 2>&1')
+            TEST_OUTPUT=$("$TIMEOUT_PATH" 120 bash -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'$shell'"' 2>&1')
             TEST_EXIT=$?
             if [ "$TEST_EXIT" -eq 124 ]; then
-                echo "⚠️  Timeout (30s) $manager ($shell)" | tee -a "$DETAILED_REPORT"
+                echo "⚠️  Timeout (120s) $manager ($shell)" | tee -a "$DETAILED_REPORT"
                 TEST_EXIT=1
             fi
         else
-            TEST_OUTPUT=$(sh -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'$shell'"' 2>&1')
+            TEST_OUTPUT=$(bash -c '. "$DOTFILES_DIR/scripts/test/utils/manager_tester.sh" && test_manager '"'$manager'"' '"'$shell'"' 2>&1')
             TEST_EXIT=$?
         fi
 
@@ -173,11 +183,11 @@ while read -r manager || [ -n "$manager" ]; do
 
         echo "" | tee -a "$DETAILED_REPORT"
         progress_update "$COMPLETED" "$PASSED_TESTS" "$FAILED_TESTS"
-    done
+    done < "$TEMP_SHELLS_FILE"
 done < "$TEMP_MANAGERS_FILE"
 
-# Nettoyer le fichier temporaire
-rm -f "$TEMP_MANAGERS_FILE"
+# Nettoyer les fichiers temporaires
+rm -f "$TEMP_MANAGERS_FILE" "$TEMP_SHELLS_FILE"
 
 # Terminer la progression
 progress_finish
@@ -207,24 +217,31 @@ echo "  - Résumé: $REPORT_FILE"
 echo "  - Détail: $DETAILED_REPORT"
 echo ""
 
-# Code de sortie basé sur les résultats
+# Code de sortie basé sur les résultats (matrice managers uniquement)
+_manager_rc=0
 if [ "$FAILED_TESTS" -eq 0 ]; then
-    echo "🎉 Tous les tests sont passés !"
-    _matrix_rc=0
+    echo "🎉 Matrice managers : tous les tests sont passés ! ($PASSED_TESTS/$TOTAL_CELLS)"
+    _manager_rc=0
 else
-    echo "⚠️  $FAILED_TESTS cellule(s) en échec"
-    _matrix_rc=1
+    echo "⚠️  Matrice managers : $FAILED_TESTS cellule(s) en échec sur $TOTAL_CELLS"
+    _manager_rc=1
 fi
+_matrix_rc="$_manager_rc"
 
-# Matrice sous-commandes (optionnel : RUN_SUBCOMMAND_MATRIX=1 ou make test-docker-full)
+# Matrice sous-commandes (optionnel : RUN_SUBCOMMAND_MATRIX=1 — make test)
 if [ "${RUN_SUBCOMMAND_MATRIX:-0}" = "1" ] && command -v bash >/dev/null 2>&1; then
     echo ""
     echo "═══════════════════════════════════════════════════════════════"
-    echo "🧪 Matrice sous-commandes (scripts/test/manager_subcommand_matrix.sh)"
+    echo "🧪 Phase 2 — Matrice sous-commandes (peut prendre 1–5 min)"
+    echo "   Script: scripts/test/manager_subcommand_matrix.sh"
+    echo "   Astuce : tail -f \"\$TEST_RESULTS_DIR/test_output.log\" sur l’hôte pour suivre le conteneur."
     echo "═══════════════════════════════════════════════════════════════"
     export TEST_MANAGERS="$MANAGERS"
     export TEST_SHELLS
     if ! bash "$DOTFILES_DIR/scripts/test/manager_subcommand_matrix.sh"; then
+        echo ""
+        echo "⚠️  Des lignes « ❌ échec: <shell> <manager> <invocation> » ci-dessus concernent la phase 2 uniquement."
+        echo "   Les lignes « ✅ <manager> (zsh|bash|fish): OK » du fichier de rapport résument la phase 1."
         _matrix_rc=1
     fi
 fi

@@ -8,6 +8,45 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 
 **Architecture choisie** : **Structure Hybride** avec code commun POSIX dans `core/` et adapters shell-spécifiques dans `shells/{zsh,bash,fish}/adapters/`
 
+### Où lire la doc (tests, multi-shell, migrations)
+
+| Sujet | Emplacement |
+|--------|-------------|
+| **Tests Docker, `DOTFILES_TEST_MANAGERS`, bac à sable** | `make test-help`, `make sandbox-guide`, `scripts/test/SANDBOX.md` |
+| **Multi-shell / installman** | `docs/MULTISHELL_REPORT.md`, `shells/README.md` |
+| **Plan TUI / logs / modules** | `docs/ACTION_PLAN_ARCHITECTURE.md` |
+| **Guides de migration historiques** | `docs/migrations/` |
+
+Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des commandes de test est volontairement dans `make test-help` pour ne pas diverger.
+
+### État des tests Docker (`make test`, 2026-04)
+
+- **`make test`** enchaîne **deux phases dans le même conteneur** : (1) matrice **managers × shells** (63 cellules typiques : 21 managers × zsh/bash/fish) ; (2) **matrice sous-commandes** (`scripts/test/manager_subcommand_matrix.sh`, ~57 invocations en tier `full`).
+- **Flux terminal** : sortie du conteneur en **direct** + copie dans `test_results/test_output.log` (`tee`).
+- **Vérifier la phase 2** : `grep -E 'Matrice sous-commandes|échec:' test_results/test_output.log | tail -20` — attendu : `échecs: 0` et `✅ Matrice sous-commandes : OK`.
+- **Bac à sable** : dotfiles montés **lecture seule** dans l’image de test ; écritures ciblées sur `test_results/` et volume config test. Détail : `scripts/test/SANDBOX.md`, `make sandbox-guide`.
+- **`multimediaman` / `cyberlearn`** : la phase 2 exécute au minimum **`help`** (non bloquant hors TTY). Les menus sans argument restent interactifs ; **`@skip`** dans d’autres `.list` = encore volontaire pour certains parcours.
+
+### Carte des répertoires et rationalisation (roadmap architecture)
+
+**Constat (pourquoi c’est « bruité » aujourd’hui)**  
+- **`core/managers/<nom>/core/*.sh`** : cœur POSIX **canonique** pour la logique d’un manager.  
+- **`shells/{zsh,bash,fish}/adapters/`** : colle mince pour charger ce cœur — **c’est la cible** pour tout nouveau code.  
+- **`zsh/functions/…`**, **`bash/`**, **`fish/`** à la racine : **historique** (installman modules volumineux, anciens chemins, configs générées). On y trouve encore des *man* ou modules **avant** migration complète vers `core/`.  
+- **Fichiers dot à la racine** (`.zshrc`, `.bashrc`, `.env.example`, etc.) : **modèle « dépôt = dotfiles »** — prêts à être **symlinkés** vers `$HOME` par bootstrap / install ; cohérents tant que la doc dit « copier ou lier depuis la racine du clone ».
+
+**Cible (sans big-bang immédiat)**  
+1. **Une seule vérité par manager** : logique métier dans `core/managers/<nom>/` ; **aucun** doublon de logique dans `zsh/functions/<nom>/` sauf transition documentée.  
+2. **Shells = glue uniquement** : `shells/*` + `shared/` ; `zsh/functions` devient **archive / modules lourds** (ex. installman) puis seulement **réexport** ou chemins réécrits vers `core/`.  
+3. **Arborescence idéale documentée** : `scripts/`, `docs/`, `core/`, `shared/`, `shells/`, `bin/` (optionnel), `logs/` (runtime, gitignored), éventuellement **`config/`** pour exemples — les dotfiles à la racine restent des **entrées d’installation**, pas du code métier.  
+4. **Bootstrap unifié** : un seul chemin documenté (`install_zsh_complete.sh` / Makefile / script unique) qui pose `DOTFILES_DIR`, symlinks, et charge **uniquement** les adapters `shells/`.
+
+**Prochaines tâches concrètes (ordre recommandé)**  
+- [ ] Cartographier dans `docs/ARCHITECTURE.md` (ou tableau ici) chaque manager : **source de vérité** = `core/` oui/non, **résidu** dans `zsh/functions`.  
+- [ ] Déplacer progressivement les modules **installman** (et utilitaires) référencés uniquement par le core vers un arbre sous `core/managers/installman/` en gardant des **wrappers** un ligne si besoin.  
+- [ ] Réduire les `read` / `clear` hors TTY dans les menus encore appelés par erreur depuis la CI.  
+- [ ] Garder **`make test`** comme garde-fou à chaque étape de déplacement.
+
 ---
 
 ## 📋 État actuel
@@ -18,15 +57,13 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 - ~35 fichiers de code
 - Architecture bien définie
 
-### ⚠️ Fish (Partiel - En migration)
-- Structure hybride en cours d'implémentation
-- Adapters créés pour managers migrés
-- Wrappers temporaires pour managers complexes
+### ✅ Fish et Bash (adapters hybrides — CI verte)
+- **Adapters** `shells/{fish,bash}/adapters/*` pour les 19 managers : chargement du **core POSIX** sous `core/managers/*/core/*.sh` (souvent via bash pour Fish).
+- **`make test`** : matrice managers **63/63 OK** quand la liste migrée par défaut est utilisée ; phase 2 sous-commandes à surveiller via le log (voir ci-dessus).
+- **Travail restant** : poursuivre la **parité UX** (menus, prompts) et le durcissement POSIX là où du code historique Zsh subsiste hors `core/` — pas un blocage pour les tests Docker actuels.
 
-### ⚠️ Bash (Partiel - En migration)
-- Structure hybride en cours d'implémentation
-- Adapters créés pour managers migrés
-- Wrappers temporaires pour managers complexes
+### ⚠️ Bash (même ligne directrice que Fish)
+- Même architecture ; différences mineures de chargement dans `bash/bashrc_custom`.
 
 ---
 
@@ -239,10 +276,8 @@ installman/
    - [x] Compatibles Bash/Fish
 
 6. **Tester**
-   - [ ] Tester dans ZSH (baseline)
-   - [ ] Tester dans Fish
-   - [ ] Tester dans Bash
-   - [ ] Valider parité fonctionnelle
+   - [x] Matrice Docker `make test` (zsh / bash / fish + phase sous-commandes)
+   - [ ] Scénarios manuels lourds (installations réelles, matériel, réseau) — hors CI
 
 **Durée estimée :** 2-3 jours
 
@@ -372,7 +407,7 @@ installman/
 
 **Objectif** : Valider que tout fonctionne correctement.
 
-**Tests à effectuer :**
+**Tests (référence) :**
 
 1. **Tests fonctionnels par manager**
    - [x] Scripts de test créés ✅
@@ -405,7 +440,7 @@ installman/
    - [x] Génère un rapport complet ✅
 
 **Durée estimée :** 2-3 jours
-**Progression :** 95% ✅ TERMINÉE (tests fonctionnels complets à exécuter manuellement)
+**Progression :** ✅ CI `make test` couvre chargement, smoke et sous-commandes listées ; scénarios manuels « complets » restent hors automatisme.
 
 ---
 
@@ -465,29 +500,9 @@ installman/
   - Adapter ZSH : `shells/zsh/adapters/helpman.zsh`
   - **Migration complète POSIX à venir**
 
-#### ❌ À migrer
-- [ ] **netman** (0%)
-- [ ] **miscman** (0%)
-- [ ] **devman** (0%)
-- [ ] **virtman** (0%)
-- [ ] **sshman** (0%)
-- [ ] **testman** (0%)
-- [ ] **testzshman** (0%)
-- [ ] **moduleman** (0%)
-- [ ] **cyberman** (0%) - Complexe
-- [ ] **multimediaman** (0%)
-- [ ] **cyberlearn** (0%)
+#### Note sur ce bloc (plan historique)
 
-### Synchronisation
-- [ ] Script de synchronisation (0%)
-- [ ] Hook Git (0%)
-- [ ] Makefile targets (0%)
-
-### Tests
-- [ ] Tests fonctionnels (0%)
-- [ ] Tests multi-shells (0%)
-- [ ] Tests Docker (0%)
-- [ ] Tests de synchronisation (0%)
+Les anciennes listes **« À migrer » / synchronisation 0 % / tests 0 % »** (supprimées ici) étaient un **plan initial** ; elles ne reflètent plus l’état du dépôt. Faire confiance à : **section « État des Managers » en bas de fichier**, **`make test`**, et **`docs/migrations/`** pour le détail.
 
 ---
 
@@ -525,19 +540,9 @@ installman/
 
 ---
 
-## 🔧 Outils et scripts nécessaires
+## 🔧 Outils et scripts (réalisés)
 
-### À créer
-- [ ] `scripts/tools/convert_zsh_to_fish.sh` - Convertisseur ZSH → Fish
-- [ ] `scripts/tools/convert_zsh_to_bash.sh` - Convertisseur ZSH → Bash
-- [ ] `scripts/tools/sync_managers.sh` - Synchronisation automatique
-- [ ] `scripts/tools/detect_changes.sh` - Détection des changements
-- [ ] `.git/hooks/pre-commit` - Hook Git
-
-### À adapter
-- [ ] `fish/config_custom.fish` - Chargement managers Fish
-- [ ] `bash/bashrc_custom` - Chargement managers Bash
-- [ ] Système de chargement multi-shells
+Les scripts listés ici existent dans le dépôt (`scripts/tools/`, `Makefile`, hooks Git selon configuration locale). Pour l’inventaire à jour, préférer `make help` et le dossier `scripts/tools/`.
 
 ---
 
@@ -549,32 +554,22 @@ installman/
 - ~100+ modules
 - ~50+ utilitaires
 
-**Progression :**
-- Managers migrés : 4/19 (21%) ✅
-  - installman ✅ (Bash + Fish - Testé Docker)
-  - configman ✅ (Bash + Fish - Testé Docker)
-  - pathman ✅ (Bash + Fish - Testé Docker)
-  - manman ✅ (Bash + Fish - Testé Docker)
-- Fichiers core migrés : 8/35 (~23%) ✅
-- Modules migrés : 0/100 (0%)
-- Utilitaires migrés : 0/50 (0%)
-- Tests Docker : ✅ Multi-shells (ZSH, Bash, Fish) configurés
+**Progression (aperçu 2026-04, aligné CI) :**
+- **19 / 19 managers** : core sous `core/managers/<nom>/core/*.sh` + adapters `shells/{zsh,bash,fish}/adapters/`.
+- **Tests Docker** : `make test` = matrice managers (63 cellules avec la liste migrée par défaut) + matrice sous-commandes ; sortie live + `test_results/test_output.log`.
+- **Modules / utilitaires** : volumétrie historique (~100 modules, ~50 utilitaires) — affiner au fil des refactors ; ce n’est pas le même compteur que « managers ».
 
-**Objectif :** 100% de parité fonctionnelle
+**Objectif :** parité fonctionnelle **et** UX (menus, messages, non-régression CI) sur les trois shells.
 
 ---
 
-## 🎯 Prochaines actions immédiates
+## 🎯 Prochaines actions (priorisées, 2026-04)
 
-1. ✅ Documentation complète (FAIT)
-2. ✅ Créer structure de base Fish/Bash (FAIT)
-3. ✅ Créer adapters pour tous les managers (FAIT)
-4. ⏳ Migrer wrappers vers code POSIX complet (EN COURS)
-   - Commencer par searchman et aliaman
-   - Puis managers moyens
-   - Enfin managers complexes
-5. ⏳ Tests complets multi-shells
-6. ⏳ Système de synchronisation automatique
+1. ✅ CI Docker `make test` (managers + sous-commandes) — **à maintenir** lors des changements de managers ou de `scripts/test/subcommands/*.list`.
+2. ⏳ **Parité UX** : réduire les `read` / menus bloquants hors TTY là où la CI ou les scripts appellent encore une sous-commande « interactive ».
+3. ⏳ **Phase 2 installman** : finitions documentées dans ce fichier (§ plus bas) — moteur POSIX / parcours `INSTALLMAN_ENGINE`, détections, etc.
+4. ⏳ **`@skip` phase 2** : pour `multimediaman` / `cyberlearn`, ajouter des invocations **non interactives** dans les `.list` si on veut les couvrir comme les autres (sinon garder `@skip` et tests manuels).
+5. ⏳ **Guides `docs/migrations/`** : les mettre à jour seulement quand une étape de migration change réellement (éviter la divergence avec `STATUS` et `make test-help`).
 
 ---
 
@@ -597,9 +592,9 @@ installman/
 
 ---
 
-**Dernière mise à jour :** 2025-12-11
-**Statut global :** Phase 2 - Migration POSIX ✅ TERMINÉE (19/19 managers avec code POSIX complet - 100%)
-**Architecture :** ✅ Structure Hybride implémentée (core/ + shells/adapters/)
+**Dernière mise à jour :** 2026-04-23  
+**Statut global :** Structure hybride **en production** ; **19/19** managers avec core + adapters ; **`make test`** vert = régression multi-shell maîtrisée sur les invocations déclarées.  
+**Architecture :** ✅ `core/managers/` + `shells/{zsh,bash,fish}/adapters/`
 
 ### 📊 État des Managers
 
@@ -611,19 +606,19 @@ installman/
   - ✅ **helpman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **fileman** : Migration complète POSIX (core + adapters zsh/bash/fish)
   - ✅ **miscman** : Migration complète POSIX (core + adapters zsh/bash/fish)
-  - ✅ **gitman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **configman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **moduleman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **sshman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **devman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **virtman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **multimediaman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **testman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **testzshman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **netman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **cyberlearn** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **installman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
-  - ✅ **cyberman** : Migration complète POSIX (core + adapters zsh/bash/fish) - Tests à effectuer
+  - ✅ **gitman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **configman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **moduleman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **sshman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **devman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **virtman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **multimediaman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **testman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **testzshman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **netman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **cyberlearn** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **installman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
+  - ✅ **cyberman** : Migration complète POSIX (core + adapters zsh/bash/fish) — CI `make test`
 
 **🎉 MIGRATION PHASE 2 TERMINÉE ! 🎉**
 

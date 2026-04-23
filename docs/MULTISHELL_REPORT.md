@@ -3,9 +3,10 @@
 ## Vue d’ensemble
 
 Les dotfiles visent une **base unique** utilisable par **tous les shells** (sh, bash, zsh, fish).  
-- **Implémentation canonique** : Zsh (`zsh/functions/installman/`, `configman/`, etc.).  
-- **Point d’entrée unique** : `core/managers/installman/installman_entry.sh` (invoque le core Zsh avec les arguments).  
-- **Librairies partagées** : `scripts/lib/` (TUI, logs, common).
+- **Cartographie des dossiers** : voir [`shells/README.md`](../shells/README.md) (adaptateurs, `core/`, `shared/`, menus).  
+- **Implémentation canonique** : souvent Zsh (`zsh/functions/…`) ; cœur POSIX sous `core/managers/<name>/core/` quand il existe.  
+- **Installman** : `core/managers/installman/installman_entry.sh` (Zsh par défaut ; `INSTALLMAN_ENGINE=posix` pour le core sh).  
+- **Librairies partagées** : `scripts/lib/` (TUI, logs), `shared/functions/dotfiles_roots.sh` (variables de chemins après `DOTFILES_DIR`).
 
 ## Base commune
 
@@ -33,6 +34,19 @@ bash scripts/test/verify_multishell.sh
 ```
 
 Vérifie que `installman help` fonctionne depuis zsh, bash et sh.
+
+## Filtrer les managers dans les tests Docker
+
+Variable recommandée : **`DOTFILES_TEST_MANAGERS`** (noms séparés par **virgules** ou espaces).  
+Si **`TEST_MANAGERS`** est défini, il est prioritaire. Voir **`make test-help`** et **`scripts/test/SANDBOX.md`**.
+
+## `make test` (régression hôte → conteneur)
+
+- **Phase 1** : matrice **manager × shell** (zsh, bash, fish par défaut), rapport `test_results/all_managers_test_report.txt`.  
+- **Phase 2** : matrice **sous-commandes** (`scripts/test/manager_subcommand_matrix.sh`), lignes définies dans `scripts/test/subcommands/<manager>.list` (préfixe **`@skip`** = non exécuté en CI).  
+- Sortie **terminal + fichier** : `test_results/test_output.log`. Vérifier la phase 2 :  
+  `grep -E 'Matrice sous-commandes|échec:' test_results/test_output.log | tail -20`  
+- Vue d’ensemble : **`STATUS.md`** (racine), section *État des tests Docker*.
 
 ## Docker / VM pour tests
 

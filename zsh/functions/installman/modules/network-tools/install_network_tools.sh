@@ -307,3 +307,47 @@ install_network_tools() {
     return 0
 }
 
+# DESC: Sous-menu outils réseau (liste + raccourcis paquets ; 1 = flux complet)
+# USAGE: install_network_tools_menu
+install_network_tools_menu() {
+    echo ""
+    echo -e "${YELLOW}🌐 Outils réseau — détail${RESET}"
+    echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
+    echo ""
+    echo "  1) Flux complet installman (bind, traceroute, nmap, …)"
+    echo "  2) bind (nslookup + dig)     Arch: bind     Debian: bind9-dnsutils"
+    echo "  3) traceroute               Arch/Deb: traceroute"
+    echo "  4) whois                    Arch/Deb: whois"
+    echo "  5) nmap                     Arch/Deb: nmap"
+    echo "  6) tcpdump                  Arch/Deb: tcpdump"
+    echo "  7) iftop                    Arch/Deb: iftop"
+    echo "  8) netcat                   Arch: gnu-netcat   Debian: netcat"
+    echo "  9) lsof                     Arch/Deb: lsof"
+    echo " 10) wireshark                Arch: wireshark-qt   Debian: wireshark"
+    echo ""
+    echo -e "${CYAN}Dépôts sécurité (BlackArch, Kali, etc.) :${RESET} à configurer sur la distro ;"
+    echo "  paquets ensuite via pacman/apt — voir wiki du dépôt (hors installman pour l’instant)."
+    echo ""
+    echo "  0) Retour"
+    echo ""
+    printf "Choix: "
+    read -r ntch
+    ntch=$(echo "$ntch" | tr -d '[:space:]')
+    case "$ntch" in
+        0 | "") return 0 ;;
+        1) install_network_tools ;;
+        2) log_info "Arch: sudo pacman -S bind   Debian/Ubuntu: sudo apt install bind9-dnsutils" ;;
+        3) log_info "sudo pacman -S traceroute   ou   sudo apt install traceroute" ;;
+        4) log_info "sudo pacman -S whois   ou   sudo apt install whois" ;;
+        5) log_info "sudo pacman -S nmap   ou   sudo apt install nmap" ;;
+        6) log_info "sudo pacman -S tcpdump   ou   sudo apt install tcpdump" ;;
+        7) log_info "sudo pacman -S iftop   ou   sudo apt install iftop" ;;
+        8) log_info "Arch: sudo pacman -S gnu-netcat   Debian: sudo apt install netcat-openbsd" ;;
+        9) log_info "sudo pacman -S lsof   ou   sudo apt install lsof" ;;
+        10) log_info "Arch: sudo pacman -S wireshark-qt   Debian: sudo apt install wireshark" ;;
+        *) log_warn "Choix invalide" ;;
+    esac
+    echo ""
+    read -r "?Entrée pour revenir…"
+}
+

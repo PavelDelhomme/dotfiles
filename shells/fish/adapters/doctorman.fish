@@ -1,7 +1,11 @@
 # =============================================================================
 # DOCTORMAN ADAPTER - Fish (core POSIX via bash)
 # =============================================================================
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g DOCTORMAN_CORE "$DOTFILES_DIR/core/managers/doctorman/core/doctorman.sh"
 
 if test -f "$DOCTORMAN_CORE"

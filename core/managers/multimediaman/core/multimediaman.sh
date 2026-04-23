@@ -160,8 +160,10 @@ multimediaman() {
         echo "  - dvdbackup installé"
         echo "  - libdvdcss installé (pour DVD chiffrés)"
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
     
     # Si un argument est fourni, lancer directement la commande

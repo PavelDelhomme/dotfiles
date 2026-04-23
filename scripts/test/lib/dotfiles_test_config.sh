@@ -18,12 +18,11 @@ dotfiles_managers_from_file() {
 
 dotfiles_migrated_managers_space() {
     dotfiles_managers_from_file "$_dotfiles_cfg_dir/migrated_managers.list" \
-        "pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman"
+        "pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn"
 }
 
 dotfiles_unmigrated_managers_space() {
-    dotfiles_managers_from_file "$_dotfiles_cfg_dir/unmigrated_managers.list" \
-        "netman sshman testman testzshman moduleman multimediaman cyberlearn"
+    dotfiles_managers_from_file "$_dotfiles_cfg_dir/unmigrated_managers.list" ""
 }
 
 dotfiles_matrix_managers_space() {

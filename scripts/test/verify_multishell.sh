@@ -43,6 +43,11 @@ for sh in zsh bash sh; do
 done
 
 echo ""
+if command -v sh >/dev/null 2>&1 && INSTALLMAN_ENGINE=posix sh "$ENTRY" help 2>/dev/null | grep -qi "INSTALLMAN\|Outils"; then
+    echo -e "  ${GREEN}INSTALLMAN_ENGINE=posix (core sh)${NC}: OK"
+fi
+
+echo ""
 if [ $ok -gt 0 ]; then
     echo -e "${GREEN}✓ Au moins un shell fonctionne ($ok)${NC}"
 fi

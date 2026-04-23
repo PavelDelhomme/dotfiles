@@ -1,8 +1,3 @@
-# Managers encore partiellement hors matrice « migrée » (tests smoke / charge)
-netman
-sshman
-testman
-testzshman
-moduleman
-multimediaman
-cyberlearn
+# Aucun manager « hors matrice migrée » pour l’instant (cores POSIX sous core/managers/).
+# Ajouter ici un nom si un futur manager n’a pas encore de core commun + adapters.
+# (Le fallback script reste une liste vide → aucun manager supplémentaire en matrice.)

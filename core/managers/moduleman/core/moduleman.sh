@@ -33,6 +33,11 @@ moduleman() {
     BOLD='\033[1m'
     RESET='\033[0m'
     
+    # zsh sans SH_WORD_SPLIT : « for x in $liste_avec_espaces » ne boucle pas comme en sh.
+    if [ -n "$ZSH_VERSION" ]; then
+        setopt LOCAL_OPTIONS SH_WORD_SPLIT 2>/dev/null || true
+    fi
+    
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     MODULEMAN_DIR="$DOTFILES_DIR/zsh/functions/moduleman"
     MODULEMAN_CONFIG_DIR="$DOTFILES_DIR/.config/moduleman"
@@ -58,14 +63,14 @@ moduleman() {
             case "$line" in
                 MODULE_*=enabled|MODULE_*=disabled)
                     module_name=$(echo "$line" | cut -d= -f1 | sed 's/^MODULE_//')
-                    status=$(echo "$line" | cut -d= -f2)
-                    eval "MODULE_${module_name}=${status}"
+                    _mod_state=$(echo "$line" | cut -d= -f2)
+                    eval "MODULE_${module_name}=${_mod_state}"
                     ;;
                 set\ -g\ MODULE_*\ enabled|set\ -g\ MODULE_*\ disabled)
                     # Format Fish
                     module_name=$(echo "$line" | awk '{print $3}' | sed 's/^MODULE_//')
-                    status=$(echo "$line" | awk '{print $4}')
-                    eval "MODULE_${module_name}=${status}"
+                    _mod_state=$(echo "$line" | awk '{print $4}')
+                    eval "MODULE_${module_name}=${_mod_state}"
                     ;;
             esac
         done < "$MODULEMAN_CONFIG_FILE"
@@ -116,8 +121,10 @@ EOF
     get_module_status() {
         module_name="$1"
         var_name="MODULE_${module_name}"
-        eval "status=\$$var_name"
-        echo "${status:-enabled}"
+        _mod_state=
+        # zsh + nounset : lire une variable MODULE_* absente du config fait échouer eval seul.
+        eval "_mod_state=\$$var_name" 2>/dev/null || _mod_state=
+        echo "${_mod_state:-enabled}"
     }
     
     # Fonction pour afficher le menu principal
@@ -129,7 +136,9 @@ EOF
         load_config
         
         # Liste des managers (format: name:description)
-        managers="pathman:PATHMAN - Gestionnaire PATH
+        # Heredoc: zsh -n rejette une chaîne "…" multiligne ici (lexer différent de bash/sh).
+        managers=$(cat <<'MODULEMAN_LIST_EOF'
+pathman:PATHMAN - Gestionnaire PATH
 netman:NETMAN - Gestionnaire réseau
 aliaman:ALIAMAN - Gestionnaire alias
 miscman:MISCMAN - Gestionnaire divers
@@ -147,12 +156,14 @@ virtman:VIRTMAN - Gestionnaire virtualisation
 sshman:SSHMAN - Gestionnaire SSH
 testzshman:TESTZSHMAN - Gestionnaire tests ZSH/dotfiles
 testman:TESTMAN - Gestionnaire tests applications
-doctorman:DOCTORMAN - Diagnostic dotfiles / dev"
+doctorman:DOCTORMAN - Diagnostic dotfiles / dev
+MODULEMAN_LIST_EOF
+)
         
         index=1
         echo "$managers" | while IFS=: read -r manager_name manager_desc; do
-            status=$(get_module_status "$manager_name")
-            if [ "$status" = "enabled" ]; then
+            _mod_state=$(get_module_status "$manager_name")
+            if [ "$_mod_state" = "enabled" ]; then
                 printf "${GREEN}%d.${RESET} %s ${GREEN}[ACTIVÉ]${RESET}\n" "$index" "$manager_desc"
             else
                 printf "${RED}%d.${RESET} %s ${RED}[DÉSACTIVÉ]${RESET}\n" "$index" "$manager_desc"
@@ -196,9 +207,9 @@ doctorman:DOCTORMAN - Diagnostic dotfiles / dev"
     toggle_module() {
         module_name="$1"
         load_config
-        status=$(get_module_status "$module_name")
+        _mod_state=$(get_module_status "$module_name")
         
-        if [ "$status" = "enabled" ]; then
+        if [ "$_mod_state" = "enabled" ]; then
             disable_module "$module_name"
         else
             enable_module "$module_name"
@@ -285,8 +296,8 @@ doctorman:DOCTORMAN - Diagnostic dotfiles / dev"
                 printf "${CYAN}Modules disponibles:${RESET}\n"
                 managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman doctorman"
                 for manager in $managers_list; do
-                    status=$(get_module_status "$manager")
-                    if [ "$status" = "enabled" ]; then
+                    _mod_state=$(get_module_status "$manager")
+                    if [ "$_mod_state" = "enabled" ]; then
                         printf "  ${GREEN}✓${RESET} %s [ACTIVÉ]\n" "$manager"
                     else
                         printf "  ${RED}✗${RESET} %s [DÉSACTIVÉ]\n" "$manager"
@@ -298,8 +309,8 @@ doctorman:DOCTORMAN - Diagnostic dotfiles / dev"
                 printf "${CYAN}Statut des modules:${RESET}\n"
                 managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman doctorman"
                 for manager in $managers_list; do
-                    status=$(get_module_status "$manager")
-                    if [ "$status" = "enabled" ]; then
+                    _mod_state=$(get_module_status "$manager")
+                    if [ "$_mod_state" = "enabled" ]; then
                         printf "  ${GREEN}✓${RESET} %s\n" "$manager"
                     else
                         printf "  ${RED}✗${RESET} %s\n" "$manager"

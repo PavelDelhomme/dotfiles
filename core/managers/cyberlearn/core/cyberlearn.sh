@@ -921,8 +921,10 @@ ${BOLD}Pré-requis:${RESET}
   - Python 3 (pour certains exercices)
 
 EOF
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
     
     # Si un argument est fourni, lancer directement la commande

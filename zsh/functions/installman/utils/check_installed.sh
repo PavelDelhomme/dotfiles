@@ -86,8 +86,16 @@ _check_paths() {
 # DESC: Vérifie si Flutter est installé
 # USAGE: check_flutter_installed
 check_flutter_installed() {
+    if command -v flutter &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
     local flutter_bin="/opt/flutter/bin/flutter"
     if [ -f "$flutter_bin" ] && [ -x "$flutter_bin" ]; then
+        echo "installed"
+        return 0
+    fi
+    if [ -f "$HOME/flutter/bin/flutter" ] && [ -x "$HOME/flutter/bin/flutter" ]; then
         echo "installed"
         return 0
     fi
@@ -161,70 +169,57 @@ check_cpp_tools_installed() {
     return 1
 }
 
-# DESC: Vérifie si une version spécifique de Java est installée
+# DESC: Vérifie si une version MAJEURE de Java est installée (pas le java par défaut du PATH seul)
 # USAGE: check_java_version_installed <version>
 check_java_version_installed() {
     local version="$1"
-    
+    local jbin java_out
+
     if [ -z "$version" ]; then
         echo "not_installed"
         return 1
     fi
-    
-    # Vérifier via command java
-    if command -v java &>/dev/null; then
-        local java_version_output=$(java -version 2>&1 | head -n1)
-        if echo "$java_version_output" | grep -q "version \"${version}[^\"]*\""; then
-            echo "installed"
-            return 0
+
+    for jbin in \
+        "/usr/lib/jvm/java-${version}-openjdk/bin/java" \
+        "/usr/lib/jvm/java-${version}-openjdk-amd64/bin/java" \
+        "/usr/lib/jvm/jdk-${version}/bin/java" \
+        "/usr/lib/jvm/java-${version}-oracle/bin/java"; do
+        if [ -x "$jbin" ]; then
+            java_out=$("$jbin" -version 2>&1 | head -n1)
+            if echo "$java_out" | grep -qE "version \"${version}\.|${version}\."; then
+                echo "installed"
+                return 0
+            fi
         fi
+    done
+
+    if command -v pacman &>/dev/null; then
+        case "$version" in
+            8) pacman -Qq jdk8-openjdk &>/dev/null && { echo "installed"; return 0; } ;;
+            11) pacman -Qq jdk11-openjdk &>/dev/null && { echo "installed"; return 0; } ;;
+            17) pacman -Qq jdk17-openjdk &>/dev/null && { echo "installed"; return 0; } ;;
+            21) pacman -Qq jdk21-openjdk &>/dev/null && { echo "installed"; return 0; } ;;
+            25)
+                if pacman -Qq jdk-openjdk &>/dev/null; then
+                    jbin=$(readlink -f /usr/lib/jvm/default/bin/java 2>/dev/null || true)
+                    if [ -n "$jbin" ] && [ -x "$jbin" ]; then
+                        java_out=$("$jbin" -version 2>&1 | head -n1)
+                        if echo "$java_out" | grep -qE 'version "25\.'; then
+                            echo "installed"
+                            return 0
+                        fi
+                    fi
+                fi
+                ;;
+        esac
     fi
-    
-    # Vérifier dans /usr/lib/jvm
-    local java_path=""
-    if [ "$version" = "25" ]; then
-        # Java 25 peut être dans différents chemins - vérifier le paquet installé
-        if pacman -Q jdk-openjdk &>/dev/null 2>&1; then
-            echo "installed"
-            return 0
-        fi
-        # Vérifier aussi les chemins possibles
-        if [ -d "/usr/lib/jvm/java-25-openjdk" ] || [ -d "/usr/lib/jvm/default" ] || [ -d "/usr/lib/jvm/java-openjdk" ]; then
-            echo "installed"
-            return 0
-        fi
-    else
-        # Pour les autres versions, vérifier le paquet spécifique
-        if [ "$version" = "8" ]; then
-            if pacman -Q jdk8-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-8-openjdk" ]; then
-                echo "installed"
-                return 0
-            fi
-        elif [ "$version" = "11" ]; then
-            if pacman -Q jdk11-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-11-openjdk" ]; then
-                echo "installed"
-                return 0
-            fi
-        elif [ "$version" = "17" ]; then
-            if pacman -Q jdk17-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-17-openjdk" ]; then
-                echo "installed"
-                return 0
-            fi
-        elif [ "$version" = "21" ]; then
-            if pacman -Q jdk21-openjdk &>/dev/null 2>&1 || [ -d "/usr/lib/jvm/java-21-openjdk" ]; then
-                echo "installed"
-                return 0
-            fi
-        fi
-        
-        # Fallback: vérifier le répertoire
-        java_path="/usr/lib/jvm/java-${version}-openjdk"
-        if [ -d "$java_path" ]; then
-            echo "installed"
-            return 0
-        fi
+
+    if [ -d "/usr/lib/jvm/java-${version}-openjdk" ] && [ -x "/usr/lib/jvm/java-${version}-openjdk/bin/java" ]; then
+        echo "installed"
+        return 0
     fi
-    
+
     echo "not_installed"
     return 1
 }
@@ -262,10 +257,23 @@ check_java25_installed() {
 # DESC: Vérifie si Android Studio est installé
 # USAGE: check_android_studio_installed
 check_android_studio_installed() {
-    if command -v android-studio &>/dev/null || [ -f /opt/android-studio/bin/studio.sh ]; then
+    if command -v android-studio &>/dev/null; then
         echo "installed"
         return 0
     fi
+    if [ -f /opt/android-studio/bin/studio.sh ] || [ -f "$HOME/android-studio/bin/studio.sh" ]; then
+        echo "installed"
+        return 0
+    fi
+    if [ -d "$HOME/.local/share/JetBrains/Toolbox/apps/AndroidStudio" ]; then
+        echo "installed"
+        return 0
+    fi
+    if command -v flatpak &>/dev/null && flatpak list --app 2>/dev/null | grep -qiE 'com\.google\.AndroidStudio|Android Studio'; then
+        echo "installed"
+        return 0
+    fi
+    _check_desktop_pattern "android-studio" && { echo "installed"; return 0; }
     echo "not_installed"
     return 1
 }
@@ -389,18 +397,17 @@ check_qemu_installed() {
 # DESC: Vérifie si les licences Android SDK sont acceptées
 # USAGE: check_android_licenses_accepted
 check_android_licenses_accepted() {
-    local ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
-    
-    # Vérifier si le répertoire des licences existe et contient des licences
-    if [ -d "$ANDROID_HOME/licenses" ]; then
-        # Compter les fichiers de licence (peuvent être .txt ou sans extension)
-        local license_count=$(find "$ANDROID_HOME/licenses" -type f \( -name "*.txt" -o -name "android-*" -o -name "google-*" -o -name "intel-*" -o -name "mips-*" \) 2>/dev/null | wc -l)
-        if [ "$license_count" -gt 0 ]; then
+    local d license_count
+    for d in "${ANDROID_SDK_ROOT:-}" "${ANDROID_HOME:-}" "$HOME/Android/Sdk" "/opt/android-sdk" "$HOME/.android/sdk"; do
+        [ -z "$d" ] && continue
+        [ ! -d "$d/licenses" ] && continue
+        license_count=$(find "$d/licenses" -type f 2>/dev/null | wc -l)
+        license_count=$(echo "$license_count" | tr -d ' ')
+        if [ "${license_count:-0}" -gt 0 ]; then
             echo "installed"
             return 0
         fi
-    fi
-    
+    done
     echo "not_installed"
     return 1
 }

@@ -77,8 +77,13 @@ fi
 _vol="${DOTFILES_DOCKER_MOUNT:-$DOTFILES_DIR}"
 trap 'dotfiles_test_isolate_cleanup' EXIT INT TERM
 
+_subm_env=$(mktemp "${TMPDIR:-/tmp}/dotfiles-submatrix-env.XXXXXX") || exit 1
+printf 'TEST_SHELLS=%s\n' "${TEST_SHELLS:-zsh bash fish sh}" > "$_subm_env"
+[ -n "${TEST_MANAGERS:-}" ] && printf 'TEST_MANAGERS=%s\n' "$TEST_MANAGERS" >> "$_subm_env"
+
 docker run --rm \
     --name "$DOCKER_CONTAINER" \
+    --env-file "$_subm_env" \
     -w /root/dotfiles \
     -v "$_vol:/root/dotfiles:ro" \
     -v "$TEST_RESULTS_DIR:/root/test_results:rw" \
@@ -90,10 +95,9 @@ docker run --rm \
     -e DOTFILES_DOCKER_TEST=1 \
     -e "SUBCOMMAND_TIER=${SUBCOMMAND_TIER:-full}" \
     -e "TEST_SUBCOMMAND_TIMEOUT=${TEST_SUBCOMMAND_TIMEOUT:-45}" \
-    ${TEST_SHELLS:+-e "TEST_SHELLS=$TEST_SHELLS"} \
-    ${TEST_MANAGERS:+-e "TEST_MANAGERS=$TEST_MANAGERS"} \
     "$ACTUAL_IMAGE" \
     bash -lc 'mkdir -p /root/test_results && bash /root/dotfiles/scripts/test/manager_subcommand_matrix.sh' \
     2>&1 | tee "$TEST_RESULTS_DIR/subcommand_matrix_docker.log"
-
-exit "${PIPESTATUS[0]}"
+_rc="${PIPESTATUS[0]}"
+rm -f "$_subm_env" 2>/dev/null || true
+exit "$_rc"

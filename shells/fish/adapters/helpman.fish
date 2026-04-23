@@ -6,12 +6,17 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g HELPMAN_CORE "$DOTFILES_DIR/core/managers/helpman/core/helpman.sh"
 
 if test -f "$HELPMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$HELPMAN_CORE'"
+    function helpman
+        bash -c 'source "$1"; shift; helpman "$@"' _ "$HELPMAN_CORE" $argv
+    end
 else
     echo "❌ Erreur: helpman core non trouvé: $HELPMAN_CORE"
     return 1

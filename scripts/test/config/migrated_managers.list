@@ -1,4 +1,4 @@
-# Managers migrés (hybride core POSIX + adapters) — source unique pour tests / Docker
+# Managers avec core POSIX + adapters shells/ — tests Docker par défaut
 # Un nom par ligne ; lignes # ignorées
 pathman
 manman
@@ -14,3 +14,10 @@ devman
 virtman
 miscman
 doctorman
+netman
+sshman
+testman
+testzshman
+moduleman
+multimediaman
+cyberlearn

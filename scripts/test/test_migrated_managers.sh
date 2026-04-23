@@ -23,7 +23,7 @@ if [ -z "${TEST_MANAGERS:-}" ]; then
         TEST_MANAGERS=$(dotfiles_migrated_managers_space)
         export TEST_MANAGERS
     else
-        export TEST_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman"
+        export TEST_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn"
     fi
 fi
 

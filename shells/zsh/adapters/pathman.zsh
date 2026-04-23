@@ -7,8 +7,9 @@
 # Version: 1.0
 # =============================================================================
 
-# Charger le code commun depuis core/
-CORE_MANAGER="$HOME/dotfiles/core/managers/pathman/core/pathman.sh"
+# Charger le code commun depuis core/ (DOTFILES_DIR : clone ou symlink hors ~/dotfiles)
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+CORE_MANAGER="$DOTFILES_DIR/core/managers/pathman/core/pathman.sh"
 
 if [ -f "$CORE_MANAGER" ]; then
     # Source le code commun

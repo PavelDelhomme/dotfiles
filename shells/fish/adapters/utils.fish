@@ -6,7 +6,11 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 
 # Charger les utilitaires POSIX via bash (Fish ne peut pas sourcer .sh directement)
 if test -f "$DOTFILES_DIR/core/utils/alias_utils.sh"

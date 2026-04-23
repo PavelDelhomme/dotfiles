@@ -16,6 +16,9 @@ fi
 # Exporter pour les sous-shells
 export DOTFILES_DIR
 
+# Chemins dérivés (core, shells, share) pour scripts et adapters
+[ -f "$DOTFILES_DIR/shared/functions/dotfiles_roots.sh" ] && . "$DOTFILES_DIR/shared/functions/dotfiles_roots.sh"
+
 # ~/.local/bin et /usr/local/bin en tête de PATH (update-cursor, cursor = AppImage avant paquet)
 [ -n "$HOME" ] && mkdir -p "$HOME/.local/bin"
 _prepend_path() {

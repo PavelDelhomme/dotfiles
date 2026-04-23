@@ -1,6 +1,6 @@
 #!/bin/sh
 # =============================================================================
-# SSMAN - SSH Manager (Code Commun POSIX)
+# SSHMAN - SSH Manager (Code Commun POSIX)
 # =============================================================================
 # Description: Gestionnaire complet des connexions SSH, clés, et configurations
 # Author: Paul Delhomme
@@ -39,12 +39,11 @@ sshman() {
     SSHMAN_MODULES_DIR="$SSHMAN_DIR/modules"
     SSHMAN_UTILS_DIR="$SSHMAN_DIR/utils"
     
-    # Charger les utilitaires si disponibles
-    if [ -d "$SSHMAN_UTILS_DIR" ]; then
-        for util_file in "$SSHMAN_UTILS_DIR"/*.sh; do
-            if [ -f "$util_file" ]; then
-                . "$util_file" 2>/dev/null || true
-            fi
+    # Charger les utilitaires si disponibles (find : évite glob zsh « no matches » si dossier vide)
+    if [ -d "$SSHMAN_UTILS_DIR" ] && command -v find >/dev/null 2>&1; then
+        find "$SSHMAN_UTILS_DIR" -maxdepth 1 -type f -name '*.sh' 2>/dev/null | sort | while IFS= read -r util_file; do
+            [ -f "$util_file" ] || continue
+            . "$util_file" 2>/dev/null || true
         done
     fi
     
@@ -53,7 +52,7 @@ sshman() {
         clear
         printf "${CYAN}${BOLD}"
         echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                      SSMAN - SSH Manager                        ║"
+        echo "║                      SSHMAN - SSH Manager                        ║"
         echo "║              Gestionnaire de Connexions SSH                    ║"
         echo "╚════════════════════════════════════════════════════════════════╝"
         printf "${RESET}"
@@ -374,9 +373,11 @@ sshman() {
             fi
         fi
         
-        echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ] && [ -t 1 ]; then
+            echo ""
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy || true
+        fi
     }
     
     # Gestion des arguments en ligne de commande
@@ -405,10 +406,10 @@ sshman() {
                 ;;
             help|--help|-h)
                 show_header
-                printf "${CYAN}📚 Aide - SSMAN${RESET}\n"
+                printf "${CYAN}📚 Aide - SSHMAN${RESET}\n"
                 printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
                 echo ""
-                echo "SSMAN est un gestionnaire SSH complet."
+                echo "SSHMAN est un gestionnaire SSH complet."
                 echo ""
                 echo "Fonctionnalités principales:"
                 echo "  • Configuration automatique SSH avec mot de passe depuis .env"
@@ -468,10 +469,10 @@ sshman() {
                 5) show_ssh_stats ;;
                 h|H)
                     show_header
-                    printf "${CYAN}📚 Aide - SSMAN${RESET}\n"
+                    printf "${CYAN}📚 Aide - SSHMAN${RESET}\n"
                     printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
                     echo ""
-                    echo "SSMAN est un gestionnaire SSH complet."
+                    echo "SSHMAN est un gestionnaire SSH complet."
                     echo ""
                     echo "Fonctionnalités principales:"
                     echo "  • Configuration automatique SSH avec mot de passe depuis .env"

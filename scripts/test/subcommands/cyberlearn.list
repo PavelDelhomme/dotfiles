@@ -1,1 +1,2 @@
-@skip parcours interactif
+# Sous-commandes CI (non interactives). Sans argument : menu interactif.
+help

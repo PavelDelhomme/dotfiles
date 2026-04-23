@@ -6,12 +6,17 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g FILEMAN_CORE "$DOTFILES_DIR/core/managers/fileman/core/fileman.sh"
 
 if test -f "$FILEMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$FILEMAN_CORE'"
+    function fileman
+        bash -c 'source "$1"; shift; fileman "$@"' _ "$FILEMAN_CORE" $argv
+    end
 else
     echo "❌ Erreur: fileman core non trouvé: $FILEMAN_CORE"
     return 1

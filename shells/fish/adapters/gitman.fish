@@ -6,12 +6,17 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g GITMAN_CORE "$DOTFILES_DIR/core/managers/gitman/core/gitman.sh"
 
 if test -f "$GITMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$GITMAN_CORE'"
+    function gitman
+        bash -c 'source "$1"; shift; gitman "$@"' _ "$GITMAN_CORE" $argv
+    end
 else
     echo "❌ Erreur: gitman core non trouvé: $GITMAN_CORE"
     return 1

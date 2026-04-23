@@ -6,12 +6,17 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g MISCMAN_CORE "$DOTFILES_DIR/core/managers/miscman/core/miscman.sh"
 
 if test -f "$MISCMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$MISCMAN_CORE'"
+    function miscman
+        bash -c 'source "$1"; shift; miscman "$@"' _ "$MISCMAN_CORE" $argv
+    end
 else
     echo "❌ Erreur: miscman core non trouvé: $MISCMAN_CORE"
     return 1

@@ -6,12 +6,17 @@
 # Version: 2.0
 # =============================================================================
 
-set -g DOTFILES_DIR "$HOME/dotfiles"
+if not set -q DOTFILES_DIR
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+else if test -z "$DOTFILES_DIR"
+    set -gx DOTFILES_DIR "$HOME/dotfiles"
+end
 set -g TESTZSHMAN_CORE "$DOTFILES_DIR/core/managers/testzshman/core/testzshman.sh"
 
 if test -f "$TESTZSHMAN_CORE"
-    # Fish ne peut pas sourcer directement .sh, on utilise bash
-    bash -c "source '$TESTZSHMAN_CORE'"
+    function testzshman
+        bash -c 'source "$1"; shift; testzshman "$@"' _ "$TESTZSHMAN_CORE" $argv
+    end
 else
     echo "❌ Erreur: testzshman core non trouvé: $TESTZSHMAN_CORE"
     return 1

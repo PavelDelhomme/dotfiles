@@ -608,6 +608,15 @@ installman() {
         local module_file="${tool_parts[6]}"
         local install_func="${tool_parts[7]}"
         local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
+        if [ "$tool_name" = "network-tools" ]; then
+            if [ -f "$INSTALLMAN_MODULES_DIR/network-tools/install_network_tools.sh" ]; then
+                source "$INSTALLMAN_MODULES_DIR/network-tools/install_network_tools.sh"
+                install_network_tools_menu
+            else
+                echo -e "${RED}❌ Module réseau introuvable${RESET}"
+            fi
+            return 0
+        fi
         if [ -f "$full_module_path" ]; then
             source "$full_module_path"
             $install_func
@@ -625,6 +634,7 @@ installman() {
     # Menu principal adaptatif (pagination si terminal petit)
     show_main_menu() {
         local menu_order=("${(@f)$(build_menu_order)}")
+        menu_order=("${(@)menu_order:#}")
         local total=${#menu_order[@]}
         local per_page=15
         if type tui_menu_height &>/dev/null; then
@@ -648,6 +658,10 @@ installman() {
                 local parts=("${(@s/:/)tool_def}")
                 [ ${#parts[@]} -lt 7 ] && continue
                 local tool_name="${parts[1]}" tool_emoji="${parts[3]}" tool_desc="${parts[4]}" tool_check="${parts[5]}"
+                if [ "$tool_name" = "tor" ]; then
+                    echo ""
+                    echo -e "${BOLD}🔒 Suite Tor${RESET} (anonymisation, navigateur dédié, navigation)"
+                fi
                 local install_status=$(get_install_status_with_versions "$tool_check" "$tool_name")
                 printf "  %-3s %s %-30s %s\n" "$i." "$tool_emoji" "$tool_desc" "$install_status"
             done
@@ -662,6 +676,7 @@ installman() {
             printf "Choix: "
             read -r choice
             choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+            choice="${choice%%.}"
             
             if [ "$choice" = "n" ] && [ $total_pages -gt 1 ]; then
                 page=$(( page + 1 ))
