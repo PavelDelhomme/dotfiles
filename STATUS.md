@@ -44,7 +44,7 @@ Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des
 
 **Prochaines tâches concrètes (ordre recommandé)**
 - [x] **Bac à sable `DOTFILES_GOOD/`** : arborescence additive (`lib/bootstrap_posix.sh`, `shared/env`, `shared/menus`, `snippets/`, `run/` pour runtime gitignored) ; **aucun** déplacement des chemins prod ; smoke **`make test-dotfiles-good`**. Doc **`docs/ARCHITECTURE.md`** corrigée : pas de prétention « un seul symlink pour Zsh + Fish + Bash » — entrées **distinctes** par shell + noyau POSIX (`shared/config.sh` et/ou bootstrap `DOTFILES_GOOD`).
-- [ ] Cartographier dans `docs/ARCHITECTURE.md` (ou tableau ici) chaque manager : **source de vérité** = `core/` oui/non, **résidu** dans `zsh/functions`.
+- [x] Cartographier dans **`docs/ARCHITECTURE.md`** les managers de `migrated_managers.list` : tableau **core / adapter Zsh / résidu** `zsh/functions/` (à tenir à jour si la liste change).
 - [ ] Déplacer progressivement les modules **installman** (et utilitaires) référencés uniquement par le core vers un arbre sous `core/managers/installman/` en gardant des **wrappers** un ligne si besoin.  
 - [ ] Réduire les `read` / `clear` hors TTY dans les menus encore appelés par erreur depuis la CI.  
 - [ ] Garder **`make test`** comme garde-fou à chaque étape de déplacement.

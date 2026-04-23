@@ -5,10 +5,18 @@ ROOT="${DOTFILES_DIR:-$HOME/dotfiles}"
 cd "$ROOT"
 export DOTFILES_DIR="$ROOT"
 
-echo "→ sh -n DOTFILES_GOOD/lib/bootstrap_posix.sh"
-sh -n DOTFILES_GOOD/lib/bootstrap_posix.sh
-echo "→ sh -n DOTFILES_GOOD/shared/env/00_paths.sh"
-sh -n DOTFILES_GOOD/shared/env/00_paths.sh
+echo "→ sh -n sur les *.sh sous DOTFILES_GOOD/"
+while IFS= read -r __sh; do
+	echo "   sh -n $__sh"
+	sh -n "$__sh" || exit 1
+done < <(find DOTFILES_GOOD -type f -name '*.sh' ! -path '*/snippets/*' | sort)
+
+echo "→ répertoires attendus"
+for __d in DOTFILES_GOOD/lib DOTFILES_GOOD/shared/env DOTFILES_GOOD/shared/functions \
+	DOTFILES_GOOD/shared/menus DOTFILES_GOOD/snippets DOTFILES_GOOD/core DOTFILES_GOOD/config \
+	DOTFILES_GOOD/images DOTFILES_GOOD/run DOTFILES_GOOD/scripts DOTFILES_GOOD/bin; do
+	[ -d "$__d" ] || { echo "manquant: $__d"; exit 1; }
+done
 
 echo "→ sourcing bootstrap dans un sous-shell (DOTFILES_DIR=$ROOT)"
 (

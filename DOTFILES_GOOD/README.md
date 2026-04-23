@@ -23,6 +23,8 @@ Ce répertoire est **expérimental** : il prépare une arborescence plus lisible
 | `run/` | Fichiers runtime (gitignore local ; le motif `logs/` à la racine du dépôt ignorait `DOTFILES_GOOD/logs/`). |
 | `config/` | Modèles / snippets de configuration applicative (hors shell). |
 | `snippets/` | **Exemples** de fins de `.zshrc` / `.bashrc` / fish — documentation, pas des installateurs. |
+| `scripts/` | Scripts d’aide migration (dry-run, etc.) — voir `scripts/README.md`. |
+| `bin/` | Wrappers exécutables optionnels — voir `bin/README.md`. |
 
 ## Tests
 

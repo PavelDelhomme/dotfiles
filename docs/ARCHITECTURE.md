@@ -51,6 +51,40 @@ Fish: ~/.config/fish/config.fish  →  adapters fish + éventuellement bash pour
 
 ---
 
+## Cartographie managers (core / adapters / résidu Zsh)
+
+Liste alignée sur **`scripts/test/config/migrated_managers.list`** (managers couverts par `make test` Docker par défaut). À **mettre à jour** si un manager entre ou sort de cette liste.
+
+| Manager | Core POSIX `core/managers/…/core/*.sh` | Adapter `shells/zsh/adapters/` | Résidu typique sous `zsh/functions/` |
+|---------|----------------------------------------|----------------------------------|--------------------------------------|
+| pathman | oui | oui | dossier `pathman/` (core Zsh historique, etc.) |
+| manman | oui | oui | `manman.zsh` seul |
+| searchman | oui | oui | `searchman.zsh` seul |
+| aliaman | oui | oui | `aliaman.zsh` seul |
+| installman | oui | oui | dossier **`installman/`** (volumineux : modules, utils) |
+| configman | oui | oui | dossier `configman/` |
+| gitman | oui | oui | dossier `gitman/` |
+| fileman | oui | oui | dossier `fileman/` |
+| helpman | oui | oui | dossier `helpman/` |
+| cyberman | oui | oui | dossier `cyberman/` |
+| devman | oui | oui | dossier `devman/` |
+| virtman | oui | oui | dossier `virtman/` |
+| miscman | oui | oui | dossier `miscman/` |
+| doctorman | oui | oui | `doctorman.zsh` seul |
+| netman | oui | oui | dossier `netman/` |
+| sshman | oui | oui | dossier `sshman/` |
+| testman | oui | oui | dossier `testman/` |
+| testzshman | oui | oui | dossier `testzshman/` |
+| moduleman | oui | oui | dossier `moduleman/` |
+| multimediaman | oui | oui | dossier `multimediaman/` |
+| cyberlearn | oui | oui | dossier **`cyberlearn/`** (modules) |
+
+**Lecture rapide** : la **source de vérité métier** cible est le **core POSIX** ; les colonnes adapter et résidu sont la **colle** et l’**héritage** à faire maigrir (wrappers d’une ligne, puis suppression de logique dupliquée dans `zsh/functions/`).
+
+Les adapters **Bash** et **Fish** vivent sous `shells/bash/adapters/` et `shells/fish/adapters/` (non détaillés ligne par ligne ici ; même principe).
+
+---
+
 ## Fichiers ZSH détaillés (référence)
 
 ### `~/dotfiles/zsh/zshrc_custom`
@@ -92,7 +126,7 @@ Fish: ~/.config/fish/config.fish  →  adapters fish + éventuellement bash pour
 
 ## 📦 Structure des Managers
 
-### Managers disponibles (18 managers)
+### Managers disponibles (liste migrée Docker : 21 entrées)
 
 1. **aliaman** - Gestionnaire alias
 2. **configman** - Gestionnaire configuration
@@ -112,6 +146,9 @@ Fish: ~/.config/fish/config.fish  →  adapters fish + éventuellement bash pour
 16. **testman** - Gestionnaire tests applications
 17. **testzshman** - Gestionnaire tests ZSH/dotfiles
 18. **virtman** - Gestionnaire virtualisation
+19. **doctorman** - Gestionnaire documentation
+20. **multimediaman** - Gestionnaire multimédia
+21. **cyberlearn** - Parcours apprentissage / cyber
 
 ### Structure modulaire
 
