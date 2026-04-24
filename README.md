@@ -2451,7 +2451,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 
 **Structure dotfiles** :
 - ✅ Fichiers racine (bootstrap.sh, Makefile, README.md, zshrc)
-- ✅ Fichiers documentation (docs/STATUS.md, docs/STRUCTURE.md)
+- ✅ Fichiers documentation (`STATUS.md`, `TODOS.md`, `docs/REFACTOR_HISTORY.md`, `docs/STRUCTURE.md`)
 - ✅ Scripts (scripts/setup.sh, scripts/*)
 - ✅ Bibliothèque commune (lib/common.sh, lib/install_logger.sh, lib/check_missing.sh)
 - ✅ Structure ZSH/Fish complète (zshrc_custom, env.sh, aliases.zsh, path_log.txt, PATH_SAVE)

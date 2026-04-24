@@ -477,9 +477,11 @@ show_doc_files() {
         show_header "Fichiers de Documentation"
         
         echo "  ${BOLD}1${RESET}  📖 README.md"
-        echo "  ${BOLD}2${RESET}  📋 STATUS.md"
-        echo "  ${BOLD}3${RESET}  🗂️  STRUCTURE.md"
-        echo "  ${BOLD}4${RESET}  📝 scripts/README.md (si existe)"
+        echo "  ${BOLD}2${RESET}  📋 STATUS.md (racine)"
+        echo "  ${BOLD}3${RESET}  ✅ TODOS.md"
+        echo "  ${BOLD}4${RESET}  🗂️  STRUCTURE.md"
+        echo "  ${BOLD}5${RESET}  📜 REFACTOR_HISTORY.md"
+        echo "  ${BOLD}6${RESET}  📝 scripts/README.md (si existe)"
         echo "  ${BOLD}0${RESET}  🔙 Retour"
         echo
         read -p "Choix: " choice
@@ -495,14 +497,22 @@ show_doc_files() {
                 fi
                 ;;
             2)
-                if [[ -f "$DOTFILES_DIR/docs/STATUS.md" ]]; then
-                    less -R "$DOTFILES_DIR/docs/STATUS.md"
+                if [[ -f "$DOTFILES_DIR/STATUS.md" ]]; then
+                    less -R "$DOTFILES_DIR/STATUS.md"
                 else
-                    echo -e "${RED}❌ STATUS.md non trouvé${RESET}"
+                    echo -e "${RED}❌ STATUS.md (racine) non trouvé${RESET}"
                     sleep 2
                 fi
                 ;;
             3)
+                if [[ -f "$DOTFILES_DIR/TODOS.md" ]]; then
+                    less -R "$DOTFILES_DIR/TODOS.md"
+                else
+                    echo -e "${RED}❌ TODOS.md non trouvé${RESET}"
+                    sleep 2
+                fi
+                ;;
+            4)
                 if [[ -f "$DOTFILES_DIR/docs/STRUCTURE.md" ]]; then
                     less -R "$DOTFILES_DIR/docs/STRUCTURE.md"
                 else
@@ -510,7 +520,15 @@ show_doc_files() {
                     sleep 2
                 fi
                 ;;
-            4)
+            5)
+                if [[ -f "$DOTFILES_DIR/docs/REFACTOR_HISTORY.md" ]]; then
+                    less -R "$DOTFILES_DIR/docs/REFACTOR_HISTORY.md"
+                else
+                    echo -e "${RED}❌ docs/REFACTOR_HISTORY.md non trouvé${RESET}"
+                    sleep 2
+                fi
+                ;;
+            6)
                 if [[ -f "$DOTFILES_DIR/scripts/README.md" ]]; then
                     less -R "$DOTFILES_DIR/scripts/README.md"
                 else

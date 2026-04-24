@@ -415,7 +415,9 @@ ROOT_FILES=(
     "$DOTFILES_DIR/scripts/setup.sh:scripts/setup.sh"
     "$DOTFILES_DIR/Makefile:Makefile"
     "$DOTFILES_DIR/README.md:README.md"
-    "$DOTFILES_DIR/docs/STATUS.md:docs/STATUS.md"
+    "$DOTFILES_DIR/STATUS.md:STATUS.md (racine, suivi vivant)"
+    "$DOTFILES_DIR/TODOS.md:TODOS.md (roadmap)"
+    "$DOTFILES_DIR/docs/REFACTOR_HISTORY.md:docs/REFACTOR_HISTORY.md (journal)"
     "$DOTFILES_DIR/docs/STRUCTURE.md:docs/STRUCTURE.md"
     "$DOTFILES_DIR/zshrc:zshrc (shell detector)"
 )

@@ -22,7 +22,8 @@ NC='\033[0m'
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 SCRIPT_DIR="$DOTFILES_DIR/scripts/test"
 DOCKER_DIR="$SCRIPT_DIR/docker"
-REPORT_FILE="$DOTFILES_DIR/TEST_MULTI_SHELLS_REPORT.md"
+mkdir -p "$DOTFILES_DIR/test_results"
+REPORT_FILE="$DOTFILES_DIR/test_results/TEST_MULTI_SHELLS_REPORT.md"
 
 # Liste des managers (migrés + non migrés) depuis scripts/test/config/*.list
 if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then

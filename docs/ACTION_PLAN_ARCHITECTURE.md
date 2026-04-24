@@ -150,7 +150,7 @@ Pour tester les dotfiles sans impacter le PC :
 | `shared/config.sh` | DOTFILES_DIR, chargement env/aliases. |
 | `core/managers/installman/installman_entry.sh` | Entrée unique installman (bash/fish). |
 | `docs/MULTISHELL_REPORT.md` | Rapport multi-shell. |
-| `docs/STATUS.md` | Historique et état. |
+| `docs/REFACTOR_HISTORY.md` | Journal historique des refactors (ex-`docs/STATUS.md`). |
 | `bin/dotfiles-menu` | Menu fzf générique (label\|command). |
 | `share/menus/*.menu` | Fichiers menu (pathman, etc.). |
 

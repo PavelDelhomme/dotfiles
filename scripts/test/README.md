@@ -238,5 +238,6 @@ cd ~/dotfiles
 ## 📚 Documentation
 
 - [progress_bar.sh](../../core/utils/PROGRESS_BAR_README.md) : Documentation de la barre de progression
-- [STATUS.md](../../STATUS.md) : État de la migration des managers
+- [STATUS.md](../../STATUS.md) : Vue d’ensemble (objectifs, tests)
+- [TODOS.md](../../TODOS.md) : Roadmap et actions
 

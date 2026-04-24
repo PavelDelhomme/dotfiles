@@ -57,3 +57,11 @@ Si **`TEST_MANAGERS`** est défini, il est prioritaire. Voir **`make test-help`*
 
 - **Installman** : `$DOTFILES_DIR/logs/installman.log` (option **logs** dans le menu installman).  
 - **Tous les managers** : `$DOTFILES_DIR/logs/managers.log` si utilisation de `log_manager_action` (voir `scripts/lib/managers_log.sh`).
+
+## Rapports multi-shells générés (instantanés)
+
+D’anciens fichiers du type **`TEST_MULTI_SHELLS_REPORT.md`** à la racine du dépôt étaient des **captures ponctuelles** de run local (souvent avec des liens vers `/tmp/...` déjà périmés). Ils ne sont **plus** versionnés à la racine.
+
+- **Référence CI / hôte** : lancer **`make test`**, consulter **`test_results/test_output.log`** (dossier gitignored si configuré ainsi) et la section *État des tests Docker* dans **`STATUS.md`** (racine).
+- **Actions à suivre** : **`TODOS.md`** (racine).
+- **Script `scripts/test/test_multi_shells.sh`** : écrit le rapport Markdown sous **`test_results/TEST_MULTI_SHELLS_REPORT.md`** (plus à la racine du dépôt).

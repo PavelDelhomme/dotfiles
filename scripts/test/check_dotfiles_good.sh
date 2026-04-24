@@ -28,4 +28,6 @@ echo "→ sourcing bootstrap dans un sous-shell (DOTFILES_DIR=$ROOT)"
 	[ -n "${DOTFILES_DIR:-}" ] || exit 1
 	[ "${DOTFILES_GOOD_ENV_LOADED:-}" = 1 ] || exit 1
 )
+echo "→ DOTFILES_GOOD/scripts/print_roots.sh"
+DOTFILES_DIR="$ROOT" sh ./DOTFILES_GOOD/scripts/print_roots.sh | head -5
 echo "✅ DOTFILES_GOOD : OK"

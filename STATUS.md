@@ -17,8 +17,11 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 | **Plan TUI / logs / modules** | `docs/ACTION_PLAN_ARCHITECTURE.md` |
 | **Entrées shell, wrapper, bac à sable DOTFILES_GOOD** | `docs/ARCHITECTURE.md`, `DOTFILES_GOOD/README.md` |
 | **Guides de migration historiques** | `docs/migrations/` |
+| **Actions / cases à cocher (roadmap)** | **`TODOS.md`** (racine) |
+| **Journal historique des refactors** | `docs/REFACTOR_HISTORY.md` (ex-`docs/STATUS.md`) |
+| **Analyse longue de l’arborescence** | `STRUCTURE_ANALYSIS.md` (référence, pas la checklist du jour) |
 
-Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des commandes de test est volontairement dans `make test-help` pour ne pas diverger.
+Ce fichier **STATUS** reste la vue d’ensemble (objectifs + tests) ; le détail des commandes de test est dans **`make test-help`**. Le suivi des tâches est dans **`TODOS.md`**.
 
 ### État des tests Docker (`make test`, 2026-04)
 
@@ -30,28 +33,9 @@ Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des
 
 ---
 
-## ⚡ Prochaines actions (pour toi — tout de suite)
+## Prochaines étapes
 
-Tu **n’as pas** à « valider » un document comme un devoir : la doc (`docs/ARCHITECTURE.md`, `DOTFILES_GOOD/README.md`) sert de **référence** quand tu touches au dépôt.
-
-**Si tu ne migres pas aujourd’hui** : tu ne dois rien ; éventuellement `make test-dotfiles-good` avant un gros patch sur le bac à sable.
-
-**Si tu avances d’un cran**, choisis **une seule** piste (évite d’en lancer trois en parallèle) :
-
-| Ordre | Quoi faire | Détail minimal |
-|-------|------------|----------------|
-| **1** (recommandé, premier vrai geste code) | **Petit extrait manuel** vers le bac à sable | Copier **un** bloc **neutre** (exports simples, pas de `add_to_path` / pas de messages bruyants) depuis `shared/env.sh` vers `DOTFILES_GOOD/shared/env/10_<nom>.sh`, noter une ligne dans `DOTFILES_GOOD/shared/env/README.md`, lancer **`make test-dotfiles-good`**. Ne **pas** brancher ce fichier dans `shared/config.sh` tant que tu n’es pas sûr. |
-| **2** | **Premier script** sous `DOTFILES_GOOD/scripts/` | Uniquement si tu préfères l’outillage avant l’env (ex. rapport dry-run). Même garde-fou : `make test-dotfiles-good`. |
-| **3** | **Lecture** (~5 min) | Tableau des managers dans `docs/ARCHITECTURE.md` — orientation, pas une « validation » obligatoire. |
-| **4** | Hors bac à sable | Réduire `read` / `clear` hors TTY sur **un** manager qui pose problème en CI (voir cases ci-dessous). |
-
-### Suivi (roadmap — à mettre à jour ici)
-
-- [x] **Bac à sable `DOTFILES_GOOD/`** : arborescence additive ; smoke **`make test-dotfiles-good`**. Doc **`docs/ARCHITECTURE.md`** (entrées shell, pas de symlink universel).
-- [x] Cartographier dans **`docs/ARCHITECTURE.md`** les managers de `migrated_managers.list` (tableau core / adapter / résidu `zsh/functions/`).
-- [ ] Déplacer progressivement les modules **installman** (et utilitaires) référencés uniquement par le core vers un arbre sous `core/managers/installman/` en gardant des **wrappers** une ligne si besoin.
-- [ ] Réduire les `read` / `clear` hors TTY dans les menus encore appelés par erreur depuis la CI.
-- [ ] Garder **`make test`** comme garde-fou à chaque étape de déplacement.
+**Checklist et priorités (1–4 + roadmap)** : voir **`TODOS.md`** à la racine du dépôt.
 
 ---
 
@@ -69,14 +53,14 @@ Tu **n’as pas** à « valider » un document comme un devoir : la doc (`docs/A
 3. **Arborescence idéale documentée** : `scripts/`, `docs/`, `core/`, `shared/`, `shells/`, `bin/` (optionnel), `logs/` (runtime, gitignored), éventuellement **`config/`** pour exemples — les dotfiles à la racine restent des **entrées d’installation**, pas du code métier.  
 4. **Bootstrap unifié** : un seul chemin documenté (`install_zsh_complete.sh` / Makefile / script unique) qui pose `DOTFILES_DIR`, symlinks, et charge **uniquement** les adapters `shells/`.
 
-**Suivi des tâches** : les cases à cocher et l’ordre « quoi faire maintenant » sont dans la section **⚡ Prochaines actions (pour toi — tout de suite)** plus haut.
+**Suivi des tâches** : **`TODOS.md`** (racine).
 
 ---
 
 ## 📋 État actuel
 
 ### ✅ ZSH (Complet)
-- 21 managers couverts par la liste migrée Docker (voir section **Prochaines actions** / `docs/ARCHITECTURE.md`)
+- 21 managers couverts par la liste migrée Docker (`TODOS.md`, `docs/ARCHITECTURE.md`)
 - Structure modulaire complète
 - ~35 fichiers de code
 - Architecture bien définie

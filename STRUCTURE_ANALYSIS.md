@@ -4,6 +4,13 @@
 **Auteur :** Analyse exhaustive  
 **Version :** 3.0 - Architecture Hybride avec Code Partagé
 
+> **Lire d’abord (2026)** — ce fichier est une **analyse longue** et un inventaire d’arborescence ; ce n’est pas la checklist du jour.  
+> - **Suivi vivant + tests** : `STATUS.md` (racine)  
+> - **Actions / roadmap** : `TODOS.md` (racine)  
+> - **Multi-shell, `make test`** : `docs/MULTISHELL_REPORT.md`  
+> - **Entrées shell, managers, `DOTFILES_GOOD`** : `docs/ARCHITECTURE.md`  
+> - **Journal historique des refactors** : `docs/REFACTOR_HISTORY.md`
+
 ---
 
 ## 🏗️ Architecture Hybride (Choix Technique)
@@ -219,7 +226,8 @@ dotfiles/
 ├── Dockerfile.test                   # Image Docker pour tests
 ├── Makefile                         # Commandes Make (632 lignes)
 ├── README.md                        # Documentation principale
-├── STATUS.md                        # État du projet
+├── STATUS.md                        # Suivi vivant (racine)
+├── TODOS.md                         # Roadmap / actions (racine)
 ├── STRUCTURE_ANALYSIS.md            # Ce fichier
 └── test-docker.sh                   # Script de test Docker
 ```
@@ -943,7 +951,7 @@ docs/
 ├── HELP_DISPLAY_GUIDE.md
 ├── MAN_MARKDOWN_GUIDE.md
 ├── MODULEMAN_EXPLICATION.md
-├── STATUS.md
+├── REFACTOR_HISTORY.md              # Journal refactors (ex-STATUS.md dans docs)
 └── STRUCTURE.md
 ```
 
