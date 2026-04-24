@@ -22,6 +22,7 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 | **Analyse longue de l’arborescence** | `STRUCTURE_ANALYSIS.md` (référence, pas la checklist du jour) |
 | **Vision installman trans-distro** | `docs/INSTALLMAN_VISION.md` |
 | **`git help` / `man` introuvable** | `docs/TROUBLESHOOTING_MAN_GIT.md` |
+| **`searchman` vs `infosman`** | `docs/MANAGERS_SEARCH_VS_INFO.md` |
 
 Ce fichier **STATUS** reste la vue d’ensemble (objectifs + tests) ; le détail des commandes de test est dans **`make test-help`**. Le suivi des tâches est dans **`TODOS.md`**.
 
