@@ -24,6 +24,7 @@ Suivi **opérationnel** : cocher au fil de l’eau.
 | **P3** | **Jalon phase B** | Cocher la checklist § *Jalon « DOTFILES_GOOD validé »* ci-dessous quand c’est vrai pour toi. |
 | **P4** | Hors bac à sable | **installman** vers `core/managers/installman/`, **`read`/`clear` hors TTY**, CI verte. |
 | **P5** | **Phase C** (bascule racine) | Uniquement après **P3** + backup documenté + plan écrit (voir § *Phase C — bascule*). |
+| **P6** | **Épic installman trans-distro** | Spécification et phasage : **`docs/INSTALLMAN_VISION.md`**. Implémentation **par étapes** (recherche → menus → backends → `.desktop`). Dépend partiellement de la consolidation **installman** dans `core/` (voir roadmap). |
 
 ---
 
@@ -61,6 +62,8 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 - [ ] Déplacer progressivement **installman** → `core/managers/installman/` + wrappers une ligne.
 - [ ] Réduire **`read` / `clear`** hors TTY (menus / CI).
 - [ ] Garder **`make test`** vert à chaque étape.
+- [ ] **Épic installman** (détail : `docs/INSTALLMAN_VISION.md`) : matrice capacités machine → `search` unifié → install piloté (ex. Chrome / AUR) → préférences Flatpak/Snap/AppImage → `.desktop` / menu applications → extension autres familles (dnf, zypper, …).
+- [ ] **`git help` / `man`** : sur postes sans `man` — paquet `man-db` (voir `docs/TROUBLESHOOTING_MAN_GIT.md`).
 
 ---
 
@@ -74,6 +77,8 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 | `docs/ARCHITECTURE.md` | Entrées shell, managers, `DOTFILES_GOOD`. |
 | `docs/REFACTOR_HISTORY.md` | Journal historique des refactors. |
 | `STRUCTURE_ANALYSIS.md` | Analyse longue / arbre. |
+| `docs/INSTALLMAN_VISION.md` | Épic installman trans-distro (cadrage). |
+| `docs/TROUBLESHOOTING_MAN_GIT.md` | `git help` quand `man` est absent. |
 
 ---
 
