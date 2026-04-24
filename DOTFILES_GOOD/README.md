@@ -38,4 +38,6 @@ Smoke : syntaxe `sh -n` + sourcing unique du bootstrap dans un sous-shell.
 
 ## Migration (plus tard)
 
-Quand une brique sera validée (ex. un `00_paths.sh` aligné sur `dotfiles_roots.sh`), on pourra **référencer** le fichier historique ou le remplacer par un lien symbolique **uniquement** après test Docker + usage quotidien.
+Phases **A → B → C** (préparatif, jalon validation, bascule racine avec backup) : voir **`TODOS.md`** à la racine du dépôt.
+
+Quand une brique sera validée (jalon **B**), on pourra **référencer** ou fusionner avec `shared/config.sh` / `shared/env.sh` **uniquement** après tests Docker + usage réel.

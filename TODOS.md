@@ -1,40 +1,82 @@
 # TODOS — Roadmap et actions (dotfiles)
 
-Suivi **opérationnel** : à mettre à jour quand une ligne est faite ou qu’une nouvelle tâche apparaît.  
-Vue d’ensemble et tests : **`STATUS.md`** (racine). Architecture : **`docs/ARCHITECTURE.md`**.
+Suivi **opérationnel** : cocher au fil de l’eau.  
+**Vue d’ensemble** : `STATUS.md` · **Architecture** : `docs/ARCHITECTURE.md` · **Bac à sable** : `DOTFILES_GOOD/README.md`
 
 ---
 
-## Priorités (choisir souvent **une** seule piste)
+## Phases (d’où tu es → bascule racine)
 
-| # | Tâche | Détail |
-|---|--------|--------|
-| **1** | Extrait env vers `DOTFILES_GOOD` | Fichiers numérotés `shared/env/*.sh` (neutres : pas `add_to_path` / pas d’`echo` bruyant). Doc dans `DOTFILES_GOOD/shared/env/README.md`. **`make test-dotfiles-good`**. Bootstrap **tolérant** : un fichier en échec n’empêche pas les autres ; désactiver = renommer hors `.sh` (ex. `.off`). **Ne pas** brancher le dossier dans `shared/config.sh` sans validation. |
-| **2** | Script sous `DOTFILES_GOOD/scripts/` | Outil ou smoke (ex. `print_roots.sh`). `make test-dotfiles-good`. |
-| **3** | Lecture | Tableau managers : `docs/ARCHITECTURE.md`. |
-| **4** | Hors bac à sable | Un manager : `read` / `clear` protégés hors TTY si la CI bloque. |
+| Phase | Nom | Contenu |
+|-------|-----|--------|
+| **A** | Préparatif | Remplir `DOTFILES_GOOD/` (env, scripts, doc), **`make test-dotfiles-good`**, **`make test`**, usage manuel sans brancher `shared/config.sh` tant que tu n’es pas prêt. |
+| **B** | **Jalon validation** | Tu considères le bac à sable **validé** (tests + ta manip quotidienne). Décision explicite : brancher ou non le bootstrap `DOTFILES_GOOD` dans la chaîne prod (`shared/config.sh` / `.zshrc`). |
+| **C** | Bascule racine *(optionnelle, après B)* | **Backup intégral** du dépôt actuel ailleurs, puis fusion du contenu prévu de `DOTFILES_GOOD/` vers la **racine** du projet (remplacer / réorganiser le clone). **Rollback** = restaurer le backup. **Ne pas lancer C** tant que B n’est pas rempli consciencieusement. |
 
 ---
 
-## Roadmap (cases)
+## Priorités (ordre recommandé — une piste à la fois)
+
+| Prio | Tâche | Détail |
+|------|--------|--------|
+| **P1** | Extraits **`shared/env.sh` → `DOTFILES_GOOD/shared/env/`** | Fichiers `NN_*.sh` neutres (pas `add_to_path` / pas d’`echo` de succès bruyant dans le bac à sable). Doc : `DOTFILES_GOOD/shared/env/README.md`. **`make test-dotfiles-good`**. Reste dans prod : `mkdir`, `add_to_path`, `clean_path`, concat `PATH`, `echo` final → migration ultérieure ou fichier dédié **après** validation. |
+| **P2** | Scripts **`DOTFILES_GOOD/scripts/`** | Outils (ex. `print_roots.sh`). Smoke : `make test-dotfiles-good`. |
+| **P3** | **Jalon phase B** | Cocher la checklist § *Jalon « DOTFILES_GOOD validé »* ci-dessous quand c’est vrai pour toi. |
+| **P4** | Hors bac à sable | **installman** vers `core/managers/installman/`, **`read`/`clear` hors TTY**, CI verte. |
+| **P5** | **Phase C** (bascule racine) | Uniquement après **P3** + backup documenté + plan écrit (voir § *Phase C — bascule*). |
+
+---
+
+## Jalon « DOTFILES_GOOD validé » (phase **B**)
+
+Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
+
+- [ ] `make test-dotfiles-good` : OK sur ta machine (et idéalement après tes derniers changements).
+- [ ] `make test` (Docker) : OK sur la branche concernée.
+- [ ] Tu as **sourcé / testé** le bootstrap `DOTFILES_GOOD` en session réelle (shell de dev) sans casse bloquante.
+- [ ] Décision notée ici ou dans un commit : **brancher** le bootstrap dans `shared/config.sh` / entrées shell **oui / non / plus tard**.
+
+---
+
+## Phase **C** — Bascule « tout dans la racine du clone » (après validation)
+
+**Objectif** : que l’arborescence **cible** (aujourd’hui expérimentée sous `DOTFILES_GOOD/`) devienne **le** dépôt à la racine (`core/`, `shared/`, `lib/`, etc.), tout en gardant une **copie de secours** du dépôt actuel pour rollback.
+
+- [ ] **Backup** : copie complète du répertoire dotfiles (ex. `rsync -a ~/dotfiles/ /chemin/backup/dotfiles-YYYYMMDD/` ou archive `tar` sur **autre** volume / machine). Vérifier la taille et un `ls` sur le backup.
+- [ ] **Plan écrit** : liste des déplacements (fichiers/dossiers à fusionner, symlinks à recréer, `STATUS.md` / `TODOS.md` à mettre à jour).
+- [ ] **Exécution** : fusion (gros commit ou série de commits) + `make test` + test manuel login shell.
+- [ ] **Rollback** : procédure testée une fois « à froid » (restaurer le backup par-dessus le clone ou recloner + copier).
+
+> Tant que les cases **Jalon B** ne sont pas cochées, la phase C reste **documentation / préparation** uniquement.
+
+---
+
+## Roadmap technique (cases courantes)
 
 - [x] Bac à sable **`DOTFILES_GOOD/`** + `make test-dotfiles-good`.
-- [x] Tableau managers dans **`docs/ARCHITECTURE.md`** (`migrated_managers.list`).
-- [x] Extraits **`DOTFILES_GOOD/shared/env/`** depuis `shared/env.sh` : `05_path_original.sh`, `10_toolchain_paths.sh`, `11_pub_cache_export.sh`, `12_android_exports.sh` (+ README, bootstrap tolérant aux erreurs d’un fichier env).
-- [x] Script **`DOTFILES_GOOD/scripts/print_roots.sh`** (affiche `DOTFILES_DIR` / `DOTFILES_GOOD_ROOT` après bootstrap).
-- [ ] Déplacer progressivement les modules **installman** vers `core/managers/installman/` + wrappers une ligne.
-- [ ] Réduire **`read` / `clear`** hors TTY sur les menus encore touchés par la CI.
-- [ ] Garder **`make test`** vert à chaque déplacement.
+- [x] Tableau managers **`docs/ARCHITECTURE.md`** (`migrated_managers.list`).
+- [x] Extraits env **`DOTFILES_GOOD/shared/env/`** depuis `shared/env.sh` : `05`, `10`, `11`, `12`, `13`, `14` (+ README, bootstrap tolérant).
+- [x] Script **`DOTFILES_GOOD/scripts/print_roots.sh`**.
+- [ ] **Reste `shared/env.sh` (prod)** : `mkdir`, bloc `add_to_path` / `clean_path`, concat `PATH`, `echo` — à migrer **après** jalon B ou dans des fichiers séparés **explicitement** non chargés en CI si besoin.
+- [ ] Déplacer progressivement **installman** → `core/managers/installman/` + wrappers une ligne.
+- [ ] Réduire **`read` / `clear`** hors TTY (menus / CI).
+- [ ] Garder **`make test`** vert à chaque étape.
 
 ---
 
-## Fichiers doc : rôle rapide
+## Fichiers doc — rôle rapide
 
 | Fichier | Rôle |
 |---------|------|
-| `STATUS.md` | Objectif, état des tests, liens vers la doc. |
-| `TODOS.md` | Ce fichier — actions et cases. |
-| `docs/MULTISHELL_REPORT.md` | Multi-shell, installman entry, `make test`. |
-| `docs/ARCHITECTURE.md` | Entrées shell, tableau managers, `DOTFILES_GOOD`. |
-| `docs/REFACTOR_HISTORY.md` | Journal historique des phases (ex-`docs/STATUS.md`). |
-| `STRUCTURE_ANALYSIS.md` | Analyse longue / arbre (référence, pas la checklist du jour). |
+| `STATUS.md` | Objectif, état des tests, liens. |
+| `TODOS.md` | Ce fichier — phases, priorités, jalon B, phase C. |
+| `docs/MULTISHELL_REPORT.md` | Multi-shell, `make test`. |
+| `docs/ARCHITECTURE.md` | Entrées shell, managers, `DOTFILES_GOOD`. |
+| `docs/REFACTOR_HISTORY.md` | Journal historique des refactors. |
+| `STRUCTURE_ANALYSIS.md` | Analyse longue / arbre. |
+
+---
+
+## Suivi `tail -f` (logs)
+
+Pour suivre un test ou un conteneur : **`tail -f test_results/test_output.log`** (ou le fichier indiqué par le script) est **normal** ; tu vois les lignes au fil de l’eau. `Ctrl+C` arrête seulement le `tail`, pas le test déjà terminé.

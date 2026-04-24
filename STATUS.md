@@ -17,7 +17,7 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 | **Plan TUI / logs / modules** | `docs/ACTION_PLAN_ARCHITECTURE.md` |
 | **Entrées shell, wrapper, bac à sable DOTFILES_GOOD** | `docs/ARCHITECTURE.md`, `DOTFILES_GOOD/README.md` |
 | **Guides de migration historiques** | `docs/migrations/` |
-| **Actions / cases à cocher (roadmap)** | **`TODOS.md`** (racine) |
+| **Actions, phases A→B→C, bascule future** | **`TODOS.md`** (racine) |
 | **Journal historique des refactors** | `docs/REFACTOR_HISTORY.md` (ex-`docs/STATUS.md`) |
 | **Analyse longue de l’arborescence** | `STRUCTURE_ANALYSIS.md` (référence, pas la checklist du jour) |
 
