@@ -9,7 +9,7 @@ Vue d’ensemble et tests : **`STATUS.md`** (racine). Architecture : **`docs/ARC
 
 | # | Tâche | Détail |
 |---|--------|--------|
-| **1** | Extrait env vers `DOTFILES_GOOD` | Copier un bloc **neutre** depuis `shared/env.sh` vers `DOTFILES_GOOD/shared/env/10_*.sh` (exports simples, pas `add_to_path` / pas d’`echo` bruyant). Noter dans `DOTFILES_GOOD/shared/env/README.md`. Puis `make test-dotfiles-good`. **Ne pas** brancher dans `shared/config.sh` sans validation. |
+| **1** | Extrait env vers `DOTFILES_GOOD` | Fichiers numérotés `shared/env/*.sh` (neutres : pas `add_to_path` / pas d’`echo` bruyant). Doc dans `DOTFILES_GOOD/shared/env/README.md`. **`make test-dotfiles-good`**. Bootstrap **tolérant** : un fichier en échec n’empêche pas les autres ; désactiver = renommer hors `.sh` (ex. `.off`). **Ne pas** brancher le dossier dans `shared/config.sh` sans validation. |
 | **2** | Script sous `DOTFILES_GOOD/scripts/` | Outil ou smoke (ex. `print_roots.sh`). `make test-dotfiles-good`. |
 | **3** | Lecture | Tableau managers : `docs/ARCHITECTURE.md`. |
 | **4** | Hors bac à sable | Un manager : `read` / `clear` protégés hors TTY si la CI bloque. |
@@ -20,7 +20,7 @@ Vue d’ensemble et tests : **`STATUS.md`** (racine). Architecture : **`docs/ARC
 
 - [x] Bac à sable **`DOTFILES_GOOD/`** + `make test-dotfiles-good`.
 - [x] Tableau managers dans **`docs/ARCHITECTURE.md`** (`migrated_managers.list`).
-- [x] Premier extrait **`DOTFILES_GOOD/shared/env/10_toolchain_paths.sh`** (exports neutres depuis `shared/env.sh`).
+- [x] Extraits **`DOTFILES_GOOD/shared/env/`** depuis `shared/env.sh` : `05_path_original.sh`, `10_toolchain_paths.sh`, `11_pub_cache_export.sh`, `12_android_exports.sh` (+ README, bootstrap tolérant aux erreurs d’un fichier env).
 - [x] Script **`DOTFILES_GOOD/scripts/print_roots.sh`** (affiche `DOTFILES_DIR` / `DOTFILES_GOOD_ROOT` après bootstrap).
 - [ ] Déplacer progressivement les modules **installman** vers `core/managers/installman/` + wrappers une ligne.
 - [ ] Réduire **`read` / `clear`** hors TTY sur les menus encore touchés par la CI.

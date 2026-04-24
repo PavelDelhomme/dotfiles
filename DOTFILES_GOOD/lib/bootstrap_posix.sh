@@ -28,10 +28,16 @@ if [ -z "$DOTFILES_DIR" ]; then
 	export DOTFILES_DIR
 fi
 
-# Variables d'environnement (ordre : noms de fichiers triés, ex. 00_, 01_)
+# Variables d'environnement (ordre lexicographique). Tolérant : un fichier en échec
+# n’empêche pas les suivants (avertissement). Pour désactiver un extrait : renommer hors *.sh
+# (ex. 10_foo.sh.off) ou le retirer du dossier.
 if [ -d "$DOTFILES_GOOD_ROOT/shared/env" ]; then
 	for __f in "$DOTFILES_GOOD_ROOT/shared/env/"*.sh; do
-		[ -f "$__f" ] && . "$__f"
+		[ -f "$__f" ] || continue
+		# shellcheck disable=SC1090
+		if ! . "$__f"; then
+			echo "DOTFILES_GOOD: avertissement — env non chargé (suite assurée): $__f" >&2
+		fi
 	done
 fi
 

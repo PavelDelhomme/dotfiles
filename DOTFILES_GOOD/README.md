@@ -13,7 +13,7 @@ Ce répertoire est **expérimental** : il prépare une arborescence plus lisible
 
 | Élément | Rôle |
 |--------|------|
-| `lib/bootstrap_posix.sh` | Ordre de chargement POSIX (env → fonctions → aliases) pour ce bac à sable uniquement. |
+| `lib/bootstrap_posix.sh` | Ordre de chargement POSIX (env → fonctions → aliases). Les fichiers `shared/env/*.sh` sont sourcés **un par un** : un échec **n’arrête pas** les suivants (avertissement stderr). |
 | `shared/env/` | Variables et chemins (`00_*.sh`, …) migrés progressivement depuis `shared/env.sh` / équivalents. |
 | `shared/functions/` | Fonctions `.sh` POSIX communes. |
 | `shared/menus/` | Textes, listes, gabarits de menus (non sourcés automatiquement au démarrage). |
