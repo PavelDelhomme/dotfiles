@@ -4,7 +4,7 @@
 
 Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisation automatique.
 
-**Parité fonctionnelle complète** : 19 managers disponibles dans les 3 shells.
+**Parité fonctionnelle** : **21** managers dans la liste migrée Docker (`migrated_managers.list`) pour Zsh / Bash / Fish ; le dépôt peut encore mentionner « 19 » ailleurs par historique — **référence** : ce fichier + `docs/ARCHITECTURE.md`.
 
 **Architecture choisie** : **Structure Hybride** avec code commun POSIX dans `core/` et adapters shell-spécifiques dans `shells/{zsh,bash,fish}/adapters/`
 
@@ -28,6 +28,33 @@ Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des
 - **Bac à sable** : dotfiles montés **lecture seule** dans l’image de test ; écritures ciblées sur `test_results/` et volume config test. Détail : `scripts/test/SANDBOX.md`, `make sandbox-guide`.
 - **`multimediaman` / `cyberlearn`** : la phase 2 exécute au minimum **`help`** (non bloquant hors TTY). Les menus sans argument restent interactifs ; **`@skip`** dans d’autres `.list` = encore volontaire pour certains parcours.
 
+---
+
+## ⚡ Prochaines actions (pour toi — tout de suite)
+
+Tu **n’as pas** à « valider » un document comme un devoir : la doc (`docs/ARCHITECTURE.md`, `DOTFILES_GOOD/README.md`) sert de **référence** quand tu touches au dépôt.
+
+**Si tu ne migres pas aujourd’hui** : tu ne dois rien ; éventuellement `make test-dotfiles-good` avant un gros patch sur le bac à sable.
+
+**Si tu avances d’un cran**, choisis **une seule** piste (évite d’en lancer trois en parallèle) :
+
+| Ordre | Quoi faire | Détail minimal |
+|-------|------------|----------------|
+| **1** (recommandé, premier vrai geste code) | **Petit extrait manuel** vers le bac à sable | Copier **un** bloc **neutre** (exports simples, pas de `add_to_path` / pas de messages bruyants) depuis `shared/env.sh` vers `DOTFILES_GOOD/shared/env/10_<nom>.sh`, noter une ligne dans `DOTFILES_GOOD/shared/env/README.md`, lancer **`make test-dotfiles-good`**. Ne **pas** brancher ce fichier dans `shared/config.sh` tant que tu n’es pas sûr. |
+| **2** | **Premier script** sous `DOTFILES_GOOD/scripts/` | Uniquement si tu préfères l’outillage avant l’env (ex. rapport dry-run). Même garde-fou : `make test-dotfiles-good`. |
+| **3** | **Lecture** (~5 min) | Tableau des managers dans `docs/ARCHITECTURE.md` — orientation, pas une « validation » obligatoire. |
+| **4** | Hors bac à sable | Réduire `read` / `clear` hors TTY sur **un** manager qui pose problème en CI (voir cases ci-dessous). |
+
+### Suivi (roadmap — à mettre à jour ici)
+
+- [x] **Bac à sable `DOTFILES_GOOD/`** : arborescence additive ; smoke **`make test-dotfiles-good`**. Doc **`docs/ARCHITECTURE.md`** (entrées shell, pas de symlink universel).
+- [x] Cartographier dans **`docs/ARCHITECTURE.md`** les managers de `migrated_managers.list` (tableau core / adapter / résidu `zsh/functions/`).
+- [ ] Déplacer progressivement les modules **installman** (et utilitaires) référencés uniquement par le core vers un arbre sous `core/managers/installman/` en gardant des **wrappers** une ligne si besoin.
+- [ ] Réduire les `read` / `clear` hors TTY dans les menus encore appelés par erreur depuis la CI.
+- [ ] Garder **`make test`** comme garde-fou à chaque étape de déplacement.
+
+---
+
 ### Carte des répertoires et rationalisation (roadmap architecture)
 
 **Constat (pourquoi c’est « bruité » aujourd’hui)**  
@@ -42,25 +69,20 @@ Ce fichier **STATUS** reste la vue d’ensemble de la migration ; le détail des
 3. **Arborescence idéale documentée** : `scripts/`, `docs/`, `core/`, `shared/`, `shells/`, `bin/` (optionnel), `logs/` (runtime, gitignored), éventuellement **`config/`** pour exemples — les dotfiles à la racine restent des **entrées d’installation**, pas du code métier.  
 4. **Bootstrap unifié** : un seul chemin documenté (`install_zsh_complete.sh` / Makefile / script unique) qui pose `DOTFILES_DIR`, symlinks, et charge **uniquement** les adapters `shells/`.
 
-**Prochaines tâches concrètes (ordre recommandé)**
-- [x] **Bac à sable `DOTFILES_GOOD/`** : arborescence additive (`lib/bootstrap_posix.sh`, `shared/env`, `shared/menus`, `snippets/`, `run/` pour runtime gitignored) ; **aucun** déplacement des chemins prod ; smoke **`make test-dotfiles-good`**. Doc **`docs/ARCHITECTURE.md`** corrigée : pas de prétention « un seul symlink pour Zsh + Fish + Bash » — entrées **distinctes** par shell + noyau POSIX (`shared/config.sh` et/ou bootstrap `DOTFILES_GOOD`).
-- [x] Cartographier dans **`docs/ARCHITECTURE.md`** les managers de `migrated_managers.list` : tableau **core / adapter Zsh / résidu** `zsh/functions/` (à tenir à jour si la liste change).
-- [ ] Déplacer progressivement les modules **installman** (et utilitaires) référencés uniquement par le core vers un arbre sous `core/managers/installman/` en gardant des **wrappers** un ligne si besoin.  
-- [ ] Réduire les `read` / `clear` hors TTY dans les menus encore appelés par erreur depuis la CI.  
-- [ ] Garder **`make test`** comme garde-fou à chaque étape de déplacement.
+**Suivi des tâches** : les cases à cocher et l’ordre « quoi faire maintenant » sont dans la section **⚡ Prochaines actions (pour toi — tout de suite)** plus haut.
 
 ---
 
 ## 📋 État actuel
 
 ### ✅ ZSH (Complet)
-- 19 managers fonctionnels
+- 21 managers couverts par la liste migrée Docker (voir section **Prochaines actions** / `docs/ARCHITECTURE.md`)
 - Structure modulaire complète
 - ~35 fichiers de code
 - Architecture bien définie
 
 ### ✅ Fish et Bash (adapters hybrides — CI verte)
-- **Adapters** `shells/{fish,bash}/adapters/*` pour les 19 managers : chargement du **core POSIX** sous `core/managers/*/core/*.sh` (souvent via bash pour Fish).
+- **Adapters** `shells/{fish,bash}/adapters/*` pour les managers migrés : chargement du **core POSIX** sous `core/managers/*/core/*.sh` (souvent via bash pour Fish).
 - **`make test`** : matrice managers **63/63 OK** quand la liste migrée par défaut est utilisée ; phase 2 sous-commandes à surveiller via le log (voir ci-dessus).
 - **Travail restant** : poursuivre la **parité UX** (menus, prompts) et le durcissement POSIX là où du code historique Zsh subsiste hors `core/` — pas un blocage pour les tests Docker actuels.
 
