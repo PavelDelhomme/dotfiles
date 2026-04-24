@@ -68,8 +68,15 @@ apply_exports_for_run() {
 }
 
 pause() {
-    printf '\n%s' "Entrée pour continuer… "
-    read -r _
+    # Ne pas bloquer le terminal après un long Docker : timeout court, ou désactiver totalement.
+    if [[ "${DOTFILES_TEST_MENU_SKIP_PAUSE:-0}" == "1" ]]; then
+        return 0
+    fi
+    if [[ ! -t 0 ]]; then
+        return 0
+    fi
+    printf '\n%s' "Entrée pour continuer (max 5 s, ou exportez DOTFILES_TEST_MENU_SKIP_PAUSE=1)… "
+    read -r -t 5 _ 2>/dev/null || true
 }
 
 submenu_shells() {

@@ -106,3 +106,12 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 ## Suivi `tail -f` (logs)
 
 Pour suivre un test ou un conteneur : **`tail -f test_results/test_output.log`** (ou le fichier indiqué par le script) est **normal** ; tu vois les lignes au fil de l’eau. `Ctrl+C` arrête seulement le `tail`, pas le test déjà terminé.
+
+## Menu `make tests` — pause « Entrée pour continuer »
+
+- Par défaut : **attente max 5 s** puis suite automatique (`scripts/test/test_menu.sh`).
+- Pour **supprimer** toute pause : `export DOTFILES_TEST_MENU_SKIP_PAUSE=1` avant `make tests`.
+
+## Correctif **helpman** (fish / Docker)
+
+Si la matrice bloquait sur **`helpman (fish)`** : le core entrait dans le **menu interactif** même pour `helpman help`. Corrigé : `helpman help` / `-h` / `--help` sortent tout de suite ; sans TTY et sans argument, le menu n’est pas ouvert.

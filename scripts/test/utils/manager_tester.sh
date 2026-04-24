@@ -105,7 +105,7 @@ test_core_syntax() {
     fi
 }
 
-# Test 3: Vérifier la syntaxe de l'adapter ZSH
+# Test 3: Syntaxe de l’adapter Zsh (référence commune ; le test bash/fish valide aussi ce fichier)
 test_adapter_syntax() {
     local manager="$1"
     local adapter_file="$DOTFILES_DIR/shells/zsh/adapters/$manager.zsh"
@@ -113,15 +113,15 @@ test_adapter_syntax() {
     
     if [ -f "$adapter_file" ]; then
         if zsh -n "$adapter_file" 2>/dev/null; then
-            echo "✅ Syntaxe adapter ZSH valide: $adapter_file"
+            echo "✅ Syntaxe adapter Zsh (réf.): $adapter_file"
             return 0
         else
-            echo "❌ Erreur de syntaxe dans adapter ZSH: $adapter_file"
+            echo "❌ Erreur de syntaxe dans adapter Zsh: $adapter_file"
             zsh -n "$adapter_file" 2>&1 | head -5
             return 1
         fi
     else
-        echo "⚠️  Adapter ZSH non trouvé: $adapter_file"
+        echo "⚠️  Adapter Zsh non trouvé: $adapter_file"
         return 1
     fi
 }

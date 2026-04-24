@@ -35,6 +35,22 @@ helpman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     HELPMAN_DIR="$DOTFILES_DIR/zsh/functions/helpman"
     FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
+
+    # Aide CLI / non-interactif : ne pas entrer dans le menu (read) — tests Docker, fish bridge, CI
+    case "${1:-}" in
+    help|-h|--help)
+        printf '%s\n' "helpman — guide d'aide dotfiles."
+        printf '%s\n' "  Sans argument : menu interactif (terminal requis)."
+        printf '%s\n' "  helpman help | -h | --help : ce message."
+        printf '%s\n' "  Voir aussi : make test-help, docs/REFACTOR_HISTORY.md, docs/MULTISHELL_REPORT.md."
+        return 0
+        ;;
+    esac
+    if ! [ -t 0 ] || ! [ -t 1 ]; then
+        printf '%s\n' "helpman: pas de menu sans TTY (stdin/stdout). Utilisez : helpman help" >&2
+        return 0
+    fi
+
     if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
         # shellcheck source=managers_log_posix.sh
         . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
