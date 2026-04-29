@@ -1059,10 +1059,6 @@ EOF
                 fi
                 return 0
                 ;;
-            list|pl)
-                package_list_interactive
-                return 0
-                ;;
             help|--help|-h|list)
                 printf "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}\n"
                 echo ""
@@ -1077,12 +1073,19 @@ EOF
                 done <<EOF
 $TOOLS
 EOF
+                if [ "$tool_arg" = "list" ]; then
+                    echo ""
+                    printf "${YELLOW}Astuce:${RESET} installman help pour l'usage ; installman pl pour les paquets (less).\n"
+                    return 0
+                fi
                 echo ""
                 printf "${YELLOW}Usage:${RESET}\n"
                 echo "  installman [tool-name]     - Installer directement un outil"
                 echo "  installman                 - Menu interactif"
+                echo "  installman list            - Liste des outils (sans menu)"
                 echo "  installman update          - Menu de mise à jour"
                 echo "  installman update-all      - Mettre à jour tous les outils"
+                echo "  installman pl              - Paquets installés (less, puis menu paquets)"
                 echo ""
                 printf "${CYAN}Exemples:${RESET}\n"
                 echo "  installman flutter"
@@ -1090,6 +1093,10 @@ EOF
                 echo "  installman cursor"
                 echo "  installman update          - Mettre à jour un outil"
                 echo "  installman update-all     - Mettre à jour tous les outils"
+                ;;
+            pl)
+                package_list_interactive
+                return 0
                 ;;
             *)
                 # Rechercher l'outil
@@ -1117,7 +1124,7 @@ EOF
                     echo "Usage: installman [tool-name]"
                     echo "   ou: install-tool [tool-name] (alias)"
                     echo "   ou: installman (menu interactif)"
-                    echo "   ou: installman list (afficher la liste)"
+                    echo "   ou: installman list (outils)   ou: installman pl (paquets)"
                     return 1
                 fi
                 ;;

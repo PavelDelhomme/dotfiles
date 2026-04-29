@@ -63,7 +63,7 @@ help: ## Afficher cette aide
 	@echo "  make test-alias        - Tester les alias"
 	@echo ""
 	@echo -e "$(GREEN)Docker (Tests conteneurisés):$(NC)"
-	@echo "  make docker-in         - Entrer dans le conteneur (bac à sable live). DOCKER_SHELL=zsh|bash|fish|sh"
+	@echo "  make docker-in         - Bac à sable : distro + shell (menus si TTY), DOCKER_* (voir Makefile + scripts/test/docker/docker_in.sh)"
 	@echo "  make docker-build      - Construire l'image Docker"
 	@echo "  make docker-rebuild   - Reconstruire l'image (nocache)"
 	@echo "  make docker-run        - Lancer un conteneur interactif (zsh)"
@@ -589,8 +589,17 @@ DOTFILES_DOCKER_PREFIX = dotfiles-test
 DOTFILES_CONTAINER = $(DOTFILES_DOCKER_PREFIX)-container
 DOTFILES_IMAGE = $(DOTFILES_DOCKER_PREFIX)-image:latest
 
-# Shell dans le conteneur (zsh par défaut). Ne pas utiliser SHELL (réservé par Make)
-DOCKER_SHELL ?= zsh
+# Shell dans le conteneur (cible docker-in). Ne pas utiliser SHELL (réservé par Make).
+# Laisser DOCKER_SHELL vide pour être invité au terminal ; ou : make docker-in DOCKER_SHELL=fish
+#
+# Environnement guest (docker-in / docker-run / docker-start) :
+#   DOCKER_DOTFILES_DIR=/root/dotfiles   — aligné sur -v …:/root/dotfiles (override si autre montage)
+#   DOCKER_INSTALLMAN_ASSUME=1         — passe INSTALLMAN_ASSUME_YES=1 (pas de [o/N] installman)
+#   DOCKER_INSTALLMAN_ASSUME=0         — ne définit pas INSTALLMAN_ASSUME_YES (confirmations actives)
+#   DOCKER_DISTRO=arch|ubuntu|debian|… — base du conteneur (docker-in ; vide + TTY = menu). Arch = image make docker-build.
+DOCKER_DOTFILES_DIR ?= /root/dotfiles
+DOCKER_INSTALLMAN_ASSUME ?= 1
+DOCKER_DISTRO ?=
 
 docker-build: ## Construire l'image Docker pour tester les dotfiles
 	@echo -e "$(BLUE)🔨 Construction de l'image Docker (isolée avec préfixe)...$(NC)"
@@ -611,70 +620,31 @@ docker-rebuild: ## Reconstruire l'image Docker (sans cache)
 		echo -e "$(YELLOW)⚠️  Docker n'est pas installé$(NC)"; exit 1; \
 	fi
 
-# Entrer dans l'environnement de test Docker (build si image absente). DOCKER_SHELL=zsh|bash|fish|sh
-docker-in: ## Entrer dans le conteneur (make docker-in ou make docker-in DOCKER_SHELL=bash)
-	@if ! command -v docker >/dev/null 2>&1; then \
-		echo -e "$(YELLOW)⚠️  Docker n'est pas installé. installman docker$(NC)"; exit 1; \
-	fi; \
-	if ! docker images --format "{{.Repository}}:{{.Tag}}" | grep -q "^$(DOTFILES_IMAGE)$$"; then \
-		echo -e "$(BLUE)📦 Image absente, construction...$(NC)"; \
-		$(MAKE) docker-build; \
-	fi; \
-	SH="$(DOCKER_SHELL)"; \
-	echo -e "$(GREEN)🐚 Shell: $$SH$(NC)"; \
-	case "$$SH" in \
-		zsh) \
-			docker run -it --rm \
-				--name $(DOTFILES_CONTAINER) \
-				-v "$(PWD):/root/dotfiles:ro" \
-				-v dotfiles-test-config:/root/.config \
-				-v dotfiles-test-ssh:/root/.ssh \
-				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
-				$(DOTFILES_IMAGE) /bin/zsh ;; \
-		bash) \
-			docker run -it --rm \
-				--name $(DOTFILES_CONTAINER) \
-				-v "$(PWD):/root/dotfiles:ro" \
-				-v dotfiles-test-config:/root/.config \
-				-v dotfiles-test-ssh:/root/.ssh \
-				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
-				$(DOTFILES_IMAGE) /bin/bash -c 'source /root/dotfiles/shared/config.sh 2>/dev/null; [ -f /root/dotfiles/bash/bashrc_custom ] && source /root/dotfiles/bash/bashrc_custom; exec /bin/bash' ;; \
-		fish) \
-			docker run -it --rm \
-				--name $(DOTFILES_CONTAINER) \
-				-v "$(PWD):/root/dotfiles:ro" \
-				-v dotfiles-test-config:/root/.config \
-				-v dotfiles-test-ssh:/root/.ssh \
-				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
-				$(DOTFILES_IMAGE) /bin/bash -c 'source /root/dotfiles/shared/config.sh 2>/dev/null; [ -f /root/dotfiles/fish/config_custom.fish ] && source /root/dotfiles/fish/config_custom.fish; exec fish' ;; \
-		sh) \
-			docker run -it --rm \
-				--name $(DOTFILES_CONTAINER) \
-				-v "$(PWD):/root/dotfiles:ro" \
-				-v dotfiles-test-config:/root/.config \
-				-v dotfiles-test-ssh:/root/.ssh \
-				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
-				$(DOTFILES_IMAGE) /bin/sh ;; \
-		*) \
-			docker run -it --rm \
-				--name $(DOTFILES_CONTAINER) \
-				-v "$(PWD):/root/dotfiles:ro" \
-				-v dotfiles-test-config:/root/.config \
-				-v dotfiles-test-ssh:/root/.ssh \
-				-e HOME=/root -e DOTFILES_DIR=/root/dotfiles -e TERM=xterm-256color \
-				$(DOTFILES_IMAGE) /bin/zsh ;; \
-	esac
+# Entrer dans l'environnement de test Docker (voir scripts/test/docker/docker_in.sh).
+docker-in: ## Entrer dans le conteneur (distro + shell ; menus si TTY ; DOCKER_* sur la ligne de commande)
+	@ROOT_DIR="$(PWD)" \
+	DOTFILES_IMAGE="$(DOTFILES_IMAGE)" \
+	DOTFILES_CONTAINER="$(DOTFILES_CONTAINER)" \
+	DOCKER_SHELL="$(DOCKER_SHELL)" \
+	DOCKER_DISTRO="$(DOCKER_DISTRO)" \
+	DOCKER_DOTFILES_DIR="$(DOCKER_DOTFILES_DIR)" \
+	DOCKER_INSTALLMAN_ASSUME="$(DOCKER_INSTALLMAN_ASSUME)" \
+	MAKE="$(MAKE)" \
+	bash "$(PWD)/scripts/test/docker/docker_in.sh"
 
 docker-run: ## Lancer un conteneur Docker interactif pour tester les dotfiles (zsh)
 	@echo -e "$(BLUE)🚀 Lancement du conteneur Docker (isolé avec préfixe)...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
+		_DOTFILES_DIR='$(DOCKER_DOTFILES_DIR)'; \
+		_ASSUME_ARGS=; [ "x$(DOCKER_INSTALLMAN_ASSUME)" = "x1" ] && _ASSUME_ARGS="-e INSTALLMAN_ASSUME_YES=1"; \
 		docker run -it --rm \
 			--name $(DOTFILES_CONTAINER) \
 			-v "$(PWD):/root/dotfiles:ro" \
 			-v dotfiles-test-config:/root/.config \
 			-v dotfiles-test-ssh:/root/.ssh \
 			-e HOME=/root \
-			-e DOTFILES_DIR=/root/dotfiles \
+			-e DOTFILES_DIR=$$_DOTFILES_DIR \
+			$$_ASSUME_ARGS \
 			-e TERM=xterm-256color \
 			$(DOTFILES_IMAGE); \
 	else \
@@ -761,6 +731,8 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 				3) SELECTED_SHELL_CMD="/usr/bin/fish" ;; \
 				*) SELECTED_SHELL_CMD="/bin/zsh" ;; \
 			esac; \
+			_DOTFILES_DIR='$(DOCKER_DOTFILES_DIR)'; \
+			_ASSUME_ARGS=; [ "x$(DOCKER_INSTALLMAN_ASSUME)" = "x1" ] && _ASSUME_ARGS="-e INSTALLMAN_ASSUME_YES=1"; \
 			echo -e "$(GREEN)✓ Shell: $$SELECTED_SHELL_CMD$(NC)"; \
 			docker run -it --rm \
 				--name $(DOTFILES_CONTAINER) \
@@ -768,7 +740,8 @@ docker-start: ## Démarrer un conteneur Docker interactif pour tester les dotfil
 				-v $(DOTFILES_DOCKER_PREFIX)-config:/root/.config \
 				-v $(DOTFILES_DOCKER_PREFIX)-ssh:/root/.ssh \
 				-e HOME=/root \
-				-e DOTFILES_DIR=/root/dotfiles \
+				-e DOTFILES_DIR=$$_DOTFILES_DIR \
+				$$_ASSUME_ARGS \
 				-e TERM=xterm-256color \
 				$(DOTFILES_DOCKER_PREFIX):auto \
 				$$SELECTED_SHELL_CMD; \

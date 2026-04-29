@@ -721,9 +721,14 @@ installman update-all   # Mettre à jour tous les outils
 - ✅ Volumes montés pour config et SSH
 - ✅ Test d'installation bootstrap dans conteneur propre
 - ✅ Commandes Makefile dédiées
+- ✅ **`make docker-in`** : même bac à sable **léger** (`--rm`) avec choix **distro** + **shell** (menus si terminal) ; Arch = image `docker-build`, les autres = `scripts/test/docker/Dockerfile.*` → tag `dotfiles-in-<distro>:latest`. Voir `scripts/test/docker/docker_in.sh` et variables `DOCKER_*` dans le `Makefile`.
+- ✅ **`shared/env.sh` (prod) durci** : fallback interne si `add_to_path` absent, `mkdir` tolérant en lecture seule, `clean_path` optionnel, message seulement en TTY et mode silencieux possible (`DOTFILES_ENV_QUIET=1`).
 
 **Usage :**
 ```bash
+make docker-in                              # menus distro puis shell (TTY)
+make docker-in DOCKER_DISTRO=debian         # Debian sans menu distro
+make docker-in DOCKER_DISTRO=ubuntu DOCKER_SHELL=bash
 make docker-vm              # Lancer conteneur dotfiles-vm
 make docker-vm-reset        # Réinitialiser le conteneur
 make docker-vm-shell        # Ouvrir shell dans dotfiles-vm

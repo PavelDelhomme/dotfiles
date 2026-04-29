@@ -3,6 +3,13 @@
 Suivi **opérationnel** : cocher au fil de l’eau.  
 **Vue d’ensemble** : `STATUS.md` · **Architecture** : `docs/ARCHITECTURE.md` · **Bac à sable** : `DOTFILES_GOOD/README.md`
 
+### Posture (priorités / phases)
+
+- **Priorité active : P1** — extraits `DOTFILES_GOOD/shared/env/` vs prod `shared/env.sh` (voir tableau *Priorités*).
+- **Phase A** — préparatif **dépôt** : bac `DOTFILES_GOOD`, tests smoke, doc ; le **jalon humain** reste § *Jalon B*.
+- **Phase B** — validation **toi** (usage réel + cases cochées) ; aucun outil ne peut la « valider » à ta place.
+- **Phase C** — bascule racine **uniquement après B** ; tant que B n’est pas rempli, C = lecture de la doc § *Phase C* seulement.
+
 ---
 
 ## Phases (d’où tu es → bascule racine)
@@ -37,8 +44,15 @@ Suivi **opérationnel** : cocher au fil de l’eau.
 **À faire (toujours phase A / qualité)** — cases :
 
 - [ ] Définir un **niveau 2** de tests : pour N managers pilotes, 1–2 sous-commandes avec **assertion** (stdout / stderr / fichier produit).
-- [ ] Documenter dans `scripts/test/SANDBOX.md` ou `make test-help` la **différence** smoke vs assertions métier.
+- [x] Documenter la **différence** smoke vs assertions métier : paragraphe dans `make test-help` (`scripts/test/print_test_help.sh`) ; `SANDBOX.md` reste optionnel pour détail bac à sable.
 - [ ] (Optionnel) Fichiers **`scripts/test/expected/<manager>/...`** ou snapshots légers — à décider pour ne pas alourdir le dépôt.
+
+### Phase A — livré côté dépôt (sans remplacer le jalon B)
+
+- [x] Bac `DOTFILES_GOOD/` + `make test-dotfiles-good`.
+- [x] Extraits `DOTFILES_GOOD/shared/env/` + README.
+- [x] Script `DOTFILES_GOOD/scripts/print_roots.sh`.
+- [x] `make docker-in` : `DOTFILES_DIR` + `INSTALLMAN_ASSUME_YES` via Makefile ; **choix distro** (Arch, Ubuntu, Debian, Alpine, Fedora, CentOS, openSUSE, Gentoo) via menu TTY ou `DOCKER_DISTRO=` — script `scripts/test/docker/docker_in.sh`.
 
 ## Phase A — produit : **`infosman`** ?
 
@@ -78,7 +92,7 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 - [x] Tableau managers **`docs/ARCHITECTURE.md`** (`migrated_managers.list`).
 - [x] Extraits env **`DOTFILES_GOOD/shared/env/`** depuis `shared/env.sh` : `05`, `10`, `11`, `12`, `13`, `14` (+ README, bootstrap tolérant).
 - [x] Script **`DOTFILES_GOOD/scripts/print_roots.sh`**.
-- [ ] **Reste `shared/env.sh` (prod)** : `mkdir`, bloc `add_to_path` / `clean_path`, concat `PATH`, `echo` — à migrer **après** jalon B ou dans des fichiers séparés **explicitement** non chargés en CI si besoin.
+- [ ] **Reste `shared/env.sh` (prod)** : `mkdir`, bloc `add_to_path` / `clean_path`, concat `PATH`, `echo` — à migrer **après** jalon B ou dans des fichiers séparés **explicitement** non chargés en CI si besoin. *(Avancé: fallback PATH sans `add_to_path`, `mkdir` tolérant, `clean_path` optionnel, message uniquement en TTY + `DOTFILES_ENV_QUIET=1`.)*
 - [ ] Déplacer progressivement **installman** → `core/managers/installman/` + wrappers une ligne.
 - [ ] Réduire **`read` / `clear`** hors TTY (menus / CI).
 - [ ] Garder **`make test`** vert à chaque étape.
@@ -100,6 +114,19 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 | `docs/INSTALLMAN_VISION.md` | Épic installman trans-distro (cadrage). |
 | `docs/TROUBLESHOOTING_MAN_GIT.md` | `git help` quand `man` est absent. |
 | `docs/MANAGERS_SEARCH_VS_INFO.md` | `searchman` vs futur `infosman`. |
+
+---
+
+## Docker `docker-in` — variables (Makefile)
+
+| Variable | Défaut | Rôle |
+|----------|--------|------|
+| `DOCKER_DOTFILES_DIR` | `/root/dotfiles` | Valeur de `-e DOTFILES_DIR` dans le conteneur (alignée sur `-v …:/root/dotfiles`). Ne la change que si tu modifies aussi le montage. |
+| `DOCKER_INSTALLMAN_ASSUME` | `1` | Si `1`, passe `INSTALLMAN_ASSUME_YES=1` (confirmations installman auto). `0` = ne pas définir la variable → questions `[o/N]`. |
+| `DOCKER_SHELL` | *(vide)* | Vide + TTY → menu du shell ; sinon `zsh` par défaut hors TTY ; ou `zsh\|bash\|fish\|sh` en ligne de commande. |
+| `DOCKER_DISTRO` | *(vide)* | Base OS : `arch` (image `make docker-build`), sinon `ubuntu`, `debian`, `alpine`, `fedora`, `centos`, `opensuse`, `gentoo`. Vide + TTY → menu. Images tag `dotfiles-in-<distro>:latest` (hors Arch). Logique : `scripts/test/docker/docker_in.sh`. |
+
+Exemples : `make docker-in DOCKER_DISTRO=debian` · `make docker-in DOCKER_SHELL=fish DOCKER_DISTRO=ubuntu` · `make docker-in DOCKER_INSTALLMAN_ASSUME=0`
 
 ---
 

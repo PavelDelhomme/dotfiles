@@ -11,7 +11,8 @@
 
 _installman_log_init() {
     local default_dir="${DOTFILES_DIR:-$HOME/dotfiles}/logs"
-    if [ -n "$INSTALLMAN_LOG_FILE" ]; then
+    # ${var-} évite une erreur sous zsh setopt nounset quand la variable est absente
+    if [ -n "${INSTALLMAN_LOG_FILE-}" ]; then
         INSTALLMAN_LOG_DIR="${INSTALLMAN_LOG_FILE%/*}"
         return
     fi

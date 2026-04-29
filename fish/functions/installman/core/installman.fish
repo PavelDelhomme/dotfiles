@@ -307,7 +307,19 @@ function installman
             set -l install_func "$tool_parts[7]"
             set -l full_module_path "$INSTALLMAN_MODULES_DIR/$module_file"
             install_tool "$tool_desc" "$full_module_path" "$install_func"
-        else if test "$tool_arg" = "list" || test "$tool_arg" = "help" || test "$tool_arg" = "--help" || test "$tool_arg" = "-h"
+        else if test "$tool_arg" = "list"
+            echo -e "$CYAN$BOLDINSTALLMAN - Outils disponibles:$RESET"
+            echo ""
+            for tool_def in $TOOLS
+                set -l tool_parts (string split ":" "$tool_def")
+                set -l tool_name "$tool_parts[1]"
+                set -l tool_emoji "$tool_parts[3]"
+                set -l tool_desc "$tool_parts[4]"
+                echo "  $GREEN$tool_name$RESET $tool_emoji - $tool_desc"
+            end
+            echo ""
+            echo -e "$YELLOW Astuce:$RESET installman help pour l'usage complet."
+        else if test "$tool_arg" = "help" || test "$tool_arg" = "--help" || test "$tool_arg" = "-h"
             echo -e "$CYAN$BOLDINSTALLMAN - Outils disponibles:$RESET"
             echo ""
             for tool_def in $TOOLS
@@ -321,6 +333,7 @@ function installman
             echo -e "$YELLOWUsage:$RESET"
             echo "  installman [tool-name]     - Installer directement un outil"
             echo "  installman                 - Menu interactif"
+            echo "  installman list            - Liste des outils (sans menu)"
             echo ""
             echo -e "$CYANExemples:$RESET"
             echo "  installman flutter"
@@ -338,7 +351,7 @@ function installman
             echo "Usage: installman [tool-name]"
             echo "   ou: install-tool [tool-name] (alias)"
             echo "   ou: installman (menu interactif)"
-            echo "   ou: installman list (afficher la liste)"
+            echo "   ou: installman list (outils installman)"
             return 1
         end
     else

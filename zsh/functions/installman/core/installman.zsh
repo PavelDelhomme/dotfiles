@@ -42,7 +42,9 @@ fi
 # DÉFINITION DES OUTILS DISPONIBLES
 # =============================================================================
 # Format: "nom:alias1,alias2:emoji:description:check_function:module_file:install_function"
-declare -a TOOLS=(
+# -g : obligatoire car ce fichier est souvent sourcé depuis load_manager() (zshrc) ;
+#      sans -g, declare -a rend TOOLS local à load_manager et le tableau disparaît au return.
+typeset -ga TOOLS=(
     "flutter:flut:🎯:Flutter SDK:check_flutter_installed:flutter/install_flutter.sh:install_flutter"
     "dotnet:dot-net,.net,net:🔷:.NET SDK:check_dotnet_installed:dotnet/install_dotnet.sh:install_dotnet"
     "emacs:emac:📝:Emacs + Doom Emacs:check_emacs_installed:emacs/install_emacs.sh:install_emacs"
@@ -564,6 +566,19 @@ installman() {
         return 1
     }
     
+    # Liste des outils installman (ligne de commande : installman list / installman help)
+    print_installman_tools_catalog() {
+        echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
+        echo ""
+        for tool_def in "${TOOLS[@]}"; do
+            IFS=':' read -rA tool_parts <<< "$tool_def"
+            local tool_name="${tool_parts[1]}"
+            local tool_emoji="${tool_parts[3]}"
+            local tool_desc="${tool_parts[4]}"
+            echo "  ${GREEN}$tool_name${RESET} $tool_emoji - $tool_desc"
+        done
+    }
+    
     # Ordre d'affichage du menu (par catégorie) — utilisé pour la numérotation
     build_menu_order() {
         local order_names=(
@@ -667,7 +682,7 @@ installman() {
             done
             
             echo ""
-            echo -e "${BOLD}  u.${RESET} Mise à jour   ${BOLD}ua.${RESET} Mise à jour tout   ${BOLD}p.${RESET} Paquets   ${BOLD}check-urls${RESET}   ${BOLD}logs${RESET}"
+            echo -e "${BOLD}  u.${RESET} Mise à jour   ${BOLD}ua.${RESET} Mise à jour tout   ${BOLD}p.${RESET} Paquets   ${BOLD}list${RESET} outils   ${BOLD}pl${RESET} paquets   ${BOLD}check-urls${RESET}   ${BOLD}logs${RESET}"
             echo -e "  ${BOLD}0.${RESET} Quitter"
             if [ $total_pages -gt 1 ]; then
                 echo -e "${CYAN}  --- Page $((page+1))/$total_pages (n=suivant p=précédant) ---${RESET}"
@@ -716,7 +731,13 @@ installman() {
                 package_remove_interactive
                 return 0
             fi
-            if [ "$choice" = "pl" ] || [ "$choice" = "list" ]; then
+            if [ "$choice" = "list" ] || [ "$choice" = "ls" ] || [ "$choice" = "tools" ]; then
+                print_installman_tools_catalog
+                echo ""
+                read "?Appuyez sur Entrée pour revenir au menu..."
+                continue
+            fi
+            if [ "$choice" = "pl" ]; then
                 package_list_interactive
                 return 0
             fi
@@ -842,7 +863,8 @@ installman() {
             return 0
         fi
         
-        if [ "$tool_arg" = "list" ] || [ "$tool_arg" = "pl" ]; then
+        # pl = liste des paquets système (less + sous-menu paquets), pas confondre avec installman list
+        if [ "$tool_arg" = "pl" ]; then
             package_list_interactive
             return 0
         fi
@@ -873,21 +895,20 @@ installman() {
             local full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
             install_tool "$tool_desc" "$full_module_path" "$install_func" "$tool_name"
         elif [ "$tool_arg" = "list" ] || [ "$tool_arg" = "help" ] || [ "$tool_arg" = "--help" ] || [ "$tool_arg" = "-h" ]; then
-            echo -e "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}"
-            echo ""
-            for tool_def in "${TOOLS[@]}"; do
-                IFS=':' read -rA tool_parts <<< "$tool_def"
-                local tool_name="${tool_parts[1]}"
-                local tool_emoji="${tool_parts[3]}"
-                local tool_desc="${tool_parts[4]}"
-                echo "  ${GREEN}$tool_name${RESET} $tool_emoji - $tool_desc"
-            done
+            print_installman_tools_catalog
+            if [ "$tool_arg" = "list" ]; then
+                echo ""
+                echo -e "${YELLOW}Astuce:${RESET} installman help pour l’usage complet ; installman pl pour les paquets système (less)."
+                return 0
+            fi
             echo ""
             echo -e "${YELLOW}Usage:${RESET}"
             echo "  installman [tool-name]     - Installer directement un outil"
             echo "  installman                 - Menu interactif"
+            echo "  installman list            - Liste des outils installman (sans menu)"
             echo "  installman update          - Menu de mise à jour"
             echo "  installman update-all      - Mettre à jour tous les outils"
+            echo "  installman pl              - Paquets installés (less, puis menu paquets)"
             echo "  installman check-urls      - Vérifier les URLs de téléchargement (sans installer)"
             echo ""
             echo -e "${CYAN}Exemples:${RESET}"
@@ -908,7 +929,7 @@ installman() {
             echo "Usage: installman [tool-name]"
             echo "   ou: install-tool [tool-name] (alias)"
             echo "   ou: installman (menu interactif)"
-            echo "   ou: installman list (afficher la liste)"
+            echo "   ou: installman list (outils)   ou: installman pl (paquets système)"
             return 1
         fi
     else
