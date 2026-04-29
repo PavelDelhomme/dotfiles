@@ -174,6 +174,22 @@ get_current_version() {
             done
             echo "${n}/${t}"
             ;;
+        i2p)
+            if command -v i2pd &>/dev/null; then
+                i2pd --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "installed"
+            elif command -v i2prouter &>/dev/null || [[ -f /usr/share/i2p/i2prouter ]]; then
+                echo "installed"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        nvidia-driver)
+            if command -v nvidia-smi &>/dev/null; then
+                nvidia-smi --query-gpu=driver_version --format=csv,noheader 2>/dev/null | head -n1 | tr -d ' ' || echo "installed"
+            else
+                echo "not_installed"
+            fi
+            ;;
         *)
             # Pour les autres outils, essayer de détecter via command --version
             if command -v "$tool_name" &>/dev/null; then

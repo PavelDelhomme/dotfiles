@@ -571,6 +571,72 @@ check_db_browser_installed() {
     return 1
 }
 
+# DESC: Tor (daemon / binaire)
+# USAGE: check_tor_installed
+check_tor_installed() {
+    _check_binaries tor && { echo "installed"; return 0; }
+    _check_package tor && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Tor Browser
+# USAGE: check_tor_browser_installed
+check_tor_browser_installed() {
+    local tbd="$HOME/.local/share/tor-browser/Browser/start-tor-browser"
+    [[ -x "$tbd" ]] && { echo "installed"; return 0; }
+    _check_binaries tor-browser torbrowser-launcher start-tor-browser && { echo "installed"; return 0; }
+    _check_desktop_pattern "tor-browser" && { echo "installed"; return 0; }
+    _check_package torbrowser-launcher && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Navigation Tor (Tor et/ou Tor Browser)
+# USAGE: check_tor_navigation_installed
+check_tor_navigation_installed() {
+    if [[ "$(check_tor_installed 2>/dev/null)" == installed ]]; then
+        echo "installed"
+        return 0
+    fi
+    if [[ "$(check_tor_browser_installed 2>/dev/null)" == installed ]]; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: I2P — i2pd (Purple I2P) et/ou routeur Java I2P
+# USAGE: check_i2p_installed
+check_i2p_installed() {
+    _check_binaries i2pd && { echo "installed"; return 0; }
+    _check_paths /usr/sbin/i2pd /usr/bin/i2pd && { echo "installed"; return 0; }
+    _check_binaries i2prouter && { echo "installed"; return 0; }
+    _check_package i2pd i2p && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Pilotes NVIDIA (nvidia-smi ou module noyau)
+# USAGE: check_nvidia_driver_installed
+check_nvidia_driver_installed() {
+    if command -v nvidia-smi &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    if [[ -d /proc/driver/nvidia ]] || grep -q '^nvidia ' /proc/modules 2>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    _check_package nvidia-driver nvidia-dkms nvidia-utils nvidia-open nvidia-open-dkms xorg-x11-drv-nvidia akmod-nvidia && {
+        echo "installed"
+        return 0
+    }
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Ollama (binaire ollama)
 # USAGE: check_ollama_installed
 check_ollama_installed() {

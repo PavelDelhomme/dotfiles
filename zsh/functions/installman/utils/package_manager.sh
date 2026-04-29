@@ -481,3 +481,170 @@ list_installed_packages() {
     esac
 }
 
+# =============================================================================
+# MISES A JOUR SYSTEME / PAQUETS
+# =============================================================================
+
+# DESC: Affiche les mises a jour disponibles (systeme + gestionnaires universels)
+# USAGE: list_available_updates [manager]
+# RETURNS: 0 si des mises a jour sont trouvees, 1 sinon, 2 si manager inconnu
+list_available_updates() {
+    local manager="${1:-all}"
+    local found_updates=1
+
+    _check_one_manager_updates() {
+        local mgr="$1"
+        local output=""
+
+        case "$mgr" in
+            pacman)
+                if ! is_package_manager_available "pacman"; then return 0; fi
+                if command -v checkupdates >/dev/null 2>&1; then
+                    output=$(checkupdates 2>/dev/null)
+                else
+                    output=$(pacman -Qu 2>/dev/null)
+                fi
+                ;;
+            yay)
+                if ! is_package_manager_available "yay"; then return 0; fi
+                output=$(yay -Qua 2>/dev/null)
+                ;;
+            apt|apt-get)
+                if ! is_package_manager_available "apt"; then return 0; fi
+                output=$(apt list --upgradable 2>/dev/null | sed '1d')
+                ;;
+            dnf)
+                if ! is_package_manager_available "dnf"; then return 0; fi
+                output=$(dnf -q check-update 2>/dev/null || true)
+                ;;
+            yum)
+                if ! is_package_manager_available "yum"; then return 0; fi
+                output=$(yum -q check-update 2>/dev/null || true)
+                ;;
+            emerge)
+                if ! is_package_manager_available "emerge"; then return 0; fi
+                output=$(emerge -puDN --with-bdeps=y @world 2>/dev/null | grep -E '^(\[ebuild|\[binary)' || true)
+                ;;
+            flatpak)
+                if ! is_package_manager_available "flatpak"; then return 0; fi
+                output=$(flatpak remote-ls --updates 2>/dev/null)
+                ;;
+            snap)
+                if ! is_package_manager_available "snap"; then return 0; fi
+                output=$(snap refresh --list 2>/dev/null | sed '1d')
+                ;;
+            npm)
+                if ! is_package_manager_available "npm"; then return 0; fi
+                output=$(npm outdated -g --depth=0 2>/dev/null)
+                ;;
+            *)
+                return 2
+                ;;
+        esac
+
+        if [ -n "$output" ]; then
+            echo ""
+            echo "=== Mises a jour ($mgr) ==="
+            echo "$output"
+            found_updates=0
+        fi
+        return 0
+    }
+
+    if [ "$manager" = "all" ]; then
+        for mgr in pacman yay apt dnf yum emerge flatpak snap npm; do
+            _check_one_manager_updates "$mgr"
+        done
+    else
+        _check_one_manager_updates "$manager" || return $?
+    fi
+
+    if [ $found_updates -ne 0 ]; then
+        echo "Aucune mise a jour detectee."
+    fi
+    return $found_updates
+}
+
+# DESC: Lance les mises a jour systeme/paquets (par manager ou global)
+# USAGE: upgrade_all_packages [manager]
+# RETURNS: 0 si ok, 1 sinon, 2 si manager inconnu
+upgrade_all_packages() {
+    local manager="${1:-auto}"
+    local ret=0
+    local distro=""
+
+    _upgrade_one_manager() {
+        local mgr="$1"
+        case "$mgr" in
+            pacman)
+                sudo pacman -Syu
+                ;;
+            yay)
+                yay -Syu
+                ;;
+            apt|apt-get)
+                sudo apt-get update && sudo apt-get upgrade -y
+                ;;
+            dnf)
+                sudo dnf upgrade --refresh -y
+                ;;
+            yum)
+                sudo yum update -y
+                ;;
+            emerge)
+                sudo emerge --sync && sudo emerge -uDN --with-bdeps=y @world
+                ;;
+            flatpak)
+                flatpak update -y
+                ;;
+            snap)
+                sudo snap refresh
+                ;;
+            npm)
+                npm update -g
+                ;;
+            *)
+                return 2
+                ;;
+        esac
+    }
+
+    if [ "$manager" = "auto" ] || [ "$manager" = "all" ]; then
+        distro=$(detect_distro)
+        case "$distro" in
+            arch)
+                if is_package_manager_available "yay"; then
+                    _upgrade_one_manager "yay" || ret=1
+                else
+                    _upgrade_one_manager "pacman" || ret=1
+                fi
+                ;;
+            debian|ubuntu)
+                _upgrade_one_manager "apt" || ret=1
+                ;;
+            fedora)
+                if is_package_manager_available "dnf"; then
+                    _upgrade_one_manager "dnf" || ret=1
+                else
+                    _upgrade_one_manager "yum" || ret=1
+                fi
+                ;;
+            gentoo)
+                _upgrade_one_manager "emerge" || ret=1
+                ;;
+            *)
+                ret=1
+                ;;
+        esac
+
+        # Gestionnaires "universels" installes
+        is_package_manager_available "flatpak" && _upgrade_one_manager "flatpak" || true
+        is_package_manager_available "snap" && _upgrade_one_manager "snap" || true
+        is_package_manager_available "npm" && _upgrade_one_manager "npm" || true
+        return $ret
+    fi
+
+    _upgrade_one_manager "$manager" || return $?
+    return 0
+}
+

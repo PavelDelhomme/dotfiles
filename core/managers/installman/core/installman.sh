@@ -85,6 +85,8 @@ cpp-tools:c++,cpp,cpp-tools:⚙️:Outils C++ (G++, make, CMake):check_cpp_tools
 tor::🔒:Tor (anonymisation réseau):check_tor_installed:tor/install_tor.sh:install_tor
 tor-browser:torbrowser,tor-browser:🌐:Tor Browser (navigateur anonyme):check_tor_browser_installed:tor/install_tor_browser.sh:install_tor_browser
 tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation
+i2p:i2pd,purple-i2p,purple:🧅:I2P (i2pd / réseau I2P):check_i2p_installed:i2p/install_i2p.sh:install_i2p
+nvidia-driver:nvidia,nvidia-gpu:🎮:Pilotes NVIDIA (détection GPU):check_nvidia_driver_installed:nvidia/install_nvidia_driver.sh:install_nvidia_driver
 snap:snapd:📦:Snapd (daemon snap):check_snap_installed:snap/install_snap.sh:install_snap
 ollama::🦙:Ollama (LLM local):check_ollama_installed:ollama/install_ollama.sh:install_ollama
 flatpak-stack:flatpak,flathub:📦:Flatpak + dépôt Flathub:check_flatpak_stack_installed:flatpak/install_flatpak_stack.sh:install_flatpak_stack
@@ -1019,6 +1021,35 @@ EOF
                 update_all_tools
                 return 0
                 ;;
+            check|updates|check-updates)
+                _updates_manager="${2:-all}"
+                if command -v list_available_updates >/dev/null 2>&1; then
+                    list_available_updates "$_updates_manager"
+                else
+                    printf "${YELLOW}⚠️  Fonction list_available_updates non disponible${RESET}\n"
+                    return 1
+                fi
+                return 0
+                ;;
+            upgrade|sys-upgrade|upgrade-system)
+                _upgrade_manager="${2:-auto}"
+                if [ -z "${INSTALLMAN_ASSUME_YES:-}" ]; then
+                    printf "${YELLOW}⚠️  Upgrade système/paquets (manager: %s)${RESET}\n" "$_upgrade_manager"
+                    printf "Continuer ? (o/N): "
+                    read -r _confirm_upgrade
+                    case "$_confirm_upgrade" in
+                        o|O) ;;
+                        *) printf "${YELLOW}Annulé${RESET}\n"; return 0 ;;
+                    esac
+                fi
+                if command -v upgrade_all_packages >/dev/null 2>&1; then
+                    upgrade_all_packages "$_upgrade_manager"
+                else
+                    printf "${YELLOW}⚠️  Fonction upgrade_all_packages non disponible${RESET}\n"
+                    return 1
+                fi
+                return 0
+                ;;
             packages|p)
                 show_package_manager_menu
                 return 0
@@ -1085,6 +1116,8 @@ EOF
                 echo "  installman list            - Liste des outils (sans menu)"
                 echo "  installman update          - Menu de mise à jour"
                 echo "  installman update-all      - Mettre à jour tous les outils"
+                echo "  installman check [manager] - Vérifier updates système/paquets"
+                echo "  installman upgrade [mgr]   - Appliquer les upgrades système/paquets"
                 echo "  installman pl              - Paquets installés (less, puis menu paquets)"
                 echo ""
                 printf "${CYAN}Exemples:${RESET}\n"
@@ -1093,6 +1126,8 @@ EOF
                 echo "  installman cursor"
                 echo "  installman update          - Mettre à jour un outil"
                 echo "  installman update-all     - Mettre à jour tous les outils"
+                echo "  installman check"
+                echo "  installman upgrade"
                 ;;
             pl)
                 package_list_interactive
