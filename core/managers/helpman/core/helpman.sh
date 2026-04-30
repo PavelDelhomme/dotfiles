@@ -61,6 +61,13 @@ helpman() {
         managers_log_line "helpman" "invoke" "menu" "info" "session interactive"
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     while true; do
         clear
         printf "${CYAN}${BOLD}"
@@ -117,16 +124,14 @@ EOF
                 echo "   Elle fournit une documentation complète et détaillée, souvent formatée de manière standardisée (groff/nroff)."
                 echo "   Notre système 'man' personnalisé étend cette fonctionnalité pour inclure la documentation de nos fonctions shell personnalisées, en utilisant le format Markdown."
                 printf "   ${YELLOW}Appuyez sur 'q' pour quitter la page man.${RESET}\n"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             2)
                 printf "${BOLD}2. Qu'est-ce que 'help' ?${RESET}\n"
                 echo "   La commande 'help' (intégrée au shell) est utilisée pour obtenir une aide rapide et concise sur les commandes et fonctions internes du shell."
                 echo "   Elle est plus légère que 'man' et est idéale pour un aperçu rapide de l'utilisation, des arguments et des descriptions courtes."
                 echo "   Notre système 'help' personnalisé agrège la documentation 'DESC', 'USAGE' et 'EXAMPLE' directement depuis les commentaires de nos scripts de fonctions."
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             3)
                 printf "${BOLD}3. Différences entre 'man' et 'help'${RESET}\n"
@@ -141,8 +146,7 @@ EOF
                 echo "     - Détail: Concis, se concentre sur l'utilisation de base et les arguments essentiels."
                 echo "     - Format: Texte brut, affiché directement dans le terminal."
                 echo "     - Utilisation: Pour un rappel rapide de la syntaxe ou des options courantes."
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             4)
                 printf "${BOLD}4. Comment utiliser 'man' ?${RESET}\n"
@@ -158,8 +162,7 @@ EOF
                 echo "     - /mot : Rechercher 'mot'"
                 echo "     - n : Résultat suivant"
                 echo "     - q : Quitter"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             5)
                 printf "${BOLD}5. Comment utiliser 'help' ?${RESET}\n"
@@ -175,8 +178,7 @@ EOF
                 echo "     help <fonction>   # Aide sur une fonction spécifique"
                 echo "     help --list       # Liste toutes les fonctions disponibles"
                 echo "     help --search <mot> # Rechercher des fonctions"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             6)
                 printf "${BOLD}6. Exemples pratiques${RESET}\n"
@@ -195,8 +197,7 @@ EOF
                 printf "   ${GREEN}Exemple 4: Recherche${RESET}\n"
                 echo "     \$ help --search archive"
                 echo "     # Trouve toutes les fonctions liées aux archives"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             7)
                 printf "${BOLD}7. Liste des fonctions disponibles${RESET}\n"
@@ -210,8 +211,7 @@ EOF
                 else
                     echo "⚠️  Fonction list_functions non disponible"
                 fi
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             8)
                 printf "${BOLD}8. Rechercher une fonction${RESET}\n"
@@ -229,8 +229,7 @@ EOF
                         echo "⚠️  Fonction de recherche non disponible"
                     fi
                 fi
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             9)
                 printf "${BOLD}9. Aide sur le système d'aide lui-même${RESET}\n"
@@ -249,8 +248,7 @@ EOF
                 echo "     - help <fonction> : Aide rapide"
                 echo "     - man <fonction> : Documentation complète"
                 echo "     - helpman : Ce guide interactif"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *)

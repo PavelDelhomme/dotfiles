@@ -40,6 +40,13 @@ multimediaman() {
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Charger les modules si disponibles
     if [ -d "$MULTIMEDIAMAN_MODULES_DIR" ]; then
         for module_file in "$MULTIMEDIAMAN_MODULES_DIR"/*/*.sh; do
@@ -121,8 +128,7 @@ EOF
                 else
                     printf "${YELLOW}Opération annulée${RESET}\n"
                 fi
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 show_main_menu
                 ;;
             3|list|ls)
@@ -138,8 +144,7 @@ EOF
                 else
                     printf "${YELLOW}Opération annulée${RESET}\n"
                 fi
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 show_main_menu
                 ;;
             4|help|h|aide)
@@ -180,8 +185,7 @@ EOF
         echo "  - libdvdcss installé (pour DVD chiffrés)"
         echo ""
         if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
         fi
     }
     

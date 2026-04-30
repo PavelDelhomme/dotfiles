@@ -42,6 +42,13 @@ fileman() {
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Fonction pour afficher le header
     show_header() {
         clear
@@ -138,8 +145,7 @@ EOF
         
         # Retourner au menu après action
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
         fileman
     }
     

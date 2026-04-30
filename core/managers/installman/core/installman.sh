@@ -63,6 +63,13 @@ installman() {
     # Charger les fonctions de gestion de paquets
     [ -f "$INSTALLMAN_UTILS_DIR/package_manager.sh" ] && . "$INSTALLMAN_UTILS_DIR/package_manager.sh" 2>/dev/null || true
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Définition des outils disponibles (format: "nom:alias1,alias2:emoji:description:check_function:module_file:install_function")
     TOOLS="flutter:flut:🎯:Flutter SDK:check_flutter_installed:flutter/install_flutter.sh:install_flutter
 dotnet:dot-net,.net,net:🔷:.NET SDK:check_dotnet_installed:dotnet/install_dotnet.sh:install_dotnet
@@ -278,8 +285,7 @@ EOF
         if [ -z "$installed_tools_list" ]; then
             printf "${YELLOW}Aucun outil installé${RESET}\n"
             echo ""
-            printf "Appuyez sur Entrée pour retourner au menu principal... "
-            read dummy
+            pause_if_tty
             show_main_menu
             return 0
         fi
@@ -459,8 +465,7 @@ $version"
                     fi
                     
                     echo ""
-                    printf "Appuyez sur Entrée pour continuer... "
-                    read dummy
+                    pause_if_tty
                     show_update_menu
                 else
                     printf "${RED}❌ Module %s non disponible: %s${RESET}\n" "$tool_desc" "$full_module_path"
@@ -514,8 +519,7 @@ EOF
         if [ "$tool_count" -eq 0 ]; then
             printf "${GREEN}✅ Tous les outils sont à jour!${RESET}\n"
             echo ""
-            printf "Appuyez sur Entrée pour retourner au menu principal... "
-            read dummy
+            pause_if_tty
             show_main_menu
             return 0
         fi
@@ -575,8 +579,7 @@ EOF
                     printf "   ${RED}Échouées:${RESET} %d\n" "$failed"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour retourner au menu principal... "
-                read dummy
+                pause_if_tty
                 show_main_menu
                 ;;
             *)
@@ -645,8 +648,7 @@ EOF
             printf "${YELLOW}⚠️  Fonction search_package non disponible${RESET}\n"
         fi
         echo ""
-        printf "Appuyez sur Entrée... "
-        read dummy
+        pause_if_tty
         show_package_manager_menu
     }
     
@@ -670,8 +672,7 @@ EOF
             printf "${YELLOW}⚠️  Fonction install_package non disponible${RESET}\n"
         fi
         echo ""
-        printf "Appuyez sur Entrée... "
-        read dummy
+        pause_if_tty
         show_package_manager_menu
     }
     
@@ -697,8 +698,7 @@ EOF
                 ;;
         esac
         echo ""
-        printf "Appuyez sur Entrée... "
-        read dummy
+        pause_if_tty
         show_package_manager_menu
     }
     
@@ -741,8 +741,7 @@ EOF
             printf "${RED}Script non trouvé${RESET}\n"
         fi
         echo ""
-        printf "Appuyez sur Entrée... "
-        read dummy
+        pause_if_tty
         show_package_manager_menu
     }
     

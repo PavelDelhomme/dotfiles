@@ -44,6 +44,13 @@ testman() {
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Créer les répertoires si nécessaire
     if [ -n "$TESTMAN_DIR" ]; then
         mkdir -p "$TESTMAN_CONFIG_DIR" 2>/dev/null || true
@@ -113,7 +120,7 @@ testman() {
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         # Vérifier si Docker Compose est utilisé
-        if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; then
+        if [ -t 0 ] && [ -t 1 ] && { [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; }; then
             printf "${YELLOW}🐳 Docker Compose détecté${RESET}\n"
             printf "Voulez-vous lancer les tests dans Docker? (y/N): "
             read use_docker
@@ -189,7 +196,7 @@ testman() {
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         # Vérifier si Docker Compose est utilisé
-        if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; then
+        if [ -t 0 ] && [ -t 1 ] && { [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; }; then
             printf "${YELLOW}🐳 Docker Compose détecté${RESET}\n"
             printf "Voulez-vous lancer les tests dans Docker? (y/N): "
             read use_docker
@@ -601,8 +608,7 @@ EOF
             0|q|Q|quit|exit) ;;
             *)
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 testman
                 ;;
         esac

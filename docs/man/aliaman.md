@@ -1,8 +1,8 @@
-# ALIAMAN(1) - Gestionnaire d'alias ZSH
+# ALIAMAN(1) - Gestionnaire d'alias multi-shell
 
 ## NOM
 
-aliaman - Gestionnaire interactif complet pour gérer les alias ZSH
+aliaman - Gestionnaire interactif complet pour gérer les alias (zsh/bash/fish)
 
 ## SYNOPSIS
 
@@ -10,7 +10,8 @@ aliaman - Gestionnaire interactif complet pour gérer les alias ZSH
 
 ## DESCRIPTION
 
-ALIAMAN est un gestionnaire interactif complet pour gérer les alias ZSH. Il permet
+ALIAMAN est un gestionnaire interactif complet pour gérer les alias sur plusieurs shells.
+Il permet
 d'ajouter, modifier, supprimer, rechercher et organiser les alias avec une interface
 utilisateur conviviale.
 
@@ -52,7 +53,9 @@ $ aliaman search git
 
 ## FICHIERS
 
-- `~/dotfiles/zsh/aliases.zsh` - Fichier de stockage des alias
+- `~/dotfiles/zsh/aliases.zsh` - Alias ZSH
+- `~/dotfiles/bash/aliases.sh` - Alias Bash
+- `~/dotfiles/fish/aliases.fish` - Alias Fish
 - `~/dotfiles/zsh/backups/` - Répertoire des sauvegardes
 
 ## VOIR AUSSI

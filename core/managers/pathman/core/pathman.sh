@@ -46,6 +46,12 @@ pathman() {
         # shellcheck source=/dev/null
         . "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
     fi
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\n0) Export\nh) Aide\nq) Quitter\n"
 
     # DESC: S'assure que le répertoire et le fichier de log existent (repli /tmp si RO, ex. Docker)
@@ -90,10 +96,7 @@ pathman() {
         done
         add_logs "SHOW" "Affichage du PATH"
         echo
-        if [ -t 0 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
 
     # DESC: Ajoute un répertoire au PATH (version interactive)
@@ -210,10 +213,7 @@ pathman() {
             ensure_path_log
             if [ ! -f "$PATH_LOG_FILE" ]; then
                 printf "${YELLOW}Aucun log encore (répertoire: %s)${RESET}\n" "$(dirname "$PATH_LOG_FILE")"
-                if [ -t 0 ]; then
-                    printf "Appuyez sur Entrée pour continuer... "
-                    read dummy
-                fi
+                pause_if_tty
                 return
             fi
         fi
@@ -224,10 +224,7 @@ pathman() {
             tail -30 "$PATH_LOG_FILE"
         fi
         echo
-        if [ -t 0 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
 
     # DESC: Affiche les statistiques d'utilisation du PATH
@@ -256,10 +253,7 @@ pathman() {
         echo "$cnt au total, $invalid non résolus"
         echo "Taille totale: $path_length caractères"
         echo
-        if [ -t 0 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
 
     # DESC: Exporte le PATH dans un fichier texte
@@ -297,7 +291,7 @@ q) Quitter
 
 Commandes rapides : pathman add /mon/chemin
 EOF
-        if [ -t 0 ]; then
+        if [ -t 0 ] && [ -t 1 ]; then
             printf "Appuyez sur Entrée pour revenir au menu... "
             read dummy
         fi

@@ -42,6 +42,13 @@ virtman() {
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Charger les utilitaires si disponibles
     if [ -d "$VIRTMAN_DIR/utils" ]; then
         for util_file in "$VIRTMAN_DIR/utils"/*.sh; do
@@ -168,8 +175,7 @@ EOF
         
         # Retourner au menu après action
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Si un argument est fourni, lancer directement le module

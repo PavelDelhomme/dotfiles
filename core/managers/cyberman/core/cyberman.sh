@@ -88,6 +88,13 @@ cyberman() {
         printf "${RESET}\n"
     }
 
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur une touche pour continuer..."
+            read dummy
+        fi
+    }
+
     cyber_pick_menu() {
         _title="$1"
         _choice=""
@@ -147,57 +154,57 @@ EOF
                 1) 
                     . "$CYBER_DIR/reconnaissance/domain_whois.sh" && domain_whois
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 2) 
                     . "$CYBER_DIR/reconnaissance/dns_lookup.sh" && dns_lookup
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 3) 
                     . "$CYBER_DIR/reconnaissance/dnsenum_scan.sh" && ensure_tool dnsenum && dnsenum_scan
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 4) 
                     . "$CYBER_DIR/reconnaissance/find_subdomains.sh" && find_subdomains
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 5) 
                     . "$CYBER_DIR/reconnaissance/recon_domain.sh" && ensure_tool theHarvester && recon_domain
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 6) 
                     . "$CYBER_DIR/reconnaissance/enhanced_traceroute.sh" && enhanced_traceroute
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 7) 
                     . "$CYBER_DIR/reconnaissance/network_map.sh" && network_map
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 8) 
                     . "$CYBER_DIR/reconnaissance/get_http_headers.sh" && get_http_headers
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 9) 
                     . "$CYBER_DIR/reconnaissance/analyze_headers.sh" && analyze_headers
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 10) 
                     . "$CYBER_DIR/reconnaissance/get_robots_txt.sh" && get_robots_txt
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 11) 
                     . "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                     ;;
                 12)
                     if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
@@ -213,7 +220,7 @@ EOF
                         done
                         echo ""
                         echo "✅ Reconnaissance terminée sur toutes les cibles"
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     else
                         echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
                         sleep 2
@@ -275,67 +282,67 @@ EOF
             1) 
                 . "$CYBER_DIR/scanning/port_scan.sh" && ensure_tool nmap && port_scan
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             2) 
                 . "$CYBER_DIR/scanning/scan_ports.sh" && ensure_tool nmap && scan_ports
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             3) 
                 . "$CYBER_DIR/scanning/web_port_scan.sh" && ensure_tool nmap && web_port_scan
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             4) 
                 . "$CYBER_DIR/scanning/scan_web_ports.sh" && ensure_tool nmap && scan_web_ports
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             5) 
                 . "$CYBER_DIR/scanning/enum_dirs.sh" && enum_dirs
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             6) 
                 . "$CYBER_DIR/scanning/enum_shares.sh" && enum_shares
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             7) 
                 . "$CYBER_DIR/scanning/enumerate_users.sh" && enumerate_users
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             8) 
                 . "$CYBER_DIR/scanning/web_dir_enum.sh" && ensure_tool gobuster && web_dir_enum
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             9) 
                 . "$CYBER_DIR/reconnaissance/network_map.sh" && network_map
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             10) 
                 . "$CYBER_DIR/scanning/check_telnet.sh" && check_telnet
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             11)
                 . "$CYBER_DIR/scanning/network_scanner_integrated.sh" && network_scan_cyberman --save
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             12)
                 . "$CYBER_DIR/scanning/network_scanner_integrated.sh" && network_scan_cyberman --live --save
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             13)
                 . "$CYBER_DIR/scanning/advanced_network_scan.sh" && advanced_network_scan "" --full --vuln --save
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             14)
                 if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
@@ -398,42 +405,42 @@ EOF
             1) 
                 . "$CYBER_DIR/vulnerability/nmap_vuln_scan.sh" && ensure_tool nmap && nmap_vuln_scan
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             2) 
                 . "$CYBER_DIR/vulnerability/vuln_scan.sh" && vuln_scan
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             3) 
                 . "$CYBER_DIR/vulnerability/scan_vulns.sh" && scan_vulns
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             4) 
                 . "$CYBER_DIR/vulnerability/nikto_scan.sh" && ensure_tool nikto && nikto_scan
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             5) 
                 . "$CYBER_DIR/vulnerability/web_vuln_scan.sh" && web_vuln_scan
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             6) 
                 . "$CYBER_DIR/vulnerability/check_ssl.sh" && check_ssl
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             7) 
                 . "$CYBER_DIR/vulnerability/check_ssl_cert.sh" && check_ssl_cert
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             8) 
                 . "$CYBER_DIR/vulnerability/check_heartbleed.sh" && check_heartbleed
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             9)
                 if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
@@ -451,7 +458,7 @@ EOF
                     done
                     echo ""
                     echo "✅ Scan de vulnérabilités terminé sur toutes les cibles"
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                 else
                     echo "❌ Aucune cible configurée. Utilisez le menu 'Gestion des cibles' d'abord."
                     sleep 2
@@ -623,7 +630,7 @@ EOF
                 if [ -n "$target" ]; then
                     add_target "$target"
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                 fi
                 ;;
             2)
@@ -635,7 +642,7 @@ EOF
                 if [ -n "$targets" ]; then
                     add_target $targets
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                 fi
                 ;;
             3)
@@ -648,7 +655,7 @@ EOF
                     if [ -n "$target" ]; then
                         remove_target "$target"
                         echo ""
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     fi
                 else
                     echo "❌ Aucune cible à supprimer"
@@ -663,7 +670,7 @@ EOF
                     if [ "$confirm" = "o" ] || [ "$confirm" = "O" ]; then
                         clear_targets
                         echo ""
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     fi
                 else
                     echo "❌ Aucune cible à supprimer"
@@ -678,7 +685,7 @@ EOF
                     echo "⚠️  Aucune cible configurée"
                 fi
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -842,7 +849,7 @@ ${BOLD}Note:${RESET}
 Certaines fonctions nécessitent des privilèges sudo.
 EOF
         echo ""
-        printf "Appuyez sur une touche pour revenir au menu..."; read dummy
+        pause_if_tty
     }
     
     # =========================================================================
@@ -880,7 +887,7 @@ EOF
                     . "$CYBER_DIR/anonymity_manager.sh"
                     check_anonymity
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                 fi
                 ;;
             2)
@@ -888,7 +895,7 @@ EOF
                     . "$CYBER_DIR/anonymity_manager.sh"
                     show_anonymity_info
                     echo ""
-                    printf "Appuyez sur une touche pour continuer..."; read dummy
+                    pause_if_tty
                 fi
                 ;;
             3)
@@ -900,7 +907,7 @@ EOF
                     if [ -n "$cmd" ]; then
                         run_with_anonymity $cmd
                         echo ""
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     fi
                 fi
                 ;;
@@ -913,7 +920,7 @@ EOF
                     if [ -n "$fake_ip" ]; then
                         setup_ip_spoofing "$fake_ip"
                         echo ""
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     fi
                 fi
                 ;;
@@ -926,7 +933,7 @@ EOF
                     if [ -n "$fake_ip" ]; then
                         remove_ip_spoofing "$fake_ip"
                         echo ""
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     fi
                 fi
                 ;;
@@ -942,7 +949,7 @@ EOF
                     if [ -n "$workflow_name" ]; then
                         run_workflow_anonymized "$workflow_name"
                         echo ""
-                        printf "Appuyez sur une touche pour continuer..."; read dummy
+                        pause_if_tty
                     fi
                 fi
                 ;;
@@ -1025,7 +1032,7 @@ EOF
                         echo "❌ Répertoire invalide"
                     fi
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             4)
                 echo ""
@@ -1041,7 +1048,7 @@ EOF
                     echo "❌ Aucun générateur aléatoire disponible"
                 fi
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             5)
                 echo ""
@@ -1066,7 +1073,7 @@ EOF
                     fi
                 fi
                 echo ""
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -1161,7 +1168,7 @@ EOF
                     echo "🏆 Badges obtenus:"
                     echo "  Aucun badge pour le moment"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             6)
                 # Gestion labs Docker
@@ -1240,7 +1247,7 @@ EOF
             echo "💡 Le lab sera bientôt intégré directement"
         fi
         
-        printf "Appuyez sur une touche pour continuer..."; read dummy
+        pause_if_tty
     }
     
     # Challenge du jour direct
@@ -1269,7 +1276,7 @@ EOF
         echo ""
         echo "💡 Complétez ce challenge pour gagner des points !"
         echo ""
-        printf "Appuyez sur une touche pour continuer..."; read dummy
+        pause_if_tty
     }
     
     # Progression directe
@@ -1289,7 +1296,7 @@ EOF
         fi
         
         echo ""
-        printf "Appuyez sur une touche pour continuer..."; read dummy
+        pause_if_tty
     }
     
     # Menu gestion labs Docker
@@ -1334,26 +1341,26 @@ EOF
                     docker stop "cyberlearn-$lab_name" 2>/dev/null && docker rm "cyberlearn-$lab_name" 2>/dev/null
                     echo "✅ Lab arrêté"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             3)
                 echo ""
                 echo "Labs actifs:"
                 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'cyberlearn|NAMES' || echo "  Aucun lab actif"
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             4)
                 echo ""
                 echo "🧹 Nettoyage des containers cyberlearn..."
                 docker ps -a --filter "name=cyberlearn-" --format "{{.Names}}" | xargs -r docker rm 2>/dev/null
                 echo "✅ Nettoyage terminé"
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             5)
                 echo ""
                 echo "📊 Statut des labs:"
                 docker ps -a --format 'table {{.Names}}\t{{.Status}}' | grep -E 'cyberlearn|NAMES' || echo "  Aucun lab"
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -1396,7 +1403,7 @@ ${BOLD}Commandes rapides:${RESET}
   • cyberlearn progress - Voir la progression
 
 EOF
-        printf "Appuyez sur une touche pour continuer..."; read dummy
+        pause_if_tty
     }
     
     # =========================================================================
@@ -1700,7 +1707,7 @@ EOF
                 if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "search exploit $search_term; exit"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             3)
                 printf "🔍 Rechercher un payload: "
@@ -1708,7 +1715,7 @@ EOF
                 if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "search payload $search_term; exit"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             4)
                 printf "🔍 Rechercher un auxiliary: "
@@ -1716,13 +1723,13 @@ EOF
                 if [ -n "$search_term" ] && command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "search auxiliary $search_term; exit"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             5)
                 if command -v msfconsole >/dev/null 2>&1; then
                     msfconsole -q -x "show exploits; exit" | head -50
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             6)
                 echo "💡 Utilisez msfvenom pour générer des payloads"
@@ -1731,7 +1738,7 @@ EOF
                 else
                     echo "❌ msfvenom non disponible"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -1780,7 +1787,7 @@ EOF
                 else
                     echo "❌ nmap non installé"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             2)
                 if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
@@ -1795,12 +1802,12 @@ EOF
                 else
                     echo "❌ Aucune cible configurée"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             3)
                 echo "💡 Créez vos scripts dans ~/.nmap/scripts/"
                 echo "💡 Documentation: https://nmap.org/book/nse.html"
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             4)
                 if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
@@ -1811,7 +1818,7 @@ EOF
                 else
                     echo "❌ Aucune cible configurée"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             5)
                 if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
@@ -1822,7 +1829,7 @@ EOF
                 else
                     echo "❌ Aucune cible configurée"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -1858,7 +1865,7 @@ EOF
                     echo "⚠️  Répertoire des scripts non trouvé: $scripts_dir"
                     echo "💡 Créez-le: mkdir -p $scripts_dir"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             2)
                 scripts_dir="$HOME/.cyberman/scripts"
@@ -1876,12 +1883,12 @@ EOF
                 else
                     echo "❌ Répertoire des scripts non trouvé"
                 fi
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             3)
                 echo "💡 Créez vos scripts dans ~/.cyberman/scripts/"
                 echo "💡 Les scripts peuvent utiliser les variables CYBER_TARGETS"
-                printf "Appuyez sur une touche pour continuer..."; read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
@@ -2141,7 +2148,7 @@ EOF
                             # Ne PAS recharger le gestionnaire ici car il pourrait recharger depuis le fichier
                             # Le rechargement se fera automatiquement dans show_main_menu
                             echo ""
-                            printf "Appuyez sur une touche pour continuer..."; read dummy
+                            pause_if_tty
                         fi
                     else
                         echo "❌ Gestionnaire d'environnements non disponible"

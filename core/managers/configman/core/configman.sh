@@ -51,6 +51,13 @@ configman() {
         done
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Fonction pour afficher le header
     show_header() {
         clear
@@ -159,8 +166,7 @@ configman() {
         fi
         echo ""
         
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour le menu de gestion de versions
@@ -178,13 +184,11 @@ configman() {
                 version_manager_menu_internal
             else
                 printf "${YELLOW}⚠️  Menu de gestion de versions non disponible${RESET}\n"
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
             fi
         else
             printf "${RED}❌ Module de gestion de versions non disponible${RESET}\n"
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
         fi
     }
     

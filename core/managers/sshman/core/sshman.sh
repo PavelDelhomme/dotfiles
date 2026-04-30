@@ -43,6 +43,13 @@ sshman() {
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Charger les utilitaires si disponibles (find : évite glob zsh « no matches » si dossier vide)
     if [ -d "$SSHMAN_UTILS_DIR" ] && command -v find >/dev/null 2>&1; then
         find "$SSHMAN_UTILS_DIR" -maxdepth 1 -type f -name '*.sh' 2>/dev/null | sort | while IFS= read -r util_file; do
@@ -75,8 +82,7 @@ sshman() {
             printf "${YELLOW}⚠️  Aucun fichier ~/.ssh/config trouvé${RESET}\n"
             echo "  Utilisez 'sshman auto-setup' pour configurer une connexion"
             echo ""
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
             return
         fi
         
@@ -106,8 +112,7 @@ sshman() {
         fi
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour tester une connexion SSH
@@ -123,9 +128,12 @@ sshman() {
         if [ -z "$hosts" ]; then
             printf "${YELLOW}⚠️  Aucune connexion SSH configurée${RESET}\n"
             echo ""
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
             return
+        fi
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}⚠️  test_ssh_connection nécessite un terminal interactif${RESET}\n"
+            return 1
         fi
         
         echo "Sélectionnez un host à tester:"
@@ -182,8 +190,7 @@ sshman() {
         fi
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour gérer les clés SSH
@@ -192,6 +199,10 @@ sshman() {
         printf "${YELLOW}🔑 Gestion des clés SSH${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo ""
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}⚠️  manage_ssh_keys nécessite un terminal interactif${RESET}\n"
+            return 1
+        fi
         
         SSH_DIR="$HOME/.ssh"
         keys=$(find "$SSH_DIR" -name "id_*" -type f ! -name "*.pub" 2>/dev/null)
@@ -327,8 +338,7 @@ sshman() {
         fi
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher les statistiques SSH
@@ -510,8 +520,7 @@ EOF
                     echo "  sshman keys          - Gestion des clés"
                     echo "  sshman stats         - Statistiques"
                     echo ""
-                    printf "Appuyez sur Entrée pour continuer... "
-                    read dummy
+                    pause_if_tty
                     ;;
                 q|Q)
                     printf "${GREEN}Au revoir!${RESET}\n"

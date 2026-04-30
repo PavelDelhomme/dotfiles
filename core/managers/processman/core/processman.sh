@@ -156,6 +156,10 @@ processman() {
         fi
 
         printf "${YELLOW}Commande capturée:${RESET} %s\n" "$cmdline"
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}⚠️ Restart interactif indisponible sans TTY${RESET}\n"
+            return 1
+        fi
         printf "Confirmer restart du PID %s ? [y/N]: " "$pid"
         read confirm
         case "$confirm" in

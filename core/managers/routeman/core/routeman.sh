@@ -133,6 +133,10 @@ routeman() {
     }
 
     _rm_prompt_add() {
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}⚠️ Ajout interactif indisponible sans TTY${RESET}\n"
+            return 1
+        fi
         printf "Réseau/CIDR (ex: 10.10.0.0/24): "
         read network
         printf "Gateway (optionnel): "
@@ -145,6 +149,10 @@ routeman() {
     }
 
     _rm_prompt_replace() {
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}⚠️ Modification interactive indisponible sans TTY${RESET}\n"
+            return 1
+        fi
         printf "Réseau/CIDR à modifier (ex: 10.10.0.0/24): "
         read network
         printf "Nouvelle gateway (optionnel): "
@@ -157,6 +165,10 @@ routeman() {
     }
 
     _rm_prompt_del() {
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}⚠️ Suppression interactive indisponible sans TTY${RESET}\n"
+            return 1
+        fi
         printf "Route à supprimer (reseau/cidr ou default): "
         read network
         _rm_del "$network"

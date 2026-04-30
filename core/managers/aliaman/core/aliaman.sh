@@ -52,6 +52,13 @@ aliaman() {
     
     BACKUP_DIR="$DOTFILES_DIR/zsh/backups"
     
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+    
     # Fonction pour créer le fichier d'alias s'il n'existe pas
     ensure_aliases_file() {
         if [ ! -f "$ALIASES_FILE" ]; then
@@ -123,8 +130,7 @@ aliaman() {
                 printf "${RED}❌ Aucun alias trouvé${RESET}\n"
             fi
             echo
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
             return
         fi
         
@@ -449,8 +455,7 @@ aliaman() {
         echo "Pour importer ces alias sur un autre système:"
         echo "  source $export_file"
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour les statistiques
@@ -481,8 +486,7 @@ aliaman() {
         echo "  Système (sudo): $sudo_count alias"
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Variables globales pour la session
@@ -599,14 +603,12 @@ EOF
                 read search_term
                 quick_search "$search_term"
                 echo
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             4)
                 list_all_aliases
                 echo
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             5)
                 printf "Nom de l'alias à supprimer: "
@@ -695,8 +697,7 @@ EOF
                 echo "  aliaman add <nom> <cmd>    - Ajoute un alias"
                 echo "  aliaman remove <nom>      - Supprime un alias"
                 echo
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             q|Q)
                 printf "${GREEN}Au revoir!${RESET}\n"
