@@ -35,6 +35,10 @@ multimediaman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     MULTIMEDIAMAN_DIR="$DOTFILES_DIR/zsh/functions/multimediaman"
     MULTIMEDIAMAN_MODULES_DIR="$MULTIMEDIAMAN_DIR/modules"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Charger les modules si disponibles
     if [ -d "$MULTIMEDIAMAN_MODULES_DIR" ]; then
@@ -67,8 +71,23 @@ multimediaman() {
         printf "${BOLD}4.${RESET} Aide\n"
         printf "${BOLD}0.${RESET} Quitter\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Ripping DVD (copie + encodage MP4)|1
+Extraire une archive (avec progression)|2
+Lister le contenu d'une archive|3
+Aide|4
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "MULTIMEDIAMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+        fi
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in

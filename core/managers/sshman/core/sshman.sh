@@ -38,6 +38,10 @@ sshman() {
     SSHMAN_DIR="$DOTFILES_DIR/zsh/functions/sshman"
     SSHMAN_MODULES_DIR="$SSHMAN_DIR/modules"
     SSHMAN_UTILS_DIR="$SSHMAN_DIR/utils"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Charger les utilitaires si disponibles (find : évite glob zsh « no matches » si dossier vide)
     if [ -d "$SSHMAN_UTILS_DIR" ] && command -v find >/dev/null 2>&1; then
@@ -450,8 +454,25 @@ sshman() {
             echo "  ${BOLD}q${RESET}  🚪 Quitter"
             echo ""
             printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-            printf "Votre choix: "
-            read choice
+            choice=""
+            if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+                menu_input_file=$(mktemp)
+                cat > "$menu_input_file" <<'EOF'
+Lister les connexions SSH configurees|1
+Configuration automatique SSH (.env)|2
+Tester une connexion SSH|3
+Gerer les cles SSH|4
+Statistiques SSH|5
+Aide|h
+Quitter|q
+EOF
+                choice=$(dotfiles_ncmenu_select "SSHMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+                rm -f "$menu_input_file"
+            fi
+            if [ -z "$choice" ]; then
+                printf "Votre choix: "
+                read choice
+            fi
             echo ""
             
             case "$choice" in

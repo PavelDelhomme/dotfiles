@@ -39,6 +39,10 @@ testman() {
     TESTMAN_MODULES_DIR="$TESTMAN_DIR/modules"
     TESTMAN_UTILS_DIR="$TESTMAN_DIR/utils"
     TESTMAN_CONFIG_DIR="$TESTMAN_DIR/config"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Créer les répertoires si nécessaire
     if [ -n "$TESTMAN_DIR" ]; then
@@ -517,8 +521,29 @@ testman() {
         printf "${CYAN}💡 Vous pouvez aussi taper directement le nom du langage${RESET}\n"
         printf "${CYAN}   Exemples: python, node, rust, go, java, flutter, ruby, php, lisp${RESET}\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Python (pytest, unittest, Django)|1
+Node.js (npm, jest, mocha)|2
+Rust (cargo test)|3
+Go (go test)|4
+Java (Maven, Gradle)|5
+Flutter (flutter test)|6
+Ruby (RSpec, Minitest)|7
+PHP (PHPUnit)|8
+Lisp (Common Lisp, Emacs Lisp)|9
+Detecter automatiquement le langage|10
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "TESTMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+        fi
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         # Mapper les noms de langages

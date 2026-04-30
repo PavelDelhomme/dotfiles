@@ -42,6 +42,10 @@ pathman() {
     PATH_BACKUP_FILE="${PATH_BACKUP_FILE:-$PATHMAN_CONFIG_DIR/PATH_SAVE}"
     PATH_LOG_FILE="${PATH_LOG_FILE:-$PATHMAN_CONFIG_DIR/path_log.txt}"
     DEFAULT_PATH="${DEFAULT_PATH:-$HOME/.local/bin:/usr/local/bin:/usr/sbin:/sbin:/usr/local/bin:/bin:/usr/local/games:/snap/bin}"
+    if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+    fi
     MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\n0) Export\nh) Aide\nq) Quitter\n"
 
     # DESC: S'assure que le répertoire et le fichier de log existent (repli /tmp si RO, ex. Docker)
@@ -384,8 +388,30 @@ EOF
         printf "║      PATHMAN - Gestionnaire du PATH     ║\n"
         printf "╚════════════════════════════════════════╝${RESET}\n\n"
         printf "$MENU"
-        printf "Votre choix : "
-        read choice
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Voir le PATH|1
+Ajouter un repertoire|2
+Retirer un repertoire|3
+Nettoyer le PATH|4
+Nettoyer invalid|5
+Sauvegarder|6
+Restaurer|7
+Logs|8
+Statistiques|9
+Exporter|0
+Aide|h
+Quitter|q
+EOF
+            choice=$(dotfiles_ncmenu_select "PATHMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Votre choix : "
+            read choice
+        fi
         case "$choice" in
             1) show_path ;;
             2) add_to_path_interactive ;;
