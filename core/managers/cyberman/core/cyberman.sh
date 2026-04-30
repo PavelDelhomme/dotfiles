@@ -51,6 +51,11 @@ cyberman() {
     # S'assurer que CYBER_DIR est défini correctement (utiliser la valeur globale si définie)
     CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
     export CYBER_DIR
+    DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Charger tous les gestionnaires
     if [ -f "$CYBER_DIR/target_manager.sh" ]; then
@@ -1799,8 +1804,36 @@ EOF
     # Menu interactif principal
     while true; do
         show_main_menu
-        printf "Choix: "
-        read choice
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Gestion & Configuration|1
+Reconnaissance & Information Gathering|2
+Scanning & Enumeration|3
+Vulnerability Assessment & Session|4
+Web Security & Testing|5
+Network Tools|6
+IoT Devices & Embedded Systems|7
+Advanced Tools|8
+Utilitaires|9
+Apprentissage & Labs|10
+OSINT Tools|11
+Assistant de test complet|12
+Notes & infos environnement actif|13
+Rapports environnement actif|14
+Workflows environnement actif|15
+Desactiver environnement actif|16
+Aide|h
+Quitter|q
+EOF
+            choice=$(dotfiles_ncmenu_select "CYBERMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+        fi
         # Nettoyer le choix pour éviter les problèmes avec "10", "11", etc.
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
@@ -1864,7 +1897,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            11) show_assistant_menu ;;
+            12) show_assistant_menu ;;
             13)
                 # Accès rapide aux notes de l'environnement actif
                 if [ -f "$CYBER_DIR/environment_manager.sh" ] && command -v has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
