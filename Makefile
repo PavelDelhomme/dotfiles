@@ -135,7 +135,7 @@ help: ## Afficher cette aide
 	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
 	@echo "  make convert-zsh-to-sh - Convertir fonctions Zsh en Sh compatible"
 	@echo "  make generate-man     - Générer les pages man pour toutes les fonctions"
-	@echo "  make build-ncmenu     - Compiler le sélecteur C ncurses (bin/ncmenu)"
+	@echo "  make build-ncmenu     - Compiler le sélecteur Go TUI (bin/ncmenu)"
 	@echo "  make install-ncmenu   - Compiler + installer ncmenu en /usr/local/bin (sudo)"
 	@echo ""
 	@echo -e "$(GREEN)Gestion des VM (tests):$(NC)"
@@ -353,10 +353,10 @@ detect-shell: ## Détecter et afficher le shell actuel
 generate-man: ## Générer les pages man pour toutes les fonctions
 	@bash "$(SCRIPT_DIR)/tools/generate_man_pages.sh"
 
-build-ncmenu: ## Compiler l'outil ncurses C (bin/ncmenu)
-	@echo -e "$(BLUE)🔨 Compilation de ncmenu (C + ncurses)...$(NC)"
+build-ncmenu: ## Compiler l'outil TUI Go (bin/ncmenu)
+	@echo -e "$(BLUE)🔨 Compilation de ncmenu (Go)...$(NC)"
 	@mkdir -p "$(DOTFILES_DIR)/bin"
-	@cc "$(DOTFILES_DIR)/tools/ncmenu/ncmenu.c" -lncurses -O2 -o "$(DOTFILES_DIR)/bin/ncmenu"
+	@go build -trimpath -ldflags="-s -w" -o "$(DOTFILES_DIR)/bin/ncmenu" "$(DOTFILES_DIR)/tools/ncmenu/ncmenu.go"
 	@echo -e "$(GREEN)✓ Binaire généré: $(DOTFILES_DIR)/bin/ncmenu$(NC)"
 
 install-ncmenu: build-ncmenu ## Installer ncmenu dans /usr/local/bin

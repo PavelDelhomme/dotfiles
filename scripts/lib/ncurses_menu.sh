@@ -1,5 +1,5 @@
 #!/bin/sh
-# Wrapper minimal pour utiliser ncmenu (C + ncurses) si disponible.
+# Wrapper minimal pour utiliser ncmenu (Go TUI) si disponible.
 
 dotfiles_ncmenu_select() {
     _title="$1"

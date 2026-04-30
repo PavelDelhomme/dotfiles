@@ -50,7 +50,7 @@ alias dfmenu='dotfiles_menu_run'
 
 ## ncmenu
 
-Sélecteur interactif en **C + ncurses** (navigation flèches, validation Entrée).
+Sélecteur interactif en **Go** (navigation flèches, validation Entrée).
 Conçu pour servir de brique UI pour les managers `*man`.
 
 ### Build
@@ -73,4 +73,4 @@ Entrée via stdin, format `label|value` :
 printf "Option A|a\nOption B|b\n" | ncmenu --title "Mon menu"
 ```
 
-Le programme affiche le menu ncurses et imprime la `value` sélectionnée sur stdout.
+Le programme affiche le menu TUI et imprime la `value` sélectionnée sur stdout.
