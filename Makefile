@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -135,6 +135,8 @@ help: ## Afficher cette aide
 	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
 	@echo "  make convert-zsh-to-sh - Convertir fonctions Zsh en Sh compatible"
 	@echo "  make generate-man     - Générer les pages man pour toutes les fonctions"
+	@echo "  make build-ncmenu     - Compiler le sélecteur C ncurses (bin/ncmenu)"
+	@echo "  make install-ncmenu   - Compiler + installer ncmenu en /usr/local/bin (sudo)"
 	@echo ""
 	@echo -e "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-list          - Lister toutes les VM"
@@ -350,6 +352,17 @@ detect-shell: ## Détecter et afficher le shell actuel
 
 generate-man: ## Générer les pages man pour toutes les fonctions
 	@bash "$(SCRIPT_DIR)/tools/generate_man_pages.sh"
+
+build-ncmenu: ## Compiler l'outil ncurses C (bin/ncmenu)
+	@echo -e "$(BLUE)🔨 Compilation de ncmenu (C + ncurses)...$(NC)"
+	@mkdir -p "$(DOTFILES_DIR)/bin"
+	@cc "$(DOTFILES_DIR)/tools/ncmenu/ncmenu.c" -lncurses -O2 -o "$(DOTFILES_DIR)/bin/ncmenu"
+	@echo -e "$(GREEN)✓ Binaire généré: $(DOTFILES_DIR)/bin/ncmenu$(NC)"
+
+install-ncmenu: build-ncmenu ## Installer ncmenu dans /usr/local/bin
+	@echo -e "$(BLUE)📦 Installation de ncmenu dans /usr/local/bin...$(NC)"
+	@sudo install -m 0755 "$(DOTFILES_DIR)/bin/ncmenu" /usr/local/bin/ncmenu
+	@echo -e "$(GREEN)✓ ncmenu installé$(NC)"
 
 ################################################################################
 # Tests

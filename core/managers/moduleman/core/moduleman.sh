@@ -101,6 +101,8 @@ MODULE_moduleman=enabled
 MODULE_fileman=enabled
 MODULE_virtman=enabled
 MODULE_sshman=enabled
+MODULE_processman=enabled
+MODULE_routeman=enabled
 MODULE_testzshman=enabled
 MODULE_testman=enabled
 MODULE_doctorman=enabled
@@ -154,6 +156,8 @@ moduleman:MODULEMAN - Gestionnaire modules (ce menu)
 fileman:FILEMAN - Gestionnaire fichiers
 virtman:VIRTMAN - Gestionnaire virtualisation
 sshman:SSHMAN - Gestionnaire SSH
+processman:PROCESSMAN - Gestionnaire processus
+routeman:ROUTEMAN - Gestionnaire routes IP
 testzshman:TESTZSHMAN - Gestionnaire tests ZSH/dotfiles
 testman:TESTMAN - Gestionnaire tests applications
 doctorman:DOCTORMAN - Diagnostic dotfiles / dev
@@ -294,7 +298,7 @@ MODULEMAN_LIST_EOF
             list|liste)
                 load_config
                 printf "${CYAN}Modules disponibles:${RESET}\n"
-                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman doctorman"
+                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman processman routeman testzshman testman doctorman"
                 for manager in $managers_list; do
                     _mod_state=$(get_module_status "$manager")
                     if [ "$_mod_state" = "enabled" ]; then
@@ -307,7 +311,7 @@ MODULEMAN_LIST_EOF
             status|statut)
                 load_config
                 printf "${CYAN}Statut des modules:${RESET}\n"
-                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman doctorman"
+                managers_list="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman processman routeman testzshman testman doctorman"
                 for manager in $managers_list; do
                     _mod_state=$(get_module_status "$manager")
                     if [ "$_mod_state" = "enabled" ]; then

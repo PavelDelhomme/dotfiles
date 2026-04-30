@@ -39,6 +39,10 @@ manman() {
         . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
         managers_log_line "manman" "invoke" "menu" "info" "session interactive"
     fi
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Détecter tous les gestionnaires disponibles (utiliser un fichier temporaire)
     managers_file=$(mktemp)
@@ -69,6 +73,8 @@ manman() {
     check_manager "fileman" "📁 Gestionnaire fichiers" "fileman"
     check_manager "virtman" "🖥️ Gestionnaire virtualisation" "virtman"
     check_manager "sshman" "🔐 Gestionnaire SSH" "sshman"
+    check_manager "processman" "⚙️ Gestionnaire processus" "processman"
+    check_manager "routeman" "🧭 Gestionnaire routes IP" "routeman"
     check_manager "testzshman" "🧪 Gestionnaire tests ZSH/dotfiles" "testzshman"
     check_manager "testman" "🧪 Gestionnaire tests applications" "testman"
     check_manager "doctorman" "🩺 Diagnostic dotfiles / dev" "doctorman"
@@ -94,20 +100,35 @@ manman() {
         return 1
     fi
     
-    # Afficher les managers avec numérotation
-    while IFS=':' read -r num name desc cmd; do
-        if [ -n "$name" ]; then
-            printf "  ${BOLD}%s${RESET}  %-40s ${CYAN}%s${RESET}\n" "$num" "$desc" "$cmd"
-        fi
-    done < "$managers_file"
-    
-    echo
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-    echo "  0) Retour"
-    echo
-    printf "${YELLOW}Choisir un gestionnaire [1-%d]: ${RESET}" "$manager_count"
-    read -r choice
-    echo
+    # Mode ncurses (si disponible et terminal interactif), sinon menu classique.
+    choice=""
+    if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+        menu_input_file=$(mktemp)
+        while IFS=':' read -r num name desc cmd; do
+            if [ -n "$name" ]; then
+                printf "%s (%s)|%s\n" "$desc" "$cmd" "$num" >> "$menu_input_file"
+            fi
+        done < "$managers_file"
+        choice=$(dotfiles_ncmenu_select "MANMAN - Choisir un gestionnaire" < "$menu_input_file" 2>/dev/null || true)
+        rm -f "$menu_input_file"
+    fi
+
+    if [ -z "$choice" ]; then
+        # Afficher les managers avec numérotation
+        while IFS=':' read -r num name desc cmd; do
+            if [ -n "$name" ]; then
+                printf "  ${BOLD}%s${RESET}  %-40s ${CYAN}%s${RESET}\n" "$num" "$desc" "$cmd"
+            fi
+        done < "$managers_file"
+        
+        echo
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "  0) Retour"
+        echo
+        printf "${YELLOW}Choisir un gestionnaire [1-%d]: ${RESET}" "$manager_count"
+        read -r choice
+        echo
+    fi
     
     if [ "$choice" = "0" ] || [ -z "$choice" ]; then
         rm -f "$managers_file"

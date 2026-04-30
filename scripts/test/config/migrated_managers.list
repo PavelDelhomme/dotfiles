@@ -16,6 +16,8 @@ miscman
 doctorman
 netman
 sshman
+processman
+routeman
 testman
 testzshman
 moduleman

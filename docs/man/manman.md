@@ -44,6 +44,8 @@ Le menu affichera tous les gestionnaires disponibles :
 - 📁 FILEMAN - Gestionnaire fichiers
 - 🖥️ VIRTMAN - Gestionnaire virtualisation
 - 🔐 SSHMAN - Gestionnaire SSH
+- ⚙️ PROCESSMAN - Gestionnaire processus
+- 🧭 ROUTEMAN - Gestionnaire routes IP
 
 ## GESTIONNAIRES DISPONIBLES
 
@@ -62,6 +64,8 @@ Le menu affichera tous les gestionnaires disponibles :
 - **fileman** - Gestion des fichiers
 - **virtman** - Virtualisation (QEMU/KVM, Docker, etc.)
 - **sshman** - Gestion SSH (connexions, clés, configuration)
+- **processman** - Gestion des processus (recherche, kill, restart, signaux)
+- **routeman** - Gestion des routes IP (ajout, suppression, modification, visualisation)
 
 ## VOIR AUSSI
 
@@ -82,6 +86,8 @@ Le menu affichera tous les gestionnaires disponibles :
 - **fileman**(1) - Gestionnaire fichiers
 - **virtman**(1) - Gestionnaire virtualisation
 - **sshman**(1) - Gestionnaire SSH
+- **processman**(1) - Gestionnaire processus
+- **routeman**(1) - Gestionnaire routes IP
 
 ## AUTEUR
 

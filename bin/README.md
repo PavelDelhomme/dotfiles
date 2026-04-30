@@ -47,3 +47,30 @@ alias dfmenu='dotfiles_menu_run'
 - `--file FILE` : fichier menu.
 - `--header "Titre"` : en-tête fzf.
 - `--no-fzf` : menu numéroté si fzf absent.
+
+## ncmenu
+
+Sélecteur interactif en **C + ncurses** (navigation flèches, validation Entrée).
+Conçu pour servir de brique UI pour les managers `*man`.
+
+### Build
+
+```bash
+make build-ncmenu
+```
+
+### Install système (optionnel)
+
+```bash
+make install-ncmenu
+```
+
+### Usage
+
+Entrée via stdin, format `label|value` :
+
+```bash
+printf "Option A|a\nOption B|b\n" | ncmenu --title "Mon menu"
+```
+
+Le programme affiche le menu ncurses et imprime la `value` sélectionnée sur stdout.

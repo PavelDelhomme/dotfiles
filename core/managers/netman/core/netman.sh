@@ -33,6 +33,11 @@ netman() {
     CYAN='\033[0;36m'
     BOLD='\033[1m'
     RESET='\033[0m'
+    DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Variables globales pour la fonction
     SELECTED_PORTS=""
@@ -268,8 +273,10 @@ $line"
         echo "  UDP: $udp_count connexions"
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
     
     # Fonction pour afficher les informations IP
@@ -306,8 +313,10 @@ $line"
         done
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
     
     # Fonction pour afficher les informations DNS
@@ -337,6 +346,263 @@ $line"
             echo "  Pas de cache systemd-resolved détecté"
         fi
         
+        echo ""
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+
+    # Diagnostic réseau complet (couche locale -> internet -> DNS -> HTTP)
+    network_diagnose() {
+        show_header
+        printf "${YELLOW}🩺 Diagnostic réseau complet${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+
+        default_iface=$(ip route 2>/dev/null | awk '/default/ {print $5; exit}')
+        default_gw=$(ip route 2>/dev/null | awk '/default/ {print $3; exit}')
+
+        printf "\n${CYAN}1) Interface / lien local${RESET}\n"
+        if [ -n "$default_iface" ]; then
+            iface_state=$(ip link show "$default_iface" 2>/dev/null | grep -o 'state [A-Z]*' | awk '{print $2}')
+            printf "  Interface par defaut: %s\n" "$default_iface"
+            printf "  Etat: %s\n" "${iface_state:-UNKNOWN}"
+            ip -4 addr show "$default_iface" 2>/dev/null | awk '/inet / {print "  IPv4: " $2}'
+        else
+            printf "  ${RED}✗ Pas d'interface par defaut detectee${RESET}\n"
+        fi
+
+        printf "\n${CYAN}2) Passerelle${RESET}\n"
+        if [ -n "$default_gw" ]; then
+            printf "  Gateway: %s\n" "$default_gw"
+            if ping -c 1 -W 1 "$default_gw" >/dev/null 2>&1; then
+                printf "  ${GREEN}✓ Gateway joignable${RESET}\n"
+            else
+                printf "  ${RED}✗ Gateway non joignable${RESET}\n"
+            fi
+        else
+            printf "  ${RED}✗ Pas de route par defaut${RESET}\n"
+        fi
+
+        printf "\n${CYAN}3) Connectivite IP externe${RESET}\n"
+        if ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; then
+            printf "  ${GREEN}✓ Ping 1.1.1.1 OK${RESET}\n"
+        else
+            printf "  ${RED}✗ Ping 1.1.1.1 KO${RESET}\n"
+        fi
+        if ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; then
+            printf "  ${GREEN}✓ Ping 8.8.8.8 OK${RESET}\n"
+        else
+            printf "  ${RED}✗ Ping 8.8.8.8 KO${RESET}\n"
+        fi
+
+        printf "\n${CYAN}4) Resolution DNS${RESET}\n"
+        if command -v dig >/dev/null 2>&1; then
+            dns_ip=$(dig +short google.com @1.1.1.1 2>/dev/null | head -1)
+            if [ -n "$dns_ip" ]; then
+                printf "  ${GREEN}✓ DNS OK${RESET} (google.com -> %s)\n" "$dns_ip"
+            else
+                printf "  ${RED}✗ DNS KO${RESET}\n"
+            fi
+        else
+            if getent hosts google.com >/dev/null 2>&1; then
+                printf "  ${GREEN}✓ DNS OK (getent)${RESET}\n"
+            else
+                printf "  ${RED}✗ DNS KO${RESET}\n"
+            fi
+        fi
+
+        printf "\n${CYAN}5) Sortie HTTP/HTTPS${RESET}\n"
+        if command -v curl >/dev/null 2>&1; then
+            http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 https://example.com 2>/dev/null)
+            if [ "$http_code" = "200" ] || [ "$http_code" = "301" ] || [ "$http_code" = "302" ]; then
+                printf "  ${GREEN}✓ HTTPS OK${RESET} (code %s)\n" "$http_code"
+            else
+                printf "  ${YELLOW}⚠ HTTPS incertain${RESET} (code %s)\n" "${http_code:-N/A}"
+            fi
+        else
+            printf "  ${YELLOW}⚠ curl non installe${RESET}\n"
+        fi
+
+        echo ""
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+
+    # Benchmark rapide DNS
+    dns_benchmark() {
+        show_header
+        printf "${YELLOW}⚡ Benchmark DNS${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+
+        test_domain="google.com"
+        [ -n "$1" ] && test_domain="$1"
+        printf "Domaine de test: %s\n\n" "$test_domain"
+
+        if ! command -v dig >/dev/null 2>&1; then
+            printf "${RED}❌ dig non disponible (installez dnsutils/bind-tools)${RESET}\n"
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+            return 1
+        fi
+
+        for resolver in 1.1.1.1 8.8.8.8 9.9.9.9; do
+            ms=$(dig @"$resolver" "$test_domain" +stats +time=2 +tries=1 2>/dev/null | awk -F': ' '/Query time/ {print $2}' | awk '{print $1}')
+            ip_result=$(dig +short @"$resolver" "$test_domain" +time=2 +tries=1 2>/dev/null | head -1)
+            if [ -n "$ms" ]; then
+                printf "  ${GREEN}%s${RESET} -> %4sms | %s\n" "$resolver" "$ms" "${ip_result:-no-answer}"
+            else
+                printf "  ${RED}%s${RESET} -> timeout/erreur\n" "$resolver"
+            fi
+        done
+
+        echo ""
+        printf "Appuyez sur Entrée pour continuer... "
+        read dummy
+    }
+
+    # Diagnostic approfondi orienté incident perf (RX/TX, erreurs, drops, top talkers)
+    network_diagnose_deep() {
+        show_header
+        printf "${YELLOW}🧪 Diagnostic réseau approfondi${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+
+        active_if=$(ip route show default 2>/dev/null | awk '{print $5; exit}')
+        [ -z "$active_if" ] && active_if="wlan0"
+
+        printf "\n${CYAN}Interface active detectee:${RESET} %s\n" "$active_if"
+
+        # Snapshot 1
+        rx1=$(cat "/sys/class/net/$active_if/statistics/rx_bytes" 2>/dev/null || echo 0)
+        tx1=$(cat "/sys/class/net/$active_if/statistics/tx_bytes" 2>/dev/null || echo 0)
+        rxe1=$(cat "/sys/class/net/$active_if/statistics/rx_errors" 2>/dev/null || echo 0)
+        txe1=$(cat "/sys/class/net/$active_if/statistics/tx_errors" 2>/dev/null || echo 0)
+        rxd1=$(cat "/sys/class/net/$active_if/statistics/rx_dropped" 2>/dev/null || echo 0)
+        txd1=$(cat "/sys/class/net/$active_if/statistics/tx_dropped" 2>/dev/null || echo 0)
+
+        printf "${CYAN}Mesure debit instantane sur 3s...${RESET}\n"
+        sleep 3
+
+        # Snapshot 2
+        rx2=$(cat "/sys/class/net/$active_if/statistics/rx_bytes" 2>/dev/null || echo 0)
+        tx2=$(cat "/sys/class/net/$active_if/statistics/tx_bytes" 2>/dev/null || echo 0)
+        rxe2=$(cat "/sys/class/net/$active_if/statistics/rx_errors" 2>/dev/null || echo 0)
+        txe2=$(cat "/sys/class/net/$active_if/statistics/tx_errors" 2>/dev/null || echo 0)
+        rxd2=$(cat "/sys/class/net/$active_if/statistics/rx_dropped" 2>/dev/null || echo 0)
+        txd2=$(cat "/sys/class/net/$active_if/statistics/tx_dropped" 2>/dev/null || echo 0)
+
+        rx_rate=$(( (rx2 - rx1) / 3 ))
+        tx_rate=$(( (tx2 - tx1) / 3 ))
+        rx_h=$(numfmt --to=iec-i --suffix=B/s "$rx_rate" 2>/dev/null || echo "${rx_rate}B/s")
+        tx_h=$(numfmt --to=iec-i --suffix=B/s "$tx_rate" 2>/dev/null || echo "${tx_rate}B/s")
+
+        printf "\n${CYAN}Debit instantane (%s):${RESET}\n" "$active_if"
+        printf "  RX: %s\n" "$rx_h"
+        printf "  TX: %s\n" "$tx_h"
+
+        drx_err=$((rxe2 - rxe1))
+        dtx_err=$((txe2 - txe1))
+        drx_drop=$((rxd2 - rxd1))
+        dtx_drop=$((txd2 - txd1))
+        printf "\n${CYAN}Compteurs erreurs/drops (delta 3s):${RESET}\n"
+        printf "  rx_errors=%s tx_errors=%s rx_dropped=%s tx_dropped=%s\n" "$drx_err" "$dtx_err" "$drx_drop" "$dtx_drop"
+
+        printf "\n${CYAN}Top processus reseau (ss):${RESET}\n"
+        if command -v ss >/dev/null 2>&1; then
+            ss -tpn 2>/dev/null | awk 'NR>1 {print $0}' | head -20 | sed 's/^/  /'
+        else
+            echo "  ss indisponible"
+        fi
+
+        printf "\n${CYAN}Interfaces qui consomment le plus (compteurs totaux):${RESET}\n"
+        for i in /sys/class/net/*; do
+            iface=$(basename "$i")
+            [ "$iface" = "lo" ] && continue
+            rb=$(cat "$i/statistics/rx_bytes" 2>/dev/null || echo 0)
+            tb=$(cat "$i/statistics/tx_bytes" 2>/dev/null || echo 0)
+            echo "$iface $rb $tb"
+        done | sort -k2,2nr | head -8 | awk '{printf "  %-16s RX=%s TX=%s\n",$1,$2,$3}'
+
+        printf "\n${CYAN}Interprétation rapide:${RESET}\n"
+        if [ "$drx_err" -gt 0 ] || [ "$dtx_err" -gt 0 ] || [ "$drx_drop" -gt 0 ] || [ "$dtx_drop" -gt 0 ]; then
+            printf "  ${YELLOW}⚠ Erreurs/drops detectes pendant la mesure${RESET}\n"
+        else
+            printf "  ${GREEN}✓ Pas d'erreurs/drops detectees sur la fenetre mesuree${RESET}\n"
+        fi
+        printf "  ${BLUE}ℹ Si RX/TX semble anormal, verifier surtout les interfaces docker/veth${RESET}\n"
+
+        echo ""
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
+
+    # Statut firewall synthétique (ufw / nftables / iptables)
+    firewall_status() {
+        show_header
+        printf "${YELLOW}🛡️ Statut Firewall${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+
+        if command -v ufw >/dev/null 2>&1; then
+            printf "\n${CYAN}UFW:${RESET}\n"
+            ufw status 2>/dev/null | sed 's/^/  /'
+        fi
+
+        if command -v nft >/dev/null 2>&1; then
+            printf "\n${CYAN}nftables (resume):${RESET}\n"
+            nft list ruleset 2>/dev/null | awk 'NR<=40 {print "  " $0} NR==41 {print "  ..."}'
+        fi
+
+        if command -v iptables >/dev/null 2>&1; then
+            printf "\n${CYAN}iptables (policies):${RESET}\n"
+            iptables -S 2>/dev/null | awk '/^-P / {print "  " $0}'
+        fi
+
+        if ! command -v ufw >/dev/null 2>&1 && ! command -v nft >/dev/null 2>&1 && ! command -v iptables >/dev/null 2>&1; then
+            printf "${YELLOW}⚠ Aucun outil firewall detecte (ufw/nft/iptables)${RESET}\n"
+        fi
+
+        echo ""
+        printf "Appuyez sur Entrée pour continuer... "
+        read dummy
+    }
+
+    # Lookup IP/domaine (dig + whois + reverse DNS)
+    network_lookup() {
+        show_header
+        printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        printf "Cible (IP ou domaine): "
+        read target
+
+        if [ -z "$target" ]; then
+            printf "${RED}❌ Cible vide${RESET}\n"
+            sleep 1
+            return 1
+        fi
+
+        printf "\n${CYAN}Resolution DNS:${RESET}\n"
+        if command -v dig >/dev/null 2>&1; then
+            dig +short "$target" 2>/dev/null | sed 's/^/  /'
+        else
+            getent hosts "$target" 2>/dev/null | sed 's/^/  /'
+        fi
+
+        printf "\n${CYAN}Reverse DNS:${RESET}\n"
+        if command -v dig >/dev/null 2>&1; then
+            dig +short -x "$target" 2>/dev/null | sed 's/^/  /'
+        fi
+
+        if command -v whois >/dev/null 2>&1; then
+            printf "\n${CYAN}WHOIS (extrait):${RESET}\n"
+            whois "$target" 2>/dev/null | awk 'NR<=25 {print "  " $0}'
+        else
+            printf "\n${YELLOW}⚠ whois non installe${RESET}\n"
+        fi
+
         echo ""
         printf "Appuyez sur Entrée pour continuer... "
         read dummy
@@ -372,6 +638,26 @@ $line"
         echo ""
         printf "Appuyez sur Entrée pour continuer... "
         read dummy
+    }
+
+    # Lancer le manager de routes dédié
+    launch_routeman() {
+        _routeman_core_path="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/routeman/core/routeman.sh"
+        if command -v routeman >/dev/null 2>&1; then
+            routeman
+        elif [ -f "$_routeman_core_path" ]; then
+            # shellcheck source=/dev/null
+            . "$_routeman_core_path"
+            if command -v routeman >/dev/null 2>&1; then
+                routeman
+            else
+                printf "${RED}❌ routeman chargé mais commande indisponible${RESET}\n"
+                sleep 2
+            fi
+        else
+            printf "${RED}❌ ROUTEMAN non trouvé (%s)${RESET}\n" "$_routeman_core_path"
+            sleep 2
+        fi
     }
     
     # Fonction pour afficher les interfaces réseau
@@ -633,37 +919,128 @@ $line"
         printf "${YELLOW}⚡ Test de vitesse réseau${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo ""
-        
-        printf "${CYAN}Test de téléchargement...${RESET}\n"
-        echo "Téléchargement d'un fichier de test (10MB)..."
-        
-        start_time=$(date +%s)
-        downloaded=$(curl -s -o /dev/null -w "%{size_download}" --max-time 30 "http://speedtest.tele2.net/10MB.zip" 2>/dev/null || echo "0")
-        end_time=$(date +%s)
-        duration=$((end_time - start_time))
-        
-        if [ "$downloaded" != "0" ] && [ "$duration" -gt 0 ]; then
-            speed=$((downloaded * 8 / duration / 1000))  # en Kbps
-            speed_mbps=$((speed / 1000))
-            printf "${GREEN}✓ Vitesse de téléchargement: %d Mbps (%d Kbps)${RESET}\n" "$speed_mbps" "$speed"
-        else
-            printf "${RED}✗ Échec du test de téléchargement${RESET}\n"
+
+        # Paramètres (CLI): test_network_speed [taille]
+        # Tailles supportées: 10M,100M,1G,5G
+        size_arg="${1:-}"
+        if [ -z "$size_arg" ] && [ -t 0 ] && [ -t 1 ]; then
+            printf "Taille de test [10M/100M/1G/5G] (defaut: 5G): "
+            read size_arg
         fi
-        
+        size_arg="${size_arg:-5G}"
+
+        case "$size_arg" in
+            10M|10m)
+                label="10MB"
+                test_urls="https://proof.ovh.net/files/10Mb.dat
+https://speed.hetzner.de/10MB.bin"
+                ;;
+            100M|100m)
+                label="100MB"
+                test_urls="https://proof.ovh.net/files/100Mb.dat
+https://speed.hetzner.de/100MB.bin"
+                ;;
+            1G|1g)
+                label="1GB"
+                test_urls="https://proof.ovh.net/files/1Gb.dat
+https://speed.hetzner.de/1GB.bin"
+                ;;
+            5G|5g)
+                label="5GB"
+                test_urls="https://proof.ovh.net/files/5Gb.dat
+https://speed.hetzner.de/5GB.bin"
+                ;;
+            *)
+                printf "${YELLOW}⚠ Taille inconnue '%s', fallback 5G${RESET}\n" "$size_arg"
+                label="5GB"
+                test_urls="https://proof.ovh.net/files/5Gb.dat
+https://speed.hetzner.de/5GB.bin"
+                ;;
+        esac
+
+        if [ "$label" = "5GB" ] && [ -t 0 ] && [ -t 1 ]; then
+            printf "${YELLOW}⚠ Ce test va telecharger 5GB reels.${RESET}\n"
+            printf "Continuer ? [y/N]: "
+            read confirm_speed
+            case "$confirm_speed" in
+                [yY]*) ;;
+                *)
+                    printf "${BLUE}Test annule.${RESET}\n"
+                    return 0
+                    ;;
+            esac
+        fi
+
+        printf "${CYAN}Test de téléchargement (%s)...${RESET}\n" "$label"
+        if ! command -v curl >/dev/null 2>&1; then
+            printf "${RED}✗ curl non disponible${RESET}\n"
+            return 1
+        fi
+
+        # Téléchargement réel vers /dev/null pour mesurer un débit crédible
+        # Une seule passe: taille + durée via write-out curl.
+        end_ok=1
+        downloaded=0
+        elapsed=0
+        test_url=""
+        echo "$test_urls" | while IFS= read -r candidate_url; do
+            [ -z "$candidate_url" ] && continue
+            curl_out=$(curl -L -s --output /dev/null -w "%{size_download} %{time_total}" "$candidate_url" 2>/dev/null)
+            rc=$?
+            dl=$(echo "$curl_out" | awk '{print $1}')
+            tt=$(echo "$curl_out" | awk '{print $2}')
+            if [ "$rc" -eq 0 ] && awk -v b="$dl" 'BEGIN { exit !(b+0 > 0) }'; then
+                echo "$candidate_url|$dl|$tt"
+                exit 0
+            fi
+        done > /tmp/netman_speed_result.$$ 2>/dev/null
+
+        if [ -s /tmp/netman_speed_result.$$ ]; then
+            end_ok=0
+            test_url=$(cut -d'|' -f1 /tmp/netman_speed_result.$$)
+            downloaded=$(cut -d'|' -f2 /tmp/netman_speed_result.$$)
+            elapsed=$(cut -d'|' -f3 /tmp/netman_speed_result.$$)
+        fi
+        rm -f /tmp/netman_speed_result.$$ 2>/dev/null
+
+        if [ "$end_ok" -eq 0 ] && [ "$downloaded" != "0" ]; then
+            # conversion en Mbps
+            if awk -v s="$elapsed" 'BEGIN { exit !(s+0 > 0) }'; then
+                mbps=$(awk -v b="$downloaded" -v s="$elapsed" 'BEGIN { printf "%.2f", (b*8)/(s*1000000) }')
+                mbytes=$(awk -v b="$downloaded" 'BEGIN { printf "%.2f", b/1048576 }')
+                printf "${GREEN}✓ Download: %s MB transferes en %ss${RESET}\n" "$mbytes" "$elapsed"
+                printf "${GREEN}✓ Vitesse moyenne: %s Mbps${RESET}\n" "$mbps"
+            else
+                printf "${YELLOW}⚠ Transfert fait, mais duree non exploitable pour calcul precis${RESET}\n"
+            fi
+        else
+            printf "${RED}✗ Échec du test de téléchargement sur %s${RESET}\n" "$test_url"
+        fi
+
         echo ""
         printf "${CYAN}Test de latence...${RESET}\n"
         if command -v ping >/dev/null 2>&1; then
-            ping_result=$(ping -c 5 8.8.8.8 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
-            if [ -n "$ping_result" ]; then
-                printf "${GREEN}✓ Latence moyenne: %s ms${RESET}\n" "$ping_result"
-            else
-                printf "${RED}✗ Échec du test de latence${RESET}\n"
-            fi
+            # Latence vers DNS public + latence TCP/HTTPS
+            ping_google=$(ping -c 5 8.8.8.8 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
+            ping_cf=$(ping -c 5 1.1.1.1 2>/dev/null | tail -1 | awk -F '/' '{print $5}')
+            [ -n "$ping_google" ] && printf "${GREEN}✓ Latence moyenne (8.8.8.8): %s ms${RESET}\n" "$ping_google"
+            [ -n "$ping_cf" ] && printf "${GREEN}✓ Latence moyenne (1.1.1.1): %s ms${RESET}\n" "$ping_cf"
+        else
+            printf "${YELLOW}⚠ ping non disponible${RESET}\n"
         fi
-        
+
+        if command -v curl >/dev/null 2>&1; then
+            conn_time=$(curl -o /dev/null -s -w "%{time_connect}" https://example.com 2>/dev/null)
+            ttfb_time=$(curl -o /dev/null -s -w "%{time_starttransfer}" https://example.com 2>/dev/null)
+            [ -n "$conn_time" ] && printf "${GREEN}✓ TCP connect (example.com): %ss${RESET}\n" "$conn_time"
+            [ -n "$ttfb_time" ] && printf "${GREEN}✓ TTFB HTTPS (example.com): %ss${RESET}\n" "$ttfb_time"
+        fi
+
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
     }
     
     # Fonction pour monitorer la bande passante en temps réel
@@ -824,6 +1201,9 @@ $line"
             routing|route)
                 show_routing
                 ;;
+            routeman|routes|route-manager)
+                launch_routeman
+                ;;
             interfaces|iface)
                 show_interfaces
                 ;;
@@ -871,11 +1251,46 @@ $line"
             stats)
                 show_network_stats
                 ;;
+            diagnose|diag|health)
+                network_diagnose
+                ;;
+            dns-bench|dnsbench)
+                dns_benchmark "$2"
+                ;;
+            diagnose-deep|diag-deep|health-deep)
+                network_diagnose_deep
+                ;;
+            firewall|fw)
+                firewall_status
+                ;;
+            lookup|resolve)
+                if [ -n "$2" ]; then
+                    show_header
+                    printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
+                    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+                    target="$2"
+                    printf "Cible: %s\n\n" "$target"
+                    printf "${CYAN}Resolution DNS:${RESET}\n"
+                    if command -v dig >/dev/null 2>&1; then
+                        dig +short "$target" 2>/dev/null | sed 's/^/  /'
+                        printf "\n${CYAN}Reverse DNS:${RESET}\n"
+                        dig +short -x "$target" 2>/dev/null | sed 's/^/  /'
+                    else
+                        getent hosts "$target" 2>/dev/null | sed 's/^/  /'
+                    fi
+                    if command -v whois >/dev/null 2>&1; then
+                        printf "\n${CYAN}WHOIS (extrait):${RESET}\n"
+                        whois "$target" 2>/dev/null | awk 'NR<=25 {print "  " $0}'
+                    fi
+                else
+                    network_lookup
+                fi
+                ;;
             connectivity|ping)
                 test_connectivity
                 ;;
             speed)
-                test_network_speed
+                test_network_speed "$2"
                 ;;
             monitor|bandwidth)
                 monitor_bandwidth
@@ -899,9 +1314,15 @@ $line"
                 echo "  • Informations IP publiques et locales"
                 echo "  • Configuration et test DNS"
                 echo "  • Table de routage et métriques"
+                echo "  • Gestion avancée des routes via routeman"
                 echo "  • Scan de ports sur hosts locaux ou distants"
                 echo "  • Kill rapide de processus par port"
                 echo "  • Statistiques réseau détaillées"
+                echo "  • Diagnostic réseau complet (lien/gateway/DNS/HTTP)"
+                echo "  • Diagnostic profond orienté RX/TX/drops/processus"
+                echo "  • Benchmark DNS multi-resolveurs"
+                echo "  • Statut firewall (ufw/nft/iptables)"
+                echo "  • Lookup IP/domaine (DNS + whois)"
                 echo "  • Test de connectivité (ping/traceroute)"
                 echo "  • Test de vitesse réseau"
                 echo "  • Monitoring de bande passante en temps réel"
@@ -914,6 +1335,12 @@ $line"
                 echo "  netman kill <port>  - Kill rapide d'un port"
                 echo "  netman scan <host>  - Scan rapide d'un host"
                 echo "  netman stats        - Statistiques directes"
+                echo "  netman routeman     - Ouvrir le gestionnaire de routes"
+                echo "  netman diagnose     - Diagnostic réseau complet"
+                echo "  netman diagnose-deep - Diagnostic profond perf RX/TX"
+                echo "  netman dns-bench    - Benchmark DNS"
+                echo "  netman firewall     - Statut firewall"
+                echo "  netman lookup <x>   - Lookup IP/domaine"
                 echo ""
                 ;;
             *)
@@ -934,10 +1361,16 @@ $line"
             echo "  ${BOLD}3${RESET}  🌐 Informations IP (publique/locale)"
             echo "  ${BOLD}4${RESET}  🔍 Configuration DNS"
             echo "  ${BOLD}5${RESET}  🛣️  Table de routage"
+            echo "  ${BOLD}e${RESET}  🧭 Gestionnaire de routes (routeman)"
             echo "  ${BOLD}6${RESET}  🖧  Interfaces réseau"
             echo "  ${BOLD}7${RESET}  🔍 Scanner un port spécifique"
             echo "  ${BOLD}8${RESET}  💀 Kill rapide d'un port"
             echo "  ${BOLD}9${RESET}  📊 Statistiques réseau"
+            echo "  ${BOLD}f${RESET}  🩺 Diagnostic réseau complet"
+            echo "  ${BOLD}k${RESET}  🧪 Diagnostic profond perf (RX/TX)"
+            echo "  ${BOLD}g${RESET}  ⚡ Benchmark DNS"
+            echo "  ${BOLD}i${RESET}  🛡️ Statut firewall"
+            echo "  ${BOLD}j${RESET}  🔎 Lookup IP / domaine"
             echo "  ${BOLD}a${RESET}  🌐 Test de connectivité (ping/traceroute)"
             echo "  ${BOLD}b${RESET}  ⚡ Test de vitesse réseau"
             echo "  ${BOLD}c${RESET}  📊 Monitoring bande passante (temps réel)"
@@ -948,9 +1381,42 @@ $line"
             echo "  ${BOLD}q${RESET}  🚪 Quitter"
             echo ""
             printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-            printf "Votre choix: "
-            read choice
-            echo ""
+            choice=""
+            if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+                menu_input_file=$(mktemp)
+                cat > "$menu_input_file" <<'EOF'
+Gerer les ports en ecoute (interactif)|1
+Afficher les connexions actives|2
+Informations IP (publique/locale)|3
+Configuration DNS|4
+Table de routage|5
+Gestionnaire de routes (routeman)|e
+Interfaces reseau|6
+Scanner un port specifique|7
+Kill rapide d'un port|8
+Statistiques reseau|9
+Diagnostic reseau complet|f
+Diagnostic profond perf (RX/TX)|k
+Benchmark DNS|g
+Statut firewall|i
+Lookup IP / domaine|j
+Test de connectivite (ping/traceroute)|a
+Test de vitesse reseau|b
+Monitoring bande passante (temps reel)|c
+Analyse du trafic reseau|d
+Exporter la configuration|0
+Aide|h
+Quitter|q
+EOF
+                choice=$(dotfiles_ncmenu_select "NETMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+                rm -f "$menu_input_file"
+                echo ""
+            fi
+            if [ -z "$choice" ]; then
+                printf "Votre choix: "
+                read choice
+                echo ""
+            fi
             
             case "$choice" in
                 1) manage_ports ;;
@@ -958,10 +1424,16 @@ $line"
                 3) show_ip_info ;;
                 4) show_dns_info ;;
                 5) show_routing ;;
+                e|E) launch_routeman ;;
                 6) show_interfaces ;;
                 7) scan_port ;;
                 8) kill_port_quick ;;
                 9) show_network_stats ;;
+                f|F) network_diagnose ;;
+                k|K) network_diagnose_deep ;;
+                g|G) dns_benchmark ;;
+                i|I) firewall_status ;;
+                j|J) network_lookup ;;
                 a|A) test_connectivity ;;
                 b|B) test_network_speed ;;
                 c|C) monitor_bandwidth ;;
@@ -980,9 +1452,15 @@ $line"
                     echo "  • Informations IP publiques et locales"
                     echo "  • Configuration et test DNS"
                     echo "  • Table de routage et métriques"
+                    echo "  • Gestion avancee des routes via routeman"
                     echo "  • Scan de ports sur hosts locaux ou distants"
                     echo "  • Kill rapide de processus par port"
                     echo "  • Statistiques réseau détaillées"
+                    echo "  • Diagnostic réseau complet (lien/gateway/DNS/HTTP)"
+                    echo "  • Diagnostic profond orienté RX/TX/drops/processus"
+                    echo "  • Benchmark DNS multi-resolveurs"
+                    echo "  • Statut firewall (ufw/nft/iptables)"
+                    echo "  • Lookup IP/domaine (DNS + whois)"
                     echo "  • Test de connectivité (ping/traceroute)"
                     echo "  • Test de vitesse réseau"
                     echo "  • Monitoring de bande passante en temps réel"
@@ -995,6 +1473,12 @@ $line"
                     echo "  netman kill <port>  - Kill rapide d'un port"
                     echo "  netman scan <host>  - Scan rapide d'un host"
                     echo "  netman stats       - Statistiques directes"
+                    echo "  netman routeman    - Ouvrir le gestionnaire de routes"
+                    echo "  netman diagnose    - Diagnostic réseau complet"
+                    echo "  netman diagnose-deep - Diagnostic profond perf RX/TX"
+                    echo "  netman dns-bench   - Benchmark DNS"
+                    echo "  netman firewall    - Statut firewall"
+                    echo "  netman lookup <x>  - Lookup IP/domaine"
                     echo ""
                     printf "Appuyez sur Entrée pour continuer... "
                     read dummy

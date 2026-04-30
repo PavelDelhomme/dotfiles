@@ -22,6 +22,10 @@ searchman() {
     local CYAN='\033[0;36m'
     local BOLD='\033[1m'
     local RESET='\033[0m'
+    local DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [[ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]]; then
+        source "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" 2>/dev/null || true
+    fi
     
     # Fonction pour afficher le header
     show_header() {
@@ -446,8 +450,27 @@ searchman() {
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
-        read -k 1 "choice?Votre choix: "
-        echo
+        local choice=""
+        if [[ -t 0 && -t 1 ]] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            local menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Recherche avancee dans l'historique|1
+Recherche avancee de fichiers|2
+Recherche de processus|3
+Recherche dans les logs|4
+Recherche de fonctions ZSH|5
+Statistiques de recherche|6
+Aide|h
+Quitter|q
+EOF
+            choice=$(dotfiles_ncmenu_select "SEARCHMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+            echo
+        fi
+        if [[ -z "$choice" ]]; then
+            read "choice?Votre choix: "
+            echo
+        fi
         
         case "$choice" in
             1) search_history_advanced ;;

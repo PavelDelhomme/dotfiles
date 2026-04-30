@@ -22,6 +22,10 @@ miscman() {
     local CYAN='\033[0;36m'
     local BOLD='\033[1m'
     local RESET='\033[0m'
+    local DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        source "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" 2>/dev/null || true
+    fi
     
     # Fonction pour afficher le header
     show_header() {
@@ -388,8 +392,34 @@ miscman() {
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         echo -e "${BLUE}══════════════════════════════════════════════════════════════════${RESET}"
-        read -k 1 "choice?Votre choix: "
-        echo
+        local choice=""
+        if [[ -t 0 && -t 1 ]] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            local menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Generer un mot de passe|1
+Informations systeme detaillees|2
+Copie de fichier avancee|3
+Creer une sauvegarde|4
+Extraire une archive|5
+Chiffrer un fichier|6
+Dechiffrer un fichier|7
+Copier la derniere sortie de commande|8
+Nettoyage du systeme|9
+Surveiller un processus (watch)|10
+Arreter un processus par nom|11
+Arreter un processus sur un port|12
+Lister les processus utilisant des ports|13
+Aide|h
+Quitter|q
+EOF
+            choice=$(dotfiles_ncmenu_select "MISCMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+            echo
+        fi
+        if [[ -z "$choice" ]]; then
+            read "choice?Votre choix (validez avec Entrée): "
+            echo
+        fi
         
         case "$choice" in
             1) 
