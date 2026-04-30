@@ -18,6 +18,9 @@ else
     SHELL_TYPE="sh"
 fi
 
+_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+[ -f "$_nc_lib" ] && . "$_nc_lib"
+
 # DESC: Gestionnaire interactif complet pour la recherche et l'exploration
 # USAGE: searchman [command]
 # EXAMPLE: searchman
@@ -33,6 +36,29 @@ searchman() {
     CYAN='\033[0;36m'
     BOLD='\033[1m'
     RESET='\033[0m'
+
+    search_pick_menu() {
+        _title="$1"
+        _choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            _menu_file=$(mktemp)
+            cat > "$_menu_file"
+            _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+            rm -f "$_menu_file"
+        fi
+        if [ -z "$_choice" ]; then
+            printf "Votre choix: "
+            read _choice
+        fi
+        printf "%s" "$_choice"
+    }
+
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     
     # Fonction pour afficher le header
     show_header() {
@@ -125,8 +151,7 @@ searchman() {
         esac
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Recherche de fichiers avec critères multiples
@@ -235,8 +260,7 @@ searchman() {
         esac
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Recherche de processus
@@ -262,8 +286,7 @@ searchman() {
         done
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Recherche dans les logs
@@ -355,8 +378,7 @@ searchman() {
         esac
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Recherche de fonctions et commandes (adapté selon shell)
@@ -410,8 +432,7 @@ searchman() {
         esac
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Statistiques de recherche
@@ -445,10 +466,7 @@ searchman() {
         done
         
         echo
-        if [ -t 0 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
     
     # --- CLI : commande dans le PATH / hors PATH (ex. flutter, gcc) ---
@@ -610,8 +628,17 @@ searchman() {
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        printf "Votre choix: "
-        read choice
+        choice=$(search_pick_menu "SEARCHMAN - Search Manager" <<'EOF'
+Recherche historique|1
+Recherche fichiers|2
+Recherche processus|3
+Recherche logs|4
+Recherche fonctions|5
+Statistiques|6
+Aide|h
+Quitter|q
+EOF
+        )
         
         case "$choice" in
             1) search_history_advanced ;;
@@ -644,8 +671,7 @@ searchman() {
                 echo "  searchman files <motif>        - Recherche de fichiers"
                 echo "  searchman process <nom>        - Recherche de processus"
                 echo
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             q|Q)
                 printf "${GREEN}Au revoir!${RESET}\n"

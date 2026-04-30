@@ -18,6 +18,9 @@ else
     SHELL_TYPE="sh"
 fi
 
+_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+[ -f "$_nc_lib" ] && . "$_nc_lib"
+
 # DESC: Système d'apprentissage complet de la cybersécurité
 # USAGE: cyberlearn [command] [args]
 # EXAMPLE: cyberlearn
@@ -33,6 +36,29 @@ cyberlearn() {
     CYAN='\033[0;36m'
     BOLD='\033[1m'
     RESET='\033[0m'
+
+    cyberlearn_pick_menu() {
+        _title="$1"
+        _choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            _menu_file=$(mktemp)
+            cat > "$_menu_file"
+            _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+            rm -f "$_menu_file"
+        fi
+        if [ -z "$_choice" ]; then
+            printf "Choix: "
+            read _choice
+        fi
+        printf "%s" "$_choice"
+    }
+
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     CYBERLEARN_DIR="$DOTFILES_DIR/zsh/functions/cyberlearn"
@@ -121,8 +147,7 @@ cyberlearn() {
         printf "${CYAN}${BOLD}📈 STATISTIQUES DÉTAILLÉES${RESET}\n\n"
         show_detailed_progress
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     show_badges() {
@@ -150,8 +175,7 @@ cyberlearn() {
             echo "Aucun historique disponible"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     reset_progress_confirm() {
@@ -184,8 +208,7 @@ cyberlearn() {
                 printf "${CYAN}💡 Chargez le module labs depuis %s${RESET}\n" "$CYBERLEARN_DIR/utils/labs.sh"
             fi
         fi
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     list_available_labs() {
@@ -202,8 +225,7 @@ cyberlearn() {
             echo "  - forensics-basic : Lab forensique de base"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     stop_lab_interactive() {
@@ -218,8 +240,7 @@ cyberlearn() {
         else
             printf "${YELLOW}⚠️  Fonction stop_lab non disponible${RESET}\n"
         fi
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     show_labs_status() {
@@ -236,8 +257,7 @@ cyberlearn() {
             fi
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher le header
@@ -281,8 +301,17 @@ cyberlearn() {
         printf "${BOLD}7.${RESET} ❓ Aide & Documentation\n"
         printf "${BOLD}0.${RESET} Quitter\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Menu principal" <<'EOF'
+Modules de cours|1
+Labs pratiques|2
+Ma progression|3
+Exercices et challenges|4
+Gerer environnements Docker|5
+Certificats et badges|6
+Aide et documentation|7
+Quitter|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in
@@ -320,8 +349,21 @@ cyberlearn() {
         printf "${BOLD}11.${RESET} 📋 Liste tous les modules\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Modules" <<'EOF'
+Bases cybersecurite|1
+Securite reseau|2
+Securite web|3
+Cryptographie|4
+Securite Linux|5
+Securite Windows|6
+Securite mobile|7
+Forensique numerique|8
+Tests de penetration|9
+Incident response|10
+Lister tous les modules|11
+Retour|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in
@@ -398,8 +440,14 @@ cyberlearn() {
         printf "${BOLD}4.${RESET} 📊 Statut des Labs\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Labs" <<'EOF'
+Demarrer un lab|1
+Lister les labs|2
+Arreter un lab|3
+Statut des labs|4
+Retour|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in
@@ -430,8 +478,14 @@ cyberlearn() {
         printf "${BOLD}4.${RESET} 🔄 Réinitialiser la Progression\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Progression" <<'EOF'
+Statistiques detaillees|1
+Badges obtenus|2
+Historique apprentissage|3
+Reinitialiser progression|4
+Retour|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in
@@ -459,8 +513,14 @@ cyberlearn() {
         printf "${BOLD}4.${RESET} 🎮 Mode Pratique\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Exercices" <<'EOF'
+Challenge du jour|1
+Exercices par module|2
+Challenges avances|3
+Mode pratique|4
+Retour|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in
@@ -510,8 +570,12 @@ cyberlearn() {
         printf "${BOLD}2.${RESET} Voir les challenges précédents\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Challenge du jour" <<'EOF'
+Marquer comme complete|1
+Voir challenges precedents|2
+Retour|0
+EOF
+        )
         
         case "$choice" in
             1)
@@ -526,8 +590,7 @@ cyberlearn() {
                 printf "${CYAN}Challenges précédents:${RESET}\n"
                 ls -1 "$CYBERLEARN_DATA_DIR/daily_challenges" 2>/dev/null | tail -5 || echo "Aucun challenge précédent"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
         esac
     }
@@ -544,8 +607,13 @@ cyberlearn() {
         printf "${BOLD}3.${RESET} Web\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Exercices par module" <<'EOF'
+Basics|1
+Network|2
+Web|3
+Retour|0
+EOF
+        )
         
         case "$choice" in
             1) start_module "basics" ;;
@@ -570,8 +638,14 @@ cyberlearn() {
         printf "${BOLD}4.${RESET} CTF - Forensics\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Challenges avances" <<'EOF'
+CTF Network|1
+CTF Web|2
+CTF Crypto|3
+CTF Forensics|4
+Retour|0
+EOF
+        )
         
         case "$choice" in
             1)
@@ -582,8 +656,7 @@ cyberlearn() {
                 echo "2. Identifiez les services: nmap -sV <target>"
                 echo "3. Trouvez le flag dans un service"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             2)
                 echo ""
@@ -593,8 +666,7 @@ cyberlearn() {
                 echo "2. Testez les vulnérabilités OWASP Top 10"
                 echo "3. Trouvez le flag"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             3)
                 echo ""
@@ -604,8 +676,7 @@ cyberlearn() {
                 echo "2. Utilisez les outils appropriés"
                 echo "3. Déchiffrez le flag"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             4)
                 echo ""
@@ -638,8 +709,13 @@ cyberlearn() {
         printf "${BOLD}3.${RESET} Pratiquer avec des outils\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Mode pratique" <<'EOF'
+Demarrer un lab Docker|1
+Creer environnement de test|2
+Pratiquer avec des outils|3
+Retour|0
+EOF
+        )
         
         case "$choice" in
             1) show_labs_menu ;;
@@ -684,8 +760,15 @@ cyberlearn() {
         printf "${BOLD}5.${RESET} 🧹 Nettoyer les Containers\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Docker" <<'EOF'
+Demarrer un environnement|1
+Arreter un environnement|2
+Lister environnements|3
+Construire une image|4
+Nettoyer les containers|5
+Retour|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in
@@ -788,8 +871,12 @@ cyberlearn() {
         printf "${BOLD}2.${RESET} 🏆 Voir mes Badges\n"
         printf "${BOLD}0.${RESET} Retour\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyberlearn_pick_menu "CYBERLEARN - Certificats" <<'EOF'
+Generer un certificat|1
+Voir mes badges|2
+Retour|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         case "$choice" in

@@ -18,6 +18,9 @@ else
     SHELL_TYPE="sh"
 fi
 
+_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+[ -f "$_nc_lib" ] && . "$_nc_lib"
+
 # DESC: Gestionnaire de tests pour ZSH et dotfiles
 # USAGE: testzshman [test-type] [options]
 # EXAMPLE: testzshman
@@ -32,6 +35,29 @@ testzshman() {
     CYAN='\033[0;36m'
     BOLD='\033[1m'
     RESET='\033[0m'
+
+    testzsh_pick_menu() {
+        _title="$1"
+        _choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            _menu_file=$(mktemp)
+            cat > "$_menu_file"
+            _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+            rm -f "$_menu_file"
+        fi
+        if [ -z "$_choice" ]; then
+            printf "Choix: "
+            read _choice
+        fi
+        printf "%s" "$_choice"
+    }
+
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     TESTZSHMAN_DIR="$DOTFILES_DIR/zsh/functions/testzshman"
@@ -79,8 +105,19 @@ testzshman() {
         echo ""
         printf "${YELLOW}  0.${RESET} Quitter\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(testzsh_pick_menu "TESTZSHMAN - Test Manager" <<'EOF'
+Test des managers|1
+Test des fonctions ZSH|2
+Test structure dotfiles|3
+Test configuration|4
+Test symlinks|5
+Test syntaxe ZSH|6
+Test cyberlearn|7
+Test complet|8
+Test journalisation|9
+Quitter|0
+EOF
+        )
         choice=$(echo "$choice" | tr -d '[:space:]')
         
         case "$choice" in
@@ -123,8 +160,7 @@ testzshman() {
         # Retourner au menu après action
         if [ "$choice" != "0" ]; then
             echo ""
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
         fi
     }
     
@@ -140,6 +176,12 @@ testzshman() {
         failed=0
         
         for manager in $managers; do
+            if ! command -v "$manager" >/dev/null 2>&1; then
+                manager_core="$DOTFILES_DIR/core/managers/$manager/core/$manager.sh"
+                if [ -f "$manager_core" ]; then
+                    . "$manager_core" 2>/dev/null || true
+                fi
+            fi
             if command -v "$manager" >/dev/null 2>&1; then
                 printf "${GREEN}✓${RESET} %s est disponible\n" "$manager"
                 success=$((success + 1))

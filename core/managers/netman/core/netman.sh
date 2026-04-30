@@ -42,6 +42,12 @@ netman() {
     # Variables globales pour la fonction
     SELECTED_PORTS=""
     ACTION=""
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     
     # Fonction pour afficher le header
     show_header() {
@@ -74,8 +80,10 @@ netman() {
             if [ -z "$PORTS_DATA" ]; then
                 printf "${RED}❌ Aucun port en écoute trouvé.${RESET}\n"
                 echo ""
-                printf "Appuyez sur Entrée pour revenir au menu... "
-                read dummy
+                if [ -t 0 ] && [ -t 1 ]; then
+                    printf "Appuyez sur Entrée pour revenir au menu... "
+                    read dummy
+                fi
                 return
             fi
             
@@ -219,8 +227,7 @@ $line"
                             port_index=$((port_index + 1))
                         done
                         echo ""
-                        printf "Appuyez sur Entrée pour continuer... "
-                        read dummy
+                        pause_if_tty
                     fi
                     ;;
                 a|A)
@@ -273,10 +280,7 @@ $line"
         echo "  UDP: $udp_count connexions"
         
         echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
     
     # Fonction pour afficher les informations IP
@@ -313,10 +317,7 @@ $line"
         done
         
         echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
     
     # Fonction pour afficher les informations DNS
@@ -347,10 +348,7 @@ $line"
         fi
         
         echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
 
     # Diagnostic réseau complet (couche locale -> internet -> DNS -> HTTP)
@@ -425,10 +423,46 @@ $line"
         fi
 
         echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
+    }
+
+    # Rapport de diagnostic exportable (non interactif)
+    network_diagnose_report() {
+        ts=$(date +%Y%m%d_%H%M%S)
+        report_file="${2:-$HOME/netman_diag_${ts}.txt}"
+        {
+            echo "=== NETMAN DIAG REPORT $(date) ==="
+            echo ""
+            echo "[ROUTES]"
+            ip route 2>/dev/null
+            echo ""
+            echo "[INTERFACES]"
+            ip -br addr 2>/dev/null
+            echo ""
+            echo "[PING GW]"
+            gw=$(ip route 2>/dev/null | awk '/default/ {print $3; exit}')
+            [ -n "$gw" ] && ping -c 1 -W 1 "$gw" 2>/dev/null || echo "gateway-unavailable"
+            echo ""
+            echo "[PING INTERNET]"
+            ping -c 1 -W 1 1.1.1.1 2>/dev/null || true
+            ping -c 1 -W 1 8.8.8.8 2>/dev/null || true
+            echo ""
+            echo "[DNS]"
+            if command -v dig >/dev/null 2>&1; then
+                dig +short google.com @1.1.1.1 2>/dev/null
+            else
+                getent hosts google.com 2>/dev/null
+            fi
+            echo ""
+            echo "[HTTPS]"
+            if command -v curl >/dev/null 2>&1; then
+                curl -s -o /dev/null -w "http_code=%{http_code} connect=%{time_connect} ttfb=%{time_starttransfer}\n" --max-time 8 https://example.com 2>/dev/null
+            fi
+            echo ""
+            echo "[SOCKETS TOP]"
+            ss -tnp 2>/dev/null | head -40
+        } > "$report_file"
+        printf "${GREEN}✓ Rapport créé: %s${RESET}\n" "$report_file"
     }
 
     # Benchmark rapide DNS
@@ -443,8 +477,7 @@ $line"
 
         if ! command -v dig >/dev/null 2>&1; then
             printf "${RED}❌ dig non disponible (installez dnsutils/bind-tools)${RESET}\n"
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
             return 1
         fi
 
@@ -459,8 +492,7 @@ $line"
         done
 
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
 
     # Diagnostic approfondi orienté incident perf (RX/TX, erreurs, drops, top talkers)
@@ -534,10 +566,7 @@ $line"
         printf "  ${BLUE}ℹ Si RX/TX semble anormal, verifier surtout les interfaces docker/veth${RESET}\n"
 
         echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
 
     # Statut firewall synthétique (ufw / nftables / iptables)
@@ -566,8 +595,7 @@ $line"
         fi
 
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
 
     # Lookup IP/domaine (dig + whois + reverse DNS)
@@ -604,8 +632,7 @@ $line"
         fi
 
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher la table de routage
@@ -636,8 +663,7 @@ $line"
         ip -s link 2>/dev/null | awk '/^[0-9]+:/ {iface=$2} /RX:/ {getline; rx=$1} /TX:/ {getline; tx=$1; printf "  %-15s RX: %-15s TX: %-15s\n", iface, rx, tx}'
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
 
     # Lancer le manager de routes dédié
@@ -710,8 +736,7 @@ $line"
         echo ""
         # Non bloquant hors TTY (tests Docker / CI / pipes)
         if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
+            pause_if_tty
         fi
     }
     
@@ -766,8 +791,7 @@ $line"
         esac
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour kill un port spécifique
@@ -829,8 +853,7 @@ $line"
         esac
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher les statistiques réseau
@@ -875,8 +898,7 @@ $line"
         
         echo ""
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour tester la connectivité réseau
@@ -909,8 +931,7 @@ $line"
         fi
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour tester la vitesse réseau
@@ -1037,10 +1058,7 @@ https://speed.hetzner.de/5GB.bin"
         fi
 
         echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
     
     # Fonction pour monitorer la bande passante en temps réel
@@ -1089,8 +1107,7 @@ https://speed.hetzner.de/5GB.bin"
         done
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour analyser le trafic réseau
@@ -1125,8 +1142,7 @@ https://speed.hetzner.de/5GB.bin"
         done
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour exporter la configuration réseau
@@ -1173,8 +1189,7 @@ https://speed.hetzner.de/5GB.bin"
         head -20 "$export_file"
         echo "..."
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Gestion des arguments en ligne de commande
@@ -1254,6 +1269,9 @@ https://speed.hetzner.de/5GB.bin"
             diagnose|diag|health)
                 network_diagnose
                 ;;
+            diagnose-report|diag-report)
+                network_diagnose_report "$@"
+                ;;
             dns-bench|dnsbench)
                 dns_benchmark "$2"
                 ;;
@@ -1319,6 +1337,7 @@ https://speed.hetzner.de/5GB.bin"
                 echo "  • Kill rapide de processus par port"
                 echo "  • Statistiques réseau détaillées"
                 echo "  • Diagnostic réseau complet (lien/gateway/DNS/HTTP)"
+                echo "  • Rapport de diagnostic exportable (netman diag-report)"
                 echo "  • Diagnostic profond orienté RX/TX/drops/processus"
                 echo "  • Benchmark DNS multi-resolveurs"
                 echo "  • Statut firewall (ufw/nft/iptables)"
@@ -1337,6 +1356,7 @@ https://speed.hetzner.de/5GB.bin"
                 echo "  netman stats        - Statistiques directes"
                 echo "  netman routeman     - Ouvrir le gestionnaire de routes"
                 echo "  netman diagnose     - Diagnostic réseau complet"
+                echo "  netman diag-report  - Génère un rapport de diagnostic"
                 echo "  netman diagnose-deep - Diagnostic profond perf RX/TX"
                 echo "  netman dns-bench    - Benchmark DNS"
                 echo "  netman firewall     - Statut firewall"
@@ -1480,8 +1500,7 @@ EOF
                     echo "  netman firewall    - Statut firewall"
                     echo "  netman lookup <x>  - Lookup IP/domaine"
                     echo ""
-                    printf "Appuyez sur Entrée pour continuer... "
-                    read dummy
+        pause_if_tty
                     ;;
                 q|Q)
                     printf "${GREEN}Au revoir!${RESET}\n"

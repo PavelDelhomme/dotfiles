@@ -18,6 +18,9 @@ else
     SHELL_TYPE="sh"
 fi
 
+_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+[ -f "$_nc_lib" ] && . "$_nc_lib"
+
 # DESC: Gestionnaire interactif complet pour les outils divers et utilitaires système
 # USAGE: miscman [command]
 # EXAMPLE: miscman
@@ -33,6 +36,29 @@ miscman() {
     CYAN='\033[0;36m'
     BOLD='\033[1m'
     RESET='\033[0m'
+
+    misc_pick_menu() {
+        _title="$1"
+        _choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            _menu_file=$(mktemp)
+            cat > "$_menu_file"
+            _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+            rm -f "$_menu_file"
+        fi
+        if [ -z "$_choice" ]; then
+            printf "Votre choix: "
+            read _choice
+        fi
+        printf "%s" "$_choice"
+    }
+
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     
     # Fonction pour afficher le header
     show_header() {
@@ -140,8 +166,7 @@ miscman() {
         fi
         
         echo
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Copie de fichiers avec barre de progression
@@ -299,8 +324,16 @@ miscman() {
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        printf "Votre choix: "
-        read choice
+        choice=$(misc_pick_menu "MISCMAN - Tools Manager" <<'EOF'
+Generer un mot de passe|1
+Informations systeme|2
+Copie de fichier avancee|3
+Sauvegarde intelligente|4
+Extraction d'archive|5
+Aide|h
+Quitter|q
+EOF
+        )
         
         case "$choice" in
             1)
@@ -308,8 +341,7 @@ miscman() {
                 read length
                 gen_password "${length:-16}"
                 echo
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             2) show_system_info ;;
             3) copy_file_advanced ;;
@@ -335,8 +367,7 @@ miscman() {
                 echo "  miscman backup           - Créer une sauvegarde"
                 echo "  miscman extract          - Extraire une archive"
                 echo
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             q|Q)
                 printf "${GREEN}Au revoir!${RESET}\n"

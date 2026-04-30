@@ -42,6 +42,13 @@ gitman() {
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
+
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read dummy
+        fi
+    }
     
     # Charger les fonctions Git depuis legacy si disponible
     if [ -f "$GIT_DIR/git_functions.sh" ]; then
@@ -225,8 +232,7 @@ EOF
                     echo "📁 Répertoire courant: $PWD"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             2)
                 echo ""
@@ -241,22 +247,19 @@ EOF
                     echo "💡 Utilisez: gitman config"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             3)
                 echo ""
                 configure_git_identity
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             4)
                 echo ""
                 git status
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             5)
                 echo ""
@@ -265,29 +268,25 @@ EOF
                 count="${count:-10}"
                 git log --oneline -n "$count"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             6)
                 echo ""
                 git branch -a
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             7)
                 echo ""
                 git remote -v
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             8)
                 echo ""
                 git pull
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             9)
                 echo ""
@@ -299,8 +298,7 @@ EOF
                     git push
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             10)
                 echo ""
@@ -312,8 +310,7 @@ EOF
                     printf "${RED}❌ Message requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             11)
                 echo ""
@@ -329,15 +326,13 @@ EOF
                     printf "${RED}❌ Message requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             12)
                 echo ""
                 git diff
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             13)
                 echo ""
@@ -349,8 +344,7 @@ EOF
                     printf "${RED}❌ Nom de branche requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             14)
                 echo ""
@@ -362,15 +356,13 @@ EOF
                     printf "${RED}❌ Nom de branche requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             15)
                 echo ""
                 git branch -a
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             16)
                 echo ""
@@ -387,8 +379,7 @@ EOF
                     printf "${RED}❌ Nom de branche requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             17)
                 echo ""
@@ -400,8 +391,7 @@ EOF
                     printf "${RED}❌ Nom de branche requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             18)
                 echo ""
@@ -413,8 +403,7 @@ EOF
                     printf "${RED}❌ Nom de branche requis${RESET}\n"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             19)
                 echo ""
@@ -427,8 +416,7 @@ EOF
                     git merge --abort
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             20)
                 echo ""
@@ -440,8 +428,7 @@ EOF
                     git clean -n
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             21)
                 echo ""
@@ -458,8 +445,7 @@ EOF
                     git reset --"$type" "$target"
                 fi
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             22)
                 echo ""
@@ -493,15 +479,13 @@ EOF
                         ;;
                 esac
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             23)
                 echo ""
                 gitman_time_spent
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *)

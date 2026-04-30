@@ -5,10 +5,28 @@
 # USAGE: doctorman | doctorman all | doctorman dotfiles | doctorman dev | doctorman fish
 # =============================================================================
 
+_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+[ -f "$_nc_lib" ] && . "$_nc_lib"
+
 __doctorman_ok()  { printf "  \033[0;32m✓\033[0m %s\n" "$1"; }
 __doctorman_fail(){ printf "  \033[0;31m✗\033[0m %s\n" "$1"; }
 __doctorman_warn(){ printf "  \033[1;33m!\033[0m %s\n" "$1"; }
 __doctorman_sec() { printf "\n\033[1m%s\033[0m\n" "$1"; }
+__doctorman_pick() {
+    _title="$1"
+    _choice=""
+    if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+        _menu_file=$(mktemp)
+        cat > "$_menu_file"
+        _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+        rm -f "$_menu_file"
+    fi
+    if [ -z "$_choice" ]; then
+        printf "Choix: "
+        read _choice
+    fi
+    printf "%s" "$_choice"
+}
 
 __doctorman_help() {
     printf "\033[0;36m\033[1mDOCTORMAN\033[0m — diagnostic dotfiles et outils dev\n\n"
@@ -138,10 +156,36 @@ __doctorman_all() {
     printf "\n\033[0;36mTerminé.\033[0m Corrige les ✗ avant de relancer les builds.\n\n"
 }
 
+__doctorman_menu() {
+    while true; do
+        printf "\n\033[1m═══════════════════════════════════════════════════════════════\033[0m\n"
+        printf "\033[1m  DOCTORMAN — menu interactif\033[0m\n"
+        printf "\033[1m═══════════════════════════════════════════════════════════════\033[0m\n"
+        _cmd=$(__doctorman_pick "DOCTORMAN - Menu" <<'EOF'
+Rapport complet|all
+Diagnostic dotfiles|dotfiles
+Diagnostic fish|fish
+Diagnostic dev|dev
+Aide|help
+Quitter|q
+EOF
+        )
+        case "$_cmd" in
+            all|dotfiles|fish|dev|help) doctorman "$_cmd" ;;
+            q|quit|exit) break ;;
+            *) __doctorman_warn "Choix invalide: $_cmd" ;;
+        esac
+    done
+}
+
 doctorman() {
     _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
     [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log doctorman "$@"
     cmd="${1:-all}"
+    if [ $# -eq 0 ] && [ -t 0 ] && [ -t 1 ]; then
+        __doctorman_menu
+        return 0
+    fi
     case "$cmd" in
         help|-h|--help) __doctorman_help ;;
         all|run)       __doctorman_all ;;

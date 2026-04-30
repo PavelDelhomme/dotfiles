@@ -87,6 +87,22 @@ cyberman() {
         echo "╚════════════════════════════════════════════════════════════════╝"
         printf "${RESET}\n"
     }
+
+    cyber_pick_menu() {
+        _title="$1"
+        _choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            _menu_file=$(mktemp)
+            cat > "$_menu_file"
+            _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+            rm -f "$_menu_file"
+        fi
+        if [ -z "$_choice" ]; then
+            printf "Choix: "
+            read _choice
+        fi
+        printf "%s" "$_choice"
+    }
     
     # =========================================================================
     # CATÉGORIE 1: RECONNAISSANCE & INFORMATION GATHERING
@@ -111,8 +127,20 @@ cyberman() {
             echo "10. Get robots.txt            - Récupération robots.txt"
             echo "0.  Retour au menu principal"
             echo ""
-            printf "Choix: "
-        read choice
+            choice=$(cyber_pick_menu "CYBERMAN - Reconnaissance" <<'EOF'
+WHOIS domain|1
+DNS Lookup|2
+DNSEnum scan|3
+Find subdomains|4
+Recon domain|5
+Enhanced traceroute|6
+Network map|7
+Get HTTP headers|8
+Analyze headers|9
+Get robots.txt|10
+Retour|0
+EOF
+)
             # Nettoyer le choix
             choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
             case "$choice" in
@@ -223,8 +251,24 @@ cyberman() {
         echo "14. Scan toutes les cibles    - Scan complet sur toutes les cibles"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Scanning" <<'EOF'
+Port scan|1
+Scan ports|2
+Web port scan|3
+Scan web ports|4
+Enum dirs|5
+Enum shares|6
+Enumerate users|7
+Web dir enum|8
+Network map|9
+Check Telnet|10
+Network Scanner|11
+Network Scanner Live|12
+Advanced Network Scan|13
+Scan toutes les cibles|14
+Retour|0
+EOF
+)
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
@@ -335,8 +379,19 @@ cyberman() {
         echo "9.  Scan vuln toutes cibles   - Scan vulnérabilités sur toutes les cibles"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Vulnerability" <<'EOF'
+Nmap vuln scan|1
+Vuln scan|2
+Scan vulns|3
+Nikto scan|4
+Web vuln scan|5
+Check SSL|6
+Check SSL cert|7
+Check Heartbleed|8
+Scan vuln toutes cibles|9
+Retour|0
+EOF
+)
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
@@ -424,8 +479,15 @@ cyberman() {
         echo "5.  Web traceroute            - Traceroute web"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Attacks" <<'EOF'
+ARP Spoof|1
+Brute SSH|2
+Password crack|3
+Deauth attack|4
+Web traceroute|5
+Retour|0
+EOF
+)
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
@@ -453,8 +515,12 @@ cyberman() {
         echo "2.  Wifi scan                 - Scan réseaux Wi-Fi"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Analysis" <<'EOF'
+Sniff traffic|1
+Wifi scan|2
+Retour|0
+EOF
+)
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
@@ -538,8 +604,15 @@ cyberman() {
         echo "5.  Afficher les cibles"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Gestion cibles" <<'EOF'
+Ajouter une cible|1
+Ajouter plusieurs cibles|2
+Supprimer une cible|3
+Vider toutes les cibles|4
+Afficher les cibles|5
+Retour|0
+EOF
+)
         # Nettoyer le choix
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
@@ -700,8 +773,8 @@ cyberman() {
         fi
         echo ""
         
-        printf "${CYAN}${BOLD}Menu principal${RESET}\n
-"        echo "1.  ⚙️  Gestion & Configuration - environnements, cibles, workflows, rapports, anonymat" Configuration - environnements, cibles, workflows, rapports, anonymat"
+        printf "${CYAN}${BOLD}Menu principal${RESET}\n"
+        echo "1.  ⚙️  Gestion & Configuration - environnements, cibles, workflows, rapports, anonymat"
         echo "2.  🔍 Reconnaissance & Information Gathering"
         echo "3.  🔎 Scanning & Enumeration"
         echo "4.  🛡️  Vulnerability Assessment & Session"
@@ -718,8 +791,8 @@ cyberman() {
         if [ -f "$CYBER_DIR/environment_manager.sh" ] && command -v has_active_environment >/dev/null 2>&1 && has_active_environment 2>/dev/null; then
             current_env=$(command -v get_current_environment >/dev/null 2>&1 && get_current_environment 2>/dev/null || echo "")
             echo ""
-            printf "${GREEN}📝 Environnement actif: $current_env${RESET}
-"            echo "13. 📝 Notes & Informations de l'environnement actif"
+            printf "${GREEN}📝 Environnement actif: $current_env${RESET}\n"
+            echo "13. 📝 Notes & Informations de l'environnement actif"
             echo "14. 📊 Rapports - consulter, exporter"
             echo "15. 🔄 Workflows - créer, exécuter, gérer"
             echo "16. 🚫 Désactiver l'environnement actif"
@@ -790,8 +863,16 @@ EOF
         echo "6.  Exécuter un workflow avec anonymat"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Anonymat" <<'EOF'
+Verifier l'anonymat|1
+Afficher les informations d'anonymat|2
+Executer une commande avec anonymat|3
+Configurer l'usurpation d'IP|4
+Supprimer l'usurpation d'IP|5
+Executer un workflow avec anonymat|6
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
@@ -888,8 +969,15 @@ EOF
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Utilitaires" <<'EOF'
+Calculer un hash|1
+Encoder/Decoder|2
+Rechercher dans les fichiers|3
+Generer un mot de passe|4
+Convertir entre formats|5
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         
         case "$choice" in
@@ -1011,8 +1099,17 @@ EOF
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Apprentissage" <<'EOF'
+Modules de Cours|1
+Labs Pratiques|2
+Challenges & Exercices|3
+Ma Progression|4
+Badges & Certificats|5
+Gerer les Labs Docker|6
+Documentation & Aide|7
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         
         case "$choice" in
@@ -1082,9 +1179,7 @@ EOF
     # Menu labs direct (si cyberlearn non disponible)
     show_labs_menu_direct() {
         show_header
-        printf "${CYAN}🧪 LABS PRATIQUES${RESET}\n
-
-"
+        printf "${CYAN}🧪 LABS PRATIQUES${RESET}\n\n"
         echo "Labs disponibles:"
         echo "1.  🕸️  web-basics - Lab Sécurité Web - XSS, SQLi"
         echo "2.  🌐 network-scan - Lab Scan Réseau"
@@ -1094,8 +1189,15 @@ EOF
         echo ""
         echo "0.  Retour"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Labs pratiques" <<'EOF'
+web-basics|1
+network-scan|2
+crypto-basics|3
+linux-pentest|4
+forensics-basic|5
+Retour|0
+EOF
+)
         
         case "$choice" in
             1) start_lab_docker "web-basics" ;;
@@ -1144,9 +1246,7 @@ EOF
     # Challenge du jour direct
     show_daily_challenge_direct() {
         show_header
-        printf "${CYAN}🎯 CHALLENGE DU JOUR${RESET}\n
-
-"
+        printf "${CYAN}🎯 CHALLENGE DU JOUR${RESET}\n\n"
         today=$(date +%Y-%m-%d)
         day_of_year=$(date +%j)
         challenge_num=$((day_of_year % 10))
@@ -1164,8 +1264,9 @@ EOF
             9) challenge="Web: Identifiez les vulnérabilités OWASP Top 10 sur un site" ;;
         esac
         
-        printf "${GREEN}Challenge:${RESET} $challenge "        printf "${BLUE}Date:${RESET} $today
-"        echo ""
+        printf "${GREEN}Challenge:${RESET} %s\n" "$challenge"
+        printf "${BLUE}Date:${RESET} %s\n" "$today"
+        echo ""
         echo "💡 Complétez ce challenge pour gagner des points !"
         echo ""
         printf "Appuyez sur une touche pour continuer..."; read dummy
@@ -1174,9 +1275,7 @@ EOF
     # Progression directe
     show_progress_direct() {
         show_header
-        printf "${CYAN}📊 MA PROGRESSION${RESET}\n
-
-"
+        printf "${CYAN}📊 MA PROGRESSION${RESET}\n\n"
         progress_file="${HOME}/.cyberlearn/progress.json"
         if [ -f "$progress_file" ] && command -v jq &>/dev/null; then
             modules_completed=$(jq -r '.stats.modules_completed // 0' "$progress_file" 2>/dev/null)
@@ -1196,9 +1295,7 @@ EOF
     # Menu gestion labs Docker
     show_docker_labs_menu() {
         show_header
-        printf "${CYAN}🐳 GESTION DES LABS DOCKER${RESET}\n
-
-"
+        printf "${CYAN}🐳 GESTION DES LABS DOCKER${RESET}\n\n"
         if ! command -v docker &>/dev/null; then
             echo "❌ Docker n'est pas installé"
             echo "💡 Installez-le avec: installman docker"
@@ -1214,8 +1311,15 @@ EOF
         echo ""
         echo "0.  Retour"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Labs Docker" <<'EOF'
+Demarrer un lab|1
+Arreter un lab|2
+Lister les labs actifs|3
+Nettoyer les containers|4
+Statut des labs|5
+Retour|0
+EOF
+)
         
         case "$choice" in
             1) show_labs_menu_direct ;;
@@ -1259,9 +1363,7 @@ EOF
     # Documentation apprentissage
     show_learning_docs() {
         show_header
-        printf "${CYAN}📚 DOCUMENTATION APPRENTISSAGE${RESET}\n
-
-"
+        printf "${CYAN}📚 DOCUMENTATION APPRENTISSAGE${RESET}\n\n"
         cat <<EOF
 ${BOLD}Modules disponibles:${RESET}
   • Basics - Bases de la cybersécurité
@@ -1363,8 +1465,25 @@ EOF
         echo ""
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Web Security" <<'EOF'
+Nuclei Scanner|1
+XSS Scanner|2
+SQL Injection - SQLMap|3
+Web Fuzzer|4
+Web dir enum|5
+Web port scan|6
+Get HTTP headers|7
+Analyze headers|8
+Get robots.txt|9
+Check SSL|10
+Check SSL cert|11
+Nikto scan|12
+Web vuln scan|13
+Web app fingerprint|14
+CMS detection|15
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         
         # Charger les modules de sécurité
@@ -1445,8 +1564,20 @@ EOF
         echo "10. BACnet scan               - Scan BACnet"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - IoT" <<'EOF'
+IoT device scan|1
+MQTT scan|2
+CoAP scan|3
+Zigbee scan|4
+Bluetooth scan|5
+Firmware analysis|6
+Default credentials|7
+UPnP scan|8
+Modbus scan|9
+BACnet scan|10
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) echo "⚠️  Fonction IoT device scan à implémenter" ; sleep 2 ;;
@@ -1479,8 +1610,13 @@ EOF
         echo "3.  🔌 Network Devices & Infrastructure"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Network Tools" <<'EOF'
+Network Analysis & Monitoring|1
+Network Attacks & Exploitation|2
+Network Devices & Infrastructure|3
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) show_analysis_menu ;;
@@ -1506,8 +1642,13 @@ EOF
         echo "3.  🔨 Custom Exploitation Scripts"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Advanced Tools" <<'EOF'
+Metasploit Framework|1
+Custom Nmap Scripts|2
+Custom Exploitation Scripts|3
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) show_metasploit_menu ;;
@@ -1532,8 +1673,16 @@ EOF
         echo "6.  Générer un payload"
         echo "0.  Retour"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Metasploit" <<'EOF'
+Lancer msfconsole|1
+Rechercher un exploit|2
+Rechercher un payload|3
+Rechercher un auxiliary|4
+Lister les exploits recents|5
+Generer un payload|6
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
@@ -1602,8 +1751,15 @@ EOF
         echo "5.  Scan avec scripts exploit"
         echo "0.  Retour"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Nmap Scripts" <<'EOF'
+Lister les scripts nmap disponibles|1
+Executer un script nmap personnalise|2
+Creer un script nmap personnalise|3
+Scan avec scripts vuln|4
+Scan avec scripts exploit|5
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
@@ -1684,8 +1840,13 @@ EOF
         echo "3.  Créer un nouveau script"
         echo "0.  Retour"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Custom Exploit Scripts" <<'EOF'
+Lister les scripts personnalises|1
+Executer un script personnalise|2
+Creer un nouveau script|3
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1)
@@ -1751,8 +1912,22 @@ EOF
         echo "12. BGP scan                  - Scan BGP"
         echo "0.  Retour au menu principal"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=$(cyber_pick_menu "CYBERMAN - Network Devices" <<'EOF'
+Router scan|1
+Switch scan|2
+Firewall scan|3
+SNMP scan|4
+Check Telnet|5
+SSH scan|6
+FTP scan|7
+SMB scan|8
+Network topology|9
+VLAN scan|10
+OSPF scan|11
+BGP scan|12
+Retour|0
+EOF
+)
         choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
         case "$choice" in
             1) echo "⚠️  Fonction Router scan à implémenter" ; sleep 2 ;;
@@ -1983,7 +2158,6 @@ EOF
         esac
     done
     printf "${GREEN}Au revoir !${RESET}\n"
-    }
 }
 
 # Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
