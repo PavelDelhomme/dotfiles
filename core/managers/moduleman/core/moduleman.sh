@@ -43,6 +43,10 @@ moduleman() {
     MODULEMAN_CONFIG_DIR="$DOTFILES_DIR/.config/moduleman"
     MODULEMAN_CONFIG_FILE="$MODULEMAN_CONFIG_DIR/modules.conf"
     FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Créer le répertoire de configuration si nécessaire
     mkdir -p "$MODULEMAN_CONFIG_DIR"
@@ -178,9 +182,24 @@ MODULEMAN_LIST_EOF
         echo ""
         printf "${YELLOW}0.${RESET} Quitter\n"
         echo ""
-        printf "Choix: "
-        read choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            idx=1
+            echo "$managers" | while IFS=: read -r manager_name manager_desc; do
+                [ -n "$manager_name" ] || continue
+                printf "%s|%s\n" "$manager_desc" "$idx" >> "$menu_input_file"
+                idx=$((idx + 1))
+            done
+            printf "Quitter|0\n" >> "$menu_input_file"
+            choice=$(dotfiles_ncmenu_select "MODULEMAN - Activer/Desactiver" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
         
         case "$choice" in
             0) return 0 ;;

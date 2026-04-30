@@ -37,6 +37,10 @@ configman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     CONFIGMAN_DIR="$DOTFILES_DIR/zsh/functions/configman"
     CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Charger les utilitaires si disponibles
     if [ -d "$CONFIGMAN_DIR/utils" ]; then
@@ -206,9 +210,33 @@ configman() {
         echo ""
         echo "0.  Quitter"
         echo ""
-        printf "Choix: "
-        read choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Git (configuration Git globale)|1
+Git Remote (configuration remote GitHub)|2
+Symlinks (creation des symlinks dotfiles)|3
+Shell (gestion des shells)|4
+Powerlevel10k (configuration prompt avec Git)|5
+SSH (configuration connexion SSH interactive)|6
+SSH Auto (configuration automatique avec mot de passe .env)|6a
+QEMU Libvirt (permissions libvirt)|7
+QEMU Network (configuration reseau NAT)|8
+QEMU Packages (installation paquets QEMU)|9
+OSINT Tools (configuration outils OSINT et cles API)|10
+Gestion de versions (Node, Python, Java)|11
+Visualisation de configuration complete|12
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "CONFIGMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
         
         case "$choice" in
             1)

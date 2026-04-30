@@ -37,6 +37,10 @@ fileman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     FILEMAN_DIR="$DOTFILES_DIR/zsh/functions/fileman"
     FILEMAN_MODULES_DIR="$FILEMAN_DIR/modules"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Fonction pour afficher le header
     show_header() {
@@ -62,9 +66,25 @@ fileman() {
         echo ""
         echo "0.  Quitter"
         echo ""
-        printf "Choix: "
-        read choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Archive (creer/extraires archives)|1
+Backup (creer/sauvegarder)|2
+Recherche (trouver fichiers)|3
+Permissions (gerer permissions)|4
+Operations fichiers (copier/deplacer/supprimer)|5
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "FILEMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
         
         case "$choice" in
             1)

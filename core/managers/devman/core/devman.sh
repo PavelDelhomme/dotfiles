@@ -38,6 +38,10 @@ devman() {
     DEVMAN_DIR="$DOTFILES_DIR/zsh/functions/devman"
     DEV_DIR="$DEVMAN_DIR/modules/legacy"
     UTILS_DIR="$DOTFILES_DIR/zsh/functions/utils"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Charger les utilitaires si disponibles
     if [ -f "$UTILS_DIR/ensure_tool.sh" ]; then
@@ -69,9 +73,26 @@ devman() {
         echo ""
         echo "0.  Quitter"
         echo ""
-        printf "Choix: "
-        read choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Docker (gestion conteneurs)|1
+Go (langage Go)|2
+Make (gestion builds)|3
+C/C++ (compilation)|4
+Projets (gestion projets)|5
+Utilitaires dev|6
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "DEVMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
         
         case "$choice" in
             1)

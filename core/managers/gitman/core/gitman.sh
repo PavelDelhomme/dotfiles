@@ -38,6 +38,10 @@ gitman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     GITMAN_DIR="$DOTFILES_DIR/zsh/functions/gitman"
     GIT_DIR="$GITMAN_DIR/modules/legacy"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     
     # Charger les fonctions Git depuis legacy si disponible
     if [ -f "$GIT_DIR/git_functions.sh" ]; then
@@ -168,9 +172,43 @@ gitman() {
         echo ""
         echo "0.  Quitter"
         echo ""
-        printf "Choix: "
-        read choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Qui suis-je ? (whoami)|1
+Changer d'identite (switch-identity)|2
+Configurer identite Git|3
+Status Git|4
+Logs recents|5
+Branches|6
+Remotes|7
+Pull|8
+Push|9
+Commit|10
+Add & Commit|11
+Diff|12
+Creer branche|13
+Changer de branche|14
+Lister branches|15
+Supprimer branche|16
+Merge|17
+Rebase|18
+Abort merge/rebase|19
+Clean|20
+Reset|21
+Stash|22
+Temps passe (par auteur, toutes branches)|23
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "GITMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
         
         case "$choice" in
             1)

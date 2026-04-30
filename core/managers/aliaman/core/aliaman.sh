@@ -36,6 +36,10 @@ aliaman() {
     
     # Fichier des alias (adaptatif selon shell)
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     if [ "$SHELL_TYPE" = "zsh" ]; then
         ALIASES_FILE="$DOTFILES_DIR/zsh/aliases.zsh"
     elif [ "$SHELL_TYPE" = "bash" ]; then
@@ -559,8 +563,30 @@ aliaman() {
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        printf "Votre choix: "
-        read choice
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Gerer les alias (interactif)|1
+Ajouter un nouvel alias|2
+Rechercher un alias|3
+Lister tous les alias|4
+Supprimer un alias specifique|5
+Editer un alias specifique|6
+Sauvegarder les alias|7
+Recharger les alias|8
+Statistiques|9
+Exporter les alias|0
+Aide|h
+Quitter|q
+EOF
+            choice=$(dotfiles_ncmenu_select "ALIAMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "Votre choix: "
+            read choice
+        fi
         
         case "$choice" in
             1)

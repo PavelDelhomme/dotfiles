@@ -35,6 +35,10 @@ helpman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     HELPMAN_DIR="$DOTFILES_DIR/zsh/functions/helpman"
     FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
 
     # Aide CLI / non-interactif : ne pas entrer dans le menu (read) — tests Docker, fish bridge, CI
     case "${1:-}" in
@@ -81,9 +85,29 @@ helpman() {
         echo "  9. Aide sur le système d'aide lui-même"
         echo "  0. Quitter"
         echo ""
-        printf "${BLUE}Votre choix: ${RESET}"
-        read choice
-        choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Qu'est-ce que man ?|1
+Qu'est-ce que help ?|2
+Differences entre man et help|3
+Comment utiliser man ?|4
+Comment utiliser help ?|5
+Exemples pratiques|6
+Liste des fonctions disponibles|7
+Rechercher une fonction|8
+Aide sur le systeme d'aide|9
+Quitter|0
+EOF
+            choice=$(dotfiles_ncmenu_select "HELPMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+        fi
+        if [ -z "$choice" ]; then
+            printf "${BLUE}Votre choix: ${RESET}"
+            read choice
+            choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
         
         echo ""
         case "$choice" in

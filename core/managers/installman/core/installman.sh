@@ -37,6 +37,10 @@ installman() {
     INSTALLMAN_DIR="$DOTFILES_DIR/zsh/functions/installman"
     INSTALLMAN_MODULES_DIR="$INSTALLMAN_DIR/modules"
     INSTALLMAN_UTILS_DIR="$INSTALLMAN_DIR/utils"
+    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
+    fi
     SCRIPTS_DIR="$DOTFILES_DIR/scripts"
     INSTALL_DIR="$SCRIPTS_DIR/install/dev"
     ENV_FILE="$DOTFILES_DIR/zsh/env.sh"
@@ -894,8 +898,28 @@ EOF
         printf "${CYAN}   Ou tapez un numéro pour sélectionner par position${RESET}\n"
         printf "${CYAN}   Ou 'u' pour mettre à jour un outil${RESET}\n"
         echo ""
-        printf "Choix: "
-        read choice
+        choice=""
+        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            menu_input_file=$(mktemp)
+            cat > "$menu_input_file" <<'EOF'
+Mettre a jour un outil|u
+Mettre a jour tous les outils installes|ua
+Gerer les paquets|p
+Rechercher un paquet|ps
+Installer un paquet|pi
+Supprimer un paquet|pr
+Lister les paquets installes|pl
+Quitter|0
+Saisie libre (nom outil ou numero)|__manual__
+EOF
+            choice=$(dotfiles_ncmenu_select "INSTALLMAN - Actions principales" < "$menu_input_file" 2>/dev/null || true)
+            rm -f "$menu_input_file"
+            [ "$choice" = "__manual__" ] && choice=""
+        fi
+        if [ -z "$choice" ]; then
+            printf "Choix: "
+            read choice
+        fi
         choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
         
         # Traitement du choix
