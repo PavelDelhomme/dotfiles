@@ -43,10 +43,12 @@ helpman() {
     # Aide CLI / non-interactif : ne pas entrer dans le menu (read) — tests Docker, fish bridge, CI
     case "${1:-}" in
     help|-h|--help)
-        printf '%s\n' "helpman — guide d'aide dotfiles."
-        printf '%s\n' "  Sans argument : menu interactif (terminal requis)."
-        printf '%s\n' "  helpman help | -h | --help : ce message."
-        printf '%s\n' "  Voir aussi : make test-help, docs/REFACTOR_HISTORY.md, docs/MULTISHELL_REPORT.md."
+        printf '%s\n' "Usage: helpman [help|-h|--help]"
+        printf '%s\n' ""
+        printf '%s\n' "Sans argument : lance le guide interactif sur man/help/dotfiles (TTY requis)."
+        printf '%s\n' "helpman help | helpman -h | helpman --help : affiche cette aide sur stdout (non interactif)."
+        printf '%s\n' ""
+        printf '%s\n' "Voir aussi : make test-help, docs/REFACTOR_HISTORY.md, docs/MULTISHELL_REPORT.md."
         return 0
         ;;
     esac

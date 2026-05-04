@@ -419,7 +419,6 @@ sshman() {
                 show_ssh_stats
                 ;;
             help|--help|-h)
-                show_header
                 printf "${CYAN}📚 Aide - SSHMAN${RESET}\n"
                 printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
                 echo ""

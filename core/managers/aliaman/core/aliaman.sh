@@ -80,6 +80,21 @@ aliaman() {
         printf "${RESET}"
         echo
     }
+
+    # Aide CLI (stdout, pas de clear ni menu)
+    aliaman_print_usage() {
+        cat <<'EOF'
+Usage:
+  aliaman                       menu interactif (terminal requis)
+  aliaman help | -h | --help     affiche cette aide sur la sortie standard
+
+Commandes directes:
+  aliaman search <terme>         rechercher un alias
+  aliaman list                 lister les alias
+  aliaman add <nom> <cmd>      ajouter un alias
+  aliaman remove <nom>         supprimer un alias
+EOF
+    }
     
     # Fonction pour sauvegarder les alias
     backup_aliases() {
@@ -498,6 +513,10 @@ aliaman() {
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log aliaman "$@"
     fi
     case "$1" in
+        help|-h|--help|aide)
+            aliaman_print_usage
+            return 0
+            ;;
         search)
             if [ -n "$2" ]; then
                 quick_search "$2"

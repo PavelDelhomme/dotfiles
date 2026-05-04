@@ -1320,7 +1320,6 @@ https://speed.hetzner.de/5GB.bin"
                 export_network_config
                 ;;
             help|--help|-h)
-                show_header
                 printf "${CYAN}📚 Aide - NETMAN${RESET}\n"
                 printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
                 echo ""

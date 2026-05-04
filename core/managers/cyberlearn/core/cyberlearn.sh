@@ -323,7 +323,7 @@ EOF
             4|exercises|challenges) show_exercises_menu ;;
             5|docker|env) show_docker_menu ;;
             6|certificates|badges) show_certificates_menu ;;
-            7|help|aide) show_help_menu ;;
+            7|help|aide) show_help_interactive ;;
             0|q|quit|exit) return 0 ;;
             *)
                 printf "${RED}❌ Choix invalide: %s${RESET}\n" "$choice"
@@ -954,8 +954,40 @@ EOF
         pause_if_tty
     }
     
-    # Fonction pour afficher l'aide
-    show_help_menu() {
+    # Aide en ligne de commande (pas de clear, pas de pause) — style outil classique
+    cyberlearn_print_usage() {
+        cat <<'EOF'
+Usage:
+  cyberlearn                    menu interactif (un terminal est requis)
+  cyberlearn help
+  cyberlearn -h
+  cyberlearn --help              affiche cette page sur la sortie standard
+
+Commandes:
+  cyberlearn start-module <nom>  démarrer un module
+  cyberlearn lab start <nom>     démarrer un lab
+  cyberlearn lab stop [nom]      arrêter un lab
+  cyberlearn lab list            lister les labs
+  cyberlearn lab status          statut des labs
+  cyberlearn progress            afficher la progression (menu TTY)
+
+Modules reconnus:
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples):
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples:
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis: Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+EOF
+    }
+
+    # Aide depuis le menu interactif (en-tête, couleurs, pause)
+    show_help_interactive() {
         show_header
         printf "${CYAN}${BOLD}❓ AIDE & DOCUMENTATION${RESET}\n\n"
         
@@ -966,7 +998,7 @@ ${GREEN}cyberlearn${RESET}              - Menu interactif principal
 ${GREEN}cyberlearn start-module <nom>${RESET} - Démarrer un module
 ${GREEN}cyberlearn lab start <nom>${RESET}    - Démarrer un lab
 ${GREEN}cyberlearn progress${RESET}            - Voir la progression
-${GREEN}cyberlearn help${RESET}                - Afficher cette aide
+${GREEN}cyberlearn help${RESET}                - Aide texte (stdout, non interactif)
 
 ${BOLD}Modules disponibles:${RESET}
   - basics      : Bases de la cybersécurité
@@ -1049,7 +1081,7 @@ EOF
                 esac
                 ;;
             progress|progression) show_progress_menu ;;
-            help|aide|--help|-h) show_help_menu ;;
+            help|aide|--help|-h) cyberlearn_print_usage ;;
             *)
                 printf "${RED}❌ Commande inconnue: %s${RESET}\n" "$1"
                 echo ""
