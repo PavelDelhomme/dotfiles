@@ -54,10 +54,7 @@ cyberlearn() {
     }
 
     pause_if_tty() {
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        if [ -t 0 ] && [ -t 1 ]; then printf "Appuyez sur Entrée pour continuer... "; read dummy; fi
     }
     
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
@@ -181,6 +178,11 @@ cyberlearn() {
     reset_progress_confirm() {
         show_header
         printf "${YELLOW}${BOLD}⚠️  RÉINITIALISER LA PROGRESSION${RESET}\n\n"
+        if ! [ -t 0 ] || ! [ -t 1 ]; then
+            printf "${YELLOW}Réinitialisation interactive uniquement dans un terminal.${RESET}\n"
+            sleep 2
+            return 1
+        fi
         printf "Êtes-vous sûr de vouloir réinitialiser toute votre progression? [y/N]: "
         read confirm
         case "$confirm" in
@@ -424,8 +426,7 @@ EOF
         done
         
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher le menu des labs
@@ -686,8 +687,7 @@ EOF
                 echo "2. Utilisez les outils forensiques"
                 echo "3. Trouvez le flag caché"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *)
@@ -725,8 +725,7 @@ EOF
                 echo "Utilisez Docker pour créer un environnement isolé:"
                 echo "  docker run -it --rm ubuntu:22.04"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             3)
                 echo ""
@@ -736,8 +735,7 @@ EOF
                 echo "  • sqlmap - Test SQL injection"
                 echo "  • burp suite - Test web"
                 echo ""
-                printf "Appuyez sur Entrée pour continuer... "
-                read dummy
+                pause_if_tty
                 ;;
             0) return ;;
             *)
@@ -791,8 +789,7 @@ EOF
         printf "${CYAN}${BOLD}🚀 DÉMARRER UN ENVIRONNEMENT DOCKER${RESET}\n\n"
         echo "Utilisez le menu Labs pour démarrer des environnements spécifiques."
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
         show_labs_menu
     }
     
@@ -812,8 +809,7 @@ EOF
             printf "${RED}❌ Docker n'est pas installé${RESET}\n"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     docker_list_environments() {
@@ -829,8 +825,7 @@ EOF
             printf "${RED}❌ Docker n'est pas installé${RESET}\n"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     docker_build_image() {
@@ -840,8 +835,7 @@ EOF
         echo "Pour construire manuellement:"
         echo "  docker build -t cyberlearn-<lab-name> <lab-directory>"
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     docker_cleanup() {
@@ -855,8 +849,7 @@ EOF
             printf "${RED}❌ Docker n'est pas installé${RESET}\n"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher le menu des certificats
@@ -928,8 +921,7 @@ EOF
             echo "Progression: $completed_modules/$total_modules modules complétés"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher les badges détaillés
@@ -959,8 +951,7 @@ EOF
             echo "  Aucun badge obtenu pour le moment"
         fi
         echo ""
-        printf "Appuyez sur Entrée pour continuer... "
-        read dummy
+        pause_if_tty
     }
     
     # Fonction pour afficher l'aide
@@ -1008,10 +999,7 @@ ${BOLD}Pré-requis:${RESET}
   - Python 3 (pour certains exercices)
 
 EOF
-        if [ -t 0 ] && [ -t 1 ]; then
-            printf "Appuyez sur Entrée pour continuer... "
-            read dummy
-        fi
+        pause_if_tty
     }
     
     # Si un argument est fourni, lancer directement la commande
