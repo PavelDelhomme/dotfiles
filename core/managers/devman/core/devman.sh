@@ -213,7 +213,9 @@ EOF
     }
     
     # Gestion des arguments en ligne de commande
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log devman "$@"
         case "$1" in
@@ -243,7 +245,7 @@ EOF
             utils)
                 show_dev_utils_menu
                 ;;
-            help|--help|-h)
+            help|-h)
                 echo "🔧 DEVMAN - Development Manager"
                 echo ""
                 echo "Usage: devman [category]"
@@ -256,7 +258,7 @@ EOF
                 echo "  projects  - Gestion projets"
                 echo "  utils     - Utilitaires dev"
                 echo ""
-                echo "Sans argument: menu interactif"
+                echo "Sans argument ou devman --help : menu interactif"
                 ;;
             *)
                 printf "${RED}Catégorie inconnue: %s${RESET}\n" "$1"
@@ -264,7 +266,15 @@ EOF
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            devman help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _devman_dummy || true
+            fi
+        fi
         # Menu interactif principal
         while true; do
             show_main_menu

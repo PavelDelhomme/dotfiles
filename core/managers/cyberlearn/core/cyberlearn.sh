@@ -6,6 +6,10 @@
 # Author: Paul Delhomme
 # Version: 2.0 - Migration POSIX Complète
 # =============================================================================
+# NOTE — LabCyber (hors dotfiles) : plateforme Docker (gateway, plateforme web,
+# attaquant Kali, cibles DVWA/Juice/bWAPP, etc.). Chemin typique :
+#   ~/Documents/Cyber/LabCyber  (voir alias cd_labcyber, docker-compose.yml, Makefile : make dev / make up).
+# cyberlearn ici reste minimal jusqu'à une intégration dédiée plus tard.
 
 # Détecter le shell pour adapter certaines syntaxes
 if [ -n "$ZSH_VERSION" ]; then
@@ -959,9 +963,9 @@ EOF
         cat <<'EOF'
 Usage:
   cyberlearn                    menu interactif (un terminal est requis)
+  cyberlearn --help             cette page (help) puis Entrée → menu interactif
   cyberlearn help
-  cyberlearn -h
-  cyberlearn --help              affiche cette page sur la sortie standard
+  cyberlearn -h                 cette page sur la sortie standard (non interactif)
 
 Commandes:
   cyberlearn start-module <nom>  démarrer un module
@@ -998,7 +1002,8 @@ ${GREEN}cyberlearn${RESET}              - Menu interactif principal
 ${GREEN}cyberlearn start-module <nom>${RESET} - Démarrer un module
 ${GREEN}cyberlearn lab start <nom>${RESET}    - Démarrer un lab
 ${GREEN}cyberlearn progress${RESET}            - Voir la progression
-${GREEN}cyberlearn help${RESET}                - Aide texte (stdout, non interactif)
+${GREEN}cyberlearn help | -h${RESET}           - Aide texte (stdout)
+${GREEN}cyberlearn --help${RESET}              - Aide puis Entrée → menu
 
 ${BOLD}Modules disponibles:${RESET}
   - basics      : Bases de la cybersécurité
@@ -1034,6 +1039,20 @@ EOF
         pause_if_tty
     }
     
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            cyberlearn help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _cyl_dummy || true
+            fi
+        fi
+        while true; do
+            show_main_menu
+        done
+        return 0
+    fi
+
     # Si un argument est fourni, lancer directement la commande
     if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
@@ -1081,7 +1100,7 @@ EOF
                 esac
                 ;;
             progress|progression) show_progress_menu ;;
-            help|aide|--help|-h) cyberlearn_print_usage ;;
+            help|aide|-h) cyberlearn_print_usage ;;
             *)
                 printf "${RED}❌ Commande inconnue: %s${RESET}\n" "$1"
                 echo ""
@@ -1094,10 +1113,5 @@ EOF
                 return 1
                 ;;
         esac
-    else
-        # Mode interactif
-        while true; do
-            show_main_menu
-        done
     fi
 }

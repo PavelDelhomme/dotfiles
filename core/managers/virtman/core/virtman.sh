@@ -179,7 +179,9 @@ EOF
     }
     
     # Si un argument est fourni, lancer directement le module
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log virtman "$@"
         case "$1" in
@@ -218,7 +220,7 @@ EOF
                     bash "$VIRTMAN_MODULES_DIR/search.sh"
                 fi
                 ;;
-            help|--help|-h)
+            help|-h)
                 echo "🖥️  VIRTMAN - Virtual Environment Manager"
                 echo ""
                 echo "Usage: virtman [module]"
@@ -232,7 +234,7 @@ EOF
                 echo "  overview|all - Vue d'ensemble"
                 echo "  search|find - Recherche d'environnements"
                 echo ""
-                echo "Sans argument: menu interactif"
+                echo "Sans argument ou virtman --help : menu interactif"
                 ;;
             *)
                 printf "${RED}Module inconnu: %s${RESET}\n" "$1"
@@ -248,7 +250,15 @@ EOF
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            virtman help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _virt_dummy || true
+            fi
+        fi
         # Mode interactif
         while true; do
             show_main_menu

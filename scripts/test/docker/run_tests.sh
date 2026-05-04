@@ -11,8 +11,20 @@
 DOTFILES_DIR="${DOTFILES_DIR:-/root/dotfiles}"
 TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-/root/test_results}"
 
-# Créer le répertoire de résultats
-mkdir -p "$TEST_RESULTS_DIR"
+# Répertoire inscriptible (docker-in : $DOTFILES_DIR souvent monté en lecture seule)
+if ! ( mkdir -p "$TEST_RESULTS_DIR" 2>/dev/null && [ -w "$TEST_RESULTS_DIR" ] ); then
+    for _td in /root/test_results "${HOME:-/root}/test_results" /tmp/dotfiles_test_results; do
+        if mkdir -p "$_td" 2>/dev/null && [ -w "$_td" ]; then
+            TEST_RESULTS_DIR="$_td"
+            break
+        fi
+    done
+fi
+mkdir -p "$TEST_RESULTS_DIR" || {
+    TEST_RESULTS_DIR="/tmp/dotfiles_test_results"
+    mkdir -p "$TEST_RESULTS_DIR"
+}
+export TEST_RESULTS_DIR
 
 if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_docker_git_safe.sh" ]; then
     # shellcheck source=/dev/null

@@ -18,9 +18,11 @@ else
     SHELL_TYPE="sh"
 fi
 
-# DESC: Guide interactif pour comprendre le système d'aide
-# USAGE: helpman
+# DESC: Aide centralisée : usage (stdout), guide interactif (helpman i), délégation (helpman <gestionnaire>)
+# USAGE: helpman | helpman i | helpman installman
 # EXAMPLE: helpman
+# EXAMPLE: helpman i
+# EXAMPLE: helpman sshman
 helpman() {
     # Configuration des couleurs
     RED='\033[0;31m'
@@ -40,27 +42,90 @@ helpman() {
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
 
-    # Aide CLI / non-interactif : ne pas entrer dans le menu (read) — tests Docker, fish bridge, CI
+    # Dossiers exclus : hors scope helpman, métier ailleurs, ou outils techniques
+    helpman_list_managers() {
+        _hm_root="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers"
+        [ -d "$_hm_root" ] || return 0
+        for _hm_dir in "$_hm_root"/*/; do
+            [ -d "$_hm_dir" ] || continue
+            _hm_b=$(basename "$_hm_dir")
+            case "$_hm_b" in
+            cyberlearn) ;;     # labs → projet LabCyber externe
+            testman|testzshman) ;;   # suites de test dotfiles
+            manman|moduleman|configman) ;;   # chargeurs / config internes
+            *)
+                printf '%s\n' "$_hm_b"
+                ;;
+            esac
+        done | sort -u
+    }
+
+    # Documentation sur stdout (défaut : pas de menu interactif)
+    helpman_print_usage() {
+        cat <<'EOF'
+HELPMAN — aide centralisée (texte sur stdout, sans menu)
+
+Usage :
+  helpman
+  helpman help | -h | --help    cette page
+  helpman i | interactive       guide général interactif (TTY requis)
+  helpman <gestionnaire>        comme « <gestionnaire> --help » (aide + menu si le gestionnaire le prévoit)
+
+Exemples :
+  helpman i                     tutoriel man / help / dotfiles
+  helpman installman            délègue à installman --help
+  man ls                        page man système
+  help extract                  aide courte (DESC / USAGE / EXAMPLE)
+
+Voir aussi : make test-help
+EOF
+        echo ""
+        printf '%s\n' "Gestionnaires (aperçu — exclus : cyberlearn→LabCyber, testman/testzshman, manman, moduleman, configman) :"
+        helpman_list_managers | sed 's/^/  • /'
+        echo ""
+    }
+
+    helpman_dispatch_manager() {
+        _hmm="$1"
+        if [ "$_hmm" = "helpman" ]; then
+            helpman_print_usage
+            return 0
+        fi
+        _hmm_dir="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/$_hmm"
+        if [ ! -d "$_hmm_dir" ]; then
+            printf '%s\n' "helpman: gestionnaire inconnu : $_hmm" >&2
+            return 1
+        fi
+        if ! command -v "$_hmm" >/dev/null 2>&1; then
+            printf '%s\n' "helpman: « $_hmm » n'est pas disponible dans ce shell (source les dotfiles)." >&2
+            return 1
+        fi
+        "$_hmm" --help
+    }
+
     case "${1:-}" in
-    help|-h|--help)
-        printf '%s\n' "Usage: helpman [help|-h|--help]"
-        printf '%s\n' ""
-        printf '%s\n' "Sans argument : lance le guide interactif sur man/help/dotfiles (TTY requis)."
-        printf '%s\n' "helpman help | helpman -h | helpman --help : affiche cette aide sur stdout (non interactif)."
-        printf '%s\n' ""
-        printf '%s\n' "Voir aussi : make test-help, docs/REFACTOR_HISTORY.md, docs/MULTISHELL_REPORT.md."
+    ""|help|-h|--help)
+        helpman_print_usage
         return 0
         ;;
+    i|I|interactive|--interactive)
+        ;;
+    *)
+        helpman_dispatch_manager "$1"
+        return $?
+        ;;
     esac
+
     if ! [ -t 0 ] || ! [ -t 1 ]; then
-        printf '%s\n' "helpman: pas de menu sans TTY (stdin/stdout). Utilisez : helpman help" >&2
+        printf '%s\n' "helpman: le mode interactif (helpman i) nécessite un terminal." >&2
+        helpman_print_usage
         return 0
     fi
 
     if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
         # shellcheck source=managers_log_posix.sh
         . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
-        managers_log_line "helpman" "invoke" "menu" "info" "session interactive"
+        managers_log_line "helpman" "invoke" "menu" "info" "session interactive (helpman i)"
     fi
     
     pause_if_tty() {
@@ -79,20 +144,7 @@ helpman() {
         printf "${RESET}"
         echo ""
         
-        printf "${BOLD}Bienvenue dans le guide interactif de 'man' et 'help' !${RESET}\n"
-        echo "Cet outil vous aidera à comprendre comment utiliser efficacement la documentation."
-        echo ""
-        printf "${YELLOW}Choisissez une option:${RESET}\n"
-        echo "  1. Qu'est-ce que 'man' ?"
-        echo "  2. Qu'est-ce que 'help' ?"
-        echo "  3. Différences entre 'man' et 'help'"
-        echo "  4. Comment utiliser 'man' ?"
-        echo "  5. Comment utiliser 'help' ?"
-        echo "  6. Exemples pratiques"
-        echo "  7. Liste des fonctions disponibles"
-        echo "  8. Rechercher une fonction"
-        echo "  9. Aide sur le système d'aide lui-même"
-        echo "  0. Quitter"
+        printf "${BOLD}Guide interactif${RESET} — ${YELLOW}flèches + Entrée${RESET}, ou numéro puis Entrée.\n"
         echo ""
         choice=""
         if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
@@ -249,7 +301,7 @@ EOF
                 printf "   ${YELLOW}Outils disponibles:${RESET}\n"
                 echo "     - help <fonction> : Aide rapide"
                 echo "     - man <fonction> : Documentation complète"
-                echo "     - helpman : Ce guide interactif"
+                echo "     - helpman i : ce guide interactif"
                 pause_if_tty
                 ;;
             0) return ;;

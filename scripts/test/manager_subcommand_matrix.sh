@@ -12,8 +12,28 @@
 set -uo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-$DOTFILES_DIR/test_results}"
+# Premier répertoire inscriptible : sur l’hôte on garde souvent $DOTFILES_DIR/test_results ;
+# en docker-in le dépôt est souvent RO → /root/test_results ou /tmp.
+if [ -z "${TEST_RESULTS_DIR:-}" ]; then
+    TEST_RESULTS_DIR=""
+    for _td in "$DOTFILES_DIR/test_results" /root/test_results "${HOME:-/root}/test_results" /tmp/dotfiles_test_results; do
+        if mkdir -p "$_td" 2>/dev/null && [ -w "$_td" ]; then
+            TEST_RESULTS_DIR="$_td"
+            break
+        fi
+    done
+    TEST_RESULTS_DIR="${TEST_RESULTS_DIR:-/tmp/dotfiles_test_results}"
+elif ! ( mkdir -p "$TEST_RESULTS_DIR" 2>/dev/null && [ -w "$TEST_RESULTS_DIR" ] ); then
+    for _td in "$DOTFILES_DIR/test_results" /root/test_results "${HOME:-/root}/test_results" /tmp/dotfiles_test_results; do
+        if mkdir -p "$_td" 2>/dev/null && [ -w "$_td" ]; then
+            TEST_RESULTS_DIR="$_td"
+            break
+        fi
+    done
+fi
+mkdir -p "$TEST_RESULTS_DIR" 2>/dev/null || TEST_RESULTS_DIR="/tmp/dotfiles_test_results"
 mkdir -p "$TEST_RESULTS_DIR" 2>/dev/null || true
+export TEST_RESULTS_DIR
 # En Docker (dotfiles en RO), run_subcommand_matrix_docker.sh définit TEST_RESULTS_DIR + MANAGERS_LOG_FILE.
 export MANAGERS_LOG_FILE="${MANAGERS_LOG_FILE:-$TEST_RESULTS_DIR/managers_subcommand_matrix.log}"
 
@@ -193,6 +213,9 @@ done
 
 echo ""
 echo "📊 Matrice sous-commandes — exécutions: $runs | échecs: $failures"
+# Trace courte sur disque (hôte ou conteneur : TEST_RESULTS_DIR vient de run_tests.sh / défaut inscriptible)
+smry="${TEST_RESULTS_DIR:-/tmp/dotfiles_test_results}/subcommand_matrix_summary.txt"
+printf '%s tier=%s runs=%s failures=%s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "${SUBCOMMAND_TIER:-?}" "$runs" "$failures" >>"$smry" 2>/dev/null || true
 if [ "$failures" -gt 0 ]; then
     echo "⚠️  Corriger les lignes « ❌ échec: … » ci-dessus ou adapter scripts/test/subcommands/*.list (invocations non interactives uniquement)."
     exit 1

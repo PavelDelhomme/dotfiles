@@ -1,15 +1,20 @@
 # =============================================================================
-# INSTALLMAN ADAPTER - Zsh : charge le core Zsh (implémentation canonique)
+# INSTALLMAN ADAPTER - Zsh : core POSIX (même aide / CLI que bash & matrice Fish)
 # =============================================================================
-# Base unique = ce core (pagination, log, tous les outils). Pas de sous-processus.
+# Le gros core interactif historique reste dans zsh/functions/installman/ si tu le charges ailleurs.
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-INSTALLMAN_CORE="$DOTFILES_DIR/zsh/functions/installman/core/installman.zsh"
+INSTALLMAN_CORE="$DOTFILES_DIR/core/managers/installman/core/installman.sh"
 
 if [[ -f "$INSTALLMAN_CORE" ]]; then
-    source "$INSTALLMAN_CORE"
+    _dotfiles_installman_load_core() {
+        emulate -L sh
+        source "$INSTALLMAN_CORE"
+    }
+    _dotfiles_installman_load_core
+    unfunction _dotfiles_installman_load_core 2>/dev/null || true
 else
-    echo "❌ installman core non trouvé: $INSTALLMAN_CORE"
+    echo "❌ installman core POSIX non trouvé: $INSTALLMAN_CORE"
     return 1
 fi

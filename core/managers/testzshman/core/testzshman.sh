@@ -667,7 +667,9 @@ $cyberlearn_dir/labs"
     }
     
     # Si un argument est fourni, exécuter directement
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log testzshman "$@"
         case "$1" in
@@ -698,7 +700,7 @@ $cyberlearn_dir/labs"
             all|complete)
                 test_all
                 ;;
-            help|--help|-h)
+            help|-h)
                 echo "🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles"
                 echo ""
                 echo "Usage: testzshman [test-type]"
@@ -714,7 +716,7 @@ $cyberlearn_dir/labs"
                 echo "  logging    - actions_logger / managers_log (hermétique + audit statique)"
                 echo "  all        - Tous les tests"
                 echo ""
-                echo "Sans argument: menu interactif"
+                echo "Sans argument ou testzshman --help : menu interactif"
                 ;;
             *)
                 printf "${RED}Test inconnu: %s${RESET}\n" "$1"
@@ -732,7 +734,15 @@ $cyberlearn_dir/labs"
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            testzshman help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _tzsm_dummy || true
+            fi
+        fi
         # Mode interactif
         while true; do
             show_main_menu

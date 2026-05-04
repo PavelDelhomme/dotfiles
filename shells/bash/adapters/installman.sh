@@ -1,21 +1,19 @@
 #!/bin/bash
 # =============================================================================
-# INSTALLMAN ADAPTER - Bash : appelle le core unique (Zsh) via entry script
+# INSTALLMAN ADAPTER - Bash : core POSIX (aligné zsh adapter & matrice Fish)
 # =============================================================================
-# Base unique = zsh/functions/installman (pagination, log, tous les outils).
-# Ce script définit la fonction installman pour lancer l'entrée commune.
+# Pour l’entrée zsh historique : installman_entry.sh ou zsh/functions/installman/.
 # =============================================================================
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-INSTALLMAN_ENTRY="$DOTFILES_DIR/core/managers/installman/installman_entry.sh"
+INSTALLMAN_CORE="$DOTFILES_DIR/core/managers/installman/core/installman.sh"
 
-installman() {
-    if [[ -x "$INSTALLMAN_ENTRY" || -f "$INSTALLMAN_ENTRY" ]]; then
-        "$INSTALLMAN_ENTRY" "$@"
-    else
-        echo "❌ installman entry non trouvé: $INSTALLMAN_ENTRY"
-        return 1
-    fi
-}
+if [[ -f "$INSTALLMAN_CORE" ]]; then
+    # shellcheck source=core/managers/installman/core/installman.sh
+    source "$INSTALLMAN_CORE"
+else
+    echo "❌ installman core POSIX non trouvé: $INSTALLMAN_CORE"
+    return 1
+fi
 
 export -f installman 2>/dev/null || true

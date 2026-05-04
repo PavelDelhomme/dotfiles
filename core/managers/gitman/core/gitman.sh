@@ -81,7 +81,7 @@ gitman() {
         fi
         max_gap_sec="${GITMAN_TIME_MAX_GAP:-7200}"
         # Format: timestamp TAB auteur (toutes branches/refs)
-        raw=$(git log --all --format='%at	%an' 2>/dev/null) || { printf "${RED}❌ git log --all a échoué${RESET}\n"; return 1; }
+        raw=$(git --no-pager log --all --format='%at	%an' 2>/dev/null) || raw=""
         [ -z "$raw" ] && printf "${YELLOW}Aucun commit trouvé.${RESET}\n" && return 0
         printf "${BOLD}⏱ Temps estimé (toutes branches, refs locaux + distants)${RESET}\n"
         printf "${BLUE}   Écart max entre 2 commits = même session = %s secondes${RESET}\n\n" "$max_gap_sec"
@@ -107,6 +107,20 @@ gitman() {
             }
             printf "  %-40s %6.1f h  (total)\n", "TOTAL", total_sec/3600
         }'
+    }
+
+    # Journal court : sans pager (CI / Docker) ; dépôt sans commit → message, code 0
+    gitman_log_oneline() {
+        _gc="${1:-10}"
+        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            printf "${RED}❌ Pas un dépôt Git.${RESET}\n"
+            return 1
+        fi
+        if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
+            printf "${YELLOW}⚠️  Aucun commit dans ce dépôt — rien à afficher.${RESET}\n"
+            return 0
+        fi
+        git --no-pager log --oneline -n "$_gc"
     }
     
     # Fonction pour configurer l'identité Git
@@ -266,7 +280,7 @@ EOF
                 printf "Nombre de commits à afficher (défaut: 10): "
                 read count
                 count="${count:-10}"
-                git log --oneline -n "$count"
+                gitman_log_oneline "$count"
                 echo ""
                 pause_if_tty
                 ;;
@@ -496,7 +510,11 @@ EOF
     }
     
     # Gestion des arguments en ligne de commande
-    if [ $# -eq 0 ]; then
+    if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            gitman help
+            pause_if_tty
+        fi
         # Menu interactif
         while true; do
             show_main_menu
@@ -540,7 +558,7 @@ EOF
                 ;;
             log|logs)
                 count="${2:-10}"
-                git log --oneline -n "$count"
+                gitman_log_oneline "$count"
                 ;;
             branch|branches|br)
                 git branch -a
@@ -677,7 +695,7 @@ EOF
                         ;;
                 esac
                 ;;
-            help|--help|-h)
+            help|-h)
                 echo "🔧 GITMAN - Gestionnaire Git"
                 echo ""
                 echo "Usage: gitman [command] [args]"
@@ -707,7 +725,7 @@ EOF
                 echo "  time-spent [--fetch] - Temps estimé par auteur (toutes branches)"
                 echo "                         Variable: GITMAN_TIME_MAX_GAP (sec, défaut 7200)"
                 echo ""
-                echo "Sans argument: menu interactif"
+                echo "Sans argument ou gitman --help : menu interactif"
                 ;;
             *)
                 printf "${RED}❌ Commande inconnue: $1${RESET}\n"

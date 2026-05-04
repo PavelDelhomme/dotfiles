@@ -48,6 +48,18 @@ fileman() {
             read dummy
         fi
     }
+
+    fileman_print_usage() {
+        cat <<'EOF'
+Usage:
+  fileman                      menu interactif
+  fileman --help               menu interactif (explicite)
+  fileman help | -h            cette aide (stdout)
+
+Modules:
+  archive   backup   search   permissions   files
+EOF
+    }
     
     # Fonction pour afficher le header
     show_header() {
@@ -150,10 +162,16 @@ EOF
     }
     
     # Si un argument est fourni, lancer directement le module
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log fileman "$@"
         case "$1" in
+            help|-h)
+                fileman_print_usage
+                return 0
+                ;;
             archive|arch)
                 if [ -f "$FILEMAN_MODULES_DIR/archive/archive_manager.sh" ]; then
                     sh "$FILEMAN_MODULES_DIR/archive/archive_manager.sh"
@@ -191,7 +209,12 @@ EOF
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            fileman help
+            pause_if_tty
+        fi
         # Mode interactif
         while true; do
             show_main_menu

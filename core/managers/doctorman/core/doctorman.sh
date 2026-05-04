@@ -34,7 +34,8 @@ __doctorman_help() {
     printf "  \033[1mdoctorman dotfiles\033[0m   syntaxe cores/adapters + run_checks si présent\n"
     printf "  \033[1mdoctorman fish\033[0m       vérification config fish (fish -n)\n"
     printf "  \033[1mdoctorman dev\033[0m        Flutter (SDK inscriptible), Android cmdline-tools, Chrome\n"
-    printf "  \033[1mdoctorman help\033[0m       cette aide\n"
+    printf "  \033[1mdoctorman help\033[0m       cette aide (stdout)\n"
+    printf "  \033[1mdoctorman --help\033[0m    en terminal : menu interactif ; sinon cette aide\n"
 }
 
 __doctorman_dotfiles() {
@@ -181,13 +182,24 @@ EOF
 doctorman() {
     _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
     [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log doctorman "$@"
-    cmd="${1:-all}"
     if [ $# -eq 0 ] && [ -t 0 ] && [ -t 1 ]; then
         __doctorman_menu
         return 0
     fi
+    if [ "$1" = "--help" ]; then
+        if [ -t 0 ] && [ -t 1 ]; then
+            __doctorman_help
+            printf '\n%s' "Appuyez sur Entrée pour ouvrir le menu… "
+            read -r _doc_dummy || true
+            __doctorman_menu
+        else
+            __doctorman_help
+        fi
+        return 0
+    fi
+    cmd="${1:-all}"
     case "$cmd" in
-        help|-h|--help) __doctorman_help ;;
+        help|-h) __doctorman_help ;;
         all|run)       __doctorman_all ;;
         dotfiles|df)   __doctorman_dotfiles ;;
         fish)          __doctorman_fish ;;

@@ -478,6 +478,7 @@ searchman() {
         printf "%s\n" "  resolve|where <nom>            cmd puis locate (vue d'ensemble)"
         printf "%s\n" "  ping                           test non interactif (CI)"
         printf "%s\n" "Variable optionnelle : SEARCHMAN_FIND_ROOTS=\"/chemin1 /chemin2\" (espaces) pour élargir la recherche."
+        printf "%s\n" "Sans argument ou searchman --help : menu interactif ; searchman help : cette aide."
     }
     
     sm_cmd_in_path() {
@@ -556,16 +557,17 @@ searchman() {
     }
     
     # Gestion des arguments rapides
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log searchman "$@"
-    fi
-    case "$1" in
+        case "$1" in
         ping)
             printf "searchman: ok\n"
             return 0
             ;;
-        help|-h|--help)
+        help|-h)
             sm_print_cli_help
             return 0
             ;;
@@ -609,10 +611,24 @@ searchman() {
             search_statistics
             return 0
             ;;
-    esac
-    
-    # Menu principal
-    while true; do
+        *)
+            printf "${RED}Sous-commande inconnue: %s${RESET}\n" "$1"
+            echo "searchman help — aide sur stdout."
+            return 1
+            ;;
+        esac
+    fi
+
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            searchman help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _sm_dummy || true
+            fi
+        fi
+        # Menu principal
+        while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
@@ -649,28 +665,8 @@ EOF
             6) search_statistics ;;
             h|H)
                 show_header
-                printf "${CYAN}📚 Aide - SEARCHMAN${RESET}\n"
-                printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-                echo
-                echo "SEARCHMAN est un gestionnaire de recherche complet."
-                echo
-                echo "Fonctionnalités:"
-                echo "  • Recherche avancée dans l'historique avec contexte"
-                echo "  • Recherche de fichiers multi-critères"
-                echo "  • Gestion et monitoring des processus"
-                echo "  • Exploration des logs système"
-                echo "  • Recherche dans les fonctions et alias"
-                echo "  • Statistiques d'utilisation détaillées"
-                echo
-                echo "Raccourcis:"
-                echo "  searchman                      - Lance le gestionnaire"
-                echo "  searchman cmd <cmd>            - Où est la commande dans le PATH ?"
-                echo "  searchman locate <cmd>         - Indices whereis + disques usuels"
-                echo "  searchman resolve <cmd>        - cmd + locate (ex. flutter, gcc)"
-                echo "  searchman history <terme>      - Recherche dans l'historique"
-                echo "  searchman files <motif>        - Recherche de fichiers"
-                echo "  searchman process <nom>        - Recherche de processus"
-                echo
+                sm_print_cli_help
+                echo ""
                 pause_if_tty
                 ;;
             q|Q)
@@ -682,5 +678,6 @@ EOF
                 sleep 1
                 ;;
         esac
-    done
+        done
+    fi
 }

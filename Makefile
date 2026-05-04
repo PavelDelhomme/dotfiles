@@ -373,6 +373,7 @@ tests test-menu: ## Menu interactif des tests (explications, sans modifier le sh
 	@bash "$(SCRIPT_DIR)/test/test_menu.sh"
 
 # Docker + managers migrés (matrice shells dans run_tests.sh).
+# Dans un conteneur docker-in (/.dockerenv) sans Docker : exécution directe de run_tests.sh.
 test: test-docker ## Lancer les tests Docker (managers migrés + matrice sous-commandes)
 
 # Tests dans Docker : manager_tester (zsh/bash/fish) puis matrice subcommands × shells (dont sh).

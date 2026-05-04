@@ -271,45 +271,60 @@ miscman() {
     }
     
     # Gestion des arguments rapides
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log miscman "$@"
+        case "$1" in
+            genpass|password)
+                gen_password "$2"
+                return 0
+                ;;
+            sysinfo|info)
+                show_system_info
+                return 0
+                ;;
+            copy)
+                copy_file_advanced
+                return 0
+                ;;
+            backup)
+                create_smart_backup
+                return 0
+                ;;
+            extract)
+                extract_archive
+                return 0
+                ;;
+            help|h|-h)
+                printf '%s\n' "MISCMAN — outils divers"
+                printf '%s\n' "  miscman genpass [n]   Générer un mot de passe (défaut 16)"
+                printf '%s\n' "  miscman sysinfo       Infos système"
+                printf '%s\n' "  miscman copy          Copie de fichier avancée"
+                printf '%s\n' "  miscman backup        Sauvegarde"
+                printf '%s\n' "  miscman extract       Extraire une archive"
+                printf '%s\n' "Sans argument ou miscman --help : menu interactif."
+                return 0
+                ;;
+            *)
+                printf '%s\n' "miscman: commande inconnue: $1" >&2
+                printf '%s\n' "miscman help — aide sur stdout." >&2
+                return 1
+                ;;
+        esac
     fi
-    case "$1" in
-        genpass|password)
-            gen_password "$2"
-            return 0
-            ;;
-        sysinfo|info)
-            show_system_info
-            return 0
-            ;;
-        copy)
-            copy_file_advanced
-            return 0
-            ;;
-        backup)
-            create_smart_backup
-            return 0
-            ;;
-        extract)
-            extract_archive
-            return 0
-            ;;
-        help|h|-h|--help)
-            printf '%s\n' "MISCMAN — outils divers"
-            printf '%s\n' "  miscman genpass [n]   Générer un mot de passe (défaut 16)"
-            printf '%s\n' "  miscman sysinfo       Infos système"
-            printf '%s\n' "  miscman copy          Copie de fichier avancée"
-            printf '%s\n' "  miscman backup        Sauvegarde"
-            printf '%s\n' "  miscman extract       Extraire une archive"
-            printf '%s\n' "Sans argument : menu interactif."
-            return 0
-            ;;
-    esac
-    
-    # Menu principal
-    while true; do
+
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            miscman help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _misc_dummy || true
+            fi
+        fi
+        # Menu principal
+        while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
@@ -378,5 +393,6 @@ EOF
                 sleep 1
                 ;;
         esac
-    done
+        done
+    fi
 }

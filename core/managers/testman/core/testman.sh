@@ -615,7 +615,9 @@ EOF
     }
     
     # Si des arguments sont fournis, exécuter directement
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log testman "$@"
         lang=$(echo "$1" | tr '[:upper:]' '[:lower:]')
@@ -660,7 +662,7 @@ EOF
                     return 1
                 fi
                 ;;
-            help|--help|-h)
+            help|-h)
                 echo "🧪 TESTMAN - Test Manager Applications"
                 echo ""
                 echo "Usage: testman [langage] [test-type] [dir]"
@@ -682,7 +684,7 @@ EOF
                 echo "  testman node coverage ./frontend"
                 echo "  testman detect"
                 echo ""
-                echo "Sans argument: menu interactif"
+                echo "Sans argument ou testman --help : menu interactif"
                 ;;
             *)
                 printf "${RED}Langage inconnu: %s${RESET}\n" "$1"
@@ -706,7 +708,15 @@ EOF
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            testman help
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Appuyez sur Entrée pour continuer... "
+                read _testman_dummy || true
+            fi
+        fi
         # Mode interactif
         show_main_menu
     fi

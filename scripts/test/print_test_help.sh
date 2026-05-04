@@ -33,6 +33,8 @@ echo "   Distros : arch (image docker-build), ubuntu, debian, alpine, fedora, ce
 echo "   Sans export manuel : DOCKER_DOTFILES_DIR, DOCKER_INSTALLMAN_ASSUME (voir Makefile / docker_in.sh)"
 echo "   Confirmations installman :  make docker-in DOCKER_INSTALLMAN_ASSUME=0"
 echo "   Dans le conteneur : root par défaut ; source \$DOTFILES_DIR/zsh/zshrc_custom si besoin"
+echo "   make test dans le conteneur : sans Docker imbriqué → run_tests.sh directement (fichier /.dockerenv)"
+echo "   Forcer ce mode sur l'hôte : DOTFILES_TEST_NO_NESTED_DOCKER=1 make test (si pas de daemon Docker)"
 echo "   Doc détaillée :     cat scripts/test/SANDBOX.md"
 echo ""
 echo "   Smoke vs assertions métier : make test / matrice = surtout « ne plante pas / timeout » ; assertions"

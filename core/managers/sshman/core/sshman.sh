@@ -49,6 +49,25 @@ sshman() {
             read dummy
         fi
     }
+
+    # Aide courte (stdout) — identique pour sshman help, sshman -h, option « h » du menu
+    sshman_print_quick_help() {
+        printf "${CYAN}SSHMAN — raccourcis${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo ""
+        echo "Sous-commandes :"
+        echo "  sshman list           Connexions (~/.ssh/config)"
+        echo "  sshman test           Tester une connexion"
+        echo "  sshman keys           Gérer les clés SSH"
+        echo "  sshman stats          Statistiques + permissions ~/.ssh"
+        echo "  sshman auto-setup     Config auto (mot de passe .env si dispo)"
+        echo ""
+        echo "Interface :"
+        echo "  sshman                Menu principal"
+        echo "  sshman --help         Cette aide puis Entrée → menu"
+        echo "  sshman -h, sshman help  Cette aide uniquement (stdout)"
+        echo ""
+    }
     
     # Charger les utilitaires si disponibles (find : évite glob zsh « no matches » si dossier vide)
     if [ -d "$SSHMAN_UTILS_DIR" ] && command -v find >/dev/null 2>&1; then
@@ -395,7 +414,9 @@ sshman() {
     }
     
     # Gestion des arguments en ligne de commande
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log sshman "$@"
         case "$1" in
@@ -418,27 +439,8 @@ sshman() {
             stats)
                 show_ssh_stats
                 ;;
-            help|--help|-h)
-                printf "${CYAN}📚 Aide - SSHMAN${RESET}\n"
-                printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-                echo ""
-                echo "SSHMAN est un gestionnaire SSH complet."
-                echo ""
-                echo "Fonctionnalités principales:"
-                echo "  • Configuration automatique SSH avec mot de passe depuis .env"
-                echo "  • Liste des connexions SSH configurées"
-                echo "  • Test de connexions SSH"
-                echo "  • Gestion des clés SSH (génération, affichage, copie)"
-                echo "  • Statistiques et vérification des permissions"
-                echo ""
-                echo "Raccourcis:"
-                echo "  sshman              - Lance le gestionnaire"
-                echo "  sshman auto-setup    - Configuration automatique directe"
-                echo "  sshman list          - Liste des connexions"
-                echo "  sshman test          - Test de connexion"
-                echo "  sshman keys          - Gestion des clés"
-                echo "  sshman stats         - Statistiques"
-                echo ""
+            help|-h)
+                sshman_print_quick_help
                 ;;
             *)
                 printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
@@ -446,7 +448,12 @@ sshman() {
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            sshman_print_quick_help
+            pause_if_tty
+        fi
         # Menu principal interactif
         while true; do
             show_header
@@ -499,26 +506,7 @@ EOF
                 5) show_ssh_stats ;;
                 h|H)
                     show_header
-                    printf "${CYAN}📚 Aide - SSHMAN${RESET}\n"
-                    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-                    echo ""
-                    echo "SSHMAN est un gestionnaire SSH complet."
-                    echo ""
-                    echo "Fonctionnalités principales:"
-                    echo "  • Configuration automatique SSH avec mot de passe depuis .env"
-                    echo "  • Liste des connexions SSH configurées"
-                    echo "  • Test de connexions SSH"
-                    echo "  • Gestion des clés SSH (génération, affichage, copie)"
-                    echo "  • Statistiques et vérification des permissions"
-                    echo ""
-                    echo "Raccourcis:"
-                    echo "  sshman              - Lance le gestionnaire"
-                    echo "  sshman auto-setup    - Configuration automatique directe"
-                    echo "  sshman list          - Liste des connexions"
-                    echo "  sshman test          - Test de connexion"
-                    echo "  sshman keys          - Gestion des clés"
-                    echo "  sshman stats         - Statistiques"
-                    echo ""
+                    sshman_print_quick_help
                     pause_if_tty
                     ;;
                 q|Q)

@@ -187,9 +187,13 @@ routeman() {
         echo "  routeman add 10.10.0.0/24 192.168.1.1 eth0 100"
         echo "  routeman replace default 192.168.1.254 eth0 50"
         echo "  routeman del 10.10.0.0/24"
+        echo ""
+        echo "Sans argument ou routeman --help : menu interactif"
     }
 
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         case "$1" in
             show|list)
                 _rm_show
@@ -203,7 +207,7 @@ routeman() {
             replace|mod|modify|update)
                 _rm_replace "$2" "$3" "$4" "$5"
                 ;;
-            help|--help|-h)
+            help|-h)
                 _rm_help
                 ;;
             *)
@@ -215,7 +219,12 @@ routeman() {
         return
     fi
 
-    while true; do
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            routeman help
+            _rm_wait
+        fi
+        while true; do
         _rm_header
         echo "  ${BOLD}1${RESET}  📋 Visualiser les routes"
         echo "  ${BOLD}2${RESET}  ➕ Ajouter une route"
@@ -254,6 +263,7 @@ EOF
             q|Q) printf "${GREEN}Au revoir!${RESET}\n"; break ;;
             *) printf "${RED}Option invalide${RESET}\n"; sleep 1 ;;
         esac
-    done
+        done
+    fi
 }
 

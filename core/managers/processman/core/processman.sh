@@ -211,9 +211,12 @@ processman() {
         echo "  processman restart <pid|pattern>         - Relance process"
         echo "  processman tree                          - Arbre process"
         echo ""
+        echo "Sans argument ou processman --help : menu interactif"
     }
 
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         case "$1" in
             list|ls)
                 _pm_list
@@ -253,7 +256,7 @@ processman() {
                     ps -eo pid,ppid,user,comm,args --forest 2>/dev/null
                 fi
                 ;;
-            help|--help|-h)
+            help|-h)
                 _pm_show_help
                 ;;
             *)
@@ -265,7 +268,12 @@ processman() {
         return
     fi
 
-    while true; do
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            processman help
+            _pm_wait
+        fi
+        while true; do
         _pm_header
         printf "${GREEN}Menu Principal${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
@@ -390,6 +398,7 @@ EOF
                 sleep 1
                 ;;
         esac
-    done
+        done
+    fi
 }
 

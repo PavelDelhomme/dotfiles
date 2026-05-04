@@ -85,8 +85,9 @@ aliaman() {
     aliaman_print_usage() {
         cat <<'EOF'
 Usage:
-  aliaman                       menu interactif (terminal requis)
-  aliaman help | -h | --help     affiche cette aide sur la sortie standard
+  aliaman                       cette aide sur stdout (non interactif)
+  aliaman help | -h | aide       idem
+  aliaman --help                 menu interactif (terminal requis)
 
 Commandes directes:
   aliaman search <terme>         rechercher un alias
@@ -507,13 +508,19 @@ EOF
     # Variables globales pour la session
     SEARCH_TERM=""
     
-    # Gestion des arguments rapides
+    if [ -z "$1" ]; then
+        aliaman_print_usage
+        return 0
+    fi
+
     if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log aliaman "$@"
     fi
+
     case "$1" in
-        help|-h|--help|aide)
+        --help) ;;
+        help|-h|aide)
             aliaman_print_usage
             return 0
             ;;
@@ -566,6 +573,10 @@ EOF
     esac
     
     # Menu principal
+    if [ "$1" = "--help" ]; then
+        aliaman help
+        pause_if_tty
+    fi
     while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"

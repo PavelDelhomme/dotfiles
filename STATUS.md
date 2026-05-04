@@ -18,6 +18,7 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 | **Entrées shell, wrapper, bac à sable DOTFILES_GOOD** | `docs/ARCHITECTURE.md`, `DOTFILES_GOOD/README.md` |
 | **Guides de migration historiques** | `docs/migrations/` |
 | **Actions, phases A→B→C, bascule future** | **`TODOS.md`** (racine) |
+| **Incidents tests / CI (journal bref)** | **`ERRORS.md`** (racine) |
 | **Journal historique des refactors** | `docs/REFACTOR_HISTORY.md` (ex-`docs/STATUS.md`) |
 | **Analyse longue de l’arborescence** | `STRUCTURE_ANALYSIS.md` (référence, pas la checklist du jour) |
 | **Vision installman trans-distro** | `docs/INSTALLMAN_VISION.md` |
@@ -26,12 +27,13 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 
 Ce fichier **STATUS** reste la vue d’ensemble (objectifs + tests) ; le détail des commandes de test est dans **`make test-help`**. Le suivi des tâches est dans **`TODOS.md`**.
 
-### État des tests Docker (`make test`, 2026-04)
+### État des tests Docker (`make test`, 2026-04 / 2026-05)
 
-- **`make test`** enchaîne **deux phases dans le même conteneur** : (1) matrice **managers × shells** (63 cellules typiques : 21 managers × zsh/bash/fish) ; (2) **matrice sous-commandes** (`scripts/test/manager_subcommand_matrix.sh`, ~57 invocations en tier `full`).
-- **Flux terminal** : sortie du conteneur en **direct** + copie dans `test_results/test_output.log` (`tee`).
-- **Vérifier la phase 2** : `grep -E 'Matrice sous-commandes|échec:' test_results/test_output.log | tail -20` — attendu : `échecs: 0` et `✅ Matrice sous-commandes : OK`.
-- **Bac à sable** : dotfiles montés **lecture seule** dans l’image de test ; écritures ciblées sur `test_results/` et volume config test. Détail : `scripts/test/SANDBOX.md`, `make sandbox-guide`.
+- **`make test`** enchaîne **deux phases dans le même conteneur** : (1) matrice **managers × shells** (nombre de cellules = taille de `migrated_managers.list` × shells par défaut, ex. **69** si 23 managers × zsh/bash/fish) ; (2) **matrice sous-commandes** (`scripts/test/manager_subcommand_matrix.sh`, tier `full`).
+- **Rapports** : dans le conteneur, **`TEST_RESULTS_DIR`** vaut en général **`/root/test_results`** (ou `/tmp/dotfiles_test_results` si le dépôt est monté en lecture seule) — plus d’écriture forcée sous `/root/dotfiles/test_results/` qui provoquait des erreurs `tee: Read-only file system`. Fichiers : `all_managers_test_report.txt`, `detailed_report.txt`, et en phase 2 **`subcommand_matrix_summary.txt`** (ligne horodatée `runs=` / `failures=`).
+- **Flux terminal** : sortie du conteneur en **direct** + copie dans `test_output.log` sous **`TEST_RESULTS_DIR`** (`tee` depuis `run_tests.sh` / compose).
+- **Vérifier la phase 2** : `grep -E 'Matrice sous-commandes|échec:' …/test_output.log | tail -20` — attendu : `échecs: 0` et `✅ Matrice sous-commandes : OK`.
+- **Bac à sable** : dotfiles montés **lecture seule** dans l’image de test ; écritures ciblées hors dépôt (`TEST_RESULTS_DIR`, volume config test). Détail : `scripts/test/SANDBOX.md`, `make sandbox-guide`.
 - **`multimediaman` / `cyberlearn`** : la phase 2 exécute au minimum **`help`** (non bloquant hors TTY). Les menus sans argument restent interactifs ; **`@skip`** dans d’autres `.list` = encore volontaire pour certains parcours.
 
 ---

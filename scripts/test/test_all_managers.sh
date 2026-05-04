@@ -329,23 +329,58 @@ cleanup() {
     echo ""
     echo "🧹 Nettoyage..."
     dotfiles_test_isolate_cleanup 2>/dev/null || true
-    # Nettoyer docker-compose si utilisé
-    COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
-    if [ -f "$COMPOSE_FILE" ]; then
-        COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
-        cd "$COMPOSE_DIR" 2>/dev/null && docker compose down 2>/dev/null || true
-        cd "$DOTFILES_DIR" 2>/dev/null || true
+    if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+        COMPOSE_FILE="$DOTFILES_DIR/scripts/test/docker/docker-compose.yml"
+        if [ -f "$COMPOSE_FILE" ]; then
+            COMPOSE_DIR="$DOTFILES_DIR/scripts/test/docker"
+            cd "$COMPOSE_DIR" 2>/dev/null && docker compose down 2>/dev/null || true
+            cd "$DOTFILES_DIR" 2>/dev/null || true
+        fi
+        docker stop "$DOCKER_CONTAINER" 2>/dev/null || true
+        docker rm "$DOCKER_CONTAINER" 2>/dev/null || true
     fi
-    # Nettoyer le conteneur docker run
-    docker stop "$DOCKER_CONTAINER" 2>/dev/null || true
-    docker rm "$DOCKER_CONTAINER" 2>/dev/null || true
     echo "✅ Nettoyage terminé"
+}
+
+# Déjà dans un conteneur (docker-in, etc.) : pas de Docker dans Docker
+_dotfiles_inside_test_container() {
+    if [ -f /.dockerenv ]; then
+        return 0
+    fi
+    if [ "${DOTFILES_TEST_NO_NESTED_DOCKER:-}" = 1 ]; then
+        return 0
+    fi
+    return 1
+}
+
+# Exécuter la même suite que dans l'image de test, sans lancer un conteneur fils
+run_tests_in_current_env() {
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "🧪 TEST AUTOMATISÉ DES MANAGERS (environnement courant)"
+    echo "═══════════════════════════════════════════════════════════════"
+    echo ""
+    echo "ℹ️  Docker n'est pas utilisable ici (conteneur sans moteur Docker / daemon absent)."
+    echo "   Lancement direct : scripts/test/docker/run_tests.sh"
+    echo "   (équivalent à ce qui tourne dans l'image dotfiles-test)"
+    echo ""
+    # Ne pas forcer test_results sous le dépôt : docker-in monte souvent les dotfiles en RO.
+    if [ -z "${TEST_RESULTS_DIR:-}" ]; then
+        unset TEST_RESULTS_DIR
+    else
+        export TEST_RESULTS_DIR
+    fi
+    export DOTFILES_DIR DOTFILES_DOCKER_TEST=1
+    exec bash "$DOTFILES_DIR/scripts/test/docker/run_tests.sh" "$@"
 }
 
 # =============================================================================
 # Script principal
 # =============================================================================
 main() {
+    if _dotfiles_inside_test_container && { ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; }; then
+        run_tests_in_current_env "$@"
+    fi
+
     echo "═══════════════════════════════════════════════════════════════"
     echo "🧪 TEST AUTOMATISÉ DE TOUS LES MANAGERS (DOCKER)"
     echo "═══════════════════════════════════════════════════════════════"

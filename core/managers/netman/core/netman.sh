@@ -48,6 +48,31 @@ netman() {
             read dummy
         fi
     }
+
+    # Aide courte (stdout) — netman help | -h et option « h » du menu
+    netman_print_quick_help() {
+        printf "${CYAN}NETMAN — raccourcis${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo ""
+        echo "Sous-commandes :"
+        echo "  netman ports              Ports en écoute (ou menu dédié)"
+        echo "  netman connections        Connexions actives"
+        echo "  netman ip | dns | routing | interfaces"
+        echo "  netman routeman           Gestionnaire de routes"
+        echo "  netman scan <host> [port]   Test port TCP rapide"
+        echo "  netman kill <port>       Kill processus sur port"
+        echo "  netman stats             Statistiques"
+        echo "  netman diagnose | diag-report | diagnose-deep"
+        echo "  netman dns-bench [opts]  Benchmark DNS"
+        echo "  netman firewall          ufw / nft / iptables"
+        echo "  netman lookup <cible>    DNS + extrait whois"
+        echo "  netman connectivity | speed | monitor | analyze | export"
+        echo ""
+        echo "Interface :"
+        echo "  netman / netman --help    menu (avec --help : aide puis Entrée)"
+        echo "  netman -h, netman help    cette page (stdout)"
+        echo ""
+    }
     
     # Fonction pour afficher le header
     show_header() {
@@ -1193,7 +1218,9 @@ https://speed.hetzner.de/5GB.bin"
     }
     
     # Gestion des arguments en ligne de commande
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _nmdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         if [ -f "$_nmdf/scripts/lib/managers_log_posix.sh" ]; then
             # shellcheck source=managers_log_posix.sh
@@ -1319,48 +1346,8 @@ https://speed.hetzner.de/5GB.bin"
             export)
                 export_network_config
                 ;;
-            help|--help|-h)
-                printf "${CYAN}📚 Aide - NETMAN${RESET}\n"
-                printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-                echo ""
-                echo "NETMAN est un gestionnaire réseau complet."
-                echo ""
-                echo "Fonctionnalités principales:"
-                echo "  • Gestion interactive des ports avec sélection multiple"
-                echo "  • Visualisation des connexions réseau en temps réel"
-                echo "  • Informations IP publiques et locales"
-                echo "  • Configuration et test DNS"
-                echo "  • Table de routage et métriques"
-                echo "  • Gestion avancée des routes via routeman"
-                echo "  • Scan de ports sur hosts locaux ou distants"
-                echo "  • Kill rapide de processus par port"
-                echo "  • Statistiques réseau détaillées"
-                echo "  • Diagnostic réseau complet (lien/gateway/DNS/HTTP)"
-                echo "  • Rapport de diagnostic exportable (netman diag-report)"
-                echo "  • Diagnostic profond orienté RX/TX/drops/processus"
-                echo "  • Benchmark DNS multi-resolveurs"
-                echo "  • Statut firewall (ufw/nft/iptables)"
-                echo "  • Lookup IP/domaine (DNS + whois)"
-                echo "  • Test de connectivité (ping/traceroute)"
-                echo "  • Test de vitesse réseau"
-                echo "  • Monitoring de bande passante en temps réel"
-                echo "  • Analyse du trafic réseau"
-                echo "  • Export de configuration complète"
-                echo ""
-                echo "Raccourcis:"
-                echo "  netman              - Lance le gestionnaire"
-                echo "  netman ports        - Accès direct aux ports"
-                echo "  netman kill <port>  - Kill rapide d'un port"
-                echo "  netman scan <host>  - Scan rapide d'un host"
-                echo "  netman stats        - Statistiques directes"
-                echo "  netman routeman     - Ouvrir le gestionnaire de routes"
-                echo "  netman diagnose     - Diagnostic réseau complet"
-                echo "  netman diag-report  - Génère un rapport de diagnostic"
-                echo "  netman diagnose-deep - Diagnostic profond perf RX/TX"
-                echo "  netman dns-bench    - Benchmark DNS"
-                echo "  netman firewall     - Statut firewall"
-                echo "  netman lookup <x>   - Lookup IP/domaine"
-                echo ""
+            help|-h)
+                netman_print_quick_help
                 ;;
             *)
                 printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
@@ -1368,7 +1355,12 @@ https://speed.hetzner.de/5GB.bin"
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            netman help
+            pause_if_tty
+        fi
         # Menu principal interactif
         while true; do
             show_header
@@ -1460,46 +1452,8 @@ EOF
                 0) export_network_config ;;
                 h|H)
                     show_header
-                    printf "${CYAN}📚 Aide - NETMAN${RESET}\n"
-                    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-                    echo ""
-                    echo "NETMAN est un gestionnaire réseau complet."
-                    echo ""
-                    echo "Fonctionnalités principales:"
-                    echo "  • Gestion interactive des ports avec sélection multiple"
-                    echo "  • Visualisation des connexions réseau en temps réel"
-                    echo "  • Informations IP publiques et locales"
-                    echo "  • Configuration et test DNS"
-                    echo "  • Table de routage et métriques"
-                    echo "  • Gestion avancee des routes via routeman"
-                    echo "  • Scan de ports sur hosts locaux ou distants"
-                    echo "  • Kill rapide de processus par port"
-                    echo "  • Statistiques réseau détaillées"
-                    echo "  • Diagnostic réseau complet (lien/gateway/DNS/HTTP)"
-                    echo "  • Diagnostic profond orienté RX/TX/drops/processus"
-                    echo "  • Benchmark DNS multi-resolveurs"
-                    echo "  • Statut firewall (ufw/nft/iptables)"
-                    echo "  • Lookup IP/domaine (DNS + whois)"
-                    echo "  • Test de connectivité (ping/traceroute)"
-                    echo "  • Test de vitesse réseau"
-                    echo "  • Monitoring de bande passante en temps réel"
-                    echo "  • Analyse du trafic réseau"
-                    echo "  • Export de configuration complète"
-                    echo ""
-                    echo "Raccourcis:"
-                    echo "  netman              - Lance le gestionnaire"
-                    echo "  netman ports        - Accès direct aux ports"
-                    echo "  netman kill <port>  - Kill rapide d'un port"
-                    echo "  netman scan <host>  - Scan rapide d'un host"
-                    echo "  netman stats       - Statistiques directes"
-                    echo "  netman routeman    - Ouvrir le gestionnaire de routes"
-                    echo "  netman diagnose    - Diagnostic réseau complet"
-                    echo "  netman diagnose-deep - Diagnostic profond perf RX/TX"
-                    echo "  netman dns-bench   - Benchmark DNS"
-                    echo "  netman firewall    - Statut firewall"
-                    echo "  netman lookup <x>  - Lookup IP/domaine"
-                    echo ""
-        pause_if_tty
+                    netman_print_quick_help
+                    pause_if_tty
                     ;;
                 q|Q)
                     printf "${GREEN}Au revoir!${RESET}\n"

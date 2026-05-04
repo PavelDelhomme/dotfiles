@@ -11,7 +11,13 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 GITMAN_CORE="$DOTFILES_DIR/core/managers/gitman/core/gitman.sh"
 
 if [ -f "$GITMAN_CORE" ]; then
-    source "$GITMAN_CORE"
+    # Le core est du sh/POSIX ; zsh le parse mal seul (guillemets / awk). Emulation sh locale.
+    _dotfiles_gitman_load_core() {
+        emulate -L sh
+        source "$GITMAN_CORE"
+    }
+    _dotfiles_gitman_load_core
+    unfunction _dotfiles_gitman_load_core 2>/dev/null || true
 else
     echo "❌ Erreur: gitman core non trouvé: $GITMAN_CORE"
     return 1

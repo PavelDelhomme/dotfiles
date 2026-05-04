@@ -69,6 +69,21 @@ installman() {
             read dummy
         fi
     }
+
+    # Aide courte (stdout) — installman help | -h
+    installman_print_quick_help() {
+        printf "${CYAN}${BOLD}INSTALLMAN — raccourcis${RESET}\n"
+        echo ""
+        echo "Installer :        installman <outil>     (ex: docker, flutter, cursor)"
+        echo "Liste des outils : installman list"
+        echo "Paquets :          installman pl | search | install | remove"
+        echo "Mises à jour :     installman update | update-all | check | upgrade | packages"
+        echo ""
+        echo "Interface :"
+        echo "  installman / installman --help   menu (avec --help : cette aide puis Entrée)"
+        echo "  installman -h, installman help   cette page (stdout)"
+        echo ""
+    }
     
     # Définition des outils disponibles (format: "nom:alias1,alias2:emoji:description:check_function:module_file:install_function")
     TOOLS="flutter:flut:🎯:Flutter SDK:check_flutter_installed:flutter/install_flutter.sh:install_flutter
@@ -1028,8 +1043,14 @@ EOF
         fi
     }
     
-    # Si un argument est fourni, lancer directement le module
-    if [ -n "$1" ]; then
+    # Sans argument ou --help : menu ; sinon sous-commandes / outils
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            installman help
+            pause_if_tty
+        fi
+        show_main_menu
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log installman "$@"
         tool_arg=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
@@ -1113,7 +1134,11 @@ EOF
                 fi
                 return 0
                 ;;
-            help|--help|-h|list)
+            help|-h)
+                installman_print_quick_help
+                return 0
+                ;;
+            list)
                 printf "${CYAN}${BOLD}INSTALLMAN - Outils disponibles:${RESET}\n"
                 echo ""
                 while IFS= read -r tool_def; do
@@ -1127,30 +1152,9 @@ EOF
                 done <<EOF
 $TOOLS
 EOF
-                if [ "$tool_arg" = "list" ]; then
-                    echo ""
-                    printf "${YELLOW}Astuce:${RESET} installman help pour l'usage ; installman pl pour les paquets (less).\n"
-                    return 0
-                fi
                 echo ""
-                printf "${YELLOW}Usage:${RESET}\n"
-                echo "  installman [tool-name]     - Installer directement un outil"
-                echo "  installman                 - Menu interactif"
-                echo "  installman list            - Liste des outils (sans menu)"
-                echo "  installman update          - Menu de mise à jour"
-                echo "  installman update-all      - Mettre à jour tous les outils"
-                echo "  installman check [manager] - Vérifier updates système/paquets"
-                echo "  installman upgrade [mgr]   - Appliquer les upgrades système/paquets"
-                echo "  installman pl              - Paquets installés (less, puis menu paquets)"
-                echo ""
-                printf "${CYAN}Exemples:${RESET}\n"
-                echo "  installman flutter"
-                echo "  installman docker"
-                echo "  installman cursor"
-                echo "  installman update          - Mettre à jour un outil"
-                echo "  installman update-all     - Mettre à jour tous les outils"
-                echo "  installman check"
-                echo "  installman upgrade"
+                printf "${YELLOW}Astuce:${RESET} installman help pour l'usage ; installman pl pour les paquets (less).\n"
+                return 0
                 ;;
             pl)
                 package_list_interactive
@@ -1187,8 +1191,5 @@ EOF
                 fi
                 ;;
         esac
-    else
-        # Mode interactif
-        show_main_menu
     fi
 }

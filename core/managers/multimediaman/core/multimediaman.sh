@@ -168,6 +168,8 @@ EOF
         printf "${BOLD}Commandes disponibles:${RESET}\n"
         echo ""
         printf "${GREEN}multimediaman${RESET}                    - Menu interactif\n"
+        printf "${GREEN}multimediaman --help${RESET}               - Menu interactif (explicite)\n"
+        printf "${GREEN}multimediaman help | -h | aide${RESET}     - Cette aide (stdout)\n"
         printf "${GREEN}multimediaman rip-dvd [nom]${RESET}       - Ripping DVD avec encodage MP4\n"
         printf "${GREEN}multimediaman extract [archive] [dest]${RESET} - Extraire archive avec progression\n"
         printf "${GREEN}multimediaman list [archive]${RESET}      - Lister contenu d'une archive\n"
@@ -190,7 +192,9 @@ EOF
     }
     
     # Si un argument est fourni, lancer directement la commande
-    if [ -n "$1" ]; then
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        :
+    elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log multimediaman "$@"
         cmd=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
@@ -271,7 +275,7 @@ EOF
                     fi
                 fi
                 ;;
-            help|h|aide|--help|-h)
+            help|h|aide|-h)
                 show_help
                 ;;
             *)
@@ -286,7 +290,12 @@ EOF
                 return 1
                 ;;
         esac
-    else
+    fi
+    if [ -z "$1" ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            multimediaman help
+            pause_if_tty
+        fi
         # Mode interactif
         show_main_menu
     fi
