@@ -266,44 +266,70 @@ pathman() {
         sleep 2
     }
 
-    # DESC: Affiche l'aide complète du gestionnaire PATH
-    # USAGE: show_help
-    show_help() {
+    # DESC: Aide CLI non interactive (stdout) — pathman help | -h
+    # USAGE: print_help_stdout
+    print_help_stdout() {
+        printf "%b\n" "${CYAN}${BOLD}PATHMAN — raccourcis${RESET}"
+        echo ""
+        echo "Gestion PATH :"
+        echo "  pathman show            afficher le PATH courant"
+        echo "  pathman add <dir>       ajouter un répertoire"
+        echo "  pathman remove <dir>    retirer un répertoire"
+        echo "  pathman clean           nettoyer doublons + invalides"
+        echo "  pathman invalid         retirer uniquement les invalides"
+        echo "  pathman stats           statistiques PATH"
+        echo "  pathman export          exporter vers un fichier texte"
+        echo ""
+        echo "Interface :"
+        echo "  pathman / pathman --help   menu (avec --help : cette aide puis menu en TTY)"
+        echo "  pathman -h, pathman help   cette page (stdout, non interactive)"
+        echo ""
+    }
+
+    # DESC: Affiche l'aide détaillée (utilisée dans le menu interactif)
+    # USAGE: show_help_menu
+    show_help_menu() {
         clear
-        cat <<EOF
-${CYAN}${BOLD}
-╔══════════════════════════════════╗
-║            PATHMAN               ║
-╚══════════════════════════════════╝${RESET}
-
-1) Voir le PATH complet
-2) Ajouter un répertoire au PATH
-3) Retirer un répertoire du PATH
-4) Nettoyer le PATH (doublons, ordonner)
-5) Nettoyer les invalids
-6) Sauvegarder le PATH courant
-7) Restaurer le PATH précédent
-8) Afficher logs de modification
-9) Statistiques
-0) Exporter le PATH (txt)
-h) Aide détaillée
-q) Quitter
-
-Commandes rapides : pathman add /mon/chemin
-EOF
+        printf "%b\n" "${CYAN}${BOLD}╔══════════════════════════════════╗${RESET}"
+        printf "%b\n" "${CYAN}${BOLD}║            PATHMAN               ║${RESET}"
+        printf "%b\n\n" "${CYAN}${BOLD}╚══════════════════════════════════╝${RESET}"
+        echo "1) Voir le PATH complet"
+        echo "2) Ajouter un répertoire au PATH"
+        echo "3) Retirer un répertoire du PATH"
+        echo "4) Nettoyer le PATH (doublons, ordonner)"
+        echo "5) Nettoyer les invalids"
+        echo "6) Sauvegarder le PATH courant"
+        echo "7) Restaurer le PATH précédent"
+        echo "8) Afficher logs de modification"
+        echo "9) Statistiques"
+        echo "0) Exporter le PATH (txt)"
+        echo "h) Aide détaillée"
+        echo "q) Quitter"
+        echo ""
+        echo "Commandes rapides : pathman add /mon/chemin"
         if [ -t 0 ] && [ -t 1 ]; then
             printf "Appuyez sur Entrée pour revenir au menu... "
             read dummy
         fi
     }
 
-    # Sans argument : tenter le menu fzf (dotfiles-menu) si disponible
-    DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-    if [ $# -eq 0 ] && [ -f "$DOTFILES_DIR/share/menus/pathman.menu" ] && command -v fzf >/dev/null 2>&1 && [ -x "$DOTFILES_DIR/bin/dotfiles-menu" ]; then
-        cmd=$("$DOTFILES_DIR/bin/dotfiles-menu" --file "$DOTFILES_DIR/share/menus/pathman.menu" --header "PATHMAN" 2>/dev/null) || true
-        if [ -n "$cmd" ]; then
-            eval "$cmd"
-            return 0
+    # Sans argument / --help : convention interactive (menu)
+    if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
+        if [ "$1" = "--help" ]; then
+            print_help_stdout
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
+            pause_if_tty
+        fi
+        # Tenter le menu fzf (dotfiles-menu) si disponible
+        DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+        if [ -f "$DOTFILES_DIR/share/menus/pathman.menu" ] && command -v fzf >/dev/null 2>&1 && [ -x "$DOTFILES_DIR/bin/dotfiles-menu" ]; then
+            cmd=$("$DOTFILES_DIR/bin/dotfiles-menu" --file "$DOTFILES_DIR/share/menus/pathman.menu" --header "PATHMAN" 2>/dev/null) || true
+            if [ -n "$cmd" ]; then
+                eval "$cmd"
+                return 0
+            fi
         fi
     fi
 
@@ -369,8 +395,8 @@ EOF
             export_path
             return 0
             ;;
-        help)
-            show_help
+        help|-h)
+            print_help_stdout
             return 0
             ;;
     esac
@@ -417,7 +443,7 @@ EOF
             8) show_logs ;;
             9) show_stats ;;
             0) export_path ;;
-            h|H) show_help ;;
+            h|H) show_help_menu ;;
             q|Q) break ;;
         esac
     done

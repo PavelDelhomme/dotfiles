@@ -67,6 +67,24 @@ FISH_BRIDGE="$DOTFILES_DIR/scripts/test/utils/fish_run_posix_inv.fish"
 failures=0
 runs=0
 
+shell_available() {
+    case "$1" in
+        zsh|bash|fish|sh) command -v "$1" >/dev/null 2>&1 ;;
+        *) return 1 ;;
+    esac
+}
+
+ACTIVE_SHELLS=""
+SKIPPED_SHELLS=""
+for _s in $TEST_SHELLS; do
+    if shell_available "$_s"; then
+        ACTIVE_SHELLS="${ACTIVE_SHELLS:+$ACTIVE_SHELLS }$_s"
+    else
+        SKIPPED_SHELLS="${SKIPPED_SHELLS:+$SKIPPED_SHELLS }$_s"
+    fi
+done
+TEST_SHELLS="${ACTIVE_SHELLS:-}"
+
 run_with_timeout() {
     if [ -n "$TIMEOUT_BIN" ] && [ -x "$TIMEOUT_BIN" ]; then
         "$TIMEOUT_BIN" "${TEST_SUBCOMMAND_TIMEOUT}" "$@"
@@ -171,9 +189,18 @@ read_subcommand_lines() {
 echo "═══════════════════════════════════════════════════════════════"
 echo "🧪 Matrice sous-commandes (tier=$SUBCOMMAND_TIER)"
 echo "   DOTFILES_DIR=$DOTFILES_DIR"
-echo "   Shells: $TEST_SHELLS"
+echo "   Shells demandés: ${ACTIVE_SHELLS:-<aucun shell disponible>}"
+if [ -n "$SKIPPED_SHELLS" ]; then
+    echo "   Shells ignorés (absents): $SKIPPED_SHELLS"
+fi
 echo "   Managers: $MANAGERS"
 echo "═══════════════════════════════════════════════════════════════"
+
+if [ -z "$TEST_SHELLS" ]; then
+    echo "❌ Aucun shell demandé n'est installé (TEST_SHELLS)."
+    echo "   Installe un shell demandé ou ajuste TEST_SHELLS."
+    exit 1
+fi
 
 for mgr in $MANAGERS; do
     if [ ! -f "$SUBCMD_DIR/${mgr}.list" ]; then

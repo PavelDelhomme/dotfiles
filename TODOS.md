@@ -53,7 +53,7 @@ Suivi **opérationnel** : cocher au fil de l’eau.
 - [x] Extraits `DOTFILES_GOOD/shared/env/` + README.
 - [x] Script `DOTFILES_GOOD/scripts/print_roots.sh`.
 - [x] `make docker-in` : `DOTFILES_DIR` + `INSTALLMAN_ASSUME_YES` via Makefile ; **choix distro** (Arch, Ubuntu, Debian, Alpine, Fedora, CentOS, openSUSE, Gentoo) via menu TTY ou `DOCKER_DISTRO=` — script `scripts/test/docker/docker_in.sh`.
-- [x] **Tests Docker** : `TEST_RESULTS_DIR` inscriptible en `docker-in` ; **`gitman log`** sans pager, dépôt sans commit → exit 0 ; adapter **zsh** pour `gitman` en émulation sh ; **installman** zsh/bash → core POSIX (aide courte alignée sur la matrice Fish) ; résumé phase 2 append dans `subcommand_matrix_summary.txt` (voir `ERRORS.md` / `STATUS.md`).
+- [x] **Tests Docker** : `TEST_RESULTS_DIR` inscriptible en `docker-in` ; **`gitman log`** sans pager, dépôt sans commit → exit 0 ; adapter **zsh** pour `gitman` en émulation sh ; **installman** zsh/bash → core POSIX (aide courte alignée sur la matrice Fish) ; résumé phase 2 append dans `subcommand_matrix_summary.txt` (voir `ERRORS.md` / `STATUS.md`) ; phase 2 ignore proprement les shells absents (`Shells ignorés (absents)`).
 
 ## Phase A — produit : **`infosman`** ?
 
