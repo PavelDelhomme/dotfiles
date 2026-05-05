@@ -51,13 +51,115 @@ netman() {
 
     netman_fzf_pick_line() {
         _prompt="$1"
+        _preview_cmd="$2"
+        if [ -z "$_preview_cmd" ]; then
+            _preview_cmd='echo {}'
+        fi
         if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
             fzf --height=85% --layout=reverse --border --ansi \
                 --prompt="$_prompt > " \
-                --preview='echo "{}"' --preview-window=down,35%:wrap
+                --preview="$_preview_cmd" --preview-window=down,35%:wrap
         else
             return 1
         fi
+    }
+
+    netman_show_interface_details() {
+        iface="$1"
+        [ -z "$iface" ] && return 1
+        iface=$(printf '%s' "$iface" | awk '{print $1}' | sed 's/:$//')
+        iface_base=${iface%%@*}
+        [ -z "$iface_base" ] && iface_base="$iface"
+        printf "\n${CYAN}Interface: %s${RESET}\n" "$iface"
+        echo "─────────────────────────"
+
+        state=$(ip link show "$iface_base" 2>/dev/null | awk '/state/ {for(i=1;i<=NF;i++) if($i=="state"){print $(i+1); exit}}')
+        [ -z "$state" ] && state="UNKNOWN"
+        case "$state" in
+            UP) printf "  État: ${GREEN}%s${RESET}\n" "$state" ;;
+            *) printf "  État: ${RED}%s${RESET}\n" "$state" ;;
+        esac
+
+        mac=$(ip link show "$iface_base" 2>/dev/null | awk '/link\/ether/ {print $2; exit}')
+        [ -z "$mac" ] && mac="N/A"
+        echo "  MAC: $mac"
+        echo "  IPv4:"
+        ip -4 addr show "$iface_base" 2>/dev/null | awk '/inet / {print "    " $2}'
+        echo "  IPv6:"
+        ip -6 addr show "$iface_base" 2>/dev/null | awk '/inet6 / {print "    " $2}'
+
+        stats=$(ip -s link show "$iface_base" 2>/dev/null)
+        rx_bytes=$(echo "$stats" | awk '/RX:/{getline; print $1}')
+        tx_bytes=$(echo "$stats" | awk '/TX:/{getline; print $1}')
+        if [ -n "$rx_bytes" ]; then
+            echo "  Statistiques:"
+            rx_formatted=$(numfmt --to=iec-i --suffix=B "$rx_bytes" 2>/dev/null || echo "${rx_bytes}B")
+            tx_formatted=$(numfmt --to=iec-i --suffix=B "$tx_bytes" 2>/dev/null || echo "${tx_bytes}B")
+            echo "    RX: $rx_formatted"
+            echo "    TX: $tx_formatted"
+        fi
+    }
+
+    netman_collect_listening_ports() {
+        NETMAN_PORT_SOURCE=""
+        if command -v lsof >/dev/null 2>&1; then
+            if command -v sudo >/dev/null 2>&1; then
+                _lsof_data=$(sudo lsof -i -P -n 2>/dev/null | grep LISTEN)
+            else
+                _lsof_data=$(lsof -i -P -n 2>/dev/null | grep LISTEN)
+            fi
+            if [ -n "$_lsof_data" ]; then
+                NETMAN_PORT_SOURCE="lsof"
+                printf "%s\n" "$_lsof_data"
+                return 0
+            fi
+        fi
+
+        if command -v ss >/dev/null 2>&1; then
+            _ss_data=$(ss -ltnup 2>/dev/null | awk '
+                NR > 1 {
+                    addr=$5
+                    proc=$NF
+                    cmd="-"
+                    pid="-"
+                    if (match(proc, /"[^"]+"/)) {
+                        cmd=substr(proc, RSTART+1, RLENGTH-2)
+                    }
+                    if (match(proc, /pid=[0-9]+/)) {
+                        pid=substr(proc, RSTART+4, RLENGTH-4)
+                    }
+                    gsub(/\[|\]/, "", addr)
+                    printf "%s %s - - - - - - %s\n", cmd, pid, addr
+                }
+            ')
+            if [ -n "$_ss_data" ]; then
+                NETMAN_PORT_SOURCE="ss"
+                printf "%s\n" "$_ss_data"
+                return 0
+            fi
+        fi
+
+        if command -v netstat >/dev/null 2>&1; then
+            _netstat_data=$(netstat -lntup 2>/dev/null | awk '
+                NR > 2 {
+                    addr=$4
+                    pidprog=$7
+                    pid="-"
+                    cmd="-"
+                    split(pidprog, a, "/")
+                    if (a[1] != "" && a[1] != "-") pid=a[1]
+                    if (a[2] != "") cmd=a[2]
+                    printf "%s %s - - - - - - %s\n", cmd, pid, addr
+                }
+            ')
+            if [ -n "$_netstat_data" ]; then
+                NETMAN_PORT_SOURCE="netstat"
+                printf "%s\n" "$_netstat_data"
+                return 0
+            fi
+        fi
+
+        return 1
     }
 
     # Aide courte (stdout) — netman help | -h et option « h » du menu
@@ -108,16 +210,14 @@ netman() {
             printf "${YELLOW}📡 Ports en écoute sur le système${RESET}\n"
             printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
             
-            # Récupération des ports avec sudo si disponible
-            PORTS_DATA=""
-            if command -v sudo >/dev/null 2>&1; then
-                PORTS_DATA=$(sudo lsof -i -P -n 2>/dev/null | grep LISTEN | sort -t: -k2 -n)
-            else
-                PORTS_DATA=$(lsof -i -P -n 2>/dev/null | grep LISTEN | sort -t: -k2 -n)
-            fi
+            # Récupération des ports (lsof -> ss -> netstat)
+            PORTS_DATA=$(netman_collect_listening_ports)
             
             if [ -z "$PORTS_DATA" ]; then
                 printf "${RED}❌ Aucun port en écoute trouvé.${RESET}\n"
+                if ! command -v lsof >/dev/null 2>&1 && ! command -v ss >/dev/null 2>&1 && ! command -v netstat >/dev/null 2>&1; then
+                    printf "${YELLOW}⚠ Aucun outil détecté (lsof/ss/netstat).${RESET}\n"
+                fi
                 echo ""
                 if [ -t 0 ] && [ -t 1 ]; then
                     printf "Appuyez sur Entrée pour revenir au menu... "
@@ -130,6 +230,9 @@ netman() {
             printf "${CYAN}%-5s %-10s %-20s %-10s %-15s %-25s %s${RESET}\n" \
                    "N°" "PORT" "COMMANDE" "PID" "USER" "ADRESSE" "STATUS"
             echo "────────────────────────────────────────────────────────────────────────────────"
+            if [ -n "$NETMAN_PORT_SOURCE" ]; then
+                printf "${BLUE}Source: %s${RESET}\n" "$NETMAN_PORT_SOURCE"
+            fi
             
             port_list=""
             i=1
@@ -168,6 +271,7 @@ $line"
             echo "  [i]   Informations détaillées sur les ports sélectionnés"
             echo "  [a]   Sélectionner tous les ports"
             echo "  [n]   Désélectionner tout"
+            echo "  [f]   Explorer les ports via fzf (preview)"
             echo "  [r]   Rafraîchir la liste"
             echo "  [q]   Retour au menu principal"
             echo ""
@@ -281,6 +385,36 @@ $line"
                 n|N)
                     SELECTED_ITEMS=""
                     ;;
+                f|F)
+                    if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                        picked_port=$(
+                            echo "$PORTS_DATA" | awk '{
+                                cmd=$1; pid=$2; user=$3; addr=$9; port=addr; sub(/.*:/,"",port);
+                                printf "%-8s %-18s %-10s %-14s %s\n", port, cmd, pid, user, addr
+                            }' | netman_fzf_pick_line "Ports LISTEN" '
+                                port=$(printf "%s\n" "{}" | awk "{print \$1}");
+                                [ -z "$port" ] && exit 0;
+                                echo "Port: $port";
+                                echo "";
+                                if command -v lsof >/dev/null 2>&1; then
+                                    lsof -i :"$port" -P -n 2>/dev/null | sed -n "1,20p";
+                                fi;
+                                echo "";
+                                if command -v ss >/dev/null 2>&1; then
+                                    ss -tnp 2>/dev/null | grep ":$port" | sed -n "1,15p";
+                                fi
+                            '
+                        )
+                        if [ -n "$picked_port" ]; then
+                            echo "Sélection: $picked_port"
+                            echo ""
+                            pause_if_tty
+                        fi
+                    else
+                        printf "${YELLOW}⚠ fzf indisponible (fallback menu classique)${RESET}\n"
+                        sleep 1
+                    fi
+                    ;;
                 r|R)
                     continue
                     ;;
@@ -307,7 +441,18 @@ $line"
             _conn_rows=$(netstat -tunap 2>/dev/null | grep ESTABLISHED)
         fi
         if [ -n "$_conn_rows" ]; then
-            if _picked_conn=$(printf '%s\n' "$_conn_rows" | netman_fzf_pick_line "Connexions ESTAB"); then
+            if _picked_conn=$(printf '%s\n' "$_conn_rows" | netman_fzf_pick_line "Connexions ESTAB" '
+                proto=$(printf "%s\n" "{}" | awk "{print \$1}");
+                local_addr=$(printf "%s\n" "{}" | awk "{print \$2}");
+                remote_addr=$(printf "%s\n" "{}" | awk "{print \$3}");
+                echo "Proto: $proto";
+                echo "Local: $local_addr";
+                echo "Remote: $remote_addr";
+                echo "";
+                if command -v ss >/dev/null 2>&1; then
+                    ss -tunap 2>/dev/null | grep "ESTAB" | grep "$local_addr" | grep "$remote_addr" | sed -n "1,12p";
+                fi
+            '); then
                 printf "%s\n" "$_picked_conn"
             else
                 printf '%s\n' "$_conn_rows"
@@ -523,7 +668,29 @@ $line"
         printf "Domaine de test: %s\n\n" "$test_domain"
 
         if ! command -v dig >/dev/null 2>&1; then
-            printf "${RED}❌ dig non disponible (installez dnsutils/bind-tools)${RESET}\n"
+            printf "${YELLOW}⚠ dig non disponible: benchmark par résolveurs impossible.${RESET}\n"
+            printf "${CYAN}Fallback: résolution système (getent) x3${RESET}\n"
+            if command -v getent >/dev/null 2>&1; then
+                i=1
+                while [ "$i" -le 3 ]; do
+                    start_ms=$(date +%s%3N 2>/dev/null || date +%s000)
+                    ans=$(getent hosts "$test_domain" 2>/dev/null | awk 'NR==1 {print $1}')
+                    end_ms=$(date +%s%3N 2>/dev/null || date +%s000)
+                    delta=$((end_ms - start_ms))
+                    if [ -n "$ans" ]; then
+                        printf "  ${GREEN}system${RESET}  essai %s -> %4sms | %s\n" "$i" "$delta" "$ans"
+                    else
+                        printf "  ${RED}system${RESET}  essai %s -> echec\n" "$i"
+                    fi
+                    i=$((i + 1))
+                done
+                echo ""
+                printf "${BLUE}Installez dnsutils/bind-tools pour benchmark multi-résolveurs.${RESET}\n"
+                echo ""
+                pause_if_tty
+                return 0
+            fi
+            printf "${RED}❌ getent indisponible aussi: impossible de résoudre %s${RESET}\n" "$test_domain"
             pause_if_tty
             return 1
         fi
@@ -714,14 +881,39 @@ $line"
             read _target
         fi
         [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        case "$_target" in
+            127.0.0.1|localhost|::1)
+                printf "${BLUE}Cible loopback détectée, test local via ping.${RESET}\n"
+                if command -v ping >/dev/null 2>&1; then
+                    ping -c 4 "$_target" 2>/dev/null || ping -c 4 127.0.0.1 2>/dev/null
+                    echo ""
+                    pause_if_tty
+                    return 0
+                fi
+                ;;
+        esac
         if command -v mtr >/dev/null 2>&1; then
-            mtr -rw -c 8 "$_target" 2>/dev/null
+            if mtr -rw -n -c 8 "$_target" 2>/dev/null; then
+                echo ""
+                pause_if_tty
+                return 0
+            fi
+            printf "${YELLOW}⚠ mtr a échoué sur %s, fallback trace/ping.${RESET}\n" "$_target"
         else
-            printf "${YELLOW}⚠ mtr non installé${RESET}\n"
-            return 1
+            printf "${YELLOW}⚠ mtr non installé, fallback trace/ping.${RESET}\n"
+        fi
+        if command -v traceroute >/dev/null 2>&1; then
+            traceroute -n "$_target" 2>/dev/null | sed -n '1,25p'
+        elif command -v tracepath >/dev/null 2>&1; then
+            tracepath "$_target" 2>/dev/null | sed -n '1,25p'
+        fi
+        if command -v ping >/dev/null 2>&1; then
+            echo ""
+            ping -c 4 "$_target" 2>/dev/null
         fi
         echo ""
         pause_if_tty
+        return 0
     }
 
     network_whois() {
@@ -801,46 +993,33 @@ $line"
         printf "${YELLOW}🖧  Interfaces réseau${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
-        interfaces=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}')
-        
-        for iface in $interfaces; do
-            printf "\n${CYAN}Interface: %s${RESET}\n" "$iface"
-            echo "─────────────────────────"
-            
-            # État de l'interface
-            state=$(ip link show "$iface" 2>/dev/null | grep -oP '(?<=state )\w+' || echo "UNKNOWN")
-            case "$state" in
-                UP)
-                    printf "  État: ${GREEN}%s${RESET}\n" "$state"
-                    ;;
-                *)
-                    printf "  État: ${RED}%s${RESET}\n" "$state"
-                    ;;
-            esac
-            
-            # Adresse MAC
-            mac=$(ip link show "$iface" 2>/dev/null | grep -oP '(?<=link/ether )[\da-f:]+' || echo "N/A")
-            echo "  MAC: $mac"
-            
-            # Adresses IP
-            echo "  IPv4:"
-            ip -4 addr show "$iface" 2>/dev/null | grep inet | awk '{print "    " $2}'
-            echo "  IPv6:"
-            ip -6 addr show "$iface" 2>/dev/null | grep inet6 | awk '{print "    " $2}'
-            
-            # Statistiques
-            stats=$(ip -s link show "$iface" 2>/dev/null)
-            rx_bytes=$(echo "$stats" | awk '/RX:/{getline; print $1}')
-            tx_bytes=$(echo "$stats" | awk '/TX:/{getline; print $1}')
-            
-            if [ -n "$rx_bytes" ]; then
-                echo "  Statistiques:"
-                rx_formatted=$(numfmt --to=iec-i --suffix=B "$rx_bytes" 2>/dev/null || echo "${rx_bytes}B")
-                tx_formatted=$(numfmt --to=iec-i --suffix=B "$tx_bytes" 2>/dev/null || echo "${tx_bytes}B")
-                echo "    RX: $rx_formatted"
-                echo "    TX: $tx_formatted"
+        interfaces=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | cut -d: -f1)
+        if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+            picked_iface=$(
+                ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | cut -d: -f1 | \
+                netman_fzf_pick_line "Interfaces" '
+                    iface=$(printf "%s\n" "{}" | awk "{print \$1}" | sed "s/:$//");
+                    iface_base=${iface%%@*};
+                    [ -z "$iface" ] && exit 0;
+                    echo "Interface: $iface";
+                    echo "";
+                    ip addr show "$iface_base" 2>/dev/null | sed -n "1,30p";
+                    echo "";
+                    ip -s link show "$iface_base" 2>/dev/null | sed -n "1,20p"
+                '
+            )
+            if [ -n "$picked_iface" ]; then
+                netman_show_interface_details "$picked_iface"
+            else
+                for iface in $interfaces; do
+                    netman_show_interface_details "$iface"
+                done
             fi
-        done
+        else
+            for iface in $interfaces; do
+                netman_show_interface_details "$iface"
+            done
+        fi
         
         echo ""
         # Non bloquant hors TTY (tests Docker / CI / pipes)
@@ -1016,9 +1195,12 @@ $line"
         printf "${YELLOW}🌐 Test de connectivité réseau${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         echo ""
-        
-        printf "Entrez l'hôte à tester (défaut: google.com): "
-        read host
+
+        host="${1:-}"
+        if [ -z "$host" ] && [ -t 0 ] && [ -t 1 ]; then
+            printf "Entrez l'hôte à tester (défaut: google.com): "
+            read host
+        fi
         host="${host:-google.com}"
         
         echo ""
@@ -1425,7 +1607,7 @@ https://speed.hetzner.de/5GB.bin"
                 network_whois "$2"
                 ;;
             connectivity|ping)
-                test_connectivity
+                test_connectivity "$2"
                 ;;
             speed)
                 test_network_speed "$2"
