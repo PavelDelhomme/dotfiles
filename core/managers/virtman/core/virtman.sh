@@ -254,6 +254,9 @@ EOF
     if [ -z "$1" ] || [ "$1" = "--help" ]; then
         if [ "$1" = "--help" ]; then
             virtman help
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
             if [ -t 0 ] && [ -t 1 ]; then
                 printf "Appuyez sur Entrée pour continuer... "
                 read _virt_dummy || true

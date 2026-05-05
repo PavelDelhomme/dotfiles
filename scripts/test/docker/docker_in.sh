@@ -35,20 +35,31 @@ if [[ -z "$DISTRO" && -t 0 ]]; then
 	echo "  7) openSUSE"
 	echo "  8) Gentoo  ⚠️  build très long (sources)"
 	echo ""
-	printf "\033[1;33mChoix [1-8, ou nom: arch|ubuntu|…, Entrée = Arch] : \033[0m"
-	read -r _d_choice || true
-	_d_choice=$(echo "${_d_choice:-1}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
-	case "$_d_choice" in
-		2|ubuntu) DISTRO=ubuntu ;;
-		3|debian) DISTRO=debian ;;
-		4|alpine) DISTRO=alpine ;;
-		5|fedora) DISTRO=fedora ;;
-		6|centos) DISTRO=centos ;;
-		7|opensuse|opensuse-tumbleweed|suse) DISTRO=opensuse ;;
-		8|gentoo) DISTRO=gentoo ;;
-		1|arch|'') DISTRO=arch ;;
-		*) DISTRO=arch ;;
-	esac
+	while true; do
+		printf "\033[1;33mChoix [1-8, ou nom: arch|ubuntu|…, Entrée = Arch] : \033[0m"
+		read -r _d_choice || true
+		_d_choice=$(echo "${_d_choice:-1}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+		# Écarter les séquences de touches (flèches/home/end → ^[[A, ^[[F, …) et autres saisies bruitées.
+		if echo "$_d_choice" | grep -q '[^a-z0-9-]'; then
+			echo -e "\033[1;33mSaisie non reconnue: ${_d_choice}. Utilisez 1-8 ou un nom (arch, ubuntu, …).\033[0m"
+			continue
+		fi
+		case "$_d_choice" in
+			2|ubuntu) DISTRO=ubuntu ;;
+			3|debian) DISTRO=debian ;;
+			4|alpine) DISTRO=alpine ;;
+			5|fedora) DISTRO=fedora ;;
+			6|centos) DISTRO=centos ;;
+			7|opensuse|opensuse-tumbleweed|suse) DISTRO=opensuse ;;
+			8|gentoo) DISTRO=gentoo ;;
+			1|arch|'') DISTRO=arch ;;
+			*)
+				echo -e "\033[1;33mChoix invalide: ${_d_choice}. Utilisez 1-8 ou un nom (arch, ubuntu, …).\033[0m"
+				continue
+				;;
+		esac
+		break
+	done
 fi
 [[ -z "$DISTRO" ]] && DISTRO=arch
 
@@ -120,16 +131,26 @@ if [[ -z "$SH" && -t 0 ]]; then
 	echo ""
 	echo -e "\033[0;36mQuel shell ouvrir dans le conteneur ?\033[0m"
 	echo "  1) zsh   2) bash   3) fish   4) sh (POSIX)"
-	printf "\033[1;33mChoix [1-4, ou nom, Entrée = zsh] : \033[0m"
-	read -r _ds_choice || true
-	_ds_choice=$(echo "${_ds_choice:-}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
-	case "$_ds_choice" in
-		2|bash) SH=bash ;;
-		3|fish) SH=fish ;;
-		4|sh) SH=sh ;;
-		1|zsh|'') SH=zsh ;;
-		*) SH=zsh ;;
-	esac
+	while true; do
+		printf "\033[1;33mChoix [1-4, ou nom, Entrée = zsh] : \033[0m"
+		read -r _ds_choice || true
+		_ds_choice=$(echo "${_ds_choice:-}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
+		if echo "$_ds_choice" | grep -q '[^a-z0-9-]'; then
+			echo -e "\033[1;33mSaisie non reconnue: ${_ds_choice}. Utilisez 1-4 ou un nom (zsh, bash, fish, sh).\033[0m"
+			continue
+		fi
+		case "$_ds_choice" in
+			2|bash) SH=bash ;;
+			3|fish) SH=fish ;;
+			4|sh) SH=sh ;;
+			1|zsh|'') SH=zsh ;;
+			*)
+				echo -e "\033[1;33mChoix invalide: ${_ds_choice}. Utilisez 1-4 ou un nom (zsh, bash, fish, sh).\033[0m"
+				continue
+				;;
+		esac
+		break
+	done
 fi
 [[ -z "$SH" ]] && SH=zsh
 

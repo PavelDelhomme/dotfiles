@@ -40,15 +40,17 @@ searchman() {
     search_pick_menu() {
         _title="$1"
         _choice=""
+        _menu_file=$(mktemp)
+        cat > "$_menu_file"
         if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
-            _menu_file=$(mktemp)
-            cat > "$_menu_file"
             _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
-            rm -f "$_menu_file"
         fi
+        rm -f "$_menu_file"
         if [ -z "$_choice" ]; then
-            printf "Votre choix: "
-            read _choice
+            if [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
+                printf "Votre choix: " > /dev/tty
+                read _choice < /dev/tty || true
+            fi
         fi
         printf "%s" "$_choice"
     }
@@ -58,6 +60,26 @@ searchman() {
             printf "Appuyez sur Entrée pour continuer... "
             read dummy
         fi
+    }
+
+    search_fzf_pick_file() {
+        _prompt="$1"
+        if ! [ -t 0 ] || ! [ -t 1 ] || ! command -v fzf >/dev/null 2>&1; then
+            return 1
+        fi
+        fzf --height=85% --layout=reverse --border --ansi \
+            --prompt="$_prompt > " \
+            --preview='ls -lah "{}" 2>/dev/null; echo; file "{}" 2>/dev/null; echo; sed -n "1,120p" "{}" 2>/dev/null' \
+            --preview-window=right,60%:wrap
+    }
+
+    search_fzf_pick_process() {
+        if ! [ -t 0 ] || ! [ -t 1 ] || ! command -v fzf >/dev/null 2>&1; then
+            return 1
+        fi
+        fzf --height=85% --layout=reverse --border --ansi \
+            --prompt="Processus > " \
+            --preview='pid=$(printf "%s" "{}" | awk "{print \$2}"); [ -n "$pid" ] && ps -fp "$pid" 2>/dev/null; echo; [ -n "$pid" ] && ps -o pid,ppid,%cpu,%mem,etime,cmd -p "$pid" 2>/dev/null'
     }
     
     # Fonction pour afficher le header
@@ -94,8 +116,13 @@ searchman() {
         echo "  3. Recherche par commande spécifique"
         echo "  4. Recherche avec contexte"
         echo
-        printf "Type de recherche [1-4]: "
-        read search_type
+        search_type=$(search_pick_menu "SEARCHMAN - Historique" <<'EOF'
+Recherche simple|1
+24h (date)|2
+Commande spécifique|3
+Avec contexte|4
+EOF
+        )
         
         case "$search_type" in
             1)
@@ -180,60 +207,75 @@ searchman() {
         echo "  5. Par date de modification"
         echo "  6. Recherche combinée"
         echo
-        printf "Type [1-6]: "
-        read search_type
+        search_type=$(search_pick_menu "SEARCHMAN - Fichiers" <<'EOF'
+Par nom de fichier|1
+Par contenu|2
+Par extension|3
+Par taille|4
+Par date de modification|5
+Recherche combinée|6
+EOF
+        )
         
         case "$search_type" in
             1)
                 printf "Nom du fichier (avec wildcards): "
                 read filename
                 printf "\n${CYAN}Fichiers trouvés:${RESET}\n"
-                find "$search_dir" -name "*$filename*" -type f 2>/dev/null | head -20 | while IFS= read -r file; do
-                    size=$(du -h "$file" 2>/dev/null | cut -f1)
-                    date=$(stat -c %y "$file" 2>/dev/null | cut -d' ' -f1 || stat -f "%Sm" -t "%Y-%m-%d" "$file" 2>/dev/null || echo "N/A")
-                    printf "${GREEN}%-50s${RESET} ${BLUE}%8s${RESET} ${YELLOW}%s${RESET}\n" "$(basename "$file")" "$size" "$date"
-                    echo "  $file"
-                done
+                _files=$(find "$search_dir" -name "*$filename*" -type f 2>/dev/null | head -200 || true)
+                if [ -n "$_files" ] && _picked=$(printf '%s\n' "$_files" | search_fzf_pick_file "Fichiers"); then
+                    printf "\n${GREEN}Sélection:${RESET} %s\n" "$_picked"
+                else
+                    printf '%s\n' "$_files" | head -20
+                fi
                 ;;
             2)
                 printf "Contenu à rechercher: "
                 read content
                 printf "\n${CYAN}Fichiers contenant '$content':${RESET}\n"
-                grep -r -l "$content" "$search_dir" 2>/dev/null | head -20 | while IFS= read -r file; do
-                    printf "${GREEN}%s${RESET}\n" "$file"
-                    grep -n "$content" "$file" 2>/dev/null | head -2 | while IFS= read -r match; do
-                        printf "  ${YELLOW}%s${RESET}\n" "$match"
-                    done
-                done
+                _files=$(grep -r -l "$content" "$search_dir" 2>/dev/null | head -200 || true)
+                if [ -n "$_files" ] && _picked=$(printf '%s\n' "$_files" | search_fzf_pick_file "Contenu"); then
+                    printf "\n${GREEN}Sélection:${RESET} %s\n" "$_picked"
+                    printf "${CYAN}Extraits:${RESET}\n"
+                    grep -n "$content" "$_picked" 2>/dev/null | head -10
+                else
+                    printf '%s\n' "$_files" | head -20
+                fi
                 ;;
             3)
                 printf "Extension (sans le point): "
                 read extension
                 printf "\n${CYAN}Fichiers .$extension trouvés:${RESET}\n"
-                find "$search_dir" -name "*.$extension" -type f 2>/dev/null | head -20 | while IFS= read -r file; do
-                    size=$(du -h "$file" 2>/dev/null | cut -f1)
-                    printf "${GREEN}%-50s${RESET} ${BLUE}%8s${RESET}\n" "$(basename "$file")" "$size"
-                done
+                _files=$(find "$search_dir" -name "*.$extension" -type f 2>/dev/null | head -200 || true)
+                if [ -n "$_files" ] && _picked=$(printf '%s\n' "$_files" | search_fzf_pick_file "Extension .$extension"); then
+                    printf "\n${GREEN}Sélection:${RESET} %s\n" "$_picked"
+                else
+                    printf '%s\n' "$_files" | head -20
+                fi
                 ;;
             4)
                 echo "Taille: +100M (plus de 100MB), -1M (moins de 1MB), etc."
                 printf "Critère de taille: "
                 read size
                 printf "\n${CYAN}Fichiers correspondant à '$size':${RESET}\n"
-                find "$search_dir" -size "$size" -type f 2>/dev/null | head -20 | while IFS= read -r file; do
-                    filesize=$(du -h "$file" 2>/dev/null | cut -f1)
-                    printf "${GREEN}%-50s${RESET} ${BLUE}%8s${RESET}\n" "$(basename "$file")" "$filesize"
-                done
+                _files=$(find "$search_dir" -size "$size" -type f 2>/dev/null | head -200 || true)
+                if [ -n "$_files" ] && _picked=$(printf '%s\n' "$_files" | search_fzf_pick_file "Taille $size"); then
+                    printf "\n${GREEN}Sélection:${RESET} %s\n" "$_picked"
+                else
+                    printf '%s\n' "$_files" | head -20
+                fi
                 ;;
             5)
                 echo "Exemples: -1 (dernier jour), -7 (dernière semaine), +30 (plus de 30 jours)"
                 printf "Jours depuis modification: "
                 read days
                 printf "\n${CYAN}Fichiers modifiés il y a $days jours:${RESET}\n"
-                find "$search_dir" -mtime "$days" -type f 2>/dev/null | head -20 | while IFS= read -r file; do
-                    date=$(stat -c %y "$file" 2>/dev/null | cut -d' ' -f1 || stat -f "%Sm" -t "%Y-%m-%d" "$file" 2>/dev/null || echo "N/A")
-                    printf "${GREEN}%-50s${RESET} ${YELLOW}%s${RESET}\n" "$(basename "$file")" "$date"
-                done
+                _files=$(find "$search_dir" -mtime "$days" -type f 2>/dev/null | head -200 || true)
+                if [ -n "$_files" ] && _picked=$(printf '%s\n' "$_files" | search_fzf_pick_file "Mtime $days"); then
+                    printf "\n${GREEN}Sélection:${RESET} %s\n" "$_picked"
+                else
+                    printf '%s\n' "$_files" | head -20
+                fi
                 ;;
             6)
                 printf "Nom (optionnel): "
@@ -244,18 +286,18 @@ searchman() {
                 read content
                 
                 printf "\n${CYAN}Recherche combinée:${RESET}\n"
-                find "$search_dir" -type f \
-                    ${name:+-name "*$name*"} \
-                    ${ext:+-name "*.$ext"} \
-                    2>/dev/null | while IFS= read -r file; do
+                _files=$(find "$search_dir" -type f ${name:+-name "*$name*"} ${ext:+-name "*.$ext"} 2>/dev/null | while IFS= read -r file; do
                     if [ -n "$content" ]; then
-                        if grep -q "$content" "$file" 2>/dev/null; then
-                            printf "${GREEN}%s${RESET}\n" "$file"
-                        fi
+                        grep -q "$content" "$file" 2>/dev/null && printf "%s\n" "$file"
                     else
-                        printf "${GREEN}%s${RESET}\n" "$file"
+                        printf "%s\n" "$file"
                     fi
-                done | head -20
+                done | head -200)
+                if [ -n "$_files" ] && _picked=$(printf '%s\n' "$_files" | search_fzf_pick_file "Combinée"); then
+                    printf "\n${GREEN}Sélection:${RESET} %s\n" "$_picked"
+                else
+                    printf '%s\n' "$_files" | head -20
+                fi
                 ;;
         esac
         
@@ -281,9 +323,12 @@ searchman() {
         fi
         
         printf "\n${CYAN}Processus trouvés:${RESET}\n"
-        ps aux 2>/dev/null | grep -i "$process_name" | grep -v grep | head -20 | while IFS= read -r line; do
-            printf "${GREEN}%s${RESET}\n" "$line"
-        done
+        _proc_rows=$(ps aux 2>/dev/null | grep -i "$process_name" | grep -v grep | head -200 || true)
+        if [ -n "$_proc_rows" ] && _picked_proc=$(printf '%s\n' "$_proc_rows" | search_fzf_pick_process); then
+            printf "${GREEN}%s${RESET}\n" "$_picked_proc"
+        else
+            printf '%s\n' "$_proc_rows" | head -20
+        fi
         
         echo
         pause_if_tty
@@ -313,8 +358,14 @@ searchman() {
         echo "  4. Recherche récursive dans répertoire"
         echo "  5. Fichier de log spécifique"
         echo
-        printf "Type [1-5]: "
-        read log_type
+        log_type=$(search_pick_menu "SEARCHMAN - Logs" <<'EOF'
+Logs système (/var/log)|1
+Logs utilisateur (~/.local/share)|2
+Logs application spécifique|3
+Recherche récursive dans répertoire|4
+Fichier de log spécifique|5
+EOF
+        )
         
         case "$log_type" in
             1)
@@ -395,8 +446,13 @@ searchman() {
         echo "  3. Variables d'environnement"
         echo "  4. Commandes disponibles"
         echo
-        printf "Type [1-4]: "
-        read search_type
+        search_type=$(search_pick_menu "SEARCHMAN - Fonctions/Commandes" <<'EOF'
+Fonctions chargées|1
+Alias définis|2
+Variables d'environnement|3
+Commandes disponibles|4
+EOF
+        )
         
         printf "Motif de recherche: "
         read pattern
@@ -622,6 +678,9 @@ searchman() {
     if [ -z "$1" ] || [ "$1" = "--help" ]; then
         if [ "$1" = "--help" ]; then
             searchman help
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
             if [ -t 0 ] && [ -t 1 ]; then
                 printf "Appuyez sur Entrée pour continuer... "
                 read _sm_dummy || true

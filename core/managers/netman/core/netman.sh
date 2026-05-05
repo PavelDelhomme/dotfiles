@@ -49,6 +49,17 @@ netman() {
         fi
     }
 
+    netman_fzf_pick_line() {
+        _prompt="$1"
+        if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+            fzf --height=85% --layout=reverse --border --ansi \
+                --prompt="$_prompt > " \
+                --preview='echo "{}"' --preview-window=down,35%:wrap
+        else
+            return 1
+        fi
+    }
+
     # Aide courte (stdout) — netman help | -h et option « h » du menu
     netman_print_quick_help() {
         printf "${CYAN}NETMAN — raccourcis${RESET}\n"
@@ -66,6 +77,9 @@ netman() {
         echo "  netman dns-bench [opts]  Benchmark DNS"
         echo "  netman firewall          ufw / nft / iptables"
         echo "  netman lookup <cible>    DNS + extrait whois"
+        echo "  netman trace <hôte>      traceroute (ou tracepath)"
+        echo "  netman mtr <hôte>        diagnostic route/latence (si mtr installé)"
+        echo "  netman whois <cible>     whois détaillé"
         echo "  netman connectivity | speed | monitor | analyze | export"
         echo ""
         echo "Interface :"
@@ -284,12 +298,20 @@ $line"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         
         printf "\n${CYAN}Connexions établies (ESTABLISHED):${RESET}\n"
+        _conn_rows=""
         if command -v ss >/dev/null 2>&1; then
-            ss -tunap 2>/dev/null | grep ESTAB | \
+            _conn_rows=$(ss -tunap 2>/dev/null | grep ESTAB | \
             awk '{printf "%-6s %-25s %-25s %-15s\n", $1, $5, $6, $NF}' | \
-            sed 's/users:((/PID: /g; s/,fd=.*//g; s/))//g'
+            sed 's/users:((/PID: /g; s/,fd=.*//g; s/))//g')
         else
-            netstat -tunap 2>/dev/null | grep ESTABLISHED
+            _conn_rows=$(netstat -tunap 2>/dev/null | grep ESTABLISHED)
+        fi
+        if [ -n "$_conn_rows" ]; then
+            if _picked_conn=$(printf '%s\n' "$_conn_rows" | netman_fzf_pick_line "Connexions ESTAB"); then
+                printf "%s\n" "$_picked_conn"
+            else
+                printf '%s\n' "$_conn_rows"
+            fi
         fi
         
         printf "\n${CYAN}Connexions en attente (TIME_WAIT/CLOSE_WAIT):${RESET}\n"
@@ -656,6 +678,68 @@ $line"
             printf "\n${YELLOW}⚠ whois non installe${RESET}\n"
         fi
 
+        echo ""
+        pause_if_tty
+    }
+
+    network_trace() {
+        show_header
+        printf "${YELLOW}🧭 Traceroute / Tracepath${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        _target="${1:-}"
+        if [ -z "$_target" ]; then
+            printf "Hôte ou IP cible: "
+            read _target
+        fi
+        [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        if command -v traceroute >/dev/null 2>&1; then
+            traceroute -n "$_target" 2>/dev/null | sed -n '1,40p'
+        elif command -v tracepath >/dev/null 2>&1; then
+            tracepath "$_target" 2>/dev/null | sed -n '1,40p'
+        else
+            printf "${YELLOW}⚠ traceroute/tracepath non installé${RESET}\n"
+            return 1
+        fi
+        echo ""
+        pause_if_tty
+    }
+
+    network_mtr() {
+        show_header
+        printf "${YELLOW}🧪 MTR (latence/pertes)${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        _target="${1:-}"
+        if [ -z "$_target" ]; then
+            printf "Hôte ou IP cible: "
+            read _target
+        fi
+        [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        if command -v mtr >/dev/null 2>&1; then
+            mtr -rw -c 8 "$_target" 2>/dev/null
+        else
+            printf "${YELLOW}⚠ mtr non installé${RESET}\n"
+            return 1
+        fi
+        echo ""
+        pause_if_tty
+    }
+
+    network_whois() {
+        show_header
+        printf "${YELLOW}📄 WHOIS détaillé${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        _target="${1:-}"
+        if [ -z "$_target" ]; then
+            printf "Domaine/IP cible: "
+            read _target
+        fi
+        [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        if command -v whois >/dev/null 2>&1; then
+            whois "$_target" 2>/dev/null | sed -n '1,120p'
+        else
+            printf "${YELLOW}⚠ whois non installé${RESET}\n"
+            return 1
+        fi
         echo ""
         pause_if_tty
     }
@@ -1331,6 +1415,15 @@ https://speed.hetzner.de/5GB.bin"
                     network_lookup
                 fi
                 ;;
+            trace|traceroute|tracepath)
+                network_trace "$2"
+                ;;
+            mtr)
+                network_mtr "$2"
+                ;;
+            whois)
+                network_whois "$2"
+                ;;
             connectivity|ping)
                 test_connectivity
                 ;;
@@ -1359,6 +1452,9 @@ https://speed.hetzner.de/5GB.bin"
     if [ -z "$1" ] || [ "$1" = "--help" ]; then
         if [ "$1" = "--help" ]; then
             netman help
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
             pause_if_tty
         fi
         # Menu principal interactif
@@ -1382,6 +1478,9 @@ https://speed.hetzner.de/5GB.bin"
             echo "  ${BOLD}g${RESET}  ⚡ Benchmark DNS"
             echo "  ${BOLD}i${RESET}  🛡️ Statut firewall"
             echo "  ${BOLD}j${RESET}  🔎 Lookup IP / domaine"
+            echo "  ${BOLD}t${RESET}  🧭 Traceroute / tracepath"
+            echo "  ${BOLD}m${RESET}  🧪 MTR (latence/pertes)"
+            echo "  ${BOLD}w${RESET}  📄 WHOIS détaillé"
             echo "  ${BOLD}a${RESET}  🌐 Test de connectivité (ping/traceroute)"
             echo "  ${BOLD}b${RESET}  ⚡ Test de vitesse réseau"
             echo "  ${BOLD}c${RESET}  📊 Monitoring bande passante (temps réel)"
@@ -1411,6 +1510,9 @@ Diagnostic profond perf (RX/TX)|k
 Benchmark DNS|g
 Statut firewall|i
 Lookup IP / domaine|j
+Traceroute / tracepath|t
+MTR (latence/pertes)|m
+WHOIS detaille|w
 Test de connectivite (ping/traceroute)|a
 Test de vitesse reseau|b
 Monitoring bande passante (temps reel)|c
@@ -1445,6 +1547,9 @@ EOF
                 g|G) dns_benchmark ;;
                 i|I) firewall_status ;;
                 j|J) network_lookup ;;
+                t|T) network_trace ;;
+                m|M) network_mtr ;;
+                w|W) network_whois ;;
                 a|A) test_connectivity ;;
                 b|B) test_network_speed ;;
                 c|C) monitor_bandwidth ;;

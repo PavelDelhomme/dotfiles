@@ -43,6 +43,28 @@ manman() {
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
+
+    manman_print_help() {
+        printf "${CYAN}${BOLD}MANMAN — raccourcis${RESET}\n"
+        echo ""
+        echo "  manman                menu des managers"
+        echo "  manman --help         aide puis menu (TTY)"
+        echo "  manman help | -h      cette aide (stdout)"
+        echo ""
+    }
+
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        manman_print_help
+        return 0
+    fi
+    if [ "$1" = "--help" ]; then
+        manman_print_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        printf "Appuyez sur Entrée pour ouvrir le menu... "
+        read -r _manman_dummy || true
+    fi
     
     # Détecter tous les gestionnaires disponibles (utiliser un fichier temporaire)
     managers_file=$(mktemp)

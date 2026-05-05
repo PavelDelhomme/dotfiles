@@ -299,8 +299,33 @@ MODULEMAN_LIST_EOF
         printf "${YELLOW}⚠️  Rechargez votre shell (source ~/.zshrc ou source ~/.config/fish/config.fish) pour appliquer les changements${RESET}\n"
     }
     
+
+    moduleman_print_help() {
+        printf "${CYAN}${BOLD}MODULEMAN — raccourcis${RESET}\n"
+        echo ""
+        echo "  moduleman enable <module>   Activer un module"
+        echo "  moduleman disable <module>  Désactiver un module"
+        echo "  moduleman list              Lister les modules"
+        echo "  moduleman status            Afficher les statuts"
+        echo ""
+        echo "Interface :"
+        echo "  moduleman / moduleman --help   menu (avec --help : aide puis menu en TTY)"
+        echo "  moduleman -h, moduleman help   cette aide (stdout)"
+        echo ""
+    }
+
     # Si un argument est fourni, exécuter la commande directement
-    if [ -n "$1" ]; then
+    if [ "$1" = "--help" ]; then
+        moduleman_print_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+    elif [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        moduleman_print_help
+        return 0
+    fi
+
+    if [ -n "$1" ] && [ "$1" != "--help" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log moduleman "$@"
         case "$1" in
@@ -319,6 +344,10 @@ MODULEMAN_LIST_EOF
                     printf "${RED}Usage: moduleman disable <module-name>${RESET}\n"
                     return 1
                 fi
+                ;;
+            help|-h)
+                moduleman_print_help
+                return 0
                 ;;
             list|liste)
                 load_config

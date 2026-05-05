@@ -99,6 +99,8 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 - [ ] Garder **`make test`** vert à chaque étape.
 - [ ] **Épic installman** (détail : `docs/INSTALLMAN_VISION.md`) : matrice capacités machine → `search` unifié → install piloté (ex. Chrome / AUR) → préférences Flatpak/Snap/AppImage → `.desktop` / menu applications → extension autres familles (dnf, zypper, …).
 - [ ] **`git help` / `man`** : sur postes sans `man` — paquet `man-db` (voir `docs/TROUBLESHOOTING_MAN_GIT.md`).
+- [ ] **Après migration globale** : chantier réseau complet (`netman`, `routeman`, commandes IP/network, diagnostics, flows docker/hôte) pour augmenter couverture, cohérence UX et robustesse.
+- [ ] **Fallback visuel multi-shell** : normaliser couleurs/icônes/symboles entre zsh/bash/fish/sh avec dégradation lisible (ASCII) quand glyphes/couleurs indisponibles.
 
 ---
 

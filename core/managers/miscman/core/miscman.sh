@@ -40,15 +40,17 @@ miscman() {
     misc_pick_menu() {
         _title="$1"
         _choice=""
+        _menu_file=$(mktemp)
+        cat > "$_menu_file"
         if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
-            _menu_file=$(mktemp)
-            cat > "$_menu_file"
             _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
-            rm -f "$_menu_file"
         fi
+        rm -f "$_menu_file"
         if [ -z "$_choice" ]; then
-            printf "Votre choix: "
-            read _choice
+            if [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
+                printf "Votre choix: " > /dev/tty
+                read _choice < /dev/tty || true
+            fi
         fi
         printf "%s" "$_choice"
     }
@@ -318,6 +320,9 @@ miscman() {
     if [ -z "$1" ] || [ "$1" = "--help" ]; then
         if [ "$1" = "--help" ]; then
             miscman help
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
             if [ -t 0 ] && [ -t 1 ]; then
                 printf "Appuyez sur Entrée pour continuer... "
                 read _misc_dummy || true

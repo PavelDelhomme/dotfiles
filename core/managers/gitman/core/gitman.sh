@@ -513,6 +513,9 @@ EOF
     if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
         if [ "$1" = "--help" ]; then
             gitman help
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
             pause_if_tty
         fi
         # Menu interactif

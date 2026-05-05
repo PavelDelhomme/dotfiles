@@ -113,12 +113,38 @@ EOF
     parse_aliases() {
         ensure_aliases_file
         search_pattern="${1:-}"
-        
+
+        # Source = fichier d'alias + aliases déjà chargés dans le shell courant.
+        # On normalise ensuite sur des lignes "alias nom=commande".
+        alias_rows=$(
+            {
+                grep -E "^alias [^=]+=" "$ALIASES_FILE" 2>/dev/null || true
+                alias 2>/dev/null || true
+            } | grep -E "^alias [^=]+=" | awk '!seen[$0]++'
+        )
+
         if [ -n "$search_pattern" ]; then
-            grep -E "^alias [^=]+=" "$ALIASES_FILE" 2>/dev/null | grep -i "$search_pattern" || true
+            printf '%s\n' "$alias_rows" | grep -F -i -- "$search_pattern" || true
         else
-            grep -E "^alias [^=]+=" "$ALIASES_FILE" 2>/dev/null || true
+            printf '%s\n' "$alias_rows" || true
         fi
+    }
+
+    # Sélection interactive d'un alias via fzf (si disponible)
+    pick_alias_with_fzf() {
+        _query="${1:-}"
+        _rows=$(parse_aliases "$_query" | while IFS= read -r _line; do
+            _name=$(echo "$_line" | sed 's/^alias \([^=]*\)=.*/\1/')
+            _cmd=$(echo "$_line" | sed 's/^alias [^=]*="\?\([^"]*\)"\?$/\1/')
+            printf "%s\t%s\n" "$_name" "$_cmd"
+        done)
+        [ -z "$_rows" ] && return 1
+        _selected=$(printf '%s\n' "$_rows" | \
+            fzf --height=80% --layout=reverse --border --ansi \
+                --delimiter='\t' --with-nth=1,2 \
+                --prompt='Alias > ' --query "$_query" 2>/dev/null || true)
+        [ -z "$_selected" ] && return 1
+        printf '%s' "$(printf '%s' "$_selected" | cut -f1)"
     }
     
     # Fonction pour afficher la liste des alias (version simplifiée POSIX)
@@ -156,8 +182,12 @@ EOF
         i=1
         echo "$all_aliases" | while IFS= read -r line; do
             if [ -n "$line" ]; then
-                alias_name=$(echo "$line" | sed 's/^alias \([^=]*\)=.*/\1/')
-                alias_command=$(echo "$line" | sed 's/^alias [^=]*="\?\([^"]*\)"\?$/\1/')
+                alias_name=$(echo "$line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
+                alias_command=$(echo "$line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
+                alias_command=${alias_command#\"}
+                alias_command=${alias_command#\'}
+                alias_command=${alias_command%\"}
+                alias_command=${alias_command%\'}
                 
                 # Tronquer la commande si trop longue
                 if [ ${#alias_command} -gt 45 ]; then
@@ -179,14 +209,34 @@ EOF
         echo "  [b]    Sauvegarder      [r] Recharger"
         echo "  [q]    Retour au menu principal"
         echo
-        printf "Votre choix: "
-        read action
+        if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+            action=$(printf '%s\n' \
+                "Rechercher|s" \
+                "Effacer la recherche|c" \
+                "Ajouter un alias|+" \
+                "Editer un alias|e" \
+                "Supprimer un alias|d" \
+                "Sauvegarder les alias|b" \
+                "Recharger les alias|r" \
+                "Retour menu principal|q" | \
+                fzf --height=60% --layout=reverse --border --ansi \
+                    --prompt="Aliaman actions > " 2>/dev/null | cut -d'|' -f2)
+        else
+            printf "Votre choix: "
+            read action
+        fi
         
         case "$action" in
             s|S)
                 printf "Entrez le terme de recherche: "
                 read search_input
                 SEARCH_TERM="$search_input"
+                if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                    selected_alias=$(pick_alias_with_fzf "$search_input" || true)
+                    if [ -n "$selected_alias" ]; then
+                        SEARCH_TERM="$selected_alias"
+                    fi
+                fi
                 show_aliases_list
                 ;;
             c|C)
@@ -429,8 +479,12 @@ EOF
         fi
         
         echo "$results" | while IFS= read -r line; do
-            alias_name=$(echo "$line" | sed 's/^alias \([^=]*\)=.*/\1/')
-            alias_command=$(echo "$line" | sed 's/^alias [^=]*="\?\([^"]*\)"\?$/\1/')
+            alias_name=$(echo "$line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
+            alias_command=$(echo "$line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
+            alias_command=${alias_command#\"}
+            alias_command=${alias_command#\'}
+            alias_command=${alias_command%\"}
+            alias_command=${alias_command%\'}
             printf "  ${YELLOW}%-20s${RESET} %s\n" "$alias_name" "$alias_command"
         done
     }
@@ -441,10 +495,40 @@ EOF
     list_all_aliases() {
         printf "${CYAN}📋 Liste complète des alias:${RESET}\n"
         parse_aliases | while IFS= read -r line; do
-            alias_name=$(echo "$line" | sed 's/^alias \([^=]*\)=.*/\1/')
-            alias_command=$(echo "$line" | sed 's/^alias [^=]*="\?\([^"]*\)"\?$/\1/')
+            alias_name=$(echo "$line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
+            alias_command=$(echo "$line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
+            alias_command=${alias_command#\"}
+            alias_command=${alias_command#\'}
+            alias_command=${alias_command%\"}
+            alias_command=${alias_command%\'}
             printf "  ${YELLOW}%-20s${RESET} %s\n" "$alias_name" "$alias_command"
         done
+    }
+
+    list_aliases_fzf() {
+        _rows=$(parse_aliases | while IFS= read -r _line; do
+            _name=$(echo "$_line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
+            _cmd=$(echo "$_line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
+            _cmd=${_cmd#\"}
+            _cmd=${_cmd#\'}
+            _cmd=${_cmd%\"}
+            _cmd=${_cmd%\'}
+            printf "%s\t%s\n" "$_name" "$_cmd"
+        done)
+        if [ -z "$_rows" ]; then
+            printf "${RED}❌ Aucun alias trouvé${RESET}\n"
+            return 1
+        fi
+        _selected=$(printf '%s\n' "$_rows" | \
+            fzf --height=85% --layout=reverse --border --ansi \
+                --delimiter='\t' --with-nth=1,2 --prompt='Aliaman list > ' \
+                --preview='printf "Alias: %s\n\nCommande:\n%s\n" "$(printf "%s" "{}" | cut -f1)" "$(printf "%s" "{}" | cut -f2-)"' \
+                --preview-window=right,55%:wrap 2>/dev/null || true)
+        [ -n "$_selected" ] || return 0
+        _sel_name=$(printf '%s' "$_selected" | cut -f1)
+        _sel_cmd=$(printf '%s' "$_selected" | cut -f2-)
+        printf "${GREEN}Alias sélectionné:${RESET} ${YELLOW}%s${RESET}\n" "$_sel_name"
+        printf "${GREEN}Commande:${RESET} %s\n" "$_sel_cmd"
     }
     
     # Fonction pour exporter les alias
@@ -528,14 +612,29 @@ EOF
             if [ -n "$2" ]; then
                 quick_search "$2"
             else
-                printf "Terme à rechercher: "
-                read term
-                quick_search "$term"
+                if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                    sel_alias=$(pick_alias_with_fzf "" || true)
+                    if [ -n "$sel_alias" ]; then
+                        quick_search "$sel_alias"
+                    else
+                        printf "Terme à rechercher: "
+                        read term
+                        quick_search "$term"
+                    fi
+                else
+                    printf "Terme à rechercher: "
+                    read term
+                    quick_search "$term"
+                fi
             fi
             return 0
             ;;
         list)
-            list_all_aliases
+            if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                list_aliases_fzf
+            else
+                list_all_aliases
+            fi
             return 0
             ;;
         add)
@@ -575,6 +674,9 @@ EOF
     # Menu principal
     if [ "$1" = "--help" ]; then
         aliaman help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
         pause_if_tty
     fi
     while true; do
@@ -636,7 +738,11 @@ EOF
                 pause_if_tty
                 ;;
             4)
-                list_all_aliases
+                if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                    list_aliases_fzf
+                else
+                    list_all_aliases
+                fi
                 echo
                 pause_if_tty
                 ;;

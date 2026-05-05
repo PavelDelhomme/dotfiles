@@ -346,9 +346,33 @@ EOF
                 ;;
         esac
     }
+
+    configman_print_help() {
+        printf "${CYAN}${BOLD}CONFIGMAN — raccourcis${RESET}\n"
+        echo ""
+        echo "Modules : git, git-remote, symlinks, shell, p10k, ssh, ssh-auto,"
+        echo "          qemu-libvirt, qemu-network, qemu-packages, osint, version, overview"
+        echo ""
+        echo "Interface :"
+        echo "  configman / configman --help   menu (avec --help : aide puis menu en TTY)"
+        echo "  configman -h, configman help   cette aide (stdout)"
+        echo ""
+    }
     
+    # Convention help: -h/help = stdout non interactif ; --help = aide puis menu (TTY)
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        configman_print_help
+        return 0
+    fi
+    if [ "$1" = "--help" ]; then
+        configman_print_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+    fi
+
     # Si un argument est fourni, lancer directement le module
-    if [ -n "$1" ]; then
+    if [ -n "$1" ] && [ "$1" != "--help" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log configman "$@"
         CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
@@ -423,6 +447,10 @@ EOF
                 ;;
             overview|config-overview)
                 show_config_overview
+                ;;
+            help|-h)
+                configman_print_help
+                return 0
                 ;;
             *)
                 printf "${RED}Module inconnu: %s${RESET}\n" "$1"

@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -48,6 +48,7 @@ help: ## Afficher cette aide
 	@echo "  make test-subcommands   - Matrice sous-commandes × shells (Docker, image dotfiles-test)"
 	@echo "  make test-subcommands-quick - Idem SUBCOMMAND_TIER=quick dans Docker"
 	@echo "  make test-help           - Aide complète : DOTFILES_TEST_MANAGERS, bac à sable, fichiers .env"
+	@echo "  make test-menu-fzf       - Vérifie les menus fzf + fallback tty"
 	@echo "  make sandbox-guide       - Afficher scripts/test/SANDBOX.md (Docker live, chemins conteneur)"
 	@echo "  Filtrer les managers :   DOTFILES_TEST_MANAGERS=pathman,installman make test"
 	@echo "  (alias explicite)        TEST_MANAGERS=\"pathman installman\" make test-subcommands"
@@ -399,6 +400,9 @@ test-subcommands-quick: ## Matrice « quick » dans Docker (SUBCOMMAND_TIER=quic
 # Aide : personnaliser shells / managers / bac à sable (sans toucher au shell interactif).
 test-help: ## Aide tests : DOTFILES_TEST_MANAGERS, TEST_*, docker-in, SANDBOX.md
 	@bash "$(SCRIPT_DIR)/test/print_test_help.sh"
+
+test-menu-fzf: ## Vérifier intégration menus fzf + fallback tty
+	@bash "$(SCRIPT_DIR)/test/test_menu_fzf.sh"
 
 sandbox-guide: ## Afficher le guide bac à sable (conteneur, chemins, commandes)
 	@if [ -f "$(DOTFILES_DIR)/scripts/test/SANDBOX.md" ]; then \

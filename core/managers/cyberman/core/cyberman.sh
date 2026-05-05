@@ -98,15 +98,17 @@ cyberman() {
     cyber_pick_menu() {
         _title="$1"
         _choice=""
+        _menu_file=$(mktemp)
+        cat > "$_menu_file"
         if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
-            _menu_file=$(mktemp)
-            cat > "$_menu_file"
             _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
-            rm -f "$_menu_file"
         fi
+        rm -f "$_menu_file"
         if [ -z "$_choice" ]; then
-            printf "Choix: "
-            read _choice
+            if [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
+                printf "Choix: " > /dev/tty
+                read _choice < /dev/tty || true
+            fi
         fi
         printf "%s" "$_choice"
     }
@@ -1974,7 +1976,18 @@ EOF
     if [ "$1" = "iot" ]; then show_iot_menu; return; fi
     if [ "$1" = "network" ]; then show_network_devices_menu; return; fi
     if [ "$1" = "learn" ] || [ "$1" = "learning" ]; then show_learning_menu; return; fi
-    if [ "$1" = "help" ]; then show_help; return; fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        show_help
+        return
+    fi
+    if [ "$1" = "--help" ]; then
+        show_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return
+        fi
+        printf "\n%s" "Appuyez sur Entrée pour ouvrir le menu… "
+        read -r _cb_help_dummy || true
+    fi
     if [ "$1" = "load_infos" ] && [ -n "$2" ]; then
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
             . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
