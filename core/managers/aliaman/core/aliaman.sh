@@ -58,6 +58,13 @@ aliaman() {
             read dummy
         fi
     }
+    _aliaman_tui_mod="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/aliaman/modules/tui.sh"
+    if [ -f "$_aliaman_tui_mod" ]; then
+        # shellcheck source=/dev/null
+        . "$_aliaman_tui_mod"
+    else
+        aliaman_dotcli_menu_pick() { return 1; }
+    fi
     
     # Fonction pour créer le fichier d'alias s'il n'existe pas
     ensure_aliases_file() {
@@ -146,6 +153,12 @@ EOF
         [ -z "$_selected" ] && return 1
         printf '%s' "$(printf '%s' "$_selected" | cut -f1)"
     }
+
+    _aliaman_crud_mod="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/aliaman/modules/alias_crud.sh"
+    if [ -f "$_aliaman_crud_mod" ]; then
+        # shellcheck source=/dev/null
+        . "$_aliaman_crud_mod"
+    fi
     
     # Fonction pour afficher la liste des alias (version simplifiée POSIX)
     # DESC: Affiche la liste des alias avec recherche
@@ -209,7 +222,22 @@ EOF
         echo "  [b]    Sauvegarder      [r] Recharger"
         echo "  [q]    Retour au menu principal"
         echo
-        if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+        if [ -t 0 ] && [ -t 1 ] && [ "${DOTFILES_DOTCLI_ENABLE:-0}" = "1" ]; then
+            _actions_file=$(mktemp)
+            cat > "$_actions_file" <<'EOF'
+Rechercher|s
+Effacer la recherche|c
+Ajouter un alias|+
+Editer un alias|e
+Supprimer un alias|d
+Sauvegarder les alias|b
+Recharger les alias|r
+Retour menu principal|q
+EOF
+            action=$(aliaman_dotcli_menu_pick "Aliaman actions" "$_actions_file" || true)
+            rm -f "$_actions_file"
+        fi
+        if [ -z "$action" ] && [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
             action=$(printf '%s\n' \
                 "Rechercher|s" \
                 "Effacer la recherche|c" \
@@ -222,8 +250,10 @@ EOF
                 fzf --height=60% --layout=reverse --border --ansi \
                     --prompt="Aliaman actions > " 2>/dev/null | cut -d'|' -f2)
         else
-            printf "Votre choix: "
-            read action
+            if [ -z "$action" ]; then
+                printf "Votre choix: "
+                read action
+            fi
         fi
         
         case "$action" in
@@ -271,180 +301,6 @@ EOF
         esac
     }
     
-    # Fonction pour ajouter un nouvel alias
-    # DESC: Ajoute un nouvel alias de manière interactive
-    # USAGE: add_new_alias
-    add_new_alias() {
-        show_header
-        printf "${YELLOW}➕ Ajouter un nouvel alias${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        
-        printf "Nom de l'alias: "
-        read alias_name
-        if [ -z "$alias_name" ]; then
-            printf "${RED}❌ Nom d'alias requis${RESET}\n"
-            sleep 2
-            show_aliases_list
-            return
-        fi
-        
-        # Vérifier si l'alias existe déjà
-        if grep -q "^alias $alias_name=" "$ALIASES_FILE" 2>/dev/null; then
-            printf "${RED}❌ L'alias '$alias_name' existe déjà${RESET}\n"
-            printf "Remplacer? [y/N]: "
-            read overwrite
-            case "$overwrite" in
-                [yY])
-                    sed -i "/^alias $alias_name=/d" "$ALIASES_FILE" 2>/dev/null || \
-                    sed "/^alias $alias_name=/d" "$ALIASES_FILE" > "$ALIASES_FILE.tmp" && \
-                    mv "$ALIASES_FILE.tmp" "$ALIASES_FILE"
-                    ;;
-                *)
-                    show_aliases_list
-                    return
-                    ;;
-            esac
-        fi
-        
-        printf "Commande de l'alias: "
-        read alias_command
-        if [ -z "$alias_command" ]; then
-            printf "${RED}❌ Commande requise${RESET}\n"
-            sleep 2
-            show_aliases_list
-            return
-        fi
-        
-        printf "Description (optionnelle): "
-        read description
-        
-        # Ajouter la description si fournie
-        if [ -n "$description" ]; then
-            echo "# DESC: $description" >> "$ALIASES_FILE"
-        fi
-        
-        # Ajouter l'alias selon le shell
-        if [ "$SHELL_TYPE" = "fish" ]; then
-            echo "alias $alias_name='$alias_command'" >> "$ALIASES_FILE"
-        else
-            echo "alias $alias_name=\"$alias_command\"" >> "$ALIASES_FILE"
-        fi
-        
-        # Activer l'alias dans la session courante si possible
-        if [ "$SHELL_TYPE" = "zsh" ] || [ "$SHELL_TYPE" = "bash" ]; then
-            eval "alias $alias_name=\"$alias_command\"" 2>/dev/null || true
-        fi
-        
-        printf "${GREEN}✅ Alias '$alias_name' ajouté avec succès${RESET}\n"
-        sleep 2
-        show_aliases_list
-    }
-    
-    # Fonction pour éditer un alias de manière interactive
-    # DESC: Modifie un alias de manière interactive
-    # USAGE: edit_alias_interactive
-    edit_alias_interactive() {
-        show_header
-        printf "${YELLOW}✏️ Édition d'alias${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        
-        printf "Nom de l'alias à éditer: "
-        read alias_to_edit
-        if [ -z "$alias_to_edit" ]; then
-            printf "${RED}❌ Nom d'alias requis${RESET}\n"
-            sleep 2
-            show_aliases_list
-            return
-        fi
-        
-        current_line=$(grep "^alias $alias_to_edit=" "$ALIASES_FILE" 2>/dev/null)
-        if [ -z "$current_line" ]; then
-            printf "${RED}❌ Alias '$alias_to_edit' non trouvé${RESET}\n"
-            sleep 2
-            show_aliases_list
-            return
-        fi
-        
-        current_command=$(echo "$current_line" | sed 's/^alias [^=]*="\?\([^"]*\)"\?$/\1/')
-        printf "Commande actuelle: $current_command\n"
-        printf "Nouvelle commande: "
-        read new_command
-        
-        if [ -n "$new_command" ]; then
-            backup_aliases
-            
-            # Supprimer l'ancien alias
-            sed -i "/^alias $alias_to_edit=/d" "$ALIASES_FILE" 2>/dev/null || \
-            sed "/^alias $alias_to_edit=/d" "$ALIASES_FILE" > "$ALIASES_FILE.tmp" && \
-            mv "$ALIASES_FILE.tmp" "$ALIASES_FILE"
-            
-            # Ajouter le nouvel alias
-            if [ "$SHELL_TYPE" = "fish" ]; then
-                echo "alias $alias_to_edit='$new_command'" >> "$ALIASES_FILE"
-            else
-                echo "alias $alias_to_edit=\"$new_command\"" >> "$ALIASES_FILE"
-            fi
-            
-            # Activer dans la session courante
-            if [ "$SHELL_TYPE" = "zsh" ] || [ "$SHELL_TYPE" = "bash" ]; then
-                eval "alias $alias_to_edit=\"$new_command\"" 2>/dev/null || true
-            fi
-            
-            printf "${GREEN}✅ Alias '$alias_to_edit' modifié${RESET}\n"
-        fi
-        
-        sleep 2
-        show_aliases_list
-    }
-    
-    # Fonction pour supprimer un alias de manière interactive
-    # DESC: Supprime un alias avec confirmation
-    # USAGE: delete_alias_interactive
-    delete_alias_interactive() {
-        show_header
-        printf "${YELLOW}🗑️ Suppression d'alias${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        
-        printf "Nom de l'alias à supprimer: "
-        read alias_to_remove
-        if [ -z "$alias_to_remove" ]; then
-            printf "${RED}❌ Nom d'alias requis${RESET}\n"
-            sleep 2
-            show_aliases_list
-            return
-        fi
-        
-        if grep -q "^alias $alias_to_remove=" "$ALIASES_FILE" 2>/dev/null; then
-            printf "Confirmer la suppression? [y/N]: "
-            read confirm
-            case "$confirm" in
-                [yY])
-                    backup_aliases
-                    
-                    # Supprimer l'alias du fichier
-                    sed -i "/^alias $alias_to_remove=/d" "$ALIASES_FILE" 2>/dev/null || \
-                    sed "/^alias $alias_to_remove=/d" "$ALIASES_FILE" > "$ALIASES_FILE.tmp" && \
-                    mv "$ALIASES_FILE.tmp" "$ALIASES_FILE"
-                    
-                    # Désactiver l'alias dans la session courante si possible
-                    if [ "$SHELL_TYPE" = "zsh" ] || [ "$SHELL_TYPE" = "bash" ]; then
-                        unalias "$alias_to_remove" 2>/dev/null || true
-                    fi
-                    
-                    printf "${GREEN}✅ Alias '$alias_to_remove' supprimé${RESET}\n"
-                    ;;
-                *)
-                    printf "${BLUE}ℹ️ Suppression annulée${RESET}\n"
-                    ;;
-            esac
-        else
-            printf "${RED}❌ Alias '$alias_to_remove' non trouvé${RESET}\n"
-        fi
-        
-        sleep 2
-        show_aliases_list
-    }
-    
     # Fonction pour recharger les alias
     # DESC: Recharge les alias depuis le fichier de configuration
     # USAGE: reload_aliases
@@ -460,134 +316,11 @@ EOF
         fi
     }
     
-    # Fonction pour recherche rapide
-    # DESC: Recherche rapide d'alias
-    # USAGE: quick_search <term>
-    quick_search() {
-        search_term="$1"
-        if [ -z "$search_term" ]; then
-            printf "${RED}❌ Terme de recherche requis${RESET}\n"
-            return 1
-        fi
-        
-        printf "${CYAN}🔍 Recherche d'alias contenant '$search_term':${RESET}\n"
-        results=$(parse_aliases "$search_term")
-        
-        if [ -z "$results" ]; then
-            printf "${RED}❌ Aucun alias trouvé${RESET}\n"
-            return 1
-        fi
-        
-        echo "$results" | while IFS= read -r line; do
-            alias_name=$(echo "$line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
-            alias_command=$(echo "$line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
-            alias_command=${alias_command#\"}
-            alias_command=${alias_command#\'}
-            alias_command=${alias_command%\"}
-            alias_command=${alias_command%\'}
-            printf "  ${YELLOW}%-20s${RESET} %s\n" "$alias_name" "$alias_command"
-        done
-    }
-    
-    # Fonction pour lister tous les alias
-    # DESC: Liste tous les alias en format simple
-    # USAGE: list_all_aliases
-    list_all_aliases() {
-        printf "${CYAN}📋 Liste complète des alias:${RESET}\n"
-        parse_aliases | while IFS= read -r line; do
-            alias_name=$(echo "$line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
-            alias_command=$(echo "$line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
-            alias_command=${alias_command#\"}
-            alias_command=${alias_command#\'}
-            alias_command=${alias_command%\"}
-            alias_command=${alias_command%\'}
-            printf "  ${YELLOW}%-20s${RESET} %s\n" "$alias_name" "$alias_command"
-        done
-    }
-
-    list_aliases_fzf() {
-        _rows=$(parse_aliases | while IFS= read -r _line; do
-            _name=$(echo "$_line" | sed -E "s/^alias[[:space:]]+([^=]+)=.*/\\1/")
-            _cmd=$(echo "$_line" | sed -E "s/^alias[[:space:]]+[^=]+=//")
-            _cmd=${_cmd#\"}
-            _cmd=${_cmd#\'}
-            _cmd=${_cmd%\"}
-            _cmd=${_cmd%\'}
-            printf "%s\t%s\n" "$_name" "$_cmd"
-        done)
-        if [ -z "$_rows" ]; then
-            printf "${RED}❌ Aucun alias trouvé${RESET}\n"
-            return 1
-        fi
-        _selected=$(printf '%s\n' "$_rows" | \
-            fzf --height=85% --layout=reverse --border --ansi \
-                --delimiter='\t' --with-nth=1,2 --prompt='Aliaman list > ' \
-                --preview='printf "Alias: %s\n\nCommande:\n%s\n" "$(printf "%s" "{}" | cut -f1)" "$(printf "%s" "{}" | cut -f2-)"' \
-                --preview-window=right,55%:wrap 2>/dev/null || true)
-        [ -n "$_selected" ] || return 0
-        _sel_name=$(printf '%s' "$_selected" | cut -f1)
-        _sel_cmd=$(printf '%s' "$_selected" | cut -f2-)
-        printf "${GREEN}Alias sélectionné:${RESET} ${YELLOW}%s${RESET}\n" "$_sel_name"
-        printf "${GREEN}Commande:${RESET} %s\n" "$_sel_cmd"
-    }
-    
-    # Fonction pour exporter les alias
-    # DESC: Exporte les alias dans un fichier
-    # USAGE: export_aliases
-    export_aliases() {
-        show_header
-        printf "${YELLOW}💾 Export des alias${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        
-        timestamp=$(date +%Y%m%d_%H%M%S)
-        export_file="$HOME/aliases_export_$timestamp.sh"
-        
-        {
-            echo "#!/bin/sh"
-            echo "# Export des alias - $(date)"
-            echo "# Généré par ALIAMAN - Alias Manager"
-            echo
-            cat "$ALIASES_FILE"
-        } > "$export_file"
-        
-        printf "${GREEN}✅ Alias exportés vers: $export_file${RESET}\n"
-        echo
-        echo "Pour importer ces alias sur un autre système:"
-        echo "  source $export_file"
-        echo
-        pause_if_tty
-    }
-    
-    # Fonction pour les statistiques
-    # DESC: Affiche des statistiques sur les alias
-    # USAGE: show_statistics
-    show_statistics() {
-        show_header
-        printf "${YELLOW}📊 Statistiques des alias${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        
-        total_aliases=$(parse_aliases | wc -l | tr -d ' ')
-        echo "Nombre total d'alias: $total_aliases"
-        
-        printf "\n${CYAN}Top 5 des commandes les plus aliasées:${RESET}\n"
-        parse_aliases | sed 's/^alias [^=]*="\?\([^"]*\)"\?$/\1/' | \
-        awk '{print $1}' | sort | uniq -c | sort -rn | head -5 | \
-        awk '{printf "  %2d × %s\n", $1, $2}'
-        
-        printf "\n${CYAN}Répartition par type:${RESET}\n"
-        git_count=$(parse_aliases | grep -c "git" || echo "0")
-        docker_count=$(parse_aliases | grep -c "docker" || echo "0")
-        cd_count=$(parse_aliases | grep -c "cd " || echo "0")
-        sudo_count=$(parse_aliases | grep -c "sudo" || echo "0")
-        
-        echo "  Git: $git_count alias"
-        echo "  Docker: $docker_count alias"
-        echo "  Navigation (cd): $cd_count alias"
-        echo "  Système (sudo): $sudo_count alias"
-        
-        echo
-        pause_if_tty
-    }
+    _aliaman_alias_ops_mod="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/aliaman/modules/aliases_ops.sh"
+    if [ -f "$_aliaman_alias_ops_mod" ]; then
+        # shellcheck source=/dev/null
+        . "$_aliaman_alias_ops_mod"
+    fi
     
     # Variables globales pour la session
     SEARCH_TERM=""
@@ -700,7 +433,7 @@ EOF
         echo
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
         choice=""
-        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+        if [ -t 0 ] && [ -t 1 ]; then
             menu_input_file=$(mktemp)
             cat > "$menu_input_file" <<'EOF'
 Gerer les alias (interactif)|1
@@ -716,7 +449,10 @@ Exporter les alias|0
 Aide|h
 Quitter|q
 EOF
-            choice=$(dotfiles_ncmenu_select "ALIAMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            choice=$(aliaman_dotcli_menu_pick "ALIAMAN - Menu principal" "$menu_input_file" || true)
+            if [ -z "$choice" ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+                choice=$(dotfiles_ncmenu_select "ALIAMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+            fi
             rm -f "$menu_input_file"
         fi
         if [ -z "$choice" ]; then
