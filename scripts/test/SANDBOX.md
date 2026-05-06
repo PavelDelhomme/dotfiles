@@ -23,6 +23,7 @@ Lancer les managers et la matrice de sous-commandes **sans toucher** à ta machi
 | Copie du dépôt dans `/tmp` puis test (pas de bind direct sur ton arbre) | `TEST_DOTFILES_ISOLATE=1 make test` |
 | Shell interactif dans le conteneur | `make docker-in` puis `DOCKER_SHELL=bash make docker-in` |
 | Menu tests expliqué | `make tests` |
+| Parcours manuel (voir `docs/TESTS.md`) | `make tests-start` |
 
 `DOTFILES_TEST_MANAGERS` accepte **virgules ou espaces**. Si `TEST_MANAGERS` est déjà défini, il **prime** sur `DOTFILES_TEST_MANAGERS`.
 

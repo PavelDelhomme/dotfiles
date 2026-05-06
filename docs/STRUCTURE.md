@@ -27,7 +27,7 @@ docs/
 |-------------|------|
 | **`STATUS.md`** (racine dépôt) | État **instantané**, objectifs, règle de validation. |
 | **`TODOS.md`** (racine dépôt) | **Lots / tâches** : en cours, suivantes, validées (bloquant sans ta validation). |
-| **[`TESTS.md`](TESTS.md)** | Checklist **tests manuels** (CI ne suffit pas). |
+| **[`TESTS.md`](TESTS.md)** | Procédure **tests manuels** pas à pas ; entrée menu : `make tests-start`. |
 | **[`ERRORS.md`](ERRORS.md)** | **Erreurs** passées / en cours, correctifs. |
 | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) | Entrées shell, managers, `DOTFILES_GOOD`, refonte modulaire. |
 | [`architecture/ACTION_PLAN_ARCHITECTURE.md`](architecture/ACTION_PLAN_ARCHITECTURE.md) | Plan TUI / logs / modules. |

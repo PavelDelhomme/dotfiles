@@ -11,7 +11,7 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) | **Index** de la doc + arborescence `docs/` (thèmes en sous-dossiers). |
 | [`STATUS.md`](STATUS.md) | **État instantané**, objectifs et **journal récent** (racine uniquement). |
 | [`TODOS.md`](TODOS.md) | **Toutes les tâches** ; validation **bloquante** pour certaines étapes. |
-| [`docs/TESTS.md`](docs/TESTS.md) | **Checklist tests manuels** (machine neutre, shells, managers, dotcli). |
+| [`docs/TESTS.md`](docs/TESTS.md) | **Procédure tests manuels** (étapes numérotées) ; `make tests-start` pour le menu d’appui. |
 | [`docs/ERRORS.md`](docs/ERRORS.md) | Journal des **erreurs** et correctifs. |
 
 **Règle** : une tâche « finalisée » doit être **validée par toi** dans `TODOS.md`, puis enregistrée avec **`git commit`** / **`push`** avant d’enchaîner la suite (voir `TODOS.md`).

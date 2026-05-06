@@ -11,7 +11,7 @@
 ## Objectifs actuels (priorité)
 
 1. Poursuivre la **normalisation modulaire** et la **TUI unifiée** (`dotcli`) sans casser les fallbacks.
-2. Compléter les **tests manuels** : [`docs/TESTS.md`](docs/TESTS.md).
+2. Compléter les **tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) — entrée menu `make tests-start`.
 3. Respecter le **jalon de validation** dans [`TODOS.md`](TODOS.md) avant toute bascule structurelle majeure.
 
 ## Où lire la suite

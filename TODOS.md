@@ -14,7 +14,7 @@
 
 ## En cours (lot / tâche actuelle)
 
-- [ ] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** pour : installation neutre (ou `docker-in`), **`dotcli`** (TTY + `DOTFILES_DOTCLI_MENU_NO_TUI=1`), et smoke **`help`** pour chaque manager de `migrated_managers.list`.
+- [ ] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**. Couvrir au minimum : `docker-in` (distro + shell), chargement shell dans le conteneur, **`dotcli`** (pipe + `make test-dotcli`), smoke **`help`** pour chaque manager de `migrated_managers.list`.
 - [ ] Poursuivre **P1** : normalisation `core/managers/` + adapters ; réduction de la logique résiduelle hors core ; convergence menus vers `dotcli` avec fallbacks.
 
 ---

@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -41,6 +41,7 @@ help: ## Afficher cette aide
 	@echo ""
 	@echo -e "$(GREEN)Tests:$(NC)"
 	@echo "  make tests | test-menu - Menu interactif (shells, managers, Docker / local, aide)"
+	@echo "  make tests-start        - Parcours manuel (docs/TESTS.md) : prérequis, docker-in, dotcli, etc."
 	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (sans menu ; CI)"
 	@echo "  make test-full         - Alias de test-docker (même flux)"
 	@echo "  make test-docker       - Managers migrés + matrice subcommands dans le même conteneur"
@@ -396,6 +397,10 @@ test-dotcli: build-dotcli ## Smoke tests du binaire dotcli
 # Menu interactif : shells, managers, tier, bac à sable, lancement Docker / local.
 tests test-menu: ## Menu interactif des tests (explications, sans modifier le shell courant)
 	@bash "$(SCRIPT_DIR)/test/test_menu.sh"
+
+# Accompagnement du guide docs/TESTS.md (prérequis, docker-build, docker-in, smoke dotcli…).
+tests-start tests-manual-start: ## Menu pas-à-pas aligné sur docs/TESTS.md (voir ce fichier)
+	@bash "$(SCRIPT_DIR)/test/tests_manual_start.sh"
 
 # Docker + managers migrés (matrice shells dans run_tests.sh).
 # Dans un conteneur docker-in (/.dockerenv) sans Docker : exécution directe de run_tests.sh.
