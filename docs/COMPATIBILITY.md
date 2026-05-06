@@ -1,5 +1,7 @@
 # 🔄 Compatibilité Multi-Shells
 
+> Mise à jour 2026-05 : ce document est aligné avec la trajectoire plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`) et la convergence TUI (`docs/DOTCLI_MENU_CONTRACT.md`).
+
 ## 📋 Vue d'ensemble
 
 Les dotfiles supportent **ZSH**, **Bash** et **Fish**, mais avec des niveaux de compatibilité différents.

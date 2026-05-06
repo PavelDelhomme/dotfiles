@@ -1,5 +1,7 @@
 # 🔄 Guide Complet de Migration Multi-Shells
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## 📋 Table des matières
 
 1. [Vue d'ensemble](#vue-densemble)

@@ -1,5 +1,7 @@
 # `searchman` vs un futur **`infosman`**
 
+> Mise à jour 2026-05 : décision produit à maintenir cohérente avec la plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## Rôle actuel de **`searchman`**
 
 Le core POSIX (`core/managers/searchman/core/searchman.sh`) est centré sur la **recherche et l’exploration** : historique de commandes, fichiers, flux interactifs avec menus. Ce n’est **pas** un équivalent de « fiche d’information » sur un paquet, une binaire système, ou les canaux d’installation disponibles.

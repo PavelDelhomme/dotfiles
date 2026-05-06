@@ -1,5 +1,7 @@
 # CYBERMAN(1) - Gestionnaire de cybersécurité
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 cyberman - Gestionnaire interactif complet pour les outils de cybersécurité

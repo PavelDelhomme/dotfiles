@@ -1,5 +1,7 @@
 # PATHMAN(1) - Gestionnaire du PATH
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 pathman - Gestionnaire interactif complet pour gérer le PATH système

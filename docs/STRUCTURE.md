@@ -1,5 +1,7 @@
 # Structure complète des dotfiles
 
+> Mise à jour 2026-05 : la structure cible et la migration progressive sont désormais pilotées par `docs/ARCHITECTURE.md` et `docs/UNIFIED_PLATFORM_ROADMAP.md`.
+
 ## Fichiers principaux à la racine
 
 - `Makefile` - **Interface standardisée** avec `make` pour toutes les opérations (recommandé)

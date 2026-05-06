@@ -1,5 +1,7 @@
 # `git help` / `man` : « Aucun fichier ou dossier de ce nom »
 
+> Mise à jour 2026-05 : document de dépannage conservé ; référencé dans le plan de consolidation docs.
+
 ## Ce qui se passe
 
 `git help <commande>` demande en général à **`man`** d’afficher la page du manuel Git correspondante. Si **`man` n’est pas installé**, n’est pas dans le `PATH`, ou si les pages `man` de Git manquent, Git affiche :

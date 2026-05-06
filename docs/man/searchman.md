@@ -1,5 +1,7 @@
 # SEARCHMAN(1) - Gestionnaire de recherche
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 searchman - Gestionnaire interactif complet pour la recherche et l'exploration

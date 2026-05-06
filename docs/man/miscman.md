@@ -1,5 +1,7 @@
 # MISCMAN(1) - Gestionnaire d'outils divers
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 miscman - Gestionnaire interactif complet pour les outils divers et utilitaires système

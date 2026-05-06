@@ -1,5 +1,7 @@
 # Plan d’action – Architecture modulaire dotfiles
 
+> Mise à jour 2026-05 : ce plan est désormais piloté avec `docs/UNIFIED_PLATFORM_ROADMAP.md` et le contrat `docs/DOTCLI_MENU_CONTRACT.md` pour la convergence multi-shell/TUI.
+
 Document de référence pour unifier TUI, modules, shared, et multi-shell (zsh, bash, fish, sh). Objectif : une base unique, réutilisable, adaptée au terminal.
 
 ---

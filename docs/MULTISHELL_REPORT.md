@@ -1,5 +1,7 @@
 # Rapport multi-shell (dotfiles)
 
+> Mise à jour 2026-05 : rapport aligné avec la stratégie "base unique + adapters minces + socle `dotcli` progressif".
+
 ## Vue d’ensemble
 
 Les dotfiles visent une **base unique** utilisable par **tous les shells** (sh, bash, zsh, fish).  

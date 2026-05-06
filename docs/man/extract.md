@@ -1,5 +1,7 @@
 # EXTRACT(1) - Manuel d'extraction d'archives
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 extract - Extrait automatiquement des fichiers d'archive

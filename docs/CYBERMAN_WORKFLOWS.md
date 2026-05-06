@@ -1,5 +1,7 @@
 # CYBERMAN - Documentation des Workflows
 
+> Mise à jour 2026-05 : document conservé, à recaler progressivement lors de la modularisation complète des managers sous `core/managers/*`.
+
 ## 📋 Qu'est-ce qu'un Workflow ?
 
 Un **workflow** (flux de travail) dans `cyberman` est une **séquence automatisée d'actions** de tests de sécurité que vous pouvez créer, sauvegarder et exécuter à plusieurs reprises.

@@ -1,5 +1,7 @@
 # 📊 Progression de la Migration Multi-Shells
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## ✅ Managers Convertis (3/18)
 
 ### 1. installman ✅

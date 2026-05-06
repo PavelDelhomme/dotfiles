@@ -1,5 +1,7 @@
 # 📁 Stockage des Données des Managers
 
+> Mise à jour 2026-05 : la normalisation des emplacements de données est suivie dans la roadmap unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## 📊 Vue d'ensemble
 
 Certains managers créent des dossiers cachés dans `~/.` pour stocker leurs données, tandis que d'autres n'en ont pas besoin. Voici pourquoi :

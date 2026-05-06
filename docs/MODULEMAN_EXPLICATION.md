@@ -1,5 +1,7 @@
 # 📦 MODULEMAN - Explication Complète
 
+> Mise à jour 2026-05 : ce document reste une référence fonctionnelle ; l'intégration modulaire globale est pilotée dans `docs/ARCHITECTURE.md`.
+
 ## 🎯 Qu'est-ce que MODULEMAN ?
 
 **MODULEMAN** est le **"Gestionnaire de Gestionnaires"** - c'est le système qui **contrôle quels autres managers sont chargés** dans votre shell.

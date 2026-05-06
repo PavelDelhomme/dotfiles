@@ -1,5 +1,7 @@
 # REFACTOR_HISTORY — Journal des refactors dotfiles
 
+> Mise à jour 2026-05 : archive historique ; pour l'exécution courante utiliser `STATUS.md`, `TODOS.md`, `docs/ARCHITECTURE.md` et `docs/UNIFIED_PLATFORM_ROADMAP.md`.
+
 *(Ancien nom du fichier : `docs/STATUS.md` — renommé pour éviter la confusion avec **`STATUS.md`** à la racine.)*
 
 Ce fichier documente les modifications apportées aux dotfiles **au fil des phases** de refactorisation (archive de travail).

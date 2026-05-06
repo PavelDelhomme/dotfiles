@@ -1,5 +1,7 @@
 # 🔄 Plan de Migration Multi-Shells
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## 📋 Vue d'ensemble
 
 Migration complète de **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisation automatique.

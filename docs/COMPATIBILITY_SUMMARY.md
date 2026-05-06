@@ -1,5 +1,7 @@
 # 📋 Résumé de Compatibilité Multi-Shells
 
+> Mise à jour 2026-05 : résumé maintenu dans le cadre de la plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## 🎯 Réponse Rapide
 
 **Non, toutes les fonctions ZSH ne sont PAS disponibles pour Bash et Fish.**

@@ -1,5 +1,7 @@
 # MANMAN(1) - Manager of Managers
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 manman - Gestionnaire centralisé pour accéder à tous les gestionnaires interactifs

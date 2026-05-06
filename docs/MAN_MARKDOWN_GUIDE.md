@@ -1,5 +1,7 @@
 # 📚 Guide : Affichage des pages man en Markdown
 
+> Mise à jour 2026-05 : ce guide reste valide ; la standardisation d'affichage globale est suivie dans `docs/UNIFIED_PLATFORM_ROADMAP.md`.
+
 ## 🔍 Problème
 
 La commande `man` système ne supporte pas nativement le format Markdown (`.md`). Les pages man système utilisent le format groff/troff.

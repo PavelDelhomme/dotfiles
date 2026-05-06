@@ -1,5 +1,7 @@
 # Architecture des Dotfiles
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## Bac à sable `DOTFILES_GOOD/` (nouvelle structure, additif)
 
 Un répertoire **`DOTFILES_GOOD/`** à la racine du dépôt prépare une arborescence plus claire (**`lib/`**, **`shared/env`**, **`shared/menus/`**, **`core/`**, **`run/`** pour sorties temporaires, etc.) **sans déplacer** les fichiers actuellement utilisés en production.
@@ -9,6 +11,8 @@ Un répertoire **`DOTFILES_GOOD/`** à la racine du dépôt prépare une arbores
 - **Test** : `make test-dotfiles-good` (smoke `sh -n` + sourcing).
 
 Voir `DOTFILES_GOOD/README.md` pour le plan de migration progressive.
+
+Roadmap globale unifiée (structure + TUI + install + migration): `docs/UNIFIED_PLATFORM_ROADMAP.md`.
 
 ---
 
@@ -82,6 +86,164 @@ Liste alignée sur **`scripts/test/config/migrated_managers.list`** (managers co
 **Lecture rapide** : la **source de vérité métier** cible est le **core POSIX** ; les colonnes adapter et résidu sont la **colle** et l’**héritage** à faire maigrir (wrappers d’une ligne, puis suppression de logique dupliquée dans `zsh/functions/`).
 
 Les adapters **Bash** et **Fish** vivent sous `shells/bash/adapters/` et `shells/fish/adapters/` (non détaillés ligne par ligne ici ; même principe).
+
+---
+
+## Refonte modulaire prioritaire (proposition validable pas-à-pas)
+
+### Pourquoi maintenant
+
+Le dépôt mélange encore plusieurs patterns historiques :
+
+- managers "plats" (`zsh/functions/aliaman.zsh`) ;
+- managers en dossier (`zsh/functions/cyberlearn/`, `zsh/functions/netman/`) ;
+- commandes réseau éparses sous `zsh/functions/commands/network/` (`ipinfo`, `network_scanner`, `whatismyip`, `ssh_auto_setup`, etc.) ;
+- wrappers parfois encore branchés vers l'ancien arbre Zsh.
+
+La cible reste inchangée : **core POSIX canonique** + **adapters shell minces** + **legacy Zsh réduit à des wrappers de compatibilité**.
+
+### Règles d'architecture (source de vérité)
+
+- **Métier manager** : `core/managers/<manager>/core/<manager>.sh`
+- **Glue shell** : `shells/{zsh,bash,fish}/adapters/<manager>.*`
+- **Legacy Zsh** : `zsh/functions/<manager>.zsh` ou `zsh/functions/<manager>/` = wrapper de transition uniquement
+- **Commandes transverses** (ex. réseau hors manager) :
+  - cible `core/commands/<domain>/<command>.sh` (POSIX), puis adapters shell
+  - ou intégration explicite dans `core/managers/netman/` si la commande est du ressort netman
+
+### Plan d'exécution (ordre prioritaire)
+
+1. **Normaliser la forme de chaque manager**  
+   Pour chaque `*man`, avoir les 3 couches (core POSIX, adapters, wrapper legacy minimal).  
+   Critère: aucun code métier dupliqué entre `core/` et `zsh/functions/`.
+
+2. **Cartographier et reclasser le domaine réseau**  
+   Inventaire des commandes sous `zsh/functions/commands/network/` et décision par commande:  
+   - reste commande transverse ; ou
+   - migre dans netman (sous-commandes/modules).  
+   Objectif: éviter le "double monde" netman vs commandes réseau isolées.
+
+3. **Modulariser les managers monolithiques encore plats**  
+   Exemple attendu pour `aliaman`/`cyberlearn` : `modules/`, `utils/`, `config/` (si utile) sous `core/managers/<manager>/`.
+
+4. **Réduire l'historique Zsh**  
+   Les fichiers sous `zsh/functions/` doivent devenir lisibles comme "compat layer", pas comme source métier.
+
+5. **Préparer la bascule `DOTFILES_GOOD`**  
+   Une fois la structure stabilisée et testée, converger le bac `DOTFILES_GOOD/` vers l'arborescence de référence.
+
+### Politique de migration sans perte fonctionnelle
+
+- Pas de big bang.
+- Une fonctionnalité à la fois.
+- Chaque migration garde un wrapper de compatibilité.
+- Aucun changement de comportement utilisateur non documenté.
+
+### Protocole de test obligatoire (après chaque fonctionnalité)
+
+À lancer dans ton terminal à chaque étape :
+
+1. **Syntaxe et chargement**
+   - `make test`
+2. **Menus/fzf/fallbacks**
+   - `make test-menu-fzf`
+3. **Fonction concernée (smoke ciblé)**
+   - Exemple réseau: `netman help`, `netman interfaces`, `netman ports`, `netman connectivity 1.1.1.1`
+4. **Validation shell utilisateur**
+   - test rapide dans `zsh`, `bash`, `fish` pour la commande modifiée
+5. **Contrat non-interactif**
+   - vérifier qu'une invocation non-TTY ne bloque pas (CI/docker/pipes)
+
+### Définition de "done" pour une brique migrée
+
+- code métier dans `core/` ;
+- adapters shell opérationnels ;
+- wrapper legacy minimal ;
+- tests verts (`make test` + smoke ciblés) ;
+- doc mise à jour (`ARCHITECTURE.md`, `TODOS.md`, `STATUS.md`).
+
+---
+
+## Socle commun ultra-réutilisable (incluant option C)
+
+### Position pragmatique
+
+Oui, un socle compilé (C) peut résoudre une grosse partie de la duplication multi-shell.  
+Mais un basculement "tout en C d'un coup" serait risqué. La stratégie recommandée :
+
+1. **stabiliser l'architecture modulaire actuelle** (source de vérité claire) ;
+2. **introduire un binaire commun progressivement** pour les briques à forte valeur ;
+3. garder les shells comme **orchestrateurs minces**.
+
+### Cible technique
+
+- Un binaire unique `dotcli` (écrit en C) pour les primitives communes :
+  - TUI (menu, sélection, preview, pagination, recherche) ;
+  - rendu (couleurs/icônes/fallback ASCII) ;
+  - I/O robustes (TTY/non-TTY, logs, timeouts) ;
+  - utilitaires communs (tableaux, filtres, parse léger).
+- Les managers shell appellent `dotcli` au lieu de réimplémenter :
+  - `dotcli menu ...`
+  - `dotcli pick ...`
+  - `dotcli render ...`
+  - `dotcli net ...` (à terme, pour certains diagnostics réseau standardisés)
+- Les scripts shell gardent la logique métier de haut niveau au début, puis migrent progressivement vers des sous-commandes du binaire.
+
+### Pourquoi C (et limites)
+
+**Avantages**
+- même comportement sous zsh/bash/fish/sh ;
+- performances et robustesse TUI ;
+- packaging simple via `installman` (binaire précompilé ou build local) ;
+- réduction nette de la dette "même feature recodée 4 fois".
+
+**Limites**
+- coût de maintenance natif ;
+- gestion multi-plateforme plus stricte ;
+- nécessité de test ABI/comportement plus rigoureux.
+
+### Roadmap proposée (sans régression)
+
+#### Étape 0 — Maintenant (obligatoire)
+- Finir la normalisation modulaire `core + adapters + wrappers`.
+- Définir des interfaces stables "backend command" pour chaque manager.
+
+#### Étape 1 — Prototype C minimal
+- Créer `tools/dotcli/` avec:
+  - `dotcli doctor`
+  - `dotcli menu` (TUI/fallback non-TTY)
+  - `dotcli render` (thème/fallback icônes/couleurs)
+- Intégrer uniquement dans 1 manager pilote (`netman` ou `aliaman`), derrière feature flag.
+
+#### Étape 2 — TUI mutualisée
+- Remplacer progressivement les menus shell/fzf/ncmenu par `dotcli menu`.
+- Garder fzf en fallback tant que la parité n'est pas atteinte.
+
+#### Étape 3 — Extensions métier ciblées
+- Ajouter des sous-commandes C pour opérations communes à forte duplication (par ex. rendu de listes, sélection interactive, formatting réseau).
+
+#### Étape 4 — Généralisation
+- Les shells deviennent surtout "wrappers UX" + compatibilité historique.
+- La logique partagée vit majoritairement dans le socle compilé + core POSIX.
+
+### Contrat de compatibilité shell
+
+Le projet doit rester utilisable sans friction sous `zsh`, `bash`, `fish`, `sh` :
+
+- aucun manager ne dépend d'une syntaxe shell non encapsulée ;
+- détection TTY systématique ;
+- fallback sans blocage en non-interactif ;
+- tests multi-shell obligatoires à chaque migration.
+
+### Protocole de test pour la piste C
+
+À chaque étape d'intégration `dotcli` :
+
+1. `make test`
+2. `make test-menu-fzf` (jusqu'au remplacement complet)
+3. tests manuels de la feature pilote en `zsh`, `bash`, `fish`, `sh`
+4. test non-TTY (`... | cat`, CI/docker)
+5. validation rollback (désactivation flag -> comportement précédent)
 
 ---
 

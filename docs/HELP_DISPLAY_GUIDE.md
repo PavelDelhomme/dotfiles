@@ -1,5 +1,7 @@
 # 📚 Guide d'affichage pour la commande `help`
 
+> Mise à jour 2026-05 : à harmoniser avec la couche d'affichage commune (roadmap : `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 Ce document explique toutes les méthodes possibles pour structurer l'affichage de la commande `help`, avec des exemples de code et des instructions pour tester les modifications.
 
 ## 📋 Table des matières

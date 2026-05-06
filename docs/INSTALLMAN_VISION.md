@@ -1,5 +1,7 @@
 # Vision — `installman` comme outil d’installation trans-distro
 
+> Mise à jour 2026-05 : cette vision est un sous-chantier du plan plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 Document de **cadrage** (épique). Rien ici n’oblige une implémentation immédiate ; le découpage en phases ira dans `TODOS.md` au fil du travail.
 
 ## Objectif

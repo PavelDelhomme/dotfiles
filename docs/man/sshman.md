@@ -1,5 +1,7 @@
 # SSMAN(1) - Gestionnaire SSH
 
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+
 ## NOM
 
 sshman - Gestionnaire interactif complet pour la gestion SSH (connexions, clés, configurations)
