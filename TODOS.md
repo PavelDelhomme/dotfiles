@@ -143,8 +143,9 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 | ID | Description | Validé par moi |
 |----|----------------|----------------|
 | V-2026-05-dotcli-doc | Lot dotcli + modules aliaman/cyberlearn + doc DOCUMENTATION_REFERENCE/TESTS + ERRORS/STATUS dans `docs/` + réécriture STATUS/TODOS racine | [ ] |
+| V-2026-05-doc-suite | Suite doc : bannières sur guides/man/migrations, SANDBOX/README, DOTCLI_MENU_CONTRACT, déplacement `STRUCTURE_ANALYSIS` → `docs/` | [ ] |
 
-> **Tant que la ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
+> **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 
 ---
 
