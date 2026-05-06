@@ -41,23 +41,27 @@ cyberlearn() {
     BOLD='\033[1m'
     RESET='\033[0m'
 
-    cyberlearn_pick_menu() {
-        _title="$1"
-        _choice=""
-        _menu_file=$(mktemp)
-        cat > "$_menu_file"
-        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
-            _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
-        fi
-        rm -f "$_menu_file"
-        if [ -z "$_choice" ]; then
-            if [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
+    _cyberlearn_tui_mod="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/cyberlearn/modules/tui.sh"
+    if [ -f "$_cyberlearn_tui_mod" ]; then
+        # shellcheck source=/dev/null
+        . "$_cyberlearn_tui_mod"
+    else
+        cyberlearn_pick_menu() {
+            _title="$1"
+            _choice=""
+            _menu_file=$(mktemp)
+            cat > "$_menu_file"
+            if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+                _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
+            fi
+            rm -f "$_menu_file"
+            if [ -z "$_choice" ] && [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
                 printf "Choix: " > /dev/tty
                 read _choice < /dev/tty || true
             fi
-        fi
-        printf "%s" "$_choice"
-    }
+            printf "%s" "$_choice"
+        }
+    fi
 
     pause_if_tty() {
         if [ -t 0 ] && [ -t 1 ]; then printf "Appuyez sur Entrée pour continuer... "; read dummy; fi
@@ -203,71 +207,6 @@ cyberlearn() {
         sleep 2
     }
     
-    start_lab_interactive() {
-        show_header
-        printf "${CYAN}${BOLD}🚀 DÉMARRER UN LAB${RESET}\n\n"
-        printf "Nom du lab: "
-        read lab_name
-        if [ -n "$lab_name" ]; then
-            if command -v start_lab >/dev/null 2>&1; then
-                start_lab "$lab_name"
-            else
-                printf "${YELLOW}⚠️  Fonction start_lab non disponible${RESET}\n"
-                printf "${CYAN}💡 Chargez le module labs depuis %s${RESET}\n" "$CYBERLEARN_DIR/utils/labs.sh"
-            fi
-        fi
-        pause_if_tty
-    }
-    
-    list_available_labs() {
-        show_header
-        printf "${CYAN}${BOLD}📋 LABS DISPONIBLES${RESET}\n\n"
-        if command -v list_available_labs >/dev/null 2>&1; then
-            list_available_labs
-        else
-            echo "Labs disponibles:"
-            echo "  - web-basics      : Lab sécurité web de base"
-            echo "  - network-scan    : Lab scan réseau"
-            echo "  - crypto-basics   : Lab cryptographie"
-            echo "  - linux-pentest   : Lab pentest Linux"
-            echo "  - forensics-basic : Lab forensique de base"
-        fi
-        echo ""
-        pause_if_tty
-    }
-    
-    stop_lab_interactive() {
-        show_header
-        printf "${CYAN}${BOLD}🛑 ARRÊTER UN LAB${RESET}\n\n"
-        if command -v stop_lab >/dev/null 2>&1; then
-            printf "Nom du lab à arrêter: "
-            read lab_name
-            if [ -n "$lab_name" ]; then
-                stop_lab "$lab_name"
-            fi
-        else
-            printf "${YELLOW}⚠️  Fonction stop_lab non disponible${RESET}\n"
-        fi
-        pause_if_tty
-    }
-    
-    show_labs_status() {
-        show_header
-        printf "${CYAN}${BOLD}📊 STATUT DES LABS${RESET}\n\n"
-        if command -v show_labs_status >/dev/null 2>&1; then
-            show_labs_status
-        else
-            if command -v docker >/dev/null 2>&1; then
-                echo "Labs Docker actifs:"
-                docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "cyberlearn|NAME" || echo "Aucun lab actif"
-            else
-                echo "Docker n'est pas installé"
-            fi
-        fi
-        echo ""
-        pause_if_tty
-    }
-    
     # Fonction pour afficher le header
     show_header() {
         clear
@@ -278,6 +217,20 @@ cyberlearn() {
         echo "╚════════════════════════════════════════════════════════════════╝"
         printf "${RESET}"
     }
+
+    _cyberlearn_submenus="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/cyberlearn/modules"
+    if [ -f "$_cyberlearn_submenus/courses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$_cyberlearn_submenus/courses_menu.sh"
+    fi
+    if [ -f "$_cyberlearn_submenus/labs_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$_cyberlearn_submenus/labs_menu.sh"
+    fi
+    if [ -f "$_cyberlearn_submenus/progress_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$_cyberlearn_submenus/progress_menu.sh"
+    fi
     
     # Fonction pour afficher le menu principal
     show_main_menu() {
@@ -334,176 +287,6 @@ EOF
             *)
                 printf "${RED}❌ Choix invalide: %s${RESET}\n" "$choice"
                 sleep 2
-                ;;
-        esac
-    }
-    
-    # Fonction pour afficher le menu des modules
-    show_modules_menu() {
-        show_header
-        printf "${YELLOW}${BOLD}📖 MODULES DE COURS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
-        
-        printf "${BOLD}1.${RESET} 🎯 Bases de la Cybersécurité\n"
-        printf "${BOLD}2.${RESET} 🌐 Sécurité Réseau\n"
-        printf "${BOLD}3.${RESET} 🕸️  Sécurité Web\n"
-        printf "${BOLD}4.${RESET} 🔐 Cryptographie\n"
-        printf "${BOLD}5.${RESET} 🐧 Sécurité Linux\n"
-        printf "${BOLD}6.${RESET} 🪟 Sécurité Windows\n"
-        printf "${BOLD}7.${RESET} 📱 Sécurité Mobile\n"
-        printf "${BOLD}8.${RESET} 🔍 Forensique Numérique\n"
-        printf "${BOLD}9.${RESET} 🛡️  Tests de Pénétration\n"
-        printf "${BOLD}10.${RESET} 🚨 Incident Response\n"
-        printf "${BOLD}11.${RESET} 📋 Liste tous les modules\n"
-        printf "${BOLD}0.${RESET} Retour\n"
-        echo ""
-        choice=$(cyberlearn_pick_menu "CYBERLEARN - Modules" <<'EOF'
-Bases cybersecurite|1
-Securite reseau|2
-Securite web|3
-Cryptographie|4
-Securite Linux|5
-Securite Windows|6
-Securite mobile|7
-Forensique numerique|8
-Tests de penetration|9
-Incident response|10
-Lister tous les modules|11
-Retour|0
-EOF
-        )
-        choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
-        
-        case "$choice" in
-            1|basics) start_module "basics" ;;
-            2|network) start_module "network" ;;
-            3|web) start_module "web" ;;
-            4|crypto) start_module "crypto" ;;
-            5|linux) start_module "linux" ;;
-            6|windows) start_module "windows" ;;
-            7|mobile) start_module "mobile" ;;
-            8|forensics) start_module "forensics" ;;
-            9|pentest) start_module "pentest" ;;
-            10|incident) start_module "incident" ;;
-            11|list) list_all_modules ;;
-            0) return ;;
-            *)
-                printf "${RED}❌ Choix invalide${RESET}\n"
-                sleep 1
-                ;;
-        esac
-    }
-    
-    # Fonction pour démarrer un module
-    start_module() {
-        module_name="$1"
-        module_file="$CYBERLEARN_MODULES_DIR/$module_name/module.zsh"
-        
-        if [ -f "$module_file" ]; then
-            . "$module_file"
-            if command -v run_module >/dev/null 2>&1; then
-                run_module "$module_name"
-            else
-                printf "${YELLOW}⚠️  Fonction run_module non disponible${RESET}\n"
-            fi
-        else
-            printf "${RED}❌ Module '%s' non trouvé${RESET}\n" "$module_name"
-            printf "${YELLOW}💡 Les modules seront créés progressivement${RESET}\n"
-            sleep 2
-        fi
-    }
-    
-    # Fonction pour lister tous les modules
-    list_all_modules() {
-        show_header
-        printf "${YELLOW}${BOLD}📋 TOUS LES MODULES DISPONIBLES${RESET}\n\n"
-        
-        modules="basics network web crypto linux windows mobile forensics pentest incident"
-        
-        for module in $modules; do
-            status=$(get_module_status "$module")
-            icon="⭕"
-            case "$status" in
-                completed) icon="✅" ;;
-                in_progress) icon="🔄" ;;
-            esac
-            
-            printf "${icon} ${BOLD}%s${RESET} - %s\n" "$module" "$(get_module_description "$module")"
-        done
-        
-        echo ""
-        pause_if_tty
-    }
-    
-    # Fonction pour afficher le menu des labs
-    show_labs_menu() {
-        show_header
-        printf "${YELLOW}${BOLD}🧪 LABS PRATIQUES${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
-        
-        printf "${BOLD}1.${RESET} 🚀 Démarrer un Lab\n"
-        printf "${BOLD}2.${RESET} 📋 Lister les Labs Disponibles\n"
-        printf "${BOLD}3.${RESET} 🛑 Arrêter un Lab Actif\n"
-        printf "${BOLD}4.${RESET} 📊 Statut des Labs\n"
-        printf "${BOLD}0.${RESET} Retour\n"
-        echo ""
-        choice=$(cyberlearn_pick_menu "CYBERLEARN - Labs" <<'EOF'
-Demarrer un lab|1
-Lister les labs|2
-Arreter un lab|3
-Statut des labs|4
-Retour|0
-EOF
-        )
-        choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
-        
-        case "$choice" in
-            1|start) start_lab_interactive ;;
-            2|list) list_available_labs ;;
-            3|stop) stop_lab_interactive ;;
-            4|status) show_labs_status ;;
-            0) return ;;
-            *)
-                printf "${RED}❌ Choix invalide${RESET}\n"
-                sleep 1
-                ;;
-        esac
-    }
-    
-    # Fonction pour afficher le menu de progression
-    show_progress_menu() {
-        show_header
-        printf "${YELLOW}${BOLD}📊 MA PROGRESSION${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
-        
-        show_detailed_progress
-        
-        echo ""
-        printf "${BOLD}1.${RESET} 📈 Statistiques Détaillées\n"
-        printf "${BOLD}2.${RESET} 🏆 Badges Obtenus\n"
-        printf "${BOLD}3.${RESET} 📜 Historique d'Apprentissage\n"
-        printf "${BOLD}4.${RESET} 🔄 Réinitialiser la Progression\n"
-        printf "${BOLD}0.${RESET} Retour\n"
-        echo ""
-        choice=$(cyberlearn_pick_menu "CYBERLEARN - Progression" <<'EOF'
-Statistiques detaillees|1
-Badges obtenus|2
-Historique apprentissage|3
-Reinitialiser progression|4
-Retour|0
-EOF
-        )
-        choice=$(echo "$choice" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
-        
-        case "$choice" in
-            1|stats) show_detailed_stats ;;
-            2|badges) show_badges_detailed ;;
-            3|history) show_learning_history ;;
-            4|reset) reset_progress_confirm ;;
-            0) return ;;
-            *)
-                printf "${RED}❌ Choix invalide${RESET}\n"
-                sleep 1
                 ;;
         esac
     }
