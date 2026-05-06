@@ -64,6 +64,21 @@ netman() {
         fi
     }
 
+    netman_dotcli_menu_pick() {
+        _title="$1"
+        _file="$2"
+        _dotcli_bin="${DOTFILES_DOTCLI_BIN:-${DOTFILES_DIR:-$HOME/dotfiles}/bin/dotcli}"
+        if [ "${DOTFILES_DOTCLI_ENABLE:-0}" = "1" ] && [ -t 0 ] && [ -t 1 ] && [ -x "$_dotcli_bin" ]; then
+            if [ "${DOTFILES_DOTCLI_MENU_NO_TUI:-0}" = "1" ]; then
+                "$_dotcli_bin" menu --no-tui --prompt "$_title" < "$_file" 2>/dev/null || return 1
+            else
+                "$_dotcli_bin" menu --prompt "$_title" < "$_file" 2>/dev/null || return 1
+            fi
+            return 0
+        fi
+        return 1
+    }
+
     netman_show_interface_details() {
         iface="$1"
         [ -z "$iface" ] && return 1
@@ -275,11 +290,45 @@ $line"
             echo "  [r]   Rafraîchir la liste"
             echo "  [q]   Retour au menu principal"
             echo ""
-            printf "Votre choix: "
-            read action
+            action=""
+            if [ -t 0 ] && [ -t 1 ] && [ "${DOTFILES_DOTCLI_ENABLE:-0}" = "1" ]; then
+                _ports_actions_file=$(mktemp)
+                cat > "$_ports_actions_file" <<'EOF'
+Basculer selection par numero de ligne|g
+Kill processus selectionnes|k
+Infos detaillees ports selectionnes|i
+Selectionner tous les ports|a
+Desel. tous les ports|n
+Explorer ports via fzf preview|f
+Rafraichir la liste|r
+Retour menu principal|q
+EOF
+                action=$(netman_dotcli_menu_pick "NETMAN - Ports actions" "$_ports_actions_file" || true)
+                rm -f "$_ports_actions_file"
+            fi
+            if [ -z "$action" ]; then
+                printf "Votre choix: "
+                read action
+            fi
             echo ""
             
             case "$action" in
+                g|G)
+                    printf "Numéro de ligne port: "
+                    read num
+                    case "$num" in
+                        [0-9])
+                            case " $SELECTED_ITEMS " in
+                                *" $num "*)
+                                    SELECTED_ITEMS=$(echo "$SELECTED_ITEMS" | sed "s/ $num //")
+                                    ;;
+                                *)
+                                    SELECTED_ITEMS="$SELECTED_ITEMS $num "
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                    ;;
                 [0-9])
                     case " $SELECTED_ITEMS " in
                         *" $action "*)
@@ -1674,7 +1723,7 @@ https://speed.hetzner.de/5GB.bin"
             echo ""
             printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
             choice=""
-            if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+            if [ -t 0 ] && [ -t 1 ]; then
                 menu_input_file=$(mktemp)
                 cat > "$menu_input_file" <<'EOF'
 Gerer les ports en ecoute (interactif)|1
@@ -1703,7 +1752,10 @@ Exporter la configuration|0
 Aide|h
 Quitter|q
 EOF
-                choice=$(dotfiles_ncmenu_select "NETMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+                choice=$(netman_dotcli_menu_pick "NETMAN - Menu principal" "$menu_input_file" || true)
+                if [ -z "$choice" ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+                    choice=$(dotfiles_ncmenu_select "NETMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
+                fi
                 rm -f "$menu_input_file"
                 echo ""
             fi
