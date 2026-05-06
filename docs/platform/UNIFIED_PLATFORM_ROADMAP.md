@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # Roadmap Plateforme Unifiée
 
-> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : ce document est la feuille de route plateforme unifiée (auto-référence).
 
 ## Objectif
 
@@ -29,7 +29,7 @@ Construire une base unique, réutilisable et testable pour tous les shells (`zsh
 - Stabiliser `dotcli` (MVP -> interaction TUI réelle).
 - Externaliser rendu visuel (couleurs/icônes/fallback ASCII) dans le socle.
 - Publier une API stable pour les managers.
-- Contrat initial documenté: `docs/DOTCLI_MENU_CONTRACT.md`.
+- Contrat initial documenté: `docs/platform/DOTCLI_MENU_CONTRACT.md`.
 
 ### Phase 3 - Migration managers
 

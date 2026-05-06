@@ -1,8 +1,67 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **À la racine de `docs/`** : ce fichier ([`STRUCTURE.md`](STRUCTURE.md)) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md) — **À la racine du dépôt** : [`STATUS.md`](../STATUS.md) · [`TODOS.md`](../TODOS.md)
 
-# Structure complète des dotfiles
+# Documentation et structure du dépôt
 
-> Mise à jour 2026-05 : la structure cible et la migration progressive sont désormais pilotées par `docs/ARCHITECTURE.md` et `docs/UNIFIED_PLATFORM_ROADMAP.md`.
+_Index unique : tout le texte hors `man/` et `migrations/` est classé par thème dans des sous-dossiers._
+
+## Arborescence `docs/`
+
+```
+docs/
+├── STRUCTURE.md      ← ce fichier (carte + structure du repo)
+├── TESTS.md          ← tests manuels (checklist)
+├── ERRORS.md         ← journal incidents / correctifs
+├── architecture/     ← architecture, plan d’action, historique refactors, analyse longue
+├── compatibility/    ← matrices compatibilité
+├── guides/           ← guides rédactionnel et dépannage (man, aide, git)
+├── managers/         ← docs par domaine manager (cyberman, installman, moduleman, …)
+├── platform/         ← roadmap unifiée, contrat dotcli
+├── reports/          ← rapports (ex. multi-shell)
+├── man/              ← pages man markdown par outil
+└── migrations/       ← guides de migration multi-shells
+```
+
+## Carte des documents (par dossier)
+
+| Emplacement | Rôle |
+|-------------|------|
+| **`STATUS.md`** (racine dépôt) | État **instantané**, objectifs, règle de validation. |
+| **`TODOS.md`** (racine dépôt) | **Lots / tâches** : en cours, suivantes, validées (bloquant sans ta validation). |
+| **[`TESTS.md`](TESTS.md)** | Checklist **tests manuels** (CI ne suffit pas). |
+| **[`ERRORS.md`](ERRORS.md)** | **Erreurs** passées / en cours, correctifs. |
+| [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) | Entrées shell, managers, `DOTFILES_GOOD`, refonte modulaire. |
+| [`architecture/ACTION_PLAN_ARCHITECTURE.md`](architecture/ACTION_PLAN_ARCHITECTURE.md) | Plan TUI / logs / modules. |
+| [`architecture/REFACTOR_HISTORY.md`](architecture/REFACTOR_HISTORY.md) | Archive historique des refactors. |
+| [`architecture/STRUCTURE_ANALYSIS.md`](architecture/STRUCTURE_ANALYSIS.md) | Analyse **longue** de l’arborescence. |
+| [`compatibility/COMPATIBILITY.md`](compatibility/COMPATIBILITY.md) · [`compatibility/COMPATIBILITY_SUMMARY.md`](compatibility/COMPATIBILITY_SUMMARY.md) | Compatibilité shells / distros. |
+| [`guides/HELP_DISPLAY_GUIDE.md`](guides/HELP_DISPLAY_GUIDE.md) | Affichage d’aide. |
+| [`guides/MAN_MARKDOWN_GUIDE.md`](guides/MAN_MARKDOWN_GUIDE.md) | Format doc man markdown (`man/`). |
+| [`guides/TROUBLESHOOTING_MAN_GIT.md`](guides/TROUBLESHOOTING_MAN_GIT.md) | `git help` / `man`. |
+| [`managers/CYBERMAN_WORKFLOWS.md`](managers/CYBERMAN_WORKFLOWS.md) | Workflows cyberman. |
+| [`managers/INSTALLMAN_VISION.md`](managers/INSTALLMAN_VISION.md) | Vision installman trans-distro. |
+| [`managers/MANAGER_DATA_STORAGE.md`](managers/MANAGER_DATA_STORAGE.md) | Stockage données managers. |
+| [`managers/MANAGERS_SEARCH_VS_INFO.md`](managers/MANAGERS_SEARCH_VS_INFO.md) | searchman vs infos. |
+| [`managers/MODULEMAN_EXPLICATION.md`](managers/MODULEMAN_EXPLICATION.md) | moduleman. |
+| [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md) | Roadmap plateforme unifiée. |
+| [`platform/DOTCLI_MENU_CONTRACT.md`](platform/DOTCLI_MENU_CONTRACT.md) | Contrat API `dotcli menu`. |
+| [`reports/MULTISHELL_REPORT.md`](reports/MULTISHELL_REPORT.md) | Multi-shell, `make test`, matrice. |
+| [`man/`](man/) | Pages man par manager / outil. |
+| [`migrations/`](migrations/) | Guides migration (liste, plan, progression). |
+| **`scripts/test/SANDBOX.md`** | Bac à sable Docker. |
+| **`README.md`** (racine) | Installation et usage. |
+
+### Règles de maintenance
+
+1. Ne pas recréer **`ERRORS.md`** à la racine du dépôt : uniquement **`docs/ERRORS.md`**.
+2. Après modification **code / doc / action** : mettre à jour **`TODOS.md`** puis **`STATUS.md`** (racine).
+3. Nouvelle page thématique : la placer dans **`architecture/`**, **`guides/`**, **`managers/`**, **`platform/`** ou **`reports/`** — pas à la racine de `docs/`.
+4. Mettre à jour **ce fichier** (`STRUCTURE.md`) si tu ajoutes un dossier ou un document majeur.
+
+---
+
+## Structure complète des dotfiles (arborescence code)
+
+> Mise à jour 2026-05 : la structure cible et la migration progressive sont pilotées par [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) et [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md).
 
 ## Fichiers principaux à la racine
 

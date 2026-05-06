@@ -417,7 +417,7 @@ ROOT_FILES=(
     "$DOTFILES_DIR/README.md:README.md"
     "$DOTFILES_DIR/STATUS.md:STATUS.md (racine, suivi vivant)"
     "$DOTFILES_DIR/TODOS.md:TODOS.md (roadmap)"
-    "$DOTFILES_DIR/docs/REFACTOR_HISTORY.md:docs/REFACTOR_HISTORY.md (journal)"
+    "$DOTFILES_DIR/docs/architecture/REFACTOR_HISTORY.md:docs/architecture/REFACTOR_HISTORY.md (journal)"
     "$DOTFILES_DIR/docs/STRUCTURE.md:docs/STRUCTURE.md"
     "$DOTFILES_DIR/zshrc:zshrc (shell detector)"
 )

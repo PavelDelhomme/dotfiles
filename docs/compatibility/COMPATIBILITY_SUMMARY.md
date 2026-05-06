@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # 📋 Résumé de Compatibilité Multi-Shells
 
-> Mise à jour 2026-05 : résumé maintenu dans le cadre de la plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : résumé maintenu dans le cadre de la plateforme unifiée (`docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
 
 ## 🎯 Réponse Rapide
 
@@ -66,4 +66,4 @@ Vous pouvez choisir le shell de test :
 
 **Utilisez ZSH pour toutes les fonctionnalités !**
 
-Voir `docs/COMPATIBILITY.md` pour plus de détails.
+Voir `docs/compatibility/COMPATIBILITY.md` pour plus de détails.

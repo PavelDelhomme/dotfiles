@@ -8,10 +8,9 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 | Fichier | Rôle |
 |---------|------|
-| [`docs/DOCUMENTATION_REFERENCE.md`](docs/DOCUMENTATION_REFERENCE.md) | **Index** de toute la documentation. |
-| [`STATUS.md`](STATUS.md) | **État instantané** et objectifs courants. |
+| [`docs/STRUCTURE.md`](docs/STRUCTURE.md) | **Index** de la doc + arborescence `docs/` (thèmes en sous-dossiers). |
+| [`STATUS.md`](STATUS.md) | **État instantané**, objectifs et **journal récent** (racine uniquement). |
 | [`TODOS.md`](TODOS.md) | **Toutes les tâches** ; validation **bloquante** pour certaines étapes. |
-| [`docs/STATUS.md`](docs/STATUS.md) | Statut **détaillé** (dernières actions / résolutions). |
 | [`docs/TESTS.md`](docs/TESTS.md) | **Checklist tests manuels** (machine neutre, shells, managers, dotcli). |
 | [`docs/ERRORS.md`](docs/ERRORS.md) | Journal des **erreurs** et correctifs. |
 
@@ -611,7 +610,7 @@ Ou via le menu (Option 23) pour un rapport détaillé.
 
 Voir `docs/STRUCTURE.md` pour la structure complète et détaillée.
 
-Voir `docs/ARCHITECTURE.md` pour comprendre l'architecture des fichiers ZSH (zshrc, .zshrc, zshrc_custom) et Docker (test-docker.sh, Dockerfile.test).
+Voir `docs/architecture/ARCHITECTURE.md` pour comprendre l'architecture des fichiers ZSH (zshrc, .zshrc, zshrc_custom) et Docker (test-docker.sh, Dockerfile.test).
 
 Structure principale :
 ```
@@ -853,7 +852,7 @@ Configuration complète chargée ✅
 3. **Compatibilité** : ZSH charge automatiquement `~/.zshrc`, donc on utilise un symlink
 4. **Centralisation** : Tout est dans `~/dotfiles/` pour faciliter la synchronisation
 
-Voir aussi `docs/ARCHITECTURE.md` pour plus de détails.
+Voir aussi `docs/architecture/ARCHITECTURE.md` pour plus de détails.
 
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
@@ -1831,7 +1830,7 @@ moduleman list              # Lister tous les managers
 - Accélère le démarrage du shell
 - Configuration centralisée dans un fichier
 
-**Documentation :** `help moduleman`, `man moduleman` ou voir `docs/MODULEMAN_EXPLICATION.md`
+**Documentation :** `help moduleman`, `man moduleman` ou voir `docs/managers/MODULEMAN_EXPLICATION.md`
 
 **Alias :** `mm` → `moduleman`
 
@@ -1972,7 +1971,7 @@ Le fichier `~/dotfiles/zshrc` est un wrapper intelligent qui :
 - ⚠️ **Utilisez Fish** : Fonctionnalités limitées, syntaxe différente
 - ⚠️ **Utilisez Bash** : Seulement variables d'env et alias simples
 
-Voir `docs/COMPATIBILITY.md` pour plus de détails.
+Voir `docs/compatibility/COMPATIBILITY.md` pour plus de détails.
 
 ### Installation des Managers
 
@@ -2464,7 +2463,7 @@ bash ~/dotfiles/scripts/test/validate_setup.sh
 
 **Structure dotfiles** :
 - ✅ Fichiers racine (bootstrap.sh, Makefile, README.md, zshrc)
-- ✅ Fichiers documentation (`STATUS.md`, `TODOS.md`, `docs/REFACTOR_HISTORY.md`, `docs/STRUCTURE.md`)
+- ✅ Fichiers documentation (`STATUS.md`, `TODOS.md`, `docs/architecture/REFACTOR_HISTORY.md`, `docs/STRUCTURE.md`)
 - ✅ Scripts (scripts/setup.sh, scripts/*)
 - ✅ Bibliothèque commune (lib/common.sh, lib/install_logger.sh, lib/check_missing.sh)
 - ✅ Structure ZSH/Fish complète (zshrc_custom, env.sh, aliases.zsh, path_log.txt, PATH_SAVE)

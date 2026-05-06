@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # 📁 Stockage des Données des Managers
 
-> Mise à jour 2026-05 : la normalisation des emplacements de données est suivie dans la roadmap unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : la normalisation des emplacements de données est suivie dans la roadmap unifiée (`docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
 
 ## 📊 Vue d'ensemble
 

@@ -1,6 +1,6 @@
 # Journal des erreurs, incidents et correctifs
 
-> **Référence** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · **Statut** : [`STATUS.md`](STATUS.md) (détail) · **Tests manuels** : [`TESTS.md`](TESTS.md)
+> **Index** : [`STRUCTURE.md`](STRUCTURE.md) · **Statut** : [`../STATUS.md`](../STATUS.md) (racine) · **Tests** : [`TESTS.md`](TESTS.md)
 
 Tout incident **récurrent** (CI, Docker, shell, manager) doit être consigné ici pour éviter de réinventer le diagnostic. Les entrées **résolues** restent dans l’historique ; les entrées **ouvertes** sont en tête de la section active.
 

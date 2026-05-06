@@ -27,7 +27,7 @@ Ce dossier regroupe les **adaptateurs** par shell. L’idée est : **une logique
 
 - Entrée unique : `core/managers/installman/installman_entry.sh`.
 - Par défaut : **core Zsh** ; avec `INSTALLMAN_ENGINE=posix` ou `--posix` : **core POSIX** (tests / environnement sans zsh).
-- Voir aussi `docs/MULTISHELL_REPORT.md` et `scripts/test/installman_check.sh`.
+- Voir aussi `docs/reports/MULTISHELL_REPORT.md` et `scripts/test/installman_check.sh`.
 
 ## Outils de synchro / vérif
 
@@ -35,4 +35,4 @@ Ce dossier regroupe les **adaptateurs** par shell. L’idée est : **une logique
 - `scripts/test/verify_multishell.sh` — smoke test installman depuis zsh/bash/sh.
 - **Tests Docker filtrés** : `DOTFILES_TEST_MANAGERS=pathman,netman make test` (ou `make test-help`).
 
-Pour aller plus loin (TUI partout, logging unifié), voir `docs/ACTION_PLAN_ARCHITECTURE.md`.
+Pour aller plus loin (TUI partout, logging unifié), voir `docs/architecture/ACTION_PLAN_ARCHITECTURE.md`.

@@ -1,10 +1,10 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # REFACTOR_HISTORY — Journal des refactors dotfiles
 
-> Mise à jour 2026-05 : archive historique ; pour l'exécution courante utiliser `STATUS.md`, `TODOS.md`, `docs/ARCHITECTURE.md` et `docs/UNIFIED_PLATFORM_ROADMAP.md`.
+> Mise à jour 2026-05 : archive historique ; pour l'exécution courante utiliser `STATUS.md`, `TODOS.md`, `docs/architecture/ARCHITECTURE.md` et `docs/platform/UNIFIED_PLATFORM_ROADMAP.md`.
 
-*(Ancien nom du fichier : `docs/STATUS.md` — renommé pour éviter la confusion avec **`STATUS.md`** à la racine.)*
+*(Ancien nom du fichier : `STATUS.md (racine du dépôt)` — renommé pour éviter la confusion avec **`STATUS.md`** à la racine.)*
 
 Ce fichier documente les modifications apportées aux dotfiles **au fil des phases** de refactorisation (archive de travail).
 
@@ -40,7 +40,7 @@ Ce fichier documente les modifications apportées aux dotfiles **au fil des phas
 - ✅ **Log générique managers** (`scripts/lib/managers_log.sh`) : `log_manager_action manager action target status details` → `logs/managers.log` ; réutilisable par configman et autres *man.
 - ✅ **Test Docker bootstrap** (`scripts/test/docker/run_dotfiles_bootstrap.sh`) : bootstrap + vérification installman + vérification multi-shell dans le conteneur.
 - ✅ **Vérification multi-shell** (`scripts/test/verify_multishell.sh`) : teste `installman help` depuis zsh, bash, sh.
-- ✅ **Docs** : `docs/MULTISHELL_REPORT.md` et `docs/STATUS.md` mis à jour (entry, adapters, Docker, logs).
+- ✅ **Docs** : `docs/reports/MULTISHELL_REPORT.md` et `STATUS.md (racine du dépôt)` mis à jour (entry, adapters, Docker, logs).
 
 ### Fichiers concernés
 - `core/managers/installman/installman_entry.sh` (nouveau)
@@ -48,7 +48,7 @@ Ce fichier documente les modifications apportées aux dotfiles **au fil des phas
 - `scripts/lib/managers_log.sh` (nouveau)
 - `scripts/test/docker/run_dotfiles_bootstrap.sh` (nouveau)
 - `scripts/test/verify_multishell.sh` (nouveau)
-- `docs/MULTISHELL_REPORT.md`, `docs/STATUS.md`
+- `docs/reports/MULTISHELL_REPORT.md`, `STATUS.md (racine du dépôt)`
 
 ---
 
@@ -1003,7 +1003,7 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
   - `vm/` - Scripts de gestion VM
 
 ### Fichiers déplacés
-- ✅ `STATUS.md` → `docs/STATUS.md`
+- ✅ `STATUS.md` → `STATUS.md (racine du dépôt)`
 - ✅ `STRUCTURE.md` → `docs/STRUCTURE.md`
 - ✅ `setup.sh` → `scripts/setup.sh`
 - ✅ `install.log` → `logs/install.log`
@@ -1086,7 +1086,7 @@ curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstr
 - ✅ `scripts/vm/README.md` - Documentation complète
 - ✅ `Makefile` - Commandes VM ajoutées
 - ✅ `README.md` - Section VM ajoutée
-- ✅ `docs/STATUS.md` - PHASE 22 documentée
+- ✅ `STATUS.md (racine du dépôt)` - PHASE 22 documentée
 
 ### Avantages du système
 - ✅ **Tests en environnement isolé** : Votre machine reste propre

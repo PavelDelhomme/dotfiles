@@ -1,6 +1,6 @@
 # Fiche de suivi — tests manuels (dotfiles)
 
-> **Référence** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · **CI / smoke** : `make test`, `make test-help` · **Bac à sable** : `scripts/test/SANDBOX.md`
+> **Index** : [`STRUCTURE.md`](STRUCTURE.md) · **CI / smoke** : `make test`, `make test-help` · **Bac à sable** : `scripts/test/SANDBOX.md` · **Statut** : [`../STATUS.md`](../STATUS.md)
 
 Ce document est la **checklist vivante** pour tout ce que la CI ne couvre pas (comportement métier, UX, menus, sorties exactes). À remplir **toi-même** : coche `OK` / `KO` / `N/A`, note l’écart dans **Notes** (manque doc, bug, amélioration souhaitée).
 
@@ -64,7 +64,7 @@ Préalable : `make build-dotcli` → binaire `bin/dotcli` (gitignored).
 | idem + `--query B` | non-TTY | stdout = `b` | | |
 | idem + `--simulate-index 2` | non-TTY | stdout = `b` | | |
 | idem + `--dry-run` | non-TTY | stderr : aperçu ; stdout : clé surlignée (1ère) | | |
-| `DOTFILES_DOTCLI_MENU_NO_TUI=1` + menu via manager | TTY | Pas de mode brut ; saisie ligne (voir `docs/DOTCLI_MENU_CONTRACT.md`) | | |
+| `DOTFILES_DOTCLI_MENU_NO_TUI=1` + menu via manager | TTY | Pas de mode brut ; saisie ligne (voir `docs/platform/DOTCLI_MENU_CONTRACT.md`) | | |
 | `DOTFILES_DOTCLI_ENABLE=1` + `netman` / `aliaman` / `cyberlearn` | TTY | Menus pilotés par dotcli ; fallback si binaire absent | | |
 | Menu TUI (flèches / j k) | TTY réel | Ligne surlignée ; Entrée valide ; terminal restauré après Ctrl+C | | |
 
@@ -157,7 +157,7 @@ Pour chaque ligne, exécuter au minimum :
 
 | Action | Résultat attendu | OK/KO | Notes |
 |--------|------------------|-------|-------|
-| `git help commit` | Doc accessible ou message `man` manquant (voir `docs/TROUBLESHOOTING_MAN_GIT.md`) | | |
+| `git help commit` | Doc accessible ou message `man` manquant (voir `docs/guides/TROUBLESHOOTING_MAN_GIT.md`) | | |
 
 ---
 

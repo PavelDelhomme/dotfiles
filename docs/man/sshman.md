@@ -1,8 +1,8 @@
-> **Réf. doc** : [`../DOCUMENTATION_REFERENCE.md`](../DOCUMENTATION_REFERENCE.md) · [`../STATUS.md`](../STATUS.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # SSMAN(1) - Gestionnaire SSH
 
-> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
 
 ## NOM
 

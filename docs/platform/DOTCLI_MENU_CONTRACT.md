@@ -1,6 +1,6 @@
 # Contrat `dotcli menu`
 
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`TESTS.md`](TESTS.md) (validation manuelle)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) (validation manuelle) · Statut [`STATUS.md`](../../STATUS.md)
 
 > Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir [`UNIFIED_PLATFORM_ROADMAP.md`](UNIFIED_PLATFORM_ROADMAP.md)).
 

@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # 📚 Guide : Affichage des pages man en Markdown
 
-> Mise à jour 2026-05 : ce guide reste valide ; la standardisation d'affichage globale est suivie dans `docs/UNIFIED_PLATFORM_ROADMAP.md`.
+> Mise à jour 2026-05 : ce guide reste valide ; la standardisation d'affichage globale est suivie dans `docs/platform/UNIFIED_PLATFORM_ROADMAP.md`.
 
 ## 🔍 Problème
 

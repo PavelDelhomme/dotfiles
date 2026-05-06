@@ -521,10 +521,10 @@ show_doc_files() {
                 fi
                 ;;
             5)
-                if [[ -f "$DOTFILES_DIR/docs/REFACTOR_HISTORY.md" ]]; then
-                    less -R "$DOTFILES_DIR/docs/REFACTOR_HISTORY.md"
+                if [[ -f "$DOTFILES_DIR/docs/architecture/REFACTOR_HISTORY.md" ]]; then
+                    less -R "$DOTFILES_DIR/docs/architecture/REFACTOR_HISTORY.md"
                 else
-                    echo -e "${RED}❌ docs/REFACTOR_HISTORY.md non trouvé${RESET}"
+                    echo -e "${RED}❌ docs/architecture/REFACTOR_HISTORY.md non trouvé${RESET}"
                     sleep 2
                 fi
                 ;;

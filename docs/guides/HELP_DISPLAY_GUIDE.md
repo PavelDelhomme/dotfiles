@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # 📚 Guide d'affichage pour la commande `help`
 
-> Mise à jour 2026-05 : à harmoniser avec la couche d'affichage commune (roadmap : `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : à harmoniser avec la couche d'affichage commune (roadmap : `docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
 
 Ce document explique toutes les méthodes possibles pour structurer l'affichage de la commande `help`, avec des exemples de code et des instructions pour tester les modifications.
 

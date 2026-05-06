@@ -1,6 +1,6 @@
 # Bac à sable tests dotfiles (Docker)
 
-> **Carte doc** : [`../../docs/DOCUMENTATION_REFERENCE.md`](../../docs/DOCUMENTATION_REFERENCE.md) · **Tests manuels** : [`../../docs/TESTS.md`](../../docs/TESTS.md) · **Erreurs** : [`../../docs/ERRORS.md`](../../docs/ERRORS.md)
+> **Carte doc** : [`../../docs/STRUCTURE.md`](../../docs/STRUCTURE.md) · **Tests manuels** : [`../../docs/TESTS.md`](../../docs/TESTS.md) · **Erreurs** : [`../../docs/ERRORS.md`](../../docs/ERRORS.md)
 
 Ce fichier est dans le dépôt : dans un conteneur, il est visible sous  
 `/root/dotfiles/scripts/test/SANDBOX.md` (montage en lecture seule par défaut).
@@ -40,6 +40,6 @@ Après `make docker-in` (ou équivalent) :
   `bash /root/dotfiles/scripts/test/docker/run_tests.sh`
 - Guide Makefile depuis le conteneur : `make -C /root/dotfiles test-help` (si `make` est installé dans l’image).
 
-## Migration POSIX (voir `docs/ACTION_PLAN_ARCHITECTURE.md`)
+## Migration POSIX (voir `docs/architecture/ACTION_PLAN_ARCHITECTURE.md`)
 
 Les cores partagés vivent sous `core/managers/<nom>/core/<nom>.sh` ; les adaptateurs sous `shells/*/adapters/`. La liste utilisée par défaut pour les tests Docker est `scripts/test/config/migrated_managers.list`.

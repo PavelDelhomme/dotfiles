@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # Vision — `installman` comme outil d’installation trans-distro
 
-> Mise à jour 2026-05 : cette vision est un sous-chantier du plan plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : cette vision est un sous-chantier du plan plateforme unifiée (`docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
 
 Document de **cadrage** (épique). Rien ici n’oblige une implémentation immédiate ; le découpage en phases ira dans `TODOS.md` au fil du travail.
 
@@ -40,7 +40,7 @@ Disposer d’un **`installman`** pensé comme un **outil de niveau « gestionnai
 | **Installation ciblée** | Ex. `installman google-chrome` : menu (fzf / équivalent) listant **AUR**, Flatpak, `.deb` hébergé, etc., selon ce qui est **réellement utilisable** sur la machine |
 | **Alias** | Ex. **`in`** → `installman` (à définir dans les dotfiles / adapters shells) |
 | **Étapes automatiques** | Enchaînements possibles **mais** avec **validation utilisateur** à chaque étape critique (téléchargement, `sudo`, modification de dépôts, etc.) |
-| **Man / doc** | Besoin exprimé : pouvoir installer ou vérifier la doc système (ex. **`man`**) via un flux `installman` — lien avec paquet `man-db` sur Arch, etc. Voir aussi `docs/TROUBLESHOOTING_MAN_GIT.md` pour le cas `git help` |
+| **Man / doc** | Besoin exprimé : pouvoir installer ou vérifier la doc système (ex. **`man`**) via un flux `installman` — lien avec paquet `man-db` sur Arch, etc. Voir aussi `docs/guides/TROUBLESHOOTING_MAN_GIT.md` pour le cas `git help` |
 
 ## Intégration post-installation (bureau)
 
@@ -73,7 +73,7 @@ Pour Flatpak, Snap, AppImage, binaires « Linux génériques » :
 
 ## Références dans le dépôt
 
-- Rapport multi-shell / entrée : `docs/MULTISHELL_REPORT.md`
+- Rapport multi-shell / entrée : `docs/reports/MULTISHELL_REPORT.md`
 - Modules existants : `zsh/functions/installman/modules/`
 - Core / entry : `core/managers/installman/`
 

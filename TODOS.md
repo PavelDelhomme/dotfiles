@@ -1,6 +1,6 @@
 # TODOS — Roadmap et actions (dotfiles)
 
-> **Carte doc** : [`docs/DOCUMENTATION_REFERENCE.md`](docs/DOCUMENTATION_REFERENCE.md) · **Statut détaillé** : [`docs/STATUS.md`](docs/STATUS.md) · **Tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) · **Erreurs** : [`docs/ERRORS.md`](docs/ERRORS.md)
+> **Index doc** : [`docs/STRUCTURE.md`](docs/STRUCTURE.md) · **Statut instantané** : [`STATUS.md`](STATUS.md) (racine) · **Tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) · **Erreurs** : [`docs/ERRORS.md`](docs/ERRORS.md)
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Dernière tâche terminée (juste avant l’actuelle)
 
-- [x] Livraison **dotcli** (TUI surligné, `--no-tui` / `--dry-run` / `--simulate-index`), pilotes **netman** / **aliaman** / **cyberlearn**, modules **alias_crud** + cyberlearn **courses/labs/progress**, **`docs/DOCUMENTATION_REFERENCE`**, **`docs/TESTS`**, migration **`ERRORS`** → **`docs/ERRORS.md`**, **`docs/STATUS.md`**, réorganisation **STATUS/TODOS** racine.
+- [x] Réorganisation **`docs/`** par thèmes (sous-dossiers) + racine `docs/` = **`STRUCTURE` / `TESTS` / `ERRORS`** + journal dans **`STATUS.md`** racine.
 
 ---
 
@@ -33,7 +33,7 @@
 | **P2** | Domaine réseau | Cartographier `zsh/functions/commands/network/*` → `netman` ou commandes transverses. |
 | **P3** | TUI mutualisée | `dotcli menu` + fallbacks (`ncmenu`, `fzf`, `read`) sans casser CI. |
 | **P4** | `shared/env.sh` → morceaux `DOTFILES_GOOD` | Voir phases historiques ; migration après jalon B si besoin. |
-| **P5** | **Épic installman** | `docs/INSTALLMAN_VISION.md` — par étapes. |
+| **P5** | **Épic installman** | [`docs/managers/INSTALLMAN_VISION.md`](docs/managers/INSTALLMAN_VISION.md) — par étapes. |
 | **P6** | Niveau 2 tests | Assertions métier (golden / grep) pour N managers pilotes. |
 | **P7** | `read` / `clear` hors TTY | Réduire blocages CI / scripts. |
 
@@ -92,7 +92,7 @@ Cocher quand **toi** tu es satisfait :
 ## Roadmap technique (cases courantes)
 
 - [x] Bac à sable `DOTFILES_GOOD/` + tests associés.
-- [x] Tableau managers `docs/ARCHITECTURE.md` + `migrated_managers.list`.
+- [x] Tableau managers [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) + `migrated_managers.list`.
 - [x] MVP **`dotcli`** + `make test-dotcli`.
 - [x] Pilotes dotcli sur **netman** / **aliaman** / **cyberlearn** (flag).
 - [ ] TUI mutualisée complète ; **`@skip`** phase 2 à réduire pour menus si invocations non-TTY ajoutées.
@@ -111,7 +111,7 @@ Cocher quand **toi** tu es satisfait :
 
 ## Produit : `infosman` ?
 
-- [ ] Décision : extension **`searchman info …`** *ou* **`infosman`** (justifier dans `docs/ARCHITECTURE.md`).
+- [ ] Décision : extension **`searchman info …`** *ou* **`infosman`** (justifier dans [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)).
 
 ---
 
@@ -142,8 +142,9 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 
 | ID | Description | Validé par moi |
 |----|----------------|----------------|
-| V-2026-05-dotcli-doc | Lot dotcli + modules aliaman/cyberlearn + doc DOCUMENTATION_REFERENCE/TESTS + ERRORS/STATUS dans `docs/` + réécriture STATUS/TODOS racine | [ ] |
-| V-2026-05-doc-suite | Suite doc : bannières sur guides/man/migrations, SANDBOX/README, DOTCLI_MENU_CONTRACT, déplacement `STRUCTURE_ANALYSIS` → `docs/` | [ ] |
+| V-2026-05-dotcli-doc | Lot dotcli + modules aliaman/cyberlearn ; doc : `docs/STRUCTURE` + `TESTS` + `ERRORS` ; STATUS/TODOS **uniquement racine** | [ ] |
+| V-2026-05-doc-suite | Suite doc : bannières, SANDBOX/README, DOTCLI_MENU_CONTRACT, `STRUCTURE_ANALYSIS` → `docs/architecture/` | [ ] |
+| V-2026-05-docs-tree | Arborescence `docs/` : 3 fichiers racine + dossiers `architecture/`, `guides/`, etc. | [ ] |
 
 > **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 

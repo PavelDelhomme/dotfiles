@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # 📦 MODULEMAN - Explication Complète
 
-> Mise à jour 2026-05 : ce document reste une référence fonctionnelle ; l'intégration modulaire globale est pilotée dans `docs/ARCHITECTURE.md`.
+> Mise à jour 2026-05 : ce document reste une référence fonctionnelle ; l'intégration modulaire globale est pilotée dans `docs/architecture/ARCHITECTURE.md`.
 
 ## 🎯 Qu'est-ce que MODULEMAN ?
 

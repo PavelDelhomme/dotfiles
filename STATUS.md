@@ -18,12 +18,25 @@
 
 | Besoin | Fichier |
 |--------|---------|
-| Carte de **toute** la documentation | [`docs/DOCUMENTATION_REFERENCE.md`](docs/DOCUMENTATION_REFERENCE.md) |
-| Statut **détaillé** (dernière action, résolutions) | [`docs/STATUS.md`](docs/STATUS.md) |
-| **Tâches** (en cours, suivantes, validées) | [`TODOS.md`](TODOS.md) |
+| **Index documentation** (`docs/` + sous-dossiers) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) |
+| **Tâches** (lots, ordre, validation bloquante) | [`TODOS.md`](TODOS.md) |
 | **Tests manuels** (checklist) | [`docs/TESTS.md`](docs/TESTS.md) |
 | **Erreurs / correctifs** | [`docs/ERRORS.md`](docs/ERRORS.md) |
 | Bac à sable Docker | [`scripts/test/SANDBOX.md`](scripts/test/SANDBOX.md) |
+
+---
+
+## Journal récent (suivi détaillé)
+
+1. **Dernière livraison notable** : 2026-05-06 — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn, doc réorganisée sous `docs/*/` (seuls `STRUCTURE`, `TESTS`, `ERRORS` à la racine de `docs/`).
+2. **À faire maintenant** : section **« En cours »** de [`TODOS.md`](TODOS.md) ; remplir [`docs/TESTS.md`](docs/TESTS.md) ; garder `make test` vert.
+3. **Dernière résolution** : CI phase 2 — `TEST_RESULTS_DIR` inscriptible ; `gitman log` ; installman multi-shell (détails [`docs/ERRORS.md`](docs/ERRORS.md)).
+
+| Période | Sujet |
+|---------|--------|
+| 2026-05 | dotcli + menus managers |
+| 2026-05 | tee RO → `TEST_RESULTS_DIR` hors dépôt |
+| 2026-05 | gitman / installman matrice |
 
 ---
 

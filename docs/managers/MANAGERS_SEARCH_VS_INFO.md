@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # `searchman` vs un futur **`infosman`**
 
-> Mise à jour 2026-05 : décision produit à maintenir cohérente avec la plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-05 : décision produit à maintenir cohérente avec la plateforme unifiée (`docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
 
 ## Rôle actuel de **`searchman`**
 
@@ -25,4 +25,4 @@ Pourrait regrouper des **fiches structurées** du type :
 1. **Étendre** `searchman` avec une sous-commande du style `searchman info <sujet>` (si on veut un seul outil « recherche + info »), ou  
 2. **Créer** `infosman` si le périmètre et les dépendances divergent trop de `searchman`.
 
-Tant que la décision n’est pas écrite dans `docs/ARCHITECTURE.md` + une issue / case `TODOS`, éviter de dupliquer de la logique entre les deux.
+Tant que la décision n’est pas écrite dans `docs/architecture/ARCHITECTURE.md` + une issue / case `TODOS`, éviter de dupliquer de la logique entre les deux.

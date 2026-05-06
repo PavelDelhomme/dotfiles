@@ -1,8 +1,8 @@
-> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
 
 # Plan d’action – Architecture modulaire dotfiles
 
-> Mise à jour 2026-05 : ce plan est désormais piloté avec `docs/UNIFIED_PLATFORM_ROADMAP.md` et le contrat `docs/DOTCLI_MENU_CONTRACT.md` pour la convergence multi-shell/TUI.
+> Mise à jour 2026-05 : ce plan est désormais piloté avec `docs/platform/UNIFIED_PLATFORM_ROADMAP.md` et le contrat `docs/platform/DOTCLI_MENU_CONTRACT.md` pour la convergence multi-shell/TUI.
 
 Document de référence pour unifier TUI, modules, shared, et multi-shell (zsh, bash, fish, sh). Objectif : une base unique, réutilisable, adaptée au terminal.
 
@@ -153,8 +153,8 @@ Pour tester les dotfiles sans impacter le PC :
 | `zsh/zshrc_custom` | fpath completions, compinit, zstyle make. |
 | `shared/config.sh` | DOTFILES_DIR, chargement env/aliases. |
 | `core/managers/installman/installman_entry.sh` | Entrée unique installman (bash/fish). |
-| `docs/MULTISHELL_REPORT.md` | Rapport multi-shell. |
-| `docs/REFACTOR_HISTORY.md` | Journal historique des refactors (ex-`docs/STATUS.md`). |
+| `docs/reports/MULTISHELL_REPORT.md` | Rapport multi-shell. |
+| `docs/architecture/REFACTOR_HISTORY.md` | Journal historique des refactors (ex-fichier `STATUS` détaillé dans `docs/`, désormais consolidé à la racine). |
 | `bin/dotfiles-menu` | Menu fzf générique (label\|command). |
 | `share/menus/*.menu` | Fichiers menu (pathman, etc.). |
 
