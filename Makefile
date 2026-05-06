@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -138,6 +138,8 @@ help: ## Afficher cette aide
 	@echo "  make generate-man     - Générer les pages man pour toutes les fonctions"
 	@echo "  make build-ncmenu     - Compiler le sélecteur Go TUI (bin/ncmenu)"
 	@echo "  make install-ncmenu   - Compiler + installer ncmenu en /usr/local/bin (sudo)"
+	@echo "  make build-dotcli     - Compiler le socle C expérimental (bin/dotcli)"
+	@echo "  make test-dotcli      - Smoke tests du binaire dotcli"
 	@echo ""
 	@echo -e "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-list          - Lister toutes les VM"
@@ -364,6 +366,28 @@ install-ncmenu: build-ncmenu ## Installer ncmenu dans /usr/local/bin
 	@echo -e "$(BLUE)📦 Installation de ncmenu dans /usr/local/bin...$(NC)"
 	@sudo install -m 0755 "$(DOTFILES_DIR)/bin/ncmenu" /usr/local/bin/ncmenu
 	@echo -e "$(GREEN)✓ ncmenu installé$(NC)"
+
+build-dotcli: ## Compiler le socle C expérimental (bin/dotcli)
+	@echo -e "$(BLUE)🔨 Compilation de dotcli (C)...$(NC)"
+	@mkdir -p "$(DOTFILES_DIR)/bin"
+	@if command -v cc >/dev/null 2>&1; then \
+		cc -std=c99 -O2 -Wall -Wextra -pedantic -o "$(DOTFILES_DIR)/bin/dotcli" "$(DOTFILES_DIR)/tools/dotcli/main.c"; \
+	elif command -v gcc >/dev/null 2>&1; then \
+		gcc -std=c99 -O2 -Wall -Wextra -pedantic -o "$(DOTFILES_DIR)/bin/dotcli" "$(DOTFILES_DIR)/tools/dotcli/main.c"; \
+	else \
+		echo -e "$(RED)❌ Aucun compilateur C trouvé (cc/gcc)$(NC)"; \
+		exit 1; \
+	fi
+	@echo -e "$(GREEN)✓ Binaire généré: $(DOTFILES_DIR)/bin/dotcli$(NC)"
+
+test-dotcli: build-dotcli ## Smoke tests du binaire dotcli
+	@echo -e "$(BLUE)🧪 Smoke tests dotcli...$(NC)"
+	@"$(DOTFILES_DIR)/bin/dotcli" doctor >/dev/null
+	@printf "item1|a\nitem2|b\n" | "$(DOTFILES_DIR)/bin/dotcli" menu --prompt "test" >/dev/null
+	@out=$$(printf "x|a\ny|b\n" | "$(DOTFILES_DIR)/bin/dotcli" menu --simulate-index 2 --prompt "t"); test "$$out" = "b"
+	@out=$$(printf "x|a\n" | "$(DOTFILES_DIR)/bin/dotcli" menu --dry-run --prompt "t" 2>/dev/null); test "$$out" = "a"
+	@printf "ok\n" | "$(DOTFILES_DIR)/bin/dotcli" render --color green >/dev/null
+	@echo -e "$(GREEN)✓ dotcli smoke tests OK$(NC)"
 
 ################################################################################
 # Tests

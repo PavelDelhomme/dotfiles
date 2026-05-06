@@ -20,6 +20,12 @@ scripts/test/config/test.local.env
 # Sorties des tests Docker / matrice (régénérées à chaque run)
 test_results/
 
+# Binaire local (make build-dotcli)
+bin/dotcli
+
+# Imports / diagnostics locaux (ne pas versionner par défaut)
+run/artifacts/home-import/
+
 # Fichiers de sauvegarde
 *.save
 *.bak
