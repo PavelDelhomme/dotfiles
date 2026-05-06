@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # Vision — `installman` comme outil d’installation trans-distro
 
 > Mise à jour 2026-05 : cette vision est un sous-chantier du plan plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).

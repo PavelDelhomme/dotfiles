@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # Structure complète des dotfiles
 
 > Mise à jour 2026-05 : la structure cible et la migration progressive sont désormais pilotées par `docs/ARCHITECTURE.md` et `docs/UNIFIED_PLATFORM_ROADMAP.md`.

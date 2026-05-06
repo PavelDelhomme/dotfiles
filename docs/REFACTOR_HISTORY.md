@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # REFACTOR_HISTORY — Journal des refactors dotfiles
 
 > Mise à jour 2026-05 : archive historique ; pour l'exécution courante utiliser `STATUS.md`, `TODOS.md`, `docs/ARCHITECTURE.md` et `docs/UNIFIED_PLATFORM_ROADMAP.md`.

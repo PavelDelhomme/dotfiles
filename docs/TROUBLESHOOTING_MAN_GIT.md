@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # `git help` / `man` : « Aucun fichier ou dossier de ce nom »
 
 > Mise à jour 2026-05 : document de dépannage conservé ; référencé dans le plan de consolidation docs.

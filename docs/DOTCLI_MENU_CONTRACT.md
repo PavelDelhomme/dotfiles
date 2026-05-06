@@ -1,6 +1,8 @@
 # Contrat `dotcli menu`
 
-> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`TESTS.md`](TESTS.md) (validation manuelle)
+
+> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir [`UNIFIED_PLATFORM_ROADMAP.md`](UNIFIED_PLATFORM_ROADMAP.md)).
 
 ## Objectif
 
@@ -18,6 +20,9 @@ Fournir une API de menu commune, réutilisable par tous les managers, indépenda
 
 - `dotcli menu --prompt "NETMAN - Menu principal"`
 - Optionnel : `--query <texte>` (sélectionne la première entrée correspondante en non-TTY)
+- Optionnel : `--no-tui` ou variable **`DOTFILES_DOTCLI_MENU_NO_TUI=1`** — mode **ligne** (liste + saisie), sans mode brut terminal (tests prudents en TTY réel).
+- Optionnel : `--dry-run` — aperçu sur stderr, clé choisie sur stdout (non destructif).
+- Optionnel : `--simulate-index N` (1-based) — choix déterministe sans interaction.
 
 ## Sortie
 
@@ -28,16 +33,15 @@ Fournir une API de menu commune, réutilisable par tous les managers, indépenda
 
 - **Mode non-TTY** (CI, pipe): sélectionne la première entrée valide.
   - si `--query` est fourni, tente d'abord une correspondance `label`/`key`.
-- **Mode TTY**:
-  - affiche le prompt + la liste numérotée,
-  - accepte un numéro (`1..N`) ou une clé directe (`q`, `2`, etc.),
-  - accepte une recherche simple (texte libre -> première entrée correspondante),
-  - `Entrée` = première entrée.
+- **Mode TTY** (par défaut, sans `--no-tui`) :
+  - **TUI** : liste avec **ligne surlignée** ; **↑/↓** ou **j/k** ; chiffres **1–9** pour déplacer le surlignage ; **Entrée** valide ; **q** choisit le **premier** item (sortie rapide) ; **Ctrl+C** restaure le terminal (code **130**).
+  - Avec **`--no-tui`** : prompt + liste + saisie **une ligne** (numéro, clé, ou sous-chaîne) comme l’ancien comportement.
 
 ## Codes retour
 
 - `0`: sélection valide
 - `1`: pas d'entrée exploitable ou choix invalide
+- `130`: interrompu (SIGINT) en TUI après restauration tty
 
 ## Règles d'intégration manager
 

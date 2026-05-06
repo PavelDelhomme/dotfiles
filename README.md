@@ -4,6 +4,19 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 **Version :** 2.10.0
 
+## Documentation du dépôt (suivi projet)
+
+| Fichier | Rôle |
+|---------|------|
+| [`docs/DOCUMENTATION_REFERENCE.md`](docs/DOCUMENTATION_REFERENCE.md) | **Index** de toute la documentation. |
+| [`STATUS.md`](STATUS.md) | **État instantané** et objectifs courants. |
+| [`TODOS.md`](TODOS.md) | **Toutes les tâches** ; validation **bloquante** pour certaines étapes. |
+| [`docs/STATUS.md`](docs/STATUS.md) | Statut **détaillé** (dernières actions / résolutions). |
+| [`docs/TESTS.md`](docs/TESTS.md) | **Checklist tests manuels** (machine neutre, shells, managers, dotcli). |
+| [`docs/ERRORS.md`](docs/ERRORS.md) | Journal des **erreurs** et correctifs. |
+
+**Règle** : une tâche « finalisée » doit être **validée par toi** dans `TODOS.md`, puis enregistrée avec **`git commit`** / **`push`** avant d’enchaîner la suite (voir `TODOS.md`).
+
 ## 📑 Table des matières
 
 - [🚀 Installation rapide (nouvelle machine)](#installation-rapide-nouvelle-machine)

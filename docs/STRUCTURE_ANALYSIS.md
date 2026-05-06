@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # 📊 Analyse Complète de la Structure des Dotfiles
 
 **Date :** 2024-12-11  
@@ -5,11 +7,13 @@
 **Version :** 3.0 - Architecture Hybride avec Code Partagé
 
 > **Lire d’abord (2026)** — ce fichier est une **analyse longue** et un inventaire d’arborescence ; ce n’est pas la checklist du jour.  
-> - **Suivi vivant + tests** : `STATUS.md` (racine)  
+> - **Index documentation** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md)  
+> - **Vue courte (racine)** : `STATUS.md` · **Vue détaillée** : [`docs/STATUS.md`](STATUS.md)  
+> - **Tests manuels** : [`TESTS.md`](TESTS.md) · **Erreurs** : [`ERRORS.md`](ERRORS.md)  
 > - **Actions / roadmap** : `TODOS.md` (racine)  
-> - **Multi-shell, `make test`** : `docs/MULTISHELL_REPORT.md`  
-> - **Entrées shell, managers, `DOTFILES_GOOD`** : `docs/ARCHITECTURE.md`  
-> - **Journal historique des refactors** : `docs/REFACTOR_HISTORY.md`
+> - **Multi-shell, `make test`** : [`MULTISHELL_REPORT.md`](MULTISHELL_REPORT.md)  
+> - **Entrées shell, managers, `DOTFILES_GOOD`** : [`ARCHITECTURE.md`](ARCHITECTURE.md)  
+> - **Journal historique des refactors** : [`REFACTOR_HISTORY.md`](REFACTOR_HISTORY.md)
 
 ---
 
@@ -226,9 +230,9 @@ dotfiles/
 ├── Dockerfile.test                   # Image Docker pour tests
 ├── Makefile                         # Commandes Make (632 lignes)
 ├── README.md                        # Documentation principale
-├── STATUS.md                        # Suivi vivant (racine)
+├── STATUS.md                        # Statut instantané (racine)
 ├── TODOS.md                         # Roadmap / actions (racine)
-├── STRUCTURE_ANALYSIS.md            # Ce fichier
+├── docs/STRUCTURE_ANALYSIS.md       # Ce fichier (analyse longue)
 └── test-docker.sh                   # Script de test Docker
 ```
 

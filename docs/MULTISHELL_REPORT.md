@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # Rapport multi-shell (dotfiles)
 
 > Mise à jour 2026-05 : rapport aligné avec la stratégie "base unique + adapters minces + socle `dotcli` progressif".

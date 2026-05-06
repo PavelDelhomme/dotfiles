@@ -1,138 +1,117 @@
 # TODOS — Roadmap et actions (dotfiles)
 
-Suivi **opérationnel** : cocher au fil de l’eau.  
-**Vue d’ensemble** : `STATUS.md` · **Architecture** : `docs/ARCHITECTURE.md` · **Bac à sable** : `DOTFILES_GOOD/README.md`
-
-### Posture (priorités / phases)
-
-- **Priorité active : P1** — normalisation architecture modulaire (voir tableau *Priorités*).
-- **Phase A** — préparatif **dépôt** : bac `DOTFILES_GOOD`, tests smoke, doc ; le **jalon humain** reste § *Jalon B*.
-- **Phase B** — validation **toi** (usage réel + cases cochées) ; aucun outil ne peut la « valider » à ta place.
-- **Phase C** — bascule racine **uniquement après B** ; tant que B n’est pas rempli, C = lecture de la doc § *Phase C* seulement.
+> **Carte doc** : [`docs/DOCUMENTATION_REFERENCE.md`](docs/DOCUMENTATION_REFERENCE.md) · **Statut détaillé** : [`docs/STATUS.md`](docs/STATUS.md) · **Tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) · **Erreurs** : [`docs/ERRORS.md`](docs/ERRORS.md)
 
 ---
 
-## Phases (d’où tu es → bascule racine)
+## Règle de passage (obligatoire)
 
-| Phase | Nom | Contenu |
-|-------|-----|--------|
-| **A** | Préparatif | Remplir `DOTFILES_GOOD/` (env, scripts, doc), **`make test-dotfiles-good`**, **`make test`**, usage manuel sans brancher `shared/config.sh` tant que tu n’es pas prêt. **Inclut** l’inventaire de la **couverture des tests** (voir § *Phase A — tests*) et les décisions produit mineures documentées. |
-| **B** | **Jalon validation** | Tu considères le bac à sable **validé** (tests + ta manip quotidienne). Décision explicite : brancher ou non le bootstrap `DOTFILES_GOOD` dans la chaîne prod (`shared/config.sh` / `.zshrc`). |
-| **C** | Bascule racine *(optionnelle, après B)* | **Backup intégral** du dépôt actuel ailleurs, puis fusion du contenu prévu de `DOTFILES_GOOD/` vers la **racine** du projet (remplacer / réorganiser le clone). **Rollback** = restaurer le backup. **Ne pas lancer C** tant que B n’est pas rempli consciencieusement. |
+1. Toute tâche figurant dans **« Finalisées — en attente de validation par moi »** doit être **explicitement validée** (case cochée ou ligne signée) **par toi** avant de traiter les tâches suivantes comme définitivement closes.
+2. **Quoi qu’il en coûte** : sans cette validation, on **ne fait pas** comme si la suite du backlog était débloquée sur ce point.
+3. À chaque validation (ou fin de lot livré) : **`git add`**, **`git commit`**, **`git push`** pour figer l’état dans l’historique Git.
 
 ---
 
-## Priorités (ordre recommandé — une piste à la fois)
+## En cours (lot / tâche actuelle)
+
+- [ ] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** pour : installation neutre (ou `docker-in`), **`dotcli`** (TTY + `DOTFILES_DOTCLI_MENU_NO_TUI=1`), et smoke **`help`** pour chaque manager de `migrated_managers.list`.
+- [ ] Poursuivre **P1** : normalisation `core/managers/` + adapters ; réduction de la logique résiduelle hors core ; convergence menus vers `dotcli` avec fallbacks.
+
+---
+
+## Dernière tâche terminée (juste avant l’actuelle)
+
+- [x] Livraison **dotcli** (TUI surligné, `--no-tui` / `--dry-run` / `--simulate-index`), pilotes **netman** / **aliaman** / **cyberlearn**, modules **alias_crud** + cyberlearn **courses/labs/progress**, **`docs/DOCUMENTATION_REFERENCE`**, **`docs/TESTS`**, migration **`ERRORS`** → **`docs/ERRORS.md`**, **`docs/STATUS.md`**, réorganisation **STATUS/TODOS** racine.
+
+---
+
+## À faire ensuite (ordre logique)
 
 | Prio | Tâche | Détail |
 |------|--------|--------|
-| **P1** | **Normalisation architecture modulaire** | Priorité absolue avant extension réseau: homogénéiser tous les `*man` (core POSIX canonique + adapters + wrapper legacy minimal), réduire la logique métier dans `zsh/functions/`, et traiter explicitement les cas monolithiques (`aliaman.zsh`, `cyberlearn.zsh`, etc.). |
-| **P2** | Cartographie + unification du domaine réseau | Inventorier `zsh/functions/commands/network/*` (`ipinfo`, `network_scanner`, `whatismyip`, `ssh_auto_setup`, ...) et décider pour chaque brique: commande transverse `core/commands/network/` ou intégration `netman`. |
-| **P3** | Prototype socle commun compilé (`dotcli` en C) | Créer un MVP `tools/dotcli/` (`doctor`, `menu`, `render`) avec fallback non-TTY ; intégration pilote derrière feature flag sur un manager (netman/aliaman) ; rollback immédiat possible. |
-| **P4** | Extraits **`shared/env.sh` → `DOTFILES_GOOD/shared/env/`** | Fichiers `NN_*.sh` neutres (pas `add_to_path` / pas d’`echo` de succès bruyant dans le bac à sable). Doc : `DOTFILES_GOOD/shared/env/README.md`. **`make test-dotfiles-good`**. Reste dans prod : `mkdir`, `add_to_path`, `clean_path`, concat `PATH`, `echo` final → migration ultérieure ou fichier dédié **après** validation. |
-| **P5** | Scripts **`DOTFILES_GOOD/scripts/`** | Outils (ex. `print_roots.sh`). Smoke : `make test-dotfiles-good`. |
-| **P6** | **Jalon phase B** | Cocher la checklist § *Jalon « DOTFILES_GOOD validé »* ci-dessous quand c’est vrai pour toi. |
-| **P7** | Hors bac à sable | **installman** vers `core/managers/installman/`, **`read`/`clear` hors TTY**, CI verte. |
-| **P8** | **Phase C** (bascule racine) | Uniquement après **P6** + backup documenté + plan écrit (voir § *Phase C — bascule*). |
-| **P9** | **Épic installman trans-distro** | Spécification et phasage : **`docs/INSTALLMAN_VISION.md`**. Implémentation **par étapes** (recherche → menus → backends → `.desktop`). Dépend partiellement de la consolidation **installman** dans `core/` (voir roadmap). |
+| **P1** | Normalisation architecture modulaire | Homogénéiser `core/managers/<nom>/` + adapters ; réduire `zsh/functions/` métier ; monolithes → modules. |
+| **P2** | Domaine réseau | Cartographier `zsh/functions/commands/network/*` → `netman` ou commandes transverses. |
+| **P3** | TUI mutualisée | `dotcli menu` + fallbacks (`ncmenu`, `fzf`, `read`) sans casser CI. |
+| **P4** | `shared/env.sh` → morceaux `DOTFILES_GOOD` | Voir phases historiques ; migration après jalon B si besoin. |
+| **P5** | **Épic installman** | `docs/INSTALLMAN_VISION.md` — par étapes. |
+| **P6** | Niveau 2 tests | Assertions métier (golden / grep) pour N managers pilotes. |
+| **P7** | `read` / `clear` hors TTY | Réduire blocages CI / scripts. |
+
+### Phases A → B → C (rappel)
+
+| Phase | Nom | Contenu |
+|-------|-----|--------|
+| **A** | Préparatif | `DOTFILES_GOOD/`, `make test-dotfiles-good`, `make test`, inventaire couverture (voir aussi **`docs/TESTS.md`**). |
+| **B** | Jalon validation | **Toi** : usage réel + cases § *Jalon* ci-dessous. |
+| **C** | Bascule racine | **Uniquement après B** + backup + plan écrit. |
 
 ---
 
-## Phase A — tests : que couvre `make test` aujourd’hui ?
+## Phase A — tests (rappel)
 
-**Oui, en gros** : présence des fichiers, **syntaxe** (core / adapters selon scripts), **chargement** du manager dans le shell, **invocation** des lignes listées dans `scripts/test/subcommands/<manager>.list` (souvent `help` ou commandes non interactives), **code de sortie** / absence de hang (timeout).
+- **Oui (CI)** : présence fichiers, syntaxe, chargement, lignes `scripts/test/subcommands/*.list`, exit code, timeout.
+- **Non (souvent)** : comportement métier complet, sorties exactes → **`docs/TESTS.md`**.
 
-**Non (ou partiel)** : pour la plupart des managers, **pas** de vérification automatique que la **sortie** ou le **comportement métier** correspond à un **résultat attendu** (golden file, `grep` d’une chaîne obligatoire, test d’intégration par sous-commande). La matrice sous-commandes valide surtout « ça tourne sans planter » dans la limite du timeout, pas « la bonne action a été faite ».
+Cases qualité :
 
-**À faire (toujours phase A / qualité)** — cases :
+- [ ] Définir **niveau 2** : 1–2 sous-commandes pilotes avec **assertion** stdout/stderr/fichier.
+- [x] Documenter smoke vs métier : `make test-help`, `SANDBOX.md`.
+- [ ] (Optionnel) `scripts/test/expected/...`
 
-- [ ] Définir un **niveau 2** de tests : pour N managers pilotes, 1–2 sous-commandes avec **assertion** (stdout / stderr / fichier produit).
-- [x] Documenter la **différence** smoke vs assertions métier : paragraphe dans `make test-help` (`scripts/test/print_test_help.sh`) ; `SANDBOX.md` reste optionnel pour détail bac à sable.
-- [ ] (Optionnel) Fichiers **`scripts/test/expected/<manager>/...`** ou snapshots légers — à décider pour ne pas alourdir le dépôt.
-
-### Phase A — livré côté dépôt (sans remplacer le jalon B)
+### Phase A — déjà livré (extraits)
 
 - [x] Bac `DOTFILES_GOOD/` + `make test-dotfiles-good`.
 - [x] Extraits `DOTFILES_GOOD/shared/env/` + README.
-- [x] Script `DOTFILES_GOOD/scripts/print_roots.sh`.
-- [x] `make docker-in` : `DOTFILES_DIR` + `INSTALLMAN_ASSUME_YES` via Makefile ; **choix distro** (Arch, Ubuntu, Debian, Alpine, Fedora, CentOS, openSUSE, Gentoo) via menu TTY ou `DOCKER_DISTRO=` — script `scripts/test/docker/docker_in.sh`.
-- [x] **Tests Docker** : `TEST_RESULTS_DIR` inscriptible en `docker-in` ; **`gitman log`** sans pager, dépôt sans commit → exit 0 ; adapter **zsh** pour `gitman` en émulation sh ; **installman** zsh/bash → core POSIX (aide courte alignée sur la matrice Fish) ; résumé phase 2 append dans `subcommand_matrix_summary.txt` (voir `ERRORS.md` / `STATUS.md`) ; phase 2 ignore proprement les shells absents (`Shells ignorés (absents)`).
-
-## Phase A — produit : **`infosman`** ?
-
-- **`searchman`** : recherche / exploration — voir **`docs/MANAGERS_SEARCH_VS_INFO.md`**.
-- Décision à cocher quand actée :
-  - [ ] Choisir **extension `searchman info …`** *ou* nouveau manager **`infosman`** (justifier dans `docs/ARCHITECTURE.md`).
+- [x] `make docker-in` (distros, `DOCKER_*` dans Makefile).
+- [x] `TEST_RESULTS_DIR` inscriptible ; **gitman log** ; **installman** core POSIX sur zsh/bash ; phase 2 ignore shells absents (voir [`docs/ERRORS.md`](docs/ERRORS.md)).
 
 ---
 
-## Jalon « DOTFILES_GOOD validé » (phase **B**)
+## Jalon « DOTFILES_GOOD validé » (phase **B**) — *bloquant pour C*
 
-Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
+Cocher quand **toi** tu es satisfait :
 
-- [ ] `make test-dotfiles-good` : OK sur ta machine (et idéalement après tes derniers changements).
-- [ ] `make test` (Docker) : OK sur la branche concernée.
-- [ ] Tu as **sourcé / testé** le bootstrap `DOTFILES_GOOD` en session réelle (shell de dev) sans casse bloquante.
-- [ ] Décision notée ici ou dans un commit : **brancher** le bootstrap dans `shared/config.sh` / entrées shell **oui / non / plus tard**.
+- [ ] `make test-dotfiles-good` OK (ta machine, dernière branche).
+- [ ] `make test` (Docker) OK.
+- [ ] Session réelle avec bootstrap `DOTFILES_GOOD` sans casse bloquante.
+- [ ] Décision notée : brancher `shared/config.sh` / entrées shell **oui / non / plus tard**.
+
+> Tant que ce bloc n’est pas validé, la **phase C** reste **documentation uniquement**.
 
 ---
 
-## Phase **C** — Bascule « tout dans la racine du clone » (après validation)
+## Phase **C** — Bascule racine (après B)
 
-**Objectif** : que l’arborescence **cible** (aujourd’hui expérimentée sous `DOTFILES_GOOD/`) devienne **le** dépôt à la racine (`core/`, `shared/`, `lib/`, etc.), tout en gardant une **copie de secours** du dépôt actuel pour rollback.
-
-- [ ] **Backup** : copie complète du répertoire dotfiles (ex. `rsync -a ~/dotfiles/ /chemin/backup/dotfiles-YYYYMMDD/` ou archive `tar` sur **autre** volume / machine). Vérifier la taille et un `ls` sur le backup.
-- [ ] **Plan écrit** : liste des déplacements (fichiers/dossiers à fusionner, symlinks à recréer, `STATUS.md` / `TODOS.md` à mettre à jour).
-- [ ] **Exécution** : fusion (gros commit ou série de commits) + `make test` + test manuel login shell.
-- [ ] **Rollback** : procédure testée une fois « à froid » (restaurer le backup par-dessus le clone ou recloner + copier).
-
-> Tant que les cases **Jalon B** ne sont pas cochées, la phase C reste **documentation / préparation** uniquement.
+- [ ] Backup complet du dépôt ailleurs.
+- [ ] Plan écrit des déplacements / symlinks.
+- [ ] Exécution + `make test` + login shell.
+- [ ] Procédure rollback testée « à froid ».
 
 ---
 
 ## Roadmap technique (cases courantes)
 
-- [x] Bac à sable **`DOTFILES_GOOD/`** + `make test-dotfiles-good`.
-- [x] Tableau managers **`docs/ARCHITECTURE.md`** (`migrated_managers.list`).
-- [x] Extraits env **`DOTFILES_GOOD/shared/env/`** depuis `shared/env.sh` : `05`, `10`, `11`, `12`, `13`, `14` (+ README, bootstrap tolérant).
-- [x] Script **`DOTFILES_GOOD/scripts/print_roots.sh`**.
-- [ ] **Reste `shared/env.sh` (prod)** : `mkdir`, bloc `add_to_path` / `clean_path`, concat `PATH`, `echo` — à migrer **après** jalon B ou dans des fichiers séparés **explicitement** non chargés en CI si besoin. *(Avancé: fallback PATH sans `add_to_path`, `mkdir` tolérant, `clean_path` optionnel, message uniquement en TTY + `DOTFILES_ENV_QUIET=1`.)*
-- [ ] **Priorité architecture modulaire** : aligner tous les managers sur le pattern cible `core/managers/<nom>/` + adapters `shells/*/adapters/` + wrapper legacy minimal sous `zsh/functions/`.
-- [ ] **Restructurer les monolithes Zsh** (`aliaman.zsh`, `cyberlearn.zsh`, autres) vers modules/utilitaires sous `core/`, sans régression.
-- [ ] **Cartographier `zsh/functions/commands/network/`** et trancher la destination de chaque commande (netman vs commandes transverses).
-- [x] **Socle C (`dotcli`) - MVP** : `tools/dotcli/`, build reproductible, commandes `doctor/menu/render`, fallback non-TTY.
-- [x] **Pilote `dotcli`** : feature manager branchée derrière flag (`DOTFILES_DOTCLI_ENABLE=1` sur menu netman) + rollback immédiat (flag off).
-- [ ] **TUI mutualisée** : converger progressivement menus shell/fzf/ncmenu vers API commune (`dotcli menu`) sans casser les tests actuels.
-- [ ] Déplacer progressivement **installman** → `core/managers/installman/` + wrappers une ligne.
-- [ ] Réduire **`read` / `clear`** hors TTY (menus / CI).
-- [ ] Garder **`make test`** vert à chaque étape.
-- [ ] **Épic installman** (détail : `docs/INSTALLMAN_VISION.md`) : matrice capacités machine → `search` unifié → install piloté (ex. Chrome / AUR) → préférences Flatpak/Snap/AppImage → `.desktop` / menu applications → extension autres familles (dnf, zypper, …).
-- [ ] **`git help` / `man`** : sur postes sans `man` — paquet `man-db` (voir `docs/TROUBLESHOOTING_MAN_GIT.md`).
-- [ ] **Après migration globale** : chantier réseau complet (`netman`, `routeman`, commandes IP/network, diagnostics, flows docker/hôte) pour augmenter couverture, cohérence UX et robustesse.
-- [ ] **Fallback visuel multi-shell** : normaliser couleurs/icônes/symboles entre zsh/bash/fish/sh avec dégradation lisible (ASCII) quand glyphes/couleurs indisponibles.
+- [x] Bac à sable `DOTFILES_GOOD/` + tests associés.
+- [x] Tableau managers `docs/ARCHITECTURE.md` + `migrated_managers.list`.
+- [x] MVP **`dotcli`** + `make test-dotcli`.
+- [x] Pilotes dotcli sur **netman** / **aliaman** / **cyberlearn** (flag).
+- [ ] TUI mutualisée complète ; **`@skip`** phase 2 à réduire pour menus si invocations non-TTY ajoutées.
+- [ ] installman vers `core/` définitif ; **read/clear** hors TTY.
+- [ ] **`make test`** vert à chaque étape.
+- [ ] Fallback visuel multi-shell (dégradation ASCII).
 
-### Transformation globale (structure/UX/install) — fil directeur
+### Transformation globale (fil directeur)
 
-- [ ] Définir l’arborescence cible "finale" (`core/`, `shells/`, `tools/`, `shared/`, `docs/`, `scripts/`) et les règles strictes de placement de code.
-- [ ] Définir un contrat unique de menus/TUI (API commune), avec fallback non-interactif et compatibilité complète zsh/bash/fish/sh.
-- [ ] Concevoir l’installation "nouvelle machine" en mode guidé + mode silencieux (bootstrap, dépendances, symlinks, vérification finale).
-- [ ] Définir la migration progressive "ancien -> nouveau" (compat wrappers, drapeaux, rollback, checkpoints tests).
+- [ ] Arborescence cible finale + règles de placement strictes.
+- [ ] Contrat unique menus/TUI + fallback non-interactif.
+- [ ] Installation « nouvelle machine » guidée + silencieuse.
+- [ ] Migration progressive + checkpoints tests.
 
 ---
 
-## Fichiers doc — rôle rapide
+## Produit : `infosman` ?
 
-| Fichier | Rôle |
-|---------|------|
-| `STATUS.md` | Objectif, état des tests, liens. |
-| `TODOS.md` | Ce fichier — phases, priorités, jalon B, phase C. |
-| `docs/MULTISHELL_REPORT.md` | Multi-shell, `make test`. |
-| `docs/ARCHITECTURE.md` | Entrées shell, managers, `DOTFILES_GOOD`. |
-| `docs/REFACTOR_HISTORY.md` | Journal historique des refactors. |
-| `STRUCTURE_ANALYSIS.md` | Analyse longue / arbre. |
-| `docs/INSTALLMAN_VISION.md` | Épic installman trans-distro (cadrage). |
-| `docs/TROUBLESHOOTING_MAN_GIT.md` | `git help` quand `man` est absent. |
-| `docs/MANAGERS_SEARCH_VS_INFO.md` | `searchman` vs futur `infosman`. |
+- [ ] Décision : extension **`searchman info …`** *ou* **`infosman`** (justifier dans `docs/ARCHITECTURE.md`).
 
 ---
 
@@ -140,24 +119,43 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 
 | Variable | Défaut | Rôle |
 |----------|--------|------|
-| `DOCKER_DOTFILES_DIR` | `/root/dotfiles` | Valeur de `-e DOTFILES_DIR` dans le conteneur (alignée sur `-v …:/root/dotfiles`). Ne la change que si tu modifies aussi le montage. |
-| `DOCKER_INSTALLMAN_ASSUME` | `1` | Si `1`, passe `INSTALLMAN_ASSUME_YES=1` (confirmations installman auto). `0` = ne pas définir la variable → questions `[o/N]`. |
-| `DOCKER_SHELL` | *(vide)* | Vide + TTY → menu du shell ; sinon `zsh` par défaut hors TTY ; ou `zsh\|bash\|fish\|sh` en ligne de commande. |
-| `DOCKER_DISTRO` | *(vide)* | Base OS : `arch` (image `make docker-build`), sinon `ubuntu`, `debian`, `alpine`, `fedora`, `centos`, `opensuse`, `gentoo`. Vide + TTY → menu. Images tag `dotfiles-in-<distro>:latest` (hors Arch). Logique : `scripts/test/docker/docker_in.sh`. |
+| `DOCKER_DOTFILES_DIR` | `/root/dotfiles` | Aligné sur le montage volume. |
+| `DOCKER_INSTALLMAN_ASSUME` | `1` | `INSTALLMAN_ASSUME_YES` si `1`. |
+| `DOCKER_SHELL` | *(vide)* | Menu shell si TTY. |
+| `DOCKER_DISTRO` | *(vide)* | `arch`, `ubuntu`, `debian`, etc. |
 
-Exemples : `make docker-in DOCKER_DISTRO=debian` · `make docker-in DOCKER_SHELL=fish DOCKER_DISTRO=ubuntu` · `make docker-in DOCKER_INSTALLMAN_ASSUME=0`
+Exemples : `make docker-in DOCKER_DISTRO=debian` · `make docker-in DOCKER_SHELL=fish`
 
 ---
 
 ## Suivi `tail -f` (logs)
 
-Pour suivre un test ou un conteneur : **`tail -f test_results/test_output.log`** (ou le fichier indiqué par le script) est **normal** ; tu vois les lignes au fil de l’eau. `Ctrl+C` arrête seulement le `tail`, pas le test déjà terminé.
+`tail -f test_results/test_output.log` : `Ctrl+C` n’arrête que le tail.
 
-## Menu `make tests` — pause « Entrée pour continuer »
+## Menu `make tests`
 
-- Par défaut : **attente max 5 s** puis suite automatique (`scripts/test/test_menu.sh`).
-- Pour **supprimer** toute pause : `export DOTFILES_TEST_MENU_SKIP_PAUSE=1` avant `make tests`.
+Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les pauses.
 
-## Correctif **helpman** (fish / Docker)
+---
 
-Si la matrice bloquait sur **`helpman (fish)`** : le core entrait dans le **menu interactif** même pour `helpman help`. Corrigé : `helpman help` / `-h` / `--help` sortent tout de suite ; sans TTY et sans argument, le menu n’est pas ouvert.
+## Finalisées — en attente de validation par moi (**bloquant**)
+
+| ID | Description | Validé par moi |
+|----|----------------|----------------|
+| V-2026-05-dotcli-doc | Lot dotcli + modules aliaman/cyberlearn + doc DOCUMENTATION_REFERENCE/TESTS + ERRORS/STATUS dans `docs/` + réécriture STATUS/TODOS racine | [ ] |
+
+> **Tant que la ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
+
+---
+
+## Finalisées — validées par moi (plus récent en haut)
+
+*(Déplacer ici les lignes du tableau « attente de validation » une fois cochées, avec date.)*
+
+- *(vide)*
+
+---
+
+## Rappel final — Git
+
+Avant de passer à la **tâche suivante** après une finalisation : **`git add -A`** (ou ciblé), **`git commit`**, **`git push`**.

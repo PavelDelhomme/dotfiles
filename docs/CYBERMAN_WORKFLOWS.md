@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # CYBERMAN - Documentation des Workflows
 
 > Mise à jour 2026-05 : document conservé, à recaler progressivement lors de la modularisation complète des managers sous `core/managers/*`.

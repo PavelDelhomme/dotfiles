@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # 📚 Guide d'affichage pour la commande `help`
 
 > Mise à jour 2026-05 : à harmoniser avec la couche d'affichage commune (roadmap : `docs/UNIFIED_PLATFORM_ROADMAP.md`).

@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # 🔄 Compatibilité Multi-Shells
 
 > Mise à jour 2026-05 : ce document est aligné avec la trajectoire plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`) et la convergence TUI (`docs/DOTCLI_MENU_CONTRACT.md`).

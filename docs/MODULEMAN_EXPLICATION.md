@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # 📦 MODULEMAN - Explication Complète
 
 > Mise à jour 2026-05 : ce document reste une référence fonctionnelle ; l'intégration modulaire globale est pilotée dans `docs/ARCHITECTURE.md`.

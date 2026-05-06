@@ -1,5 +1,7 @@
 # Bac à sable tests dotfiles (Docker)
 
+> **Carte doc** : [`../../docs/DOCUMENTATION_REFERENCE.md`](../../docs/DOCUMENTATION_REFERENCE.md) · **Tests manuels** : [`../../docs/TESTS.md`](../../docs/TESTS.md) · **Erreurs** : [`../../docs/ERRORS.md`](../../docs/ERRORS.md)
+
 Ce fichier est dans le dépôt : dans un conteneur, il est visible sous  
 `/root/dotfiles/scripts/test/SANDBOX.md` (montage en lecture seule par défaut).
 

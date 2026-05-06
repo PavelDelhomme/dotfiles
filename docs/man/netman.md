@@ -1,3 +1,5 @@
+> **Réf. doc** : [`../DOCUMENTATION_REFERENCE.md`](../DOCUMENTATION_REFERENCE.md) · [`../STATUS.md`](../STATUS.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md)
+
 # NETMAN(1) - Gestionnaire réseau
 
 > Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/UNIFIED_PLATFORM_ROADMAP.md`).

@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # Plan d’action – Architecture modulaire dotfiles
 
 > Mise à jour 2026-05 : ce plan est désormais piloté avec `docs/UNIFIED_PLATFORM_ROADMAP.md` et le contrat `docs/DOTCLI_MENU_CONTRACT.md` pour la convergence multi-shell/TUI.

@@ -1,3 +1,5 @@
+> **Réf. doc** : [`DOCUMENTATION_REFERENCE.md`](DOCUMENTATION_REFERENCE.md) · [`STATUS.md`](STATUS.md) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md)
+
 # 📋 Résumé de Compatibilité Multi-Shells
 
 > Mise à jour 2026-05 : résumé maintenu dans le cadre de la plateforme unifiée (`docs/UNIFIED_PLATFORM_ROADMAP.md`).
