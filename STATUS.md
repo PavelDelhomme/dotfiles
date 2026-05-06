@@ -27,6 +27,19 @@ Migrer **toutes** les fonctionnalités ZSH vers Fish et Bash, avec synchronisati
 
 Ce fichier **STATUS** reste la vue d’ensemble (objectifs + tests) ; le détail des commandes de test est dans **`make test-help`**. Le suivi des tâches est dans **`TODOS.md`**.
 
+### Mise à jour architecture (2026-05)
+
+- La priorité courante est désormais la **normalisation modulaire** avant l'extension réseau:
+  - homogénéiser tous les managers autour de `core/managers/<nom>/` + `shells/*/adapters/` + wrappers legacy minces ;
+  - réduire la logique historique dispersée dans `zsh/functions/` ;
+  - traiter explicitement l'écart entre `netman` et les commandes de `zsh/functions/commands/network/`.
+- La proposition détaillée et le plan pas-à-pas sont documentés dans `docs/ARCHITECTURE.md` (section **Refonte modulaire prioritaire**).
+- Les priorités opérationnelles ont été réalignées dans `TODOS.md` (P1 architecture, P2 cartographie réseau).
+- Le socle compilé expérimental est amorcé :
+  - `tools/dotcli/main.c` avec sous-commandes `doctor/menu/render` (MVP),
+  - `Makefile`: `build-dotcli`, `test-dotcli`,
+  - pilote activable dans `netman` via `DOTFILES_DOTCLI_ENABLE=1` avec fallback auto vers le menu actuel.
+
 ### État des tests Docker (`make test`, 2026-04 / 2026-05)
 
 - **`make test`** enchaîne **deux phases dans le même conteneur** : (1) matrice **managers × shells** (nombre de cellules = taille de `migrated_managers.list` × shells par défaut, ex. **69** si 23 managers × zsh/bash/fish) ; (2) **matrice sous-commandes** (`scripts/test/manager_subcommand_matrix.sh`, tier `full`).

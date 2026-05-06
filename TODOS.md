@@ -5,7 +5,7 @@ Suivi **opérationnel** : cocher au fil de l’eau.
 
 ### Posture (priorités / phases)
 
-- **Priorité active : P1** — extraits `DOTFILES_GOOD/shared/env/` vs prod `shared/env.sh` (voir tableau *Priorités*).
+- **Priorité active : P1** — normalisation architecture modulaire (voir tableau *Priorités*).
 - **Phase A** — préparatif **dépôt** : bac `DOTFILES_GOOD`, tests smoke, doc ; le **jalon humain** reste § *Jalon B*.
 - **Phase B** — validation **toi** (usage réel + cases cochées) ; aucun outil ne peut la « valider » à ta place.
 - **Phase C** — bascule racine **uniquement après B** ; tant que B n’est pas rempli, C = lecture de la doc § *Phase C* seulement.
@@ -26,12 +26,15 @@ Suivi **opérationnel** : cocher au fil de l’eau.
 
 | Prio | Tâche | Détail |
 |------|--------|--------|
-| **P1** | Extraits **`shared/env.sh` → `DOTFILES_GOOD/shared/env/`** | Fichiers `NN_*.sh` neutres (pas `add_to_path` / pas d’`echo` de succès bruyant dans le bac à sable). Doc : `DOTFILES_GOOD/shared/env/README.md`. **`make test-dotfiles-good`**. Reste dans prod : `mkdir`, `add_to_path`, `clean_path`, concat `PATH`, `echo` final → migration ultérieure ou fichier dédié **après** validation. |
-| **P2** | Scripts **`DOTFILES_GOOD/scripts/`** | Outils (ex. `print_roots.sh`). Smoke : `make test-dotfiles-good`. |
-| **P3** | **Jalon phase B** | Cocher la checklist § *Jalon « DOTFILES_GOOD validé »* ci-dessous quand c’est vrai pour toi. |
-| **P4** | Hors bac à sable | **installman** vers `core/managers/installman/`, **`read`/`clear` hors TTY**, CI verte. |
-| **P5** | **Phase C** (bascule racine) | Uniquement après **P3** + backup documenté + plan écrit (voir § *Phase C — bascule*). |
-| **P6** | **Épic installman trans-distro** | Spécification et phasage : **`docs/INSTALLMAN_VISION.md`**. Implémentation **par étapes** (recherche → menus → backends → `.desktop`). Dépend partiellement de la consolidation **installman** dans `core/` (voir roadmap). |
+| **P1** | **Normalisation architecture modulaire** | Priorité absolue avant extension réseau: homogénéiser tous les `*man` (core POSIX canonique + adapters + wrapper legacy minimal), réduire la logique métier dans `zsh/functions/`, et traiter explicitement les cas monolithiques (`aliaman.zsh`, `cyberlearn.zsh`, etc.). |
+| **P2** | Cartographie + unification du domaine réseau | Inventorier `zsh/functions/commands/network/*` (`ipinfo`, `network_scanner`, `whatismyip`, `ssh_auto_setup`, ...) et décider pour chaque brique: commande transverse `core/commands/network/` ou intégration `netman`. |
+| **P3** | Prototype socle commun compilé (`dotcli` en C) | Créer un MVP `tools/dotcli/` (`doctor`, `menu`, `render`) avec fallback non-TTY ; intégration pilote derrière feature flag sur un manager (netman/aliaman) ; rollback immédiat possible. |
+| **P4** | Extraits **`shared/env.sh` → `DOTFILES_GOOD/shared/env/`** | Fichiers `NN_*.sh` neutres (pas `add_to_path` / pas d’`echo` de succès bruyant dans le bac à sable). Doc : `DOTFILES_GOOD/shared/env/README.md`. **`make test-dotfiles-good`**. Reste dans prod : `mkdir`, `add_to_path`, `clean_path`, concat `PATH`, `echo` final → migration ultérieure ou fichier dédié **après** validation. |
+| **P5** | Scripts **`DOTFILES_GOOD/scripts/`** | Outils (ex. `print_roots.sh`). Smoke : `make test-dotfiles-good`. |
+| **P6** | **Jalon phase B** | Cocher la checklist § *Jalon « DOTFILES_GOOD validé »* ci-dessous quand c’est vrai pour toi. |
+| **P7** | Hors bac à sable | **installman** vers `core/managers/installman/`, **`read`/`clear` hors TTY**, CI verte. |
+| **P8** | **Phase C** (bascule racine) | Uniquement après **P6** + backup documenté + plan écrit (voir § *Phase C — bascule*). |
+| **P9** | **Épic installman trans-distro** | Spécification et phasage : **`docs/INSTALLMAN_VISION.md`**. Implémentation **par étapes** (recherche → menus → backends → `.desktop`). Dépend partiellement de la consolidation **installman** dans `core/` (voir roadmap). |
 
 ---
 
@@ -94,6 +97,12 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 - [x] Extraits env **`DOTFILES_GOOD/shared/env/`** depuis `shared/env.sh` : `05`, `10`, `11`, `12`, `13`, `14` (+ README, bootstrap tolérant).
 - [x] Script **`DOTFILES_GOOD/scripts/print_roots.sh`**.
 - [ ] **Reste `shared/env.sh` (prod)** : `mkdir`, bloc `add_to_path` / `clean_path`, concat `PATH`, `echo` — à migrer **après** jalon B ou dans des fichiers séparés **explicitement** non chargés en CI si besoin. *(Avancé: fallback PATH sans `add_to_path`, `mkdir` tolérant, `clean_path` optionnel, message uniquement en TTY + `DOTFILES_ENV_QUIET=1`.)*
+- [ ] **Priorité architecture modulaire** : aligner tous les managers sur le pattern cible `core/managers/<nom>/` + adapters `shells/*/adapters/` + wrapper legacy minimal sous `zsh/functions/`.
+- [ ] **Restructurer les monolithes Zsh** (`aliaman.zsh`, `cyberlearn.zsh`, autres) vers modules/utilitaires sous `core/`, sans régression.
+- [ ] **Cartographier `zsh/functions/commands/network/`** et trancher la destination de chaque commande (netman vs commandes transverses).
+- [x] **Socle C (`dotcli`) - MVP** : `tools/dotcli/`, build reproductible, commandes `doctor/menu/render`, fallback non-TTY.
+- [x] **Pilote `dotcli`** : feature manager branchée derrière flag (`DOTFILES_DOTCLI_ENABLE=1` sur menu netman) + rollback immédiat (flag off).
+- [ ] **TUI mutualisée** : converger progressivement menus shell/fzf/ncmenu vers API commune (`dotcli menu`) sans casser les tests actuels.
 - [ ] Déplacer progressivement **installman** → `core/managers/installman/` + wrappers une ligne.
 - [ ] Réduire **`read` / `clear`** hors TTY (menus / CI).
 - [ ] Garder **`make test`** vert à chaque étape.
@@ -101,6 +110,13 @@ Cocher quand **toi** tu es satisfait — pas de pression calendaire imposée.
 - [ ] **`git help` / `man`** : sur postes sans `man` — paquet `man-db` (voir `docs/TROUBLESHOOTING_MAN_GIT.md`).
 - [ ] **Après migration globale** : chantier réseau complet (`netman`, `routeman`, commandes IP/network, diagnostics, flows docker/hôte) pour augmenter couverture, cohérence UX et robustesse.
 - [ ] **Fallback visuel multi-shell** : normaliser couleurs/icônes/symboles entre zsh/bash/fish/sh avec dégradation lisible (ASCII) quand glyphes/couleurs indisponibles.
+
+### Transformation globale (structure/UX/install) — fil directeur
+
+- [ ] Définir l’arborescence cible "finale" (`core/`, `shells/`, `tools/`, `shared/`, `docs/`, `scripts/`) et les règles strictes de placement de code.
+- [ ] Définir un contrat unique de menus/TUI (API commune), avec fallback non-interactif et compatibilité complète zsh/bash/fish/sh.
+- [ ] Concevoir l’installation "nouvelle machine" en mode guidé + mode silencieux (bootstrap, dépendances, symlinks, vérification finale).
+- [ ] Définir la migration progressive "ancien -> nouveau" (compat wrappers, drapeaux, rollback, checkpoints tests).
 
 ---
 
