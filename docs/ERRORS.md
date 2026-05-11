@@ -1,8 +1,10 @@
 # Journal des erreurs, incidents et correctifs
 
-> **Index** : [`STRUCTURE.md`](STRUCTURE.md) · **Statut** : [`../STATUS.md`](../STATUS.md) (racine) · **Tests** : [`TESTS.md`](TESTS.md)
+> **Rôle de ce fichier** : tracer les **incidents reproductibles** (CI, Docker, shell, manager). **Pas** la roadmap (→ [`../TODOS.md`](../TODOS.md)) ni le journal éditorial (→ [`../STATUS.md`](../STATUS.md)).
+>
+> **Index général** : [`INDEX.md`](INDEX.md) · **Format des étapes** (si tu déroules un correctif pas à pas) : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) · **Carte technique** : [`STRUCTURE.md`](STRUCTURE.md) · **Tests** : [`TESTS.md`](TESTS.md).
 
-Tout incident **récurrent** (CI, Docker, shell, manager) doit être consigné ici pour éviter de réinventer le diagnostic. Les entrées **résolues** restent dans l’historique ; les entrées **ouvertes** sont en tête de la section active.
+Tout incident **récurrent** doit être consigné ici pour éviter de réinventer le diagnostic. Les entrées **résolues** restent dans l’historique ; les entrées **ouvertes** sont en tête de la section active.
 
 ## Comment ajouter une entrée
 

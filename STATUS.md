@@ -1,6 +1,8 @@
 # État instantané du projet (dotfiles)
 
-**Dernière mise à jour** : 2026-05-06
+> **Rôle de ce fichier** : version, **objectifs en cours**, **journal récent**. Il n’y a **ni backlog complet** (→ [`TODOS.md`](TODOS.md)) **ni procédure de test** (→ [`docs/TESTS.md`](docs/TESTS.md)) **ni incidents** (→ [`docs/ERRORS.md`](docs/ERRORS.md)). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md).
+
+**Dernière mise à jour** : 2026-05-11
 
 ## En bref
 
@@ -16,21 +18,26 @@
 
 ## Où lire la suite
 
+> **Hub doc** : [`docs/INDEX.md`](docs/INDEX.md) — un seul point d’entrée pour savoir **où aller pour quoi**.
+
 | Besoin | Fichier |
 |--------|---------|
-| **Index documentation** (`docs/` + sous-dossiers) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) |
+| **Hub** — quel doc pour quel besoin | [`docs/INDEX.md`](docs/INDEX.md) |
+| **Format des étapes** (Conforme `O·N·NA`, Notes, Assistant…) | [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) |
 | **Tâches** (lots, ordre, validation bloquante) | [`TODOS.md`](TODOS.md) |
 | **Tests manuels** (checklist) | [`docs/TESTS.md`](docs/TESTS.md) |
 | **Erreurs / correctifs** | [`docs/ERRORS.md`](docs/ERRORS.md) |
+| **Carte technique** (arborescence) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) |
 | Bac à sable Docker | [`scripts/test/SANDBOX.md`](scripts/test/SANDBOX.md) |
 
 ---
 
 ## Journal récent (suivi détaillé)
 
-1. **Dernière livraison notable** : 2026-05-06 — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn, doc réorganisée sous `docs/*/` (seuls `STRUCTURE`, `TESTS`, `ERRORS` à la racine de `docs/`).
-2. **À faire maintenant** : section **« En cours »** de [`TODOS.md`](TODOS.md) ; remplir [`docs/TESTS.md`](docs/TESTS.md) ; garder `make test` vert.
-3. **Dernière résolution** : CI phase 2 — `TEST_RESULTS_DIR` inscriptible ; `gitman log` ; installman multi-shell (détails [`docs/ERRORS.md`](docs/ERRORS.md)).
+1. **Dernière livraison notable** : 2026-05-11 — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
+2. **Livraison précédente** : 2026-05-06 — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn, doc réorganisée sous `docs/*/` (`STRUCTURE` + `TESTS` + `ERRORS` + maintenant `INDEX` + `LEGENDE_CHAMPS` à la racine de `docs/`).
+3. **À faire maintenant** : section **« En cours »** de [`TODOS.md`](TODOS.md) ; remplir [`docs/TESTS.md`](docs/TESTS.md) (champs `Conforme` / `Assistant (relecture)`) ; garder `make test` vert.
+4. **Dernière résolution** : CI phase 2 — `TEST_RESULTS_DIR` inscriptible ; `gitman log` ; installman multi-shell (détails [`docs/ERRORS.md`](docs/ERRORS.md)).
 
 | Période | Sujet |
 |---------|--------|

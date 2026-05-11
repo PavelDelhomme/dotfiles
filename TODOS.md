@@ -1,6 +1,8 @@
 # TODOS — Roadmap et actions (dotfiles)
 
-> **Index doc** : [`docs/STRUCTURE.md`](docs/STRUCTURE.md) · **Statut instantané** : [`STATUS.md`](STATUS.md) (racine) · **Tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) · **Erreurs** : [`docs/ERRORS.md`](docs/ERRORS.md)
+> **Rôle de ce fichier** : **toutes les tâches** — en cours, à faire, finalisées (en attente de validation bloquante / validées). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md). Pour le **format d’une étape** (cases, `Conforme`, Notes, Assistant…) : [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md).
+>
+> **Liens connexes** : statut instantané [`STATUS.md`](STATUS.md) · tests manuels [`docs/TESTS.md`](docs/TESTS.md) · incidents [`docs/ERRORS.md`](docs/ERRORS.md) · carte technique [`docs/STRUCTURE.md`](docs/STRUCTURE.md).
 
 ---
 
@@ -21,6 +23,7 @@
 
 ## Dernière tâche terminée (juste avant l’actuelle)
 
+- [x] Réorganisation doc 2 : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub navigation) + [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel champs O·N·NA / Assistant relecture) ; allègement de **`docs/TESTS.md`** (renvoie à la légende) ; clarification rôles **STATUS / TODOS / ERRORS**.
 - [x] Réorganisation **`docs/`** par thèmes (sous-dossiers) + racine `docs/` = **`STRUCTURE` / `TESTS` / `ERRORS`** + journal dans **`STATUS.md`** racine.
 
 ---
@@ -145,6 +148,8 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 | V-2026-05-dotcli-doc | Lot dotcli + modules aliaman/cyberlearn ; doc : `docs/STRUCTURE` + `TESTS` + `ERRORS` ; STATUS/TODOS **uniquement racine** | [ ] |
 | V-2026-05-doc-suite | Suite doc : bannières, SANDBOX/README, DOTCLI_MENU_CONTRACT, `STRUCTURE_ANALYSIS` → `docs/architecture/` | [ ] |
 | V-2026-05-docs-tree | Arborescence `docs/` : 3 fichiers racine + dossiers `architecture/`, `guides/`, etc. | [ ] |
+| V-2026-05-tests-start | Procédure `docs/TESTS.md` réécrite (A–I, champs O·N·NA + Assistant relecture) + cible `make tests-start` + menu `scripts/test/tests_manual_start.sh`. | [ ] |
+| V-2026-05-doc-index | Hub [`docs/INDEX.md`](docs/INDEX.md) + référentiel [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) ; renvois harmonisés (STATUS / TODOS / ERRORS / STRUCTURE / TESTS / README). | [ ] |
 
 > **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 

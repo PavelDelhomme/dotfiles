@@ -1,31 +1,37 @@
-> **À la racine de `docs/`** : ce fichier ([`STRUCTURE.md`](STRUCTURE.md)) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md) — **À la racine du dépôt** : [`STATUS.md`](../STATUS.md) · [`TODOS.md`](../TODOS.md)
+> **Hub doc** : [`INDEX.md`](INDEX.md) — point d’entrée principal. **Format des étapes** (Conforme `O·N·NA`, Assistant relecture…) : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md).
+>
+> **À la racine de `docs/`** : [`INDEX.md`](INDEX.md) · [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) · ce fichier ([`STRUCTURE.md`](STRUCTURE.md)) · [`TESTS.md`](TESTS.md) · [`ERRORS.md`](ERRORS.md). **À la racine du dépôt** : [`STATUS.md`](../STATUS.md) · [`TODOS.md`](../TODOS.md).
 
 # Documentation et structure du dépôt
 
-_Index unique : tout le texte hors `man/` et `migrations/` est classé par thème dans des sous-dossiers._
+> **Rôle de ce fichier** : **carte technique** — arborescence des sous-dossiers `docs/` + structure code. Pour **« où lire quoi »**, utiliser [`INDEX.md`](INDEX.md).
 
 ## Arborescence `docs/`
 
 ```
 docs/
-├── STRUCTURE.md      ← ce fichier (carte + structure du repo)
-├── TESTS.md          ← tests manuels (checklist)
-├── ERRORS.md         ← journal incidents / correctifs
-├── architecture/     ← architecture, plan d’action, historique refactors, analyse longue
-├── compatibility/    ← matrices compatibilité
-├── guides/           ← guides rédactionnel et dépannage (man, aide, git)
-├── managers/         ← docs par domaine manager (cyberman, installman, moduleman, …)
-├── platform/         ← roadmap unifiée, contrat dotcli
-├── reports/          ← rapports (ex. multi-shell)
-├── man/              ← pages man markdown par outil
-└── migrations/       ← guides de migration multi-shells
+├── INDEX.md            ← hub navigation (où aller pour quoi)
+├── LEGENDE_CHAMPS.md   ← référentiel format d’étape (Conforme O·N·NA, Assistant, etc.)
+├── STRUCTURE.md        ← ce fichier (carte technique)
+├── TESTS.md            ← tests manuels (checklist A–I)
+├── ERRORS.md           ← journal incidents / correctifs
+├── architecture/       ← architecture, plan d’action, historique refactors, analyse longue
+├── compatibility/      ← matrices compatibilité
+├── guides/             ← guides rédactionnel et dépannage (man, aide, git)
+├── managers/           ← docs par domaine manager (cyberman, installman, moduleman, …)
+├── platform/           ← roadmap unifiée, contrat dotcli
+├── reports/            ← rapports (ex. multi-shell)
+├── man/                ← pages man markdown par outil
+└── migrations/         ← guides de migration multi-shells
 ```
 
 ## Carte des documents (par dossier)
 
 | Emplacement | Rôle |
 |-------------|------|
-| **`STATUS.md`** (racine dépôt) | État **instantané**, objectifs, règle de validation. |
+| **[`INDEX.md`](INDEX.md)** (`docs/`) | **Hub** : où aller pour quoi. À ouvrir en premier. |
+| **[`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md)** (`docs/`) | **Référentiel** unique des champs d’étape (Conforme `O·N·NA`, Notes, Assistant relecture). |
+| **`STATUS.md`** (racine dépôt) | État **instantané**, objectifs, journal récent. |
 | **`TODOS.md`** (racine dépôt) | **Lots / tâches** : en cours, suivantes, validées (bloquant sans ta validation). |
 | **[`TESTS.md`](TESTS.md)** | Procédure **tests manuels** pas à pas ; entrée menu : `make tests-start`. |
 | **[`ERRORS.md`](ERRORS.md)** | **Erreurs** passées / en cours, correctifs. |
@@ -52,10 +58,12 @@ docs/
 
 ### Règles de maintenance
 
-1. Ne pas recréer **`ERRORS.md`** à la racine du dépôt : uniquement **`docs/ERRORS.md`**.
-2. Après modification **code / doc / action** : mettre à jour **`TODOS.md`** puis **`STATUS.md`** (racine).
-3. Nouvelle page thématique : la placer dans **`architecture/`**, **`guides/`**, **`managers/`**, **`platform/`** ou **`reports/`** — pas à la racine de `docs/`.
-4. Mettre à jour **ce fichier** (`STRUCTURE.md`) si tu ajoutes un dossier ou un document majeur.
+1. **`docs/` racine** contient **exactement** 5 fichiers : `INDEX.md`, `LEGENDE_CHAMPS.md`, `STRUCTURE.md`, `TESTS.md`, `ERRORS.md`. Tout le reste va dans un sous-dossier thématique.
+2. Ne pas recréer **`ERRORS.md`** à la racine du dépôt : uniquement **`docs/ERRORS.md`**.
+3. Après modification **code / doc / action** : mettre à jour **`TODOS.md`** puis **`STATUS.md`** (racine).
+4. Nouvelle page thématique : la placer dans **`architecture/`**, **`guides/`**, **`managers/`**, **`platform/`** ou **`reports/`**.
+5. Mettre à jour **ce fichier** (`STRUCTURE.md`) si tu ajoutes un dossier ou un document majeur ; **`INDEX.md`** uniquement si la page est centrale.
+6. **Format d’étape** identique partout : voir [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md). Toute redéfinition locale est un bug à corriger.
 
 ---
 

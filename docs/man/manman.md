@@ -1,4 +1,4 @@
-> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) · [`../ERRORS.md`](../ERRORS.md) · Statut [`STATUS.md`](../../STATUS.md)
+> **Hub doc** : [`../INDEX.md`](../INDEX.md) · **Carte technique** : [`../STRUCTURE.md`](../STRUCTURE.md) · **Tests** : [`../TESTS.md`](../TESTS.md) · **Erreurs** : [`../ERRORS.md`](../ERRORS.md) · **Statut** : [`STATUS.md`](../../STATUS.md) · **Tâches** : [`TODOS.md`](../../TODOS.md)
 
 # MANMAN(1) - Manager of Managers
 

@@ -1,6 +1,6 @@
 # Contrat `dotcli menu`
 
-> **Index** : [`../STRUCTURE.md`](../STRUCTURE.md) · [`../TESTS.md`](../TESTS.md) (validation manuelle) · Statut [`STATUS.md`](../../STATUS.md)
+> **Hub doc** : [`../INDEX.md`](../INDEX.md) · **Carte technique** : [`../STRUCTURE.md`](../STRUCTURE.md) · **Tests (validation manuelle)** : [`../TESTS.md`](../TESTS.md) · **Erreurs** : [`../ERRORS.md`](../ERRORS.md) · **Statut** : [`STATUS.md`](../../STATUS.md) · **Tâches** : [`TODOS.md`](../../TODOS.md)
 
 > Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir [`UNIFIED_PLATFORM_ROADMAP.md`](UNIFIED_PLATFORM_ROADMAP.md)).
 

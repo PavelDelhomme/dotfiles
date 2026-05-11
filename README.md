@@ -6,13 +6,17 @@ Configuration personnelle pour Manjaro Linux avec installation automatisée comp
 
 ## Documentation du dépôt (suivi projet)
 
+> **Point d’entrée doc** : [`docs/INDEX.md`](docs/INDEX.md) — il dit dans quel fichier se trouve chaque chose. Si tu hésites, ouvre ce hub en premier.
+
 | Fichier | Rôle |
 |---------|------|
-| [`docs/STRUCTURE.md`](docs/STRUCTURE.md) | **Index** de la doc + arborescence `docs/` (thèmes en sous-dossiers). |
+| [`docs/INDEX.md`](docs/INDEX.md) | **Hub** : où aller pour quoi (à ouvrir en premier). |
+| [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) | **Référentiel** unique du format d’étape (Conforme `O·N·NA`, Notes, Assistant relecture). |
 | [`STATUS.md`](STATUS.md) | **État instantané**, objectifs et **journal récent** (racine uniquement). |
 | [`TODOS.md`](TODOS.md) | **Toutes les tâches** ; validation **bloquante** pour certaines étapes. |
 | [`docs/TESTS.md`](docs/TESTS.md) | **Procédure tests manuels** (étapes numérotées) ; `make tests-start` pour le menu d’appui. |
 | [`docs/ERRORS.md`](docs/ERRORS.md) | Journal des **erreurs** et correctifs. |
+| [`docs/STRUCTURE.md`](docs/STRUCTURE.md) | **Carte technique** : arborescence `docs/` (thèmes en sous-dossiers) + structure code. |
 
 **Règle** : une tâche « finalisée » doit être **validée par toi** dans `TODOS.md`, puis enregistrée avec **`git commit`** / **`push`** avant d’enchaîner la suite (voir `TODOS.md`).
 

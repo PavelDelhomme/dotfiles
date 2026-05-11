@@ -1,43 +1,29 @@
 # Tests manuels — procédure à suivre à la lettre
 
-> **Index** : [`STRUCTURE.md`](STRUCTURE.md) · **Statut** : [`../STATUS.md`](../STATUS.md) · **Tâches** : [`../TODOS.md`](../TODOS.md) · **Bac à sable** : [`../scripts/test/SANDBOX.md`](../scripts/test/SANDBOX.md)
+> **Index général** : [`INDEX.md`](INDEX.md) · **Carte technique** : [`STRUCTURE.md`](STRUCTURE.md) · **Statut** : [`../STATUS.md`](../STATUS.md) · **Tâches** : [`../TODOS.md`](../TODOS.md) · **Bac à sable** : [`../scripts/test/SANDBOX.md`](../scripts/test/SANDBOX.md)
+>
+> **Format des étapes** (Commande / Attendu / Conforme `O·N·NA` / Notes / Assistant relecture) : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md). **Ne pas redéfinir** les champs ici — toute nouvelle étape réutilise le bloc de la légende.
 
-## Comment utiliser ce fichier (obligatoire)
+## Comment utiliser ce fichier
 
-1. **Tu ouvres uniquement ce fichier** et tu descends **dans l’ordre** (A, puis B, puis C…).
-2. Pour chaque **étape numérotée** : exécute la commande indiquée, **coche** `[ ]` quand c’est fait, **colle** la sortie utile dans l’encadré, indique **Conforme O/N/NA**. Remplis **`Assistant (relecture)`** toi-même après discussion avec un relecteur / l’IA, ou laisse vide jusqu’à validation.
-3. **Menu d’aide** (sur ton ordinateur) : `make tests-start` — il propose les mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, etc.). **Il ne remplace pas** ce document : les cases à cocher et les résultats sont **ici**.
-4. **Validation « comme un humain »** : tu juges O/N. Si tu utilises l’assistant IA, colle la sortie dans le chat et demande « conforme à l’attendu de l’étape X.Y ? » — mets la réponse dans **Notes**.
-5. **Limite honnête** : couvrir **chaque ligne de code / chaque variable** du dépôt dans ce seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → dotcli → managers**. Le détail automatique des sous-commandes est dans `scripts/test/subcommands/*.list` et la CI (`make test`). Pour aller plus loin, utilise **§ 12 — Demandes d’extension** en bas.
-
----
-
-## Légende des champs (chaque étape)
-
-| Champ | Tu remplis |
-|--------|------------|
-| **Étape** | Identifiant fixe (ex. `A.2`) — ne pas renommer (pour les échanges avec l’assistant). |
-| **Commande** | À copier-coller tel quel (adapter `~/dotfiles` si ton clone est ailleurs). |
-| **Attendu** | Comportement ou extrait **minimal** à vérifier. |
-| **`[ ] Fait`** | Coche quand la commande est exécutée. |
-| **Sortie (coller)** | Fragment réel (pas tout le roman si c’est énorme). |
-| **Conforme** | `O` = oui · `N` = non · `NA` = non applicable. |
-| **Notes** | Écart, bug, ou action pour [`../TODOS.md`](../TODOS.md) / [`ERRORS.md`](ERRORS.md). |
-| **Assistant (relecture)** | Réservé à la **validation externe** (humain ou IA) : verdict court, précisions, « à refaire sur l’hôte », etc. Tu peux y **copier-coller** la réponse du chat. |
+1. Ouvrir **uniquement** ce fichier et descendre **dans l’ordre** (Bloc A → I).
+2. Pour chaque étape : exécuter la commande, **cocher** `[ ]`, **coller** la sortie utile, choisir **Conforme** `O / N / NA` (sémantique exacte : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §3). Laisser **`Assistant (relecture)`** vide tant qu’une relecture externe n’a pas été faite.
+3. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
+4. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
 
 ---
 
-## Correspondance avec `TODOS.md` (lecture transversale)
+## Correspondance avec `TODOS.md`
 
-| Zone `TODOS.md` | Sections ici |
-|-----------------|--------------|
+| Zone `../TODOS.md` | Sections ici |
+|--------------------|--------------|
 | Phase A — prérequis / `make test` / docker-in | **A**, **B**, **C**, **D**, **E** |
 | P1 architecture / managers | **G**, **H** |
 | P3 dotcli / TUI | **F** |
-| Jalon B — validation perso | **I** + cases « Conforme » cumulées |
-| Phase C (bascule racine) | Hors scope de ce guide ; ne pas confondre avec les tests ci-dessous |
+| Jalon B — validation perso | **I** (+ cases « Conforme » cumulées) |
+| Phase C (bascule racine) | **Hors scope** — ne pas mélanger avec les tests ci-dessous |
 
-Tu **ne dois pas** ouvrir `TODOS.md` pour exécuter les commandes ; tu l’ouvres pour **recopier** une tâche en **Notes** si un écart doit devenir une action formalisée.
+Ne pas ouvrir [`../TODOS.md`](../TODOS.md) pour exécuter les commandes : on l’ouvre uniquement pour **formaliser** un écart vu en `Notes` (en y ajoutant une ligne).
 
 ---
 
@@ -504,21 +490,23 @@ Pour **chaque** manager, même modèle :
 
 ---
 
-## 12. Demandes d’extension / pour l’assistant
+## 12. Demandes d’extension / pour l’assistant (EXT-xxx)
 
-*Ajoute des lignes ici quand tu veux qu’on enrichisse ce guide ou le code.*
+*Format figé : voir [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §2.b. Ajouter une ligne quand on veut enrichir ce guide ou le code.*
 
 | ID | Demande (précise) | Priorité | Traitée |
 |----|-------------------|----------|---------|
 | EXT-001 | *(ex. : ajouter étape pour routeman menu interactif)* | | [ ] |
 | EXT-002 | | | [ ] |
 
-**Pour l’assistant** : quand tu traites une ligne `EXT-xxx`, mets **Traitée** à `[x]`, ajoute les **nouvelles étapes numérotées** dans le bon bloc ci-dessus, et référence le commit.
+**Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 
 ---
 
 ## Rappel final
 
-- **Menu rapide** : `make tests-start`
-- **Guide unique à suivre pas à pas** : **ce fichier**
-- **CI / automatique** : `make test` (complète ce guide mais ne remplace pas les vérifications TUI / œil humain)
+- **Menu rapide d’appui** : `make tests-start`
+- **Guide pas à pas** : **ce fichier**
+- **Référentiel champs** : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md)
+- **Hub doc** : [`INDEX.md`](INDEX.md)
+- **CI / automatique** : `make test` (complète ce guide, ne le remplace pas)
