@@ -501,6 +501,36 @@ testman() {
         return $exit_code
     }
     
+    testman_print_quick_help() {
+        echo "🧪 TESTMAN - Test Manager Applications"
+        echo ""
+        echo "Interface :"
+        echo "  testman                       cette aide (stdout)"
+        echo "  testman help | -h             idem"
+        echo "  testman help --interactive    cette aide + pause (TTY)"
+        echo "  testman --help                cette aide + pause + menu interactif"
+        echo ""
+        echo "Usage: testman [langage] [test-type] [dir]"
+        echo ""
+        echo "Langages disponibles:"
+        echo "  python [unit|integration|coverage|all] [dir]"
+        echo "  node [unit|integration|watch|coverage|all] [dir]"
+        echo "  rust [dir]"
+        echo "  go [dir]"
+        echo "  java [dir]"
+        echo "  flutter [dir]"
+        echo "  ruby [dir]"
+        echo "  php [dir]"
+        echo "  lisp [dir]"
+        echo "  detect [dir]  - Détecter automatiquement"
+        echo ""
+        echo "Exemples:"
+        echo "  testman python unit"
+        echo "  testman node coverage ./frontend"
+        echo "  testman detect"
+        echo ""
+    }
+    
     # Menu principal
     show_main_menu() {
         show_header
@@ -594,7 +624,7 @@ EOF
                 ;;
             0|q|Q|quit|exit)
                 printf "${GREEN}Au revoir!${RESET}\n"
-                return 0
+                return 1
                 ;;
             *)
                 printf "${RED}Choix invalide: %s${RESET}\n" "$choice"
@@ -603,21 +633,52 @@ EOF
                 ;;
         esac
         
-        # Retourner au menu après action (sauf si choix 0, q, quit, exit)
+        # Retour au menu : pause puis la boucle externe rappelle show_main_menu
         case "$choice" in
             0|q|Q|quit|exit) ;;
             *)
                 echo ""
                 pause_if_tty
-                testman
                 ;;
         esac
+        return 0
     }
     
-    # Si des arguments sont fournis, exécuter directement
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+    if [ -z "$1" ]; then
+        testman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                testman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "testman: help --interactive nécessite un TTY." >&2
+                testman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            testman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        testman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        pause_if_tty
+        while show_main_menu; do
+            :
+        done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log testman "$@"
         lang=$(echo "$1" | tr '[:upper:]' '[:lower:]')
@@ -662,30 +723,6 @@ EOF
                     return 1
                 fi
                 ;;
-            help|-h)
-                echo "🧪 TESTMAN - Test Manager Applications"
-                echo ""
-                echo "Usage: testman [langage] [test-type] [dir]"
-                echo ""
-                echo "Langages disponibles:"
-                echo "  python [unit|integration|coverage|all] [dir]"
-                echo "  node [unit|integration|watch|coverage|all] [dir]"
-                echo "  rust [dir]"
-                echo "  go [dir]"
-                echo "  java [dir]"
-                echo "  flutter [dir]"
-                echo "  ruby [dir]"
-                echo "  php [dir]"
-                echo "  lisp [dir]"
-                echo "  detect [dir]  - Détecter automatiquement"
-                echo ""
-                echo "Exemples:"
-                echo "  testman python unit"
-                echo "  testman node coverage ./frontend"
-                echo "  testman detect"
-                echo ""
-                echo "Sans argument ou testman --help : menu interactif"
-                ;;
             *)
                 printf "${RED}Langage inconnu: %s${RESET}\n" "$1"
                 echo ""
@@ -708,19 +745,5 @@ EOF
                 return 1
                 ;;
         esac
-    fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            testman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _testman_dummy || true
-            fi
-        fi
-        # Mode interactif
-        show_main_menu
     fi
 }

@@ -812,8 +812,22 @@ EOF
         echo ""
     }
     
-    show_help() {
-        show_header
+    cyberman_print_quick_help() {
+        cat <<'EOF'
+Usage:
+  cyberman                     cette aide sur stdout (non interactif)
+  cyberman help | -h           idem
+  cyberman help --interactive  aide détaillée + pause (TTY requis)
+  cyberman --help              cette aide + pause + menu interactif
+
+Commandes directes (menus thématiques) :
+  cyberman recon | scan | vuln | attack | analysis | privacy | env
+  cyberman workflow | report | anon | assistant | web | iot | network
+  cyberman learn | load_infos <id>
+EOF
+    }
+
+    cyberman_print_help_long_body() {
         cat <<EOF
 ${CYAN}${BOLD}CYBERMAN - Aide${RESET}
 
@@ -851,6 +865,11 @@ ${BOLD}Note:${RESET}
 Certaines fonctions nécessitent des privilèges sudo.
 EOF
         echo ""
+    }
+
+    show_help() {
+        show_header
+        cyberman_print_help_long_body
         pause_if_tty
     }
     
@@ -1961,6 +1980,10 @@ EOF
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log cyberman "$@"
     fi
+    if [ $# -eq 0 ]; then
+        cyberman_print_quick_help
+        return 0
+    fi
     if [ "$1" = "recon" ]; then show_recon_menu; return; fi
     if [ "$1" = "scan" ]; then show_scan_menu; return; fi
     if [ "$1" = "vuln" ]; then show_vuln_menu; return; fi
@@ -1977,16 +2000,29 @@ EOF
     if [ "$1" = "network" ]; then show_network_devices_menu; return; fi
     if [ "$1" = "learn" ] || [ "$1" = "learning" ]; then show_learning_menu; return; fi
     if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
-        show_help
-        return
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                cyberman_print_help_long_body
+                pause_if_tty
+            else
+                printf '%s\n' "cyberman: help --interactive nécessite un TTY." >&2
+                cyberman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            cyberman_print_quick_help
+            return 0
+            ;;
+        esac
     fi
     if [ "$1" = "--help" ]; then
-        show_help
+        cyberman_print_quick_help
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return
+            return 0
         fi
-        printf "\n%s" "Appuyez sur Entrée pour ouvrir le menu… "
-        read -r _cb_help_dummy || true
+        pause_if_tty
     fi
     if [ "$1" = "load_infos" ] && [ -n "$2" ]; then
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then

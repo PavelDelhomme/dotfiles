@@ -63,9 +63,10 @@ sshman() {
         echo "  sshman auto-setup     Config auto (mot de passe .env si dispo)"
         echo ""
         echo "Interface :"
-        echo "  sshman                Menu principal"
-        echo "  sshman --help         Cette aide puis Entrée → menu"
-        echo "  sshman -h, sshman help  Cette aide uniquement (stdout)"
+        echo "  sshman                       cette aide (stdout)"
+        echo "  sshman help | -h             idem"
+        echo "  sshman help --interactive    cette aide + pause (TTY)"
+        echo "  sshman --help                cette aide + pause + menu interactif"
         echo ""
     }
     
@@ -413,51 +414,34 @@ sshman() {
         fi
     }
     
-    # Gestion des arguments en ligne de commande
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
-        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
-        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log sshman "$@"
-        case "$1" in
-            auto-setup)
-                if [ -f "$SSHMAN_MODULES_DIR/ssh_auto_setup.sh" ]; then
-                    bash "$SSHMAN_MODULES_DIR/ssh_auto_setup.sh" "$2" "$3" "$4" "$5"
-                else
-                    printf "${RED}❌ Module ssh_auto_setup non disponible${RESET}\n"
-                fi
-                ;;
-            list)
-                list_ssh_connections
-                ;;
-            test)
-                test_ssh_connection
-                ;;
-            keys)
-                manage_ssh_keys
-                ;;
-            stats)
-                show_ssh_stats
-                ;;
-            help|-h)
+    if [ -z "$1" ]; then
+        sshman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
                 sshman_print_quick_help
-                ;;
-            *)
-                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
-                echo "Utilisez 'sshman help' pour voir les commandes disponibles"
-                return 1
-                ;;
+                pause_if_tty
+            else
+                printf '%s\n' "sshman: help --interactive nécessite un TTY." >&2
+                sshman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            sshman_print_quick_help
+            return 0
+            ;;
         esac
     fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            sshman_print_quick_help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            pause_if_tty
+    if [ "$1" = "--help" ]; then
+        sshman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
-        # Menu principal interactif
+        pause_if_tty
         while true; do
             show_header
             printf "${GREEN}Menu Principal${RESET}\n"
@@ -522,5 +506,37 @@ EOF
                     ;;
             esac
         done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log sshman "$@"
+        case "$1" in
+            auto-setup)
+                if [ -f "$SSHMAN_MODULES_DIR/ssh_auto_setup.sh" ]; then
+                    bash "$SSHMAN_MODULES_DIR/ssh_auto_setup.sh" "$2" "$3" "$4" "$5"
+                else
+                    printf "${RED}❌ Module ssh_auto_setup non disponible${RESET}\n"
+                fi
+                ;;
+            list)
+                list_ssh_connections
+                ;;
+            test)
+                test_ssh_connection
+                ;;
+            keys)
+                manage_ssh_keys
+                ;;
+            stats)
+                show_ssh_stats
+                ;;
+            *)
+                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
+                echo "Utilisez 'sshman help' pour voir les commandes disponibles"
+                return 1
+                ;;
+        esac
     fi
 }

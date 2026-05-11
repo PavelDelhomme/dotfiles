@@ -52,9 +52,10 @@ fileman() {
     fileman_print_usage() {
         cat <<'EOF'
 Usage:
-  fileman                      menu interactif
-  fileman --help               menu interactif (explicite)
-  fileman help | -h            cette aide (stdout)
+  fileman                       cette aide (stdout)
+  fileman help | -h             idem
+  fileman help --interactive    cette aide + pause (TTY)
+  fileman --help                cette aide + pause + menu interactif
 
 Modules:
   archive   backup   search   permissions   files
@@ -147,7 +148,8 @@ EOF
                 fi
                 ;;
             0)
-                return 0
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
                 ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
@@ -155,23 +157,55 @@ EOF
                 ;;
         esac
         
-        # Retourner au menu après action
-        echo ""
-        pause_if_tty
-        fileman
+        # Retour au menu : pause puis boucle externe
+        case "$choice" in
+            0) ;;
+            *)
+                echo ""
+                pause_if_tty
+                ;;
+        esac
+        return 0
     }
     
-    # Si un argument est fourni, lancer directement le module
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+    if [ -z "$1" ]; then
+        fileman_print_usage
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                fileman_print_usage
+                pause_if_tty
+            else
+                printf '%s\n' "fileman: help --interactive nécessite un TTY." >&2
+                fileman_print_usage
+            fi
+            return 0
+            ;;
+        *)
+            fileman_print_usage
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        fileman_print_usage
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        pause_if_tty
+        while true; do
+            show_main_menu || break
+        done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log fileman "$@"
         case "$1" in
-            help|-h)
-                fileman_print_usage
-                return 0
-                ;;
             archive|arch)
                 if [ -f "$FILEMAN_MODULES_DIR/archive/archive_manager.sh" ]; then
                     sh "$FILEMAN_MODULES_DIR/archive/archive_manager.sh"
@@ -209,18 +243,5 @@ EOF
                 return 1
                 ;;
         esac
-    fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            fileman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            pause_if_tty
-        fi
-        # Mode interactif
-        while true; do
-            show_main_menu
-        done
     fi
 }

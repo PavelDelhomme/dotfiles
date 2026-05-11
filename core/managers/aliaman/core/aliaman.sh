@@ -91,17 +91,44 @@ aliaman() {
     # Aide CLI (stdout, pas de clear ni menu)
     aliaman_print_usage() {
         cat <<'EOF'
-Usage:
-  aliaman                       cette aide sur stdout (non interactif)
+Usage :
+  aliaman                        cette aide sur stdout (non interactif)
   aliaman help | -h | aide       idem
+  aliaman help --interactive     aide détaillée + pause (TTY requis)
   aliaman --help                 menu interactif (terminal requis)
 
-Commandes directes:
-  aliaman search <terme>         rechercher un alias
-  aliaman list                 lister les alias
-  aliaman add <nom> <cmd>      ajouter un alias
-  aliaman remove <nom>         supprimer un alias
+Commandes directes :
+  aliaman search|find|s [terme]  rechercher un alias (fzf si dispo, sinon prompt)
+  aliaman list|ls                lister les alias (fzf si dispo)
+  aliaman add <nom> <cmd>        ajouter un alias
+  aliaman remove|rm <nom>        supprimer un alias
 EOF
+    }
+
+    # Aide détaillée CLI (sans clear) + pause en TTY — aligné help --interactive
+    aliaman_print_interactive_help_cli() {
+        printf "${CYAN}📚 Aide — ALIAMAN${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo
+        echo "ALIAMAN est un gestionnaire complet d'alias."
+        echo
+        echo "Fonctionnalités principales:"
+        echo "  • Gestion interactive des alias"
+        echo "  • Recherche et filtrage"
+        echo "  • Sauvegarde automatique avant modifications"
+        echo "  • Test et validation des alias"
+        echo "  • Statistiques détaillées"
+        echo "  • Export/Import facile"
+        echo
+        echo "Raccourcis directs:"
+        echo "  aliaman                    - Aide sur stdout (sans menu)"
+        echo "  aliaman --help             - Menu interactif"
+        echo "  aliaman search <terme>     - Recherche rapide"
+        echo "  aliaman list               - Liste tous les alias"
+        echo "  aliaman add <nom> <cmd>    - Ajoute un alias"
+        echo "  aliaman remove <nom>       - Supprime un alias"
+        echo
+        pause_if_tty
     }
     
     # Fonction pour sauvegarder les alias
@@ -324,45 +351,55 @@ EOF
     
     # Variables globales pour la session
     SEARCH_TERM=""
-    
+
+    # Dispatch CLI — séparation stricte : vide / help / --help / sous-commandes / erreur
     if [ -z "$1" ]; then
         aliaman_print_usage
         return 0
     fi
 
-    if [ -n "$1" ]; then
-        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
-        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log aliaman "$@"
-    fi
+    _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+    [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log aliaman "$@"
 
     case "$1" in
-        --help) ;;
         help|-h|aide)
-            aliaman_print_usage
+            case "${2:-}" in
+            --interactive|-i)
+                if [ -t 0 ] && [ -t 1 ]; then
+                    aliaman_print_interactive_help_cli
+                else
+                    printf '%s\n' "aliaman: help --interactive nécessite un TTY." >&2
+                    aliaman_print_usage
+                fi
+                ;;
+            *)
+                aliaman_print_usage
+                ;;
+            esac
             return 0
             ;;
-        search)
-            if [ -n "$2" ]; then
-                quick_search "$2"
-            else
-                if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
-                    sel_alias=$(pick_alias_with_fzf "" || true)
-                    if [ -n "$sel_alias" ]; then
-                        quick_search "$sel_alias"
-                    else
-                        printf "Terme à rechercher: "
-                        read term
-                        quick_search "$term"
-                    fi
-                else
-                    printf "Terme à rechercher: "
-                    read term
+        search|find|s)
+            term="${2:-}"
+            if [ -n "$term" ]; then
+                quick_search "$term"
+                return $?
+            fi
+            if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                list_aliases_fzf
+                return $?
+            fi
+            if [ -t 0 ] && [ -t 1 ]; then
+                printf "Terme à rechercher: "
+                read term
+                if [ -n "$term" ]; then
                     quick_search "$term"
+                    return $?
                 fi
             fi
+            list_all_aliases
             return 0
             ;;
-        list)
+        list|ls)
             if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
                 list_aliases_fzf
             else
@@ -386,7 +423,7 @@ EOF
             fi
             return 0
             ;;
-        remove)
+        remove|rm|delete|del)
             if [ -n "$2" ]; then
                 alias_to_remove="$2"
                 if grep -q "^alias $alias_to_remove=" "$ALIASES_FILE" 2>/dev/null; then
@@ -395,23 +432,29 @@ EOF
                     mv "$ALIASES_FILE.tmp" "$ALIASES_FILE"
                     printf "${GREEN}✅ Alias '$alias_to_remove' supprimé${RESET}\n"
                 else
-                    printf "${RED}❌ Alias '$alias_to_remove' non trouvé${RESET}\n"
+                    printf "${RED}❌ Alias '$alias_to_remove' non trouvé${RESET}\n" >&2
+                    return 1
                 fi
             else
                 delete_alias_interactive
             fi
             return 0
             ;;
+        --help)
+            aliaman_print_usage
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                return 0
+            fi
+            pause_if_tty
+            # poursuit avec le menu interactif (boucle ci-dessous)
+            ;;
+        *)
+            printf '%s\n' "aliaman: commande inconnue : $1" >&2
+            printf '%s\n' "aliaman help — aide sur stdout." >&2
+            return 1
+            ;;
     esac
-    
-    # Menu principal
-    if [ "$1" = "--help" ]; then
-        aliaman help
-        if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
-        fi
-        pause_if_tty
-    fi
+
     while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
@@ -467,9 +510,13 @@ EOF
                 ;;
             2) add_new_alias ;;
             3)
-                printf "Terme à rechercher: "
-                read search_term
-                quick_search "$search_term"
+                if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
+                    list_aliases_fzf
+                else
+                    printf "Terme à rechercher: "
+                    read search_term
+                    quick_search "$search_term"
+                fi
                 echo
                 pause_if_tty
                 ;;

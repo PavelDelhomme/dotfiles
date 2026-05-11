@@ -508,25 +508,83 @@ EOF
                 ;;
         esac
     }
+
+    gitman_print_quick_help() {
+        echo "🔧 GITMAN - Gestionnaire Git"
+        echo ""
+        echo "Interface :"
+        echo "  gitman                       cette aide (stdout)"
+        echo "  gitman help | -h             idem"
+        echo "  gitman help --interactive    cette aide + pause (TTY)"
+        echo "  gitman --help                cette aide + pause + menu interactif"
+        echo ""
+        echo "Usage: gitman [command] [args]"
+        echo ""
+        echo "Commandes:"
+        echo "  whoami              - Affiche l'identité Git actuelle"
+        echo "  switch-identity     - Change l'identité Git"
+        echo "  config              - Configure l'identité Git"
+        echo "  status              - Affiche le statut Git"
+        echo "  log [count]         - Affiche les logs (défaut: 10)"
+        echo "  branch              - Liste les branches"
+        echo "  remote              - Liste les remotes"
+        echo "  pull                - Pull depuis remote"
+        echo "  push [branch]       - Push vers remote"
+        echo "  commit <message>    - Commit avec message"
+        echo "  add-commit <files> <message> - Add et commit"
+        echo "  diff                - Affiche les différences"
+        echo "  create-branch <name> - Crée une branche"
+        echo "  checkout <branch>    - Change de branche"
+        echo "  delete-branch <branch> - Supprime une branche"
+        echo "  merge <branch>      - Merge une branche"
+        echo "  rebase <branch>     - Rebase sur une branche"
+        echo "  abort [type]        - Abort merge/rebase"
+        echo "  clean               - Nettoie les fichiers non trackés"
+        echo "  reset [type] [target] - Reset (soft/mixed/hard)"
+        echo "  stash [action]      - Gestion des stashes"
+        echo "  time-spent [--fetch] - Temps estimé par auteur (toutes branches)"
+        echo "                         Variable: GITMAN_TIME_MAX_GAP (sec, défaut 7200)"
+        echo ""
+    }
     
     # Gestion des arguments en ligne de commande
-    if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            gitman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
+    if [ $# -eq 0 ]; then
+        gitman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                gitman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "gitman: help --interactive nécessite un TTY." >&2
+                gitman_print_quick_help
             fi
-            pause_if_tty
+            return 0
+            ;;
+        *)
+            gitman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        gitman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
-        # Menu interactif
+        pause_if_tty
         while true; do
             show_main_menu
         done
-    else
-        # Commandes directes
-        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
-        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log gitman "$@"
-        case "$1" in
+    fi
+
+    # Commandes directes
+    _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+    [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log gitman "$@"
+    case "$1" in
             whoami)
                 # Charger les fonctions depuis legacy si nécessaire
                 if [ -f "$GIT_DIR/git_functions.sh" ]; then
@@ -698,43 +756,10 @@ EOF
                         ;;
                 esac
                 ;;
-            help|-h)
-                echo "🔧 GITMAN - Gestionnaire Git"
-                echo ""
-                echo "Usage: gitman [command] [args]"
-                echo ""
-                echo "Commandes:"
-                echo "  whoami              - Affiche l'identité Git actuelle"
-                echo "  switch-identity     - Change l'identité Git"
-                echo "  config              - Configure l'identité Git"
-                echo "  status              - Affiche le statut Git"
-                echo "  log [count]         - Affiche les logs (défaut: 10)"
-                echo "  branch              - Liste les branches"
-                echo "  remote              - Liste les remotes"
-                echo "  pull                - Pull depuis remote"
-                echo "  push [branch]       - Push vers remote"
-                echo "  commit <message>    - Commit avec message"
-                echo "  add-commit <files> <message> - Add et commit"
-                echo "  diff                - Affiche les différences"
-                echo "  create-branch <name> - Crée une branche"
-                echo "  checkout <branch>    - Change de branche"
-                echo "  delete-branch <branch> - Supprime une branche"
-                echo "  merge <branch>      - Merge une branche"
-                echo "  rebase <branch>     - Rebase sur une branche"
-                echo "  abort [type]        - Abort merge/rebase"
-                echo "  clean               - Nettoie les fichiers non trackés"
-                echo "  reset [type] [target] - Reset (soft/mixed/hard)"
-                echo "  stash [action]      - Gestion des stashes"
-                echo "  time-spent [--fetch] - Temps estimé par auteur (toutes branches)"
-                echo "                         Variable: GITMAN_TIME_MAX_GAP (sec, défaut 7200)"
-                echo ""
-                echo "Sans argument ou gitman --help : menu interactif"
-                ;;
             *)
                 printf "${RED}❌ Commande inconnue: $1${RESET}\n"
                 echo "💡 Utilisez 'gitman help' pour voir les commandes disponibles"
                 return 1
                 ;;
         esac
-    fi
 }

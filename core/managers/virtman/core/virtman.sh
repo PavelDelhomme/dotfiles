@@ -69,6 +69,28 @@ virtman() {
         printf "${RESET}"
     }
     
+    virtman_print_quick_help() {
+        echo "🖥️  VIRTMAN - Virtual Environment Manager"
+        echo ""
+        echo "Interface :"
+        echo "  virtman                       cette aide (stdout)"
+        echo "  virtman help | -h             idem"
+        echo "  virtman help --interactive    cette aide + pause (TTY)"
+        echo "  virtman --help                cette aide + pause + menu interactif"
+        echo ""
+        echo "Usage: virtman [module]"
+        echo ""
+        echo "Modules disponibles:"
+        echo "  docker    - Gestion conteneurs Docker"
+        echo "  qemu|kvm|vm - Machines virtuelles QEMU/KVM"
+        echo "  libvirt|virsh - Gestion VMs via libvirt"
+        echo "  lxc       - Linux Containers"
+        echo "  vagrant   - VMs provisionnées Vagrant"
+        echo "  overview|all - Vue d'ensemble"
+        echo "  search|find - Recherche d'environnements"
+        echo ""
+    }
+    
     # Fonction pour afficher le menu principal
     show_main_menu() {
         show_header
@@ -178,10 +200,41 @@ EOF
         pause_if_tty
     }
     
-    # Si un argument est fourni, lancer directement le module
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+    if [ -z "$1" ]; then
+        virtman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                virtman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "virtman: help --interactive nécessite un TTY." >&2
+                virtman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            virtman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        virtman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        pause_if_tty
+        while true; do
+            show_main_menu
+        done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log virtman "$@"
         case "$1" in
@@ -220,22 +273,6 @@ EOF
                     bash "$VIRTMAN_MODULES_DIR/search.sh"
                 fi
                 ;;
-            help|-h)
-                echo "🖥️  VIRTMAN - Virtual Environment Manager"
-                echo ""
-                echo "Usage: virtman [module]"
-                echo ""
-                echo "Modules disponibles:"
-                echo "  docker    - Gestion conteneurs Docker"
-                echo "  qemu|kvm|vm - Machines virtuelles QEMU/KVM"
-                echo "  libvirt|virsh - Gestion VMs via libvirt"
-                echo "  lxc       - Linux Containers"
-                echo "  vagrant   - VMs provisionnées Vagrant"
-                echo "  overview|all - Vue d'ensemble"
-                echo "  search|find - Recherche d'environnements"
-                echo ""
-                echo "Sans argument ou virtman --help : menu interactif"
-                ;;
             *)
                 printf "${RED}Module inconnu: %s${RESET}\n" "$1"
                 echo ""
@@ -250,21 +287,5 @@ EOF
                 return 1
                 ;;
         esac
-    fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            virtman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _virt_dummy || true
-            fi
-        fi
-        # Mode interactif
-        while true; do
-            show_main_menu
-        done
     fi
 }

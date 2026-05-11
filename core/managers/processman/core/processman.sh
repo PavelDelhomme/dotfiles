@@ -196,9 +196,15 @@ processman() {
         done
     }
 
-    _pm_show_help() {
+    _pm_print_quick_help() {
         printf "${CYAN}📚 Aide PROCESSMAN${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo "Interface :"
+        echo "  processman                     cette aide (stdout)"
+        echo "  processman help | -h           idem"
+        echo "  processman help --interactive  aide + pause (TTY)"
+        echo "  processman --help              cette aide + pause + menu interactif"
+        echo ""
         echo "Commandes directes:"
         echo "  processman list                          - Top process par CPU"
         echo "  processman search <pattern>              - Recherche par nom/commande"
@@ -211,71 +217,36 @@ processman() {
         echo "  processman restart <pid|pattern>         - Relance process"
         echo "  processman tree                          - Arbre process"
         echo ""
-        echo "Sans argument ou processman --help : menu interactif"
     }
 
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
-        case "$1" in
-            list|ls)
-                _pm_list
-                ;;
-            search|find)
-                _pm_search "$2"
-                ;;
-            info|inspect)
-                _pm_info "$2"
-                ;;
-            kill)
-                _pm_kill "$2" "TERM"
-                ;;
-            force-kill|kill9)
-                _pm_kill "$2" "KILL"
-                ;;
-            stop)
-                _pm_signal "STOP" "$2"
-                ;;
-            continue|cont|resume)
-                _pm_signal "CONT" "$2"
-                ;;
-            signal)
-                _pm_signal "$2" "$3"
-                ;;
-            restart)
-                if _pm_is_pid "$2"; then
-                    _pm_restart_pid "$2"
-                else
-                    _pm_restart_pattern "$2"
-                fi
-                ;;
-            tree)
-                if command -v pstree >/dev/null 2>&1; then
-                    pstree -ap
-                else
-                    ps -eo pid,ppid,user,comm,args --forest 2>/dev/null
-                fi
-                ;;
-            help|-h)
-                _pm_show_help
-                ;;
-            *)
-                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
-                echo "Utilisez 'processman help'."
-                return 1
-                ;;
-        esac
-        return
+    if [ -z "$1" ]; then
+        _pm_print_quick_help
+        return 0
     fi
-
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            processman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                _pm_print_quick_help
+                _pm_wait
+            else
+                printf '%s\n' "processman: help --interactive nécessite un TTY." >&2
+                _pm_print_quick_help
             fi
-            _pm_wait
+            return 0
+            ;;
+        *)
+            _pm_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        _pm_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
+        _pm_wait
         while true; do
         _pm_header
         printf "${GREEN}Menu Principal${RESET}\n"
@@ -389,7 +360,7 @@ EOF
                 ;;
             h|H)
                 _pm_header
-                _pm_show_help
+                _pm_print_quick_help
                 _pm_wait
                 ;;
             q|Q)
@@ -402,6 +373,55 @@ EOF
                 ;;
         esac
         done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
+        case "$1" in
+            list|ls)
+                _pm_list
+                ;;
+            search|find)
+                _pm_search "$2"
+                ;;
+            info|inspect)
+                _pm_info "$2"
+                ;;
+            kill)
+                _pm_kill "$2" "TERM"
+                ;;
+            force-kill|kill9)
+                _pm_kill "$2" "KILL"
+                ;;
+            stop)
+                _pm_signal "STOP" "$2"
+                ;;
+            continue|cont|resume)
+                _pm_signal "CONT" "$2"
+                ;;
+            signal)
+                _pm_signal "$2" "$3"
+                ;;
+            restart)
+                if _pm_is_pid "$2"; then
+                    _pm_restart_pid "$2"
+                else
+                    _pm_restart_pattern "$2"
+                fi
+                ;;
+            tree)
+                if command -v pstree >/dev/null 2>&1; then
+                    pstree -ap
+                else
+                    ps -eo pid,ppid,user,comm,args --forest 2>/dev/null
+                fi
+                ;;
+            *)
+                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
+                echo "Utilisez 'processman help'."
+                return 1
+                ;;
+        esac
     fi
 }
 

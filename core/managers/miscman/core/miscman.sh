@@ -271,64 +271,53 @@ miscman() {
             printf "${RED}❌ Erreur lors de l'extraction${RESET}\n"
         fi
     }
-    
+
+    miscman_print_quick_help() {
+        printf '%s\n' "MISCMAN — outils divers"
+        printf '%s\n' ""
+        printf '%s\n' "Interface :"
+        printf '%s\n' "  miscman                        cette aide (stdout)"
+        printf '%s\n' "  miscman help | -h | h          idem"
+        printf '%s\n' "  miscman help --interactive     aide + pause (TTY)"
+        printf '%s\n' "  miscman --help                 cette aide + pause + menu interactif"
+        printf '%s\n' ""
+        printf '%s\n' "Commandes :"
+        printf '%s\n' "  miscman genpass [n]   Générer un mot de passe (défaut 16)"
+        printf '%s\n' "  miscman sysinfo       Infos système"
+        printf '%s\n' "  miscman copy          Copie de fichier avancée"
+        printf '%s\n' "  miscman backup        Sauvegarde"
+        printf '%s\n' "  miscman extract       Extraire une archive"
+    }
+
     # Gestion des arguments rapides
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
-        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
-        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log miscman "$@"
-        case "$1" in
-            genpass|password)
-                gen_password "$2"
-                return 0
-                ;;
-            sysinfo|info)
-                show_system_info
-                return 0
-                ;;
-            copy)
-                copy_file_advanced
-                return 0
-                ;;
-            backup)
-                create_smart_backup
-                return 0
-                ;;
-            extract)
-                extract_archive
-                return 0
-                ;;
-            help|h|-h)
-                printf '%s\n' "MISCMAN — outils divers"
-                printf '%s\n' "  miscman genpass [n]   Générer un mot de passe (défaut 16)"
-                printf '%s\n' "  miscman sysinfo       Infos système"
-                printf '%s\n' "  miscman copy          Copie de fichier avancée"
-                printf '%s\n' "  miscman backup        Sauvegarde"
-                printf '%s\n' "  miscman extract       Extraire une archive"
-                printf '%s\n' "Sans argument ou miscman --help : menu interactif."
-                return 0
-                ;;
-            *)
-                printf '%s\n' "miscman: commande inconnue: $1" >&2
-                printf '%s\n' "miscman help — aide sur stdout." >&2
-                return 1
-                ;;
+    if [ -z "$1" ]; then
+        miscman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                miscman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "miscman: help --interactive nécessite un TTY." >&2
+                miscman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            miscman_print_quick_help
+            return 0
+            ;;
         esac
     fi
-
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            miscman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _misc_dummy || true
-            fi
+    if [ "$1" = "--help" ]; then
+        miscman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
-        # Menu principal
+        pause_if_tty
         while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
@@ -399,5 +388,38 @@ EOF
                 ;;
         esac
         done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log miscman "$@"
+        case "$1" in
+            genpass|password)
+                gen_password "$2"
+                return 0
+                ;;
+            sysinfo|info)
+                show_system_info
+                return 0
+                ;;
+            copy)
+                copy_file_advanced
+                return 0
+                ;;
+            backup)
+                create_smart_backup
+                return 0
+                ;;
+            extract)
+                extract_archive
+                return 0
+                ;;
+            *)
+                printf '%s\n' "miscman: commande inconnue: $1" >&2
+                printf '%s\n' "miscman help — aide sur stdout." >&2
+                return 1
+                ;;
+        esac
     fi
 }

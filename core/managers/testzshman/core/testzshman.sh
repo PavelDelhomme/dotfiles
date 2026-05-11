@@ -79,6 +79,30 @@ testzshman() {
         done
     fi
     
+    testzshman_print_quick_help() {
+        echo "🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles"
+        echo ""
+        echo "Interface :"
+        echo "  testzshman                       cette aide (stdout)"
+        echo "  testzshman help | -h             idem"
+        echo "  testzshman help --interactive    cette aide + pause (TTY)"
+        echo "  testzshman --help                cette aide + pause + menu interactif"
+        echo ""
+        echo "Usage: testzshman [test-type]"
+        echo ""
+        echo "Tests disponibles:"
+        echo "  managers   - Test des managers"
+        echo "  functions  - Test des fonctions"
+        echo "  structure  - Test de la structure"
+        echo "  config     - Test de la configuration"
+        echo "  symlinks   - Test des symlinks"
+        echo "  syntax     - Test de la syntaxe"
+        echo "  cyberlearn - Test de cyberlearn"
+        echo "  logging    - actions_logger / managers_log (hermétique + audit statique)"
+        echo "  all        - Tous les tests"
+        echo ""
+    }
+    
     # Fonction pour afficher le header
     show_header() {
         clear
@@ -668,10 +692,41 @@ $cyberlearn_dir/labs"
         printf "${GREEN}${BOLD}✅ Tests complets terminés!${RESET}\n"
     }
     
-    # Si un argument est fourni, exécuter directement
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+    if [ -z "$1" ]; then
+        testzshman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                testzshman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "testzshman: help --interactive nécessite un TTY." >&2
+                testzshman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            testzshman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        testzshman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        pause_if_tty
+        while true; do
+            show_main_menu
+        done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log testzshman "$@"
         case "$1" in
@@ -702,24 +757,6 @@ $cyberlearn_dir/labs"
             all|complete)
                 test_all
                 ;;
-            help|-h)
-                echo "🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles"
-                echo ""
-                echo "Usage: testzshman [test-type]"
-                echo ""
-                echo "Tests disponibles:"
-                echo "  managers   - Test des managers"
-                echo "  functions  - Test des fonctions"
-                echo "  structure  - Test de la structure"
-                echo "  config     - Test de la configuration"
-                echo "  symlinks   - Test des symlinks"
-                echo "  syntax     - Test de la syntaxe"
-                echo "  cyberlearn - Test de cyberlearn"
-                echo "  logging    - actions_logger / managers_log (hermétique + audit statique)"
-                echo "  all        - Tous les tests"
-                echo ""
-                echo "Sans argument ou testzshman --help : menu interactif"
-                ;;
             *)
                 printf "${RED}Test inconnu: %s${RESET}\n" "$1"
                 echo ""
@@ -736,21 +773,5 @@ $cyberlearn_dir/labs"
                 return 1
                 ;;
         esac
-    fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            testzshman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _tzsm_dummy || true
-            fi
-        fi
-        # Mode interactif
-        while true; do
-            show_main_menu
-        done
     fi
 }

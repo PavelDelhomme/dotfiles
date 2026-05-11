@@ -80,8 +80,10 @@ installman() {
         echo "Mises à jour :     installman update | update-all | check | upgrade | packages"
         echo ""
         echo "Interface :"
-        echo "  installman / installman --help   menu (avec --help : cette aide puis Entrée)"
-        echo "  installman -h, installman help   cette page (stdout)"
+        echo "  installman                    cette page (stdout)"
+        echo "  installman help | -h          idem"
+        echo "  installman help --interactive rappels + pause (TTY)"
+        echo "  installman --help             menu interactif principal"
         echo ""
     }
     
@@ -1043,15 +1045,37 @@ EOF
         fi
     }
     
-    # Sans argument ou --help : menu ; sinon sous-commandes / outils
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            installman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
+    # Convention CLI : sans arg / help / -h = stdout ; help --interactive = pause TTY ;
+    # --help = menu principal.
+    if [ -z "${1:-}" ]; then
+        installman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                installman_print_quick_help
+                printf '\n%s\n' "Astuce : lancez « installman --help » pour le menu complet (outils, paquets, mises à jour)."
+                pause_if_tty
+            else
+                printf '%s\n' "installman: help --interactive nécessite un TTY." >&2
+                installman_print_quick_help
             fi
-            pause_if_tty
+            return 0
+            ;;
+        *)
+            installman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        installman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
+        pause_if_tty
         show_main_menu
     elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
@@ -1135,10 +1159,6 @@ EOF
                 else
                     package_remove_interactive
                 fi
-                return 0
-                ;;
-            help|-h)
-                installman_print_quick_help
                 return 0
                 ;;
             list)

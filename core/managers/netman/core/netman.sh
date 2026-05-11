@@ -200,9 +200,24 @@ netman() {
         echo "  netman connectivity | speed | monitor | analyze | export"
         echo ""
         echo "Interface :"
-        echo "  netman / netman --help    menu (avec --help : aide puis Entrée)"
-        echo "  netman -h, netman help    cette page (stdout)"
+        echo "  netman                    cette page (stdout, non interactif)"
+        echo "  netman help | -h          idem"
+        echo "  netman help --interactive aide guidée + pause (TTY requis)"
+        echo "  netman --help             menu principal interactif"
         echo ""
+    }
+
+    # Aide « longue » sans ouvrir tout le menu (TTY) — netman help --interactive
+    netman_interactive_help_cli() {
+        show_header
+        printf "${CYAN}NETMAN — aide guidée (mode interactif)${RESET}\n"
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        echo ""
+        echo "Rappel : les sous-commandes ci-dessous s'exécutent en non interactif."
+        echo "Le menu complet (fzf / ncurses / saisie) s'obtient avec : netman --help"
+        echo ""
+        netman_print_quick_help
+        pause_if_tty
     }
     
     # Fonction pour afficher le header
@@ -1533,9 +1548,31 @@ https://speed.hetzner.de/5GB.bin"
     }
     
     # Gestion des arguments en ligne de commande
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+    # Convention : sans arg / help / -h = stdout ; help --interactive = aide TTY ;
+    # --help seul = menu principal interactif.
+    if [ -z "${1:-}" ]; then
+        netman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                netman_interactive_help_cli
+            else
+                printf '%s\n' "netman: help --interactive nécessite un terminal (TTY)." >&2
+                netman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            netman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+
+    if [ -n "$1" ] && [ "$1" != "--help" ]; then
         _nmdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         if [ -f "$_nmdf/scripts/lib/managers_log_posix.sh" ]; then
             # shellcheck source=managers_log_posix.sh
@@ -1670,9 +1707,6 @@ https://speed.hetzner.de/5GB.bin"
             export)
                 export_network_config
                 ;;
-            help|-h)
-                netman_print_quick_help
-                ;;
             *)
                 printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
                 echo "Utilisez 'netman help' pour voir les commandes disponibles"
@@ -1680,14 +1714,12 @@ https://speed.hetzner.de/5GB.bin"
                 ;;
         esac
     fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            netman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            pause_if_tty
+    if [ "$1" = "--help" ]; then
+        netman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
+        pause_if_tty
         # Menu principal interactif
         while true; do
             show_header

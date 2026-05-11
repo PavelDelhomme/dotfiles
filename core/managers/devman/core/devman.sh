@@ -57,6 +57,34 @@ devman() {
         echo "╚════════════════════════════════════════════════════════════════╝"
         printf "${RESET}"
     }
+
+    pause_if_tty() {
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée pour continuer... "
+            read _dev_pause || true
+        fi
+    }
+
+    devman_print_quick_help() {
+        echo "🔧 DEVMAN - Development Manager"
+        echo ""
+        echo "Interface :"
+        echo "  devman                       cette aide (stdout)"
+        echo "  devman help | -h             idem"
+        echo "  devman help --interactive    cette aide + pause (TTY)"
+        echo "  devman --help                cette aide + pause + menu interactif"
+        echo ""
+        echo "Usage: devman [category]"
+        echo ""
+        echo "Catégories:"
+        echo "  docker    - Gestion conteneurs Docker"
+        echo "  go        - Langage Go"
+        echo "  make      - Gestion builds Make"
+        echo "  c|cpp     - Compilation C/C++"
+        echo "  projects  - Gestion projets"
+        echo "  utils     - Utilitaires dev"
+        echo ""
+    }
     
     # Fonction pour afficher le menu principal
     show_main_menu() {
@@ -212,10 +240,41 @@ EOF
         esac
     }
     
-    # Gestion des arguments en ligne de commande
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+    if [ -z "$1" ]; then
+        devman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                devman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "devman: help --interactive nécessite un TTY." >&2
+                devman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            devman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        devman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        pause_if_tty
+        while true; do
+            show_main_menu
+        done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log devman "$@"
         case "$1" in
@@ -245,42 +304,11 @@ EOF
             utils)
                 show_dev_utils_menu
                 ;;
-            help|-h)
-                echo "🔧 DEVMAN - Development Manager"
-                echo ""
-                echo "Usage: devman [category]"
-                echo ""
-                echo "Catégories:"
-                echo "  docker    - Gestion conteneurs Docker"
-                echo "  go        - Langage Go"
-                echo "  make      - Gestion builds Make"
-                echo "  c|cpp     - Compilation C/C++"
-                echo "  projects  - Gestion projets"
-                echo "  utils     - Utilitaires dev"
-                echo ""
-                echo "Sans argument ou devman --help : menu interactif"
-                ;;
             *)
                 printf "${RED}Catégorie inconnue: %s${RESET}\n" "$1"
                 echo "Utilisez 'devman help' pour voir les catégories disponibles"
                 return 1
                 ;;
         esac
-    fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            devman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _devman_dummy || true
-            fi
-        fi
-        # Menu interactif principal
-        while true; do
-            show_main_menu
-        done
     fi
 }

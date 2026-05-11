@@ -281,8 +281,10 @@ pathman() {
         echo "  pathman export          exporter vers un fichier texte"
         echo ""
         echo "Interface :"
-        echo "  pathman / pathman --help   menu (avec --help : cette aide puis menu en TTY)"
-        echo "  pathman -h, pathman help   cette page (stdout, non interactive)"
+        echo "  pathman                    cette page (stdout)"
+        echo "  pathman help | -h          idem"
+        echo "  pathman help --interactive aide détaillée + pause (TTY)"
+        echo "  pathman --help             menu interactif (fzf ou menu console)"
         echo ""
     }
 
@@ -313,15 +315,33 @@ pathman() {
         fi
     }
 
-    # Sans argument / --help : convention interactive (menu)
-    if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            print_help_stdout
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
+    if [ $# -eq 0 ]; then
+        print_help_stdout
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                show_help_menu
+            else
+                printf '%s\n' "pathman: help --interactive nécessite un TTY." >&2
+                print_help_stdout
             fi
-            pause_if_tty
+            return 0
+            ;;
+        *)
+            print_help_stdout
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        print_help_stdout
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
+        pause_if_tty
         # Tenter le menu fzf (dotfiles-menu) si disponible
         DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
         if [ -f "$DOTFILES_DIR/share/menus/pathman.menu" ] && command -v fzf >/dev/null 2>&1 && [ -x "$DOTFILES_DIR/bin/dotfiles-menu" ]; then
@@ -395,13 +415,9 @@ pathman() {
             export_path
             return 0
             ;;
-        help|-h)
-            print_help_stdout
-            return 0
-            ;;
     esac
 
-    # Menu interactif
+    # Menu interactif (pathman --help sans fzf, ou après fzf sans choix)
     while true; do
         clear
         printf "${CYAN}${BOLD}\n╔════════════════════════════════════════╗\n"

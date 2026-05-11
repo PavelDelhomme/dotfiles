@@ -174,59 +174,61 @@ routeman() {
         _rm_del "$network"
     }
 
+    _rm_print_quick_help() {
+        printf "%s\n" "ROUTEMAN — routes IP"
+        printf "%s\n" ""
+        printf "%s\n" "Interface :"
+        printf "%s\n" "  routeman                     cette aide (stdout)"
+        printf "%s\n" "  routeman help | -h           idem"
+        printf "%s\n" "  routeman help --interactive  aide + pause (TTY)"
+        printf "%s\n" "  routeman --help              cette aide + pause + menu interactif"
+        printf "%s\n" ""
+        printf "%s\n" "Commandes :"
+        printf "%s\n" "  routeman show"
+        printf "%s\n" "  routeman add <reseau/cidr> [gateway] [interface] [metric]"
+        printf "%s\n" "  routeman del <reseau/cidr|default>"
+        printf "%s\n" "  routeman replace <reseau/cidr> [gateway] [interface] [metric]"
+        printf "%s\n" ""
+        printf "%s\n" "Exemples :"
+        printf "%s\n" "  routeman add 10.10.0.0/24 192.168.1.1 eth0 100"
+        printf "%s\n" "  routeman replace default 192.168.1.254 eth0 50"
+        printf "%s\n" "  routeman del 10.10.0.0/24"
+    }
+
     _rm_help() {
         printf "${CYAN}📚 Aide ROUTEMAN${RESET}\n"
         printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
-        echo "Commandes:"
-        echo "  routeman show"
-        echo "  routeman add <reseau/cidr> [gateway] [interface] [metric]"
-        echo "  routeman del <reseau/cidr|default>"
-        echo "  routeman replace <reseau/cidr> [gateway] [interface] [metric]"
-        echo ""
-        echo "Exemples:"
-        echo "  routeman add 10.10.0.0/24 192.168.1.1 eth0 100"
-        echo "  routeman replace default 192.168.1.254 eth0 50"
-        echo "  routeman del 10.10.0.0/24"
-        echo ""
-        echo "Sans argument ou routeman --help : menu interactif"
+        _rm_print_quick_help
     }
 
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
-        case "$1" in
-            show|list)
-                _rm_show
-                ;;
-            add)
-                _rm_add "$2" "$3" "$4" "$5"
-                ;;
-            del|delete|rm)
-                _rm_del "$2"
-                ;;
-            replace|mod|modify|update)
-                _rm_replace "$2" "$3" "$4" "$5"
-                ;;
-            help|-h)
-                _rm_help
-                ;;
-            *)
-                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
-                echo "Utilisez 'routeman help'."
-                return 1
-                ;;
-        esac
-        return
+    if [ -z "$1" ]; then
+        _rm_print_quick_help
+        return 0
     fi
-
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            routeman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                _rm_print_quick_help
+                _rm_wait
+            else
+                printf '%s\n' "routeman: help --interactive nécessite un TTY." >&2
+                _rm_print_quick_help
             fi
-            _rm_wait
+            return 0
+            ;;
+        *)
+            _rm_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        _rm_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
+        _rm_wait
         while true; do
         _rm_header
         echo "  ${BOLD}1${RESET}  📋 Visualiser les routes"
@@ -267,6 +269,29 @@ EOF
             *) printf "${RED}Option invalide${RESET}\n"; sleep 1 ;;
         esac
         done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
+        case "$1" in
+            show|list)
+                _rm_show
+                ;;
+            add)
+                _rm_add "$2" "$3" "$4" "$5"
+                ;;
+            del|delete|rm)
+                _rm_del "$2"
+                ;;
+            replace|mod|modify|update)
+                _rm_replace "$2" "$3" "$4" "$5"
+                ;;
+            *)
+                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
+                echo "Utilisez 'routeman help'."
+                return 1
+                ;;
+        esac
     fi
 }
 

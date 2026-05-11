@@ -66,13 +66,15 @@ helpman() {
 HELPMAN — aide centralisée (texte sur stdout, sans menu)
 
 Usage :
-  helpman
-  helpman help | -h | --help    cette page
-  helpman i | interactive       guide général interactif (TTY requis)
-  helpman <gestionnaire>        comme « <gestionnaire> --help » (aide + menu si le gestionnaire le prévoit)
+  helpman                       cette page (stdout)
+  helpman help | -h             idem
+  helpman help --interactive    guide général interactif (TTY requis)
+  helpman --help                idem que « helpman i » (menu interactif)
+  helpman i | interactive       alias du menu interactif (TTY requis)
+  helpman <gestionnaire>        comme « <gestionnaire> --help » (souvent menu du gestionnaire)
 
 Exemples :
-  helpman i                     tutoriel man / help / dotfiles
+  helpman --help                tutoriel man / help / dotfiles (menu)
   helpman installman            délègue à installman --help
   man ls                        page man système
   help extract                  aide courte (DESC / USAGE / EXAMPLE)
@@ -104,11 +106,21 @@ EOF
     }
 
     case "${1:-}" in
-    ""|help|-h|--help)
+    "")
         helpman_print_usage
         return 0
         ;;
-    i|I|interactive|--interactive)
+    help|-h)
+        case "${2:-}" in
+        --interactive|-i)
+            ;;
+        *)
+            helpman_print_usage
+            return 0
+            ;;
+        esac
+        ;;
+    --help|i|I|interactive|--interactive)
         ;;
     *)
         helpman_dispatch_manager "$1"
@@ -117,7 +129,7 @@ EOF
     esac
 
     if ! [ -t 0 ] || ! [ -t 1 ]; then
-        printf '%s\n' "helpman: le mode interactif (helpman i) nécessite un terminal." >&2
+        printf '%s\n' "helpman: le mode interactif (helpman --help, helpman i, helpman help --interactive) nécessite un terminal." >&2
         helpman_print_usage
         return 0
     fi
@@ -125,7 +137,7 @@ EOF
     if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
         # shellcheck source=managers_log_posix.sh
         . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
-        managers_log_line "helpman" "invoke" "menu" "info" "session interactive (helpman i)"
+        managers_log_line "helpman" "invoke" "menu" "info" "session interactive (menu général)"
     fi
     
     pause_if_tty() {

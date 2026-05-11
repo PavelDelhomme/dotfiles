@@ -528,13 +528,21 @@ EOF
     # --- CLI : commande dans le PATH / hors PATH (ex. flutter, gcc) ---
     # USAGE: searchman cmd <nom> | searchman locate <nom> | searchman resolve <nom>
     sm_print_cli_help() {
-        printf "%s\n" "searchman — recherche d'exécutables"
+        printf "%s\n" "searchman — recherche d'exécutables et menus avancés"
+        printf "%s\n" ""
+        printf "%s\n" "Interface :"
+        printf "%s\n" "  searchman                        cette aide (stdout)"
+        printf "%s\n" "  searchman help | -h              idem"
+        printf "%s\n" "  searchman help --interactive     aide + pause (TTY)"
+        printf "%s\n" "  searchman --help                 cette aide + pause + menu interactif"
+        printf "%s\n" ""
+        printf "%s\n" "Sous-commandes CLI :"
         printf "%s\n" "  cmd|in-path|which-path <nom>   Commande résolue par le shell + entrées PATH + which -a"
         printf "%s\n" "  locate|outside|find-bin <nom> whereis + recherche dans les répertoires usuels (hors seul PATH)"
         printf "%s\n" "  resolve|where <nom>            cmd puis locate (vue d'ensemble)"
         printf "%s\n" "  ping                           test non interactif (CI)"
+        printf "%s\n" "  history | files | process | logs | functions | stats — menus / flux avancés"
         printf "%s\n" "Variable optionnelle : SEARCHMAN_FIND_ROOTS=\"/chemin1 /chemin2\" (espaces) pour élargir la recherche."
-        printf "%s\n" "Sans argument ou searchman --help : menu interactif ; searchman help : cette aide."
     }
     
     sm_cmd_in_path() {
@@ -613,80 +621,36 @@ EOF
     }
     
     # Gestion des arguments rapides
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
-        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
-        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log searchman "$@"
-        case "$1" in
-        ping)
-            printf "searchman: ok\n"
-            return 0
-            ;;
-        help|-h)
-            sm_print_cli_help
-            return 0
-            ;;
-        cmd|in-path|which-path)
-            sm_cmd_in_path "$2"
-            return $?
-            ;;
-        locate|outside|find-bin)
-            sm_find_outside_path "$2"
-            return 0
-            ;;
-        resolve|where)
-            sm_resolve_cmd "$2"
-            return 0
-            ;;
-        history)
-            if [ -n "$2" ]; then
-                search_history_advanced
+    if [ -z "$1" ]; then
+        sm_print_cli_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                sm_print_cli_help
+                echo ""
+                pause_if_tty
             else
-                search_history_advanced
+                printf '%s\n' "searchman: help --interactive nécessite un TTY." >&2
+                sm_print_cli_help
             fi
-            return 0
-            ;;
-        files)
-            search_files_advanced
-            return 0
-            ;;
-        process)
-            search_processes
-            return 0
-            ;;
-        logs)
-            search_logs
-            return 0
-            ;;
-        functions)
-            search_functions
-            return 0
-            ;;
-        stats)
-            search_statistics
             return 0
             ;;
         *)
-            printf "${RED}Sous-commande inconnue: %s${RESET}\n" "$1"
-            echo "searchman help — aide sur stdout."
-            return 1
+            sm_print_cli_help
+            return 0
             ;;
         esac
     fi
-
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            searchman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _sm_dummy || true
-            fi
+    if [ "$1" = "--help" ]; then
+        sm_print_cli_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
-        # Menu principal
+        echo ""
+        pause_if_tty
         while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
@@ -738,5 +702,62 @@ EOF
                 ;;
         esac
         done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
+        _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+        [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log searchman "$@"
+        case "$1" in
+        ping)
+            printf "searchman: ok\n"
+            return 0
+            ;;
+        cmd|in-path|which-path)
+            sm_cmd_in_path "$2"
+            return $?
+            ;;
+        locate|outside|find-bin)
+            sm_find_outside_path "$2"
+            return 0
+            ;;
+        resolve|where)
+            sm_resolve_cmd "$2"
+            return 0
+            ;;
+        history)
+            if [ -n "$2" ]; then
+                search_history_advanced
+            else
+                search_history_advanced
+            fi
+            return 0
+            ;;
+        files)
+            search_files_advanced
+            return 0
+            ;;
+        process)
+            search_processes
+            return 0
+            ;;
+        logs)
+            search_logs
+            return 0
+            ;;
+        functions)
+            search_functions
+            return 0
+            ;;
+        stats)
+            search_statistics
+            return 0
+            ;;
+        *)
+            printf "${RED}Sous-commande inconnue: %s${RESET}\n" "$1"
+            echo "searchman help — aide sur stdout."
+            return 1
+            ;;
+        esac
     fi
 }
