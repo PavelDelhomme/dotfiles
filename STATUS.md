@@ -34,10 +34,11 @@
 
 ## Journal récent (suivi détaillé)
 
-1. **Dernière livraison notable** : 2026-05-11 — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
-2. **Livraison précédente** : 2026-05-06 — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn, doc réorganisée sous `docs/*/` (`STRUCTURE` + `TESTS` + `ERRORS` + maintenant `INDEX` + `LEGENDE_CHAMPS` à la racine de `docs/`).
-3. **À faire maintenant** : section **« En cours »** de [`TODOS.md`](TODOS.md) ; remplir [`docs/TESTS.md`](docs/TESTS.md) (champs `Conforme` / `Assistant (relecture)`) ; garder `make test` vert.
-4. **Dernière résolution** : CI phase 2 — `TEST_RESULTS_DIR` inscriptible ; `gitman log` ; installman multi-shell (détails [`docs/ERRORS.md`](docs/ERRORS.md)).
+1. **Dernière livraison notable** : 2026-05-11 (2) — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
+2. **Livraison précédente** : 2026-05-11 (1) — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
+3. **Livraison antérieure** : 2026-05-06 — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
+4. **À faire maintenant** : section **« En cours »** de [`TODOS.md`](TODOS.md) ; remplir [`docs/TESTS.md`](docs/TESTS.md) (champs `Conforme` / `Assistant (relecture)`) ; garder `make test` vert.
+5. **Dernière résolution** : CI phase 2 — `TEST_RESULTS_DIR` inscriptible ; `gitman log` ; installman multi-shell (détails [`docs/ERRORS.md`](docs/ERRORS.md)).
 
 | Période | Sujet |
 |---------|--------|

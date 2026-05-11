@@ -14,7 +14,7 @@
 | 4 | [`ERRORS.md`](ERRORS.md) | **Journal des incidents** : problème / cause / correctif. | Quand tu hites une erreur récurrente ou tu veux comprendre une régression. |
 | 5 | [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) | **Référentiel unique** : format d’une étape (Commande, Attendu, Conforme O/N/NA, Notes, Assistant relecture…). | Avant d’ajouter ou de modifier une étape dans un guide. |
 
-> **STRUCTURE** : [`STRUCTURE.md`](STRUCTURE.md) reste la **carte technique** du dépôt (arborescence, dossiers `architecture/`, `managers/`, etc.). Tu y vas pour **localiser** un fichier ou comprendre la structure ; ce **INDEX** te dit **quoi lire**.
+> **Carte doc** : [`STRUCTURE.md`](STRUCTURE.md) — où se trouvent les fichiers `docs/`. **Carte code** : [`CODEMAP.md`](CODEMAP.md) — arborescence des scripts, managers, fonctions zsh. **INDEX** (ce fichier) te dit **quoi lire**.
 
 ---
 
@@ -27,7 +27,13 @@
 | Valider une tâche finalisée (case bloquante). | [`../TODOS.md`](../TODOS.md) → **« Finalisées — en attente de validation »** |
 | Documenter une erreur reproductible. | [`ERRORS.md`](ERRORS.md) → ajouter une entrée datée |
 | Connaître la version et le journal récent. | [`../STATUS.md`](../STATUS.md) |
-| Trouver le fichier `<X>` ou comprendre l’arborescence. | [`STRUCTURE.md`](STRUCTURE.md) |
+| Trouver un fichier de **doc**, comprendre l’arborescence `docs/`. | [`STRUCTURE.md`](STRUCTURE.md) |
+| Trouver un fichier de **code** (script, manager, fonction). | [`CODEMAP.md`](CODEMAP.md) |
+| **Installer** sur une nouvelle machine. | [`guides/INSTALL.md`](guides/INSTALL.md) |
+| **Usage quotidien** (Makefile, aide, maintenance, Powerlevel10k…). | [`guides/USAGE.md`](guides/USAGE.md) |
+| **Utiliser les managers** (`pathman`, `netman`, `installman`, …). | [`guides/MANAGERS.md`](guides/MANAGERS.md) + [`managers/`](managers/) + [`man/`](man/) |
+| **Docker** (utilisateur, BuildKit, conteneur isolé). | [`guides/DOCKER.md`](guides/DOCKER.md) |
+| **VM** QEMU/KVM (tests isolés). | [`guides/VM.md`](guides/VM.md) |
 | Comprendre l’architecture managers / shells / `dotcli`. | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) + [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md) |
 | Voir la roadmap unifiée (TUI / `dotcli`). | [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md) |
 | Vérifier le contrat menu `dotcli`. | [`platform/DOTCLI_MENU_CONTRACT.md`](platform/DOTCLI_MENU_CONTRACT.md) |
@@ -70,7 +76,7 @@
 ## 5. Conventions de classement (rappel)
 
 - **Racine du dépôt** : `STATUS.md`, `TODOS.md`, `README.md` (et c’est tout côté doc projet).
-- **`docs/` racine** : `INDEX.md` (ce fichier), `LEGENDE_CHAMPS.md`, `STRUCTURE.md`, `TESTS.md`, `ERRORS.md`. Rien d’autre.
+- **`docs/` racine** : `INDEX.md` (ce fichier), `LEGENDE_CHAMPS.md`, `STRUCTURE.md`, `CODEMAP.md`, `TESTS.md`, `ERRORS.md`. Rien d’autre.
 - **Thèmes** : `architecture/`, `compatibility/`, `guides/`, `managers/`, `platform/`, `reports/`, `man/`, `migrations/`.
 
 Toute nouvelle page **thématique** va dans un sous-dossier ; on l’ajoute ensuite à `STRUCTURE.md` (carte technique) et — si elle est centrale — au tableau §1 ci-dessus.

@@ -23,6 +23,7 @@
 
 ## Dernière tâche terminée (juste avant l’actuelle)
 
+- [x] Réorganisation doc 3 : scission **`docs/STRUCTURE.md`** → carte doc + **`docs/CODEMAP.md`** (arborescence code) ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** (`INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`).
 - [x] Réorganisation doc 2 : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub navigation) + [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel champs O·N·NA / Assistant relecture) ; allègement de **`docs/TESTS.md`** (renvoie à la légende) ; clarification rôles **STATUS / TODOS / ERRORS**.
 - [x] Réorganisation **`docs/`** par thèmes (sous-dossiers) + racine `docs/` = **`STRUCTURE` / `TESTS` / `ERRORS`** + journal dans **`STATUS.md`** racine.
 
@@ -150,6 +151,7 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 | V-2026-05-docs-tree | Arborescence `docs/` : 3 fichiers racine + dossiers `architecture/`, `guides/`, etc. | [ ] |
 | V-2026-05-tests-start | Procédure `docs/TESTS.md` réécrite (A–I, champs O·N·NA + Assistant relecture) + cible `make tests-start` + menu `scripts/test/tests_manual_start.sh`. | [ ] |
 | V-2026-05-doc-index | Hub [`docs/INDEX.md`](docs/INDEX.md) + référentiel [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) ; renvois harmonisés (STATUS / TODOS / ERRORS / STRUCTURE / TESTS / README). | [ ] |
+| V-2026-05-doc-split | Scission `STRUCTURE.md` → `STRUCTURE.md` (carte doc) + `CODEMAP.md` (arbo code) ; `README.md` allégé (~82 lignes) ; guides utilisateur dans `docs/guides/` (`INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`). | [ ] |
 
 > **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 
