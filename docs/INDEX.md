@@ -34,6 +34,7 @@
 | **Utiliser les managers** (`pathman`, `netman`, `installman`, …). | [`guides/MANAGERS.md`](guides/MANAGERS.md) + [`managers/`](managers/) + [`man/`](man/) |
 | **Docker** (utilisateur, BuildKit, conteneur isolé). | [`guides/DOCKER.md`](guides/DOCKER.md) |
 | **VM** QEMU/KVM (tests isolés). | [`guides/VM.md`](guides/VM.md) |
+| **CI GitHub Actions** (workflows, secrets e-mail, roadmap). | [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md) |
 | Comprendre l’architecture managers / shells / `dotcli`. | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) + [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md) |
 | Voir la roadmap unifiée (TUI / `dotcli`). | [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md) |
 | Vérifier le contrat menu `dotcli`. | [`platform/DOTCLI_MENU_CONTRACT.md`](platform/DOTCLI_MENU_CONTRACT.md) |

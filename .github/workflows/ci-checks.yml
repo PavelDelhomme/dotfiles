@@ -1,0 +1,27 @@
+# CI légère : vérifications locales reproductibles sur runner GitHub (sans Docker).
+# Voir docs/guides/GITHUB_ACTIONS.md pour secrets e-mail, roadmap CI complète, dépannage.
+
+name: CI checks
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install zsh (requis par scripts/test/run_checks.sh pour les adapters)
+        run: sudo apt-get update -qq && sudo apt-get install -y zsh
+
+      - name: make test-checks
+        env:
+          DOTFILES_DIR: ${{ github.workspace }}
+        run: make test-checks

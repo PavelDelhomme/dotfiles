@@ -18,7 +18,7 @@ Tout incident **récurrent** doit être consigné ici pour éviter de réinvente
 
 | Problème | Cause | Correctif | Statut |
 |----------|--------|-----------|--------|
-| *(à compléter au fil des incidents)* | | | |
+| GitHub Actions : `Send Email` — `Unexpected input(s) 'content_type'` ; `Input required and not supplied: from` | L’action `dawidd6/action-send-mail@v3` n’accepte pas `content_type` ; secret `EMAIL_FROM` (ou autres SMTP) absent | Supprimer `content_type` du YAML ; renseigner les secrets (`EMAIL_FROM`, `EMAIL_TO`, `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`) **ou** rendre le job optionnel avec `if: secrets.EMAIL_FROM != '' && …` — voir [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md). Le workflow **`.github/workflows/ci-checks.yml`** du dépôt ne dépend pas de l’e-mail. | partiellement résolu *(doc + CI sans e-mail ; fusionner / corriger sur GitHub le workflow « notify » encore cassé)* |
 
 ---
 

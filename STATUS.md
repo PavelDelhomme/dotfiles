@@ -38,15 +38,17 @@
    - **Convention aide/CLI unifiée** sur tous les `*man` : `manager` / `help` / `-h` / `aide` → aide stdout non-interactive ; `help --interactive` → aide détaillée + pause si TTY ; `--help` → aide + pause + menu interactif (TTY) ou exit (non-TTY) ; **arg inconnu** → erreur stderr + `rc ≠ 0` (fin des **boucles infinies** type `aliaman --` corrigées sur `aliaman`, `cyberman`, `pathman`, `multimediaman`, `cyberlearn`, etc.).
    - **`core/utils/progress_bar.sh` adaptatif** : `\r` en TTY interactif, ligne par mise à jour en non-TTY (pipe, log, terminal IDE) → plus de réécriture sale. Variable `DOTFILES_PROGRESS_PLAIN=1` pour forcer le mode ligne.
    - **`shared/functions/lsblk_color.sh`** : wrapper `lsblk` colorisant la sortie par TYPE (gras+cyan pour `disk`, vert pour `part`, gris pour `loop`, etc.) en TTY ; passe-plat automatique hors TTY ou avec options machine (`-J/-P/-r/-n/-o/-O`). Chargé via `shared/config.sh` pour sh/bash/zsh.
+   - **CI GitHub Actions** : guide [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md) (correctif `dawidd6/action-send-mail` : pas de `content_type`, secret `EMAIL_FROM` obligatoire ou job `if:`) ; workflow [`.github/workflows/ci-checks.yml`](.github/workflows/ci-checks.yml) (`make test-checks` sur Ubuntu). Roadmap CI complète → **`TODOS.md` P8**.
    - **TESTS.md Blocs A → F.5** validés (verdicts `O` posés + relectures) ; Bloc G étendu aux 23 managers (G.0 + G.0.b reproducteur `aliaman --` + G.0.c smoke `aliaman search/list`) ; F.6 réécrit (l’ancienne consigne « pipe + TUI » était contradictoire).
    - **Jalon B avance** : 2/4 cases couvertes par TESTS.md E.2 (`make test-dotfiles-good : OK`) et E.3 (`make test : 69/69 cellules OK`). Restent à valider : *session réelle bootstrap DOTFILES_GOOD* + *décision branchement entrées shell*.
 2. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
 3. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
 4. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
-5. **À faire maintenant** : finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs F.6 → I (puis cocher Jalon B au § correspondant de `TODOS.md`) ; valider les lignes « En attente de validation » du 2026-05-12.
+5. **À faire maintenant** : finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs F.6 → I (puis cocher Jalon B au § correspondant de `TODOS.md`) ; valider les lignes « En attente de validation » du 2026-05-12 ; en parallèle ou après : brancher / corriger les workflows GitHub (voir [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md), **P8** dans `TODOS.md`).
 
 | Période | Sujet |
 |---------|--------|
+| 2026-05-12 | CI GitHub : `ci-checks.yml` + guide GITHUB_ACTIONS (e-mail / secrets) |
 | 2026-05-12 | convention aide/CLI unifiée (`*man`) + fix boucles arg inconnu |
 | 2026-05-12 | progress_bar adaptatif TTY / non-TTY |
 | 2026-05-12 | wrapper `lsblk` colorisé (POSIX, auto-disable hors TTY) |

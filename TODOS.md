@@ -41,6 +41,7 @@
 | **P5** | **Épic installman** | [`docs/managers/INSTALLMAN_VISION.md`](docs/managers/INSTALLMAN_VISION.md) — par étapes. |
 | **P6** | Niveau 2 tests | Assertions métier (golden / grep) pour N managers pilotes. |
 | **P7** | `read` / `clear` hors TTY | Réduire blocages CI / scripts. |
+| **P8** | **CI GitHub Actions** | **Maintenant** : workflow [`.github/workflows/ci-checks.yml`](.github/workflows/ci-checks.yml) + guide [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md) (correctif e-mail `action-send-mail`, secrets OVH `dev@…`, job optionnel `if:`). **Ensuite** (après passe [`docs/TESTS.md`](docs/TESTS.md) A→I) : `make test-dotfiles-good`, `make test-dotcli`, stratégie `make test` Docker sur runner ; pas de secrets en clair dans le YAML. |
 
 ### Phases A → B → C (rappel)
 
@@ -157,6 +158,7 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 | V-2026-05-12-progress | **`core/utils/progress_bar.sh` adaptatif** : `\r` en TTY interactif, ligne par mise à jour en non-TTY (pipe, log, terminal IDE Cursor). Variable `DOTFILES_PROGRESS_PLAIN=1` pour forcer le mode ligne. Plus de réécriture sale dans les logs / `tee` / capture terminal. | [ ] |
 | V-2026-05-12-lsblk | **`shared/functions/lsblk_color.sh`** : wrapper `lsblk` colorisant la sortie par TYPE (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt/lvm/dm`, rouge `rom/tape`). Passe-plat automatique hors TTY ou sur options machine (`-J/-P/-r/-n/-o/-O/-H/--filter/--tree=…/-V`). Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. Échappatoire : `DOTFILES_LSBLK_NOCOLOR=1` ou `NO_COLOR`. Chargé via `shared/config.sh` (sh/bash/zsh). | [ ] |
 | V-2026-05-12-tests-progress | **`docs/TESTS.md` avancée** : Blocs **A → F.5** validés (verdicts `O` + relectures) ; Bloc **G** étendu aux 23 managers (G.0 + G.0.b reproducteur bug `aliaman --` + G.0.c smoke `aliaman search/list`) ; Bloc **F.6** réécrit (`--no-tui` / `--query` testables + clarification *vrai TUI = F.7*) ; § 12 EXT-002 (petits écrans) + EXT-003 (couleurs ANSI conditionnelles). **2/4 cases Jalon B couvertes** (E.2 + E.3). | [ ] |
+| V-2026-05-12-github-ci | **CI GitHub Actions** : guide [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md) (erreurs `content_type` / `from` sur `dawidd6/action-send-mail@v3`, secrets OVH, job e-mail optionnel `if:`) ; workflow [`.github/workflows/ci-checks.yml`](.github/workflows/ci-checks.yml) (`make test-checks`) ; `.github/README.md` ; **EXT-005** + point **6** dans `docs/TESTS.md` ; **P8** dans `TODOS.md`. *(L’ancien workflow « Send Email » sur GitHub doit être corrigé ou fusionné à la main s’il n’est pas dans ce clone.)* | [ ] |
 
 > **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 

@@ -11,6 +11,7 @@
 3. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
 4. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
 5. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.23** comme d’habitude.
+6. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
 
 ### Journal doc (reprise `TESTS.md`)
 
@@ -20,6 +21,7 @@
 | **2026-05-12** | **G.0** étendu à **tous** les managers de `migrated_managers.list` (ajout `manman`, `configman`, `doctorman`, `moduleman`). Ajout **G.0.b** (reproducteur du bug historique `aliaman --` → ne doit plus boucler) et **G.0.c** (smoke des nouvelles commandes `aliaman search` / `aliaman list`, avec ou sans `fzf`). Note : `manman` et `doctorman` peuvent encore renvoyer `rc=0` sur argument inconnu — c’est un **WARN** acceptable à reporter en `Notes` (pas un `FAIL`). | Refaire **G.0**, puis cocher **G.0.b** et **G.0.c** avant de retourner sur **G.1–G.23**. |
 | **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
+| **2026-05-12** *(suite 3)* | **CI GitHub Actions** : guide **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** (correctif e-mail `content_type` / `EMAIL_FROM`, secrets OVH, job optionnel `if:`) ; workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur Ubuntu). La CI « complète » (Docker `make test`, bootstrap, etc.) reste à planifier — voir **`TODOS.md` P8** et **EXT-005** (§ 12). | Après avoir fini la checklist **A→I** ici : lire le guide, configurer les secrets si tu veux l’e-mail, fusionner ou supprimer l’ancien workflow distant qui casse encore si doublon. |
 
 ---
 
@@ -32,6 +34,7 @@
 | P3 dotcli / TUI | **F** |
 | Jalon B — validation perso | **I** (+ cases « Conforme » cumulées) |
 | Phase C (bascule racine) | **Hors scope** — ne pas mélanger avec les tests ci-dessous |
+| **P8** CI GitHub Actions (après passe manuelle) | [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md) + `.github/workflows/ci-checks.yml` + `TODOS.md` |
 
 Ne pas ouvrir [`../TODOS.md`](../TODOS.md) pour exécuter les commandes : on l’ouvre uniquement pour **formaliser** un écart vu en `Notes` (en y ajoutant une ligne).
 
@@ -1525,6 +1528,7 @@ Pour **chaque** ligne du tableau **G.1–G.23** (smoke manuel complémentaire), 
 | EXT-002 | **Adaptabilité petits écrans / terminaux étroits** : auditer toutes les sorties d’aide (`*man help`, `make test-help`, `helpman`, bannières `══` / `─`) sur largeur < 80 colonnes (TTY simple, fresh install sans pilote graphique, écran ancien à faible résolution). Critère : pas de débordement, pas de bordures cassées, pas de mots tronqués. Ajouter une étape dédiée dans le Bloc G (ou un nouveau Bloc « UX terminal restreint ») avec `stty cols 60` + replay d’une dizaine de `*man help`. | M | [ ] |
 | EXT-003 | **Couleurs ANSI conditionnelles** : vérifier que toutes les sorties (managers, `make test-help`, rapports) détectent correctement le support couleur (`[ -t 1 ]` + `tput colors >= 8`) et n’affichent **jamais** de séquences `\033[…]` brutes quand le terminal ne sait pas les rendre (ex. via `cat`, pipe, terminal minimal). À l’inverse, activer la couleur quand elle est disponible, au moins pour `*man help` (titres, sections). Ajouter une étape de check non-TTY (`*man help | cat -v` ne doit pas contenir `^[[`). | M | [ ] |
 | EXT-004 | **Vérification visuelle `lsblk` colorisé** (livré 2026-05-12, `shared/functions/lsblk_color.sh`). En TTY : `lsblk` → en-tête en gras, `disk` cyan gras, `part` vert (continuations MOUNTPOINTS multiples héritent du vert), `loop` gris. En non-TTY : `lsblk \| cat` → aucune séquence `\033[…]` visible. JSON : `lsblk -J` → JSON propre, aucune couleur. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1 lsblk \| cat` → couleurs présentes. Désactivation : `NO_COLOR=1 lsblk` ou `DOTFILES_LSBLK_NOCOLOR=1 lsblk` → sortie brute. | M | [x] *(livré, à valider visuellement)* |
+| EXT-005 | **CI GitHub Actions « complète »** (après `TESTS.md` A→I) : enchaîner sur runner `ubuntu-latest` — `make test-dotfiles-good`, `make build-dotcli` + `make test-dotcli`, puis stratégie **`make test`** (Docker service ou workflow long + `DOTFILES_TEST_*`). Documenter les limites (pas de vrai « poste nu » sans matrice OS). E-mail : uniquement via secrets + job `if:` (voir [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)). | H | [ ] |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 
@@ -1536,4 +1540,4 @@ Pour **chaque** ligne du tableau **G.1–G.23** (smoke manuel complémentaire), 
 - **Guide pas à pas** : **ce fichier**
 - **Référentiel champs** : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md)
 - **Hub doc** : [`INDEX.md`](INDEX.md)
-- **CI / automatique** : `make test` (complète ce guide, ne le remplace pas)
+- **CI / automatique** : `make test` (complète ce guide, ne le remplace pas) · GitHub : [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)
