@@ -1188,10 +1188,15 @@ exit=0
 
 - **Commande** : `printf 'Un|1\nDeux|2\n' | ~/dotfiles/bin/dotcli menu --no-tui --prompt Demo --simulate-index 2`
 - **Attendu** : stdout = `2` ; rc 0.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
-```
-(coller)
+```zsh
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 18:24:31  ▓▒░─╮
+╰─❯ printf 'Un|1\nDeux|2\n' | ~/dotfiles/bin/dotcli menu --no-tui --prompt Demo --simulate-index 2                                                                                                                                       ─╯
+2
+
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 18:24:32  ▓▒░─╮
+╰─❯                                                                                                                                                                                                                                      ─╯
 ```
 - **Conforme** :
 - **Notes** :
@@ -1201,10 +1206,15 @@ exit=0
 
 - **Commande** : `printf 'Un|1\nDeux|2\nTrois|3\n' | ~/dotfiles/bin/dotcli menu --query Deux --prompt Demo`
 - **Attendu** : stdout = `2` (la clé de l’entrée dont le label correspond à « Deux ») ; rc 0.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
-```
-(coller)
+```zsh
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 18:24:32  ▓▒░─╮
+╰─❯ printf 'Un|1\nDeux|2\nTrois|3\n' | ~/dotfiles/bin/dotcli menu --query Deux --prompt Demo                                                                                                                                             ─╯
+2
+
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 18:25:10  ▓▒░─╮
+╰─❯                                                                                                                                                                                                                                      ─╯
 ```
 - **Conforme** :
 - **Notes** :
@@ -1216,17 +1226,95 @@ exit=0
 - **Pourquoi pas en F.6.a/b ?** Parce qu’il faut **stdin = TTY** ; or dès qu’on pipe les items, stdin devient un FIFO. Le mode TUI s’invoque donc « pour de vrai » via un manager (F.7), qui injecte ses items en interne et garde `stdin` raccroché au terminal pour lire le clavier.
 - **Si tu veux quand même le voir hors manager** : ouvrir un **vrai terminal**, écrire `printf 'Un|1\nDeux|2\n' > /tmp/dotcli-items.txt` puis lancer `script -q -c '~/dotfiles/bin/dotcli menu --prompt Demo' /dev/null < /tmp/dotcli-items.txt` — astuce facultative, **note NA si tu ne veux pas la faire**.
 - **[ ] Fait** *(NA si tu sautes l’observation visuelle directe)*
+- **Sortie** :
+```zsh
+Demo
+
+    1) Un 
+     2) Deux
+
+↑/↓ ou j/k · chiffre 1-2 · Entrée valider · q = 1er choix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+- **Conforme** : O *(réinterprété — voir relecture)*
+- **Notes** : Le menu TUI **s’affiche bien** (titre `Demo`, items `1) Un` / `2) Deux` surlignés, ligne d’aide `↑/↓ ou j/k · chiffre 1-2 · Entrée valider · q = 1er choix`). En revanche, **impossible d’interagir au clavier** : c’est cohérent avec ce qui est annoncé dans la consigne (« observation visuelle uniquement »).
+- **Assistant (relecture)** : **O** — Le critère réel de F.6.c est *« voir au moins une fois la liste surlignée »*. C’est fait : tu as visuellement confirmé que le TUI marche. L’impossibilité de **valider** au clavier est **attendue** : la commande `script -q -c '… dotcli menu …' /dev/null < /tmp/dotcli-items.txt` redirige stdin **vers le fichier d’items**, donc dotcli reçoit EOF dès qu’il a lu les deux items → plus de canal pour ton clavier. C’est exactement ce qui motive la note de F.6.c : *« le mode TUI s’invoque pour de vrai via un manager (F.7) »* parce qu’un manager **injecte ses items en interne** et garde stdin raccroché au terminal. **Verdict réel : O**. Tu peux passer à F.7 — l’interaction clavier y est validée pour de bon.
+
+### Étape F.7 — Manager pilote en TTY avec `dotcli` *(le « vrai » TUI clavier)*
+
+**But** : voir et **utiliser** un menu `dotcli` complet (liste surlignée + flèches + Entrée + `q`) à l’intérieur d’un manager. C’est ici qu’on coche la case « TUI fonctionnel » du Bloc F.
+
+**Pré-requis (1 fois, déjà fait si Bloc F.1 = O)** :
+
+- Binaire compilé : `ls -l ~/dotfiles/bin/dotcli` doit afficher une ligne.
+- Les managers doivent être chargés dans ton shell courant : si `netman` renvoie `command not found`, lance `source ~/dotfiles/zsh/zshrc_custom` (zsh) ou ouvre un nouveau shell.
+- Tu dois être dans un **vrai terminal** (pas dans un pipe ou un `tee`). Vérification rapide : `~/dotfiles/bin/dotcli doctor` doit donner `stdin_tty=1 stdout_tty=1`.
+
+#### F.7.a — Vrai TUI dotcli (cas principal, **à faire**)
+
+- **Commande à copier-coller** :
+  ```sh
+  DOTFILES_DOTCLI_ENABLE=1 netman ports
+  ```
+- **Attendu** : `netman` ouvre un menu dotcli avec une liste d’actions surlignée. Tu peux :
+  - bouger avec **↑/↓** ou **j/k** ;
+  - taper un chiffre **1-9** pour aller direct sur une ligne ;
+  - **Entrée** pour valider la ligne surlignée ;
+  - **q** pour quitter le menu (équivaut à choisir le premier item — comportement contractuel) ;
+  - **Ctrl+C** pour annuler (le terminal doit redevenir normal, pas « cassé »).
+- **Critères de réussite (Conforme = O)** :
+  1. tu vois bien une **ligne surlignée** (et non une simple liste statique) ;
+  2. tu peux naviguer ;
+  3. après ton choix ou `q`, **ton prompt revient propre** (pas de caractères de contrôle visibles).
+- **[ ] Fait**
+- **Sortie** *(coller juste ce que tu vois en sortie de menu, pas le menu lui-même qui se redessine)* :
+  ```
+  (coller la ligne après ton choix, ou « Ctrl+C » si tu as annulé)
+  ```
 - **Conforme** :
 - **Notes** :
 - **Assistant (relecture)** :
 
-### Étape F.7 — Managers avec `dotcli` *(TTY)*
+#### F.7.b — Fallback automatique quand le binaire est introuvable *(optionnel mais rassurant)*
 
-- **Commande** : dans un TTY, avec `export DOTFILES_DOTCLI_ENABLE=1` et binaire présent : ouvrir par ex. `netman` menu — procédure manuelle.
-- **Attendu** : menu dotcli ou fallback `ncmenu`/`read` si binaire absent.
-- **[ ] Fait** *(NA si pas de TTY)*
+- **But** : vérifier que **même sans `dotcli`**, `netman` ne plante pas et te montre toujours un menu (en mode ligne `read` ou via `dotfiles_ncmenu_select` selon ce qui est dispo).
+- **Commande** :
+  ```sh
+  DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant netman ports
+  ```
+- **Attendu** : tu vois un menu **non-TUI** (numéroté, avec invite type « Choisir [1-N] : »), pas une trace `command not found` ni d’erreur Python/C. Tape un numéro + Entrée pour valider.
+- **[ ] Fait** *(NA si tu sautes ce contrôle)*
+- **Conforme** :
 - **Notes** :
 - **Assistant (relecture)** :
+
+#### F.7.c — Mode ligne forcé `--no-tui` *(optionnel, équivalent F.6.a mais via un manager)*
+
+- **But** : confirmer que la variable `DOTFILES_DOTCLI_MENU_NO_TUI=1` bascule en mode **liste + saisie ligne** même quand `dotcli` est dispo.
+- **Commande** :
+  ```sh
+  DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 netman ports
+  ```
+- **Attendu** : pas de liste surlignée ; à la place, un prompt qui lit ton choix sur **une seule ligne** (numéro / clé / sous-chaîne). C’est utile pour les environnements où le mode brut TTY pose problème.
+- **[ ] Fait** *(NA si tu sautes ce contrôle)*
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+> **Variantes équivalentes** *(si `netman ports` ne te parle pas ou si l’environnement ne permet pas d’ouvrir un socket réseau)* : remplacer `netman ports` par **`aliaman --help`** ou **`cyberlearn lab list`** — les trois managers sont les pilotes `dotcli`. Le test reste exactement le même (liste surlignée + flèches + Entrée), seul le contenu change.
 
 *Contrat détaillé* : [`platform/DOTCLI_MENU_CONTRACT.md`](platform/DOTCLI_MENU_CONTRACT.md).
 
