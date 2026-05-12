@@ -16,7 +16,8 @@
 
 ## En cours (lot / tâche actuelle)
 
-- [ ] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**. Couvrir au minimum : `docker-in` (distro + shell), chargement shell dans le conteneur, **`dotcli`** (pipe + `make test-dotcli`), smoke **`help`** pour chaque manager de `migrated_managers.list`.
+- [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**.
+  - **Avancement 2026-05-12** : Blocs **A**, **B**, **C**, **D**, **E**, **F.1 → F.5** validés (verdicts `O` + relectures). **Reste** : **F.6** (`--no-tui` / `--query`), **F.7** (manager + `DOTFILES_DOTCLI_ENABLE=1` en TTY), **Bloc G** (préalable + G.0/G.0.b/G.0.c + tableau G.1–G.23), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
 - [ ] Poursuivre **P1** : normalisation `core/managers/` + adapters ; réduction de la logique résiduelle hors core ; convergence menus vers `dotcli` avec fallbacks.
 
 ---
@@ -75,8 +76,8 @@ Cases qualité :
 
 Cocher quand **toi** tu es satisfait :
 
-- [ ] `make test-dotfiles-good` OK (ta machine, dernière branche).
-- [ ] `make test` (Docker) OK.
+- [~] `make test-dotfiles-good` OK (ta machine, dernière branche). *— vérifié via `docs/TESTS.md` § E.2 (2026-05-12 = `O`) ; coche définitivement après ta relecture finale de TESTS.md.*
+- [~] `make test` (Docker) OK. *— vérifié via `docs/TESTS.md` § E.3 (2026-05-12 = `O`, **69/69 cellules**, 352 tests, 0 échec) ; coche définitivement après ta relecture finale.*
 - [ ] Session réelle avec bootstrap `DOTFILES_GOOD` sans casse bloquante.
 - [ ] Décision notée : brancher `shared/config.sh` / entrées shell **oui / non / plus tard**.
 
@@ -152,6 +153,10 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 | V-2026-05-tests-start | Procédure `docs/TESTS.md` réécrite (A–I, champs O·N·NA + Assistant relecture) + cible `make tests-start` + menu `scripts/test/tests_manual_start.sh`. | [ ] |
 | V-2026-05-doc-index | Hub [`docs/INDEX.md`](docs/INDEX.md) + référentiel [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) ; renvois harmonisés (STATUS / TODOS / ERRORS / STRUCTURE / TESTS / README). | [ ] |
 | V-2026-05-doc-split | Scission `STRUCTURE.md` → `STRUCTURE.md` (carte doc) + `CODEMAP.md` (arbo code) ; `README.md` allégé (~82 lignes) ; guides utilisateur dans `docs/guides/` (`INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`). | [ ] |
+| V-2026-05-12-cli-help | **Convention aide/CLI unifiée** sur tous les `*man` (stdout sans arg / `help` / `-h` / `aide` ; `help --interactive` = aide + pause TTY ; `--help` = aide + pause + menu interactif ; arg inconnu → stderr + `rc≠0`). Corrige les boucles `aliaman --` / `pathman --bogus` / etc. **Couverture** : `aliaman`, `cyberman`, `pathman`, `multimediaman`, `cyberlearn`, `helpman`, `gitman`, `miscman`, `routeman`, `processman`, `devman`, `virtman`, `searchman`, `testzshman`, `testman`, `fileman`, `sshman`. Tests : `docs/TESTS.md` Bloc G (préalable + G.0 + G.0.b + G.0.c). | [ ] |
+| V-2026-05-12-progress | **`core/utils/progress_bar.sh` adaptatif** : `\r` en TTY interactif, ligne par mise à jour en non-TTY (pipe, log, terminal IDE Cursor). Variable `DOTFILES_PROGRESS_PLAIN=1` pour forcer le mode ligne. Plus de réécriture sale dans les logs / `tee` / capture terminal. | [ ] |
+| V-2026-05-12-lsblk | **`shared/functions/lsblk_color.sh`** : wrapper `lsblk` colorisant la sortie par TYPE (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt/lvm/dm`, rouge `rom/tape`). Passe-plat automatique hors TTY ou sur options machine (`-J/-P/-r/-n/-o/-O/-H/--filter/--tree=…/-V`). Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. Échappatoire : `DOTFILES_LSBLK_NOCOLOR=1` ou `NO_COLOR`. Chargé via `shared/config.sh` (sh/bash/zsh). | [ ] |
+| V-2026-05-12-tests-progress | **`docs/TESTS.md` avancée** : Blocs **A → F.5** validés (verdicts `O` + relectures) ; Bloc **G** étendu aux 23 managers (G.0 + G.0.b reproducteur bug `aliaman --` + G.0.c smoke `aliaman search/list`) ; Bloc **F.6** réécrit (`--no-tui` / `--query` testables + clarification *vrai TUI = F.7*) ; § 12 EXT-002 (petits écrans) + EXT-003 (couleurs ANSI conditionnelles). **2/4 cases Jalon B couvertes** (E.2 + E.3). | [ ] |
 
 > **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 
