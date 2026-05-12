@@ -436,40 +436,641 @@ Interface :
 
 - **Commande** : `make test-help`
 - **Attendu** : texte d’aide sur les variables (`DOTFILES_TEST_MANAGERS`, etc.).
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie (extrait)** :
+```bash
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:54  ▓▒░─╮
+╰─❯ make test-help                                                                                                                                                                                                                       ─╯
+
+═══════════════════════════════════════════════════════════════════
+  Tests dotfiles — variables, bac à sable, Makefile
+═══════════════════════════════════════════════════════════════════
+
+1) Filtrer les managers à tester (Docker)
+   ─────────────────────────────────────
+   DOTFILES_TEST_MANAGERS   liste avec virgules ou espaces (recommandé)
+   TEST_MANAGERS            même rôle ; prioritaire si les deux sont posés
+
+   Exemples :
+     DOTFILES_TEST_MANAGERS=pathman,installman,searchman make test
+     TEST_MANAGERS="pathman installman" make test-subcommands
+     TEST_SHELLS=zsh DOTFILES_TEST_MANAGERS=netman make test
+
+2) Fichier local (non versionné)
+   ────────────────────────────────
+   cp scripts/test/config/test.local.env.example scripts/test/config/test.local.env
+   # puis éditer : TEST_SHELLS, TEST_MANAGERS, SUBCOMMAND_TIER, TEST_DOTFILES_ISOLATE=1, …
+   DOTFILES_TEST_USER_ENV=/chemin/custom.env  make test
+
+3) Bac à sable « live » (shell dans le conteneur)
+   ───────────────────────────────────────────────
+   make docker-in              # menus distro + shell si terminal ; sinon Arch + zsh
+   make docker-in DOCKER_DISTRO=debian DOCKER_SHELL=fish   # forcer sans menus
+   Distros : arch (image docker-build), ubuntu, debian, alpine, fedora, centos, opensuse, gentoo (build long)
+   Sans export manuel : DOCKER_DOTFILES_DIR, DOCKER_INSTALLMAN_ASSUME (voir Makefile / docker_in.sh)
+   Confirmations installman :  make docker-in DOCKER_INSTALLMAN_ASSUME=0
+   Dans le conteneur : root par défaut ; source $DOTFILES_DIR/zsh/zshrc_custom si besoin
+   make test dans le conteneur : sans Docker imbriqué → run_tests.sh directement (fichier /.dockerenv)
+   Forcer ce mode sur l'hôte : DOTFILES_TEST_NO_NESTED_DOCKER=1 make test (si pas de daemon Docker)
+   Doc détaillée :     cat scripts/test/SANDBOX.md
+
+   Smoke vs assertions métier : make test / matrice = surtout « ne plante pas / timeout » ; assertions
+   ciblées (golden, grep) = évolution — voir TODOS.md § « Phase A — tests ».
+
+4) Autres cibles utiles
+   ───────────────────
+   make tests              # menu interactif des tests
+   DOTFILES_TEST_MENU_SKIP_PAUSE=1 make tests   # pas de pause « Entrée » après chaque action
+   make test-checks        # syntaxe cores + adapters + URLs (local ou CI)
+   make test-menu-fzf      # vérifie intégration des menus fzf + fallback /dev/tty
+   make test-dotfiles-good # bac à sable DOTFILES_GOOD/ (smoke POSIX, additif)
+   sh scripts/test/installman_check.sh
+   bash scripts/test/verify_multishell.sh
+
+5) Liste par défaut des managers pour « make test »
+   ───────────────────────────────────────────────
+   scripts/test/config/migrated_managers.list
+
+═══════════════════════════════════════════════════════════════════
+
+
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:58  ▓▒░─╮
+╰─❯                                     
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `make test-help` affiche bien les 5 sections attendues (filtrage `DOTFILES_TEST_MANAGERS` / `TEST_MANAGERS`, fichier local `test.local.env`, bac à sable `make docker-in`, autres cibles utiles, liste source `migrated_managers.list`). Critère « texte d’aide sur les variables » rempli. Deux observations à traiter plus tard (tracées en **EXT-002** et **EXT-003** ci-dessous) : (1) adaptabilité aux **petits écrans / résolutions étroites** (largeur < 80 colonnes, terminal TTY simple, pilotes graphiques HS, etc.) — il faudra vérifier que toutes les sorties d’aide / managers se replient correctement (pas de débordement, pas de barres `══` infinies, etc.) ; (2) **couleurs** : ici la sortie est monochrome, alors qu’on pourrait colorer si `tput colors >= 8` et désactiver proprement sinon (jamais d’`\033[...]` brut à l’écran).
+- **Assistant (relecture)** : **O** — Critère du guide rempli (aide affichée, variables listées). Les deux remarques sur l’adaptabilité petits écrans et les couleurs sont **pertinentes** mais hors scope d’E.1 ; elles sont ajoutées en `EXT-002` / `EXT-003` (§ 12) pour être traitées plus tard sans bloquer la passe de tests. E.1 = **O**.
 
 ### Étape E.2 — Smoke dotfiles-good
 
 - **Commande** : `make test-dotfiles-good`
 - **Attendu** : succès **ou** échec documenté dans **Notes** + [`ERRORS.md`](ERRORS.md).
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie (extrait)** :
+```zsh
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:10:16  ▓▒░─╮
+╰─❯ make test-dotfiles-good                                                                                                                                                                                                              ─╯
+→ sh -n sur les *.sh sous DOTFILES_GOOD/
+   sh -n DOTFILES_GOOD/lib/bootstrap_posix.sh
+   sh -n DOTFILES_GOOD/scripts/print_roots.sh
+   sh -n DOTFILES_GOOD/shared/aliases.sh
+   sh -n DOTFILES_GOOD/shared/env/00_paths.sh
+   sh -n DOTFILES_GOOD/shared/env/05_path_original.sh
+   sh -n DOTFILES_GOOD/shared/env/10_toolchain_paths.sh
+   sh -n DOTFILES_GOOD/shared/env/11_pub_cache_export.sh
+   sh -n DOTFILES_GOOD/shared/env/12_android_exports.sh
+   sh -n DOTFILES_GOOD/shared/env/13_flutter_ndk_exports.sh
+   sh -n DOTFILES_GOOD/shared/env/14_android_tool_paths_export.sh
+→ répertoires attendus
+→ sourcing bootstrap dans un sous-shell (DOTFILES_DIR=/home/pactivisme/dotfiles)
+→ DOTFILES_GOOD/scripts/print_roots.sh
+DOTFILES_DIR=/home/pactivisme/dotfiles
+DOTFILES_GOOD_ROOT=/home/pactivisme/dotfiles/DOTFILES_GOOD
+DOTFILES_GOOD_ENV_LOADED=1
+✅ DOTFILES_GOOD : OK 
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Sortie cohérente : `sh -n` passe sur tous les `*.sh` de `DOTFILES_GOOD/` (10 fichiers du `bootstrap_posix` jusqu’aux `env/14_*`), répertoires attendus présents, bootstrap re-sourcé dans un sous-shell avec `DOTFILES_DIR=/home/pactivisme/dotfiles`, `DOTFILES_GOOD_ROOT` / `DOTFILES_GOOD_ENV_LOADED=1` posés, et trace finale `✅ DOTFILES_GOOD : OK`.
+- **Assistant (relecture)** : **O** — Critère E.2 rempli (succès observé). Aucune entrée à ajouter dans `ERRORS.md`. Tu peux enchaîner E.3.
 
 ### Étape E.3 — Tests Docker complets *(long)*
 
 - **Commande** : `make test` *(ou via `make tests-start` option 8 avec confirmation)*
 - **Attendu** : fin avec résumé OK **ou** liste d’échecs ; rapports sous `TEST_RESULTS_DIR` (souvent sous le home ou `/tmp` selon environnement — voir log).
-- **[ ] Fait** *(NA si tu ne lances pas la suite complète aujourd’hui)*
+- **[x] Fait** *(NA si tu ne lances pas la suite complète aujourd’hui)*
 - **Sortie (résumé final)** :
+```bash
+
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:10:25  ▓▒░─╮
+╰─❯              
+══════════════════════════════════════════════════════════╗
+║                    NETMAN - Network Manager                    ║
+║                     Gestionnaire Réseau                       ║
+╚════════════════════════════════════════════════════════════════╝
+
+🖧  Interfaces réseau
+══════════════════════════════════════════════════════════════════
+
+Interface: lo
+─────────────────────────
+  État: UNKNOWN
+  MAC: N/A
+  IPv4:
+    127.0.0.1/8
+  IPv6:
+    ::1/128
+  Statistiques:
+    RX: 0B
+    TX: 0B
+
+Interface: eth0@if548
+─────────────────────────
+  État: UP
+  MAC: 7a:16:7a:5c:50:9e
+  IPv4:
+    172.17.0.2/16
+  IPv6:
+  Statistiques:
+    RX: 7.0KiB
+    TX: 126B
+
+   ✓ ok (code 0)
+🧪 [zsh] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+🧪 [bash] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+🧪 [fish] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+⏭  processman — pas de scripts/test/subcommands/processman.list
+⏭  routeman — pas de scripts/test/subcommands/routeman.list
+⏭  testman — @skip dans scripts/test/subcommands/testman.list (volontaire : trop interactif pour la matrice CI ; tester à la main ou make test-docker-manager MANAGER=testman)
+🧪 [zsh] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [bash] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [fish] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [zsh] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [bash] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [fish] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [zsh] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d'une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [bash] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d'une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [fish] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d'une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [zsh] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module <nom>    démarrer un module
+  cyberlearn lab start <nom>       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+🧪 [bash] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module <nom>    démarrer un module
+  cyberlearn lab start <nom>       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+🧪 [fish] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module <nom>    démarrer un module
+  cyberlearn lab start <nom>       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+
+📊 Matrice sous-commandes — exécutions: 63 | échecs: 0
+✅ Matrice sous-commandes : OK
+
+───────────────────────────────────────────────────────────────
+── Fin du flux conteneur — journal : /home/pactivisme/dotfiles/test_results/test_output.log
+[2/3] 66.7% |███████████████████████████░░░░░░░░░░░░░| ✅ 2 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:12 restant
+═══════════════════════════════════════════════════════════════
+📊 RAPPORT DE TEST
+═══════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════
+RAPPORT DE TEST - Tue May 12 12:12:50 UTC 2026
+═══════════════════════════════════════════════════════════════
+
+✅ pathman (zsh): OK
+✅ pathman (bash): OK
+✅ pathman (fish): OK
+✅ manman (zsh): OK
+✅ manman (bash): OK
+✅ manman (fish): OK
+✅ searchman (zsh): OK
+✅ searchman (bash): OK
+✅ searchman (fish): OK
+✅ aliaman (zsh): OK
+✅ aliaman (bash): OK
+✅ aliaman (fish): OK
+✅ installman (zsh): OK
+✅ installman (bash): OK
+✅ installman (fish): OK
+✅ configman (zsh): OK
+✅ configman (bash): OK
+✅ configman (fish): OK
+✅ gitman (zsh): OK
+✅ gitman (bash): OK
+✅ gitman (fish): OK
+✅ fileman (zsh): OK
+✅ fileman (bash): OK
+✅ fileman (fish): OK
+✅ helpman (zsh): OK
+✅ helpman (bash): OK
+✅ helpman (fish): OK
+✅ cyberman (zsh): OK
+✅ cyberman (bash): OK
+✅ cyberman (fish): OK
+✅ devman (zsh): OK
+✅ devman (bash): OK
+✅ devman (fish): OK
+✅ virtman (zsh): OK
+✅ virtman (bash): OK
+✅ virtman (fish): OK
+✅ miscman (zsh): OK
+✅ miscman (bash): OK
+✅ miscman (fish): OK
+✅ doctorman (zsh): OK
+✅ doctorman (bash): OK
+✅ doctorman (fish): OK
+✅ netman (zsh): OK
+✅ netman (bash): OK
+✅ netman (fish): OK
+✅ sshman (zsh): OK
+✅ sshman (bash): OK
+✅ sshman (fish): OK
+✅ processman (zsh): OK
+✅ processman (bash): OK
+✅ processman (fish): OK
+✅ routeman (zsh): OK
+✅ routeman (bash): OK
+✅ routeman (fish): OK
+✅ testman (zsh): OK
+✅ testman (bash): OK
+✅ testman (fish): OK
+✅ testzshman (zsh): OK
+✅ testzshman (bash): OK
+✅ testzshman (fish): OK
+✅ moduleman (zsh): OK
+✅ moduleman (bash): OK
+✅ moduleman (fish): OK
+✅ multimediaman (zsh): OK
+✅ multimediaman (bash): OK
+✅ multimediaman (fish): OK
+✅ cyberlearn (zsh): OK
+✅ cyberlearn (bash): OK
+✅ cyberlearn (fish): OK
+
+═══════════════════════════════════════════════════════════════
+RÉSUMÉ FINAL
+═══════════════════════════════════════════════════════════════
+Total cellules (manager × shell): 69
+Cellules réussies: 69
+Cellules en échec: 0
+Total tests: 352
+
+
+📁 Rapports disponibles dans:
+  - Résumé: /home/pactivisme/dotfiles/test_results/all_managers_test_report.txt
+  - Détail: /home/pactivisme/dotfiles/test_results/detailed_report.txt
+  - Log complet: /home/pactivisme/dotfiles/test_results/test_output.log
+[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant
+🧹 Nettoyage...
+✅ Nettoyage terminé
+[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant
+═══════════════════════════════════════════════════════════════
+📊 RÉSUMÉ - Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport)
+═══════════════════════════════════════════════════════════════
+⏱  Temps total: 00:00:24
+✅ Réussis: 3 (100.0%)
+❌ Échoués: 0 (0.0%)
+═══════════════════════════════════════════════════════════════
+
+✅ Tests terminés!
+📁 Résultats dans: /home/pactivisme/dotfiles/test_results
+
+💡 Pour voir les résultats détaillés:
+   cat /home/pactivisme/dotfiles/test_results/detailed_report.txt
+
+🧹 Nettoyage...
+✅ Nettoyage terminé
+
+💡 Matrice sous-commandes seule (log dédié) : make test-subcommands
+make[1] : on quitte le répertoire « /home/pactivisme/dotfiles »
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tests manuels — voir docs/TESTS.md (parcours lettre par lettre)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Répertoire dotfiles : /home/pactivisme/dotfiles
+
+  1) Prérequis hôte (docker, cc, chemins) — équivalent étapes A.1–A.3
+  2) make docker-build (image Arch / dotfiles-test)
+  3) make docker-in  → menus : distribution puis shell (Bloc C du guide)
+  4) Afficher exemples docker-in sans menu (copier-coller)
+  5) make test-dotcli (compilation + smoke dotcli)
+  6) make test-help
+  7) make test-dotfiles-good
+  8) make test (Docker complet — long)
+  9) Ouvrir docs/TESTS.md dans $PAGER (less)
+  0) Quitter
+
+Choix [0-9] : 0
+À bientôt — coche les étapes dans docs/TESTS.md.
+
+╭─░▒▓    ~/dotfiles    main 1 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  took 54s   system   at 14:13:35  ▓▒░─╮
+╰─❯ make tests-start             
 ```
-(coller ou NA)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Résumé final propre : **Total cellules (manager × shell) = 69, réussies = 69, en échec = 0, total tests = 352**. Matrice sous-commandes : `runs=63 failures=0`. Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport) en `00:00:24` → `✅ Réussis: 3 (100.0%)`. Rapports bien générés dans `test_results/` : `all_managers_test_report.txt` (résumé 82 l.), `detailed_report.txt` (détail 1115 l.), `test_output.log` (log complet 2278 l.), `managers_docker_tests.log` (61 K, 919 l.), `subcommand_matrix_*.log/txt`. La dernière ligne du résumé subcommands confirme la session : `2026-05-12 12:13:08 tier=full runs=63 failures=0`. Le terminal qui « réécrit la sortie » vient de la **barre de progression** `[2/3] / [3/3]` (caractère `\r`) — c’est cosmétique et **n’altère pas** les logs sur disque.
+- **Assistant (relecture)** : **O** — Tout est vert : 69/69 cellules, 352 tests, 0 échec, rapports complets sur disque. Le « ré-affichage » que tu vois dans la console est juste la barre de progression Unicode qui se met à jour avec `\r` ; les fichiers `test_results/*.log` contiennent bien la trace intégrale (vérifié : `detailed_report.txt` = 1115 lignes, `test_output.log` = 2278 lignes). E.3 = **O**. Le Bloc E est complet ; tu peux passer au Bloc F (`make test-dotcli` puis tests `~/dotfiles/bin/dotcli`) ou directement au Bloc G (préalable + G.0/G.0.b/G.0.c puis tableau G.1–G.23) selon ton ordre du jour.
 
 ---
 
@@ -767,7 +1368,9 @@ Pour **chaque** ligne du tableau **G.1–G.23** (smoke manuel complémentaire), 
 | ID | Demande (précise) | Priorité | Traitée |
 |----|-------------------|----------|---------|
 | EXT-001 | *(ex. : ajouter étape pour routeman menu interactif)* | | [ ] |
-| EXT-002 | | | [ ] |
+| EXT-002 | **Adaptabilité petits écrans / terminaux étroits** : auditer toutes les sorties d’aide (`*man help`, `make test-help`, `helpman`, bannières `══` / `─`) sur largeur < 80 colonnes (TTY simple, fresh install sans pilote graphique, écran ancien à faible résolution). Critère : pas de débordement, pas de bordures cassées, pas de mots tronqués. Ajouter une étape dédiée dans le Bloc G (ou un nouveau Bloc « UX terminal restreint ») avec `stty cols 60` + replay d’une dizaine de `*man help`. | M | [ ] |
+| EXT-003 | **Couleurs ANSI conditionnelles** : vérifier que toutes les sorties (managers, `make test-help`, rapports) détectent correctement le support couleur (`[ -t 1 ]` + `tput colors >= 8`) et n’affichent **jamais** de séquences `\033[…]` brutes quand le terminal ne sait pas les rendre (ex. via `cat`, pipe, terminal minimal). À l’inverse, activer la couleur quand elle est disponible, au moins pour `*man help` (titres, sections). Ajouter une étape de check non-TTY (`*man help | cat -v` ne doit pas contenir `^[[`). | M | [ ] |
+| EXT-004 | | | [ ] |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 
