@@ -18,6 +18,7 @@
 |------|--------|-----------------|
 | **2026-05-11** | Convention **aide / CLI** unifiée sur les `*man` (stdout vs interactif), correction **boucles** sur argument inconnu (`aliaman`, `cyberman`, `pathman`, …), **`helpman`**, **`aliaman`** (recherche / synonymes), **`multimediaman`** et **`cyberlearn`** alignés sur le même contrat. | Refaire **Bloc G — préalable + G.0** (ci-dessous), puis cocher **G.1–G.23**. Les étapes **D.3** (`pathman help`) restent valides : l’aide doit toujours s’afficher sur stdout. |
 | **2026-05-12** | **G.0** étendu à **tous** les managers de `migrated_managers.list` (ajout `manman`, `configman`, `doctorman`, `moduleman`). Ajout **G.0.b** (reproducteur du bug historique `aliaman --` → ne doit plus boucler) et **G.0.c** (smoke des nouvelles commandes `aliaman search` / `aliaman list`, avec ou sans `fzf`). Note : `manman` et `doctorman` peuvent encore renvoyer `rc=0` sur argument inconnu — c’est un **WARN** acceptable à reporter en `Notes` (pas un `FAIL`). | Refaire **G.0**, puis cocher **G.0.b** et **G.0.c** avant de retourner sur **G.1–G.23**. |
+| **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 
 ---
 
@@ -1082,58 +1083,110 @@ Choix [0-9] : 0
 
 - **Commande** : `make test-dotcli`
 - **Attendu** : compilation OK + lignes de smoke sans erreur.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie (extrait)** :
+```zsh
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:34:57  ▓▒░─╮
+╰─❯ make build-dotcli                                                                                                                                                                                                                    ─╯
+🔨 Compilation de dotcli (C)...
+✓ Binaire généré: /home/pactivisme/dotfiles/bin/dotcli
+
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:35:04  ▓▒░─╮
+╰─❯ make test-dotcli                                                                                                                                                                                                                     ─╯
+🔨 Compilation de dotcli (C)...
+✓ Binaire généré: /home/pactivisme/dotfiles/bin/dotcli
+🧪 Smoke tests dotcli...
+✓ dotcli smoke tests OK
+
+╭─░▒▓ 
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `make build-dotcli` puis `make test-dotcli` : binaire généré sous `bin/dotcli`, smoke tests `✓ dotcli smoke tests OK`. Aucune erreur de compilation, aucun warning bloquant.
+- **Assistant (relecture)** : **O** — Critère F.1 rempli (compilation OK + smoke OK). Tu peux enchaîner F.2.
 
 ### Étape F.2 — `doctor`
 
 - **Commande** : `~/dotfiles/bin/dotcli doctor`
 - **Attendu** : lignes `stdin_tty`, `stdout_tty`, `term`.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
+```zsh
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:35:28  ▓▒░─╮
+╰─❯ ~/dotfiles/bin/dotcli doctor                                                                                                                                                                                                         ─╯
+dotcli_doctor: ok
+stdin_tty=1
+stdout_tty=1
+term=xterm-256color
+
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:36:40  ▓▒░─╮
+╰─❯
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Sortie `dotcli doctor` conforme : `dotcli_doctor: ok` + les 3 lignes attendues (`stdin_tty=1`, `stdout_tty=1`, `term=xterm-256color`).
+- **Assistant (relecture)** : **O** — Critère F.2 rempli (les trois lignes diagnostiques attendues sont présentes). `stdin_tty=1` et `stdout_tty=1` confirment que tu étais bien dans un vrai TTY (cohérent avec ton terminal Cursor).
 
 ### Étape F.3 — Menu non-TTY (pipe)
 
 - **Commande** : `printf 'A|a\nB|b\n' | ~/dotfiles/bin/dotcli menu --prompt test`
 - **Attendu** : stdout = une ligne `a` (première entrée).
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
+```zsh
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:36:40  ▓▒░─╮
+╰─❯ printf 'A|a\nB|b\n' | ~/dotfiles/bin/dotcli menu --prompt test                                                                                                                                                                       ─╯
+a
+
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:37:39  ▓▒░─╮
+╰─❯          
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Cohérent : `a` est bien la **clé** (`label|key` → 2ᵉ champ) de la première entrée `A|a`. Comportement attendu du mode non-TTY (pipe) : sélection automatique du premier item valide.
+- **Assistant (relecture)** : **O** — Critère F.3 rempli (stdout = `a`, exactement une ligne). Conforme au [contrat](platform/DOTCLI_MENU_CONTRACT.md) : *Mode non-TTY (CI, pipe): sélectionne la première entrée valide*.
 
 ### Étape F.4 — `--simulate-index 2`
 
 - **Commande** : `printf 'x|a\ny|b\n' | ~/dotfiles/bin/dotcli menu --simulate-index 2 --prompt t`
 - **Attendu** : stdout = `b`.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
+```zsh
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:38:28  ▓▒░─╮
+╰─❯ printf 'x|a\ny|b\n' | ~/dotfiles/bin/dotcli menu --simulate-index 2 --prompt t                                                                                                                                                       ─╯
+b
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Cohérent : `--simulate-index 2` (1-based) sélectionne la 2ᵉ entrée `y|b`, donc la clé `b` est émise sur stdout.
+- **Assistant (relecture)** : **O** — Critère F.4 rempli (stdout = `b`). Confirme que `--simulate-index N` fonctionne en non-TTY pour des tests scriptables/déterministes.
 
 ### Étape F.5 — `--dry-run`
 
 - **Commande** : `printf 'x|a\n' | ~/dotfiles/bin/dotcli menu --dry-run --prompt t 2>/dev/null ; echo "exit=$?"`
 - **Attendu** : stdout `a` ; stderr peut contenir le texte dry-run (redirigé ici vers /dev/null pour simplifier — tu peux retirer `2>/dev/null` pour voir le détail).
+- **[x] Fait**
+- **Sortie** :
+```zsh
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:39:36  ▓▒░─╮
+╰─❯ printf 'x|a\n' | ~/dotfiles/bin/dotcli menu --dry-run --prompt t 2>/dev/null ; echo "exit=$?"                                                                                                                                        ─╯
+a
+exit=0
+
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:39:37  ▓▒░─╮
+╰─❯
+```
+- **Conforme** : O
+- **Notes** : Cohérent : stdout `a` (clé du premier item `x|a`) et `exit=0`. Le mode `--dry-run` ne modifie rien et confirme le choix.
+- **Assistant (relecture)** : **O** — Critère F.5 rempli (stdout `a`, rc 0). En retirant `2>/dev/null`, tu verrais sur **stderr** le résumé `--dry-run` (informatif, ne pollue pas le flux nominal).
+
+### Étape F.6 — Mode `--no-tui` / `--query` *(testable en non-TTY)*
+
+> ⚠ **Clarification (2026-05-12)** — L’ancienne consigne « tester le vrai TUI avec `printf … | dotcli menu` » était **contradictoire** : dès qu’on pipe les items, `stdin` n’est **plus** un TTY, donc `dotcli` bascule en mode non-TTY (déjà couvert par F.3/F.4/F.5) et sélectionne le premier item — ce qui explique le `1` obtenu lors d’un essai. Le **vrai TUI** (liste surlignée + clavier) exige `stdin = TTY` ; il ne peut **pas** être testé directement avec un pipe → on le valide indirectement en **F.7** (via un manager qui ouvre le menu interne).
+>
+> F.6 teste donc les **modes alternatifs** scriptables : `--no-tui` (mode ligne avec saisie) et `--query` (présélection par texte).
+
+#### F.6.a — `--no-tui` + `--simulate-index`
+
+- **Commande** : `printf 'Un|1\nDeux|2\n' | ~/dotfiles/bin/dotcli menu --no-tui --prompt Demo --simulate-index 2`
+- **Attendu** : stdout = `2` ; rc 0.
 - **[ ] Fait**
 - **Sortie** :
 ```
@@ -1143,13 +1196,25 @@ Choix [0-9] : 0
 - **Notes** :
 - **Assistant (relecture)** :
 
-### Étape F.6 — Menu TUI réel *(TTY uniquement)*
+#### F.6.b — `--query <label>`
 
-- **Commande** : lancer dans un **vrai terminal** (pas via pipe) :  
-  `printf 'Un|1\nDeux|2\n' | …` **ne marche pas** pour le TUI. Utilise plutôt :  
-  `(cd ~/dotfiles && printf 'Un|1\nDeux|2\n' | ./bin/dotcli menu --prompt Demo)` **seulement en TTY** ; sinon note **NA**.
-- **Attendu** : liste surlignée ; flèches / `j` `k` ; Entrée valide ; terminal pas cassé après `q` ou choix.
+- **Commande** : `printf 'Un|1\nDeux|2\nTrois|3\n' | ~/dotfiles/bin/dotcli menu --query Deux --prompt Demo`
+- **Attendu** : stdout = `2` (la clé de l’entrée dont le label correspond à « Deux ») ; rc 0.
 - **[ ] Fait**
+- **Sortie** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+#### F.6.c — Vrai TUI *(observation visuelle uniquement, pas de copier-coller à TESTS.md)*
+
+- **But** : voir au moins une fois la **liste surlignée** de `dotcli menu` en mode TTY interactif.
+- **Pourquoi pas en F.6.a/b ?** Parce qu’il faut **stdin = TTY** ; or dès qu’on pipe les items, stdin devient un FIFO. Le mode TUI s’invoque donc « pour de vrai » via un manager (F.7), qui injecte ses items en interne et garde `stdin` raccroché au terminal pour lire le clavier.
+- **Si tu veux quand même le voir hors manager** : ouvrir un **vrai terminal**, écrire `printf 'Un|1\nDeux|2\n' > /tmp/dotcli-items.txt` puis lancer `script -q -c '~/dotfiles/bin/dotcli menu --prompt Demo' /dev/null < /tmp/dotcli-items.txt` — astuce facultative, **note NA si tu ne veux pas la faire**.
+- **[ ] Fait** *(NA si tu sautes l’observation visuelle directe)*
 - **Conforme** :
 - **Notes** :
 - **Assistant (relecture)** :

@@ -109,9 +109,19 @@ progress_update() {
     
     # Statistiques
     STATS="✅ $PROGRESS_SUCCESSFUL | ❌ $PROGRESS_FAILED"
-    
-    # Afficher la barre de progression (retour chariot pour écraser la ligne précédente)
-    printf "\r[%d/%d] %s%% |%s| %s | %s" "$PROGRESS_COMPLETED" "$PROGRESS_TOTAL" "$PERCENTAGE" "$BAR" "$STATS" "$TIME_INFO"
+
+    # Mode d'affichage :
+    #   - TTY interactif (stdout est un terminal) ET DOTFILES_PROGRESS_PLAIN != 1
+    #     → on utilise \r pour écraser la ligne précédente (UX moderne).
+    #   - Sinon (pipe, log file, redirection, CI, DOTFILES_PROGRESS_PLAIN=1)
+    #     → on émet une ligne propre par mise à jour, sans \r, pour rester
+    #     lisible dans `tee`, `less`, les logs et les terminaux d’IDE qui ne
+    #     savent pas réinterpréter \r correctement.
+    if [ -t 1 ] && [ "${DOTFILES_PROGRESS_PLAIN:-0}" != "1" ]; then
+        printf "\r[%d/%d] %s%% |%s| %s | %s" "$PROGRESS_COMPLETED" "$PROGRESS_TOTAL" "$PERCENTAGE" "$BAR" "$STATS" "$TIME_INFO"
+    else
+        printf "[%d/%d] %s%% %s | %s\n" "$PROGRESS_COMPLETED" "$PROGRESS_TOTAL" "$PERCENTAGE" "$STATS" "$TIME_INFO"
+    fi
 }
 
 # =============================================================================
@@ -149,7 +159,12 @@ progress_finish() {
     
     # Afficher la progression finale
     progress_update "$PROGRESS_COMPLETED" "$PROGRESS_SUCCESSFUL" "$PROGRESS_FAILED"
-    echo ""  # Nouvelle ligne après la barre de progression
+    # En mode TTY, progress_update n'a pas terminé par \n → on en ajoute une.
+    # En mode plain (non-TTY), chaque update finit déjà par \n → on évite le
+    # saut de ligne en trop pour ne pas polluer les logs.
+    if [ -t 1 ] && [ "${DOTFILES_PROGRESS_PLAIN:-0}" != "1" ]; then
+        echo ""
+    fi
     
     # Afficher le résumé final si demandé
     if [ "$show_summary" = "true" ] || [ "$show_summary" = "1" ] || [ "$show_summary" = "yes" ]; then
