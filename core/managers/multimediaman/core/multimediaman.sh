@@ -161,40 +161,74 @@ EOF
         esac
     }
     
-    # Fonction d'aide
+    multimediaman_print_quick_help() {
+        cat <<'EOF'
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d'une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+EOF
+    }
+
+    # Fonction d'aide (menu « Aide » : en-tête + texte + pause)
     show_help() {
         show_header
         printf "${CYAN}${BOLD}AIDE - MULTIMEDIAMAN${RESET}\n\n"
-        printf "${BOLD}Commandes disponibles:${RESET}\n"
-        echo ""
-        printf "${GREEN}multimediaman${RESET}                    - Menu interactif\n"
-        printf "${GREEN}multimediaman --help${RESET}               - Menu interactif (explicite)\n"
-        printf "${GREEN}multimediaman help | -h | aide${RESET}     - Cette aide (stdout)\n"
-        printf "${GREEN}multimediaman rip-dvd [nom]${RESET}       - Ripping DVD avec encodage MP4\n"
-        printf "${GREEN}multimediaman extract [archive] [dest]${RESET} - Extraire archive avec progression\n"
-        printf "${GREEN}multimediaman list [archive]${RESET}      - Lister contenu d'une archive\n"
-        echo ""
-        printf "${BOLD}Exemples:${RESET}\n"
-        echo "  multimediaman"
-        echo "  multimediaman rip-dvd Mon_Film"
-        echo "  multimediaman extract archive.zip"
-        echo "  multimediaman extract archive.tar.gz /tmp/extract"
-        echo "  multimediaman list archive.zip"
-        echo ""
-        printf "${BOLD}Pré-requis:${RESET}\n"
-        echo "  - HandBrakeCLI installé (via installman handbrake)"
-        echo "  - dvdbackup installé"
-        echo "  - libdvdcss installé (pour DVD chiffrés)"
-        echo ""
-        if [ -t 0 ] && [ -t 1 ]; then
-            pause_if_tty
-        fi
+        multimediaman_print_quick_help
+        pause_if_tty
     }
-    
-    # Si un argument est fourni, lancer directement la commande
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        :
-    elif [ -n "$1" ]; then
+
+    if [ -z "$1" ]; then
+        multimediaman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "aide" ]; then
+        case "${2:-}" in
+        --interactive|-i)
+            if [ -t 0 ] && [ -t 1 ]; then
+                multimediaman_print_quick_help
+                pause_if_tty
+            else
+                printf '%s\n' "multimediaman: help --interactive nécessite un TTY." >&2
+                multimediaman_print_quick_help
+            fi
+            return 0
+            ;;
+        *)
+            multimediaman_print_quick_help
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        multimediaman_print_quick_help
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
+        fi
+        pause_if_tty
+        while true; do
+            show_main_menu
+        done
+        return 0
+    fi
+
+    if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log multimediaman "$@"
         cmd=$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
@@ -275,9 +309,6 @@ EOF
                     fi
                 fi
                 ;;
-            help|h|aide|-h)
-                show_help
-                ;;
             *)
                 printf "${RED}❌ Commande inconnue: %s${RESET}\n" "$1"
                 echo ""
@@ -285,21 +316,10 @@ EOF
                 echo "  rip-dvd [nom]     - Ripping DVD avec encodage MP4"
                 echo "  extract [arch]    - Extraire archive avec progression"
                 echo "  list [arch]       - Lister contenu d'une archive"
-                echo "  help             - Afficher l'aide"
+                echo "  multimediaman help — aide sur stdout."
                 echo ""
                 return 1
                 ;;
         esac
-    fi
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            multimediaman help
-            if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
-            fi
-            pause_if_tty
-        fi
-        # Mode interactif
-        show_main_menu
     fi
 }

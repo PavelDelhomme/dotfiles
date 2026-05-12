@@ -415,6 +415,13 @@ pathman() {
             export_path
             return 0
             ;;
+        --help)
+            ;;
+        *)
+            printf '%s\n' "pathman: commande inconnue : $1" >&2
+            printf '%s\n' "pathman help — aide sur stdout." >&2
+            return 1
+            ;;
     esac
 
     # Menu interactif (pathman --help sans fzf, ou après fzf sans choix)

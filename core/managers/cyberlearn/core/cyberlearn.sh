@@ -746,32 +746,32 @@ EOF
     # Aide en ligne de commande (pas de clear, pas de pause) — style outil classique
     cyberlearn_print_usage() {
         cat <<'EOF'
-Usage:
-  cyberlearn                    menu interactif (un terminal est requis)
-  cyberlearn --help             cette page (help) puis Entrée → menu interactif
-  cyberlearn help
-  cyberlearn -h                 cette page sur la sortie standard (non interactif)
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
 
-Commandes:
-  cyberlearn start-module <nom>  démarrer un module
-  cyberlearn lab start <nom>     démarrer un lab
-  cyberlearn lab stop [nom]      arrêter un lab
-  cyberlearn lab list            lister les labs
-  cyberlearn lab status          statut des labs
-  cyberlearn progress            afficher la progression (menu TTY)
+Commandes :
+  cyberlearn start-module <nom>    démarrer un module
+  cyberlearn lab start <nom>       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
 
-Modules reconnus:
+Modules reconnus :
   basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
 
-Labs (exemples):
+Labs (exemples) :
   web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
 
-Exemples:
+Exemples :
   cyberlearn start-module basics
   cyberlearn lab start web-basics
   cyberlearn progress
 
-Pré-requis: Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
 EOF
     }
 
@@ -783,12 +783,12 @@ EOF
         cat <<EOF
 ${BOLD}Commandes disponibles:${RESET}
 
-${GREEN}cyberlearn${RESET}              - Menu interactif principal
+${GREEN}cyberlearn${RESET}              - Aide sur stdout (sans menu)
+${GREEN}cyberlearn --help${RESET}              - Aide + Entrée → menu interactif
+${GREEN}cyberlearn help | -h${RESET}           - Aide texte (stdout)
 ${GREEN}cyberlearn start-module <nom>${RESET} - Démarrer un module
 ${GREEN}cyberlearn lab start <nom>${RESET}    - Démarrer un lab
 ${GREEN}cyberlearn progress${RESET}            - Voir la progression
-${GREEN}cyberlearn help | -h${RESET}           - Aide texte (stdout)
-${GREEN}cyberlearn --help${RESET}              - Aide puis Entrée → menu
 
 ${BOLD}Modules disponibles:${RESET}
   - basics      : Bases de la cybersécurité
@@ -824,14 +824,34 @@ EOF
         pause_if_tty
     }
     
-    if [ -z "$1" ] || [ "$1" = "--help" ]; then
-        if [ "$1" = "--help" ]; then
-            cyberlearn help
+    if [ -z "$1" ]; then
+        cyberlearn_print_usage
+        return 0
+    fi
+    if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "aide" ]; then
+        case "${2:-}" in
+        --interactive|-i)
             if [ -t 0 ] && [ -t 1 ]; then
-                printf "Appuyez sur Entrée pour continuer... "
-                read _cyl_dummy || true
+                show_help_interactive
+            else
+                printf '%s\n' "cyberlearn: help --interactive nécessite un TTY." >&2
+                cyberlearn_print_usage
             fi
+            return 0
+            ;;
+        *)
+            cyberlearn_print_usage
+            return 0
+            ;;
+        esac
+    fi
+    if [ "$1" = "--help" ]; then
+        cyberlearn_print_usage
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            return 0
         fi
+        printf "Appuyez sur Entrée pour continuer... "
+        read _cyl_dummy || true
         while true; do
             show_main_menu
         done
@@ -885,7 +905,6 @@ EOF
                 esac
                 ;;
             progress|progression) show_progress_menu ;;
-            help|aide|-h) cyberlearn_print_usage ;;
             *)
                 printf "${RED}❌ Commande inconnue: %s${RESET}\n" "$1"
                 echo ""
@@ -893,7 +912,7 @@ EOF
                 echo "  start-module <nom>  - Démarrer un module"
                 echo "  lab [start|stop|list] [nom] - Gérer les labs"
                 echo "  progress            - Voir la progression"
-                echo "  help                - Afficher l'aide"
+                echo "  cyberlearn help     - Afficher l'aide"
                 echo ""
                 return 1
                 ;;

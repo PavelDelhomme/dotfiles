@@ -2017,13 +2017,6 @@ EOF
             ;;
         esac
     fi
-    if [ "$1" = "--help" ]; then
-        cyberman_print_quick_help
-        if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
-        fi
-        pause_if_tty
-    fi
     if [ "$1" = "load_infos" ] && [ -n "$2" ]; then
         if [ -f "$CYBER_DIR/environment_manager.sh" ]; then
             . "$CYBER_DIR/environment_manager.sh" 2>/dev/null
@@ -2031,7 +2024,18 @@ EOF
         fi
         return
     fi
-    
+    if [ "$1" != "--help" ]; then
+        printf '%s\n' "cyberman: commande inconnue : $1" >&2
+        printf '%s\n' "cyberman help — aide sur stdout." >&2
+        return 1
+    fi
+    # --help : aide + pause + menu interactif
+    cyberman_print_quick_help
+    if ! { [ -t 0 ] && [ -t 1 ]; }; then
+        return 0
+    fi
+    pause_if_tty
+
     # Menu interactif principal
     while true; do
         show_main_menu

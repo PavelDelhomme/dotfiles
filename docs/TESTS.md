@@ -10,6 +10,14 @@
 2. Pour chaque étape : exécuter la commande, **cocher** `[ ]`, **coller** la sortie utile, choisir **Conforme** `O / N / NA` (sémantique exacte : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §3). Laisser **`Assistant (relecture)`** vide tant qu’une relecture externe n’a pas été faite.
 3. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
 4. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
+5. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.23** comme d’habitude.
+
+### Journal doc (reprise `TESTS.md`)
+
+| Date | Sujet | Action pour toi |
+|------|--------|-----------------|
+| **2026-05-11** | Convention **aide / CLI** unifiée sur les `*man` (stdout vs interactif), correction **boucles** sur argument inconnu (`aliaman`, `cyberman`, `pathman`, …), **`helpman`**, **`aliaman`** (recherche / synonymes), **`multimediaman`** et **`cyberlearn`** alignés sur le même contrat. | Refaire **Bloc G — préalable + G.0** (ci-dessous), puis cocher **G.1–G.23**. Les étapes **D.3** (`pathman help`) restent valides : l’aide doit toujours s’afficher sur stdout. |
+| **2026-05-12** | **G.0** étendu à **tous** les managers de `migrated_managers.list` (ajout `manman`, `configman`, `doctorman`, `moduleman`). Ajout **G.0.b** (reproducteur du bug historique `aliaman --` → ne doit plus boucler) et **G.0.c** (smoke des nouvelles commandes `aliaman search` / `aliaman list`, avec ou sans `fzf`). Note : `manman` et `doctorman` peuvent encore renvoyer `rc=0` sur argument inconnu — c’est un **WARN** acceptable à reporter en `Notes` (pas un `FAIL`). | Refaire **G.0**, puis cocher **G.0.b** et **G.0.c** avant de retourner sur **G.1–G.23**. |
 
 ---
 
@@ -18,7 +26,7 @@
 | Zone `../TODOS.md` | Sections ici |
 |--------------------|--------------|
 | Phase A — prérequis / `make test` / docker-in | **A**, **B**, **C**, **D**, **E** |
-| P1 architecture / managers | **G**, **H** |
+| P1 architecture / managers | **G** (préalable + **G.0** avant le tableau), **H** |
 | P3 dotcli / TUI | **F** |
 | Jalon B — validation perso | **I** (+ cases « Conforme » cumulées) |
 | Phase C (bascule racine) | **Hors scope** — ne pas mélanger avec les tests ci-dessous |
@@ -166,14 +174,62 @@ Choix [0-9] :
 
 - **Commande** : `make docker-build`
 - **Attendu** : fin **sans** erreur ; image `dotfiles-test-image:latest` (ou nom affiché en fin de log) présente.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie (dernières lignes)** :
+```zsh
+╭─░▒▓    ~/dotfiles    main 18 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 13:02:03  ▓▒░─╮
+╰─❯ make docker-build                                                                                                                                                                                                                    ─╯
+🔨 Construction de l'image Docker (isolée avec préfixe)...
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  19.85MB
+Step 1/12 : FROM archlinux:latest
+ ---> e25a13ea0e2a
+Step 2/12 : ENV DOTFILES_DIR=/root/dotfiles
+ ---> Using cache
+ ---> 64a118258460
+Step 3/12 : ENV HOME=/root
+ ---> Using cache
+ ---> 4f2203c5032a
+Step 4/12 : RUN pacman -Syu --noconfirm &&     pacman -S --noconfirm         zsh         bash         fish         git         vim         curl         wget         sudo         base-devel         which         man-db         man-pages         openssh         python         python-pip         make         fzf
+ ---> Using cache
+ ---> 831ca90663b6
+Step 5/12 : RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
+ ---> Using cache
+ ---> 16a3abd6f7b5
+Step 6/12 : RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k 2>/dev/null || true
+ ---> Using cache
+ ---> 0fae0e95aace
+Step 7/12 : WORKDIR /root
+ ---> Using cache
+ ---> cd13e3598053
+Step 8/12 : RUN mkdir -p ${DOTFILES_DIR}
+ ---> Using cache
+ ---> 402778b18780
+Step 9/12 : COPY . ${DOTFILES_DIR}/
+ ---> 09d08d1d7d5f
+Step 10/12 : RUN if [ -f "${DOTFILES_DIR}/zsh/zshrc_custom" ]; then         echo "source ${DOTFILES_DIR}/zsh/zshrc_custom" >> ~/.zshrc;     fi
+ ---> Running in 651b5e98e62c
+ ---> Removed intermediate container 651b5e98e62c
+ ---> 4694d9f2a6ff
+Step 11/12 : RUN mkdir -p ~/.config/moduleman     ~/.ssh     ${DOTFILES_DIR}/.config/moduleman
+ ---> Running in 969adf143df5
+ ---> Removed intermediate container 969adf143df5
+ ---> 172474637a9d
+Step 12/12 : CMD ["/bin/zsh"]
+ ---> Running in 264c79287be2
+ ---> Removed intermediate container 264c79287be2
+ ---> f5a651fd5908
+Successfully built f5a651fd5908
+Successfully tagged dotfiles-test-image:latest
+✓ Image Docker construite avec succès (isolée: dotfiles-test-image:latest)
+
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Build terminé sans erreur ; image `dotfiles-test-image:latest` créée (`f5a651fd5908`). Avertissement non bloquant `DEPRECATED: The legacy builder is deprecated … BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0` — à tracer ultérieurement côté `Makefile`/`scripts/test/docker/` si on veut migrer sur BuildKit. Steps 1–8 en cache, 9–12 reconstruits (COPY + post-COPY).
+- **Assistant (relecture)** : **O** — Critères de B.1 remplis (build OK + image taguée + ✓ Makefile). L’avertissement legacy builder est cosmétique et n’invalide pas la passe. Si tu veux désactiver le bandeau, ajouter `DOCKER_BUILDKIT=1` à l’environnement avant `make docker-build`, mais ce n’est pas requis pour avancer (envisageable en ligne `EXT-xxx`).
 
 *Alternative menu* : `make tests-start` → option `2`.
 
@@ -190,28 +246,54 @@ Choix [0-9] :
   1. Menu **distribution** (1 Arch … 8 Gentoo) — choisir **1** pour la première passe (Arch).
   2. Menu **shell** (zsh / bash / fish / sh) — choisir **1** (zsh) pour la première passe.
   3. Tu obtiens un **prompt** dans le conteneur.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** : note ce que **tu as choisi** :
 ```
-Distro choisie : 
-Shell choisi   : 
+Distro choisie : 1 (Arch)
+Shell choisi   : 1 (zsh)
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- Affichage de la sortie copier coller :
+```Zsh
+╭─░▒▓    ~/dotfiles    main 5 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 12:07:07  ▓▒░─╮
+╰─❯ make docker-in                                                                                                                                                                                                                       ─╯
+
+Quelle distribution (base du conteneur) ?
+  1) Arch (défaut — image Makefile / make docker-build)
+  2) Ubuntu
+  3) Debian
+  4) Alpine
+  5) Fedora
+  6) CentOS
+  7) openSUSE
+  8) Gentoo  ⚠  build très long (sources)
+
+Choix [1-8, ou nom: arch|ubuntu|…, Entrée = Arch] : 1
+
+Quel shell ouvrir dans le conteneur ?
+  1) zsh   2) bash   3) fish   4) sh (POSIX)
+Choix [1-4, ou nom, Entrée = zsh] : 1
+🐧 Distro: arch  →  image: dotfiles-test-image:latest
+🐚 Shell: zsh
+[powerlevel10k] fetching gitstatusd .. [ok]                                                                                                                                                                                                 
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@ff7df64a7e03  at 10:07:22  ▓▒░─╮
+╰─❯                                                                                                                                                                                                                                      ─╯
+```
+- **Conforme** : O
+- **Notes** : Menu distribution + menu shell affichés et choisis (`1 = Arch`, `1 = zsh`). Image bien `dotfiles-test-image:latest`. Prompt obtenu dans le conteneur (`root@ff7df64a7e03`). Avant le prompt, `[powerlevel10k] fetching gitstatusd .. [ok]` → fetch réseau au premier démarrage de zsh dans ce conteneur (cosmétique, ne se reproduira pas tant que l’image est inchangée).
+- **Assistant (relecture)** : **O** — Les trois critères de C.1 sont remplis (menu distro, menu shell, prompt conteneur). Le message `[powerlevel10k] fetching gitstatusd` est attendu sur un premier démarrage zsh + p10k ; si tu relances `make docker-in` sur la même image, ce sera silencieux. Tu peux enchaîner sur le Bloc **D** depuis ce shell conteneur (`cd $DOTFILES_DIR`).
 
 ### Étape C.2 — Sans menu (reproductibilité)
 
 - **Commande (exemple Debian + bash)** : `make docker-in DOCKER_DISTRO=debian DOCKER_SHELL=bash`
 - **Attendu** : shell bash dans conteneur basé Debian ; pas d’échec Docker immédiat.
-- **[ ] Fait** *(NA si tu ne fais que l’interactif)*
+- **[x] Fait** *(NA si tu ne fais que l’interactif)*
 - **Sortie** :
 ```
-(coller ou NA)
+NA — passe interactive uniquement (C.1 fait). À reprendre quand on voudra valider la variante Debian/bash.
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : NA
+- **Notes** : NA assumé pour cette passe : seul l’interactif (C.1) a été lancé. À rejouer plus tard pour couvrir au moins Debian + bash (et éventuellement Ubuntu / Alpine) afin d’exercer `scripts/test/docker/docker_in.sh` avec les variables `DOCKER_DISTRO` / `DOCKER_SHELL`.
+- **Assistant (relecture)** : **NA (attendu)** — L’énoncé prévoit explicitement « **NA** si tu ne fais que l’interactif ». Pas de blocage pour le Jalon B ; à reprendre dans une passe ultérieure pour couvrir la matrice distro × shell.
 
 *Référence variables* : [`../TODOS.md`](../TODOS.md) (section Docker) et `scripts/test/docker/docker_in.sh`.
 
@@ -225,16 +307,45 @@ Shell choisi   :
 
 - **Commande** : `echo "$DOTFILES_DIR" && ls -la "$DOTFILES_DIR/Makefile" 2>&1 | head -5`
 - **Attendu** : `DOTFILES_DIR` = `/root/dotfiles` (sauf si tu as changé `DOCKER_DOTFILES_DIR`) ; `Makefile` lisible.
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
+```zsh
+╭─░▒▓    ~/dotfiles    main 5 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 12:36:08  ▓▒░─╮
+╰─❯ make docker-in                                                                                                                                                                                                                       ─╯
+
+Quelle distribution (base du conteneur) ?
+  1) Arch (défaut — image Makefile / make docker-build)
+  2) Ubuntu
+  3) Debian
+  4) Alpine
+  5) Fedora
+  6) CentOS
+  7) openSUSE
+  8) Gentoo  ⚠  build très long (sources)
+
+Choix [1-8, ou nom: arch|ubuntu|…, Entrée = Arch] : 
+
+Quel shell ouvrir dans le conteneur ?
+  1) zsh   2) bash   3) fish   4) sh (POSIX)
+Choix [1-4, ou nom, Entrée = zsh] : 
+🐧 Distro: arch  →  image: dotfiles-test-image:latest
+🐚 Shell: zsh
+[powerlevel10k] fetching gitstatusd .. [ok]                                                                                                                                                                                                 
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:36:22  ▓▒░─╮
+╰─❯  echo "$DOTFILES_DIR" && ls -la "$DOTFILES_DIR/Makefile" 2>&1 | head -5                                                                                                                                                              ─╯
+/root/dotfiles
+-rw-r--r-- 1 1000 1000 61K May  6 14:35 /root/dotfiles/Makefile
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:37:09  ▓▒░─╮
+╰─❯         
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `DOTFILES_DIR=/root/dotfiles`, `Makefile` lisible (`-rw-r--r-- 1 1000 1000 61K`). Les UID/GID `1000` proviennent du montage depuis l’hôte (utilisateur hôte), c’est attendu pour un montage en lecture seule.
+- **Assistant (relecture)** : **O** — Les deux critères de D.1 sont remplis : `DOTFILES_DIR` affiché correctement et `Makefile` accessible. Tu peux enchaîner D.2.
 
 ### Étape D.2 — Charger la config shell (selon le shell choisi en C.1)
+
+⚠ **Important** : exécuter **UNE SEULE** ligne — celle qui correspond au shell choisi en C.1. Sourcer un rc bash/fish depuis zsh (ou inversement) produit toujours des erreurs de syntaxe (`bad substitution`, `parse error near 'end'`, …) qui ne sont **pas** un bug du projet — c’est juste un shell qui lit la syntaxe d’un autre shell.
 
 Choisis **une** ligne correspondant à ton shell :
 
@@ -246,36 +357,76 @@ Choisis **une** ligne correspondant à ton shell :
 
 - **Commande** : *(copie la ligne de ton shell)*  
 - **Attendu** : pas d’erreur **fatale** ; tu peux taper `pathman help` ensuite sans « command not found ».
-- **[ ] Fait**
+- **[x] Fait**
 - **Sortie** :
+```sh
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:36:22  ▓▒░─╮
+╰─❯  echo "$DOTFILES_DIR" && ls -la "$DOTFILES_DIR/Makefile" 2>&1 | head -5                                                                                                                                                              ─╯
+/root/dotfiles
+-rw-r--r-- 1 1000 1000 61K May  6 14:35 /root/dotfiles/Makefile
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:37:09  ▓▒░─╮
+╰─❯ source /root/dotfiles/zsh/zshrc_custom                                                                                                                                                                                               ─╯
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:38:58  ▓▒░─╮
+╰─❯ source /root/dotfiles/bash/bashrc_custom                                                                                                                                                                                             ─╯
+load_manager:5: bad substitution
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 126 ✘  with root@6cc7662c295a  at 10:39:13  ▓▒░─╮
+╰─❯ source /root/dotfiles/fish/config_custom.fish                                                                                                                                                                                        ─╯
+/root/dotfiles/fish/config_custom.fish:4: parse error near `end'
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 126 ✘  with root@6cc7662c295a  at 10:39:32  ▓▒░─╮
+╰─❯                                                                                                                                                                                                                                      ─╯
+
+
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O (avec réserve d’interprétation — voir relecture)
+- **Notes** : Lors de la passe, **les trois** rc ont été sourcés successivement (`zsh/zshrc_custom` ✅ sans erreur ; puis `bash/bashrc_custom` ❌ `load_manager:5: bad substitution` ; puis `fish/config_custom.fish` ❌ `parse error near 'end'`). Or la consigne demande **une seule** ligne — celle du shell actif (zsh en C.1). Seul le premier `source` était requis, et il a réussi : preuve indirecte → D.3 (`pathman help`) fonctionne immédiatement après, ce qui n’aurait pas été possible sans le chargement de `zshrc_custom`. Les erreurs `bad substitution` / `parse error near 'end'` sont les messages **normaux** d’un shell lisant la syntaxe d’un autre shell, pas un bug du projet.
+- **Assistant (relecture)** : **O** — D.2 est conforme au sens du critère (« pas d’erreur **fatale** ; `pathman help` ensuite sans `command not found` »). Le `source zshrc_custom` est passé proprement et D.3 le confirme. Les deux tentatives suivantes (`bashrc_custom`, `config_custom.fish` dans un shell zsh) **n’étaient pas à exécuter** ; les erreurs émises sont attendues (syntaxes incompatibles) et n’invalident pas l’étape. J’ai d’ailleurs ajouté un **avertissement explicite** au-dessus du tableau pour éviter le piège lors des passes futures. Tu peux laisser **O** ; si tu préfères une trace plus stricte, tu peux mettre **NA** pour les sourcings bash/fish et **O** pour zsh, mais ce n’est pas requis.
 
 ### Étape D.3 — Smoke manager minimal
 
 - **Commande** : `pathman help`
-- **Attendu** : aide ou usage ; pas `command not found`.
-- **[ ] Fait**
+- **Attendu** : aide ou usage **sur stdout** (sans TTY : pas de menu bloquant) ; pas `command not found`. Voir **Bloc G — préalable** pour le contrat complet des `*man`.
+- **[x] Fait**
 - **Sortie (extrait)** :
+```bash
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 126 ✘  with root@6cc7662c295a  at 10:39:32  ▓▒░─╮
+╰─❯ pathman help                                                                                                                                                                                                                         ─╯
+PATHMAN — raccourcis
+
+Gestion PATH :
+  pathman show            afficher le PATH courant
+  pathman add <dir>       ajouter un répertoire
+  pathman remove <dir>    retirer un répertoire
+  pathman clean           nettoyer doublons + invalides
+  pathman invalid         retirer uniquement les invalides
+  pathman stats           statistiques PATH
+  pathman export          exporter vers un fichier texte
+
+Interface :
+  pathman                    cette page (stdout)
+  pathman help | -h          idem
+  pathman help --interactive aide détaillée + pause (TTY)
+  pathman --help             menu interactif (fzf ou menu console)
+
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:42:05  ▓▒░─╮
+╰─❯            
 ```
-(coller)
-```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Semble cohérent : `pathman help` affiche l’aide minimale sur **stdout** (raccourcis + section *Interface*), pas de menu interactif lancé sans TTY explicite — conforme au contrat du Bloc G (préalable).
+- **Assistant (relecture)** : **O** — La sortie respecte exactement la nouvelle convention : bloc « PATHMAN — raccourcis » puis bloc « Interface » listant les 4 formes (`pathman`, `pathman help | -h`, `pathman help --interactive`, `pathman --help`). Aucun `command not found`, aucun blocage. D.3 validé ; tu peux exiter le conteneur en D.4.
 
 ### Étape D.4 — Quitter le conteneur
 
 - **Commande** : `exit` (ou Ctrl+D)
 - **Attendu** : retour sur le shell **hôte**.
-- **[ ] Fait**
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **[x] Fait**
+- **Conforme** : O
+- **Notes** : Retour shell hôte OK, fonctionnement cohérent quel que soit le shell utilisé dans le conteneur.
+- **Assistant (relecture)** : **O** — Critère D.4 rempli (retour à l’hôte). Bloc D complet et exploitable pour la suite.
 
 ---
 
@@ -420,10 +571,129 @@ Choisis **une** ligne correspondant à ton shell :
 
 **Liste source** : `scripts/test/config/migrated_managers.list`.
 
-Pour **chaque** manager, même modèle :
+### Préalable — Contrat aide / CLI des `*man` (à connaître avant le tableau)
 
-- **Commande** : `<manager> help` *(ou ce que la matrice utilise — ici `help`)*  
-- **Attendu** : pas `command not found` ; sortie d’aide ou usage.
+Cohérence attendue pour les managers migrés (détail peut varier légèrement selon l’outil) :
+
+| Cas | Exemple | Attendu (shell **sans** TTY : pipe ou `</dev/null`) | Attendu (TTY réel) |
+|-----|---------|-----------------------------------------------------|----------------------|
+| Aucun argument | `pathman` | **Usage / aide sur stdout**, puis retour immédiat — **pas** de menu qui tourne. | Idem ou équivalent ; pas de menu « silencieux » bloquant. |
+| Aide courte | `pathman help`, `pathman -h` | **Même aide sur stdout** que sans argument (ou équivalent documenté). | Idem. |
+| Aide « détaillée » + pause | `pathman help --interactive` *(ou `-i`)* | Message **stderr** du type *nécessite un TTY* + aide stdout, **sans** boucle. | Texte d’aide + **pause** (Entrée) si le manager le prévoit. |
+| Menu principal | `pathman --help` | Aide **stdout** puis **sortie** (pas de menu sans terminal). | Souvent : aide + pause puis **menu interactif** (fzf / `read` / ncurses). |
+| Argument **inconnu** | `pathman --nimporte`, `aliaman --` | Message **stderr** + **code de retour ≠ 0** ; **aucune** attente infinie (pas de menu lancé par erreur). | Idem. |
+
+**Piège régressif** (à vérifier explicitement en **G.0**) : un argument inconnu ne doit **jamais** retomber dans un `while true` interactif ; sinon le shell « gèle » jusqu’au timeout.
+
+### Étape G.0 — Contrôle global non-TTY *(recommandé avant G.1–G.23)*
+
+Depuis la racine des dotfiles (`cd ~/dotfiles` ou `/root/dotfiles` dans le conteneur), **bash** :
+
+```bash
+cd ~/dotfiles || cd /root/dotfiles
+export DOTFILES_DIR="$PWD"
+MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman \
+processman devman virtman searchman testzshman fileman sshman testman \
+multimediaman cyberlearn manman configman doctorman moduleman"
+# 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
+for m in $MANS; do
+  f="core/managers/$m/core/$m.sh"
+  [ -f "$f" ] || { echo "[SKIP] $m"; continue; }
+  timeout 3 bash -c ". \"$f\" 2>/dev/null; $m __nonexistent_arg__123 </dev/null" >/dev/null 2>&1
+  ec=$?
+  case "$ec" in
+    124) echo "FAIL $m : TIMEOUT (boucle ou blocage)" ;;
+    0)   echo "WARN $m : rc=0 (attendu plutôt ≠0 pour un arg inconnu — à noter)" ;;
+    *)   echo "OK   $m : rc=$ec" ;;
+  esac
+done
+# 2) Flux aide minimal (stdout+stderr non vides ou au moins une sortie) — même liste
+for m in $MANS; do
+  f="core/managers/$m/core/$m.sh"
+  [ -f "$f" ] || continue
+  for sub in "" "help" "-h" "--help"; do
+    out=$(bash -c ". \"$f\" 2>/dev/null; $m $sub </dev/null" 2>&1) || true
+    n=$(printf '%s' "$out" | wc -l)
+    if [ "$n" -gt 0 ]; then
+      echo "OK $m ${sub:-'(vide)'}: $n ligne(s)"
+    else
+      echo "WARN $m ${sub:-'(vide)'}: sortie vide"
+    fi
+  done
+done
+```
+
+- **Attendu** : (1) aucune ligne `FAIL … TIMEOUT` ; (2) pour chaque manager, les quatre variantes affichent au moins une ligne de texte (sinon noter **N** dans **Notes** avec le nom du manager). Les `WARN rc=0` connus (`manman`, `doctorman` au 2026-05-12) sont à reporter en **Notes** mais ne bloquent pas la passe.
+- **[ ] Fait**
+- **Sortie (coller le résumé)** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** : *(les managers hors boucle G.0 sont signalés dans `scripts/test/config/migrated_managers.list` si besoin.)*
+- **Assistant (relecture)** :
+
+### Étape G.0.b — Reproducteur du bug `aliaman --` *(non-TTY)*
+
+But : valider que l’ancien bug (boucle infinie d’affichage de l’usage) est bien corrigé.
+
+- **Commande** :
+  ```bash
+  cd ~/dotfiles || cd /root/dotfiles
+  for arg in "--" "--bogus" "n-importe-quoi"; do
+    timeout 3 bash -c ". core/managers/aliaman/core/aliaman.sh 2>/dev/null; aliaman $arg </dev/null" >/tmp/aliaman_$$.out 2>&1
+    ec=$?
+    if [ "$ec" -eq 124 ]; then
+      echo "FAIL aliaman '$arg' : TIMEOUT"
+    elif [ "$ec" -eq 0 ]; then
+      echo "WARN aliaman '$arg' : rc=0 (attendu ≠0)"
+    else
+      echo "OK   aliaman '$arg' : rc=$ec ($(wc -l </tmp/aliaman_$$.out) ligne(s) émises)"
+    fi
+    rm -f /tmp/aliaman_$$.out
+  done
+  ```
+- **Attendu** : **aucune** ligne `FAIL` ; les trois invocations renvoient un code ≠ 0 avec un court message d’erreur sur stderr — **jamais** une attente infinie.
+- **[ ] Fait**
+- **Sortie** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+### Étape G.0.c — Smoke `aliaman` (search / list) en non-TTY
+
+But : vérifier que les nouvelles commandes directes (`search|find|s`, `list|ls`) renvoient bien quelque chose même sans `fzf` ni TTY.
+
+- **Commande** :
+  ```bash
+  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/aliaman/core/aliaman.sh 2>/dev/null
+  echo "--- list (3 premières lignes) ---"
+  aliaman list </dev/null 2>&1 | head -n 3
+  echo "--- search 'ls' (3 premières lignes) ---"
+  aliaman search ls </dev/null 2>&1 | head -n 3
+  echo "--- find (synonyme) 'cd' ---"
+  aliaman find cd </dev/null 2>&1 | head -n 3
+  ```
+- **Attendu** : chaque section affiche au moins une ligne (alias ou message explicite « aucun résultat »), **sans** déclencher de menu interactif ni boucle.
+- **[ ] Fait**
+- **Sortie** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** : *(si `fzf` est installé en TTY, la commande **interactive** sera testée plus tard via le menu de `aliaman --help` — ne pas tenter ici.)*
+- **Assistant (relecture)** :
+
+---
+
+Pour **chaque** ligne du tableau **G.1–G.23** (smoke manuel complémentaire), même modèle :
+
+- **Commande** : `<manager> help` *(comme ci-dessous — c’est le smoke « chargé + aide »)*  
+- **Attendu** : pas `command not found` ; sortie d’aide ou usage sur **stdout** (en non-TTY, cohérent avec le préalable).
 
 | # | Manager | `[ ]` | Sortie (extrait) | Conforme | Notes | Assistant (relecture) |
 |---|---------|-------|------------------|----------|-------|----------------------|
