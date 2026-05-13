@@ -90,28 +90,54 @@ brightness 100, c'est un des trois cas suivants :
 ## Étape B — OSD physique (joystick)
 
 Quand le firmware DDC refuse `setvcp 14`, seul l'OSD physique permet de
-modifier le preset couleur. Procédure générique Mi Monitor :
+modifier le preset couleur. **L'OSD varie selon le modèle et la langue
+configurée** ; deux variantes courantes :
 
-1. **Joystick** : généralement en bas à droite au DOS de la dalle. Appui
-   central pour ouvrir le menu.
+### B.1 — Variante "internationale" (Mi Monitor 27" et certains 24")
+
+Menus en anglais ou français-littéral :
+
+1. **Joystick** : en bas à droite au DOS de la dalle. Appui central pour ouvrir.
 2. **Picture → Picture Mode** :
    - Bascule sur **Standard** ou **sRGB**.
    - Éviter `User`, `User 1`, `ECO`, `Reading`, `Game` (luminance bridée).
 3. **Picture → Advanced → HDMI Black Level / HDMI Range** :
-   - **Normal** = Full RGB (0-255). C'est la valeur souhaitée.
-   - **Low** / **Limited** = source du rendu lavé sur PC.
+   - **Normal** = Full RGB (0-255). Valeur souhaitée.
+   - **Low** / **Limited** = source du rendu lavé.
 4. Désactiver : `DCR`, `Dynamic Contrast`, `Low Blue Light`, `Eye Saver`,
    `Smart Energy Saver`.
 5. **Settings → Reset → Factory Reset** si rien d'autre n'aide.
 
-Vérifier après changement :
+### B.2 — Variante "française minimaliste" (Mi Monitor 23.8" / A22 / 1C récent)
+
+Menus rencontrés en pratique : `Luminosité`, `Contraste`, `Température de
+couleur`, `Modes intelligents`, `Entrée`, `Paramètres`. **Pas** de menu
+`Picture Mode` ni `HDMI Black Level`. Procédure :
+
+1. **`Température de couleur`** ← équivalent OSD du `VCP 14` du DDC :
+   - Si **`Personnalisé`** (ou `Utilisateur` / `User`) est actif → bascule
+     sur **`Standard`** (≈ 6500K calibré usine).
+   - Le DDC renverra alors `VCP 14 = 0x05` (au lieu de `0x0b`).
+2. **`Modes intelligents`** ← mode d'image global :
+   - Bascule sur **`Standard`**. Éviter `ECO`, `Cinéma`, `Jeu`, `Lecture`,
+     `Faible lumière bleue`.
+3. **`Paramètres`** ← chercher :
+   - **`Format couleur HDMI`** / **`Plage de couleurs`** / **`Couleur HDMI`** :
+     si présent, mettre sur **`RGB`** ou **`Plein` / `Complet`** (et pas
+     `YCbCr` / `Limité`). **Si l'option n'existe pas (cas Mi Monitor 23.8")**,
+     l'Étape C ci-dessous devient indispensable.
+   - **`Réinitialiser`** / `Réglages d'usine` : arme nucléaire si rien d'autre
+     ne marche.
+   - Désactiver : `MEMC`, `DCR`, `Contraste dynamique`, `Mode de jeu`.
+
+### Vérification après changement OSD
 
 ```sh
 displayman dump 1
-# VCP 14 ne doit plus être à 0x0b
+# VCP 14 ne doit plus être à 0x0b (User 1) — désormais 0x05 (6500K) ou 0x01 (sRGB)
 ```
 
-Raccourci sous forme de mémo :
+Raccourci texte :
 
 ```sh
 displayman osd-guide

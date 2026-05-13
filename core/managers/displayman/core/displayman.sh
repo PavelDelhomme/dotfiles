@@ -271,30 +271,35 @@ EOF
         cat <<EOF
 ${CYAN}${BOLD}Guide OSD physique — Mi Monitor / Xiaomi (joystick au dos)${RESET}
 
-Quand le firmware DDC refuse de modifier le preset couleur, seul l'OSD
-physique permet de débloquer la situation. Étapes :
+Localiser d'abord le joystick : en bas à droite, au DOS de la dalle.
+Appuyer au centre pour ouvrir le menu. Deux variantes selon le modèle :
 
-  1. Localiser le joystick : généralement en bas à droite au DOS de la dalle.
-     Appuyer une fois au centre pour ouvrir le menu.
+${BOLD}— Variante A : OSD international (27" et certains 24")${RESET}
+  1. ${BOLD}Picture → Picture Mode${RESET} : choisir ${GREEN}Standard${RESET} ou ${GREEN}sRGB${RESET}
+     (éviter User / ECO / Reading / Game).
+  2. ${BOLD}Picture → Advanced → HDMI Black Level${RESET} : mettre ${GREEN}Normal${RESET}
+     (= Full RGB 0-255).
+  3. Désactiver DCR / Dynamic Contrast / Low Blue Light / Eye Saver.
+  4. ${BOLD}Settings → Reset → Factory Reset${RESET} en dernier recours.
 
-  2. Naviguer vers "${BOLD}Picture${RESET}" → "${BOLD}Picture Mode${RESET}" :
-       - Si "User" / "User 1" est actif → bascule sur "${GREEN}Standard${RESET}" ou "${GREEN}sRGB${RESET}".
-       - Éviter "ECO", "Reading", "Game" (luminance souvent bridée).
+${BOLD}— Variante B : OSD français minimaliste (23.8" / A22 / 1C récent)${RESET}
+  Menus rencontrés : Luminosité · Contraste · Température de couleur ·
+  Modes intelligents · Entrée · Paramètres.
+  1. ${BOLD}Température de couleur${RESET} ← équivalent OSD du VCP 14 du DDC.
+     Si ${YELLOW}Personnalisé / Utilisateur${RESET} est actif → bascule sur
+     ${GREEN}Standard${RESET} (≈ 6500K calibré usine).
+  2. ${BOLD}Modes intelligents${RESET} : bascule sur ${GREEN}Standard${RESET}
+     (éviter ECO / Cinéma / Jeu / Lecture / Faible lumière bleue).
+  3. ${BOLD}Paramètres${RESET} :
+       - ${BOLD}Format couleur HDMI / Plage de couleurs${RESET} (si présent)
+         → ${GREEN}RGB / Plein / Complet${RESET} (et pas YCbCr / Limité).
+         Absent sur Mi Monitor 23.8" → l'Étape C côté NVIDIA est indispensable
+         (voir ${BOLD}displayman range${RESET}).
+       - Désactiver ${BOLD}MEMC / DCR / Contraste dynamique / Mode de jeu${RESET}.
+       - ${BOLD}Réinitialiser / Réglages d'usine${RESET} si rien d'autre n'aide.
 
-  3. Dans "${BOLD}Picture${RESET}" → "${BOLD}Advanced${RESET}" chercher :
-       - "${BOLD}HDMI Black Level${RESET}" ou "${BOLD}HDMI Range${RESET}"
-         → mettre sur "${GREEN}Normal${RESET}" (= Full 0-255).
-         Si "Low" / "Limited" est actif, c'est la cause #1 d'image lavée.
-
-  4. Désactiver explicitement :
-       - DCR / Dynamic Contrast
-       - Low Blue Light / Eye Saver
-       - Smart Energy Saver
-
-  5. "${BOLD}Settings${RESET}" → "${BOLD}Reset${RESET}" → "${YELLOW}Factory Reset${RESET}" si rien d'autre n'a aidé.
-
-Une fois fait, repasse ${BOLD}displayman dump 1${RESET} pour vérifier que le preset
-(VCP 14) n'est plus sur 0x0b (User 1).
+Une fois fait, ${BOLD}displayman dump 1${RESET} doit montrer VCP 14 ≠ 0x0b
+(p.ex. 0x05 si tu passes en Standard, ou 0x01 si tu passes en sRGB).
 EOF
     }
 
