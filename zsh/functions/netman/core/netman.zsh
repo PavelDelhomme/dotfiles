@@ -252,21 +252,21 @@ netman() {
             sed 's/[",]//g; s/^/  /'
         fi
         
-        # IPs Locales
+        # IPs Locales — `ip -o` : une ligne par adresse (évite grep -B2 / awk -F':' sur IPv6).
         echo -e "\n${CYAN}Adresses IP Locales:${RESET}"
-        ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | \
-        while read ip; do
-            local iface=$(ip -4 addr show | grep -B2 "$ip" | head -1 | awk -F: '{print $2}')
-            printf "  %-15s %s\n" "$iface:" "$ip"
-        done
+        if ip -4 -o addr show >/dev/null 2>&1; then
+            ip -4 -o addr show 2>/dev/null | awk '$3 == "inet" { printf "  %-15s %s\n", $2 ":", $4 }' | sort -u
+        else
+            echo "  (iproute2 « ip -o » indisponible — installer iproute2)"
+        fi
         
-        # IPv6
+        # IPv6 — exclure link-local fe80::…
         echo -e "\n${CYAN}Adresses IPv6:${RESET}"
-        ip -6 addr show | grep -oP '(?<=inet6\s)[\da-f:]+/\d+' | grep -v "^fe80" | \
-        while read ip; do
-            local iface=$(ip -6 addr show | grep -B2 "$ip" | head -1 | awk -F: '{print $2}')
-            printf "  %-15s %s\n" "$iface:" "$ip"
-        done
+        if ip -6 -o addr show >/dev/null 2>&1; then
+            ip -6 -o addr show 2>/dev/null | awk '$3 == "inet6" && $4 !~ /^fe80/ { printf "  %-15s %s\n", $2 ":", $4 }' | sort -u
+        else
+            echo "  (iproute2 « ip -o » indisponible — installer iproute2)"
+        fi
         
         echo
         read -k 1 "?Appuyez sur une touche pour continuer..."

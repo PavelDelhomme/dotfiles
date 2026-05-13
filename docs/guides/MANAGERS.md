@@ -398,7 +398,7 @@ netman stats               # Statistiques réseau
 **Fonctionnalités :**
 - **Gestion des ports** : Liste interactive, kill, informations détaillées
 - **Connexions réseau** : Visualisation des connexions actives (ESTABLISHED, TIME_WAIT, etc.)
-- **Informations IP** : IP publique, géolocalisation, IPs locales, IPv6
+- **Informations IP** : IP publique, géolocalisation, IPv4/IPv6 locales (via `ip -4|-6 -o addr show` : une ligne par adresse avec **nom d’interface** aligné sur `ip addr`)
 - **Configuration DNS** : Serveurs DNS, test de résolution, cache DNS
 - **Table de routage** : Routes IPv4/IPv6, passerelles, métriques
 - **Interfaces réseau** : État, MAC, IPs, statistiques (RX/TX)

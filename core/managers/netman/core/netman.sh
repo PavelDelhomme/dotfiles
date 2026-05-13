@@ -556,21 +556,22 @@ EOF
             sed 's/[",]//g; s/^/  /'
         fi
         
-        # IPs Locales
+        # IPs Locales — `ip -o` : une ligne par adresse (iface en $2, addr en $4).
+        # L'ancien grep -B2 + awk -F':' cassait dès qu'une adresse IPv6 contenait des ':'.
         printf "\n${CYAN}Adresses IP Locales:${RESET}\n"
-        ip -4 addr show 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}/\d+' | \
-        while IFS= read -r ip_addr; do
-            iface=$(ip -4 addr show 2>/dev/null | grep -B2 "$ip_addr" | head -1 | awk -F: '{print $2}' | tr -d ' ')
-            printf "  %-15s %s\n" "$iface:" "$ip_addr"
-        done
+        if ip -4 -o addr show >/dev/null 2>&1; then
+            ip -4 -o addr show 2>/dev/null | awk '$3 == "inet" { printf "  %-15s %s\n", $2 ":", $4 }' | sort -u
+        else
+            echo "  (iproute2 « ip -o » indisponible — installer iproute2)"
+        fi
         
-        # IPv6
+        # IPv6 — idem ; exclure link-local fe80::…
         printf "\n${CYAN}Adresses IPv6:${RESET}\n"
-        ip -6 addr show 2>/dev/null | grep -oP '(?<=inet6\s)[\da-f:]+/\d+' | grep -v "^fe80" | \
-        while IFS= read -r ip_addr; do
-            iface=$(ip -6 addr show 2>/dev/null | grep -B2 "$ip_addr" | head -1 | awk -F: '{print $2}' | tr -d ' ')
-            printf "  %-15s %s\n" "$iface:" "$ip_addr"
-        done
+        if ip -6 -o addr show >/dev/null 2>&1; then
+            ip -6 -o addr show 2>/dev/null | awk '$3 == "inet6" && $4 !~ /^fe80/ { printf "  %-15s %s\n", $2 ":", $4 }' | sort -u
+        else
+            echo "  (iproute2 « ip -o » indisponible — installer iproute2)"
+        fi
         
         echo ""
         pause_if_tty

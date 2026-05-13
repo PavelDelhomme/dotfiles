@@ -10,16 +10,17 @@
 2. Pour chaque étape : exécuter la commande, **cocher** `[ ]`, **coller** la sortie utile, choisir **Conforme** `O / N / NA` (sémantique exacte : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §3). Laisser **`Assistant (relecture)`** vide tant qu’une relecture externe n’a pas été faite.
 3. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
 4. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
-5. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.23** comme d’habitude.
+5. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.24** comme d’habitude.
 6. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
 
 ### Journal doc (reprise `TESTS.md`)
 
 | Date | Sujet | Action pour toi |
 |------|--------|-----------------|
-| **2026-05-11** | Convention **aide / CLI** unifiée sur les `*man` (stdout vs interactif), correction **boucles** sur argument inconnu (`aliaman`, `cyberman`, `pathman`, …), **`helpman`**, **`aliaman`** (recherche / synonymes), **`multimediaman`** et **`cyberlearn`** alignés sur le même contrat. | Refaire **Bloc G — préalable + G.0** (ci-dessous), puis cocher **G.1–G.23**. Les étapes **D.3** (`pathman help`) restent valides : l’aide doit toujours s’afficher sur stdout. |
-| **2026-05-12** | **G.0** étendu à **tous** les managers de `migrated_managers.list` (ajout `manman`, `configman`, `doctorman`, `moduleman`). Ajout **G.0.b** (reproducteur du bug historique `aliaman --` → ne doit plus boucler) et **G.0.c** (smoke des nouvelles commandes `aliaman search` / `aliaman list`, avec ou sans `fzf`). Note : `manman` et `doctorman` peuvent encore renvoyer `rc=0` sur argument inconnu — c’est un **WARN** acceptable à reporter en `Notes` (pas un `FAIL`). | Refaire **G.0**, puis cocher **G.0.b** et **G.0.c** avant de retourner sur **G.1–G.23**. |
+| **2026-05-11** | Convention **aide / CLI** unifiée sur les `*man` (stdout vs interactif), correction **boucles** sur argument inconnu (`aliaman`, `cyberman`, `pathman`, …), **`helpman`**, **`aliaman`** (recherche / synonymes), **`multimediaman`** et **`cyberlearn`** alignés sur le même contrat. | Refaire **Bloc G — préalable + G.0** (ci-dessous), puis cocher **G.1–G.24**. Les étapes **D.3** (`pathman help`) restent valides : l’aide doit toujours s’afficher sur stdout. |
+| **2026-05-12** | **G.0** étendu à **tous** les managers de `migrated_managers.list` (ajout `manman`, `configman`, `doctorman`, `moduleman`). Ajout **G.0.b** (reproducteur du bug historique `aliaman --` → ne doit plus boucler) et **G.0.c** (smoke des nouvelles commandes `aliaman search` / `aliaman list`, avec ou sans `fzf`). Note : `manman` et `doctorman` peuvent encore renvoyer `rc=0` sur argument inconnu — c’est un **WARN** acceptable à reporter en `Notes` (pas un `FAIL`). | Refaire **G.0**, puis cocher **G.0.b** et **G.0.c** avant de retourner sur **G.1–G.24**. |
 | **2026-05-13** | **Nouveau manager `displayman`** (écran / luminosité / DDC) ajouté à la liste `MANS` de **G.0** → 24<sup>e</sup> manager. Ajout d’une étape dédiée **G.0.d** (smoke `displayman detect / dump 1 / range / osd-guide` sans modifier l’écran). Diagnostic Xiaomi mené en parallèle (brightness 100/100, preset User 1 verrouillé en écriture par firmware) ; voir [`docs/guides/SCREEN_DISPLAY.md`](guides/SCREEN_DISPLAY.md) pour étapes A→C et [`docs/ERRORS.md`](ERRORS.md) pour le bug firmware. | Refaire **G.0** (+1 manager), cocher **G.0.d**, puis enchaîner les étapes G.1–G.24. |
+| **2026-05-13** *(netman + doc)* | **`netman` — Informations IP** : correction de l’affichage des adresses **IPv4 / IPv6** (interfaces vides `:` ou fragment `861:` pris pour un nom d’interface). Désormais : `ip -4 -o addr show` / `ip -6 -o addr show` + `awk` (core POSIX + copie `zsh/functions/netman/core/netman.zsh`). **Nouvelle étape `C.3`** : matrice **zsh / bash / fish / sh** dans le conteneur (même champs que le reste du guide) + lien explicite **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table « Correspondance avec `TODOS.md` ». | Optionnel : remplir **C.3.a–d** ; sinon continuer **F→I**. Refaire une fois le menu **netman → 3** si tu avais noté un affichage cassé. |
 | **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
 | **2026-05-12** *(suite 3)* | **CI GitHub Actions** : guide **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** (correctif e-mail `content_type` / `EMAIL_FROM`, secrets OVH, job optionnel `if:`) ; workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur Ubuntu). La CI « complète » (Docker `make test`, bootstrap, etc.) reste à planifier — voir **`TODOS.md` P8** et **EXT-005** (§ 12). | Après avoir fini la checklist **A→I** ici : lire le guide, configurer les secrets si tu veux l’e-mail, fusionner ou supprimer l’ancien workflow distant qui casse encore si doublon. |
@@ -34,10 +35,12 @@
 | P1 architecture / managers | **G** (préalable + **G.0** avant le tableau), **H** |
 | P3 dotcli / TUI | **F** |
 | Jalon B — validation perso | **I** (+ cases « Conforme » cumulées) |
+| Jalon B — bac **`DOTFILES_GOOD`** (`make test-dotfiles-good`) | **E.2** (+ **I** pour cocher les cases du jalon dans `TODOS.md`) |
 | Phase C (bascule racine) | **Hors scope** — ne pas mélanger avec les tests ci-dessous |
 | **P8** CI GitHub Actions (après passe manuelle) | [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md) + `.github/workflows/ci-checks.yml` + `TODOS.md` |
+| **P10** re-passes **multi-shell** conteneur (optionnel) | **C.3** ci-dessous |
 
-Ne pas ouvrir [`../TODOS.md`](../TODOS.md) pour exécuter les commandes : on l’ouvre uniquement pour **formaliser** un écart vu en `Notes` (en y ajoutant une ligne).
+Ne pas ouvrir [`../TODOS.md`](../TODOS.md) pour exécuter les commandes : on l’ouvre pour **formaliser** un écart vu en `Notes` (nouvelle ligne de backlog / correctif). **Flux recommandé** : terminer une étape ici (`TESTS.md`) → si **N** ou comportement inattendu → noter la cause dans `Notes`, puis **ajouter** une entrée ciblée dans `TODOS.md` (sans supprimer l’historique de ce fichier). **`DOTFILES_GOOD`** : la validation « officielle » du bac reste **E.2** + les quatre cases **Jalon B** dans `TODOS.md` ; la **phase C** (bascule racine) reste **bloquée** tant que le jalon B n’est pas coché par toi.
 
 ---
 
@@ -302,6 +305,79 @@ NA — passe interactive uniquement (C.1 fait). À reprendre quand on voudra val
 - **Assistant (relecture)** : **NA (attendu)** — L’énoncé prévoit explicitement « **NA** si tu ne fais que l’interactif ». Pas de blocage pour le Jalon B ; à reprendre dans une passe ultérieure pour couvrir la matrice distro × shell.
 
 *Référence variables* : [`../TODOS.md`](../TODOS.md) (section Docker) et `scripts/test/docker/docker_in.sh`.
+
+### Étape C.3 — Matrice shells dans le conteneur *(optionnel, même distro)*
+
+**But** : rejouer **Bloc D** (au minimum **D.2** + **D.3**) et un **smoke réseau** pour **zsh**, **bash**, **fish** et **`sh`**, sans réécrire tout le guide : une ligne par shell, **même modèle de champs** que les autres étapes ([`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §1).
+
+**Comment lancer** : sur l’**hôte**, `make docker-in` (ou variables `DOCKER_DISTRO` / `DOCKER_SHELL` — voir C.2). Choisir la **même distro** (ex. Arch) puis successivement le menu shell **1 → zsh**, puis quitter le conteneur, relancer `make docker-in`, choisir **2 → bash**, etc. *(Ou une seule ligne : `make docker-in DOCKER_SHELL=bash`.)*
+
+**Smoke commun (à exécuter dans chaque shell du conteneur)** — adapter la ligne `source` au shell :
+
+| Shell | Commande `source` (depuis `/root` ou `~`) | Smoke non interactif |
+|-------|------------------------------------------|------------------------|
+| **zsh** | `source /root/dotfiles/zsh/zshrc_custom` | `pathman help \| head -n 4` |
+| **bash** | `source /root/dotfiles/bash/bashrc_custom` | `pathman help \| head -n 4` |
+| **fish** | `source /root/dotfiles/fish/config_custom.fish` | `pathman help \| head -n 4` |
+| **sh** | `ENV=/root/dotfiles/shared/config.sh; export ENV; . "$ENV"` *(ou méthode documentée pour POSIX minimal)* | `command -v pathman >/dev/null && pathman help \| head -n 4` *(si `pathman` absent en `sh` pur, mettre **NA** en Notes)* |
+
+**Contrôle visuel `netman` (TTY uniquement)** : menu **3 — Informations IP** → sous **Adresses IP Locales** et **IPv6**, chaque ligne doit afficher un **nom d’interface** (`wlan0:`, `docker0:`, …) aligné avec `ip -4 -o addr show` / `ip -6 -o addr show` sur la même machine. **Pas** de colonne vide `:` avant l’adresse ; **pas** de fragment d’adresse IPv6 pris pour un nom d’interface (`861:`).
+
+---
+
+#### C.3.a — Conteneur **zsh** (re-passe)
+
+- **Commande** : `make docker-in` → Arch + **zsh** ; puis `source …/zshrc_custom` ; `pathman help \| head -n 4` ; en TTY : `netman --help` → option **3** (Informations IP).
+- **Attendu** : `pathman help` sans `command not found` ; adresses IP avec interface correcte (cf. tableau ci-dessus).
+- **[ ] Fait**
+- **Sortie (coller)** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+#### C.3.b — Conteneur **bash**
+
+- **Commande** : `make docker-in DOCKER_SHELL=bash` *(ou menu choix 2)* ; `source …/bashrc_custom` ; `pathman help \| head -n 4` ; TTY : `netman` → **3**.
+- **Attendu** : idem C.3.a.
+- **[ ] Fait**
+- **Sortie** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+#### C.3.c — Conteneur **fish**
+
+- **Commande** : `make docker-in DOCKER_SHELL=fish` ; `source …/config_custom.fish` ; `pathman help \| head -n 4` ; TTY : `netman` → **3**.
+- **Attendu** : idem C.3.a.
+- **[ ] Fait**
+- **Sortie** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+#### C.3.d — Conteneur **`sh` (POSIX)**
+
+- **Commande** : `make docker-in DOCKER_SHELL=sh` ; charger le minimum documenté pour ton cas (voir tableau) ; smoke `pathman` si disponible.
+- **Attendu** : si `pathman` n’est pas exposé en `sh` minimal, cocher **NA** avec explication ; sinon idem non interactif.
+- **[ ] Fait**
+- **Sortie** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** :
+- **Assistant (relecture)** :
+
+> **Lien `TODOS.md`** : cette matrice est **optionnelle** ; une fois remplie, tu peux cocher la case **P10** dans [`../TODOS.md`](../TODOS.md). Les écarts (ex. `pathman` absent en `sh`) → nouvelle ligne dans `TODOS.md` plutôt que d’effacer une étape ici.
 
 ---
 
@@ -1239,19 +1315,6 @@ Demo
 
 ↑/↓ ou j/k · chiffre 1-2 · Entrée valider · q = 1er choix
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```
 - **Conforme** : O *(réinterprété — voir relecture)*
 - **Notes** : Le menu TUI **s’affiche bien** (titre `Demo`, items `1) Un` / `2) Deux` surlignés, ligne d’aide `↑/↓ ou j/k · chiffre 1-2 · Entrée valider · q = 1er choix`). En revanche, **impossible d’interagir au clavier** : c’est cohérent avec ce qui est annoncé dans la consigne (« observation visuelle uniquement »).
@@ -1578,6 +1641,7 @@ Pour **chaque** ligne du tableau **G.1–G.24** (smoke manuel complémentaire), 
 | EXT-002 | **Adaptabilité petits écrans / terminaux étroits** : auditer toutes les sorties d’aide (`*man help`, `make test-help`, `helpman`, bannières `══` / `─`) sur largeur < 80 colonnes (TTY simple, fresh install sans pilote graphique, écran ancien à faible résolution). Critère : pas de débordement, pas de bordures cassées, pas de mots tronqués. Ajouter une étape dédiée dans le Bloc G (ou un nouveau Bloc « UX terminal restreint ») avec `stty cols 60` + replay d’une dizaine de `*man help`. | M | [ ] |
 | EXT-003 | **Couleurs ANSI conditionnelles** : vérifier que toutes les sorties (managers, `make test-help`, rapports) détectent correctement le support couleur (`[ -t 1 ]` + `tput colors >= 8`) et n’affichent **jamais** de séquences `\033[…]` brutes quand le terminal ne sait pas les rendre (ex. via `cat`, pipe, terminal minimal). À l’inverse, activer la couleur quand elle est disponible, au moins pour `*man help` (titres, sections). Ajouter une étape de check non-TTY (`*man help | cat -v` ne doit pas contenir `^[[`). | M | [ ] |
 | EXT-004 | **Vérification visuelle `lsblk` colorisé** (livré 2026-05-12, `shared/functions/lsblk_color.sh`). En TTY : `lsblk` → en-tête en gras, `disk` cyan gras, `part` vert (continuations MOUNTPOINTS multiples héritent du vert), `loop` gris. En non-TTY : `lsblk \| cat` → aucune séquence `\033[…]` visible. JSON : `lsblk -J` → JSON propre, aucune couleur. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1 lsblk \| cat` → couleurs présentes. Désactivation : `NO_COLOR=1 lsblk` ou `DOTFILES_LSBLK_NOCOLOR=1 lsblk` → sortie brute. | M | [x] *(livré, à valider visuellement)* |
+| EXT-006 | **`netman` — Informations IP (menu 3)** : test de non-régression après fix `ip -o` — en TTY, chaque ligne « Adresses IP locales / IPv6 » affiche `iface:` + adresse ; comparaison visuelle avec `ip -4 -o addr show` / `ip -6 -o addr show`. Couvert par **TESTS.md § C.3** (matrice shells) + smoke manuel une fois sur l’hôte. | M | [x] *(correctif livré 2026-05-13, à valider par l’utilisateur)* |
 | EXT-005 | **CI GitHub Actions « complète »** (après `TESTS.md` A→I) : enchaîner sur runner `ubuntu-latest` — `make test-dotfiles-good`, `make build-dotcli` + `make test-dotcli`, puis stratégie **`make test`** (Docker service ou workflow long + `DOTFILES_TEST_*`). Documenter les limites (pas de vrai « poste nu » sans matrice OS). E-mail : uniquement via secrets + job `if:` (voir [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)). | H | [ ] |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
