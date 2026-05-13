@@ -1264,6 +1264,35 @@ exit=0
 >
 > F.6 teste donc les **modes alternatifs** scriptables : `--no-tui` (mode ligne avec saisie) et `--query` (présélection par texte).
 
+**Pré-requis communs F.6** *(à vérifier une seule fois avant F.6.a / F.6.b / F.6.c)* :
+
+1. **Binaire compilé** :
+
+   ```sh
+   make -C ~/dotfiles build-dotcli
+   ls -l ~/dotfiles/bin/dotcli   # doit afficher une ligne exécutable
+   ```
+
+   — Si manquant : `make build-dotcli` puis revérifier. C’est exactement ce qui a été validé en **F.1**.
+2. **Diagnostic dotcli** :
+
+   ```sh
+   ~/dotfiles/bin/dotcli doctor
+   ```
+
+   — F.6.a / F.6.b sont des modes **non-TTY** : les valeurs `stdin_tty`/`stdout_tty` peuvent être `0` ou `1`, ce n’est pas bloquant ici. Le critère est que la commande **réponde** sans erreur (validé en **F.2**).
+3. **Pas besoin de sourcer un manager** — `dotcli` est un binaire autonome, on l’invoque directement par son chemin.
+
+**Variantes par contexte** *(le test reste identique, on adapte juste le préfixe)* :
+
+| Contexte | Préfixe à utiliser | Exemple F.6.a |
+|----------|--------------------|----------------|
+| **Hôte Arch (cas par défaut)** | aucun | `printf … \| ~/dotfiles/bin/dotcli menu --no-tui --simulate-index 2 --prompt Demo` |
+| **Conteneur déjà ouvert** *(shell interactif dans `docker exec`)* | aucun, mais ajuster le chemin → `/root/dotfiles/bin/dotcli` *(ou `$DOTFILES_DIR/bin/dotcli`)* | `printf … \| /root/dotfiles/bin/dotcli menu --no-tui --simulate-index 2 --prompt Demo` |
+| **Depuis l’hôte vers un conteneur** | `docker exec -i <id> sh -c '…'` | `docker exec -i ctn sh -c "printf 'Un\|1\nDeux\|2\n' \| /root/dotfiles/bin/dotcli menu --no-tui --simulate-index 2 --prompt Demo"` |
+
+> **Image / build conteneur** : si pas encore lancé, voir **Bloc C / D.2** pour `make test-image-arch` ou `make shell-arch`. Ces cibles **incluent** le binaire `dotcli` si la stage Dockerfile l’a compilé. Sinon : `apk add make gcc musl-dev && make build-dotcli` dans le conteneur.
+
 #### F.6.a — `--no-tui` + `--simulate-index`
 
 - **Commande** : `printf 'Un|1\nDeux|2\n' | ~/dotfiles/bin/dotcli menu --no-tui --prompt Demo --simulate-index 2`
@@ -1278,9 +1307,9 @@ exit=0
 ╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 18:24:32  ▓▒░─╮
 ╰─❯                                                                                                                                                                                                                                      ─╯
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : stdout = `2` (clé du 2ᵉ item `Deux|2`). Le forçage `--simulate-index 2` court-circuite toute interaction même quand `--no-tui` est actif : sélection déterministe, scriptable en CI.
+- **Assistant (relecture)** : **O** — Critère F.6.a rempli (stdout `2`, rc implicite 0 car shell rendu immédiatement). Couple `--no-tui --simulate-index` = exactement ce qu’il faut pour les tests automatisés ; aucun TTY requis, donc reproductible sur l’hôte et dans un conteneur sans `/dev/tty`.
 
 #### F.6.b — `--query <label>`
 
@@ -1296,9 +1325,9 @@ exit=0
 ╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 18:25:10  ▓▒░─╮
 ╰─❯                                                                                                                                                                                                                                      ─╯
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : stdout = `2` — `--query Deux` a bien matché le label `Deux` et a émis sa clé (`2`). Le 2ᵉ prompt affiche `main 1` (badge de status zsh) sans erreur visible, juste l’indicateur de rc précédent ; le résultat fonctionnel reste correct.
+- **Assistant (relecture)** : **O** — Critère F.6.b rempli (clé du label sélectionné émise). `--query` est utile quand on veut **présélectionner** depuis un script tout en gardant la possibilité d’une confirmation TUI ; en non-TTY, il agit comme un filtre direct.
 
 #### F.6.c — Vrai TUI *(observation visuelle uniquement, pas de copier-coller à TESTS.md)*
 
@@ -1324,77 +1353,145 @@ Demo
 
 **But** : voir et **utiliser** un menu `dotcli` complet (liste surlignée + flèches + Entrée + `q`) **à l’intérieur d’un manager** qui respecte le contrat menu. Ce n’est **pas** réservé à `netman` : tout manager qui appelle `dotcli menu` avec stdin/stdout sur un TTY réel et `DOTFILES_DOTCLI_ENABLE=1` est un **pilote valable** pour cette étape. C’est ici qu’on coche la case « TUI fonctionnel » du Bloc F.
 
-**Pré-requis (1 fois, déjà fait si Bloc F.1 = O)** :
+**Pré-requis communs F.7** *(à vérifier une seule fois avant F.7.a / F.7.b / F.7.c)* :
 
-- Binaire compilé : `ls -l ~/dotfiles/bin/dotcli` doit afficher une ligne.
-- Les managers doivent être chargés dans ton shell courant : si la commande pilote renvoie `command not found`, lance `source ~/dotfiles/zsh/zshrc_custom` (zsh) ou ouvre un nouveau shell.
-- Tu dois être dans un **vrai terminal** (pas dans un pipe ou un `tee`). Vérification rapide : `~/dotfiles/bin/dotcli doctor` doit donner `stdin_tty=1 stdout_tty=1`.
+1. **Binaire compilé** :
 
-**Matrice des pilotes actuels** *(à tenir à jour quand un nouveau manager branche `dotcli` ; repérage rapide : `rg 'DOTFILES_DOTCLI_ENABLE|dotcli menu' core/managers`)* :
+   ```sh
+   make -C ~/dotfiles build-dotcli
+   ls -l ~/dotfiles/bin/dotcli   # doit afficher une ligne exécutable
+   ```
 
-| Manager | Commande d’entrée TTY *(préfixer `DOTFILES_DOTCLI_ENABLE=1`)* | Contexte menu `dotcli` |
-|---------|----------------------------------------------------------------|-------------------------|
-| **netman** | `netman ports` | Sous-menu **NETMAN - Ports actions** |
-| **netman** | `netman --help` *(après l’aide affichée, si le flux te mène au menu)* | **NETMAN - Menu principal** |
-| **aliaman** | `aliaman --help` *(usage puis pause / Entrée selon le flux)* | **ALIAMAN - Menu principal** |
-| **aliaman** | Depuis le menu : entrée **« Gérer les alias (interactif) »** puis écran liste avec actions | **Aliaman actions** |
-| **cyberlearn** | `cyberlearn --help` *(lire l’aide, **Entrée** pour entrer dans la boucle menu)* | **CYBERLEARN - Menu principal** puis sous-menus qui réutilisent le même mécanisme |
+   *(idem F.1 ; refais cette ligne si tu as fait un `git pull` qui touche `core/dotcli/`).*
+2. **Vrai terminal** *(pas un pipe, pas un `tee`, pas `> log.txt`)* — diagnostic rapide :
 
-**Règle de couverture** : pour F.7.a, il suffit de **valider les critères sur une seule ligne** du tableau *(un manager, une commande)*. Refaire la même batterie sur d’autres lignes lors d’une release ou après refonte TUI d’un manager.
+   ```sh
+   ~/dotfiles/bin/dotcli doctor
+   # Attendu : stdin_tty=1 et stdout_tty=1
+   ```
+
+   Si `stdin_tty=0` ou `stdout_tty=0`, **stop** : tu es en mode non-TTY → F.7 n’est pas testable, retour au Bloc F.6.
+3. **Manager chargé dans le shell** *(adapter selon le shell que tu utilises pour la session de test)* :
+
+   ```sh
+   # zsh (hôte par défaut)
+   source ~/dotfiles/zsh/zshrc_custom
+   # bash
+   source ~/dotfiles/bash/bashrc_custom
+   # fish
+   source ~/dotfiles/fish/config.fish
+   ```
+
+   Vérifier que la fonction existe : `command -v netman` (ou `aliaman` / `cyberlearn`) doit afficher *une ligne non vide* (fonction shell ou alias). Si `command not found` → **ouvrir un nouveau shell** puis recommencer.
+4. **Variables d’environnement de pilotage `dotcli`** *(rappelées pour mémoire ; définies pour la commande ou via `export`)* :
+   - `DOTFILES_DOTCLI_ENABLE=1` → autorise le manager à appeler `dotcli menu` (sinon il reste sur son menu historique `read` / `fzf`).
+   - `DOTFILES_DOTCLI_BIN=<chemin>` → force un autre binaire (utile en **F.7.b** avec `/inexistant`).
+   - `DOTFILES_DOTCLI_MENU_NO_TUI=1` → demande au manager d’invoquer `dotcli menu --no-tui` (mode ligne, utile en **F.7.c**).
+
+**Variantes par contexte** *(le test reste identique, on adapte juste l’invocation)* :
+
+| Contexte | Ce qui change | Exemple F.7.a *(pilote = `netman ports`)* |
+|----------|---------------|--------------------------------------------|
+| **Hôte Arch, terminal Konsole / Alacritty / kitty** | Cas par défaut. | `DOTFILES_DOTCLI_ENABLE=1 netman ports` |
+| **Hôte Arch, IDE Cursor (terminal intégré)** | Vérifier d’abord `dotcli doctor` car les terminaux IDE peuvent **simuler** le TTY. | `DOTFILES_DOTCLI_ENABLE=1 netman ports` *(idem, si `doctor` valide)* |
+| **Conteneur Arch / Debian (`make shell-arch` / `shell-debian`)** | Lancer une session **interactive** (option `-it`) ; sourcer le `rc` du shell installé ; ajuster `DOTFILES_DIR` si différent (`/root/dotfiles`). | Dans le conteneur : `source /root/dotfiles/zsh/zshrc_custom && DOTFILES_DOTCLI_ENABLE=1 netman ports` |
+| **Connexion SSH** | TTY doit être alloué (`ssh -t`). Sinon `dotcli doctor` montrera `stdin_tty=0`. | `ssh -t user@host 'zsh -i -c "DOTFILES_DOTCLI_ENABLE=1 netman ports"'` |
+
+> ⚠ **À ne pas faire** : `DOTFILES_DOTCLI_ENABLE=1 netman ports | tee out.log` — le pipe casse le TTY → fallback non-TUI. Si tu veux un journal **et** le TUI, utilise `script -q -c '… netman ports' /tmp/netman-session.log` (le PTY de `script` préserve `stdin_tty`).
+
+**Matrice des pilotes actuels** *(à tenir à jour ; repérage : `rg 'DOTFILES_DOTCLI_ENABLE|dotcli menu' core/managers`)* :
+
+| Manager | Commande d’entrée TTY *(préfixer `DOTFILES_DOTCLI_ENABLE=1`)* | Contexte menu `dotcli` | Comment piloter (clavier / formulaire) |
+|---------|----------------------------------------------------------------|-------------------------|----------------------------------------|
+| **netman** | `netman ports` | Sous-menu **NETMAN - Ports actions** | Flèches ↑/↓ pour parcourir les actions (« Lister les ports », « Tuer un port », « Retour »), **Entrée** pour valider. Si « Tuer un port » : saisir le numéro de port à terminer puis confirmer `[y/N]`. **q** = annule. |
+| **netman** | `netman --help` *(lire l’aide, puis appui Entrée pour entrer dans la boucle menu)* | **NETMAN - Menu principal** | Flèches pour choisir : Statut, Diagnostic, Ports, Wi-Fi, Informations IP, Pare-feu, Diagnostic réseau, etc. **Entrée** valide. **0/Retour** quitte la boucle. |
+| **aliaman** | `aliaman --help` *(usage stdout, Entrée pour entrer dans le menu)* | **ALIAMAN - Menu principal** | Liste numérotée 1-9 + `h` (aide) / `q` (quitter). Choix `1` = écran liste interactif → bascule sur **Aliaman actions**. |
+| **aliaman** | Depuis le menu, item **« Gérer les alias (interactif) »** | Écran **Aliaman actions** | Choix par lettre : `s` (rechercher), `c` (effacer recherche), `+` (ajouter), `e` (éditer), `d` (supprimer), `b` (sauvegarder), `r` (recharger), `q` (retour). **Ajout** : on saisit *nom* puis *commande* (deux `read`). |
+| **cyberlearn** | `cyberlearn --help` *(lire l’aide, **Entrée** pour entrer dans la boucle menu principal)* | **CYBERLEARN - Menu principal** | 1 Modules, 2 Labs, 3 Progression, 4 Exercices, 5 Docker, 6 Certificats, 7 Aide, 0 Quitter. Chaque sous-menu (Labs, Exercices…) réutilise `cyberlearn_pick_menu` → même clavier. |
+
+**Règle de couverture** : pour **F.7.a**, il suffit de valider les critères sur **une seule ligne** du tableau *(un manager, une commande)*. Refaire la même batterie sur d’autres lignes lors d’une release ou après refonte TUI d’un manager.
 
 #### F.7.a — Vrai TUI dotcli (cas principal, **à faire**)
 
-- **Commande à copier-coller** *(exemple par défaut ; tu peux substituer toute autre ligne de la matrice)* :
+- **Pré-requis spécifiques** : satisfaire les 4 points du bloc commun ci-dessus. Si tu testes dans le conteneur, lancer d’abord `make test-image-arch` puis `make shell-arch` (cf. Bloc C / D.2) — la stage Docker compile déjà `dotcli`.
+- **Commande à copier-coller** *(exemple par défaut ; substituable par n’importe quelle ligne de la matrice)* :
+
   ```sh
   DOTFILES_DOTCLI_ENABLE=1 netman ports
   ```
-- **Attendu** *(identique pour tout pilote de la matrice)* : le manager ouvre un menu `dotcli` avec une liste d’actions surlignée. Tu peux :
-  - bouger avec **↑/↓** ou **j/k** ;
-  - taper un chiffre **1-9** pour aller direct sur une ligne ;
-  - **Entrée** pour valider la ligne surlignée ;
-  - **q** pour quitter le menu (équivaut à choisir le premier item — comportement contractuel) ;
-  - **Ctrl+C** pour annuler (le terminal doit redevenir normal, pas « cassé »).
-- **Critères de réussite (Conforme = O)** :
-  1. tu vois bien une **ligne surlignée** (et non une simple liste statique) ;
-  2. tu peux naviguer ;
-  3. après ton choix ou `q`, **ton prompt revient propre** (pas de caractères de contrôle visibles).
-- **[ ] Fait**
-- **Sortie** *(coller juste ce que tu vois en sortie de menu, pas le menu lui-même qui se redessine)* :
+
+  *Équivalents* :
+
+  ```sh
+  DOTFILES_DOTCLI_ENABLE=1 aliaman --help
+  DOTFILES_DOTCLI_ENABLE=1 cyberlearn --help
   ```
-  (coller la ligne après ton choix, ou « Ctrl+C » si tu as annulé)
+- **Comment piloter pendant le menu** *(commun à tous les pilotes)* :
+  - **↑/↓** ou **j/k** → déplacer la ligne surlignée ;
+  - **chiffre 1-9** → sauter directement à l’item N° N ;
+  - **Entrée** → valider la ligne surlignée ;
+  - **q** → quitter (équivaut au 1ᵉʳ item, contrat dotcli) ;
+  - **Ctrl+C** → annule, retour au prompt shell ; le terminal **doit** rester propre.
+- **Cas particuliers de formulaire post-menu** *(à essayer au moins une fois pour valider)* :
+  - `netman ports` → choisir « Tuer un port » : tape un numéro **inexistant** (ex. `99999`) → message d’erreur attendu sans crash.
+  - `aliaman --help` → après le menu, choisir **2** « Ajouter un alias » → saisir `__test_dotcli_alias__` puis `echo hello` → valider → `alias __test_dotcli_alias__` doit ensuite renvoyer la commande.
+  - `cyberlearn --help` → choisir **3** « Ma Progression » → écran statique avec pause `pause_if_tty` → Entrée → retour menu principal → **0** pour sortir.
+- **Attendu** *(identique pour tout pilote)* : liste surlignée, navigation OK, choix accepté ou `q` propre, prompt shell revenu sans caractères de contrôle.
+- **Critères de réussite (Conforme = O)** :
+  1. ligne **surlignée** visible (pas une liste statique) ;
+  2. navigation fonctionnelle (au moins ↑/↓ + Entrée) ;
+  3. **prompt propre** après sortie (pas d’ANSI résiduel, pas de terminal « cassé »).
+- **[ ] Fait**
+- **Sortie** *(coller la ligne après ton choix ou « Ctrl+C », pas le menu redessiné)* :
+
+  ```
+  (à coller)
   ```
 - **Conforme** :
-- **Notes** *(indiquer quel pilote : ex. netman ports, aliaman --help, cyberlearn --help)* :
+- **Notes** *(indiquer quel pilote a été utilisé : `netman ports`, `aliaman --help`, `cyberlearn --help`, et si formulaire post-menu testé)* :
 - **Assistant (relecture)** :
 
 #### F.7.b — Fallback automatique quand le binaire est introuvable *(optionnel mais rassurant)*
 
-- **But** : vérifier que **même sans `dotcli` exécutable**, le manager ne plante pas et affiche un menu de repli (ligne `read`, `dotfiles_ncmenu_select`, etc., selon l’implémentation).
-- **Commande** *(même préfixe pour n’importe quel pilote ; exemples)* :
+- **But** : vérifier que sans `dotcli` exécutable, le manager **ne plante pas** et affiche un menu de repli (ligne `read`, `dotfiles_ncmenu_select`, ou simple invite numérique selon l’implémentation).
+- **Pré-requis spécifiques** : identiques au bloc commun, **sauf** que la variable `DOTFILES_DOTCLI_BIN` doit pointer vers un chemin **inexistant** pour la durée du test. Aucun besoin de désinstaller le vrai binaire.
+- **Commande** *(au choix parmi les pilotes ; faire **au moins une** fois)* :
+
   ```sh
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant netman ports
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant aliaman --help
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant cyberlearn --help
   ```
-- **Attendu** : menu **non-TUI** (numéroté ou invite claire), **pas** de `command not found` vers `dotcli` ni trace d’erreur interpréteur bloquante. Saisie numéro + Entrée (ou équivalent) pour valider.
+- **Comment piloter** :
+  - tu **ne dois pas** voir de liste surlignée ;
+  - tu vois soit une **liste numérotée + invite type `Votre choix:`**, soit un menu `ncurses` minimal (`dotfiles_ncmenu_select`) — les deux sont conformes ;
+  - tape un numéro / une lettre attendue + **Entrée** → l’action choisie s’exécute *(ex. liste des ports affichée)* ;
+  - **Ctrl+C** ramène au shell sans bavure.
+- **Attendu** : **pas** de `command not found` vers `dotcli`, **pas** de stack trace shell, prompt rendu propre.
 - **[ ] Fait** *(NA si tu sautes ce contrôle)*
 - **Conforme** :
-- **Notes** :
+- **Notes** *(indiquer le pilote testé)* :
 - **Assistant (relecture)** :
 
 #### F.7.c — Mode ligne forcé `--no-tui` *(optionnel, équivalent F.6.a mais via un manager)*
 
-- **But** : confirmer que `DOTFILES_DOTCLI_MENU_NO_TUI=1` bascule en mode **liste + saisie ligne** même quand `dotcli` est dispo.
-- **Commande** *(exemples équivalents)* :
+- **But** : confirmer que `DOTFILES_DOTCLI_MENU_NO_TUI=1` bascule le manager en mode **liste + saisie ligne** même quand `dotcli` est dispo. Utile pour les environnements où le mode brut TTY pose problème (sessions remote, tmux exotique, lecteur d’écran).
+- **Pré-requis spécifiques** : identiques au bloc commun + le binaire `dotcli` doit **rester accessible** (sinon on est de fait dans le cas F.7.b, pas F.7.c).
+- **Commande** *(au choix parmi les pilotes ; faire **au moins une** fois)* :
+
   ```sh
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 netman ports
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 aliaman --help
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 cyberlearn --help
   ```
-- **Attendu** : pas de liste surlignée ; prompt qui lit le choix sur **une seule ligne**. Utile si le TUI brut pose problème sur un terminal ou une session distante.
+- **Comment piloter** :
+  - `dotcli` est appelé **sans** mode raw → on voit la liste numérotée (titre, lignes, séparateur) puis l’invite `Choix:` *(ou équivalent du contrat)* ;
+  - saisir le **numéro** (ou la **clé** du label, ex. `q` pour Quitter) puis **Entrée** ;
+  - aucune flèche n’est interprétée : `^[[A` apparaîtrait littéralement → c’est précisément ce qu’on veut éviter en TUI raw, et ce qu’on accepte ici.
+- **Attendu** : pas de liste surlignée, pas d’altération du terminal, choix accepté sur saisie d’une ligne.
 - **[ ] Fait** *(NA si tu sautes ce contrôle)*
 - **Conforme** :
-- **Notes** :
+- **Notes** *(indiquer le pilote testé)* :
 - **Assistant (relecture)** :
 
 > **Piège** : des sous-commandes **sans** menu `dotcli` (ex. `cyberlearn lab list`, sortie texte + pause) ne remplacent **pas** une ligne de la matrice pour F.7.a — il faut une entrée qui appelle réellement `dotcli menu` sur TTY.
