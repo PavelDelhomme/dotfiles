@@ -265,6 +265,7 @@ managers                    # Alias pour manman
 - 🧪 **testman** : Gestionnaire tests applications
 - 🧪 **testzshman** : Gestionnaire tests ZSH/dotfiles
 - 🎬 **multimediaman** : Gestionnaire multimédia (ripping DVD, encodage)
+- 🖥  **displayman** : Gestionnaire écran / luminosité / DDC (preset couleur, range HDMI, OSD)
 - ⚙️ **moduleman** : Gestionnaire modules (activation/désactivation)
 
 **Documentation :** `help manman` ou `man manman`
@@ -311,6 +312,35 @@ multimediaman rip-dvd "Mon_Film"
 **Fichier de sortie :** `~/DVD_RIPS/[nom_du_film].mp4`
 
 **Documentation :** `help multimediaman` ou voir `zsh/functions/multimediaman/modules/dvd/README.md`
+
+### 🖥  Displayman - Gestionnaire Écran / Luminosité / DDC
+
+Gestionnaire des écrans externes : luminosité, contraste, preset couleur,
+diagnostic Full vs Limited range HDMI, et guide OSD physique (joystick) pour
+les moniteurs dont le firmware DDC refuse certaines écritures (Mi Monitor).
+
+**Utilisation :**
+```bash
+displayman                          # aide rapide (stdout, non interactif)
+displayman detect                   # liste les écrans détectés (ddcutil)
+displayman dump 1                   # dump des VCP utiles écran 1
+displayman brightness 1 80          # règle la luminosité (VCP 10) à 80 %
+displayman contrast 1 75            # règle le contraste (VCP 12)
+displayman preset 1 srgb            # tente bascule preset couleur (VCP 14)
+displayman reset 1                  # reset usine couleur (avec confirmation TTY)
+displayman range                    # diagnostic Full / Limited HDMI + GPU
+displayman osd-guide                # guide OSD physique (joystick au dos)
+displayman --help                   # menu interactif (TTY requis)
+```
+
+**Pré-requis :**
+- `ddcutil` (Arch : `sudo pacman -S ddcutil` · Debian/Ubuntu : `sudo apt install ddcutil`)
+- Accès aux `/dev/i2c-*` (groupe `i2c` ou ACL automatique sur Arch récent)
+- Optionnel : `kscreen-doctor` (Plasma) pour le complément KDE
+
+**Documentation :** [`../man/displayman.md`](../man/displayman.md) + guide complet
+[`SCREEN_DISPLAY.md`](SCREEN_DISPLAY.md) (étape A diagnostic DDC, étape B OSD physique,
+étape C Full Range HDMI NVIDIA).
 
 ### 🛠️ Miscman - Gestionnaire Outils Divers
 

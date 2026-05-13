@@ -107,6 +107,7 @@ load_manager "testman" "$DOTFILES_DIR/shells/fish/adapters/testman.fish" "TESTMA
 load_manager "doctorman" "$DOTFILES_DIR/shells/fish/adapters/doctorman.fish" "DOCTORMAN"
 load_manager "multimediaman" "$DOTFILES_DIR/shells/fish/adapters/multimediaman.fish" "MULTIMEDIAMAN"
 load_manager "cyberlearn" "$DOTFILES_DIR/shells/fish/adapters/cyberlearn.fish" "CYBERLEARN"
+load_manager "displayman" "$DOTFILES_DIR/shells/fish/adapters/displayman.fish" "DISPLAYMAN"
 
 
 # =============================================================================

@@ -100,6 +100,7 @@ manman() {
     check_manager "testzshman" "🧪 Gestionnaire tests ZSH/dotfiles" "testzshman"
     check_manager "testman" "🧪 Gestionnaire tests applications" "testman"
     check_manager "doctorman" "🩺 Diagnostic dotfiles / dev" "doctorman"
+    check_manager "displayman" "🖥  Gestionnaire écran / luminosité (DDC)" "displayman"
 
     clear
     printf "${CYAN}${BOLD}"

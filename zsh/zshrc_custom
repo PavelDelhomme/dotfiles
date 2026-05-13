@@ -143,6 +143,7 @@ load_manager "routeman" "$DOTFILES_DIR/shells/zsh/adapters/routeman.zsh" "ROUTEM
 load_manager "testzshman" "$DOTFILES_DIR/shells/zsh/adapters/testzshman.zsh" "TESTZSHMAN"
 load_manager "testman" "$DOTFILES_DIR/shells/zsh/adapters/testman.zsh" "TESTMAN"
 load_manager "doctorman" "$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh" "DOCTORMAN"
+load_manager "displayman" "$DOTFILES_DIR/shells/zsh/adapters/displayman.zsh" "DISPLAYMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)

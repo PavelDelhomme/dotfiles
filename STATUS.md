@@ -2,7 +2,7 @@
 
 > **Rôle de ce fichier** : version, **objectifs en cours**, **journal récent**. Il n’y a **ni backlog complet** (→ [`TODOS.md`](TODOS.md)) **ni procédure de test** (→ [`docs/TESTS.md`](docs/TESTS.md)) **ni incidents** (→ [`docs/ERRORS.md`](docs/ERRORS.md)). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md).
 
-**Dernière mise à jour** : 2026-05-12
+**Dernière mise à jour** : 2026-05-13
 
 ## En bref
 
@@ -34,7 +34,13 @@
 
 ## Journal récent (suivi détaillé)
 
-1. **Dernière livraison notable (2026-05-12)** — lot **« cohérence CLI + UX terminal »** :
+1. **Dernière livraison notable (2026-05-13)** — lot **« displayman + diagnostic écran »** :
+   - **Nouveau manager [`displayman`](core/managers/displayman/core/displayman.sh)** — pilote DDC/CI (`ddcutil`) sur écrans externes : `detect`, `info`, `dump`, `brightness`, `contrast`, `preset`, `reset`, `range`, `osd-guide`. Convention G.x respectée (no-args / `help` / `-h` / `aide` / `help --interactive` / `--help` / arg inconnu → stderr + `rc≠0`).
+   - **Adapters** zsh / bash / fish + enregistrement `manman` + 3 rc files + `scripts/tools/sync_managers.sh` + page man [`docs/man/displayman.md`](docs/man/displayman.md) + liste tests CI [`scripts/test/subcommands/displayman.list`](scripts/test/subcommands/displayman.list).
+   - **Diagnostic écran Xiaomi (XMI Mi Monitor)** mené : brightness `100/100` et contraste `100/100` côté DDC, preset `0x0b` (User 1) **verrouillé en écriture par le firmware** Mi Monitor (MCCS 2.1). Aller-retour brightness `100→50→100` confirme que le canal DDC fonctionne ; seul le preset couleur est bloqué côté firmware.
+   - **Guide complet** [`docs/guides/SCREEN_DISPLAY.md`](docs/guides/SCREEN_DISPLAY.md) — 3 étapes : **A** diagnostic DDC non destructif · **B** OSD physique (joystick au dos, `Picture Mode / HDMI Black Level / Factory Reset`) · **C** Full Range HDMI NVIDIA propriétaire (fragment `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf`, alternatives Intel/AMD via `kscreen-doctor`).
+   - **`docs/ERRORS.md`** : entrée ajoutée sur le bug firmware Mi Monitor preset DDC. **`TODOS.md`** : `V-2026-05-13-displayman` en attente + `P9 displayman`. **`docs/TESTS.md`** : bloc test dédié à intégrer (24<sup>e</sup> manager dans G.0).
+2. **Livraison 2026-05-12** — lot **« cohérence CLI + UX terminal »** :
    - **Convention aide/CLI unifiée** sur tous les `*man` : `manager` / `help` / `-h` / `aide` → aide stdout non-interactive ; `help --interactive` → aide détaillée + pause si TTY ; `--help` → aide + pause + menu interactif (TTY) ou exit (non-TTY) ; **arg inconnu** → erreur stderr + `rc ≠ 0` (fin des **boucles infinies** type `aliaman --` corrigées sur `aliaman`, `cyberman`, `pathman`, `multimediaman`, `cyberlearn`, etc.).
    - **`core/utils/progress_bar.sh` adaptatif** : `\r` en TTY interactif, ligne par mise à jour en non-TTY (pipe, log, terminal IDE) → plus de réécriture sale. Variable `DOTFILES_PROGRESS_PLAIN=1` pour forcer le mode ligne.
    - **`shared/functions/lsblk_color.sh`** : wrapper `lsblk` colorisant la sortie par TYPE (gras+cyan pour `disk`, vert pour `part`, gris pour `loop`, etc.) en TTY ; passe-plat automatique hors TTY ou avec options machine (`-J/-P/-r/-n/-o/-O`). Chargé via `shared/config.sh` pour sh/bash/zsh.
@@ -48,6 +54,7 @@
 
 | Période | Sujet |
 |---------|--------|
+| 2026-05-13 | nouveau manager `displayman` + guide SCREEN_DISPLAY + diag Xiaomi |
 | 2026-05-12 | CI GitHub : `ci-checks.yml` + guide GITHUB_ACTIONS (e-mail / secrets) |
 | 2026-05-12 | convention aide/CLI unifiée (`*man`) + fix boucles arg inconnu |
 | 2026-05-12 | progress_bar adaptatif TTY / non-TTY |

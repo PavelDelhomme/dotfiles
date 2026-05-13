@@ -48,6 +48,7 @@ docs/
 | [`guides/DOCKER.md`](guides/DOCKER.md) | Docker utilisateur (BuildKit, Docker Desktop, conteneur isolé `make docker-in`). |
 | [`guides/VM.md`](guides/VM.md) | Gestion VM QEMU/KVM en CLI (snapshots, rollback, tests). |
 | [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md) | CI GitHub Actions : workflow `ci-checks`, secrets SMTP / e-mail (OVH), correctif `action-send-mail`, roadmap tests automatisés. |
+| [`guides/SCREEN_DISPLAY.md`](guides/SCREEN_DISPLAY.md) | Écrans externes : diagnostic DDC, preset couleur, Full / Limited range HDMI, guide OSD physique (joystick Mi Monitor) — sert de référence à `displayman`. |
 | [`guides/HELP_DISPLAY_GUIDE.md`](guides/HELP_DISPLAY_GUIDE.md) | Affichage d’aide. |
 | [`guides/MAN_MARKDOWN_GUIDE.md`](guides/MAN_MARKDOWN_GUIDE.md) | Format doc man markdown (`man/`). |
 | [`guides/TROUBLESHOOTING_MAN_GIT.md`](guides/TROUBLESHOOTING_MAN_GIT.md) | `git help` / `man`. |

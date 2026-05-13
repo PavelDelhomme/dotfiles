@@ -433,6 +433,7 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 | `miscman` | Gestionnaire divers | `miscman.zsh` |
 | `searchman` | Gestionnaire recherche | `searchman.zsh` |
 | `cyberman` | Gestionnaire cybersécurité | `cyberman.zsh` |
+| `displayman` | Gestionnaire écran / luminosité / DDC (preset, range, OSD) | `core/managers/displayman/core/displayman.sh` |
 | `manman` | Gestionnaire centralisé (menu pour tous les *man) | `manman.zsh` |
 
 **Utilisation:**

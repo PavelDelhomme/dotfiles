@@ -19,6 +19,7 @@
 |------|--------|-----------------|
 | **2026-05-11** | Convention **aide / CLI** unifiée sur les `*man` (stdout vs interactif), correction **boucles** sur argument inconnu (`aliaman`, `cyberman`, `pathman`, …), **`helpman`**, **`aliaman`** (recherche / synonymes), **`multimediaman`** et **`cyberlearn`** alignés sur le même contrat. | Refaire **Bloc G — préalable + G.0** (ci-dessous), puis cocher **G.1–G.23**. Les étapes **D.3** (`pathman help`) restent valides : l’aide doit toujours s’afficher sur stdout. |
 | **2026-05-12** | **G.0** étendu à **tous** les managers de `migrated_managers.list` (ajout `manman`, `configman`, `doctorman`, `moduleman`). Ajout **G.0.b** (reproducteur du bug historique `aliaman --` → ne doit plus boucler) et **G.0.c** (smoke des nouvelles commandes `aliaman search` / `aliaman list`, avec ou sans `fzf`). Note : `manman` et `doctorman` peuvent encore renvoyer `rc=0` sur argument inconnu — c’est un **WARN** acceptable à reporter en `Notes` (pas un `FAIL`). | Refaire **G.0**, puis cocher **G.0.b** et **G.0.c** avant de retourner sur **G.1–G.23**. |
+| **2026-05-13** | **Nouveau manager `displayman`** (écran / luminosité / DDC) ajouté à la liste `MANS` de **G.0** → 24<sup>e</sup> manager. Ajout d’une étape dédiée **G.0.d** (smoke `displayman detect / dump 1 / range / osd-guide` sans modifier l’écran). Diagnostic Xiaomi mené en parallèle (brightness 100/100, preset User 1 verrouillé en écriture par firmware) ; voir [`docs/guides/SCREEN_DISPLAY.md`](guides/SCREEN_DISPLAY.md) pour étapes A→C et [`docs/ERRORS.md`](ERRORS.md) pour le bug firmware. | Refaire **G.0** (+1 manager), cocher **G.0.d**, puis enchaîner les étapes G.1–G.24. |
 | **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
 | **2026-05-12** *(suite 3)* | **CI GitHub Actions** : guide **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** (correctif e-mail `content_type` / `EMAIL_FROM`, secrets OVH, job optionnel `if:`) ; workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur Ubuntu). La CI « complète » (Docker `make test`, bootstrap, etc.) reste à planifier — voir **`TODOS.md` P8** et **EXT-005** (§ 12). | Après avoir fini la checklist **A→I** ici : lire le guide, configurer les secrets si tu veux l’e-mail, fusionner ou supprimer l’ancien workflow distant qui casse encore si doublon. |
@@ -1352,7 +1353,7 @@ cd ~/dotfiles || cd /root/dotfiles
 export DOTFILES_DIR="$PWD"
 MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman \
 processman devman virtman searchman testzshman fileman sshman testman \
-multimediaman cyberlearn manman configman doctorman moduleman"
+multimediaman cyberlearn manman configman doctorman moduleman displayman"
 # 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
 for m in $MANS; do
   f="core/managers/$m/core/$m.sh"
@@ -1446,9 +1447,57 @@ But : vérifier que les nouvelles commandes directes (`search|find|s`, `list|ls`
 - **Notes** : *(si `fzf` est installé en TTY, la commande **interactive** sera testée plus tard via le menu de `aliaman --help` — ne pas tenter ici.)*
 - **Assistant (relecture)** :
 
+### Étape G.0.d — Smoke `displayman` (DDC en lecture seule, non destructif) *(non-TTY)*
+
+But : vérifier que le nouveau manager `displayman` se charge, répond à la convention CLI/help, et que les sous-commandes **non destructives** (`detect`, `dump`, `range`, `osd-guide`) fonctionnent sans modifier l'écran.
+
+> Pré-requis : `ddcutil` installé. Si absent → reporter en **Notes** « ddcutil manquant », passer l'étape (les sous-commandes DDC échoueront proprement avec un message stderr explicite). Le test de convention CLI (`help`, `--help`, arg inconnu) reste valable sans `ddcutil`.
+
+- **Commande** :
+  ```bash
+  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/displayman/core/displayman.sh 2>/dev/null
+
+  echo "--- 1) no-args (aide stdout) ---"
+  displayman </dev/null 2>&1 | head -n 6
+  echo "--- 2) help (idem) ---"
+  displayman help </dev/null 2>&1 | head -n 3
+  echo "--- 3) arg inconnu (stderr + rc1) ---"
+  displayman __bogus__ </dev/null
+  echo "rc=$?  (attendu: 1)"
+  echo "--- 4) range (diagnostic GPU + texte explicatif) ---"
+  displayman range </dev/null 2>&1 | head -n 8
+  echo "--- 5) osd-guide (texte statique) ---"
+  displayman osd-guide </dev/null 2>&1 | head -n 5
+  if command -v ddcutil >/dev/null 2>&1; then
+    echo "--- 6) detect (ddcutil dispo) ---"
+    timeout 30 displayman detect </dev/null 2>&1 | head -n 6
+    echo "--- 7) dump 1 (lecture VCP, ne modifie rien) ---"
+    timeout 60 displayman dump 1 </dev/null 2>&1 | head -n 12
+  else
+    echo "--- 6/7) ddcutil non installé → skip DDC ---"
+  fi
+  ```
+- **Attendu** :
+  1. Aide stdout (≥ 6 lignes commençant par `DISPLAYMAN — écrans …`).
+  2. Idem pour `help`.
+  3. Message d'erreur sur stderr (`displayman: commande inconnue: __bogus__`) + `rc=1`.
+  4. Texte `range` non vide (mention GPU si `lspci` dispo).
+  5. Texte `osd-guide` non vide (`Joystick`, `Picture Mode`).
+  6. Si `ddcutil` : au moins une ligne `Display 1` ou message d'erreur explicite.
+  7. Si `ddcutil` : tableau VCP `[VCP 10] Brightness ...`.
+- **[ ] Fait**
+- **Sortie (coller le résumé)** :
+```
+(coller)
+```
+- **Conforme** :
+- **Notes** : *(ne **jamais** lancer `displayman reset`, `displayman brightness ... <val>`, `displayman contrast ... <val>` ou `displayman preset ... <val>` dans G.0.d : ces commandes **écrivent** sur le moniteur et sortent du périmètre « smoke non destructif ». Les tester manuellement en TTY si souhaité.)*
+- **Assistant (relecture)** :
+
 ---
 
-Pour **chaque** ligne du tableau **G.1–G.23** (smoke manuel complémentaire), même modèle :
+Pour **chaque** ligne du tableau **G.1–G.24** (smoke manuel complémentaire), même modèle :
 
 - **Commande** : `<manager> help` *(comme ci-dessous — c’est le smoke « chargé + aide »)*  
 - **Attendu** : pas `command not found` ; sortie d’aide ou usage sur **stdout** (en non-TTY, cohérent avec le préalable).
@@ -1478,6 +1527,7 @@ Pour **chaque** ligne du tableau **G.1–G.23** (smoke manuel complémentaire), 
 | G.21 | moduleman | [ ] | | | | |
 | G.22 | multimediaman | [ ] | | | | |
 | G.23 | cyberlearn | [ ] | | | | |
+| G.24 | displayman | [ ] | | | | |
 
 **Approfondir** : pour chaque fichier `scripts/test/subcommands/<manager>.list`, ajouter des lignes **G.x.y** dans tes **Notes** ou une annexe perso — c’est la voie pour se rapprocher d’une couverture « chaque sous-commande ».
 

@@ -1,0 +1,6 @@
+# Sous-commandes CI displayman (non interactives, safe en non-TTY).
+# Sans argument : aide rapide stdout (couverte par G.0).
+help
+detect
+range
+osd-guide
