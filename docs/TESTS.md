@@ -1320,23 +1320,35 @@ Demo
 - **Notes** : Le menu TUI **s’affiche bien** (titre `Demo`, items `1) Un` / `2) Deux` surlignés, ligne d’aide `↑/↓ ou j/k · chiffre 1-2 · Entrée valider · q = 1er choix`). En revanche, **impossible d’interagir au clavier** : c’est cohérent avec ce qui est annoncé dans la consigne (« observation visuelle uniquement »).
 - **Assistant (relecture)** : **O** — Le critère réel de F.6.c est *« voir au moins une fois la liste surlignée »*. C’est fait : tu as visuellement confirmé que le TUI marche. L’impossibilité de **valider** au clavier est **attendue** : la commande `script -q -c '… dotcli menu …' /dev/null < /tmp/dotcli-items.txt` redirige stdin **vers le fichier d’items**, donc dotcli reçoit EOF dès qu’il a lu les deux items → plus de canal pour ton clavier. C’est exactement ce qui motive la note de F.6.c : *« le mode TUI s’invoque pour de vrai via un manager (F.7) »* parce qu’un manager **injecte ses items en interne** et garde stdin raccroché au terminal. **Verdict réel : O**. Tu peux passer à F.7 — l’interaction clavier y est validée pour de bon.
 
-### Étape F.7 — Manager pilote en TTY avec `dotcli` *(le « vrai » TUI clavier)*
+### Étape F.7 — Managers pilotes en TTY avec `dotcli` *(le « vrai » TUI clavier)*
 
-**But** : voir et **utiliser** un menu `dotcli` complet (liste surlignée + flèches + Entrée + `q`) à l’intérieur d’un manager. C’est ici qu’on coche la case « TUI fonctionnel » du Bloc F.
+**But** : voir et **utiliser** un menu `dotcli` complet (liste surlignée + flèches + Entrée + `q`) **à l’intérieur d’un manager** qui respecte le contrat menu. Ce n’est **pas** réservé à `netman` : tout manager qui appelle `dotcli menu` avec stdin/stdout sur un TTY réel et `DOTFILES_DOTCLI_ENABLE=1` est un **pilote valable** pour cette étape. C’est ici qu’on coche la case « TUI fonctionnel » du Bloc F.
 
 **Pré-requis (1 fois, déjà fait si Bloc F.1 = O)** :
 
 - Binaire compilé : `ls -l ~/dotfiles/bin/dotcli` doit afficher une ligne.
-- Les managers doivent être chargés dans ton shell courant : si `netman` renvoie `command not found`, lance `source ~/dotfiles/zsh/zshrc_custom` (zsh) ou ouvre un nouveau shell.
+- Les managers doivent être chargés dans ton shell courant : si la commande pilote renvoie `command not found`, lance `source ~/dotfiles/zsh/zshrc_custom` (zsh) ou ouvre un nouveau shell.
 - Tu dois être dans un **vrai terminal** (pas dans un pipe ou un `tee`). Vérification rapide : `~/dotfiles/bin/dotcli doctor` doit donner `stdin_tty=1 stdout_tty=1`.
+
+**Matrice des pilotes actuels** *(à tenir à jour quand un nouveau manager branche `dotcli` ; repérage rapide : `rg 'DOTFILES_DOTCLI_ENABLE|dotcli menu' core/managers`)* :
+
+| Manager | Commande d’entrée TTY *(préfixer `DOTFILES_DOTCLI_ENABLE=1`)* | Contexte menu `dotcli` |
+|---------|----------------------------------------------------------------|-------------------------|
+| **netman** | `netman ports` | Sous-menu **NETMAN - Ports actions** |
+| **netman** | `netman --help` *(après l’aide affichée, si le flux te mène au menu)* | **NETMAN - Menu principal** |
+| **aliaman** | `aliaman --help` *(usage puis pause / Entrée selon le flux)* | **ALIAMAN - Menu principal** |
+| **aliaman** | Depuis le menu : entrée **« Gérer les alias (interactif) »** puis écran liste avec actions | **Aliaman actions** |
+| **cyberlearn** | `cyberlearn --help` *(lire l’aide, **Entrée** pour entrer dans la boucle menu)* | **CYBERLEARN - Menu principal** puis sous-menus qui réutilisent le même mécanisme |
+
+**Règle de couverture** : pour F.7.a, il suffit de **valider les critères sur une seule ligne** du tableau *(un manager, une commande)*. Refaire la même batterie sur d’autres lignes lors d’une release ou après refonte TUI d’un manager.
 
 #### F.7.a — Vrai TUI dotcli (cas principal, **à faire**)
 
-- **Commande à copier-coller** :
+- **Commande à copier-coller** *(exemple par défaut ; tu peux substituer toute autre ligne de la matrice)* :
   ```sh
   DOTFILES_DOTCLI_ENABLE=1 netman ports
   ```
-- **Attendu** : `netman` ouvre un menu dotcli avec une liste d’actions surlignée. Tu peux :
+- **Attendu** *(identique pour tout pilote de la matrice)* : le manager ouvre un menu `dotcli` avec une liste d’actions surlignée. Tu peux :
   - bouger avec **↑/↓** ou **j/k** ;
   - taper un chiffre **1-9** pour aller direct sur une ligne ;
   - **Entrée** pour valider la ligne surlignée ;
@@ -1352,17 +1364,19 @@ Demo
   (coller la ligne après ton choix, ou « Ctrl+C » si tu as annulé)
   ```
 - **Conforme** :
-- **Notes** :
+- **Notes** *(indiquer quel pilote : ex. netman ports, aliaman --help, cyberlearn --help)* :
 - **Assistant (relecture)** :
 
 #### F.7.b — Fallback automatique quand le binaire est introuvable *(optionnel mais rassurant)*
 
-- **But** : vérifier que **même sans `dotcli`**, `netman` ne plante pas et te montre toujours un menu (en mode ligne `read` ou via `dotfiles_ncmenu_select` selon ce qui est dispo).
-- **Commande** :
+- **But** : vérifier que **même sans `dotcli` exécutable**, le manager ne plante pas et affiche un menu de repli (ligne `read`, `dotfiles_ncmenu_select`, etc., selon l’implémentation).
+- **Commande** *(même préfixe pour n’importe quel pilote ; exemples)* :
   ```sh
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant netman ports
+  DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant aliaman --help
+  DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_BIN=/inexistant cyberlearn --help
   ```
-- **Attendu** : tu vois un menu **non-TUI** (numéroté, avec invite type « Choisir [1-N] : »), pas une trace `command not found` ni d’erreur Python/C. Tape un numéro + Entrée pour valider.
+- **Attendu** : menu **non-TUI** (numéroté ou invite claire), **pas** de `command not found` vers `dotcli` ni trace d’erreur interpréteur bloquante. Saisie numéro + Entrée (ou équivalent) pour valider.
 - **[ ] Fait** *(NA si tu sautes ce contrôle)*
 - **Conforme** :
 - **Notes** :
@@ -1370,18 +1384,20 @@ Demo
 
 #### F.7.c — Mode ligne forcé `--no-tui` *(optionnel, équivalent F.6.a mais via un manager)*
 
-- **But** : confirmer que la variable `DOTFILES_DOTCLI_MENU_NO_TUI=1` bascule en mode **liste + saisie ligne** même quand `dotcli` est dispo.
-- **Commande** :
+- **But** : confirmer que `DOTFILES_DOTCLI_MENU_NO_TUI=1` bascule en mode **liste + saisie ligne** même quand `dotcli` est dispo.
+- **Commande** *(exemples équivalents)* :
   ```sh
   DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 netman ports
+  DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 aliaman --help
+  DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 cyberlearn --help
   ```
-- **Attendu** : pas de liste surlignée ; à la place, un prompt qui lit ton choix sur **une seule ligne** (numéro / clé / sous-chaîne). C’est utile pour les environnements où le mode brut TTY pose problème.
+- **Attendu** : pas de liste surlignée ; prompt qui lit le choix sur **une seule ligne**. Utile si le TUI brut pose problème sur un terminal ou une session distante.
 - **[ ] Fait** *(NA si tu sautes ce contrôle)*
 - **Conforme** :
 - **Notes** :
 - **Assistant (relecture)** :
 
-> **Variantes équivalentes** *(si `netman ports` ne te parle pas ou si l’environnement ne permet pas d’ouvrir un socket réseau)* : remplacer `netman ports` par **`aliaman --help`** ou **`cyberlearn lab list`** — les trois managers sont les pilotes `dotcli`. Le test reste exactement le même (liste surlignée + flèches + Entrée), seul le contenu change.
+> **Piège** : des sous-commandes **sans** menu `dotcli` (ex. `cyberlearn lab list`, sortie texte + pause) ne remplacent **pas** une ligne de la matrice pour F.7.a — il faut une entrée qui appelle réellement `dotcli menu` sur TTY.
 
 *Contrat détaillé* : [`platform/DOTCLI_MENU_CONTRACT.md`](platform/DOTCLI_MENU_CONTRACT.md).
 
@@ -1600,7 +1616,7 @@ Pour **chaque** ligne du tableau **G.1–G.24** (smoke manuel complémentaire), 
 
 | Étape | Commande / action | Attendu | `[ ]` | Conforme | Notes | Assistant (relecture) |
 |-------|-------------------|---------|-------|----------|-------|----------------------|
-| H.1 | `export DOTFILES_DOTCLI_ENABLE=1` puis menu `netman` en TTY | dotcli si binaire OK | [ ] | | | |
+| H.1 | `export DOTFILES_DOTCLI_ENABLE=1` puis menu d’un **pilote F.7** (`netman`, `aliaman`, `cyberlearn`, …) en TTY | dotcli si binaire OK | [ ] | | | |
 | H.2 | `export DOTFILES_DOTCLI_MENU_NO_TUI=1` | menus ligne | [ ] | | | |
 | H.3 | `DOTFILES_TEST_MANAGERS=pathman,gitman make test` | sous-ensemble | [ ] | | *(long)* | |
 
