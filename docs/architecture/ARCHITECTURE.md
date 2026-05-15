@@ -85,6 +85,7 @@ Liste alignée sur **`scripts/test/config/migrated_managers.list`** (managers co
 | multimediaman | oui | oui | dossier `multimediaman/` |
 | cyberlearn | oui | oui | dossier **`cyberlearn/`** (modules) |
 | displayman | oui | oui | — *(pas de résidu Zsh, créé directement sous `core/managers/displayman/`)* |
+| diffman | oui | oui | — *(idem sous `core/managers/diffman/`)* |
 
 **Lecture rapide** : la **source de vérité métier** cible est le **core POSIX** ; les colonnes adapter et résidu sont la **colle** et l’**héritage** à faire maigrir (wrappers d’une ligne, puis suppression de logique dupliquée dans `zsh/functions/`).
 
@@ -315,6 +316,7 @@ Le projet doit rester utilisable sans friction sous `zsh`, `bash`, `fish`, `sh` 
 20. **multimediaman** - Gestionnaire multimédia
 21. **cyberlearn** - Parcours apprentissage / cyber
 22. **displayman** - Gestionnaire écran / luminosité / DDC (preset couleur, range HDMI, OSD)
+23. **diffman** - Comparateur de fichiers (diff coloré, côte à côte, rapports multi-fichiers)
 
 ### Structure modulaire
 

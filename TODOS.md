@@ -17,8 +17,9 @@
 ## En cours (lot / tâche actuelle)
 
 - [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**.
-  - **Avancement 2026-05-12** : Blocs **A**, **B**, **C**, **D**, **E**, **F.1 → F.5** validés (verdicts `O` + relectures). **Reste** : **F.6** (`--no-tui` / `--query`), **F.7** (manager + `DOTFILES_DOTCLI_ENABLE=1` en TTY), **Bloc G** (préalable + G.0/G.0.b/G.0.c + tableau G.1–G.24), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
+  - **Avancement 2026-05-12** : Blocs **A**, **B**, **C**, **D**, **E**, **F.1 → F.5** validés (verdicts `O` + relectures). **Reste** : **F.6** (`--no-tui` / `--query`), **F.7** (manager + `DOTFILES_DOTCLI_ENABLE=1` en TTY), **Bloc G** (préalable + G.0/G.0.b/G.0.c + tableau G.1–G.25 + smokes G.0.d/e), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
   - **Ajout 2026-05-13** : nouveau manager `displayman` → **G.0.d** + ligne **G.24** ; **§ C.3** (matrice zsh/bash/fish/sh dans le conteneur) + lien **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table de correspondance avec `TESTS.md`.
+  - **Ajout 2026-05-15** : manager **`diffman`** (diff coloré / côte à côte / rapports) → **G.0.e** + ligne **G.25** ; intégration `manman`, `migrated_managers.list`, [`docs/man/diffman.md`](docs/man/diffman.md).
   - **Correctif 2026-05-13** : **`netman` menu Informations IP** — affichage IPv4/IPv6 réécrit (`ip -o` + `awk`) ; voir **`docs/ERRORS.md`** + **EXT-006** dans `TESTS.md`.
 - [ ] Poursuivre **P1** : normalisation `core/managers/` + adapters ; réduction de la logique résiduelle hors core ; convergence menus vers `dotcli` avec fallbacks.
 

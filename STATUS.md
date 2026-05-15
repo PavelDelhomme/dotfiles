@@ -2,11 +2,11 @@
 
 > **Rôle de ce fichier** : version, **objectifs en cours**, **journal récent**. Il n’y a **ni backlog complet** (→ [`TODOS.md`](TODOS.md)) **ni procédure de test** (→ [`docs/TESTS.md`](docs/TESTS.md)) **ni incidents** (→ [`docs/ERRORS.md`](docs/ERRORS.md)). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md).
 
-**Dernière mise à jour** : 2026-05-13
+**Dernière mise à jour** : 2026-05-15
 
 ## En bref
 
-- **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`.
+- **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : `diffman compare|side|report` pour diffs colorés / côte à côte / rapports multi-fichiers ([`docs/man/diffman.md`](docs/man/diffman.md)).
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
 - **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
 
@@ -34,7 +34,10 @@
 
 ## Journal récent (suivi détaillé)
 
-1. **Dernière livraison notable (2026-05-13)** — lot **« displayman + diagnostic écran »** :
+1. **Livraison 2026-05-15** — lot **« diffman »** :
+   - **Nouveau manager [`diffman`](core/managers/diffman/core/diffman.sh)** — comparaison de fichiers : `compare` / `cmp` (unifié coloré via `git diff --no-index` ou `diff -u`), `side` (côte à côte `diff -y`), `report` (plusieurs fichiers, option `--all-pairs`), `diff3` si l’outil est présent. Variables `NO_COLOR` / `FORCE_COLOR=1`.
+   - **Adapters** zsh / bash / fish + `load_manager` + entrée **`manman`** + liste migrée + [`scripts/test/subcommands/diffman.list`](scripts/test/subcommands/diffman.list) + page man [`docs/man/diffman.md`](docs/man/diffman.md) ; **TESTS.md** : **G.0** (`MANS`), **G.0.e**, tableau **G.25** ; mises à jour **INDEX**, **ARCHITECTURE**, **TODOS**, **CODEMAP**, **MANAGERS**, **sync_managers**.
+2. **Dernière livraison notable (2026-05-13)** — lot **« displayman + diagnostic écran »** :
    - **Nouveau manager [`displayman`](core/managers/displayman/core/displayman.sh)** — pilote DDC/CI (`ddcutil`) sur écrans externes : `detect`, `info`, `dump`, `brightness`, `contrast`, `preset`, `reset`, `range`, `osd-guide`. Convention G.x respectée (no-args / `help` / `-h` / `aide` / `help --interactive` / `--help` / arg inconnu → stderr + `rc≠0`).
    - **Adapters** zsh / bash / fish + enregistrement `manman` + 3 rc files + `scripts/tools/sync_managers.sh` + page man [`docs/man/displayman.md`](docs/man/displayman.md) + liste tests CI [`scripts/test/subcommands/displayman.list`](scripts/test/subcommands/displayman.list).
    - **Diagnostic écran Xiaomi (XMI Mi Monitor)** mené : brightness `100/100` et contraste `100/100` côté DDC, preset `0x0b` (User 1) **verrouillé en écriture par le firmware** Mi Monitor (MCCS 2.1). Aller-retour brightness `100→50→100` confirme que le canal DDC fonctionne ; seul le preset couleur est bloqué côté firmware.
@@ -42,20 +45,21 @@
    - **`docs/ERRORS.md`** : entrée ajoutée sur le bug firmware Mi Monitor preset DDC. **`TODOS.md`** : `V-2026-05-13-displayman` en attente + `P9 displayman`. **`docs/TESTS.md`** : bloc test dédié à intégrer (24<sup>e</sup> manager dans G.0).
    - **Étape C appliquée 2026-05-13** : fragment `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf` installé (`Option "ColorRange" "Full"`, `root:root 0644`) → **relog graphique requis** pour effet. Rollback documenté dans `docs/guides/SCREEN_DISPLAY.md`.
    - **Correctif `netman` (menu Informations IP)** : affichage IPv4/IPv6 réécrit avec `ip -4|-6 -o addr show` + `awk` (fini les colonnes vides `:` et les faux noms d’interface sur IPv6). Fichiers : `core/managers/netman/core/netman.sh` + `zsh/functions/netman/core/netman.zsh`. Doc : **`docs/TESTS.md` § C.3** (matrice shells), **EXT-006**, **`docs/ERRORS.md`**, **`TODOS.md` V-2026-05-13-netman-ip** + **P10**.
-2. **Livraison 2026-05-12** — lot **« cohérence CLI + UX terminal »** :
+3. **Livraison 2026-05-12** — lot **« cohérence CLI + UX terminal »** :
    - **Convention aide/CLI unifiée** sur tous les `*man` : `manager` / `help` / `-h` / `aide` → aide stdout non-interactive ; `help --interactive` → aide détaillée + pause si TTY ; `--help` → aide + pause + menu interactif (TTY) ou exit (non-TTY) ; **arg inconnu** → erreur stderr + `rc ≠ 0` (fin des **boucles infinies** type `aliaman --` corrigées sur `aliaman`, `cyberman`, `pathman`, `multimediaman`, `cyberlearn`, etc.).
    - **`core/utils/progress_bar.sh` adaptatif** : `\r` en TTY interactif, ligne par mise à jour en non-TTY (pipe, log, terminal IDE) → plus de réécriture sale. Variable `DOTFILES_PROGRESS_PLAIN=1` pour forcer le mode ligne.
    - **`shared/functions/lsblk_color.sh`** : wrapper `lsblk` colorisant la sortie par TYPE (gras+cyan pour `disk`, vert pour `part`, gris pour `loop`, etc.) en TTY ; passe-plat automatique hors TTY ou avec options machine (`-J/-P/-r/-n/-o/-O`). Chargé via `shared/config.sh` pour sh/bash/zsh.
    - **CI GitHub Actions** : guide [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md) (correctif `dawidd6/action-send-mail` : pas de `content_type`, secret `EMAIL_FROM` obligatoire ou job `if:`) ; workflow [`.github/workflows/ci-checks.yml`](.github/workflows/ci-checks.yml) (`make test-checks` sur Ubuntu). Roadmap CI complète → **`TODOS.md` P8**.
    - **TESTS.md Blocs A → F.5** validés (verdicts `O` posés + relectures) ; Bloc G étendu aux 23 managers (G.0 + G.0.b reproducteur `aliaman --` + G.0.c smoke `aliaman search/list`) ; F.6 réécrit (l’ancienne consigne « pipe + TUI » était contradictoire).
    - **Jalon B avance** : 2/4 cases couvertes par TESTS.md E.2 (`make test-dotfiles-good : OK`) et E.3 (`make test : 69/69 cellules OK`). Restent à valider : *session réelle bootstrap DOTFILES_GOOD* + *décision branchement entrées shell*.
-3. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
-4. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
-5. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
-6. **À faire maintenant** : finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs **F.6 → I** (optionnel : **§ C.3** matrice shells zsh/bash/fish/sh + validation menu **netman → 3**) ; cocher Jalon B au § correspondant de `TODOS.md` ; valider les lignes « En attente de validation » ; **P8** workflows GitHub ([`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md)).
+4. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
+5. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
+6. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
+7. **À faire maintenant** : finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs **F.6 → I** (optionnel : **§ C.3** matrice shells zsh/bash/fish/sh + validation menu **netman → 3**) ; cocher Jalon B au § correspondant de `TODOS.md` ; valider les lignes « En attente de validation » ; **P8** workflows GitHub ([`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md)).
 
 | Période | Sujet |
 |---------|--------|
+| 2026-05-15 | **diffman** (diff coloré, rapports) + doc INDEX / ARCHITECTURE / TODOS |
 | 2026-05-13 | displayman + écran / **netman** (fix IP `ip -o`) + **TESTS § C.3** matrice shells + jalons doc |
 | 2026-05-12 | CI GitHub : `ci-checks.yml` + guide GITHUB_ACTIONS (e-mail / secrets) |
 | 2026-05-12 | convention aide/CLI unifiée (`*man`) + fix boucles arg inconnu |
