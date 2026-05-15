@@ -266,6 +266,7 @@ managers                    # Alias pour manman
 - 🧪 **testzshman** : Gestionnaire tests ZSH/dotfiles
 - 🎬 **multimediaman** : Gestionnaire multimédia (ripping DVD, encodage)
 - 🖥  **displayman** : Gestionnaire écran / luminosité / DDC (preset couleur, range HDMI, OSD)
+- 📑 **diffman** : Comparateur de fichiers (diff coloré, côte à côte, rapports multi-fichiers)
 - ⚙️ **moduleman** : Gestionnaire modules (activation/désactivation)
 
 **Documentation :** `help manman` ou `man manman`
@@ -341,6 +342,24 @@ displayman --help                   # menu interactif (TTY requis)
 **Documentation :** [`../man/displayman.md`](../man/displayman.md) + guide complet
 [`SCREEN_DISPLAY.md`](SCREEN_DISPLAY.md) (étape A diagnostic DDC, étape B OSD physique,
 étape C Full Range HDMI NVIDIA).
+
+### 📑 Diffman — comparateur de fichiers
+
+Wrapper autour de `git diff --no-index` (couleurs) ou `diff` GNU : diff **unifié** avec surlignage vert/rouge, vue **côte à côte** (`diff -y`), **rapport** concaténé pour plusieurs fichiers (référence unique ou toutes les paires), et **`diff3`** si l’outil est présent.
+
+**Utilisation :**
+```bash
+diffman help
+diffman compare .env .env.production.example    # unifié coloré (rc 0 = identiques, 1 = diff)
+diffman side .env .env.production.example       # deux colonnes + couleurs si GNU diff
+diffman report -o /tmp/rapport.txt a b c        # a vs b, a vs c (1er fichier = référence)
+diffman report --all-pairs -o /tmp/tout.txt a b c   # paires a|b, a|c, b|c (max 8 fichiers)
+diffman diff3 mine.txt parent.txt theirs.txt   # fusion 3 voies (nécessite diff3)
+```
+
+**Variables :** `NO_COLOR`, `FORCE_COLOR=1` (sortie colorée même hors TTY).
+
+**Documentation :** [`../man/diffman.md`](../man/diffman.md)
 
 ### 🛠️ Miscman - Gestionnaire Outils Divers
 

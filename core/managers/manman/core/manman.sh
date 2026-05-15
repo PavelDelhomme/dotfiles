@@ -101,6 +101,7 @@ manman() {
     check_manager "testman" "🧪 Gestionnaire tests applications" "testman"
     check_manager "doctorman" "🩺 Diagnostic dotfiles / dev" "doctorman"
     check_manager "displayman" "🖥  Gestionnaire écran / luminosité (DDC)" "displayman"
+    check_manager "diffman" "📑 Comparateur de fichiers (diff coloré)" "diffman"
 
     clear
     printf "${CYAN}${BOLD}"

@@ -82,6 +82,7 @@ load_manager "doctorman" "$DOTFILES_DIR/shells/bash/adapters/doctorman.sh" "DOCT
 load_manager "multimediaman" "$DOTFILES_DIR/shells/bash/adapters/multimediaman.sh" "MULTIMEDIAMAN"
 load_manager "cyberlearn" "$DOTFILES_DIR/shells/bash/adapters/cyberlearn.sh" "CYBERLEARN"
 load_manager "displayman" "$DOTFILES_DIR/shells/bash/adapters/displayman.sh" "DISPLAYMAN"
+load_manager "diffman" "$DOTFILES_DIR/shells/bash/adapters/diffman.sh" "DIFFMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)

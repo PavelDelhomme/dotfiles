@@ -1,0 +1,5 @@
+# Sous-commandes CI diffman (non interactives).
+help
+compare README.md README.md
+side README.md README.md
+report --out /tmp/diffman_ci_report.txt README.md README.md
