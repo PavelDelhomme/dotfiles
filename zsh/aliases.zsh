@@ -57,6 +57,9 @@ alias cd_cloudity="cd /home/pactivisme/Documents/Dev/Perso/Cloudity/Cloudity"
 alias ipc="ip -c add"
 alias gst="git status"
 alias git_account="ssh -T git@github.com"
+# VPS (entrée ~/.ssh/config « pavel-server » — config : configman ssh-auto ou scripts/ssh/setup_vps.sh)
+alias vps='ssh pavel-server'
+alias vps-logs='ssh pavel-server "journalctl -xe --no-pager | tail -n 50"'
 # gpo: push vers origin. Usage: gpo [branch] — ex. gpo main ou gpo (branche courante). Si tu tapes gpo origin/main, on pousse bien « main ».
 gpo() {
   if [[ $# -eq 0 ]]; then

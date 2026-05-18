@@ -12,8 +12,9 @@ if [ "${BASH_SOURCE[0]}" != "${0}" ]; then
     return 0 2>/dev/null || exit 0
 fi
 
-if [ ! -t 0 ]; then
-    echo "❌ Ce script nécessite un terminal interactif"
+# Mode non interactif : DOTFILES_SSH_AUTO_NONINTERACTIVE=1 + variables SSH_* dans .env
+if [ ! -t 0 ] && [ "${DOTFILES_SSH_AUTO_NONINTERACTIVE:-0}" != "1" ]; then
+    echo "❌ Ce script nécessite un terminal interactif (ou DOTFILES_SSH_AUTO_NONINTERACTIVE=1 avec .env complet)"
     return 1 2>/dev/null || exit 1
 fi
 
@@ -212,7 +213,11 @@ add_ssh_config_entry() {
     # Vérifier si l'entrée existe déjà
     if grep -q "^Host $host_name" "$SSH_CONFIG" 2>/dev/null; then
         log_warn "L'entrée SSH pour '$host_name' existe déjà"
-        read -p "Voulez-vous la remplacer ? (o/N): " replace
+        if [ "${DOTFILES_SSH_AUTO_REPLACE:-0}" = "1" ]; then
+            replace=o
+        else
+            read -p "Voulez-vous la remplacer ? (o/N): " replace
+        fi
         if [[ ! "$replace" =~ ^[oO]$ ]]; then
             log_info "Configuration SSH conservée"
             return 0
@@ -258,16 +263,18 @@ auto_setup_ssh() {
     local user="${3:-${SSH_USER:-pavel}}"
     local port="${4:-${SSH_PORT:-22}}"
     
-    clear
-    echo -e "${CYAN}${BOLD}"
-    echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║         CONFIGURATION SSH AUTOMATIQUE AVEC MOT DE PASSE        ║"
-    echo "╚════════════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-    echo ""
+    if [ "${DOTFILES_SSH_AUTO_NONINTERACTIVE:-0}" != "1" ]; then
+        clear
+        echo -e "${CYAN}${BOLD}"
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║         CONFIGURATION SSH AUTOMATIQUE AVEC MOT DE PASSE        ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo -e "${NC}"
+        echo ""
+    fi
     
     # Demander les valeurs si non définies dans .env ou arguments
-    if [ -z "$host_name" ] || [ "$host_name" = "pavel-server" ]; then
+    if [ -z "$host_name" ] || { [ "$host_name" = "pavel-server" ] && [ -z "${SSH_HOST_NAME:-}" ]; }; then
         if [ -z "${SSH_HOST_NAME}" ]; then
             printf "Nom d'alias SSH (Host dans ~/.ssh/config) [pavel-server]: "
             read -r input_host_name
@@ -278,7 +285,7 @@ auto_setup_ssh() {
         fi
     fi
     
-    if [ -z "$host_ip" ] || [ "$host_ip" = "95.111.227.204" ]; then
+    if [ -z "$host_ip" ] || { [ "$host_ip" = "95.111.227.204" ] && [ -z "${SSH_HOST:-}" ]; }; then
         if [ -z "${SSH_HOST}" ]; then
             printf "Adresse IP ou hostname du serveur [95.111.227.204]: "
             read -r input_host_ip
@@ -289,7 +296,7 @@ auto_setup_ssh() {
         fi
     fi
     
-    if [ -z "$user" ] || [ "$user" = "pavel" ]; then
+    if [ -z "$user" ] || { [ "$user" = "pavel" ] && [ -z "${SSH_USER:-}" ]; }; then
         if [ -z "${SSH_USER}" ]; then
             printf "Nom d'utilisateur SSH [pavel]: "
             read -r input_user
@@ -300,7 +307,7 @@ auto_setup_ssh() {
         fi
     fi
     
-    if [ -z "$port" ] || [ "$port" = "22" ]; then
+    if [ -z "$port" ] || { [ "$port" = "22" ] && [ -z "${SSH_PORT:-}" ]; }; then
         if [ -z "${SSH_PORT}" ]; then
             printf "Port SSH [22]: "
             read -r input_port
