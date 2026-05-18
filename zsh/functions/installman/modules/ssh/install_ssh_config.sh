@@ -27,6 +27,12 @@ CONFIGMAN_MODULES_DIR="$DOTFILES_DIR/zsh/functions/configman/modules/ssh"
 # EXAMPLE: install_ssh_config
 install_ssh_config() {
     log_step "Configuration SSH automatique..."
+
+    if [ -f "$INSTALLMAN_DIR/modules/ssh/install_sshpass.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$INSTALLMAN_DIR/modules/ssh/install_sshpass.sh"
+        install_sshpass || log_warn "sshpass non installé — la config auto peut échouer"
+    fi
     
     # Essayer d'abord sshman, puis configman en fallback
     local script_path="$SSHMAN_MODULES_DIR/ssh_auto_setup.sh"

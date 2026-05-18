@@ -90,6 +90,19 @@ else
 fi
 
 ################################################################################
+# 1b. CLIENT SSH + SSHPASS (setup VPS / ssh-auto)
+################################################################################
+if [ -d "${DOTFILES_DIR:-$HOME/dotfiles}" ] && [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install/system/packages_ssh.sh" ]; then
+    DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if ! command -v sshpass >/dev/null 2>&1 || ! command -v ssh >/dev/null 2>&1; then
+        log_info "Installation openssh + sshpass (connexion VPS automatisée)…"
+        bash "$DOTFILES_DIR/scripts/install/system/packages_ssh.sh" || log_warn "sshpass non installé (optionnel : installman sshpass)"
+    else
+        log_info "✓ openssh et sshpass déjà présents"
+    fi
+fi
+
+################################################################################
 # 2. CONFIGURATION GIT GLOBALE
 ################################################################################
 log_section "Configuration Git globale"

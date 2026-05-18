@@ -25,4 +25,8 @@ for tool in "${base_tools[@]}"; do
     fi
 done
 
+if [ -f "$SCRIPT_DIR/install/system/packages_ssh.sh" ]; then
+    bash "$SCRIPT_DIR/install/system/packages_ssh.sh" || log_warn "Paquets SSH (sshpass) non installés — option installman sshpass"
+fi
+
 log_info "✓ Paquets de base installés"

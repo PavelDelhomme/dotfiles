@@ -412,6 +412,17 @@ check_android_licenses_accepted() {
     return 1
 }
 
+# DESC: Vérifie si sshpass et le client ssh sont installés
+# USAGE: check_sshpass_installed
+check_sshpass_installed() {
+    if command -v sshpass >/dev/null 2>&1 && command -v ssh >/dev/null 2>&1; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si SSH est configuré (au moins une connexion dans ~/.ssh/config)
 # USAGE: check_ssh_configured
 check_ssh_configured() {

@@ -50,6 +50,16 @@ if [ ! -f "$HOME/.ssh/id_ed25519" ] && [ ! -f "$HOME/.ssh/id_rsa" ]; then
     exit 1
 fi
 
+if ! command -v sshpass >/dev/null 2>&1; then
+    if [ -f "$DOTFILES_DIR/scripts/install/system/packages_ssh.sh" ]; then
+        info "Installation de sshpass…"
+        bash "$DOTFILES_DIR/scripts/install/system/packages_ssh.sh" || exit 1
+    else
+        err "sshpass manquant : installman sshpass  ou  sudo pacman -S sshpass"
+        exit 1
+    fi
+fi
+
 export DOTFILES_SSH_AUTO_NONINTERACTIVE=1
 export DOTFILES_SSH_AUTO_REPLACE=1
 

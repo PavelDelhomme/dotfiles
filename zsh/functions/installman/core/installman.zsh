@@ -63,6 +63,7 @@ typeset -ga TOOLS=(
     "handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake"
     "network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools"
     "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
+    "sshpass:sshpass-bin:🔑:sshpass (SSH automatisé / setup VPS):check_sshpass_installed:ssh/install_sshpass.sh:install_sshpass"
     "ssh-config:ssh,ssh-setup:🔐:Configuration SSH automatique:check_ssh_configured:ssh/install_ssh_config.sh:install_ssh_config"
     "cmake::🔧:CMake (système de build):check_cmake_installed:cmake/install_cmake.sh:install_cmake"
     "gdb::🐛:GDB (GNU Debugger):check_gdb_installed:gdb/install_gdb.sh:install_gdb"
@@ -590,7 +591,7 @@ installman() {
             "wine" "portproton"
             "protonmail" "bluemail"
             "snap" "nextcloud"
-            "android-licenses" "network-tools" "qemu" "ssh-config"
+            "android-licenses" "network-tools" "qemu" "sshpass" "ssh-config"
             "tor" "tor-browser" "tor-navigation"
             "i2p" "nvidia-driver"
         )

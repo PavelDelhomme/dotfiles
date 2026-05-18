@@ -80,6 +80,7 @@ get_package_name() {
                 traceroute) echo "traceroute" ;;
                 curl) echo "curl" ;;
                 wget) echo "wget" ;;
+                sshpass) echo "sshpass" ;;
                 python3) echo "python" ;;
                 pip3) echo "python-pip" ;;
                 go) echo "go" ;;
@@ -112,6 +113,7 @@ get_package_name() {
                 traceroute) echo "traceroute" ;;
                 curl) echo "curl" ;;
                 wget) echo "wget" ;;
+                sshpass) echo "sshpass" ;;
                 python3) echo "python3" ;;
                 pip3) echo "python3-pip" ;;
                 go) echo "golang" ;;

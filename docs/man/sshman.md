@@ -80,6 +80,12 @@ SSH_PASSWORD="votre_mot_de_passe"
 
 Ces valeurs seront demandées lors de la première configuration si elles ne sont pas définies.
 
+**Paquet `sshpass`** (machine locale) : `installman sshpass` ou `bash scripts/install/system/packages_ssh.sh` (inclus au bootstrap / paquets de base).
+
+**Connexion rapide** : `vps` ou `cnx_srv` (fonctions chargées via `commands/vps.zsh`).
+
+**Sauvegarde / upgrade VPS** : `bash scripts/ssh/vps_backup.sh` puis `bash scripts/ssh/vps_upgrade_debian.sh`.
+
 ## UTILISATION MANUELLE
 
 La fonction `ssh_auto_setup` peut également être appelée directement :
