@@ -96,7 +96,7 @@ sync_manager() {
 sync_all_managers() {
     log "Début de la synchronisation..."
     
-    local managers="pathman manman searchman aliaman helpman fileman miscman installman configman gitman cyberman devman virtman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman diffman"
+    local managers="pathman manman searchman aliaman helpman fileman miscman installman updateman configman gitman cyberman devman virtman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman diffman"
     local synced=0
     local skipped=0
     
@@ -131,7 +131,7 @@ sync_single_manager() {
 check_sync_status() {
     log "Vérification de l'état de synchronisation..."
     
-    local managers="pathman manman searchman aliaman helpman fileman miscman installman configman gitman cyberman devman virtman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman diffman"
+    local managers="pathman manman searchman aliaman helpman fileman miscman installman updateman configman gitman cyberman devman virtman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman diffman"
     
     printf "${CYAN}${BOLD}État de synchronisation:${NC}\n"
     echo

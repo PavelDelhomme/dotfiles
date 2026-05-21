@@ -91,6 +91,7 @@ manman() {
     check_manager "helpman" "📚 Gestionnaire aide/documentation" "helpman"
     check_manager "configman" "⚙️ Gestionnaire configuration" "configman"
     check_manager "installman" "📦 Gestionnaire installation" "installman"
+    check_manager "updateman" "⬆️ Gestionnaire mises a jour locales" "updateman"
     check_manager "moduleman" "⚙️ Gestionnaire modules" "moduleman"
     check_manager "fileman" "📁 Gestionnaire fichiers" "fileman"
     check_manager "virtman" "🖥️ Gestionnaire virtualisation" "virtman"

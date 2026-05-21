@@ -49,7 +49,7 @@ if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then
     MIGRATED_MANAGERS=$(dotfiles_migrated_managers_space)
     UNMIGRATED_MANAGERS=$(dotfiles_unmigrated_managers_space)
 else
-    MIGRATED_MANAGERS="pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman"
+    MIGRATED_MANAGERS="pathman manman searchman aliaman installman updateman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman"
     UNMIGRATED_MANAGERS=""
 fi
 ALL_MANAGERS="$MIGRATED_MANAGERS $UNMIGRATED_MANAGERS"

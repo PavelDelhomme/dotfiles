@@ -1,0 +1,9 @@
+[Unit]
+Description=Update Cursor AppImage
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=DOTFILES_DIR=%h/dotfiles
+ExecStart=%h/.local/bin/update-cursor-appimage

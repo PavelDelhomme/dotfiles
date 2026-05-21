@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+DOWNLOAD_URL="${DOWNLOAD_URL:-https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/${CURSOR_UPDATE_VERSION:-3.5}}"
+DEFAULT_APP_DIR="${APP_DIR:-${CURSOR_APP_DIR:-$HOME/Applications}}"
+BACKUP_KEEP="${BACKUP_KEEP:-5}"
+CREATE_DESKTOP="${CREATE_DESKTOP:-1}"
+CREATE_SHIM="${CREATE_SHIM:-1}"
+TMP_FILE="$(mktemp --tmpdir cursor-appimage.XXXXXX)"
+
+cleanup() {
+  rm -f "$TMP_FILE"
+}
+trap cleanup EXIT
+
+log() {
+  printf '[cursor-update] %s\n' "$*"
+}
+
+warn() {
+  printf '[cursor-update] WARNING: %s\n' "$*" >&2
+}
+
+fail() {
+  printf '[cursor-update] ERROR: %s\n' "$*" >&2
+  exit 1
+}
+
+is_cursor_appimage() {
+  local path="$1"
+  [ -f "$path" ] || return 1
+  case "$(basename "$path")" in
+    *Cursor*.AppImage|*cursor*.AppImage|cursor.appimage) return 0 ;;
+  esac
+  file "$path" 2>/dev/null | grep -Eqi 'appimage|elf'
+}
+
+real_path() {
+  if command -v realpath >/dev/null 2>&1; then
+    realpath "$1" 2>/dev/null || printf '%s\n' "$1"
+  elif command -v readlink >/dev/null 2>&1; then
+    readlink -f "$1" 2>/dev/null || printf '%s\n' "$1"
+  else
+    printf '%s\n' "$1"
+  fi
+}
+
+desktop_exec_candidate() {
+  local desktop_file line
+  for desktop_file in \
+    "$HOME/.local/share/applications/cursor.desktop" \
+    "$HOME/.local/share/applications/Cursor.desktop"
+  do
+    [ -f "$desktop_file" ] || continue
+    line="$(sed -n 's/^Exec=//p' "$desktop_file" 2>/dev/null | sed -n '1p')"
+    [ -n "$line" ] || continue
+    printf '%s\n' "$line" |
+      sed 's/^env \([^ ]*=[^ ]* \)*//; s/ --.*$//; s/ %U$//; s/^"//; s/"$//'
+    return 0
+  done
+}
+
+process_appimage_candidate() {
+  ps -u "$(id -u)" -o args= 2>/dev/null |
+    awk '
+      /[Cc]ursor[^ ]*\.AppImage|cursor[^ ]*\.appimage/ {
+        for (i = 1; i <= NF; i++) {
+          if ($i ~ /[Cc]ursor[^ ]*\.AppImage$/ || $i ~ /cursor[^ ]*\.appimage$/) {
+            print $i
+            exit
+          }
+        }
+      }
+    '
+}
+
+add_candidate() {
+  local path="$1"
+  [ -n "$path" ] || return 0
+  path="$(real_path "$path")"
+  is_cursor_appimage "$path" || return 0
+  printf '%s\n' "$path"
+}
+
+detect_current_appimage() {
+  local cursor_cmd resolved
+
+  add_candidate "${CURRENT_APPIMAGE:-}"
+  add_candidate "$(desktop_exec_candidate)"
+  add_candidate "$(process_appimage_candidate)"
+
+  if cursor_cmd="$(command -v cursor 2>/dev/null)"; then
+    resolved="$(real_path "$cursor_cmd")"
+    add_candidate "$resolved"
+  fi
+
+  add_candidate "/opt/cursor.appimage"
+  add_candidate "$HOME/Applications/Cursor.AppImage"
+
+  shopt -s nullglob
+  for path in "$HOME"/Applications/Cursor*.AppImage "$HOME"/Applications/cursor*.AppImage; do
+    add_candidate "$path"
+  done
+  shopt -u nullglob
+}
+
+pick_app_path() {
+  local current="$1"
+  if [ -n "${APP_PATH:-}" ]; then
+    printf '%s\n' "$APP_PATH"
+    return 0
+  fi
+
+  if [ -n "$current" ]; then
+    local dir base
+    dir="$(dirname "$current")"
+    base="$(basename "$current")"
+    case "$dir" in
+      "$HOME"/*)
+        if [ -w "$dir" ]; then
+          case "$base" in
+            Cursor.AppImage|cursor.appimage) printf '%s\n' "$current" ;;
+            *) printf '%s\n' "$dir/Cursor.AppImage" ;;
+          esac
+          return 0
+        fi
+        ;;
+    esac
+  fi
+
+  printf '%s\n' "$DEFAULT_APP_DIR/Cursor.AppImage"
+}
+
+backup_file() {
+  local path="$1" backup_dir="$2" stamp="$3"
+  [ -f "$path" ] || return 0
+  [ -r "$path" ] || {
+    warn "backup ignore, fichier non lisible: $path"
+    return 0
+  }
+  cp -a "$path" "$backup_dir/$(basename "$path").$stamp.bak" ||
+    warn "backup impossible pour: $path"
+}
+
+prune_backups() {
+  local backup_dir="$1"
+  [ "$BACKUP_KEEP" -gt 0 ] 2>/dev/null || return 0
+  command -v find >/dev/null 2>&1 || return 0
+  find "$backup_dir" -maxdepth 1 -type f -name '*.bak' -printf '%T@ %p\n' 2>/dev/null |
+    sort -rn |
+    awk -v keep="$BACKUP_KEEP" 'NR > keep {sub(/^[^ ]+ /, ""); print}' |
+    while IFS= read -r old_backup; do
+      rm -f "$old_backup"
+    done
+}
+
+write_desktop_file() {
+  local app_path="$1"
+  [ "$CREATE_DESKTOP" = "1" ] || return 0
+  mkdir -p "$HOME/.local/share/applications" "$HOME/.local/share/icons"
+
+  local icon_path="$HOME/.local/share/icons/cursor.png"
+  if [ ! -s "$icon_path" ] && [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/images/icons/cursor.png" ]; then
+    cp "${DOTFILES_DIR:-$HOME/dotfiles}/images/icons/cursor.png" "$icon_path" 2>/dev/null || true
+  fi
+
+  [ -s "$icon_path" ] || icon_path="cursor"
+
+  cat > "$HOME/.local/share/applications/cursor.desktop" <<DESKTOP
+[Desktop Entry]
+Name=Cursor
+Exec="$app_path" --no-sandbox %U
+Icon=$icon_path
+Type=Application
+Categories=Development;IDE;TextEditor;
+Comment=AI-powered code editor
+Terminal=false
+StartupWMClass=Cursor
+MimeType=text/plain;inode/directory;
+DESKTOP
+
+  update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
+}
+
+write_cursor_shim() {
+  local app_path="$1"
+  [ "$CREATE_SHIM" = "1" ] || return 0
+  mkdir -p "$HOME/.local/bin"
+  cat > "$HOME/.local/bin/cursor" <<SHIM
+#!/usr/bin/env sh
+exec "$app_path" "\$@"
+SHIM
+  chmod 0755 "$HOME/.local/bin/cursor"
+}
+
+if pgrep -u "$(id -u)" -f 'Cursor.*AppImage|cursor.*appimage' >/dev/null 2>&1; then
+  warn "Cursor semble lance. Ferme-le avant une mise a jour critique."
+fi
+
+command -v curl >/dev/null 2>&1 || fail "curl introuvable"
+command -v file >/dev/null 2>&1 || fail "file introuvable"
+
+current_appimage="$(detect_current_appimage | awk 'NF && !seen[$0]++ {print; exit}')"
+app_path="$(pick_app_path "$current_appimage")"
+app_dir="$(dirname "$app_path")"
+backup_dir="${BACKUP_DIR:-$app_dir/.cursor-backups}"
+stamp="$(date +%Y%m%d-%H%M%S)"
+
+mkdir -p "$app_dir" "$backup_dir"
+
+log "telechargement: $DOWNLOAD_URL"
+curl -fL --retry 3 --retry-delay 2 "$DOWNLOAD_URL" -o "$TMP_FILE"
+chmod 0755 "$TMP_FILE"
+
+if ! file "$TMP_FILE" 2>/dev/null | grep -Eqi 'appimage|elf'; then
+  fail "le fichier telecharge ne ressemble pas a une AppImage/ELF"
+fi
+
+backup_file "$app_path" "$backup_dir" "$stamp"
+if [ -n "$current_appimage" ] && [ "$current_appimage" != "$app_path" ]; then
+  backup_file "$current_appimage" "$backup_dir" "$stamp"
+fi
+
+if [ -L "$app_path" ]; then
+  rm -f "$app_path"
+fi
+install -m 0755 "$TMP_FILE" "$app_path"
+
+if [ -n "$current_appimage" ] && [ "$current_appimage" != "$app_path" ]; then
+  current_dir="$(dirname "$current_appimage")"
+  case "$current_dir" in
+    "$HOME"/*)
+      if [ -w "$current_dir" ]; then
+        ln -sfn "$app_path" "$current_appimage"
+        log "ancien chemin redirige: $current_appimage -> $app_path"
+      else
+        warn "ancien chemin non modifie, dossier non inscriptible: $current_dir"
+      fi
+      ;;
+    *)
+      warn "ancien chemin systeme non modifie: $current_appimage"
+      ;;
+  esac
+fi
+
+write_desktop_file "$app_path"
+write_cursor_shim "$app_path"
+prune_backups "$backup_dir"
+
+log "Cursor mis a jour: $app_path"

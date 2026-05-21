@@ -31,7 +31,7 @@ if [ -f "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh" ]; then
     . "$DOTFILES_DIR/scripts/test/lib/dotfiles_test_config.sh"
     MANAGERS=$(dotfiles_matrix_managers_space)
 else
-    MANAGERS="pathman manman searchman aliaman helpman fileman miscman installman configman gitman cyberman devman virtman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn"
+    MANAGERS="pathman manman searchman aliaman helpman fileman miscman installman updateman configman gitman cyberman devman virtman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn"
 fi
 
 # Liste des shells à tester

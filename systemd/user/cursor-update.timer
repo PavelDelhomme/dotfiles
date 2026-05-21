@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Cursor AppImage updater daily
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1d
+Persistent=true
+Unit=cursor-update.service
+
+[Install]
+WantedBy=timers.target

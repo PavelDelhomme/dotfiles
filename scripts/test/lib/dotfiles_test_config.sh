@@ -18,7 +18,7 @@ dotfiles_managers_from_file() {
 
 dotfiles_migrated_managers_space() {
     dotfiles_managers_from_file "$_dotfiles_cfg_dir/migrated_managers.list" \
-        "pathman manman searchman aliaman installman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman"
+        "pathman manman searchman aliaman installman updateman configman gitman fileman helpman cyberman devman virtman miscman doctorman netman sshman testman testzshman moduleman multimediaman cyberlearn displayman"
 }
 
 dotfiles_unmigrated_managers_space() {
