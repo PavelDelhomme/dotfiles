@@ -311,8 +311,11 @@ all: install ## Alias pour install
 setup-menu: setup ## Alias pour setup
 check: validate ## Alias pour validate
 
-# Menus interactifs
-menu: ## Menu principal (tous les menus)
+# Menus interactifs (legacy scripts/menu — bootstrap canonique : scripts/setup.sh)
+bootstrap-menu: ## Menu post-install (= bootstrap.sh → setup.sh)
+	@sh "$(SCRIPT_DIR)/bootstrap_menu.sh"
+
+menu: ## Menu principal legacy (scripts/menu — voir scripts/menu/README.md)
 	@bash "$(SCRIPT_DIR)/menu/main_menu.sh"
 
 install-menu: ## Menu d'installation (applications, outils)

@@ -37,8 +37,9 @@ Ne pas fusionner brutalement les deux : ils ne portent pas le même type de cont
 - [x] Introduire `scripts/lib/manager_ui.sh` comme point commun UI managers.
 - [x] Ajouter `manager_ui_select_file` / `manager_ui_select` : `dotcli` si activé, puis `dotfiles_ncmenu_select`, puis fallback appelant.
 - [x] Brancher des pilotes : `netman`, `aliaman`, `cyberlearn` pour la sélection ; `manman`, `updateman`, `fileman`, `netman`, `installman`, `testman` pour les bannières.
-- [ ] Remplacer les wrappers locaux restants par `manager_ui_select` / `manager_ui_select_file`.
-- [ ] Documenter ou marquer legacy les entrées `scripts/menu/*.sh` dans les README/Makefile.
+- [x] Remplacer les wrappers locaux `*_pick_menu` / `*_dotcli_menu_pick` : `netman`, `aliaman`, `cyberlearn`, `searchman`, `miscman`, `testzshman`, `cyberman`.
+- [x] Documenter / marquer legacy `scripts/menu/*.sh` (`scripts/menu/README.md`, en-têtes LEGACY, `make bootstrap-menu`).
+- [x] Pont bootstrap : `scripts/bootstrap_menu.sh` → `scripts/setup.sh` (même chemin que `bootstrap.sh`).
 - [ ] Décider manager par manager si le menu doit rester codé dans le core ou devenir déclaratif dans `share/menus`.
 - [ ] Vérifier que les adapters shell restent minces et ne réintroduisent pas de logique UI.
 

@@ -52,7 +52,11 @@ cyberman() {
     CYBER_DIR="${CYBER_DIR:-$HOME/dotfiles/zsh/functions/cyberman/modules/legacy}"
     export CYBER_DIR
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -100,15 +104,15 @@ cyberman() {
         _choice=""
         _menu_file=$(mktemp)
         cat > "$_menu_file"
-        if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+        if command -v manager_ui_select_file >/dev/null 2>&1; then
+            _choice=$(manager_ui_select_file "$_title" "$_menu_file" 2>/dev/null || true)
+        elif [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
             _choice=$(dotfiles_ncmenu_select "$_title" < "$_menu_file" 2>/dev/null || true)
         fi
         rm -f "$_menu_file"
-        if [ -z "$_choice" ]; then
-            if [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
-                printf "Choix: " > /dev/tty
-                read _choice < /dev/tty || true
-            fi
+        if [ -z "$_choice" ] && [ -t 0 ] && [ -t 1 ] && [ -r /dev/tty ]; then
+            printf "Choix: " > /dev/tty
+            read _choice < /dev/tty || true
         fi
         printf "%s" "$_choice"
     }

@@ -1,4 +1,5 @@
 #!/bin/bash
+# LEGACY — Preferez configman / setup.sh. Voir scripts/menu/README.md
 
 ################################################################################
 # Menu de configuration - Menu interactif pour configurer le système

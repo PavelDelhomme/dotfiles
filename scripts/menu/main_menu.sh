@@ -1,4 +1,6 @@
 #!/bin/bash
+# LEGACY — Hub menus scripts (make menu). Bootstrap canonique : scripts/setup.sh
+# Voir scripts/menu/README.md et scripts/bootstrap_menu.sh
 
 ################################################################################
 # Menu principal - Point d'entrée pour tous les menus

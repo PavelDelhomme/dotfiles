@@ -29,7 +29,9 @@ Les wrappers locaux (`netman_dotcli_menu_pick`, `aliaman_dotcli_menu_pick`, `cyb
 
 Affichage : `manman`, `updateman`, `fileman`, `netman`, `installman`, `testman`.
 
-Sélection commune : `netman`, `aliaman`, `cyberlearn`.
+Sélection commune : `netman`, `aliaman`, `cyberlearn`, `searchman`, `miscman`, `testzshman`, `cyberman`.
+
+Bootstrap / legacy : `scripts/bootstrap_menu.sh` (→ `setup.sh`), `scripts/menu/README.md` (`make menu` = legacy).
 
 ## Suite P3b-a
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# LEGACY — Preferez installman. Bootstrap : scripts/setup.sh (voir menu/README.md)
 
 ################################################################################
 # Menu d'installation - Menu interactif pour installer les applications
