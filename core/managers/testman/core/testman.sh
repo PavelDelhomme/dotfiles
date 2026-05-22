@@ -680,8 +680,8 @@ EOF
             return 0
         fi
         pause_if_tty
-        while show_main_menu; do
-            :
+        while true; do
+            show_main_menu || break
         done
         return 0
     fi

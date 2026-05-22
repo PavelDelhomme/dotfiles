@@ -324,7 +324,7 @@ EOF
                 echo "     - helpman i : ce guide interactif"
                 pause_if_tty
                 ;;
-            0) return ;;
+            0|q|Q|quit|exit) return ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
                 sleep 1

@@ -155,7 +155,7 @@ EOF
                     sleep 2
                 fi
                 ;;
-            0)
+            0|q|Q|quit|exit)
                 printf "${GREEN}Au revoir!${RESET}\n"
                 return 1
                 ;;

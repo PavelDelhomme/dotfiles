@@ -4,6 +4,7 @@
 # Priorité: fzf (si dispo) -> ncmenu -> fallback appelant (saisie manuelle).
 
 dotfiles_ncmenu_select() {
+    _df_nc="${DOTFILES_DIR:-$HOME/dotfiles}"
     _title="$1"
     _menu_file=$(mktemp)
     cat > "$_menu_file"
@@ -15,6 +16,18 @@ dotfiles_ncmenu_select() {
         # Style unifié fzf pour tous les menus *man.
         # Override possible via DOTFILES_FZF_MENU_OPTS.
         _fzf_menu_opts="${DOTFILES_FZF_MENU_OPTS:---height=75% --layout=reverse --border --ansi --cycle --info=inline-right --prompt='> '}"
+        if [ -f "$_df_nc/scripts/lib/tui_core.sh" ]; then
+            # shellcheck source=scripts/lib/tui_core.sh
+            . "$_df_nc/scripts/lib/tui_core.sh" 2>/dev/null || true
+            if command -v tui_lines >/dev/null 2>&1; then
+                _nc_lines=$(tui_lines)
+                if [ "$_nc_lines" -lt 28 ] 2>/dev/null; then
+                    _nc_h=$((_nc_lines - 3))
+                    [ "$_nc_h" -lt 6 ] && _nc_h=6
+                    _fzf_menu_opts="--height=${_nc_h} --layout=reverse --border --ansi --cycle --info=inline-right --prompt='> '"
+                fi
+            fi
+        fi
         _picked_label=$(cut -d'|' -f1 "$_menu_file" | \
             fzf $_fzf_menu_opts --prompt="${_title:-Menu} > " 2>/dev/null || true)
         if [ -n "$_picked_label" ]; then

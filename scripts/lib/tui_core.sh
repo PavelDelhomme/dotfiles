@@ -100,7 +100,7 @@ tui_is_compact() {
         return 0
     fi
     _tc=$(tui_cols_safe)
-    [ "$_tc" -lt 72 ]
+    [ "$_tc" -lt 80 ]
 }
 
 # Largeur utile pour texte / bordures (évite débordement)

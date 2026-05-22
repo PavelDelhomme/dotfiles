@@ -15,6 +15,7 @@ fi
 
 - **Bannière** : `manager_ui_print_banner "TITRE" ["sous-titre"]` (après `clear` et couleurs du manager).
 - **Séparateur de section** : `manager_ui_section_line "${BLUE}" "${RESET}\n"` (ou `manager_ui_section_rule` seul).
+- **Quitter un menu racine** : `0`, `q`, `quit`, `exit` → `return 1` dans `show_main_menu`, boucle `while true; do show_main_menu || break; done` (voir `manager_ui_is_quit_choice`).
 - **Tableaux / listes** : `tui_is_compact`, `tui_truncate`, `tui_menu_height` depuis `scripts/lib/tui_core.sh`.
 
 ## Sélection De Menu

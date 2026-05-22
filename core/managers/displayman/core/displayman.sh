@@ -349,6 +349,7 @@ Diagnostic Full/Limited range HDMI|7
 Guide OSD physique|8
 Aide|9
 Quitter|0
+Quitter|q
 EOF
             choice=$(dotfiles_ncmenu_select "DISPLAYMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
             rm -f "$menu_input_file"
@@ -379,9 +380,13 @@ EOF
             7|range|rg)    displayman_cmd_range; pause_if_tty ;;
             8|osd|osd-guide|guide) displayman_cmd_osd_guide; pause_if_tty ;;
             9|help|h|aide) show_help ;;
-            0|q|quit|exit) return 0 ;;
+            0|q|quit|exit)
+                printf "%sAu revoir!%s\n" "$GREEN" "$RESET"
+                return 1
+                ;;
             *) printf "%s❌ Choix invalide: %s%s\n" "$RED" "$choice" "$RESET"; sleep 1 ;;
         esac
+        return 0
     }
 
     displayman_print_quick_help() {
@@ -453,7 +458,7 @@ EOF
         fi
         pause_if_tty
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
         return 0
     fi

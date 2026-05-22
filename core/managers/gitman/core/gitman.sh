@@ -509,12 +509,16 @@ EOF
                 echo ""
                 pause_if_tty
                 ;;
-            0) return ;;
+            0|q|Q|quit|exit)
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
+                ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
                 sleep 1
                 ;;
         esac
+        return 0
     }
 
     gitman_print_quick_help() {
@@ -585,7 +589,7 @@ EOF
         fi
         pause_if_tty
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
     fi
 

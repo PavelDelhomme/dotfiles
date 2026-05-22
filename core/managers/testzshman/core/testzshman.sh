@@ -184,8 +184,9 @@ EOF
             9)
                 test_logging
                 ;;
-            0)
-                return 0
+            0|q|Q|quit|exit)
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
                 ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
@@ -194,10 +195,14 @@ EOF
         esac
         
         # Retourner au menu après action
-        if [ "$choice" != "0" ]; then
-            echo ""
-            pause_if_tty
-        fi
+        case "$choice" in
+            0|q|Q|quit|exit) ;;
+            *)
+                echo ""
+                pause_if_tty
+                ;;
+        esac
+        return 0
     }
     
     # Test des managers
@@ -731,7 +736,7 @@ $cyberlearn_dir/labs"
         fi
         pause_if_tty
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
         return 0
     fi

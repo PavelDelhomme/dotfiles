@@ -293,12 +293,16 @@ EOF
             5|docker|env) show_docker_menu ;;
             6|certificates|badges) show_certificates_menu ;;
             7|help|aide) show_help_interactive ;;
-            0|q|quit|exit) return 0 ;;
+            0|q|quit|exit)
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
+                ;;
             *)
                 printf "${RED}❌ Choix invalide: %s${RESET}\n" "$choice"
                 sleep 2
                 ;;
         esac
+        return 0
     }
     
     # Fonction pour afficher le menu des exercices
@@ -863,7 +867,7 @@ EOF
         printf "Appuyez sur Entrée pour continuer... "
         read _cyl_dummy || true
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
         return 0
     fi

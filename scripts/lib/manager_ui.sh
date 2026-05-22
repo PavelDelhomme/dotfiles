@@ -86,6 +86,19 @@ manager_ui_section_rule() {
     echo "=================================================================="
 }
 
+# Retourne 0 si le choix demande de quitter le menu (0, q, quit, exit, …).
+manager_ui_is_quit_choice() {
+    case "$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')" in
+        0|q|quit|exit|quitter|x) return 0 ;;
+    esac
+    return 1
+}
+
+# Fin de menu racine : return 1 pour « while true; do show_main_menu || break; done ».
+manager_ui_leave_main_menu() {
+    return 1
+}
+
 # Ligne de section avec couleurs du manager (remplace printf "${BLUE}═══...${RESET}\n").
 # Usage: manager_ui_section_line "${BLUE}" "${RESET}\n"   ou  ... "${RESET}\n\n"
 manager_ui_section_line() {

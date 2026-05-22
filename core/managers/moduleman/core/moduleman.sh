@@ -219,7 +219,10 @@ MODULEMAN_LIST_EOF
         fi
         
         case "$choice" in
-            0) return 0 ;;
+            0|q|Q|quit|exit)
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
+                ;;
             [1-9]|1[0-9])
                 selected_index=$choice
                 manager_index=1
@@ -238,8 +241,14 @@ MODULEMAN_LIST_EOF
         esac
         
         # Retourner au menu après action
-        echo ""
-        pause_if_tty
+        case "$choice" in
+            0|q|Q|quit|exit) ;;
+            *)
+                echo ""
+                pause_if_tty
+                ;;
+        esac
+        return 0
     }
     
     # Fonction pour activer/désactiver un module
@@ -400,7 +409,7 @@ MODULEMAN_LIST_EOF
     else
         # Mode interactif
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
     fi
 }

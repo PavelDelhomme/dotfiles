@@ -159,7 +159,8 @@ EOF
                 show_help
                 ;;
             0|q|quit|exit)
-                return 0
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
                 ;;
             *)
                 printf "${RED}❌ Choix invalide: %s${RESET}\n" "$choice"
@@ -231,7 +232,7 @@ EOF
         fi
         pause_if_tty
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
         return 0
     fi

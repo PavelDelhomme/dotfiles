@@ -113,7 +113,7 @@ virtman() {
         echo "6.  📊 Vue d'ensemble (tous les environnements)"
         echo "7.  🔍 Recherche d'environnements"
         echo ""
-        echo "0.  Quitter"
+        echo "0.  Quitter  (q)"
         echo ""
         choice=""
         if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
@@ -127,14 +127,19 @@ Vagrant (VMs provisionnees)|5
 Vue d'ensemble (tous les environnements)|6
 Recherche d'environnements|7
 Quitter|0
+Quitter|q
 EOF
             choice=$(dotfiles_ncmenu_select "VIRTMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
             rm -f "$menu_input_file"
         fi
         if [ -z "$choice" ]; then
-            printf "Choix: "
+            printf "Choix (0 ou q pour quitter): "
             read choice
             choice=$(echo "$choice" | tr -d '[:space:]' | head -c 2)
+        fi
+        if command -v manager_ui_is_quit_choice >/dev/null 2>&1 && manager_ui_is_quit_choice "$choice"; then
+            printf "${GREEN}Au revoir!${RESET}\n"
+            return 1
         fi
         
         case "$choice" in
@@ -194,8 +199,9 @@ EOF
                     sleep 2
                 fi
                 ;;
-            0)
-                return 0
+            0|q|Q|quit|exit)
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
                 ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
@@ -206,6 +212,7 @@ EOF
         # Retourner au menu après action
         echo ""
         pause_if_tty
+        return 0
     }
     
     if [ -z "$1" ]; then
@@ -237,7 +244,7 @@ EOF
         fi
         pause_if_tty
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
         return 0
     fi

@@ -345,14 +345,16 @@ EOF
             12)
                 show_config_overview
                 ;;
-            0)
-                return 0
+            0|q|Q|quit|exit)
+                printf "${GREEN}Au revoir!${RESET}\n"
+                return 1
                 ;;
             *)
                 printf "${RED}Choix invalide${RESET}\n"
                 sleep 1
                 ;;
         esac
+        return 0
     }
 
     configman_print_help() {
@@ -483,7 +485,7 @@ EOF
     else
         # Mode interactif
         while true; do
-            show_main_menu
+            show_main_menu || break
         done
     fi
 }
