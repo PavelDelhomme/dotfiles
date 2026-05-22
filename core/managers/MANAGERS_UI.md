@@ -50,8 +50,8 @@ Voir [`docs/architecture/UI_MENU_RESTRUCTURE.md`](../../docs/architecture/UI_MEN
 
 ## Suite P3b-b
 
-- **Fait** : bannières généralisées ; `manager_ui_section_line` sur les cores/modules listés ; `pathman` / `doctorman` ; `processman` limite les lignes via `tui_menu_height` ; smoke `make test-tui-compact` (EXT-002).
-- **Reste** : `tui_truncate` sur colonnes larges (netman, cyberman), pagination complète des menus longs, validation manuelle EXT-002 sur une dizaine de `*man help`.
+- **Fait** : bannières ; `manager_ui_section_line` ; `pathman` / `doctorman` ; `processman` + `tui_menu_height` ; sortie **0/q** + boucle `show_main_menu || break` (devman, virtman, gitman, … — voir commit `0e5647a`) ; smoke `make test-tui-compact` (COLUMNS 60/69).
+- **En pause** : `tui_truncate`, pagination menus longs, aligner cyberman/installman et menus inline ; validation manuelle EXT-002.
 
 ## Suite P1
 

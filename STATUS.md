@@ -12,14 +12,13 @@
 - **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`, `dfm` declaratif avec fallback pagine + pause apres action) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md), [`share/menus/README.md`](share/menus/README.md).
 - **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
 
-## Objectifs actuels (priorité)
+## Objectifs actuels (priorité) — reprise prévue plus tard
 
-1. Finir **P3b-b** : `manager_ui_section_rule`, listes longues (`tui_truncate` / `tui_menu_height`), pathman/doctorman, tests `COLUMNS=60` (EXT-002).
-2. Stabiliser **`updateman`** : registre + `installman` → `updateman <outil> enable` ; validation manuelle `status` / `all` / timer (V-2026-05-22).
-3. Adapters minces (P1) et menus `dotcli` derriere `DOTFILES_DOTCLI_ENABLE=1`.
-4. Concevoir **`updateman dotfiles`** (P8b) et enrichir le registre outils (P8c).
-5. Compléter les **tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) — entrée menu `make tests-start`.
-6. Respecter le **jalon de validation** dans [`TODOS.md`](TODOS.md) avant toute bascule structurelle majeure.
+1. **P3b-b (suite)** : `tui_truncate`, pagination menus longs, validation manuelle terminaux étroits (EXT-002) ; vérifier les managers non encore alignés (cyberman, installman, etc.).
+2. **`updateman`** : validation manuelle `status` / `all` / timer (V-2026-05-22-updateman-cursor).
+3. **P1** : adapters minces, menus `dotcli` ; **P8b** / **P8c** : `updateman dotfiles`, registre outils.
+4. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — Blocs F.6 → I ; `make test-tui-compact` en CI locale avant reprise.
+5. Jalon de validation [`TODOS.md`](TODOS.md) avant bascule structurelle majeure.
 
 ## Où lire la suite
 
@@ -39,10 +38,11 @@
 
 ## Journal récent (suivi détaillé)
 
-1. **Livraison 2026-05-22** — lots **dfm** + **P3b-b bannieres** :
-   - **`dfm`** : fallback pagine sans fzf (`n`/`p`), hauteur fzf 85 %, pause apres action (`DOTFILES_MENU_PAUSE_AFTER_ACTION`) — commit `600a3be`.
-   - **P3b-b (phase 1)** : `manager_ui_print_banner` + `dotfiles_manager_load_ui_libs` sur les `*man` interactifs.
-   - **P3b-b (phase 2)** : `manager_ui_section_line` (regles adaptatives), pathman/doctorman, `processman` + `tui_menu_height`, `make test-tui-compact` (EXT-002).
+1. **Livraison 2026-05-22** — lots **dfm**, **P3b-b**, **sortie menus** :
+   - **`dfm`** (`600a3be`) : fallback pagine, pause apres action.
+   - **P3b-b** (`f9b130c`, `d660c9a`) : bannieres, `manager_ui_section_line`, smoke terminal etroit.
+   - **Menus quit** (`0e5647a`) : `0` / `q` pour quitter `*man --help` (plus de boucle infinie + Ctrl+C) ; fzf adapte petits terminaux (69×24) ; `make test-tui-compact` elargi.
+   - **Pause documentee** : reprise P3b-b / tests manuels / updateman — voir [`TODOS.md`](TODOS.md).
 2. **Livraison en cours 2026-05-22** — lot **« updateman Cursor »** :
    - **Nouveau manager [`updateman`](core/managers/updateman/core/updateman.sh)** — commandes globales `updateman status`, `updateman all`, puis module `updateman cursor`.
    - **Updater Cursor AppImage** [`scripts/update/update-cursor-appimage`](scripts/update/update-cursor-appimage) : telechargement officiel, detection du Cursor local (`.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`), chemin stable `Cursor.AppImage`, backups, shim `~/.local/bin/cursor`, lanceur desktop.
@@ -72,7 +72,7 @@
 6. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
 7. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
 8. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
-9. **À faire maintenant** : valider `updateman status` / `updateman cursor` en réel, puis finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs **F.6 → I** ; P3b-b phase 2 (regles de section, terminaux etroits) ; **P8c** registre outils et **P8b** `updateman dotfiles`.
+9. **À la reprise** : valider `updateman` en reel ; P3b-b restant ; [`docs/TESTS.md`](docs/TESTS.md) F.6 → I ; **P8c** / **P8b**.
 
 | Période | Sujet |
 |---------|--------|

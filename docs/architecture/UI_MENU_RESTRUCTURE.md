@@ -71,7 +71,8 @@ Une fois P3b-a stabilisé :
 - généraliser `manager_ui_print_banner` aux `*man` restants ;
 - remplacer les séparateurs fixes par `manager_ui_section_rule` ;
 - appliquer `tui_is_compact`, `tui_truncate`, `tui_menu_height` aux tableaux/listes longues ;
-- tester `COLUMNS=60`, TTY réel, non-TTY, bash/zsh/fish, avec et sans `DOTFILES_DOTCLI_ENABLE=1`.
+- tester `COLUMNS=60` / `69`, TTY réel, non-TTY, bash/zsh/fish, avec et sans `DOTFILES_DOTCLI_ENABLE=1` ;
+- menus racine : quitter avec **0** ou **q** (`manager_ui_is_quit_choice`, `while true; do show_main_menu || break; done`) — voir `MANAGERS_UI.md` et commit `0e5647a`.
 
 ## Risques
 
