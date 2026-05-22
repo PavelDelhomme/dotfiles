@@ -92,7 +92,13 @@ dotfiles_menu_run() {
         set +x 2>/dev/null
         unsetopt xtrace 2>/dev/null
         eval "$cmd"
+        local action_ret=$?
+        if [[ $loop -eq 1 ]] && [[ "${DOTFILES_MENU_PAUSE_AFTER_ACTION:-1}" != "0" ]] && [[ -t 0 && -t 1 ]]; then
+            echo ""
+            printf "Appuyez sur Entrée pour revenir au menu dfm... "
+            read -r _dfm_dummy || true
+        fi
         # Une seule action puis sortie si --no-loop
-        [[ $loop -eq 0 ]] && break
+        [[ $loop -eq 0 ]] && return "$action_ret"
     done
 }

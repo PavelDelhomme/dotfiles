@@ -24,4 +24,10 @@ dfm doctorman
 make dfmenu MENU=helpman
 ```
 
+Confort terminal :
+
+- avec `fzf`, le menu occupe `85%` de la hauteur par defaut et reste scrollable ;
+- sans `fzf`, `dotfiles-menu --no-fzf` affiche une liste paginee (`n` / `p`) ;
+- `dfm` fait une pause apres chaque action en boucle pour laisser lire les sorties longues (`DOTFILES_MENU_PAUSE_AFTER_ACTION=0` pour desactiver).
+
 Premiers candidats declaratifs : `pathman`, `searchman`, `helpman`, `doctorman`, `devman`, `virtman`, `displayman`, `sshman`, `processman`, `routeman`, `configman`, `gitman`.

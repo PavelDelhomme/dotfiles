@@ -17,7 +17,7 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 HEADER="Choisir une option"
 INPUT_FILE=""
 NO_FZF=""
-FZF_OPTS=(--height=20 --layout=reverse --border=rounded --margin=1)
+FZF_OPTS=(--height="${DOTFILES_MENU_FZF_HEIGHT:-85%}" --layout=reverse --border=rounded --margin=1 --cycle --info=inline-right)
 
 OUTPUT_FILE=""
 
@@ -66,7 +66,7 @@ if command -v fzf &>/dev/null && [[ -z "$NO_FZF" ]]; then
         --exit-0 \
         --select-1 2>/dev/null || true)
 else
-    # Fallback sans fzf : même source (.menu), affichage numéroté
+    # Fallback sans fzf : même source (.menu), affichage numéroté paginé.
     MAPFILE=()
     while IFS= read -r line; do
         [[ -z "$line" ]] && continue
@@ -75,26 +75,49 @@ else
     if [[ ${#MAPFILE[@]} -eq 0 ]]; then
         exit 1
     fi
-    echo "" >&2
-    echo "  --- $HEADER ---" >&2
-    echo "  (fzf non installé — installez fzf pour le menu interactif)" >&2
-    echo "" >&2
-    for i in "${!MAPFILE[@]}"; do
-        label="${MAPFILE[$i]%%|*}"
-        printf "  %2d) %s\n" "$((i+1))" "$label" >&2
+    term_lines="${LINES:-}"
+    [[ "$term_lines" =~ ^[0-9]+$ ]] || term_lines=$(tput lines 2>/dev/null || echo 24)
+    per_page=$((term_lines - 10))
+    (( per_page < 5 )) && per_page=5
+    (( per_page > 20 )) && per_page=20
+    page=0
+    total=${#MAPFILE[@]}
+    pages=$(( (total + per_page - 1) / per_page ))
+    while true; do
+        start=$((page * per_page))
+        end=$((start + per_page))
+        (( end > total )) && end=$total
+        echo "" >&2
+        echo "  --- $HEADER ---" >&2
+        echo "  (fallback sans fzf — page $((page + 1))/$pages, n/p pour naviguer)" >&2
+        echo "" >&2
+        for ((i=start; i<end; i++)); do
+            label="${MAPFILE[$i]%%|*}"
+            printf "  %2d) %s\n" "$((i+1))" "$label" >&2
+        done
+        echo "   0) Quitter" >&2
+        echo "" >&2
+        read -r -p "  Choix [0=quitter, n=suivant, p=precedent]: " num 2>/dev/null || true
+        case "$num" in
+            ""|0|q|Q) exit 1 ;;
+            n|N)
+                (( page + 1 < pages )) && page=$((page + 1))
+                continue
+                ;;
+            p|P)
+                (( page > 0 )) && page=$((page - 1))
+                continue
+                ;;
+        esac
+        if [[ "$num" =~ ^[0-9]+$ ]]; then
+            idx=$((num - 1))
+            if [[ $idx -ge 0 ]] && [[ $idx -lt $total ]]; then
+                SELECTED="${MAPFILE[$idx]}"
+                break
+            fi
+        fi
+        echo "  Choix invalide." >&2
     done
-    echo "   0) Quitter" >&2
-    echo "" >&2
-    read -r -p "  Choix [0=quitter]: " num 2>/dev/null || true
-    if [[ -z "$num" ]] || [[ "$num" == "0" ]]; then
-        exit 1
-    fi
-    idx=$((num - 1))
-    if [[ $idx -ge 0 ]] && [[ $idx -lt ${#MAPFILE[@]} ]]; then
-        SELECTED="${MAPFILE[$idx]}"
-    else
-        exit 1
-    fi
 fi
 
 if [[ -z "$SELECTED" ]]; then

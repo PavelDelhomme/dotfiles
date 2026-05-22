@@ -17,7 +17,7 @@ dfm doctorman
 # Depuis stdin
 echo "Voir PATH|pathman show" | dotfiles-menu --header "Pathman"
 
-# Fallback si fzf absent (menu numéroté)
+# Fallback si fzf absent (menu numéroté paginé)
 dotfiles-menu --file share/menus/pathman.menu --no-fzf
 ```
 
@@ -50,8 +50,9 @@ alias dfmenu='dotfiles_menu_run'
 
 - `--file FILE` : fichier menu.
 - `--header "Titre"` : en-tête fzf.
-- `--no-fzf` : menu numéroté si fzf absent.
+- `--no-fzf` : menu numéroté paginé si fzf absent.
 - Cote helper shell : `dfm --list` liste les menus declaratifs disponibles.
+- Variables : `DOTFILES_MENU_FZF_HEIGHT=90%` ajuste la hauteur fzf ; `DOTFILES_MENU_PAUSE_AFTER_ACTION=0` désactive la pause après action dans `dfm`.
 
 ## ncmenu
 
