@@ -35,7 +35,7 @@ Les wrappers locaux (`netman_dotcli_menu_pick`, `aliaman_dotcli_menu_pick`, `cyb
 
 ## Pilotes branchés (2026-05-22)
 
-Affichage : `manman`, `updateman`, `fileman`, `netman`, `installman`, `testman`.
+Affichage (`manager_ui_print_banner`) : `manman`, `updateman`, `fileman`, `netman`, `installman`, `testman`, `devman`, `virtman`, `sshman`, `displayman`, `helpman`, `processman`, `routeman`, `configman`, `gitman`, `moduleman`, `multimediaman`, `cyberman`, `aliaman`, `searchman`, `miscman`, `testzshman`, `cyberlearn`.
 
 Sélection commune : `netman`, `aliaman`, `cyberlearn`, `searchman`, `miscman`, `testzshman`, `cyberman`.
 
@@ -49,7 +49,8 @@ Voir [`docs/architecture/UI_MENU_RESTRUCTURE.md`](../../docs/architecture/UI_MEN
 
 ## Suite P3b-b
 
-Généraliser aux autres `*man` avec bannières fixes (`grep '╔════'` dans `core/managers/`) une fois P3b-a stabilisé.
+- **Fait (bannières)** : la plupart des `*man` interactifs listés ci-dessus ; fallback ASCII 64 colonnes si `tui_core` absent.
+- **Reste** : `manager_ui_section_rule` à la place des `════…` fixes, `tui_truncate` / `tui_menu_height` sur listes longues, bannières `pathman` / `doctorman`, tests `COLUMNS=60` (EXT-002).
 
 ## Suite P1
 

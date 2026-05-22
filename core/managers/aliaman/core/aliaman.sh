@@ -84,10 +84,14 @@ aliaman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                   ALIAMAN - Alias Manager                      ║"
-        echo "║                   Gestionnaire d'Alias                        ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "ALIAMAN - Alias Manager" "Gestionnaire d'Alias"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                   ALIAMAN - Alias Manager                      ║"
+            echo "║                   Gestionnaire d'Alias                        ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
         echo
     }

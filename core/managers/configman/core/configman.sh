@@ -37,7 +37,11 @@ configman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     CONFIGMAN_DIR="$DOTFILES_DIR/zsh/functions/configman"
     CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -62,9 +66,13 @@ configman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                  CONFIGMAN - CONFIGURATION MANAGER             ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "CONFIGMAN - CONFIGURATION MANAGER"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                  CONFIGMAN - CONFIGURATION MANAGER             ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

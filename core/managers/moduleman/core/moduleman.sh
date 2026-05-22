@@ -43,7 +43,11 @@ moduleman() {
     MODULEMAN_CONFIG_DIR="$DOTFILES_DIR/.config/moduleman"
     MODULEMAN_CONFIG_FILE="$MODULEMAN_CONFIG_DIR/modules.conf"
     FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -125,9 +129,13 @@ EOF
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                  MODULEMAN - MODULE MANAGER                   ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "MODULEMAN - MODULE MANAGER"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                  MODULEMAN - MODULE MANAGER                   ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

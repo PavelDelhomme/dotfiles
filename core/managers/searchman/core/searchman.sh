@@ -92,10 +92,14 @@ searchman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                   SEARCHMAN - Search Manager                   ║"
-        echo "║               Gestionnaire de Recherche                        ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "SEARCHMAN - Search Manager" "Gestionnaire de Recherche"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                   SEARCHMAN - Search Manager                   ║"
+            echo "║               Gestionnaire de Recherche                        ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
         echo
     }

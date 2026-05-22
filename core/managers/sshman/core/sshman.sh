@@ -38,7 +38,11 @@ sshman() {
     SSHMAN_DIR="$DOTFILES_DIR/zsh/functions/sshman"
     SSHMAN_MODULES_DIR="$SSHMAN_DIR/modules"
     SSHMAN_UTILS_DIR="$SSHMAN_DIR/utils"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -82,10 +86,14 @@ sshman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                      SSHMAN - SSH Manager                        ║"
-        echo "║              Gestionnaire de Connexions SSH                    ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "SSHMAN - SSH Manager" "Gestionnaire de connexions SSH"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                      SSHMAN - SSH Manager                        ║"
+            echo "║              Gestionnaire de Connexions SSH                    ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

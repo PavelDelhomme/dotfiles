@@ -41,7 +41,11 @@ displayman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     DISPLAYMAN_TIMEOUT="${DISPLAYMAN_DDC_TIMEOUT:-15}"
 
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -307,9 +311,13 @@ EOF
     show_header() {
         if [ -t 1 ]; then clear; fi
         printf "%s%s" "$CYAN" "$BOLD"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                DISPLAYMAN - DISPLAY MANAGER                     ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "DISPLAYMAN - DISPLAY MANAGER"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                DISPLAYMAN - DISPLAY MANAGER                     ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "%s" "$RESET"
     }
 

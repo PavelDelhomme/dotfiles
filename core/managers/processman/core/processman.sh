@@ -31,7 +31,11 @@ processman() {
     BOLD='\033[1m'
     RESET='\033[0m'
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -39,10 +43,14 @@ processman() {
     _pm_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                 PROCESSMAN - Process Manager                  ║"
-        echo "║           Recherche, contrôle et restart des process          ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "PROCESSMAN - Process Manager" "Recherche, controle et restart des process"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                 PROCESSMAN - Process Manager                  ║"
+            echo "║           Recherche, contrôle et restart des process          ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
         echo ""
     }

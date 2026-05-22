@@ -217,10 +217,14 @@ cyberlearn() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║            CYBERLEARN - Apprentissage Cybersécurité              ║"
-        echo "║              Plateforme d'Apprentissage Terminal               ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "CYBERLEARN - Apprentissage Cybersecurite" "Plateforme d'Apprentissage Terminal"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║            CYBERLEARN - Apprentissage Cybersécurité              ║"
+            echo "║              Plateforme d'Apprentissage Terminal               ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
 

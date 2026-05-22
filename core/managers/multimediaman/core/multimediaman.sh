@@ -35,7 +35,11 @@ multimediaman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     MULTIMEDIAMAN_DIR="$DOTFILES_DIR/zsh/functions/multimediaman"
     MULTIMEDIAMAN_MODULES_DIR="$MULTIMEDIAMAN_DIR/modules"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -60,9 +64,13 @@ multimediaman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║              MULTIMEDIAMAN - MULTIMEDIA MANAGER               ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "MULTIMEDIAMAN - MULTIMEDIA MANAGER"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║              MULTIMEDIAMAN - MULTIMEDIA MANAGER               ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

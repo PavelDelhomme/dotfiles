@@ -37,7 +37,11 @@ virtman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     VIRTMAN_DIR="$DOTFILES_DIR/zsh/functions/virtman"
     VIRTMAN_MODULES_DIR="$VIRTMAN_DIR/modules"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -62,10 +66,14 @@ virtman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║              VIRTMAN - VIRTUAL ENVIRONMENT MANAGER             ║"
-        echo "║         Gestionnaire d'Environnements Virtuels (VMs/Containers) ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "VIRTMAN - VIRTUAL ENVIRONMENT MANAGER" "Environnements virtuels (VMs/Containers)"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║              VIRTMAN - VIRTUAL ENVIRONMENT MANAGER             ║"
+            echo "║         Gestionnaire d'Environnements Virtuels (VMs/Containers) ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

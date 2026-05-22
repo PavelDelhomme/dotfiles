@@ -37,7 +37,11 @@ helpman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     HELPMAN_DIR="$DOTFILES_DIR/zsh/functions/helpman"
     FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -150,9 +154,13 @@ EOF
     while true; do
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║              HELPMAN - GUIDE DU SYSTÈME D'AIDE                 ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "HELPMAN - GUIDE DU SYSTEME D'AIDE"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║              HELPMAN - GUIDE DU SYSTÈME D'AIDE                 ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
         echo ""
         

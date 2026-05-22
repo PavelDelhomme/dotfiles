@@ -113,9 +113,13 @@ testzshman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║              TESTZSHMAN - Test Manager ZSH/Dotfiles             ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "TESTZSHMAN - Test Manager ZSH/Dotfiles"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║              TESTZSHMAN - Test Manager ZSH/Dotfiles             ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

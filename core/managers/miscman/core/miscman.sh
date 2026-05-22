@@ -72,10 +72,14 @@ miscman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                    MISCMAN - Tools Manager                     ║"
-        echo "║               Gestionnaire d'Outils Divers                     ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "MISCMAN - Tools Manager" "Gestionnaire d'Outils Divers"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                    MISCMAN - Tools Manager                     ║"
+            echo "║               Gestionnaire d'Outils Divers                     ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
         echo
     }

@@ -85,10 +85,14 @@ cyberman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}\n"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                  CYBERMAN - Cyber Security Manager             ║"
-        echo "║                  Gestionnaire Sécurité Cyber ZSH              ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "CYBERMAN - Cyber Security Manager" "Gestionnaire Securite Cyber"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                  CYBERMAN - Cyber Security Manager             ║"
+            echo "║                  Gestionnaire Sécurité Cyber ZSH              ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}\n"
     }
 
