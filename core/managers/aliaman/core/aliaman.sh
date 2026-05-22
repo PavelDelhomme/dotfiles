@@ -36,7 +36,11 @@ aliaman() {
     
     # Fichier des alias (adaptatif selon shell)
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi

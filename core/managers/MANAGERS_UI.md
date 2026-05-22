@@ -17,13 +17,29 @@ fi
 - **Séparateur de section** : `manager_ui_section_rule` (remplace les lignes `════…` fixes).
 - **Tableaux / listes** : `tui_is_compact`, `tui_truncate`, `tui_menu_height` depuis `scripts/lib/tui_core.sh`.
 
+## Sélection De Menu
+
+- **Depuis un fichier** : `manager_ui_select_file "Titre" "$menu_file"` avec des lignes `Label|valeur`.
+- **Depuis stdin** : `printf 'Label|valeur\n' | manager_ui_select "Titre"`.
+- Ordre cible : `dotcli menu` si `DOTFILES_DOTCLI_ENABLE=1`, puis `dotfiles_ncmenu_select` (`fzf`/`ncmenu`), puis retour `127` pour laisser le manager faire son `read` manuel.
+
+Les wrappers locaux (`netman_dotcli_menu_pick`, `aliaman_dotcli_menu_pick`, `cyberlearn_pick_menu`, etc.) doivent disparaître progressivement ou devenir de simples ponts vers `manager_ui_select_file`.
+
 ## Pilotes branchés (2026-05-22)
 
-`manman`, `updateman`, `fileman`, `netman`, `installman`, `testman`.
+Affichage : `manman`, `updateman`, `fileman`, `netman`, `installman`, `testman`.
 
-## Suite P3b
+Sélection commune : `netman`, `aliaman`, `cyberlearn`.
 
-Généraliser aux autres `*man` avec bannières fixes (`grep '╔════'` dans `core/managers/`).
+## Suite P3b-a
+
+Restructurer les menus avant la suite adaptative : clarifier `shared/` vs `share/`, garder `shells/*/adapters` minces, centraliser la sélection dans `manager_ui.sh`, puis documenter/marquer legacy `scripts/menu/*.sh`.
+
+Voir [`docs/architecture/UI_MENU_RESTRUCTURE.md`](../../docs/architecture/UI_MENU_RESTRUCTURE.md).
+
+## Suite P3b-b
+
+Généraliser aux autres `*man` avec bannières fixes (`grep '╔════'` dans `core/managers/`) une fois P3b-a stabilisé.
 
 ## Suite P1
 

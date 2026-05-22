@@ -22,8 +22,14 @@ else
     SHELL_TYPE="sh"
 fi
 
-_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
-[ -f "$_nc_lib" ] && . "$_nc_lib"
+_ui_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/manager_ui.sh"
+if [ -f "$_ui_lib" ]; then
+    . "$_ui_lib"
+    dotfiles_manager_load_ui_libs
+else
+    _nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+    [ -f "$_nc_lib" ] && . "$_nc_lib"
+fi
 
 # DESC: Système d'apprentissage complet de la cybersécurité
 # USAGE: cyberlearn [command] [args]

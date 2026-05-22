@@ -12,7 +12,7 @@ Document de référence pour unifier TUI, modules, shared, et multi-shell (zsh, 
 
 | Domaine | Actuel | Cible |
 |--------|--------|--------|
-| **TUI** | Seul installman utilise `scripts/lib/tui_core.sh` | Tous les *man avec menus (pathman, configman, fileman, etc.) utilisent tui_core + pattern paginé |
+| **TUI / menus** | Plusieurs couches coexistent (`scripts/menu`, `ncurses_menu`, `share/menus`, wrappers dotcli locaux) | P3b-a restructure les menus (`manager_ui_select_file`, rôles `shared/`/`share/`), puis P3b-b généralise l'adaptatif |
 | **Logs** | installman → installman_log.sh ; configman → managers_log.sh | Tous les *man qui font des actions loggent via managers_log.sh |
 | **Modules** | Chaque *man a son propre `modules/` ; chargement ad hoc | Convention unique : core + modules/ ; chargement via liste déclarative (comme installman TOOLS) |
 | **Core / adapters** | Zsh core par manager ; core POSIX souvent non utilisé ; adapters shells/ incohérents | Une base par manager : soit core Zsh (comme installman) + entry script, soit core POSIX ; adapters appellent toujours la même base |
@@ -38,8 +38,10 @@ Document de référence pour unifier TUI, modules, shared, et multi-shell (zsh, 
 
 ### Phase B – TUI commune pour tous les *man
 
-- [ ] **B1** Documenter le pattern menu paginé  
-  - Déjà en commentaire dans `scripts/lib/tui_core.sh`. Option : court README `scripts/lib/README_TUI.md` avec exemple (liste d’items + n/p/0).  
+- [~] **B0** Restructurer UI / menus avant l'adaptatif
+  - Voir [`UI_MENU_RESTRUCTURE.md`](UI_MENU_RESTRUCTURE.md). Centraliser la selection dans `scripts/lib/manager_ui.sh`, garder `scripts/menu/*.sh` en legacy/bootstrap, clarifier `shared/` vs `share/`.
+- [x] **B1** Documenter le pattern UI manager
+  - [`core/managers/MANAGERS_UI.md`](../../core/managers/MANAGERS_UI.md) + commentaires dans `scripts/lib/tui_core.sh`.
 - [ ] **B2** Utiliser tui_core dans pathman  
   - Source `tui_core.sh` dans pathman (zsh core) ; menu avec `tui_menu_height` ; pagination si beaucoup d’entrées (ex. liste PATH).  
 - [ ] **B3** Utiliser tui_core dans configman  

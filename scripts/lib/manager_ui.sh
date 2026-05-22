@@ -85,3 +85,40 @@ manager_ui_section_rule() {
     dotfiles_load_tui_core && command -v tui_hrule >/dev/null 2>&1 && tui_hrule && return 0
     echo "=================================================================="
 }
+
+# Selection de menu commune pour les managers.
+# Entree fichier: lignes "Label|valeur". Retourne la valeur choisie sur stdout.
+# Priorite: dotcli si active, puis dotfiles_ncmenu_select, puis fallback appelant.
+manager_ui_select_file() {
+    _mui_title="${1:-Menu}"
+    _mui_file="${2:-}"
+    [ -n "$_mui_file" ] && [ -f "$_mui_file" ] || return 1
+
+    if [ "${DOTFILES_DOTCLI_ENABLE:-0}" = "1" ] && [ -t 0 ] && [ -t 1 ]; then
+        _mui_dotcli="${DOTFILES_DOTCLI_BIN:-${DOTFILES_DIR:-$HOME/dotfiles}/bin/dotcli}"
+        if [ -x "$_mui_dotcli" ]; then
+            if [ "${DOTFILES_DOTCLI_MENU_NO_TUI:-0}" = "1" ]; then
+                "$_mui_dotcli" menu --no-tui --prompt "$_mui_title" < "$_mui_file" 2>/dev/null && return 0
+            else
+                "$_mui_dotcli" menu --prompt "$_mui_title" < "$_mui_file" 2>/dev/null && return 0
+            fi
+        fi
+    fi
+
+    if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
+        dotfiles_ncmenu_select "$_mui_title" < "$_mui_file" 2>/dev/null && return 0
+    fi
+
+    return 127
+}
+
+# Variante stdin: printf 'Label|valeur\n' | manager_ui_select "Titre"
+manager_ui_select() {
+    _mui_title="${1:-Menu}"
+    _mui_tmp=$(mktemp) || return 1
+    cat > "$_mui_tmp"
+    _mui_choice=$(manager_ui_select_file "$_mui_title" "$_mui_tmp" 2>/dev/null || true)
+    rm -f "$_mui_tmp"
+    [ -n "$_mui_choice" ] || return 127
+    printf '%s' "$_mui_choice"
+}
