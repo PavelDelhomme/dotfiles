@@ -53,6 +53,16 @@ Pour ajouter un outil : une ligne dans le registre + handler dans `updateman` + 
 | `updateman cursor status` | Statut du timer. |
 | `updateman cursor logs` | Logs du service. |
 
+## Fermeture de Cursor
+
+Si Cursor est ouvert, `updateman cursor` ne remplace plus l'AppImage en silence :
+
+- en terminal interactif, il affiche les processus Cursor detectes et propose de les fermer proprement avant de continuer ;
+- via `systemd --user` ou autre contexte sans TTY, il echoue proprement et note dans les logs qu'il faut fermer Cursor ou relancer avec confirmation explicite ;
+- `CURSOR_UPDATE_CLOSE_RUNNING=1 updateman cursor` ferme Cursor automatiquement avec `SIGTERM` avant la mise a jour ;
+- `CURSOR_UPDATE_FORCE_KILL=1` autorise un `SIGKILL` si Cursor refuse de se fermer apres `CURSOR_UPDATE_CLOSE_TIMEOUT` secondes ;
+- `CURSOR_UPDATE_ALLOW_RUNNING=1` ignore volontairement le garde-fou, a eviter sauf diagnostic.
+
 ## Lien installman
 
 - `installman update` / menu mise a jour : pour un outil du registre, delegation vers `updateman <outil>`.
@@ -70,4 +80,4 @@ Pour tout outil enregistre : `updateman <outil>`, `updateman <outil> enable`, `u
 
 ## Notes
 
-Fermer Cursor avant une mise a jour manuelle reste recommande.
+Le timer quotidien ne force pas la fermeture de Cursor. Il reessaiera au prochain declenchement si Cursor etait ouvert.

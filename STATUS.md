@@ -44,6 +44,7 @@
    - **Updater Cursor AppImage** [`scripts/update/update-cursor-appimage`](scripts/update/update-cursor-appimage) : telechargement officiel, detection du Cursor local (`.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`), chemin stable `Cursor.AppImage`, backups, shim `~/.local/bin/cursor`, lanceur desktop.
    - **Commande publique nettoyee** : l'ancien `~/.local/bin/update-cursor-appimage` n'est plus l'interface utilisateur ; le service systemd appelle maintenant `updateman cursor run`.
    - **Automatisation utilisateur** : unites [`systemd/user/cursor-update.service`](systemd/user/cursor-update.service) et [`systemd/user/cursor-update.timer`](systemd/user/cursor-update.timer), installees/activees sur la machine via `updateman cursor enable` (`cursor-update.timer` enabled + active).
+   - **Validation manuelle debloquee** : si Cursor est ouvert, `updateman cursor` propose de le fermer proprement en terminal interactif ; hors TTY, le timer echoue proprement et reessaiera plus tard.
    - **2026-05-22 (suite)** : registre `updatable-tools.list` ; `installman` appelle `updateman <outil> enable` ; shim `update-cursor` retire de `shared/config.sh` ; helpers TUI et pilotes manman/updateman status.
    - **Suite planifiee** : P3b (autres `*man`), P8c (plus d'outils au registre), P8b (`updateman dotfiles`).
 2. **Livraison 2026-05-15** — lot **« diffman »** :

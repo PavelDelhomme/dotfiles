@@ -6,6 +6,8 @@ DEFAULT_APP_DIR="${APP_DIR:-${CURSOR_APP_DIR:-$HOME/Applications}}"
 BACKUP_KEEP="${BACKUP_KEEP:-5}"
 CREATE_DESKTOP="${CREATE_DESKTOP:-1}"
 CREATE_SHIM="${CREATE_SHIM:-1}"
+CURSOR_UPDATE_CLOSE_RUNNING="${CURSOR_UPDATE_CLOSE_RUNNING:-ask}"
+CURSOR_UPDATE_CLOSE_TIMEOUT="${CURSOR_UPDATE_CLOSE_TIMEOUT:-20}"
 TMP_FILE="$(mktemp --tmpdir cursor-appimage.XXXXXX)"
 
 cleanup() {
@@ -72,6 +74,119 @@ process_appimage_candidate() {
         }
       }
     '
+}
+
+cursor_process_pids() {
+  ps -u "$(id -u)" -o pid= -o args= 2>/dev/null |
+    awk '
+      /[Cc]ursor[^ ]*\.AppImage|cursor[^ ]*\.appimage|\/tmp\/\.mount_Cursor[^ ]*\// {
+        if ($0 !~ /update-cursor-appimage/ && $0 !~ /awk /) {
+          print $1
+        }
+      }
+    '
+}
+
+cursor_process_summary() {
+  ps -u "$(id -u)" -o pid= -o comm= -o args= 2>/dev/null |
+    awk '
+      /[Cc]ursor[^ ]*\.AppImage|cursor[^ ]*\.appimage|\/tmp\/\.mount_Cursor[^ ]*\// {
+        if ($0 !~ /update-cursor-appimage/ && $0 !~ /awk /) {
+          print "  " $0
+        }
+      }
+    '
+}
+
+wait_for_cursor_exit() {
+  local timeout="$1" waited=0
+  while [ "$waited" -lt "$timeout" ]; do
+    if [ -z "$(cursor_process_pids | tr '\n' ' ')" ]; then
+      return 0
+    fi
+    sleep 1
+    waited=$((waited + 1))
+  done
+  return 1
+}
+
+close_cursor_processes() {
+  local pids="$1"
+  log "fermeture de Cursor: $pids"
+  kill $pids 2>/dev/null || true
+  if wait_for_cursor_exit "$CURSOR_UPDATE_CLOSE_TIMEOUT"; then
+    log "Cursor ferme proprement."
+    return 0
+  fi
+
+  warn "Cursor ne s'est pas ferme apres ${CURSOR_UPDATE_CLOSE_TIMEOUT}s."
+  if [ "${CURSOR_UPDATE_FORCE_KILL:-0}" = "1" ]; then
+    pids="$(cursor_process_pids | tr '\n' ' ')"
+    [ -n "$pids" ] && kill -KILL $pids 2>/dev/null || true
+    wait_for_cursor_exit 5 || fail "impossible de fermer Cursor"
+    log "Cursor force-kill termine."
+    return 0
+  fi
+
+  if [ -t 0 ] && [ -t 1 ]; then
+    printf 'Forcer la fermeture de Cursor ? [y/N] '
+    read -r answer || answer=""
+    case "$answer" in
+      y|Y|yes|YES|o|O|oui|OUI)
+        pids="$(cursor_process_pids | tr '\n' ' ')"
+        [ -n "$pids" ] && kill -KILL $pids 2>/dev/null || true
+        wait_for_cursor_exit 5 || fail "impossible de fermer Cursor"
+        ;;
+      *)
+        fail "mise a jour annulee: Cursor est encore ouvert"
+        ;;
+    esac
+  else
+    fail "Cursor est encore ouvert. Relance apres fermeture, ou utilise CURSOR_UPDATE_FORCE_KILL=1."
+  fi
+}
+
+ensure_cursor_closed() {
+  local pids mode answer
+  if [ "${CURSOR_UPDATE_ALLOW_RUNNING:-0}" = "1" ]; then
+    warn "Cursor ouvert ignore a la demande (CURSOR_UPDATE_ALLOW_RUNNING=1)."
+    return 0
+  fi
+
+  pids="$(cursor_process_pids | tr '\n' ' ')"
+  [ -n "$pids" ] || return 0
+
+  warn "Cursor semble ouvert; remplacer l'AppImage pendant son execution est risqué."
+  cursor_process_summary >&2 || true
+
+  mode="$CURSOR_UPDATE_CLOSE_RUNNING"
+  case "$mode" in
+    1|yes|YES|true|TRUE|auto|AUTO)
+      close_cursor_processes "$pids"
+      ;;
+    0|no|NO|false|FALSE|never|NEVER)
+      fail "Cursor est ouvert. Ferme-le puis relance: updateman cursor"
+      ;;
+    ask|ASK|'')
+      if [ -t 0 ] && [ -t 1 ]; then
+        printf 'Fermer Cursor maintenant puis continuer la mise a jour ? [y/N] '
+        read -r answer || answer=""
+        case "$answer" in
+          y|Y|yes|YES|o|O|oui|OUI)
+            close_cursor_processes "$pids"
+            ;;
+          *)
+            fail "mise a jour annulee: Cursor est encore ouvert"
+            ;;
+        esac
+      else
+        fail "Cursor est ouvert et aucun TTY ne permet de demander confirmation. Ferme Cursor ou lance: CURSOR_UPDATE_CLOSE_RUNNING=1 updateman cursor"
+      fi
+      ;;
+    *)
+      fail "valeur CURSOR_UPDATE_CLOSE_RUNNING invalide: $mode"
+      ;;
+  esac
 }
 
 add_candidate() {
@@ -193,10 +308,6 @@ SHIM
   chmod 0755 "$HOME/.local/bin/cursor"
 }
 
-if pgrep -u "$(id -u)" -f 'Cursor.*AppImage|cursor.*appimage' >/dev/null 2>&1; then
-  warn "Cursor semble lance. Ferme-le avant une mise a jour critique."
-fi
-
 command -v curl >/dev/null 2>&1 || fail "curl introuvable"
 command -v file >/dev/null 2>&1 || fail "file introuvable"
 
@@ -207,6 +318,8 @@ backup_dir="${BACKUP_DIR:-$app_dir/.cursor-backups}"
 stamp="$(date +%Y%m%d-%H%M%S)"
 
 mkdir -p "$app_dir" "$backup_dir"
+
+ensure_cursor_closed
 
 log "telechargement: $DOWNLOAD_URL"
 curl -fL --retry 3 --retry-delay 2 "$DOWNLOAD_URL" -o "$TMP_FILE"
