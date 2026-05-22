@@ -25,13 +25,13 @@
   - [x] Shim legacy `update-cursor` retire de `shared/config.sh`.
   - [x] Garde-fou validation manuelle : si Cursor est ouvert, `updateman cursor` propose de le fermer en TTY ; le timer systemd echoue proprement sans tuer l'application.
   - **Reste** : validation manuelle utilisateur (tableau V-2026-05-22) ; ajouter d'autres outils installman au registre (P8c).
-- [~] **P3b — interfaces terminal adaptatives** (demarre) : helpers `scripts/lib/tui_core.sh` (`tui_cols`, `tui_is_compact`, `tui_hrule`, `tui_truncate`) ; pilotes **manman** + tableau **updateman status**. **Reste** : generaliser aux autres `*man`, tests `stty cols 60` (EXT-002).
+- [~] **P3b — interfaces terminal adaptatives** (en cours) : `scripts/lib/tui_core.sh` + **`scripts/lib/manager_ui.sh`** (`manager_ui_print_banner`, `dotfiles_manager_load_ui_libs`) ; doc [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md). Pilotes : **manman**, **updateman status**, **fileman**, **netman**, **installman**, **testman**. **Reste** : autres `*man` (~15), tests `stty cols 60` (EXT-002).
+- [~] **P1 — normalisation modulaire** (demarre) : convention UI POSIX documentee (`MANAGERS_UI.md`, `dotfiles_manager_load_ui_libs`). **Reste** : adapters minces, logique hors `zsh/functions/`, menus `dotcli`.
 - [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**.
   - **Avancement 2026-05-12** : Blocs **A**, **B**, **C**, **D**, **E**, **F.1 → F.5** validés (verdicts `O` + relectures). **Reste** : **F.6** (`--no-tui` / `--query`), **F.7** (manager + `DOTFILES_DOTCLI_ENABLE=1` en TTY), **Bloc G** (préalable + G.0/G.0.b/G.0.c + tableau G.1–G.25 + smokes G.0.d/e), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
   - **Ajout 2026-05-13** : nouveau manager `displayman` → **G.0.d** + ligne **G.24** ; **§ C.3** (matrice zsh/bash/fish/sh dans le conteneur) + lien **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table de correspondance avec `TESTS.md`.
   - **Ajout 2026-05-15** : manager **`diffman`** (diff coloré / côte à côte / rapports) → **G.0.e** + ligne **G.25** ; intégration `manman`, `migrated_managers.list`, [`docs/man/diffman.md`](docs/man/diffman.md).
   - **Correctif 2026-05-13** : **`netman` menu Informations IP** — affichage IPv4/IPv6 réécrit (`ip -o` + `awk`) ; voir **`docs/ERRORS.md`** + **EXT-006** dans `TESTS.md`.
-- [ ] Poursuivre **P1** : normalisation `core/managers/` + adapters ; réduction de la logique résiduelle hors core ; convergence menus vers `dotcli` avec fallbacks.
 
 ---
 

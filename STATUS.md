@@ -9,12 +9,12 @@
 - **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : `diffman compare|side|report` pour diffs colorés / côte à côte / rapports multi-fichiers ([`docs/man/diffman.md`](docs/man/diffman.md)).
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
 - **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
-- **UX terminal** : helpers adaptatifs dans `scripts/lib/tui_core.sh` (`tui_is_compact`, `tui_hrule`, `tui_truncate`) ; pilotes **manman** et **updateman status**. Extension aux autres `*man` : voir **P3b** dans `TODOS.md`.
+- **UX terminal** : `scripts/lib/tui_core.sh` + `scripts/lib/manager_ui.sh` ; pilotes **manman**, **updateman status**, **fileman**, **netman**, **installman**, **testman** ([`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md)). **P3b** : generaliser aux autres `*man`.
 - **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
 
 ## Objectifs actuels (priorité)
 
-1. Poursuivre la **normalisation modulaire** et la **TUI unifiée** (`dotcli`) sans casser les fallbacks.
+1. Poursuivre **P1** (convention `dotfiles_manager_load_ui_libs` dans les cores POSIX) et la **TUI unifiée** (`dotcli`) sans casser les fallbacks.
 2. Stabiliser **`updateman`** : registre + `installman` → `updateman <outil> enable` ; validation manuelle `status` / `all` / timer (V-2026-05-22).
 3. Etendre **P3b** : generaliser `tui_core` aux menus `*man` restants + tests petits terminaux (EXT-002).
 4. Concevoir **`updateman dotfiles`** (P8b) et enrichir le registre outils (P8c).

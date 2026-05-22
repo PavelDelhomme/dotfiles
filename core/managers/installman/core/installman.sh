@@ -37,7 +37,11 @@ installman() {
     INSTALLMAN_DIR="$DOTFILES_DIR/zsh/functions/installman"
     INSTALLMAN_MODULES_DIR="$INSTALLMAN_DIR/modules"
     INSTALLMAN_UTILS_DIR="$INSTALLMAN_DIR/utils"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -146,9 +150,13 @@ user-project:userrepo:📂:Clone projet Git (DOTFILES_USER_PROJECT_GIT_URL):chec
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                  INSTALLMAN - INSTALLATION MANAGER            ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "INSTALLMAN - INSTALLATION MANAGER"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                  INSTALLMAN - INSTALLATION MANAGER            ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

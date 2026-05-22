@@ -28,7 +28,11 @@ updateman() {
         . "$UPDATEMAN_LIB"
         updatable_tools_load_installman_utils
     fi
-    if [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=../../../scripts/lib/manager_ui.sh
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_load_manager_ui
+    elif [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
         # shellcheck source=../../../scripts/lib/tui_core.sh
         . "$DOTFILES_DIR/scripts/lib/tui_core.sh"
     fi

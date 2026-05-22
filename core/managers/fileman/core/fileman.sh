@@ -37,7 +37,11 @@ fileman() {
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     FILEMAN_DIR="$DOTFILES_DIR/zsh/functions/fileman"
     FILEMAN_MODULES_DIR="$FILEMAN_DIR/modules"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -66,9 +70,13 @@ EOF
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                  FILEMAN - FILE MANAGER                        ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "FILEMAN - FILE MANAGER"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                  FILEMAN - FILE MANAGER                        ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     
@@ -76,7 +84,13 @@ EOF
     show_main_menu() {
         show_header
         printf "${YELLOW}📁 GESTION DES FICHIERS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        printf "${BLUE}"
+        if command -v manager_ui_section_rule >/dev/null 2>&1; then
+            manager_ui_section_rule
+        else
+            echo "══════════════════════════════════════════════════════════════════"
+        fi
+        printf "${RESET}\n\n"
         
         echo "1.  📦 Archive (créer/extraire archives)"
         echo "2.  💾 Backup (créer/sauvegarder)"

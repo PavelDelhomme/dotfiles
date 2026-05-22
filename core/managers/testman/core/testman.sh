@@ -39,7 +39,11 @@ testman() {
     TESTMAN_MODULES_DIR="$TESTMAN_DIR/modules"
     TESTMAN_UTILS_DIR="$TESTMAN_DIR/utils"
     TESTMAN_CONFIG_DIR="$TESTMAN_DIR/config"
-    if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
@@ -69,9 +73,13 @@ testman() {
     show_header() {
         clear
         printf "${CYAN}${BOLD}"
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║              TESTMAN - Test Manager Applications                ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "TESTMAN - Test Manager Applications"
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║              TESTMAN - Test Manager Applications                ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
         printf "${RESET}"
     }
     

@@ -6,6 +6,7 @@ Cette structure organise tous les scripts d'installation, de synchronisation et 
 
 - **`lib/common.sh`** : couleurs, logging, détection distro (bash).
 - **`lib/tui_core.sh`** : TUI adaptatif (POSIX sh) — taille terminal (`tui_lines`, `tui_cols`), hauteur menu (`tui_menu_height`), pour menus paginés.
+- **`lib/manager_ui.sh`** : bannières et règles adaptatives pour les `*man` (`manager_ui_print_banner`, `dotfiles_manager_load_ui_libs`). Voir [`core/managers/MANAGERS_UI.md`](../core/managers/MANAGERS_UI.md).
 - **`lib/installman_log.sh`** : journal des actions installman (timestamp, action, cible, succès/échec) dans `dotfiles/logs/installman.log`.
 - **`lib/install_logger.sh`**, **`lib/actions_logger.sh`** : logs d’installation et d’actions.
 

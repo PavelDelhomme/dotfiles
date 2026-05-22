@@ -43,7 +43,11 @@ manman() {
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
-    if [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/tui_core.sh"
     fi
@@ -110,29 +114,16 @@ manman() {
 
     clear
     printf "${CYAN}${BOLD}"
-    if command -v tui_is_compact >/dev/null 2>&1 && tui_is_compact; then
+    if command -v manager_ui_print_banner >/dev/null 2>&1; then
+        manager_ui_print_banner "MANMAN - Manager of Managers" "Gestionnaires centralises"
+    elif command -v tui_is_compact >/dev/null 2>&1 && tui_is_compact; then
         echo "MANMAN — managers"
         command -v tui_hrule >/dev/null 2>&1 && tui_hrule || echo "------------------------"
     else
-        _mm_w=64
-        if command -v tui_content_width >/dev/null 2>&1; then
-            _mm_w=$(tui_content_width)
-        fi
-        if command -v tui_repeat_char >/dev/null 2>&1; then
-            printf '╔'
-            tui_repeat_char '═' "$_mm_w"
-            printf '╗\n'
-            printf '║ %-*s ║\n' "$_mm_w" "MANMAN - Manager of Managers"
-            printf '║ %-*s ║\n' "$_mm_w" "Gestionnaires centralises"
-            printf '╚'
-            tui_repeat_char '═' "$_mm_w"
-            printf '╝\n'
-        else
-            echo "╔════════════════════════════════════════════════════════════════╗"
-            echo "║                  MANMAN - Manager of Managers                   ║"
-            echo "║           Gestionnaire centralisé des gestionnaires            ║"
-            echo "╚════════════════════════════════════════════════════════════════╝"
-        fi
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║                  MANMAN - Manager of Managers                   ║"
+        echo "║           Gestionnaire centralisé des gestionnaires            ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
     fi
     printf "${RESET}\n"
     echo
