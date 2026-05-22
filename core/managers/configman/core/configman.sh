@@ -80,7 +80,7 @@ configman() {
     show_config_overview() {
         show_header
         printf "${YELLOW}👁️  VUE D'ENSEMBLE DE LA CONFIGURATION${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         # Versions des outils
         printf "${BOLD}📊 Versions des outils:${RESET}\n"
@@ -181,7 +181,7 @@ configman() {
     version_manager_menu() {
         show_header
         printf "${YELLOW}📊 GESTION DE VERSIONS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         if [ -f "$CONFIGMAN_DIR/utils/version_manager.sh" ]; then
             # Charger le script de gestion de versions
@@ -204,7 +204,7 @@ configman() {
     show_main_menu() {
         show_header
         printf "${YELLOW}⚙️  CONFIGURATIONS SYSTÈME${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         echo "1.  📦 Git (configuration Git globale)"
         echo "2.  🔗 Git Remote (configuration remote GitHub)"

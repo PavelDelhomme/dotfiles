@@ -124,7 +124,7 @@ testman() {
         fi
         
         printf "${CYAN}🐍 Tests Python${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         # Vérifier si Docker Compose est utilisé
@@ -200,7 +200,7 @@ testman() {
         fi
         
         printf "${CYAN}📦 Tests Node.js${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         # Vérifier si Docker Compose est utilisé
@@ -272,7 +272,7 @@ testman() {
         fi
         
         printf "${CYAN}🦀 Tests Rust${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         if [ -f "Cargo.toml" ]; then
@@ -301,7 +301,7 @@ testman() {
         fi
         
         printf "${CYAN}🐹 Tests Go${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         if [ -f "go.mod" ] || [ -d ".git" ]; then
@@ -330,7 +330,7 @@ testman() {
         fi
         
         printf "${CYAN}☕ Tests Java${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         if [ -f "pom.xml" ]; then
@@ -363,7 +363,7 @@ testman() {
         fi
         
         printf "${CYAN}🎯 Tests Flutter${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         if [ -f "pubspec.yaml" ]; then
@@ -392,7 +392,7 @@ testman() {
         fi
         
         printf "${CYAN}💎 Tests Ruby${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         if [ -f "Gemfile" ]; then
@@ -425,7 +425,7 @@ testman() {
         fi
         
         printf "${CYAN}🐘 Tests PHP${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         if [ -f "composer.json" ]; then
@@ -460,7 +460,7 @@ testman() {
         fi
         
         printf "${CYAN}💬 Tests Lisp${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "${YELLOW}Répertoire: %s${RESET}\n\n" "$(pwd)"
         
         # Détecter le type de Lisp
@@ -543,7 +543,7 @@ testman() {
     show_main_menu() {
         show_header
         printf "${YELLOW}🧪 LANGAGES SUPPORTÉS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         lang=$(detect_language)
         if [ "$lang" != "unknown" ]; then

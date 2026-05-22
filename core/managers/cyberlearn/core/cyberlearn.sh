@@ -261,7 +261,7 @@ cyberlearn() {
         echo ""
         
         printf "${YELLOW}${BOLD}📚 MENU PRINCIPAL${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         printf "${BOLD}1.${RESET} 📖 Modules de Cours\n"
         printf "${BOLD}2.${RESET} 🧪 Labs Pratiques\n"
@@ -305,7 +305,7 @@ EOF
     show_exercises_menu() {
         show_header
         printf "${YELLOW}${BOLD}🎯 EXERCICES & CHALLENGES${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         printf "${BOLD}1.${RESET} 🎯 Challenge du Jour\n"
         printf "${BOLD}2.${RESET} 📝 Exercices par Module\n"
@@ -548,7 +548,7 @@ EOF
     show_docker_menu() {
         show_header
         printf "${YELLOW}${BOLD}🐳 GESTION DES ENVIRONNEMENTS DOCKER${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         printf "${BOLD}1.${RESET} 🚀 Démarrer un Environnement\n"
         printf "${BOLD}2.${RESET} 🛑 Arrêter un Environnement\n"
@@ -655,7 +655,7 @@ EOF
     show_certificates_menu() {
         show_header
         printf "${YELLOW}${BOLD}📝 CERTIFICATS & BADGES${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         show_badges
         echo ""

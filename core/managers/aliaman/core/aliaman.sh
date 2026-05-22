@@ -116,7 +116,7 @@ EOF
     # Aide détaillée CLI (sans clear) + pause en TTY — aligné help --interactive
     aliaman_print_interactive_help_cli() {
         printf "${CYAN}📚 Aide — ALIAMAN${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo
         echo "ALIAMAN est un gestionnaire complet d'alias."
         echo
@@ -204,7 +204,7 @@ EOF
         if [ -n "$SEARCH_TERM" ]; then
             printf "${BLUE}🔍 Recherche: '$SEARCH_TERM'${RESET}\n"
         fi
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         all_aliases=""
         if [ -n "$SEARCH_TERM" ]; then
@@ -466,7 +466,7 @@ EOF
     while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo
         echo "  ${BOLD}1${RESET}  📋 Gérer les alias (interactif)"
         echo "  ${BOLD}2${RESET}  ➕ Ajouter un nouvel alias"
@@ -482,7 +482,7 @@ EOF
         echo "  ${BOLD}h${RESET}  📚 Aide"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         choice=""
         if [ -t 0 ] && [ -t 1 ]; then
             menu_input_file=$(mktemp)
@@ -605,7 +605,7 @@ EOF
             h|H)
                 show_header
                 printf "${CYAN}📚 Aide - ALIAMAN${RESET}\n"
-                printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+                manager_ui_section_line "${BLUE}" "${RESET}\n"
                 echo
                 echo "ALIAMAN est un gestionnaire complet d'alias."
                 echo

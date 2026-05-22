@@ -57,7 +57,7 @@ sshman() {
     # Aide courte (stdout) — identique pour sshman help, sshman -h, option « h » du menu
     sshman_print_quick_help() {
         printf "${CYAN}SSHMAN — raccourcis${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         echo "Sous-commandes :"
         echo "  sshman list           Connexions (~/.ssh/config)"
@@ -101,7 +101,7 @@ sshman() {
     list_ssh_connections() {
         show_header
         printf "${YELLOW}🔗 Connexions SSH configurées${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         
         SSH_CONFIG="$HOME/.ssh/config"
@@ -147,7 +147,7 @@ sshman() {
     test_ssh_connection() {
         show_header
         printf "${YELLOW}🧪 Test de connexion SSH${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         
         SSH_CONFIG="$HOME/.ssh/config"
@@ -225,7 +225,7 @@ sshman() {
     manage_ssh_keys() {
         show_header
         printf "${YELLOW}🔑 Gestion des clés SSH${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         if ! [ -t 0 ] || ! [ -t 1 ]; then
             printf "${YELLOW}⚠️  manage_ssh_keys nécessite un terminal interactif${RESET}\n"
@@ -373,7 +373,7 @@ sshman() {
     show_ssh_stats() {
         show_header
         printf "${YELLOW}📊 Statistiques SSH${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         
         SSH_DIR="$HOME/.ssh"
@@ -453,7 +453,7 @@ sshman() {
         while true; do
             show_header
             printf "${GREEN}Menu Principal${RESET}\n"
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
             echo ""
             echo "  ${BOLD}1${RESET}  🔗 Lister les connexions SSH configurées"
             echo "  ${BOLD}2${RESET}  ⚙️  Configuration automatique SSH (avec mot de passe .env)"
@@ -464,7 +464,7 @@ sshman() {
             echo "  ${BOLD}h${RESET}  📚 Aide"
             echo "  ${BOLD}q${RESET}  🚪 Quitter"
             echo ""
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
             choice=""
             if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
                 menu_input_file=$(mktemp)

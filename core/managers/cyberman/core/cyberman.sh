@@ -131,7 +131,7 @@ cyberman() {
         while true; do
             show_header
             printf "${YELLOW}🔍 RECONNAISSANCE & INFORMATION GATHERING${RESET}\n"
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
             echo "1.  WHOIS domain              - Informations domaine"
             echo "2.  DNS Lookup                - Requêtes DNS"
             echo "3.  DNSEnum scan              - Énumération DNS"
@@ -251,7 +251,7 @@ EOF
     show_scan_menu() {
         show_header
         printf "${YELLOW}🔎 SCANNING & ENUMERATION${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Port scan                 - Scan de ports"
         echo "2.  Scan ports                - Alternative scan ports"
         echo "3.  Web port scan             - Scan ports web"
@@ -384,7 +384,7 @@ EOF
     show_vuln_menu() {
         show_header
         printf "${YELLOW}🛡️ VULNERABILITY ASSESSMENT & SESSION${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Nmap vuln scan            - Scan vulnérabilités Nmap"
         echo "2.  Vuln scan                 - Scan vulnérabilités général"
         echo "3.  Scan vulns                - Alternative scan vulnérabilités"
@@ -488,7 +488,7 @@ EOF
     show_attack_menu() {
         show_header
         printf "${YELLOW}⚔️ NETWORK ATTACKS & EXPLOITATION${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  ARP Spoof                 - Attaque ARP spoofing"
         echo "2.  Brute SSH                 - Brute force SSH"
         echo "3.  Password crack            - Cracking de mots de passe"
@@ -527,7 +527,7 @@ EOF
     show_analysis_menu() {
         show_header
         printf "${YELLOW}📡 NETWORK ANALYSIS & MONITORING${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Sniff traffic             - Capture trafic réseau"
         echo "2.  Wifi scan                 - Scan réseaux Wi-Fi"
         echo "0.  Retour au menu principal"
@@ -605,7 +605,7 @@ EOF
     show_target_menu() {
         show_header
         printf "${YELLOW}🎯 GESTION DES CIBLES${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         if [ -n "$CYBER_TARGETS" ] && [ "$(echo "$CYBER_TARGETS" | wc -w)" -gt 0 ]; then
             show_targets
             echo ""
@@ -890,7 +890,7 @@ EOF
     show_anonymity_menu() {
         show_header
         printf "${YELLOW}🔒 GESTION DE L'ANONYMAT${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Vérifier l'anonymat"
         echo "2.  Afficher les informations d'anonymat"
         echo "3.  Exécuter une commande avec anonymat"
@@ -996,7 +996,7 @@ EOF
     show_utilities_menu() {
         show_header
         printf "${YELLOW}🛠️  UTILITAIRES${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  🔐 Calculer un hash - MD5, SHA1, SHA256, etc."
         echo "2.  🔄 Encoder/Décoder - Base64, URL, Hex, etc."
         echo "3.  🔍 Rechercher dans les fichiers"
@@ -1118,7 +1118,7 @@ EOF
     show_learning_menu() {
         show_header
         printf "${YELLOW}🎓 APPRENTISSAGE & LABS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         # Charger cyberlearn si disponible
         CYBERLEARN_DIR="${HOME}/dotfiles/zsh/functions/cyberlearn"
         if [ -f "$CYBERLEARN_DIR/cyberlearn.zsh" ]; then
@@ -1444,7 +1444,7 @@ EOF
     show_assistant_menu() {
         show_header
         printf "${YELLOW}🚀 ASSISTANT DE TEST COMPLET${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "L'assistant vous guidera à travers:"
         echo "  • Configuration des cibles"
         echo "  • Configuration de l'anonymat"
@@ -1475,7 +1475,7 @@ EOF
     show_web_menu() {
         show_header
         printf "${YELLOW}🌐 WEB SECURITY & TESTING${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "🔍 SCANNERS DE VULNÉRABILITÉS:"
         echo "1.  Nuclei Scanner             - Scanner complet de vulnérabilités"
         echo "2.  XSS Scanner                 - XSStrike, Dalfox, Nuclei XSS"
@@ -1587,7 +1587,7 @@ EOF
     show_iot_menu() {
         show_header
         printf "${YELLOW}📱 IoT DEVICES & EMBEDDED SYSTEMS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  IoT device scan           - Scan appareils IoT"
         echo "2.  MQTT scan                 - Scan serveurs MQTT"
         echo "3.  CoAP scan                 - Scan CoAP"
@@ -1640,7 +1640,7 @@ EOF
     show_network_tools_menu() {
         show_header
         printf "${YELLOW}📡 NETWORK TOOLS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  📊 Network Analysis & Monitoring"
         echo "2.  ⚔️  Network Attacks & Exploitation"
         echo "3.  🔌 Network Devices & Infrastructure"
@@ -1672,7 +1672,7 @@ EOF
     show_advanced_tools_menu() {
         show_header
         printf "${YELLOW}🔧 ADVANCED TOOLS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  🎯 Metasploit Framework"
         echo "2.  📜 Custom Nmap Scripts"
         echo "3.  🔨 Custom Exploitation Scripts"
@@ -1700,7 +1700,7 @@ EOF
     show_metasploit_menu() {
         show_header
         printf "${YELLOW}🎯 METASPLOIT FRAMEWORK${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Lancer msfconsole"
         echo "2.  Rechercher un exploit"
         echo "3.  Rechercher un payload"
@@ -1779,7 +1779,7 @@ EOF
     show_custom_nmap_menu() {
         show_header
         printf "${YELLOW}📜 CUSTOM NMAP SCRIPTS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Lister les scripts nmap disponibles"
         echo "2.  Exécuter un script nmap personnalisé"
         echo "3.  Créer un script nmap personnalisé"
@@ -1870,7 +1870,7 @@ EOF
     show_custom_exploit_menu() {
         show_header
         printf "${YELLOW}🔨 CUSTOM EXPLOITATION SCRIPTS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Lister les scripts personnalisés"
         echo "2.  Exécuter un script personnalisé"
         echo "3.  Créer un nouveau script"
@@ -1933,7 +1933,7 @@ EOF
     show_network_devices_menu() {
         show_header
         printf "${YELLOW}🔌 NETWORK DEVICES & INFRASTRUCTURE${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "1.  Router scan               - Scan routeurs"
         echo "2.  Switch scan               - Scan switches"
         echo "3.  Firewall scan             - Scan pare-feu"

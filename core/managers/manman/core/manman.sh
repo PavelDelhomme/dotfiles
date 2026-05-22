@@ -134,7 +134,7 @@ manman() {
         tui_hrule
         printf "${RESET}"
     else
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
     fi
     echo
     
@@ -181,7 +181,7 @@ manman() {
             tui_hrule
             printf "${RESET}"
         else
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
         fi
         echo "  0) Retour"
         echo

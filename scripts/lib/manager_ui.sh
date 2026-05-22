@@ -86,6 +86,20 @@ manager_ui_section_rule() {
     echo "=================================================================="
 }
 
+# Ligne de section avec couleurs du manager (remplace printf "${BLUE}═══...${RESET}\n").
+# Usage: manager_ui_section_line "${BLUE}" "${RESET}\n"   ou  ... "${RESET}\n\n"
+manager_ui_section_line() {
+    _mui_c1="${1:-}"
+    _mui_c2="${2:-}"
+    [ -n "$_mui_c1" ] && printf '%s' "$_mui_c1"
+    manager_ui_section_rule
+    if [ -n "$_mui_c2" ]; then
+        printf '%s' "$_mui_c2"
+    else
+        printf '\n'
+    fi
+}
+
 # Selection de menu commune pour les managers.
 # Entree fichier: lignes "Label|valeur". Retourne la valeur choisie sur stdout.
 # Priorite: dotcli si active, puis dotfiles_ncmenu_select, puis fallback appelant.

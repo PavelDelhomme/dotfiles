@@ -5,8 +5,15 @@
 # USAGE: doctorman | doctorman all | doctorman dotfiles | doctorman dev | doctorman fish
 # =============================================================================
 
-_nc_lib="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
-[ -f "$_nc_lib" ] && . "$_nc_lib"
+_doc_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [ -f "$_doc_df/scripts/lib/manager_ui.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$_doc_df/scripts/lib/manager_ui.sh"
+    dotfiles_manager_load_ui_libs
+elif [ -f "$_doc_df/scripts/lib/ncurses_menu.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$_doc_df/scripts/lib/ncurses_menu.sh"
+fi
 
 __doctorman_ok()  { printf "  \033[0;32m✓\033[0m %s\n" "$1"; }
 __doctorman_fail(){ printf "  \033[0;31m✗\033[0m %s\n" "$1"; }
@@ -159,9 +166,15 @@ __doctorman_all() {
 
 __doctorman_menu() {
     while true; do
-        printf "\n\033[1m═══════════════════════════════════════════════════════════════\033[0m\n"
-        printf "\033[1m  DOCTORMAN — menu interactif\033[0m\n"
-        printf "\033[1m═══════════════════════════════════════════════════════════════\033[0m\n"
+        if [ -t 1 ]; then clear; fi
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "DOCTORMAN - Diagnostic dotfiles et dev"
+        else
+            printf "\n\033[1m═══════════════════════════════════════════════════════════════\033[0m\n"
+            printf "\033[1m  DOCTORMAN — menu interactif\033[0m\n"
+            printf "\033[1m═══════════════════════════════════════════════════════════════\033[0m\n"
+        fi
+        printf "\n"
         _cmd=$(__doctorman_pick "DOCTORMAN - Menu" <<'EOF'
 Rapport complet|all
 Diagnostic dotfiles|dotfiles

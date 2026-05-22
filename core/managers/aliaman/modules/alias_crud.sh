@@ -6,7 +6,7 @@
 add_new_alias() {
     show_header
     printf "${YELLOW}➕ Ajouter un nouvel alias${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n"
 
     printf "Nom de l'alias: "
     read alias_name
@@ -70,7 +70,7 @@ add_new_alias() {
 edit_alias_interactive() {
     show_header
     printf "${YELLOW}✏️ Édition d'alias${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n"
 
     printf "Nom de l'alias à éditer: "
     read alias_to_edit
@@ -123,7 +123,7 @@ edit_alias_interactive() {
 delete_alias_interactive() {
     show_header
     printf "${YELLOW}🗑️ Suppression d'alias${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n"
 
     printf "Nom de l'alias à supprimer: "
     read alias_to_remove
@@ -168,7 +168,7 @@ delete_alias_interactive() {
 export_aliases() {
     show_header
     printf "${YELLOW}💾 Export des alias${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n"
 
     timestamp=$(date +%Y%m%d_%H%M%S)
     export_file="$HOME/aliases_export_$timestamp.sh"
@@ -194,7 +194,7 @@ export_aliases() {
 show_statistics() {
     show_header
     printf "${YELLOW}📊 Statistiques des alias${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n"
 
     total_aliases=$(parse_aliases | wc -l | tr -d ' ')
     echo "Nombre total d'alias: $total_aliases"

@@ -75,11 +75,11 @@ routeman() {
 
     _rm_show() {
         printf "${YELLOW}📋 Routes IPv4${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         ip -4 route show 2>/dev/null | sed 's/^/  /'
         echo ""
         printf "${YELLOW}📋 Routes IPv6${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         ip -6 route show 2>/dev/null | sed 's/^/  /'
     }
 
@@ -205,7 +205,7 @@ routeman() {
 
     _rm_help() {
         printf "${CYAN}📚 Aide ROUTEMAN${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         _rm_print_quick_help
     }
 

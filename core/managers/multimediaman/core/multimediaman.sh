@@ -78,7 +78,7 @@ multimediaman() {
     show_main_menu() {
         show_header
         printf "${YELLOW}🎬 OPÉRATIONS MULTIMÉDIA${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         printf "${BOLD}1.${RESET} Ripping DVD (copie + encodage MP4)\n"
         printf "${BOLD}2.${RESET} Extraire une archive (avec progression)\n"

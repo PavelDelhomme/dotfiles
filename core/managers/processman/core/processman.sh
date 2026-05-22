@@ -69,11 +69,21 @@ processman() {
         esac
     }
 
+    _pm_max_rows() {
+        _pm_n="${1:-20}"
+        if command -v tui_menu_height >/dev/null 2>&1; then
+            _pm_h=$(tui_menu_height 8)
+            [ -n "$_pm_h" ] && [ "$_pm_h" -gt 4 ] 2>/dev/null && _pm_n="$_pm_h"
+        fi
+        echo "$_pm_n"
+    }
+
     _pm_list() {
+        _pm_limit=$(_pm_max_rows 20)
         printf "${YELLOW}📋 Processus actifs (top CPU)${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "%-7s %-7s %-10s %-6s %-6s %-8s %-18s %s\n" "PID" "PPID" "USER" "CPU%" "MEM%" "STATE" "CMD" "ARGS"
-        ps -eo pid=,ppid=,user=,%cpu=,%mem=,stat=,comm=,args= --sort=-%cpu 2>/dev/null | head -20
+        ps -eo pid=,ppid=,user=,%cpu=,%mem=,stat=,comm=,args= --sort=-%cpu 2>/dev/null | head -n "$_pm_limit"
     }
 
     _pm_search() {
@@ -83,9 +93,10 @@ processman() {
             return 1
         fi
         printf "${YELLOW}🔍 Résultats pour '${pattern}'${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "%-7s %-7s %-10s %-6s %-6s %-8s %-18s %s\n" "PID" "PPID" "USER" "CPU%" "MEM%" "STATE" "CMD" "ARGS"
-        ps -eo pid=,ppid=,user=,%cpu=,%mem=,stat=,comm=,args= 2>/dev/null | grep -i -- "$pattern" | grep -v "grep -i -- $pattern" | head -30
+        _pm_limit=$(_pm_max_rows 30)
+        ps -eo pid=,ppid=,user=,%cpu=,%mem=,stat=,comm=,args= 2>/dev/null | grep -i -- "$pattern" | grep -v "grep -i -- $pattern" | head -n "$_pm_limit"
     }
 
     _pm_info() {
@@ -99,7 +110,7 @@ processman() {
             return 1
         fi
         printf "${YELLOW}ℹ️  Détails du processus %s${RESET}\n" "$pid"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         ps -p "$pid" -o pid,ppid,user,%cpu,%mem,stat,etime,lstart,comm,args 2>/dev/null
     }
 
@@ -206,7 +217,7 @@ processman() {
 
     _pm_print_quick_help() {
         printf "${CYAN}📚 Aide PROCESSMAN${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "Interface :"
         echo "  processman                     cette aide (stdout)"
         echo "  processman help | -h           idem"
@@ -258,7 +269,7 @@ processman() {
         while true; do
         _pm_header
         printf "${GREEN}Menu Principal${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo "  ${BOLD}1${RESET}  📋 Lister les processus (top CPU)"
         echo "  ${BOLD}2${RESET}  🔍 Rechercher un processus"
         echo "  ${BOLD}3${RESET}  ℹ️  Détails d'un PID"

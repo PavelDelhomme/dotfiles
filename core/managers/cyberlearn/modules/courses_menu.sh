@@ -4,7 +4,7 @@
 show_modules_menu() {
     show_header
     printf "${YELLOW}${BOLD}📖 MODULES DE COURS${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n\n"
 
     printf "${BOLD}1.${RESET} 🎯 Bases de la Cybersécurité\n"
     printf "${BOLD}2.${RESET} 🌐 Sécurité Réseau\n"

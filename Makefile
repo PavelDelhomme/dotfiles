@@ -439,6 +439,9 @@ test-help: ## Aide tests : DOTFILES_TEST_MANAGERS, TEST_*, docker-in, SANDBOX.md
 test-menu-fzf: ## Vérifier intégration menus fzf + fallback tty
 	@bash "$(SCRIPT_DIR)/test/test_menu_fzf.sh"
 
+test-tui-compact: ## Smoke EXT-002 : bannieres/regles adaptatives (COLUMNS=60)
+	@sh "$(SCRIPT_DIR)/test/tui_compact_smoke.sh"
+
 sandbox-guide: ## Afficher le guide bac à sable (conteneur, chemins, commandes)
 	@if [ -f "$(DOTFILES_DIR)/scripts/test/SANDBOX.md" ]; then \
 		${PAGER:-cat} "$(DOTFILES_DIR)/scripts/test/SANDBOX.md"; \

@@ -324,7 +324,7 @@ EOF
     show_main_menu() {
         show_header
         printf "%s🖥  ÉCRAN / LUMINOSITÉ%s\n" "$YELLOW" "$RESET"
-        printf "%s══════════════════════════════════════════════════════════════════%s\n\n" "$BLUE" "$RESET"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         printf "%s1.%s Détecter écrans (ddcutil + KDE)\n" "$BOLD" "$RESET"
         printf "%s2.%s Dump VCP écran 1 (diagnostic complet)\n" "$BOLD" "$RESET"
         printf "%s3.%s Régler brightness\n" "$BOLD" "$RESET"

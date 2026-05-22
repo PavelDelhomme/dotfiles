@@ -42,9 +42,14 @@ pathman() {
     PATH_BACKUP_FILE="${PATH_BACKUP_FILE:-$PATHMAN_CONFIG_DIR/PATH_SAVE}"
     PATH_LOG_FILE="${PATH_LOG_FILE:-$PATHMAN_CONFIG_DIR/path_log.txt}"
     DEFAULT_PATH="${DEFAULT_PATH:-$HOME/.local/bin:/usr/local/bin:/usr/sbin:/sbin:/usr/local/bin:/bin:/usr/local/games:/snap/bin}"
-    if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh" ]; then
+    _pathman_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$_pathman_df/scripts/lib/manager_ui.sh" ]; then
         # shellcheck source=/dev/null
-        . "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/ncurses_menu.sh"
+        . "$_pathman_df/scripts/lib/manager_ui.sh"
+        dotfiles_manager_load_ui_libs
+    elif [ -f "$_pathman_df/scripts/lib/ncurses_menu.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$_pathman_df/scripts/lib/ncurses_menu.sh"
     fi
     pause_if_tty() {
         if [ -t 0 ] && [ -t 1 ]; then
@@ -292,9 +297,15 @@ pathman() {
     # USAGE: show_help_menu
     show_help_menu() {
         clear
-        printf "%b\n" "${CYAN}${BOLD}╔══════════════════════════════════╗${RESET}"
-        printf "%b\n" "${CYAN}${BOLD}║            PATHMAN               ║${RESET}"
-        printf "%b\n\n" "${CYAN}${BOLD}╚══════════════════════════════════╝${RESET}"
+        printf "${CYAN}${BOLD}"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "PATHMAN"
+        else
+            printf "%b\n" "${CYAN}${BOLD}╔══════════════════════════════════╗${RESET}"
+            printf "%b\n" "${CYAN}${BOLD}║            PATHMAN               ║${RESET}"
+            printf "%b\n" "${CYAN}${BOLD}╚══════════════════════════════════╝${RESET}"
+        fi
+        printf "${RESET}\n\n"
         echo "1) Voir le PATH complet"
         echo "2) Ajouter un répertoire au PATH"
         echo "3) Retirer un répertoire du PATH"
@@ -427,9 +438,15 @@ pathman() {
     # Menu interactif (pathman --help sans fzf, ou après fzf sans choix)
     while true; do
         clear
-        printf "${CYAN}${BOLD}\n╔════════════════════════════════════════╗\n"
-        printf "║      PATHMAN - Gestionnaire du PATH     ║\n"
-        printf "╚════════════════════════════════════════╝${RESET}\n\n"
+        printf "${CYAN}${BOLD}"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "PATHMAN - Gestionnaire du PATH"
+        else
+            printf "\n╔════════════════════════════════════════╗\n"
+            printf "║      PATHMAN - Gestionnaire du PATH     ║\n"
+            printf "╚════════════════════════════════════════╝\n"
+        fi
+        printf "${RESET}\n\n"
         printf "$MENU"
         choice=""
         if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then

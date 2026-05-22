@@ -4,7 +4,7 @@
 show_progress_menu() {
     show_header
     printf "${YELLOW}${BOLD}📊 MA PROGRESSION${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n\n"
 
     show_detailed_progress
 

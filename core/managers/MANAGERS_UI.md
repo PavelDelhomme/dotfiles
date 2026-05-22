@@ -14,7 +14,7 @@ fi
 ## Affichage
 
 - **Bannière** : `manager_ui_print_banner "TITRE" ["sous-titre"]` (après `clear` et couleurs du manager).
-- **Séparateur de section** : `manager_ui_section_rule` (remplace les lignes `════…` fixes).
+- **Séparateur de section** : `manager_ui_section_line "${BLUE}" "${RESET}\n"` (ou `manager_ui_section_rule` seul).
 - **Tableaux / listes** : `tui_is_compact`, `tui_truncate`, `tui_menu_height` depuis `scripts/lib/tui_core.sh`.
 
 ## Sélection De Menu
@@ -49,8 +49,8 @@ Voir [`docs/architecture/UI_MENU_RESTRUCTURE.md`](../../docs/architecture/UI_MEN
 
 ## Suite P3b-b
 
-- **Fait (bannières)** : la plupart des `*man` interactifs listés ci-dessus ; fallback ASCII 64 colonnes si `tui_core` absent.
-- **Reste** : `manager_ui_section_rule` à la place des `════…` fixes, `tui_truncate` / `tui_menu_height` sur listes longues, bannières `pathman` / `doctorman`, tests `COLUMNS=60` (EXT-002).
+- **Fait** : bannières généralisées ; `manager_ui_section_line` sur les cores/modules listés ; `pathman` / `doctorman` ; `processman` limite les lignes via `tui_menu_height` ; smoke `make test-tui-compact` (EXT-002).
+- **Reste** : `tui_truncate` sur colonnes larges (netman, cyberman), pagination complète des menus longs, validation manuelle EXT-002 sur une dizaine de `*man help`.
 
 ## Suite P1
 

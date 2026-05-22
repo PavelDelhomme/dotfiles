@@ -179,7 +179,7 @@ netman() {
     # Aide courte (stdout) — netman help | -h et option « h » du menu
     netman_print_quick_help() {
         printf "${CYAN}NETMAN — raccourcis${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         echo "Sous-commandes :"
         echo "  netman ports              Ports en écoute (ou menu dédié)"
@@ -210,7 +210,7 @@ netman() {
     netman_interactive_help_cli() {
         show_header
         printf "${CYAN}NETMAN — aide guidée (mode interactif)${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         echo "Rappel : les sous-commandes ci-dessous s'exécutent en non interactif."
         echo "Le menu complet (fzf / ncurses / saisie) s'obtient avec : netman --help"
@@ -241,7 +241,7 @@ netman() {
         while true; do
             show_header
             printf "${YELLOW}📡 Ports en écoute sur le système${RESET}\n"
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
             
             # Récupération des ports (lsof -> ss -> netstat)
             PORTS_DATA=$(netman_collect_listening_ports)
@@ -496,7 +496,7 @@ EOF
     show_connections() {
         show_header
         printf "${YELLOW}🔗 Connexions réseau actives${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${CYAN}Connexions établies (ESTABLISHED):${RESET}\n"
         _conn_rows=""
@@ -546,7 +546,7 @@ EOF
     show_ip_info() {
         show_header
         printf "${YELLOW}🌐 Informations IP${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         # IP Publique
         printf "\n${CYAN}Adresse IP Publique:${RESET}\n"
@@ -584,7 +584,7 @@ EOF
     show_dns_info() {
         show_header
         printf "${YELLOW}🔍 Configuration DNS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${CYAN}Serveurs DNS configurés:${RESET}\n"
         if [ -f /etc/resolv.conf ]; then
@@ -615,7 +615,7 @@ EOF
     network_diagnose() {
         show_header
         printf "${YELLOW}🩺 Diagnostic réseau complet${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
 
         default_iface=$(ip route 2>/dev/null | awk '/default/ {print $5; exit}')
         default_gw=$(ip route 2>/dev/null | awk '/default/ {print $3; exit}')
@@ -729,7 +729,7 @@ EOF
     dns_benchmark() {
         show_header
         printf "${YELLOW}⚡ Benchmark DNS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
 
         test_domain="google.com"
         [ -n "$1" ] && test_domain="$1"
@@ -781,7 +781,7 @@ EOF
     network_diagnose_deep() {
         show_header
         printf "${YELLOW}🧪 Diagnostic réseau approfondi${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
 
         active_if=$(ip route show default 2>/dev/null | awk '{print $5; exit}')
         [ -z "$active_if" ] && active_if="wlan0"
@@ -855,7 +855,7 @@ EOF
     firewall_status() {
         show_header
         printf "${YELLOW}🛡️ Statut Firewall${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
 
         if command -v ufw >/dev/null 2>&1; then
             printf "\n${CYAN}UFW:${RESET}\n"
@@ -884,7 +884,7 @@ EOF
     network_lookup() {
         show_header
         printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Cible (IP ou domaine): "
         read target
 
@@ -920,7 +920,7 @@ EOF
     network_trace() {
         show_header
         printf "${YELLOW}🧭 Traceroute / Tracepath${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         _target="${1:-}"
         if [ -z "$_target" ]; then
             printf "Hôte ou IP cible: "
@@ -942,7 +942,7 @@ EOF
     network_mtr() {
         show_header
         printf "${YELLOW}🧪 MTR (latence/pertes)${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         _target="${1:-}"
         if [ -z "$_target" ]; then
             printf "Hôte ou IP cible: "
@@ -987,7 +987,7 @@ EOF
     network_whois() {
         show_header
         printf "${YELLOW}📄 WHOIS détaillé${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         _target="${1:-}"
         if [ -z "$_target" ]; then
             printf "Domaine/IP cible: "
@@ -1008,7 +1008,7 @@ EOF
     show_routing() {
         show_header
         printf "${YELLOW}🛣️  Table de routage${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${CYAN}Routes IPv4:${RESET}\n"
         ip -4 route show 2>/dev/null | while IFS= read -r line; do
@@ -1059,7 +1059,7 @@ EOF
     show_interfaces() {
         show_header
         printf "${YELLOW}🖧  Interfaces réseau${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         interfaces=$(ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | cut -d: -f1)
         if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
@@ -1100,7 +1100,7 @@ EOF
     scan_port() {
         show_header
         printf "${YELLOW}🔍 Scanner de port${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         
         printf "Entrez l'hôte à scanner (défaut: localhost): "
@@ -1154,7 +1154,7 @@ EOF
     kill_port_quick() {
         show_header
         printf "${YELLOW}💀 Kill rapide de port${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         
         printf "Entrez le numéro du port à libérer: "
@@ -1216,7 +1216,7 @@ EOF
     show_network_stats() {
         show_header
         printf "${YELLOW}📊 Statistiques réseau${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${CYAN}Statistiques globales:${RESET}\n"
         if command -v netstat >/dev/null 2>&1; then
@@ -1261,7 +1261,7 @@ EOF
     test_connectivity() {
         show_header
         printf "${YELLOW}🌐 Test de connectivité réseau${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
 
         host="${1:-}"
@@ -1297,7 +1297,7 @@ EOF
     test_network_speed() {
         show_header
         printf "${YELLOW}⚡ Test de vitesse réseau${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
 
         # Paramètres (CLI): test_network_speed [taille]
@@ -1424,7 +1424,7 @@ https://speed.hetzner.de/5GB.bin"
     monitor_bandwidth() {
         show_header
         printf "${YELLOW}📊 Monitoring de bande passante en temps réel${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         echo "Appuyez sur 'q' puis Entrée pour quitter..."
         echo ""
@@ -1473,7 +1473,7 @@ https://speed.hetzner.de/5GB.bin"
     analyze_traffic() {
         show_header
         printf "${YELLOW}🔍 Analyse du trafic réseau${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
         
         printf "${CYAN}Top 10 des connexions par IP:${RESET}\n"
@@ -1508,7 +1508,7 @@ https://speed.hetzner.de/5GB.bin"
     export_network_config() {
         show_header
         printf "${YELLOW}💾 Export de la configuration réseau${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         timestamp=$(date +%Y%m%d_%H%M%S)
         export_file="$HOME/network_config_$timestamp.txt"
@@ -1668,7 +1668,7 @@ https://speed.hetzner.de/5GB.bin"
                 if [ -n "$2" ]; then
                     show_header
                     printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
-                    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+                    manager_ui_section_line "${BLUE}" "${RESET}\n"
                     target="$2"
                     printf "Cible: %s\n\n" "$target"
                     printf "${CYAN}Resolution DNS:${RESET}\n"
@@ -1728,7 +1728,7 @@ https://speed.hetzner.de/5GB.bin"
         while true; do
             show_header
             printf "${GREEN}Menu Principal${RESET}\n"
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
             echo ""
             echo "  ${BOLD}1${RESET}  📡 Gérer les ports en écoute (interactif)"
             echo "  ${BOLD}2${RESET}  🔗 Afficher les connexions actives"
@@ -1757,7 +1757,7 @@ https://speed.hetzner.de/5GB.bin"
             echo "  ${BOLD}h${RESET}  📚 Aide"
             echo "  ${BOLD}q${RESET}  🚪 Quitter"
             echo ""
-            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
             choice=""
             if [ -t 0 ] && [ -t 1 ]; then
                 menu_input_file=$(mktemp)

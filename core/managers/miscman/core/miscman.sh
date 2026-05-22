@@ -132,7 +132,7 @@ miscman() {
     # USAGE: show_system_info
     show_system_info() {
         printf "${CYAN}💻 Informations système détaillées${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${YELLOW}Système:${RESET}\n"
         echo "  OS: $(uname -o 2>/dev/null || uname -s)"
@@ -331,7 +331,7 @@ miscman() {
         while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo
         echo "  ${BOLD}1${RESET}  🔐 Générer un mot de passe"
         echo "  ${BOLD}2${RESET}  💻 Informations système"
@@ -342,7 +342,7 @@ miscman() {
         echo "  ${BOLD}h${RESET}  📚 Aide"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         choice=$(misc_pick_menu "MISCMAN - Tools Manager" <<'EOF'
 Generer un mot de passe|1
 Informations systeme|2
@@ -369,7 +369,7 @@ EOF
             h|H)
                 show_header
                 printf "${CYAN}📚 Aide - MISCMAN${RESET}\n"
-                printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+                manager_ui_section_line "${BLUE}" "${RESET}\n"
                 echo
                 echo "MISCMAN est un gestionnaire d'outils divers et utilitaires."
                 echo

@@ -103,7 +103,7 @@ virtman() {
     show_main_menu() {
         show_header
         printf "${YELLOW}🖥️  GESTION DES ENVIRONNEMENTS VIRTUELS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         echo "1.  🐳 Docker (conteneurs)"
         echo "2.  ⚡ QEMU/KVM (machines virtuelles)"

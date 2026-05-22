@@ -110,7 +110,7 @@ searchman() {
     search_history_advanced() {
         show_header
         printf "${YELLOW}🔍 Recherche avancée dans l'historique${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "Terme à rechercher: "
         read pattern
@@ -197,7 +197,7 @@ EOF
     search_files_advanced() {
         show_header
         printf "${YELLOW}📁 Recherche avancée de fichiers${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "Répertoire de recherche (défaut: %s): " "$PWD"
         read search_dir
@@ -321,7 +321,7 @@ EOF
     search_processes() {
         show_header
         printf "${YELLOW}⚙️ Recherche de processus${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "Nom du processus à rechercher: "
         read process_name
@@ -350,7 +350,7 @@ EOF
     search_logs() {
         show_header
         printf "${YELLOW}📜 Recherche dans les logs${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "Terme à rechercher: "
         read search_term
@@ -448,7 +448,7 @@ EOF
     search_functions() {
         show_header
         printf "${YELLOW}🔧 Recherche de fonctions${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${CYAN}Type de recherche:${RESET}\n"
         echo "  1. Fonctions chargées"
@@ -507,7 +507,7 @@ EOF
     search_statistics() {
         show_header
         printf "${YELLOW}📊 Statistiques de recherche${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         
         printf "\n${CYAN}Statistiques du répertoire courant:${RESET}\n"
         total_files=$(find . -type f 2>/dev/null | wc -l | tr -d ' ')
@@ -664,7 +664,7 @@ EOF
         while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo
         echo "  ${BOLD}1${RESET}  🔍 Recherche avancée dans l'historique"
         echo "  ${BOLD}2${RESET}  📁 Recherche avancée de fichiers"
@@ -676,7 +676,7 @@ EOF
         echo "  ${BOLD}h${RESET}  📚 Aide"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         choice=$(search_pick_menu "SEARCHMAN - Search Manager" <<'EOF'
 Recherche historique|1
 Recherche fichiers|2

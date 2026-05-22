@@ -127,7 +127,7 @@ testzshman() {
     show_main_menu() {
         show_header
         printf "${YELLOW}🧪 TESTS DISPONIBLES${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         echo "  1. 📦 Test des managers (*man)"
         echo "  2. 🔧 Test des fonctions ZSH"
@@ -204,7 +204,7 @@ EOF
     test_managers() {
         show_header
         printf "${CYAN}📦 Test des managers (*man)${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         managers="pathman netman aliaman miscman searchman cyberman devman gitman helpman manman configman installman moduleman fileman virtman sshman testzshman testman cyberlearn"
         
@@ -228,7 +228,7 @@ EOF
         done
         
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} disponibles, ${RED}%d${RESET} manquants\n" "$success" "$failed"
     }
     
@@ -236,7 +236,7 @@ EOF
     test_logging() {
         show_header
         printf "${CYAN}📋 Journalisation (actions_logger / managers_log)${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         printf "${YELLOW}A) Test hermetique (fichiers temporaires, bash uniquement pour les libs)${RESET}\n"
         if ! command -v bash >/dev/null 2>&1; then
@@ -329,7 +329,7 @@ EOF
     test_functions() {
         show_header
         printf "${CYAN}🔧 Test des fonctions ZSH${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         functions_dir="$DOTFILES_DIR/zsh/functions"
         success=0
@@ -357,7 +357,7 @@ EOF
         printf "${CYAN}ℹ️${RESET} Total de fonctions chargées: %s\n" "$total_functions"
         
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} fonctions testées, ${RED}%d${RESET} manquantes\n" "$success" "$failed"
     }
     
@@ -365,7 +365,7 @@ EOF
     test_structure() {
         show_header
         printf "${CYAN}📁 Test de la structure des dotfiles${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         success=0
         failed=0
@@ -405,7 +405,7 @@ $DOTFILES_DIR/Makefile"
         done
         
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} éléments OK, ${RED}%d${RESET} manquants\n" "$success" "$failed"
     }
     
@@ -413,7 +413,7 @@ $DOTFILES_DIR/Makefile"
     test_config() {
         show_header
         printf "${CYAN}⚙️  Test de la configuration${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         success=0
         failed=0
@@ -459,7 +459,7 @@ $DOTFILES_DIR/Makefile"
         fi
         
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} éléments OK, ${RED}%d${RESET} problèmes\n" "$success" "$failed"
     }
     
@@ -467,7 +467,7 @@ $DOTFILES_DIR/Makefile"
     test_symlinks() {
         show_header
         printf "${CYAN}🔗 Test des symlinks${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         success=0
         failed=0
@@ -494,7 +494,7 @@ $HOME/.p10k.zsh:$DOTFILES_DIR/.p10k.zsh"
         done
         
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} symlinks OK, ${RED}%d${RESET} manquants\n" "$success" "$failed"
     }
     
@@ -502,7 +502,7 @@ $HOME/.p10k.zsh:$DOTFILES_DIR/.p10k.zsh"
     test_syntax() {
         show_header
         printf "${CYAN}📝 Test de la syntaxe ZSH${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         success=0
         failed=0
@@ -527,7 +527,7 @@ $DOTFILES_DIR/zsh/aliases.zsh"
         done
         
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} fichiers OK, ${RED}%d${RESET} erreurs\n" "$success" "$failed"
     }
     
@@ -535,7 +535,7 @@ $DOTFILES_DIR/zsh/aliases.zsh"
     test_cyberlearn() {
         show_header
         printf "${CYAN}🎓 Test de cyberlearn${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         success=0
         failed=0
@@ -660,7 +660,7 @@ $cyberlearn_dir/labs"
         
         # Résumé
         echo ""
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
         printf "Résumé: ${GREEN}%d${RESET} tests réussis, ${RED}%d${RESET} échecs, ${YELLOW}%d${RESET} avertissements\n" "$success" "$failed" "$warning"
         
         # Recommandations
@@ -680,7 +680,7 @@ $cyberlearn_dir/labs"
     test_all() {
         show_header
         printf "${CYAN}🚀 Test complet${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         printf "${YELLOW}Exécution de tous les tests...${RESET}\n\n"
         

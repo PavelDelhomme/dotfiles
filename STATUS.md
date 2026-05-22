@@ -41,7 +41,8 @@
 
 1. **Livraison 2026-05-22** — lots **dfm** + **P3b-b bannieres** :
    - **`dfm`** : fallback pagine sans fzf (`n`/`p`), hauteur fzf 85 %, pause apres action (`DOTFILES_MENU_PAUSE_AFTER_ACTION`) — commit `600a3be`.
-   - **P3b-b (phase 1)** : `manager_ui_print_banner` + chargement `dotfiles_manager_load_ui_libs` sur devman, virtman, sshman, displayman, helpman, processman, routeman, configman, gitman, moduleman, multimediaman, cyberman, aliaman, searchman, miscman, testzshman, cyberlearn.
+   - **P3b-b (phase 1)** : `manager_ui_print_banner` + `dotfiles_manager_load_ui_libs` sur les `*man` interactifs.
+   - **P3b-b (phase 2)** : `manager_ui_section_line` (regles adaptatives), pathman/doctorman, `processman` + `tui_menu_height`, `make test-tui-compact` (EXT-002).
 2. **Livraison en cours 2026-05-22** — lot **« updateman Cursor »** :
    - **Nouveau manager [`updateman`](core/managers/updateman/core/updateman.sh)** — commandes globales `updateman status`, `updateman all`, puis module `updateman cursor`.
    - **Updater Cursor AppImage** [`scripts/update/update-cursor-appimage`](scripts/update/update-cursor-appimage) : telechargement officiel, detection du Cursor local (`.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`), chemin stable `Cursor.AppImage`, backups, shim `~/.local/bin/cursor`, lanceur desktop.

@@ -98,7 +98,7 @@ devman() {
     show_main_menu() {
         show_header
         printf "${YELLOW}🛠️  OUTILS DE DÉVELOPPEMENT${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         echo "1.  🐳 Docker (gestion conteneurs)"
         echo "2.  🐹 Go (langage Go)"
@@ -181,7 +181,7 @@ EOF
     show_projects_menu() {
         show_header
         printf "${YELLOW}📁 PROJETS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         if [ -d "$DEV_DIR/projects" ]; then
             count=1
@@ -222,7 +222,7 @@ EOF
     show_dev_utils_menu() {
         show_header
         printf "${YELLOW}🔧 UTILITAIRES DEV${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         echo "1.  📦 Gestionnaire de dépendances"
         echo "2.  🔨 Build tools"

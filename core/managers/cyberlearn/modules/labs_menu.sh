@@ -69,7 +69,7 @@ show_labs_status() {
 show_labs_menu() {
     show_header
     printf "${YELLOW}${BOLD}🧪 LABS PRATIQUES${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+    manager_ui_section_line "${BLUE}" "${RESET}\n\n"
 
     printf "${BOLD}1.${RESET} 🚀 Démarrer un Lab\n"
     printf "${BOLD}2.${RESET} 📋 Lister les Labs Disponibles\n"

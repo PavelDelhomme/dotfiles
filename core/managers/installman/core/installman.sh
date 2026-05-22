@@ -272,7 +272,7 @@ EOF
     show_update_menu() {
         show_header
         printf "${YELLOW}🔄 MISE À JOUR D'OUTILS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         # Lister les outils installés avec leurs versions
         printf "${BOLD}📦 Outils installés:${RESET}\n\n"
@@ -408,7 +408,7 @@ EOF
         
         show_header
         printf "${YELLOW}🔄 Mise à jour: %s${RESET}\n" "$tool_desc"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         # Obtenir la version actuelle
         current_version="unknown"
@@ -550,7 +550,7 @@ $version"
     update_all_tools() {
         show_header
         printf "${YELLOW}🔄 Mise à jour de tous les outils${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         tools_to_update_list=""
         
@@ -637,7 +637,7 @@ $tools_to_update_list
 EOF
                 
                 echo ""
-                printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+                manager_ui_section_line "${BLUE}" "${RESET}\n"
                 printf "${GREEN}✅ Mises à jour terminées!${RESET}\n"
                 printf "   ${GREEN}Réussies:${RESET} %d\n" "$updated"
                 if [ "$failed" -gt 0 ]; then
@@ -659,7 +659,7 @@ EOF
     show_package_manager_menu() {
         show_header
         printf "${YELLOW}📦 GESTIONNAIRES DE PAQUETS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         available_managers=""
         if command -v detect_package_managers >/dev/null 2>&1; then
@@ -814,7 +814,7 @@ EOF
     show_main_menu() {
         show_header
         printf "${YELLOW}📦 INSTALLATION D'OUTILS ET APPLICATIONS${RESET}\n"
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         # Organiser par catégories
         printf "${BOLD}💻 DÉVELOPPEMENT:${RESET}\n"

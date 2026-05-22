@@ -84,13 +84,7 @@ EOF
     show_main_menu() {
         show_header
         printf "${YELLOW}📁 GESTION DES FICHIERS${RESET}\n"
-        printf "${BLUE}"
-        if command -v manager_ui_section_rule >/dev/null 2>&1; then
-            manager_ui_section_rule
-        else
-            echo "══════════════════════════════════════════════════════════════════"
-        fi
-        printf "${RESET}\n\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n\n"
         
         echo "1.  📦 Archive (créer/extraire archives)"
         echo "2.  💾 Backup (créer/sauvegarder)"
