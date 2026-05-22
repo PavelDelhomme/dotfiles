@@ -1,0 +1,5 @@
+# routeman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm routeman
+Visualiser les routes|routeman show
+Aide routeman|routeman help
+Quitter (ne rien faire)|true

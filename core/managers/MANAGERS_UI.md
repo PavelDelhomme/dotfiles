@@ -25,6 +25,14 @@ fi
 
 Les wrappers locaux (`netman_dotcli_menu_pick`, `aliaman_dotcli_menu_pick`, `cyberlearn_pick_menu`, etc.) doivent disparaître progressivement ou devenir de simples ponts vers `manager_ui_select_file`.
 
+## Menus Déclaratifs `dfm`
+
+`dfm` / `dfmenu` est reserve a `share/menus/*.menu` avec le format `Label|commande shell`.
+
+- Utiliser `dfm` pour des lanceurs stables : `dfm doctorman`, `dfm gitman`, `dfm displayman`.
+- Garder `manager_ui_select_file` pour les menus internes qui retournent une valeur de `case`.
+- Ne pas dupliquer durablement un menu : si un menu racine devient declaratif, le core doit rester fallback ou reutiliser la meme source.
+
 ## Pilotes branchés (2026-05-22)
 
 Affichage : `manman`, `updateman`, `fileman`, `netman`, `installman`, `testman`.

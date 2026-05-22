@@ -245,8 +245,4 @@ end
 function dotfilesman
     configman $argv
 end
-
-function dfm
-    configman $argv
-end
-
+# dfm est reserve aux menus declaratifs share/menus (dotfiles-menu).

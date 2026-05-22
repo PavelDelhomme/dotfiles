@@ -260,5 +260,5 @@ configman() {
 alias cm='configman'
 alias config='configman'
 alias dotfilesman='configman'
-alias dfm='configman'
+# dfm est reserve a dotfiles_menu_run (menus declaratifs share/menus).
 

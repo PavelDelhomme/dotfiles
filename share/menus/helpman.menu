@@ -1,0 +1,9 @@
+# helpman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm helpman
+Aide helpman (stdout)|helpman
+Guide interactif helpman|helpman i
+Aide installman|helpman installman
+Aide updateman|helpman updateman
+Aide netman|helpman netman
+Aide manman|helpman manman
+Quitter (ne rien faire)|true

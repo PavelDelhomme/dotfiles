@@ -1,0 +1,11 @@
+# virtman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm virtman
+Docker (conteneurs)|virtman docker
+QEMU / KVM|virtman qemu
+libvirt / virsh|virtman libvirt
+LXC|virtman lxc
+Vagrant|virtman vagrant
+Vue d'ensemble|virtman overview
+Recherche environnements|virtman search
+Aide virtman|virtman help
+Quitter (ne rien faire)|true

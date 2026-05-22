@@ -1,0 +1,8 @@
+# doctorman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm doctorman
+Rapport complet|doctorman all
+Diagnostic dotfiles|doctorman dotfiles
+Diagnostic fish|doctorman fish
+Diagnostic dev|doctorman dev
+Aide doctorman|doctorman help
+Quitter (ne rien faire)|true

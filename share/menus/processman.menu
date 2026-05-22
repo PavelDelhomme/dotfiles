@@ -1,0 +1,6 @@
+# processman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm processman
+Lister processus (top CPU)|processman list
+Arbre des processus|processman tree
+Aide processman|processman help
+Quitter (ne rien faire)|true

@@ -1,0 +1,12 @@
+# gitman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm gitman
+Identite Git|gitman whoami
+Status|gitman status
+Log recent|gitman log 10
+Branches|gitman branch
+Remotes|gitman remote
+Diff|gitman diff
+Stash list|gitman stash list
+Temps estime|gitman time-spent
+Aide gitman|gitman help
+Quitter (ne rien faire)|true

@@ -32,6 +32,26 @@ Le dépôt a plusieurs couches de menus qui se chevauchent :
 
 Ne pas fusionner brutalement les deux : ils ne portent pas le même type de contenu.
 
+## Decision manager par manager
+
+| Manager | Decision | Raison |
+| --- | --- | --- |
+| `pathman` | Hybride / declaratif existant | `share/menus/pathman.menu` est deja utilise par `dfm`, le core garde le fallback interactif. |
+| `searchman` | Hybride / declaratif existant | Raccourcis CLI dans `share/menus/searchman.menu`, sous-menus dynamiques dans le core. |
+| `helpman` | Declaratif `dfm` | Menu racine stable, lanceur d'aides. |
+| `doctorman` | Declaratif `dfm` | Commandes directes stables (`all`, `dotfiles`, `fish`, `dev`). |
+| `devman` | Declaratif `dfm` + core | Categories stables, sous-menus projets/utils restent dans le core. |
+| `virtman` | Declaratif `dfm` + core | Categories stables vers modules. |
+| `displayman` | Declaratif `dfm` + core | Raccourcis diagnostics stables ; reglages interactifs restent dans le core. |
+| `sshman` | Declaratif `dfm` + core | Actions stables ; prompts/cles restent dans le core. |
+| `processman` | Declaratif partiel | Raccourcis non destructifs (`list`, `tree`, `help`) ; signaux/kill restent dans le core. |
+| `routeman` | Declaratif partiel | Lecture routes + aide ; add/del/replace restent dans le core avec prompts/arguments. |
+| `configman` | Declaratif `dfm` + core | Menu racine stable vers modules, logique module conservee. |
+| `gitman` | Declaratif partiel | Raccourcis lecture (`status`, `log`, `diff`, etc.) ; commandes destructives restent dans le core. |
+| `netman`, `aliaman`, `cyberlearn`, `cyberman`, `installman` | Core | Menus riches/dynamiques, sous-menus nombreux, logique runtime. |
+| `manman`, `moduleman` | Core | Listes construites a l'execution. |
+| `updateman`, `diffman` | Core / CLI | Pas besoin de menu declaratif pour l'instant. |
+
 ## Plan P3b-a
 
 - [x] Introduire `scripts/lib/manager_ui.sh` comme point commun UI managers.
@@ -40,7 +60,8 @@ Ne pas fusionner brutalement les deux : ils ne portent pas le même type de cont
 - [x] Remplacer les wrappers locaux `*_pick_menu` / `*_dotcli_menu_pick` : `netman`, `aliaman`, `cyberlearn`, `searchman`, `miscman`, `testzshman`, `cyberman`.
 - [x] Documenter / marquer legacy `scripts/menu/*.sh` (`scripts/menu/README.md`, en-têtes LEGACY, `make bootstrap-menu`).
 - [x] Pont bootstrap : `scripts/bootstrap_menu.sh` → `scripts/setup.sh` (même chemin que `bootstrap.sh`).
-- [ ] Décider manager par manager si le menu doit rester codé dans le core ou devenir déclaratif dans `share/menus`.
+- [x] Décider manager par manager si le menu doit rester codé dans le core ou devenir déclaratif dans `share/menus`.
+- [x] Installer `dfm` comme entree declarative reservee (zsh/bash/fish) et ajouter les premiers menus `share/menus`.
 - [ ] Vérifier que les adapters shell restent minces et ne réintroduisent pas de logique UI.
 
 ## Plan P3b-b

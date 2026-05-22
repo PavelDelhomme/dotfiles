@@ -1,0 +1,10 @@
+# devman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm devman
+Docker|devman docker
+Go|devman go
+Make|devman make
+C / C++|devman c
+Projets|devman projects
+Utilitaires dev|devman utils
+Aide devman|devman help
+Quitter (ne rien faire)|true

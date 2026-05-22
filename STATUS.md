@@ -9,12 +9,12 @@
 - **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : `diffman compare|side|report` pour diffs colorés / côte à côte / rapports multi-fichiers ([`docs/man/diffman.md`](docs/man/diffman.md)).
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
 - **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
-- **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md).
+- **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`, `dfm` declaratif) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md), [`share/menus/README.md`](share/menus/README.md).
 - **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
 
 ## Objectifs actuels (priorité)
 
-1. Poursuivre **P3b-a** : supprimer les wrappers locaux de menus et documenter les chemins legacy avant la suite adaptative.
+1. Poursuivre **P3b-a** : verifier les adapters minces et stabiliser les menus declaratifs `dfm` avant la suite adaptative.
 2. Stabiliser **`updateman`** : registre + `installman` → `updateman <outil> enable` ; validation manuelle `status` / `all` / timer (V-2026-05-22).
 3. Reprendre **P3b-b** ensuite : generaliser `tui_core` / `manager_ui` aux menus `*man` restants + tests petits terminaux (EXT-002).
 4. Concevoir **`updateman dotfiles`** (P8b) et enrichir le registre outils (P8c).

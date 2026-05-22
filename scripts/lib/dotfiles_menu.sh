@@ -9,6 +9,25 @@
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 DOTFILES_MENU_BIN="${DOTFILES_MENU_BIN:-$DOTFILES_DIR/bin/dotfiles-menu}"
 
+# Liste les menus déclaratifs disponibles.
+dotfiles_menu_list() {
+    local menus_dir="${DOTFILES_DIR}/share/menus"
+    if [[ ! -d "$menus_dir" ]]; then
+        echo "Aucun dossier de menus: $menus_dir" >&2
+        return 1
+    fi
+    local found=0
+    for m in "$menus_dir"/*.menu; do
+        [[ -f "$m" ]] || continue
+        found=1
+        echo "  - $(basename "$m" .menu)"
+    done
+    [[ $found -eq 1 ]] || {
+        echo "Aucun menu disponible dans $menus_dir" >&2
+        return 1
+    }
+}
+
 # Exécute le menu et lance la commande sélectionnée. En mode boucle, revient au menu après chaque action (sauf Quitter).
 # Usage: dotfiles_menu_run pathman   ou   dotfiles_menu_run --file x.menu
 #        dotfiles_menu_run pathman --no-loop   pour une seule action puis sortie
@@ -19,6 +38,7 @@ dotfiles_menu_run() {
             --file)    file="$2"; shift 2 ;;
             --header) header="$2"; shift 2 ;;
             --no-loop) loop=0; shift ;;
+            --list|-l) dotfiles_menu_list; return $? ;;
             *) break ;;
         esac
     done
@@ -36,13 +56,9 @@ dotfiles_menu_run() {
 
     if [[ -z "$file" ]]; then
         echo "Usage: dfm <menu>   ex: dfm pathman" >&2
-        local menus_dir="${DOTFILES_DIR}/share/menus"
-        if [[ -d "$menus_dir" ]]; then
-            echo "Menus disponibles:" >&2
-            for m in "$menus_dir"/*.menu; do
-                [[ -f "$m" ]] && echo "  - $(basename "$m" .menu)" >&2
-            done
-        fi
+        echo "       dfm --list" >&2
+        echo "Menus disponibles:" >&2
+        dotfiles_menu_list >&2 || true
         return 1
     fi
 

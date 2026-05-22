@@ -131,7 +131,7 @@ help: ## Afficher cette aide
 	@echo "  make vm-menu         - Menu interactif de gestion des VM"
 	@echo "  make fix-menu        - Menu de corrections automatiques"
 	@echo "  make validate-menu   - Afficher la validation du setup"
-	@echo "  make dfmenu MENU=pathman - Menu fzf (dotfiles-menu)"
+	@echo "  make dfmenu MENU=pathman - Menu déclaratif dfm (share/menus)"
 	@echo ""
 	@echo -e "$(GREEN)Outils:$(NC)"
 	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
@@ -336,6 +336,9 @@ validate-menu: ## Menu de validation (affiche le résultat de validate)
 # Menu générique fzf (label|command) — MENU=pathman pour share/menus/pathman.menu
 dfmenu: ## Menu dotfiles-menu (make dfmenu MENU=pathman)
 	@zsh -c 'source "$(DOTFILES_DIR)/shared/config.sh" 2>/dev/null; source "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; dotfiles_menu_run "$(MENU)"'
+
+dfmenu-list: ## Lister les menus déclaratifs disponibles
+	@zsh -c 'source "$(DOTFILES_DIR)/shared/config.sh" 2>/dev/null; source "$(DOTFILES_DIR)/zsh/zshrc_custom" 2>/dev/null; dotfiles_menu_run --list'
 
 # Outils de conversion
 convert-zsh-to-sh: ## Convertir les fonctions Zsh en Sh compatible

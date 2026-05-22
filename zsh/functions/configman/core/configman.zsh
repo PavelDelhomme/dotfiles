@@ -377,7 +377,8 @@ configman() {
 alias cm='configman'
 alias config='configman'
 alias dotfilesman='configman'
-alias dfm='configman'
+# dfm est reserve a dotfiles_menu_run (menus declaratifs share/menus).
+# Garder configman via cm/config/dotfilesman.
 
 # Message d'initialisation - désactivé pour éviter l'avertissement Powerlevel10k
 # echo "⚙️  CONFIGMAN chargé - Tapez 'configman' ou 'cm' pour démarrer"

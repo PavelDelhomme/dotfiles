@@ -104,6 +104,13 @@ if [ -f "$ALIASES_FILES" ]; then
     source "$ALIASES_FILES" 2>/dev/null || true
 fi
 
+# Menus declaratifs share/menus (dfm pathman, dfm --list)
+if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/dotfiles_menu.sh" ]; then
+    source "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/dotfiles_menu.sh" 2>/dev/null || true
+    alias dfmenu='dotfiles_menu_run'
+    alias dfm='dotfiles_menu_run'
+fi
+
 # =============================================================================
 # ÉTAPE 4.5 : CHARGEMENT DES COMMANDES STANDALONE (NON-MANAGERS)
 # =============================================================================

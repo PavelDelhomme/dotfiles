@@ -8,6 +8,7 @@ Cette structure organise tous les scripts d'installation, de synchronisation et 
 - **`lib/tui_core.sh`** : TUI adaptatif (POSIX sh) — taille terminal (`tui_lines`, `tui_cols`), hauteur menu (`tui_menu_height`), pour menus paginés.
 - **`lib/manager_ui.sh`** : UI commune des `*man` (`manager_ui_print_banner`, `manager_ui_select_file`, `dotfiles_manager_load_ui_libs`). Voir [`core/managers/MANAGERS_UI.md`](../core/managers/MANAGERS_UI.md).
 - **`lib/ncurses_menu.sh`** : backend legacy de selection `Label|valeur` (`fzf` puis `ncmenu`), appele via `manager_ui.sh`.
+- **`lib/dotfiles_menu.sh`** : helper `dfm` / `dfmenu` pour les menus declaratifs `share/menus/*.menu`.
 - **`menu/`** : menus shell legacy (`make menu`). Ne pas etendre ; voir [`menu/README.md`](menu/README.md).
 - **`bootstrap_menu.sh`** : entree menu post-install (= `bootstrap.sh` → `setup.sh`). Cible Makefile : `make bootstrap-menu`.
 - **`lib/installman_log.sh`** : journal des actions installman (timestamp, action, cible, succès/échec) dans `dotfiles/logs/installman.log`.

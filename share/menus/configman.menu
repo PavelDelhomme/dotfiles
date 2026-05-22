@@ -1,0 +1,17 @@
+# configman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm configman
+Git global|configman git
+Git remote|configman git-remote
+Symlinks dotfiles|configman symlinks
+Shells|configman shell
+Powerlevel10k|configman p10k
+SSH interactif|configman ssh
+SSH auto|configman ssh-auto
+QEMU libvirt|configman qemu-libvirt
+QEMU network|configman qemu-network
+QEMU packages|configman qemu-packages
+OSINT config|configman osint
+Gestion versions|configman version
+Vue configuration|configman overview
+Aide configman|configman help
+Quitter (ne rien faire)|true

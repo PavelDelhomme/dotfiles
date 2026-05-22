@@ -1,0 +1,8 @@
+# displayman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm displayman
+Detecter ecrans|displayman detect
+Dump VCP ecran 1|displayman dump 1
+Diagnostic Full/Limited range|displayman range
+Guide OSD physique|displayman osd-guide
+Aide displayman|displayman help
+Quitter (ne rien faire)|true

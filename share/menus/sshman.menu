@@ -1,0 +1,9 @@
+# sshman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm sshman
+Lister connexions SSH|sshman list
+Configuration SSH automatique|sshman auto-setup
+Tester connexion SSH|sshman test
+Gerer cles SSH|sshman keys
+Statistiques SSH|sshman stats
+Aide sshman|sshman help
+Quitter (ne rien faire)|true

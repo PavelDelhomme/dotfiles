@@ -167,5 +167,42 @@ else
     echo "⚠️ Fichier $ALIASES_FILE introuvable."
 end
 
+# Menus declaratifs share/menus (dfm pathman, dfm --list)
+function dfm -d "Lancer un menu declaratif dotfiles"
+    set -l root "$DOTFILES_PATH"
+    if set -q DOTFILES_DIR
+        set root "$DOTFILES_DIR"
+    end
+    if test (count $argv) -eq 0; or test "$argv[1]" = "--list"; or test "$argv[1]" = "-l"
+        echo "Menus disponibles:"
+        for m in "$root"/share/menus/*.menu
+            test -f "$m"; and echo "  - "(basename "$m" .menu)
+        end
+        return 0
+    end
+    set -l file "$argv[1]"
+    if not string match -q "*/*" "$file"; and not string match -q "*.menu" "$file"
+        set file "$root/share/menus/$file.menu"
+    end
+    if not test -f "$file"
+        echo "Fichier menu introuvable: $file" >&2
+        return 1
+    end
+    set -l out (mktemp 2>/dev/null; or echo "/tmp/dfm-"(random)".out")
+    bash "$root/bin/dotfiles-menu" --file "$file" --header (basename "$file" .menu) --output-file "$out"
+    set -l ret $status
+    set -l cmd ""
+    test -f "$out"; and set cmd (cat "$out" 2>/dev/null)
+    rm -f "$out" 2>/dev/null
+    if test $ret -ne 0; or test -z "$cmd"; or test "$cmd" = "true"
+        return $ret
+    end
+    eval "$cmd"
+end
+
+function dfmenu -d "Alias long de dfm"
+    dfm $argv
+end
+
 #neofetch
 start_auto_backup_if_not_running

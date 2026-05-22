@@ -10,6 +10,10 @@ Menu générique basé sur **fzf** (cross-shell). Lit des lignes `label|command`
 # Avec un fichier menu (lignes label|command)
 dotfiles-menu --file share/menus/pathman.menu --header "PATHMAN"
 
+# Lister / lancer via le helper shell
+dfm --list
+dfm doctorman
+
 # Depuis stdin
 echo "Voir PATH|pathman show" | dotfiles-menu --header "Pathman"
 
@@ -40,13 +44,14 @@ alias dfmenu='dotfiles_menu_run'
 
 - Format : une ligne = `label|command` (le premier `|` sépare label et commande).
 - Lignes vides et commentaires (`#`) sont ignorés.
-- Fichiers fournis : `share/menus/pathman.menu`.
+- Fichiers fournis : voir `share/menus/README.md`.
 
 ### Options
 
 - `--file FILE` : fichier menu.
 - `--header "Titre"` : en-tête fzf.
 - `--no-fzf` : menu numéroté si fzf absent.
+- Cote helper shell : `dfm --list` liste les menus declaratifs disponibles.
 
 ## ncmenu
 
