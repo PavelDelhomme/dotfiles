@@ -1,0 +1,3 @@
+# Registre des outils geres par updateman (format: name|check_fn|timer_unit|auto_service)
+# auto_service=1 : installman active le timer systemd apres installation reussie
+cursor|check_cursor_installed|cursor-update.timer|1

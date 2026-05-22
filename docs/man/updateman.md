@@ -2,58 +2,70 @@
 
 ## Nom
 
-**updateman** — installe et pilote les mises a jour locales gerees par les dotfiles.
+**updateman** — pilote les mises a jour des outils installes via les dotfiles (registre partage avec **installman**).
 
 ## Synopsis
 
 ```text
 updateman [help | -h | --help]
+updateman status
+updateman all
 updateman cursor [run | install | enable | status | logs | help]
 ```
 
 ## Description
 
-`updateman` regroupe les updateurs reutilisables du depot. Le premier module gere Cursor sur Linux AppImage :
+`updateman` centralise les mises a jour. Les scripts internes (`scripts/update/...`) ne sont **pas** exposes comme commandes dans `~/.local/bin`.
 
-- telechargement depuis l'URL officielle `api2.cursor.sh` ;
-- detection du Cursor deja installe via `.desktop`, processus en cours, commande `cursor`, `/opt`, puis `~/Applications` ;
-- installation vers un chemin stable `Cursor.AppImage` ;
-- backup de l'ancien binaire dans `.cursor-backups` ;
-- creation optionnelle du lanceur desktop et du shim `~/.local/bin/cursor` ;
-- timer `systemd --user` quotidien.
+Flux recommande :
+
+1. **Installation** : `installman cursor` (ou autre outil du registre).
+2. **Service auto** : apres install reussi, `installman` appelle `updateman cursor enable` si l'outil est dans le registre.
+3. **Mise a jour** : `updateman cursor` ou `updateman all`.
+4. **Vue d'ensemble** : `updateman status` (versions locales, disponibles, timers).
+
+## Registre
+
+Fichier : `core/managers/updateman/config/updatable-tools.list`
+
+Format : `nom|fonction_check|timer_systemd|auto_service`
+
+| Outil | Check | Timer | Auto apres install |
+|-------|-------|-------|-------------------|
+| cursor | check_cursor_installed | cursor-update.timer | oui |
+
+Pour ajouter un outil : une ligne dans le registre + handler dans `updateman` + module `installman` si besoin.
+
+## Commandes globales
+
+| Commande | Effet |
+|----------|-------|
+| `updateman status` | Tableau des outils du registre : presence, versions, maj?, timer, emplacement. |
+| `updateman all` | Met a jour chaque outil **installe** du registre, un par un. |
 
 ## Commandes Cursor
 
 | Commande | Effet |
 |----------|-------|
-| `updateman cursor` | Lance la mise a jour maintenant. |
-| `updateman cursor install` | Copie `scripts/update/update-cursor-appimage` dans `~/.local/bin` et installe les unites systemd user. |
+| `updateman cursor` | Telecharge et installe l'AppImage (script interne). |
+| `updateman cursor install` | Installe les unites systemd user ; supprime l'ancien `~/.local/bin/update-cursor-appimage`. |
 | `updateman cursor enable` | Installe puis active `cursor-update.timer`. |
-| `updateman cursor status` | Affiche l'etat du timer. |
-| `updateman cursor logs` | Affiche les derniers logs du service. |
-| `updateman cursor help` | Affiche l'aide detaillee. |
+| `updateman cursor status` | Statut du timer. |
+| `updateman cursor logs` | Logs du service. |
 
-## Variables d'environnement
+## Lien installman
 
-| Variable | Effet |
-|----------|-------|
-| `APP_PATH` | Force le chemin final exact de `Cursor.AppImage`. |
-| `APP_DIR` / `CURSOR_APP_DIR` | Force le dossier final si `APP_PATH` est absent. |
-| `CURRENT_APPIMAGE` | Force l'ancien chemin a sauvegarder puis rediriger vers le chemin stable. |
-| `DOWNLOAD_URL` | Remplace l'URL de telechargement. |
-| `CURSOR_UPDATE_VERSION` | Remplace le suffixe de version utilise dans l'URL par defaut. |
-| `BACKUP_DIR` | Force le dossier de backups. |
-| `BACKUP_KEEP` | Nombre de backups `.bak` a conserver, `5` par defaut. |
-| `CREATE_DESKTOP=0` | Desactive l'ecriture de `~/.local/share/applications/cursor.desktop`. |
-| `CREATE_SHIM=0` | Desactive l'ecriture de `~/.local/bin/cursor`. |
+- `installman update` / menu mise a jour : pour **cursor**, delegation vers `updateman cursor`.
+- `installman cursor` : apres succes, active le timer via `updateman cursor enable`.
 
 ## Fichiers
 
 - Core : `core/managers/updateman/core/updateman.sh`
-- Updater Cursor : `scripts/update/update-cursor-appimage`
+- Registre : `core/managers/updateman/config/updatable-tools.list`
+- Lib partagee : `core/managers/updateman/lib/updatable_tools.sh`
+- Updater interne Cursor : `scripts/update/update-cursor-appimage`
 - Timer : `systemd/user/cursor-update.{service,timer}`
-- Adaptateurs : `shells/{zsh,bash,fish}/adapters/updateman.*`
 
 ## Notes
 
-Fermer Cursor avant la mise a jour reste preferable : le script avertit si Cursor semble lance, mais ne tue aucun processus.
+Fermer Cursor avant une mise a jour manuelle reste recommande.

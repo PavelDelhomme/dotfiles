@@ -62,6 +62,29 @@ installman() {
     
     # Charger les fonctions de gestion de paquets
     [ -f "$INSTALLMAN_UTILS_DIR/package_manager.sh" ] && . "$INSTALLMAN_UTILS_DIR/package_manager.sh" 2>/dev/null || true
+
+    # Registre partage updateman (services auto apres install)
+    UPDATABLE_TOOLS_LIB="$DOTFILES_DIR/core/managers/updateman/lib/updatable_tools.sh"
+    [ -f "$UPDATABLE_TOOLS_LIB" ] && . "$UPDATABLE_TOOLS_LIB" 2>/dev/null || true
+
+    __installman_enable_updateman_service() {
+        _ies_tool="$1"
+        command -v updatable_tool_is_registered >/dev/null 2>&1 || return 0
+        updatable_tool_is_registered "$_ies_tool" || return 0
+        updatable_tool_auto_service_enabled "$_ies_tool" || return 0
+        if [ ! -f "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh" ]; then
+            printf "${YELLOW}[installman] updateman introuvable — timer non configure pour %s${RESET}\n" "$_ies_tool"
+            return 0
+        fi
+        # shellcheck source=../../updateman/core/updateman.sh
+        . "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"
+        case "$_ies_tool" in
+            cursor)
+                printf "${CYAN}[installman]${RESET} activation du timer updateman pour Cursor...\n"
+                updateman cursor enable
+                ;;
+        esac
+    }
     
     pause_if_tty() {
         if [ -t 0 ] && [ -t 1 ]; then
@@ -78,6 +101,7 @@ installman() {
         echo "Liste des outils : installman list"
         echo "Paquets :          installman pl | search | install | remove"
         echo "Mises à jour :     installman update | update-all | check | upgrade | packages"
+        echo "                   updateman status | updateman all (outils du registre, ex. cursor)"
         echo ""
         echo "Interface :"
         echo "  installman                    cette page (stdout)"
@@ -224,6 +248,7 @@ EOF
                     if command -v managers_log_line >/dev/null 2>&1; then
                         managers_log_line "installman" "install" "$tool_name" "success" ""
                     fi
+                    __installman_enable_updateman_service "$tool_name"
                 else
                     if command -v managers_log_line >/dev/null 2>&1; then
                         managers_log_line "installman" "install" "$tool_name" "failed" ""
@@ -358,6 +383,24 @@ EOF
         tool_desc=$(parse_tool_def "$tool_def" 4)
         module_file=$(parse_tool_def "$tool_def" 6)
         install_func=$(parse_tool_def "$tool_def" 7)
+
+        if [ -f "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh" ] \
+            && command -v updatable_tool_is_registered >/dev/null 2>&1 \
+            && updatable_tool_is_registered "$tool_name"; then
+            # shellcheck source=../../updateman/core/updateman.sh
+            . "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"
+            show_header
+            printf "${YELLOW}Mise a jour via updateman: %s${RESET}\n\n" "$tool_desc"
+            if updateman "$tool_name"; then
+                printf "${GREEN}OK — %s mis a jour via updateman${RESET}\n" "$tool_desc"
+            else
+                printf "${RED}Echec updateman pour %s${RESET}\n" "$tool_desc"
+            fi
+            echo ""
+            pause_if_tty
+            show_update_menu
+            return 0
+        fi
         
         show_header
         printf "${YELLOW}🔄 Mise à jour: %s${RESET}\n" "$tool_desc"
@@ -1028,20 +1071,25 @@ EOF
     
     # Fonction pour installer un outil (utilisée par les arguments en ligne de commande)
     install_tool() {
-        tool_name="$1"
+        tool_desc="$1"
         module_file="$2"
         install_func="$3"
+        tool_id="${4:-}"
         
         if [ -f "$module_file" ]; then
             . "$module_file"
             if command -v "$install_func" >/dev/null 2>&1; then
-                $install_func
+                if $install_func; then
+                    [ -n "$tool_id" ] && __installman_enable_updateman_service "$tool_id"
+                    return 0
+                fi
+                return 1
             else
                 printf "${RED}❌ Fonction d'installation %s non disponible${RESET}\n" "$install_func"
                 return 1
             fi
         else
-            printf "${RED}❌ Module %s non disponible${RESET}\n" "$tool_name"
+            printf "${RED}❌ Module %s non disponible${RESET}\n" "$tool_desc"
             return 1
         fi
     }
@@ -1192,7 +1240,8 @@ EOF
                     module_file=$(parse_tool_def "$found_tool" 6)
                     install_func=$(parse_tool_def "$found_tool" 7)
                     full_module_path="$INSTALLMAN_MODULES_DIR/$module_file"
-                    install_tool "$tool_desc" "$full_module_path" "$install_func"
+                    tool_name=$(parse_tool_def "$found_tool" 1)
+                    install_tool "$tool_desc" "$full_module_path" "$install_func" "$tool_name"
                 else
                     printf "${RED}❌ Outil inconnu: '%s'${RESET}\n" "$1"
                     echo ""

@@ -8,16 +8,18 @@
 
 - **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : `diffman compare|side|report` pour diffs colorés / côte à côte / rapports multi-fichiers ([`docs/man/diffman.md`](docs/man/diffman.md)).
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
-- **updateman** : `updateman cursor` met a jour Cursor AppImage depuis l'URL officielle, detecte l'installation locale et peut installer un timer `systemd --user` quotidien.
+- **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
+- **UX terminal** : prochaine amélioration TUI = rendre les menus `*man` adaptatifs aux tailles de terminal (compact, pagination, troncature, fallback non-TTY).
 - **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
 
 ## Objectifs actuels (priorité)
 
 1. Poursuivre la **normalisation modulaire** et la **TUI unifiée** (`dotcli`) sans casser les fallbacks.
-2. Stabiliser **`updateman cursor`** : test manuel hors session Cursor, activation timer, verification logs/status.
-3. Concevoir la prochaine etape **`updateman dotfiles`** : mise a jour GitHub du coeur des dotfiles sans ecraser les overrides locaux par machine.
-4. Compléter les **tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) — entrée menu `make tests-start`.
-5. Respecter le **jalon de validation** dans [`TODOS.md`](TODOS.md) avant toute bascule structurelle majeure.
+2. Stabiliser **`updateman`** : usage unique via `updateman`, pas de commande publique `update-cursor-appimage`; validation `status` / `all` / timer.
+3. Concevoir la prochaine etape **registre installman → updateman** puis **`updateman dotfiles`** : mises a jour des outils et du coeur des dotfiles sans ecraser les overrides locaux par machine.
+4. Formaliser le contrat **responsive terminal** des interfaces `*man` (largeur/hauteur, mode compact, pagination, CI non-TTY).
+5. Compléter les **tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) — entrée menu `make tests-start`.
+6. Respecter le **jalon de validation** dans [`TODOS.md`](TODOS.md) avant toute bascule structurelle majeure.
 
 ## Où lire la suite
 
@@ -38,10 +40,11 @@
 ## Journal récent (suivi détaillé)
 
 1. **Livraison en cours 2026-05-22** — lot **« updateman Cursor »** :
-   - **Nouveau manager [`updateman`](core/managers/updateman/core/updateman.sh)** — commandes `updateman cursor`, `cursor install`, `cursor enable`, `cursor status`, `cursor logs`, `cursor help`.
+   - **Nouveau manager [`updateman`](core/managers/updateman/core/updateman.sh)** — commandes globales `updateman status`, `updateman all`, puis module `updateman cursor`.
    - **Updater Cursor AppImage** [`scripts/update/update-cursor-appimage`](scripts/update/update-cursor-appimage) : telechargement officiel, detection du Cursor local (`.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`), chemin stable `Cursor.AppImage`, backups, shim `~/.local/bin/cursor`, lanceur desktop.
+   - **Commande publique nettoyee** : l'ancien `~/.local/bin/update-cursor-appimage` n'est plus l'interface utilisateur ; le service systemd appelle maintenant `updateman cursor run`.
    - **Automatisation utilisateur** : unites [`systemd/user/cursor-update.service`](systemd/user/cursor-update.service) et [`systemd/user/cursor-update.timer`](systemd/user/cursor-update.timer), installees/activees sur la machine via `updateman cursor enable` (`cursor-update.timer` enabled + active).
-   - **Suite planifiee dans `TODOS.md` P8b** : concevoir `updateman dotfiles` pour synchroniser le coeur du depot depuis GitHub entre machines, avec dry-run, backups, conflits et overrides locaux.
+   - **Suite planifiee dans `TODOS.md` P3b/P8b/P8c** : responsive terminal pour les menus `*man`, registre `installman` → `updateman` avec services/timers declares, puis `updateman dotfiles` pour synchroniser le coeur du depot depuis GitHub entre machines, avec dry-run, backups, conflits et overrides locaux.
 2. **Livraison 2026-05-15** — lot **« diffman »** :
    - **Nouveau manager [`diffman`](core/managers/diffman/core/diffman.sh)** — comparaison de fichiers : `compare` / `cmp` (unifié coloré via `git diff --no-index` ou `diff -u`), `side` (côte à côte `diff -y`), `report` (plusieurs fichiers, option `--all-pairs`), `diff3` si l’outil est présent. Variables `NO_COLOR` / `FORCE_COLOR=1`.
    - **Adapters** zsh / bash / fish + `load_manager` + entrée **`manman`** + liste migrée + [`scripts/test/subcommands/diffman.list`](scripts/test/subcommands/diffman.list) + page man [`docs/man/diffman.md`](docs/man/diffman.md) ; **TESTS.md** : **G.0** (`MANS`), **G.0.e**, tableau **G.25** ; mises à jour **INDEX**, **ARCHITECTURE**, **TODOS**, **CODEMAP**, **MANAGERS**, **sync_managers**.
@@ -63,11 +66,11 @@
 5. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
 6. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
 7. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
-8. **À faire maintenant** : valider `updateman cursor` en réel, puis finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs **F.6 → I** (optionnel : **§ C.3** matrice shells zsh/bash/fish/sh + validation menu **netman → 3**) ; cocher Jalon B au § correspondant de `TODOS.md` ; valider les lignes « En attente de validation » ; concevoir **P8b** `updateman dotfiles`.
+8. **À faire maintenant** : valider `updateman status` / `updateman cursor` en réel, puis finir [`docs/TESTS.md`](docs/TESTS.md) — Blocs **F.6 → I** (optionnel : **§ C.3** matrice shells zsh/bash/fish/sh + validation menu **netman → 3**) ; cocher Jalon B au § correspondant de `TODOS.md` ; valider les lignes « En attente de validation » ; concevoir **P3b** responsive terminal, **P8c** registre outils et **P8b** `updateman dotfiles`.
 
 | Période | Sujet |
 |---------|--------|
-| 2026-05-22 | **updateman cursor** (Cursor AppImage + timer systemd user) ; P8b `updateman dotfiles` planifie |
+| 2026-05-22 | **updateman cursor/status/all** (Cursor AppImage + timer systemd user) ; P3b/P8b/P8c planifies |
 | 2026-05-15 | **diffman** (diff coloré, rapports) + doc INDEX / ARCHITECTURE / TODOS |
 | 2026-05-13 | displayman + écran / **netman** (fix IP `ip -o`) + **TESTS § C.3** matrice shells + jalons doc |
 | 2026-05-12 | CI GitHub : `ci-checks.yml` + guide GITHUB_ACTIONS (e-mail / secrets) |

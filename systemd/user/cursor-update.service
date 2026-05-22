@@ -6,4 +6,4 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 Environment=DOTFILES_DIR=%h/dotfiles
-ExecStart=%h/.local/bin/update-cursor-appimage
+ExecStart=/bin/sh -c '. "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"; updateman cursor run'
