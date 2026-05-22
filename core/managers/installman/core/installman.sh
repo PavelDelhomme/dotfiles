@@ -78,12 +78,8 @@ installman() {
         fi
         # shellcheck source=../../updateman/core/updateman.sh
         . "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"
-        case "$_ies_tool" in
-            cursor)
-                printf "${CYAN}[installman]${RESET} activation du timer updateman pour Cursor...\n"
-                updateman cursor enable
-                ;;
-        esac
+        printf "${CYAN}[installman]${RESET} activation du service updateman pour %s...\n" "$_ies_tool"
+        updateman "$_ies_tool" enable
     }
     
     pause_if_tty() {

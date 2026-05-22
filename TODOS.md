@@ -20,7 +20,11 @@
   - **Objectif** : `updateman cursor` met Cursor a jour maintenant ; `updateman cursor enable` installe/active l'automatisation quotidienne.
   - **Point cle** : detection adaptee au poste (`.desktop`, processus Cursor, commande `cursor`, `/opt`, `~/Applications`) au lieu d'un chemin versionne fixe.
   - **Etat local 2026-05-22** : l'updater reste interne au depot ; la commande publique `~/.local/bin/update-cursor-appimage` est retiree au profit de `updateman cursor`; timer `cursor-update.timer` enabled + active.
-  - **Extension voulue** : registre `updatable-tools.list` + `updateman status` / `updateman all` ; `installman` active le timer apres install et delegue les updates cursor a `updateman`. Ajouter d'autres outils installman au registre (P8c).
+  - [x] Registre `updatable-tools.list` + lib `updatable_tools.sh` + `updateman status` / `updateman all`.
+  - [x] `installman` active le timer via `updateman <outil> enable` (registre) et delegue les updates au registre.
+  - [x] Shim legacy `update-cursor` retire de `shared/config.sh`.
+  - **Reste** : validation manuelle utilisateur (tableau V-2026-05-22) ; ajouter d'autres outils installman au registre (P8c).
+- [~] **P3b — interfaces terminal adaptatives** (demarre) : helpers `scripts/lib/tui_core.sh` (`tui_cols`, `tui_is_compact`, `tui_hrule`, `tui_truncate`) ; pilotes **manman** + tableau **updateman status**. **Reste** : generaliser aux autres `*man`, tests `stty cols 60` (EXT-002).
 - [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**.
   - **Avancement 2026-05-12** : Blocs **A**, **B**, **C**, **D**, **E**, **F.1 → F.5** validés (verdicts `O` + relectures). **Reste** : **F.6** (`--no-tui` / `--query`), **F.7** (manager + `DOTFILES_DOTCLI_ENABLE=1` en TTY), **Bloc G** (préalable + G.0/G.0.b/G.0.c + tableau G.1–G.25 + smokes G.0.d/e), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
   - **Ajout 2026-05-13** : nouveau manager `displayman` → **G.0.d** + ligne **G.24** ; **§ C.3** (matrice zsh/bash/fish/sh dans le conteneur) + lien **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table de correspondance avec `TESTS.md`.
@@ -52,7 +56,7 @@
 | **P7** | `read` / `clear` hors TTY | Réduire blocages CI / scripts. |
 | **P8** | **CI GitHub Actions** | **Maintenant** : workflow [`.github/workflows/ci-checks.yml`](.github/workflows/ci-checks.yml) + guide [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md) (correctif e-mail `action-send-mail`, secrets OVH `dev@…`, job optionnel `if:`). **Ensuite** (après passe [`docs/TESTS.md`](docs/TESTS.md) A→I) : `make test-dotfiles-good`, `make test-dotcli`, stratégie `make test` Docker sur runner ; pas de secrets en clair dans le YAML. |
 | **P8b** | **Synchronisation/mise a jour dotfiles multi-machines** | Prochaine grande etape : concevoir un `updateman dotfiles` prudent pour tirer les mises a jour GitHub du coeur (`core/`, `scripts/`, managers, tests, systemd user) sans ecraser les choix locaux par machine. Prevoir analyse des fichiers locaux variables (`pathman`, chemins, secrets, host overrides), sauvegarde, dry-run, detection de conflits, journal, rollback et politique claire entre fichiers versionnes et overrides locaux. |
-| **P8c** | **Registre updateman pour les outils installman** | Relier progressivement `installman` et `updateman` : chaque outil installe doit declarer nom, commande de version locale, source/latest, commande d'update, service/timer optionnel et auto-activation apres install. Objectif UX : `updateman status` pour voir ce qui est installe/a jour ; `updateman all` pour mettre a jour proprement une cible apres l'autre. Eviter les unites systemd dispersees : elles doivent venir du registre ou de templates documentes. |
+| **P8c** | **Registre updateman pour les outils installman** | Base livree (`updatable-tools.list`, `installman` → `updateman <outil> enable`, sous-commandes generiques). **Suite** : ajouter docker, brave, etc. au registre + templates systemd par outil si besoin (pas de fichiers systemd eparpilles hors depot). |
 | **P10** | **Matrice shells conteneur** | Après la passe **A→D** « classique » : rejouer **`docs/TESTS.md` § C.3** (`C.3.a` → `C.3.d` : zsh, bash, fish, `sh`) pour valider chargement + smoke + menu **netman → 3** (IP) sur la **même distro**. Optionnel mais recommandé avant de considérer la couverture Docker « complète ». |
 | **P9** | **displayman** (écran / luminosité / DDC) | Nouveau manager [`core/managers/displayman/`](core/managers/displayman/) — DDC/CI via `ddcutil`, preset couleur, range HDMI, guide OSD physique. Convention G.x respectée. **Ensuite** : étape C (override Full Range NVIDIA `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf`) à appliquer après validation manuelle ; tests dans [`docs/TESTS.md`](docs/TESTS.md) G.0 + bloc dédié displayman. Guide complet : [`docs/guides/SCREEN_DISPLAY.md`](docs/guides/SCREEN_DISPLAY.md). |
 
@@ -115,7 +119,7 @@ Cocher quand **toi** tu es satisfait :
 - [x] MVP **`dotcli`** + `make test-dotcli`.
 - [x] Pilotes dotcli sur **netman** / **aliaman** / **cyberlearn** (flag).
 - [ ] TUI mutualisée complète ; **`@skip`** phase 2 à réduire pour menus si invocations non-TTY ajoutées.
-- [ ] Contrat **responsive terminal** : helpers communs `cols/lines`, mode compact, troncature, pagination et tests petits écrans pour les menus `*man`.
+- [~] Contrat **responsive terminal** : helpers communs dans `scripts/lib/tui_core.sh` ; pilotes manman + updateman status. **Reste** : etendre aux menus interactifs restants + EXT-002.
 - [ ] installman vers `core/` définitif ; **read/clear** hors TTY.
 - [ ] **`make test`** vert à chaque étape.
 - [ ] Fallback visuel multi-shell (dégradation ASCII).

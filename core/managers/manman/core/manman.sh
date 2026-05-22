@@ -43,6 +43,10 @@ manman() {
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
+    if [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/tui_core.sh"
+    fi
 
     manman_print_help() {
         printf "${CYAN}${BOLD}MANMAN — raccourcis${RESET}\n"
@@ -106,15 +110,41 @@ manman() {
 
     clear
     printf "${CYAN}${BOLD}"
-    echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║                  MANMAN - Manager of Managers                   ║"
-    echo "║           Gestionnaire centralisé des gestionnaires            ║"
-    echo "╚════════════════════════════════════════════════════════════════╝"
+    if command -v tui_is_compact >/dev/null 2>&1 && tui_is_compact; then
+        echo "MANMAN — managers"
+        command -v tui_hrule >/dev/null 2>&1 && tui_hrule || echo "------------------------"
+    else
+        _mm_w=64
+        if command -v tui_content_width >/dev/null 2>&1; then
+            _mm_w=$(tui_content_width)
+        fi
+        if command -v tui_repeat_char >/dev/null 2>&1; then
+            printf '╔'
+            tui_repeat_char '═' "$_mm_w"
+            printf '╗\n'
+            printf '║ %-*s ║\n' "$_mm_w" "MANMAN - Manager of Managers"
+            printf '║ %-*s ║\n' "$_mm_w" "Gestionnaires centralises"
+            printf '╚'
+            tui_repeat_char '═' "$_mm_w"
+            printf '╝\n'
+        else
+            echo "╔════════════════════════════════════════════════════════════════╗"
+            echo "║                  MANMAN - Manager of Managers                   ║"
+            echo "║           Gestionnaire centralisé des gestionnaires            ║"
+            echo "╚════════════════════════════════════════════════════════════════╝"
+        fi
+    fi
     printf "${RESET}\n"
     echo
-    
+
     printf "${YELLOW}Gestionnaires disponibles:${RESET}\n"
-    printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    if command -v tui_hrule >/dev/null 2>&1; then
+        printf "${BLUE}"
+        tui_hrule
+        printf "${RESET}"
+    else
+        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+    fi
     echo
     
     # Compter les managers
@@ -140,14 +170,28 @@ manman() {
 
     if [ -z "$choice" ]; then
         # Afficher les managers avec numérotation
+        _mm_desc_w=40
+        if command -v tui_is_compact >/dev/null 2>&1 && tui_is_compact; then
+            _mm_desc_w=24
+        fi
         while IFS=':' read -r num name desc cmd; do
             if [ -n "$name" ]; then
-                printf "  ${BOLD}%s${RESET}  %-40s ${CYAN}%s${RESET}\n" "$num" "$desc" "$cmd"
+                _mm_d="$desc"
+                if command -v tui_truncate >/dev/null 2>&1; then
+                    _mm_d="$(tui_truncate "$desc" "$_mm_desc_w")"
+                fi
+                printf "  ${BOLD}%s${RESET}  %-${_mm_desc_w}s ${CYAN}%s${RESET}\n" "$num" "$_mm_d" "$cmd"
             fi
         done < "$managers_file"
-        
+
         echo
-        printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        if command -v tui_hrule >/dev/null 2>&1; then
+            printf "${BLUE}"
+            tui_hrule
+            printf "${RESET}"
+        else
+            printf "${BLUE}══════════════════════════════════════════════════════════════════${RESET}\n"
+        fi
         echo "  0) Retour"
         echo
         printf "${YELLOW}Choisir un gestionnaire [1-%d]: ${RESET}" "$manager_count"

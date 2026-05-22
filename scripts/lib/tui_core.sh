@@ -82,6 +82,72 @@ tui_pagination_bar() {
     echo "  --- Page $((cur+1))/$tot (n=suivant p=précédant 0=retour) ---"
 }
 
+# Terminal interactif ?
+tui_is_tty() {
+    [ -t 0 ] && [ -t 1 ]
+}
+
+# Colonnes sûres (minimum 20)
+tui_cols_safe() {
+    _tc=$(tui_cols)
+    [ "$_tc" -lt 20 ] && _tc=20
+    echo "$_tc"
+}
+
+# Mode compact : petit terminal ou non-TTY (aide / CI)
+tui_is_compact() {
+    if ! tui_is_tty; then
+        return 0
+    fi
+    _tc=$(tui_cols_safe)
+    [ "$_tc" -lt 72 ]
+}
+
+# Largeur utile pour texte / bordures (évite débordement)
+tui_content_width() {
+    _tc=$(tui_cols_safe)
+    if tui_is_compact; then
+        echo $((_tc - 2))
+    else
+        _w=$((_tc - 4))
+        [ "$_w" -gt 76 ] && _w=76
+        echo "$_w"
+    fi
+}
+
+# Répète un caractère N fois (sans seq/bashismes fragiles)
+tui_repeat_char() {
+    _ch="${1:-─}"
+    _n="${2:-40}"
+    _i=0
+    while [ "$_i" -lt "$_n" ]; do
+        printf '%s' "$_ch"
+        _i=$((_i + 1))
+    done
+}
+
+# Ligne horizontale adaptée
+tui_hrule() {
+    _w=$(tui_content_width)
+    if tui_is_compact; then
+        tui_repeat_char '-' "$_w"
+    else
+        tui_repeat_char '═' "$_w"
+    fi
+    printf '\n'
+}
+
+# Tronque une chaîne (suffixe …)
+tui_truncate() {
+    _text="${1:-}"
+    _max="${2:-40}"
+    [ "$_max" -lt 4 ] && _max=4
+    printf '%s' "$_text" | awk -v m="$_max" '{
+        if (length($0) <= m) { print $0; exit }
+        print substr($0, 1, m - 1) "…"
+    }'
+}
+
 # =============================================================================
 # PATTERN MENU PAGINÉ (réutilisable par installman, configman, etc.)
 # =============================================================================

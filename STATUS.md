@@ -9,15 +9,15 @@
 - **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : `diffman compare|side|report` pour diffs colorés / côte à côte / rapports multi-fichiers ([`docs/man/diffman.md`](docs/man/diffman.md)).
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
 - **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
-- **UX terminal** : prochaine amélioration TUI = rendre les menus `*man` adaptatifs aux tailles de terminal (compact, pagination, troncature, fallback non-TTY).
+- **UX terminal** : helpers adaptatifs dans `scripts/lib/tui_core.sh` (`tui_is_compact`, `tui_hrule`, `tui_truncate`) ; pilotes **manman** et **updateman status**. Extension aux autres `*man` : voir **P3b** dans `TODOS.md`.
 - **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
 
 ## Objectifs actuels (priorité)
 
 1. Poursuivre la **normalisation modulaire** et la **TUI unifiée** (`dotcli`) sans casser les fallbacks.
-2. Stabiliser **`updateman`** : usage unique via `updateman`, pas de commande publique `update-cursor-appimage`; validation `status` / `all` / timer.
-3. Concevoir la prochaine etape **registre installman → updateman** puis **`updateman dotfiles`** : mises a jour des outils et du coeur des dotfiles sans ecraser les overrides locaux par machine.
-4. Formaliser le contrat **responsive terminal** des interfaces `*man` (largeur/hauteur, mode compact, pagination, CI non-TTY).
+2. Stabiliser **`updateman`** : registre + `installman` → `updateman <outil> enable` ; validation manuelle `status` / `all` / timer (V-2026-05-22).
+3. Etendre **P3b** : generaliser `tui_core` aux menus `*man` restants + tests petits terminaux (EXT-002).
+4. Concevoir **`updateman dotfiles`** (P8b) et enrichir le registre outils (P8c).
 5. Compléter les **tests manuels** : [`docs/TESTS.md`](docs/TESTS.md) — entrée menu `make tests-start`.
 6. Respecter le **jalon de validation** dans [`TODOS.md`](TODOS.md) avant toute bascule structurelle majeure.
 
@@ -44,7 +44,8 @@
    - **Updater Cursor AppImage** [`scripts/update/update-cursor-appimage`](scripts/update/update-cursor-appimage) : telechargement officiel, detection du Cursor local (`.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`), chemin stable `Cursor.AppImage`, backups, shim `~/.local/bin/cursor`, lanceur desktop.
    - **Commande publique nettoyee** : l'ancien `~/.local/bin/update-cursor-appimage` n'est plus l'interface utilisateur ; le service systemd appelle maintenant `updateman cursor run`.
    - **Automatisation utilisateur** : unites [`systemd/user/cursor-update.service`](systemd/user/cursor-update.service) et [`systemd/user/cursor-update.timer`](systemd/user/cursor-update.timer), installees/activees sur la machine via `updateman cursor enable` (`cursor-update.timer` enabled + active).
-   - **Suite planifiee dans `TODOS.md` P3b/P8b/P8c** : responsive terminal pour les menus `*man`, registre `installman` → `updateman` avec services/timers declares, puis `updateman dotfiles` pour synchroniser le coeur du depot depuis GitHub entre machines, avec dry-run, backups, conflits et overrides locaux.
+   - **2026-05-22 (suite)** : registre `updatable-tools.list` ; `installman` appelle `updateman <outil> enable` ; shim `update-cursor` retire de `shared/config.sh` ; helpers TUI et pilotes manman/updateman status.
+   - **Suite planifiee** : P3b (autres `*man`), P8c (plus d'outils au registre), P8b (`updateman dotfiles`).
 2. **Livraison 2026-05-15** — lot **« diffman »** :
    - **Nouveau manager [`diffman`](core/managers/diffman/core/diffman.sh)** — comparaison de fichiers : `compare` / `cmp` (unifié coloré via `git diff --no-index` ou `diff -u`), `side` (côte à côte `diff -y`), `report` (plusieurs fichiers, option `--all-pairs`), `diff3` si l’outil est présent. Variables `NO_COLOR` / `FORCE_COLOR=1`.
    - **Adapters** zsh / bash / fish + `load_manager` + entrée **`manman`** + liste migrée + [`scripts/test/subcommands/diffman.list`](scripts/test/subcommands/diffman.list) + page man [`docs/man/diffman.md`](docs/man/diffman.md) ; **TESTS.md** : **G.0** (`MANS`), **G.0.e**, tableau **G.25** ; mises à jour **INDEX**, **ARCHITECTURE**, **TODOS**, **CODEMAP**, **MANAGERS**, **sync_managers**.

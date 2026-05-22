@@ -55,8 +55,10 @@ Pour ajouter un outil : une ligne dans le registre + handler dans `updateman` + 
 
 ## Lien installman
 
-- `installman update` / menu mise a jour : pour **cursor**, delegation vers `updateman cursor`.
-- `installman cursor` : apres succes, active le timer via `updateman cursor enable`.
+- `installman update` / menu mise a jour : pour un outil du registre, delegation vers `updateman <outil>`.
+- `installman <outil>` : apres succes, si `auto_service=1` dans le registre, active le timer via `updateman <outil> enable`.
+
+Pour tout outil enregistre : `updateman <outil>`, `updateman <outil> enable`, `updateman <outil> status`, `updateman <outil> logs`.
 
 ## Fichiers
 

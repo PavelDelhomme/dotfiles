@@ -19,7 +19,7 @@ export DOTFILES_DIR
 # Chemins dérivés (core, shells, share) pour scripts et adapters
 [ -f "$DOTFILES_DIR/shared/functions/dotfiles_roots.sh" ] && . "$DOTFILES_DIR/shared/functions/dotfiles_roots.sh"
 
-# ~/.local/bin et /usr/local/bin en tête de PATH (update-cursor, cursor = AppImage avant paquet)
+# ~/.local/bin et /usr/local/bin en tête de PATH (cursor shim, outils locaux)
 [ -n "$HOME" ] && mkdir -p "$HOME/.local/bin"
 _prepend_path() {
     _p="$1"
@@ -28,27 +28,7 @@ _prepend_path() {
 [ -n "$HOME" ] && _prepend_path "$HOME/.local/bin"
 _prepend_path "/usr/local/bin"
 
-# Mettre à jour Cursor : créer ~/.local/bin/update-cursor s'il manque (pour installman / cursor)
-if [ -n "$HOME" ] && [ ! -x "$HOME/.local/bin/update-cursor" ] && [ -f "$DOTFILES_DIR/scripts/install/apps/install_cursor.sh" ]; then
-    cat > "$HOME/.local/bin/update-cursor" << 'UPDATECURSOR_EOF'
-#!/usr/bin/env bash
-# Mise à jour Cursor depuis https://cursor.com/download (généré par dotfiles)
-export NON_INTERACTIVE=1
-DOTFILES=""
-for candidate in "${DOTFILES_DIR:-}" "$HOME/dotfiles" "$HOME/.dotfiles"; do
-    [ -z "$candidate" ] && continue
-    [ -f "$candidate/scripts/install/apps/install_cursor.sh" ] && DOTFILES="$candidate" && break
-done
-if [ -n "$DOTFILES" ]; then
-    export DOTFILES_DIR="$DOTFILES"
-    exec bash "$DOTFILES_DIR/scripts/install/apps/install_cursor.sh" --update-only
-fi
-echo "Erreur: script install_cursor.sh introuvable." >&2
-echo "  DOTFILES_DIR=$DOTFILES_DIR" >&2
-exit 1
-UPDATECURSOR_EOF
-    chmod +x "$HOME/.local/bin/update-cursor" 2>/dev/null || true
-fi
+# Mises a jour Cursor : utiliser updateman cursor (pas de shim update-cursor dans PATH)
 
 # Charger les variables d'environnement communes
 if [ -f "$DOTFILES_DIR/shared/env.sh" ]; then
