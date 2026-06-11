@@ -435,6 +435,7 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 | `cyberman` | Gestionnaire cybersécurité | `cyberman.zsh` |
 | `displayman` | Gestionnaire écran / luminosité / DDC (preset, range, OSD) | `core/managers/displayman/core/displayman.sh` |
 | `diffman` | Comparateur de fichiers (diff coloré, côte à côte, rapports) | `core/managers/diffman/core/diffman.sh` |
+| `diskman` | Analyse et nettoyage disque (usage, gros fichiers, inodes, clean) | `core/managers/diskman/core/diskman.sh` |
 | `manman` | Gestionnaire centralisé (menu pour tous les *man) | `manman.zsh` |
 
 **Utilisation:**

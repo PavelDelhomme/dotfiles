@@ -1,0 +1,8 @@
+# Sous-commandes CI diskman (non interactives, non destructives).
+help
+overview
+usage . 1
+biggest . 5
+inodes .
+clean --dry-run all
+report /tmp/diskman_ci_report.txt

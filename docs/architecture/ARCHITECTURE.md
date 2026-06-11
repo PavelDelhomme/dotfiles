@@ -86,6 +86,7 @@ Liste alignée sur **`scripts/test/config/migrated_managers.list`** (managers co
 | cyberlearn | oui | oui | dossier **`cyberlearn/`** (modules) |
 | displayman | oui | oui | — *(pas de résidu Zsh, créé directement sous `core/managers/displayman/`)* |
 | diffman | oui | oui | — *(idem sous `core/managers/diffman/`)* |
+| diskman | oui | oui | — *(idem sous `core/managers/diskman/`)* |
 
 **Lecture rapide** : la **source de vérité métier** cible est le **core POSIX** ; les colonnes adapter et résidu sont la **colle** et l’**héritage** à faire maigrir (wrappers d’une ligne, puis suppression de logique dupliquée dans `zsh/functions/`).
 
@@ -317,6 +318,7 @@ Le projet doit rester utilisable sans friction sous `zsh`, `bash`, `fish`, `sh` 
 21. **cyberlearn** - Parcours apprentissage / cyber
 22. **displayman** - Gestionnaire écran / luminosité / DDC (preset couleur, range HDMI, OSD)
 23. **diffman** - Comparateur de fichiers (diff coloré, côte à côte, rapports multi-fichiers)
+24. **diskman** - Analyse et nettoyage disque (usage, gros fichiers, inodes, clean dry-run/apply)
 
 ### Structure modulaire
 

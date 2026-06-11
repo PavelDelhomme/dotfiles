@@ -111,6 +111,7 @@ manman() {
     check_manager "doctorman" "🩺 Diagnostic dotfiles / dev" "doctorman"
     check_manager "displayman" "🖥  Gestionnaire écran / luminosité (DDC)" "displayman"
     check_manager "diffman" "📑 Comparateur de fichiers (diff coloré)" "diffman"
+    check_manager "diskman" "💽 Analyse et nettoyage disque" "diskman"
 
     clear
     printf "${CYAN}${BOLD}"

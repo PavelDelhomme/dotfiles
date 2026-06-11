@@ -146,6 +146,7 @@ load_manager "testman" "$DOTFILES_DIR/shells/zsh/adapters/testman.zsh" "TESTMAN"
 load_manager "doctorman" "$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh" "DOCTORMAN"
 load_manager "displayman" "$DOTFILES_DIR/shells/zsh/adapters/displayman.zsh" "DISPLAYMAN"
 load_manager "diffman" "$DOTFILES_DIR/shells/zsh/adapters/diffman.zsh" "DIFFMAN"
+load_manager "diskman" "$DOTFILES_DIR/shells/zsh/adapters/diskman.zsh" "DISKMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)

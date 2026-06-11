@@ -267,6 +267,7 @@ managers                    # Alias pour manman
 - 🎬 **multimediaman** : Gestionnaire multimédia (ripping DVD, encodage)
 - 🖥  **displayman** : Gestionnaire écran / luminosité / DDC (preset couleur, range HDMI, OSD)
 - 📑 **diffman** : Comparateur de fichiers (diff coloré, côte à côte, rapports multi-fichiers)
+- 💽 **diskman** : Analyse et nettoyage disque (usage, gros fichiers, inodes, clean dry-run/apply)
 - ⚙️ **moduleman** : Gestionnaire modules (activation/désactivation)
 
 **Documentation :** `help manman` ou `man manman`
@@ -360,6 +361,24 @@ diffman diff3 mine.txt parent.txt theirs.txt   # fusion 3 voies (nécessite diff
 **Variables :** `NO_COLOR`, `FORCE_COLOR=1` (sortie colorée même hors TTY).
 
 **Documentation :** [`../man/diffman.md`](../man/diffman.md)
+
+### 💽 Diskman — analyse et nettoyage disque
+
+Gestionnaire pour comprendre vite ce qui prend de la place : vue `df`/`lsblk`, dossiers lourds, plus gros fichiers, inodes, rapport texte, et nettoyage prudent. Le nettoyage est **dry-run par défaut** ; l’exécution réelle demande `--apply`.
+
+**Utilisation :**
+```bash
+diskman help
+diskman overview                    # df/lsblk + caches connus + docker system df si dispo
+diskman usage ~ 2                   # dossiers lourds sous ~, profondeur 2
+diskman biggest /var/log 30         # 30 plus gros fichiers de /var/log
+diskman inodes ~                    # inodes + dossiers avec beaucoup d'entrées
+diskman clean --dry-run all         # rien ne supprime, affiche seulement
+diskman clean --apply journal       # nettoyage réel du journal (confirmation TTY)
+diskman report ~/disk-report.txt    # rapport complet
+```
+
+**Documentation :** [`../man/diskman.md`](../man/diskman.md)
 
 ### 🛠️ Miscman - Gestionnaire Outils Divers
 
