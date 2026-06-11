@@ -462,6 +462,7 @@ sshman() {
             echo "  ${BOLD}5${RESET}  📊 Statistiques SSH"
             echo ""
             echo "  ${BOLD}h${RESET}  📚 Aide"
+            echo "  ${BOLD}0${RESET}  🚪 Quitter"
             echo "  ${BOLD}q${RESET}  🚪 Quitter"
             echo ""
             manager_ui_section_line "${BLUE}" "${RESET}\n"
@@ -475,6 +476,7 @@ Tester une connexion SSH|3
 Gerer les cles SSH|4
 Statistiques SSH|5
 Aide|h
+Quitter|0
 Quitter|q
 EOF
                 choice=$(dotfiles_ncmenu_select "SSHMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
@@ -504,7 +506,7 @@ EOF
                     sshman_print_quick_help
                     pause_if_tty
                     ;;
-                q|Q)
+                0|q|Q|quit|exit)
                     printf "${GREEN}Au revoir!${RESET}\n"
                     break
                     ;;

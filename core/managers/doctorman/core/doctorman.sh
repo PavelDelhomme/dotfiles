@@ -181,12 +181,14 @@ Diagnostic dotfiles|dotfiles
 Diagnostic fish|fish
 Diagnostic dev|dev
 Aide|help
+Quitter|0
 Quitter|q
 EOF
         )
         case "$_cmd" in
             all|dotfiles|fish|dev|help) doctorman "$_cmd" ;;
-            q|quit|exit) break ;;
+            0|q|quit|exit) break ;;
+            "") continue ;;
             *) __doctorman_warn "Choix invalide: $_cmd" ;;
         esac
     done

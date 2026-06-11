@@ -255,6 +255,7 @@ EOF
         echo "  [+]    Ajouter un nouvel alias"
         echo "  [e]    Éditer un alias  [d] Supprimer un alias"
         echo "  [b]    Sauvegarder      [r] Recharger"
+        echo "  [0]    Retour au menu principal"
         echo "  [q]    Retour au menu principal"
         echo
         if [ -t 0 ] && [ -t 1 ] && [ "${DOTFILES_DOTCLI_ENABLE:-0}" = "1" ]; then
@@ -267,6 +268,7 @@ Editer un alias|e
 Supprimer un alias|d
 Sauvegarder les alias|b
 Recharger les alias|r
+Retour menu principal|0
 Retour menu principal|q
 EOF
             action=$(aliaman_dotcli_menu_pick "Aliaman actions" "$_actions_file" || true)
@@ -281,6 +283,7 @@ EOF
                 "Supprimer un alias|d" \
                 "Sauvegarder les alias|b" \
                 "Recharger les alias|r" \
+                "Retour menu principal|0" \
                 "Retour menu principal|q" | \
                 fzf --height=60% --layout=reverse --border --ansi \
                     --prompt="Aliaman actions > " 2>/dev/null | cut -d'|' -f2)
@@ -327,7 +330,7 @@ EOF
                 sleep 2
                 show_aliases_list
                 ;;
-            q|Q)
+            0|q|Q|quit|exit)
                 return
                 ;;
             *)
@@ -477,9 +480,10 @@ EOF
         echo "  ${BOLD}7${RESET}  💾 Sauvegarder les alias"
         echo "  ${BOLD}8${RESET}  🔄 Recharger les alias"
         echo "  ${BOLD}9${RESET}  📊 Statistiques"
-        echo "  ${BOLD}0${RESET}  📤 Exporter les alias"
+        echo "  ${BOLD}x${RESET}  📤 Exporter les alias"
         echo
         echo "  ${BOLD}h${RESET}  📚 Aide"
+        echo "  ${BOLD}0${RESET}  🚪 Quitter"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         manager_ui_section_line "${BLUE}" "${RESET}\n"
@@ -496,8 +500,9 @@ Editer un alias specifique|6
 Sauvegarder les alias|7
 Recharger les alias|8
 Statistiques|9
-Exporter les alias|0
+Exporter les alias|x
 Aide|h
+Quitter|0
 Quitter|q
 EOF
             choice=$(aliaman_dotcli_menu_pick "ALIAMAN - Menu principal" "$menu_input_file" || true)
@@ -601,7 +606,7 @@ EOF
                 sleep 2
                 ;;
             9) show_statistics ;;
-            0) export_aliases ;;
+            x|X) export_aliases ;;
             h|H)
                 show_header
                 printf "${CYAN}📚 Aide - ALIAMAN${RESET}\n"
@@ -626,7 +631,7 @@ EOF
                 echo
                 pause_if_tty
                 ;;
-            q|Q)
+            0|q|Q|quit|exit)
                 printf "${GREEN}Au revoir!${RESET}\n"
                 break
                 ;;

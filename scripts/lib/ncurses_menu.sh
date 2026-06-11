@@ -28,10 +28,14 @@ dotfiles_ncmenu_select() {
                 fi
             fi
         fi
-        _picked_label=$(cut -d'|' -f1 "$_menu_file" | \
-            fzf $_fzf_menu_opts --prompt="${_title:-Menu} > " 2>/dev/null || true)
-        if [ -n "$_picked_label" ]; then
-            _choice=$(awk -F'|' -v lbl="$_picked_label" '$1==lbl { print $2; exit }' "$_menu_file")
+        _fzf_out=$(awk -F'|' '{ printf "%s\t%s\n", $2, $1 }' "$_menu_file" | \
+            fzf --expect=0,q $_fzf_menu_opts --prompt="${_title:-Menu} > " 2>/dev/null || true)
+        _fzf_key=$(printf '%s\n' "$_fzf_out" | sed -n '1p')
+        _picked_line=$(printf '%s\n' "$_fzf_out" | sed -n '2p')
+        if [ -n "$_fzf_key" ] && awk -F'|' -v v="$_fzf_key" '$2==v { found=1 } END { exit !found }' "$_menu_file"; then
+            _choice="$_fzf_key"
+        elif [ -n "$_picked_line" ]; then
+            _choice=${_picked_line%%	*}
         fi
     fi
 
@@ -45,6 +49,9 @@ dotfiles_ncmenu_select() {
     fi
 
     rm -f "$_menu_file"
+    case "$_choice" in
+        *"|"*) _choice=${_choice##*|} ;;
+    esac
     [ -n "$_choice" ] || return 127
     printf "%s" "$_choice"
 }

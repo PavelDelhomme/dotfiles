@@ -591,6 +591,7 @@ EOF
         while true; do
             show_main_menu || break
         done
+        return 0
     fi
 
     # Commandes directes

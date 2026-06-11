@@ -674,6 +674,7 @@ EOF
         echo "  ${BOLD}6${RESET}  📊 Statistiques de recherche"
         echo
         echo "  ${BOLD}h${RESET}  📚 Aide"
+        echo "  ${BOLD}0${RESET}  🚪 Quitter"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo
         manager_ui_section_line "${BLUE}" "${RESET}\n"
@@ -685,6 +686,7 @@ Recherche logs|4
 Recherche fonctions|5
 Statistiques|6
 Aide|h
+Quitter|0
 Quitter|q
 EOF
         )
@@ -702,9 +704,12 @@ EOF
                 echo ""
                 pause_if_tty
                 ;;
-            q|Q)
+            0|q|Q|quit|exit)
                 printf "${GREEN}Au revoir!${RESET}\n"
                 break
+                ;;
+            "")
+                continue
                 ;;
             *)
                 printf "${RED}Option invalide${RESET}\n"

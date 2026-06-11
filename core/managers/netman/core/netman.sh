@@ -306,6 +306,7 @@ $line"
             echo "  [n]   Désélectionner tout"
             echo "  [f]   Explorer les ports via fzf (preview)"
             echo "  [r]   Rafraîchir la liste"
+            echo "  [0]   Retour au menu principal"
             echo "  [q]   Retour au menu principal"
             echo ""
             action=""
@@ -319,6 +320,7 @@ Selectionner tous les ports|a
 Desel. tous les ports|n
 Explorer ports via fzf preview|f
 Rafraichir la liste|r
+Retour menu principal|0
 Retour menu principal|q
 EOF
                 action=$(netman_dotcli_menu_pick "NETMAN - Ports actions" "$_ports_actions_file" || true)
@@ -485,7 +487,7 @@ EOF
                 r|R)
                     continue
                     ;;
-                q|Q)
+                0|q|Q|quit|exit)
                     return
                     ;;
             esac
@@ -1452,12 +1454,12 @@ https://speed.hetzner.de/5GB.bin"
             rx_formatted=$(numfmt --to=iec-i --suffix=B/s "$rx_rate" 2>/dev/null || echo "${rx_rate}B/s")
             tx_formatted=$(numfmt --to=iec-i --suffix=B/s "$tx_rate" 2>/dev/null || echo "${tx_rate}B/s")
             
-            printf "\r  ↓ RX: %-12s  ↑ TX: %-12s  [Appuyez sur 'q' puis Entrée pour quitter]" "$rx_formatted" "$tx_formatted"
+            printf "\r  ↓ RX: %-12s  ↑ TX: %-12s  [Appuyez sur '0' ou 'q' puis Entrée pour quitter]" "$rx_formatted" "$tx_formatted"
             
             # Vérifier si 'q' a été pressé (non-bloquant)
             if read -t 0.1 key 2>/dev/null; then
                 case "$key" in
-                    q|Q)
+                    0|q|Q|quit|exit)
                         echo ""
                         break
                         ;;
@@ -1752,7 +1754,7 @@ https://speed.hetzner.de/5GB.bin"
             echo "  ${BOLD}b${RESET}  ⚡ Test de vitesse réseau"
             echo "  ${BOLD}c${RESET}  📊 Monitoring bande passante (temps réel)"
             echo "  ${BOLD}d${RESET}  🔍 Analyse du trafic réseau"
-            echo "  ${BOLD}0${RESET}  💾 Exporter la configuration"
+            echo "  ${BOLD}x${RESET}  💾 Exporter la configuration"
             echo ""
             echo "  ${BOLD}h${RESET}  📚 Aide"
             echo "  ${BOLD}q${RESET}  🚪 Quitter"
@@ -1784,8 +1786,9 @@ Test de connectivite (ping/traceroute)|a
 Test de vitesse reseau|b
 Monitoring bande passante (temps reel)|c
 Analyse du trafic reseau|d
-Exporter la configuration|0
+Exporter la configuration|x
 Aide|h
+Quitter|0
 Quitter|q
 EOF
                 choice=$(netman_dotcli_menu_pick "NETMAN - Menu principal" "$menu_input_file" || true)
@@ -1824,13 +1827,13 @@ EOF
                 b|B) test_network_speed ;;
                 c|C) monitor_bandwidth ;;
                 d|D) analyze_traffic ;;
-                0) export_network_config ;;
+                x|X) export_network_config ;;
                 h|H)
                     show_header
                     netman_print_quick_help
                     pause_if_tty
                     ;;
-                q|Q)
+                0|q|Q|quit|exit)
                     printf "${GREEN}Au revoir!${RESET}\n"
                     break
                     ;;

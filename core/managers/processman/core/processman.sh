@@ -281,6 +281,7 @@ processman() {
         echo "  ${BOLD}9${RESET}  🌳 Arbre des processus"
         echo ""
         echo "  ${BOLD}h${RESET}  📚 Aide"
+        echo "  ${BOLD}0${RESET}  🚪 Quitter"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo ""
         choice=""
@@ -298,6 +299,7 @@ Restart|8
 Arbre des processus|9
 Aide|h
 Quitter|q
+Quitter|0
 EOF
             choice=$(dotfiles_ncmenu_select "PROCESSMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
             rm -f "$menu_input_file"
@@ -382,7 +384,7 @@ EOF
                 _pm_print_quick_help
                 _pm_wait
                 ;;
-            q|Q)
+            0|q|Q|quit|exit)
                 printf "${GREEN}Au revoir!${RESET}\n"
                 break
                 ;;

@@ -16,6 +16,8 @@ type item struct {
 	value string
 }
 
+var screen = os.Stdout
+
 func trim(s string) string {
 	return strings.TrimSpace(s)
 }
@@ -97,37 +99,37 @@ func terminalSize(fd int) (rows, cols int) {
 }
 
 func clearScreen() {
-	fmt.Fprint(os.Stdout, "\033[H\033[2J")
+	fmt.Fprint(screen, "\033[H\033[2J")
 }
 
 func draw(title string, items []item, selected, offset int) {
-	rows, cols := terminalSize(int(os.Stdout.Fd()))
+	rows, cols := terminalSize(int(screen.Fd()))
 	listHeight := rows - 4
 	if listHeight < 3 {
 		listHeight = 3
 	}
 
 	clearScreen()
-	fmt.Fprintln(os.Stdout, title)
-	fmt.Fprintln(os.Stdout, strings.Repeat("─", cols))
+	fmt.Fprintln(screen, title)
+	fmt.Fprintln(screen, strings.Repeat("─", cols))
 	for i := 0; i < listHeight; i++ {
 		idx := offset + i
 		if idx >= len(items) {
 			break
 		}
 		if idx == selected {
-			fmt.Fprintf(os.Stdout, "\033[7m %s \033[0m\n", items[idx].label)
+			fmt.Fprintf(screen, "\033[7m %s  %s \033[0m\n", items[idx].value, items[idx].label)
 		} else {
-			fmt.Fprintf(os.Stdout, " %s\n", items[idx].label)
+			fmt.Fprintf(screen, " %s  %s\n", items[idx].value, items[idx].label)
 		}
 	}
 	for i := len(items) - offset; i < listHeight; i++ {
 		if i >= 0 {
-			fmt.Fprintln(os.Stdout)
+			fmt.Fprintln(screen)
 		}
 	}
-	fmt.Fprintln(os.Stdout, strings.Repeat("─", cols))
-	fmt.Fprintln(os.Stdout, "Flèches/j/k: naviguer | Entrée: valider | q: quitter")
+	fmt.Fprintln(screen, strings.Repeat("─", cols))
+	fmt.Fprintln(screen, "Flèches/j/k: naviguer | Entrée: valider | touche (0/q/1…): selection directe")
 }
 
 func readKey(fd int) (string, error) {
@@ -170,8 +172,30 @@ func readKey(fd int) (string, error) {
 			return "", nil
 		}
 	default:
+		if b >= 32 && b <= 126 {
+			return string(b), nil
+		}
 		return "", nil
 	}
+}
+
+func valueForKey(items []item, key string) (string, bool) {
+	for _, it := range items {
+		if strings.EqualFold(it.value, key) {
+			return it.value, true
+		}
+	}
+	return "", false
+}
+
+func quitValue(items []item) (string, bool) {
+	if v, ok := valueForKey(items, "q"); ok {
+		return v, true
+	}
+	if v, ok := valueForKey(items, "0"); ok {
+		return v, true
+	}
+	return "", false
 }
 
 func main() {
@@ -183,8 +207,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	stdinFd := int(os.Stdin.Fd())
-	stdoutFd := int(os.Stdout.Fd())
+	tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0)
+	if err != nil {
+		fmt.Println(items[0].value)
+		return
+	}
+	defer tty.Close()
+	screen = tty
+
+	stdinFd := int(tty.Fd())
+	stdoutFd := int(tty.Fd())
 	if !isTTY(stdinFd) || !isTTY(stdoutFd) {
 		fmt.Println(items[0].value)
 		return
@@ -195,7 +227,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer restoreMode(stdinFd, state)
-	defer fmt.Fprint(os.Stdout, "\033[0m\033[?25h")
+	defer fmt.Fprint(screen, "\033[0m\033[?25h")
 
 	selected := 0
 	offset := 0
@@ -232,7 +264,17 @@ func main() {
 			return
 		case "quit":
 			clearScreen()
+			if v, ok := quitValue(items); ok {
+				fmt.Println(v)
+				return
+			}
 			os.Exit(1)
+		default:
+			if v, ok := valueForKey(items, key); ok {
+				clearScreen()
+				fmt.Println(v)
+				return
+			}
 		}
 	}
 }
@@ -242,4 +284,3 @@ func isTTY(fd int) bool {
 	_, _, errno := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), uintptr(syscall.TCGETS), uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
 	return errno == 0
 }
-

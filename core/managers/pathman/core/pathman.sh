@@ -57,7 +57,7 @@ pathman() {
             read dummy
         fi
     }
-    MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\n0) Export\nh) Aide\nq) Quitter\n"
+    MENU="1) Voir le PATH\n2) Ajouter un répertoire\n3) Retirer un répertoire\n4) Nettoyer le PATH\n5) Nettoyer invalid\n6) Sauvegarder\n7) Restaurer\n8) Logs\n9) Statistiques\nx) Export\nh) Aide\n0) Quitter\nq) Quitter\n"
 
     # DESC: S'assure que le répertoire et le fichier de log existent (repli /tmp si RO, ex. Docker)
     # USAGE: ensure_path_log
@@ -315,7 +315,8 @@ pathman() {
         echo "7) Restaurer le PATH précédent"
         echo "8) Afficher logs de modification"
         echo "9) Statistiques"
-        echo "0) Exporter le PATH (txt)"
+        echo "x) Exporter le PATH (txt)"
+        echo "0) Quitter"
         echo "h) Aide détaillée"
         echo "q) Quitter"
         echo ""
@@ -461,8 +462,9 @@ Sauvegarder|6
 Restaurer|7
 Logs|8
 Statistiques|9
-Exporter|0
+Exporter|x
 Aide|h
+Quitter|0
 Quitter|q
 EOF
             choice=$(dotfiles_ncmenu_select "PATHMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
@@ -482,9 +484,9 @@ EOF
             7) restore_path ;;
             8) show_logs ;;
             9) show_stats ;;
-            0) export_path ;;
+            x|X) export_path ;;
             h|H) show_help_menu ;;
-            q|Q) break ;;
+            0|q|Q|quit|exit) break ;;
         esac
     done
     printf "${GREEN}Bye bye !${RESET}\n"

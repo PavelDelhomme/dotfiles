@@ -245,6 +245,7 @@ routeman() {
         echo "  ${BOLD}4${RESET}  ➖ Supprimer une route"
         echo ""
         echo "  ${BOLD}h${RESET}  📚 Aide"
+        echo "  ${BOLD}0${RESET}  🚪 Quitter"
         echo "  ${BOLD}q${RESET}  🚪 Quitter"
         echo ""
         choice=""
@@ -256,6 +257,7 @@ Ajouter une route|2
 Modifier une route|3
 Supprimer une route|4
 Aide|h
+Quitter|0
 Quitter|q
 EOF
             choice=$(dotfiles_ncmenu_select "ROUTEMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
@@ -273,7 +275,7 @@ EOF
             3) _rm_header; _rm_prompt_replace; _rm_wait ;;
             4) _rm_header; _rm_prompt_del; _rm_wait ;;
             h|H) _rm_header; _rm_help; _rm_wait ;;
-            q|Q) printf "${GREEN}Au revoir!${RESET}\n"; break ;;
+            0|q|Q|quit|exit) printf "${GREEN}Au revoir!${RESET}\n"; break ;;
             *) printf "${RED}Option invalide${RESET}\n"; sleep 1 ;;
         esac
         done

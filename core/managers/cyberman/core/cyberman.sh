@@ -816,6 +816,7 @@ EOF
         fi
         echo ""
         echo "h.  Aide"
+        echo "0.  Quitter"
         echo "q.  Quitter"
         echo ""
     }
@@ -2068,6 +2069,7 @@ Rapports environnement actif|14
 Workflows environnement actif|15
 Desactiver environnement actif|16
 Aide|h
+Quitter|0
 Quitter|q
 EOF
             choice=$(dotfiles_ncmenu_select "CYBERMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
@@ -2221,7 +2223,7 @@ EOF
                 fi
                 ;;
             h|H) show_help ;;
-            q|Q) break ;;
+            0|q|Q|quit|exit) break ;;
             *) printf "${RED}Choix invalide${RESET}"; sleep 1 ;;
         esac
     done

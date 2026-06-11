@@ -297,6 +297,9 @@ EOF
                 printf "${GREEN}Au revoir!${RESET}\n"
                 return 1
                 ;;
+            "")
+                return 0
+                ;;
             *)
                 printf "${RED}❌ Choix invalide: %s${RESET}\n" "$choice"
                 sleep 2
