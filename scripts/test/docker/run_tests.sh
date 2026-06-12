@@ -241,6 +241,19 @@ fi
 _matrix_rc="$_manager_rc"
 
 # Matrice sous-commandes (optionnel : RUN_SUBCOMMAND_MATRIX=1 — make test)
+# Phase 2b — smoke sortie menus 0/q (ncmenu + échantillon *man)
+if [ "${RUN_MENU_QUIT_SMOKE:-1}" = "1" ] && [ -f "$DOTFILES_DIR/scripts/test/menu_quit_smoke.sh" ]; then
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "🧪 Phase 2b — Smoke menus quit (0 / q)"
+    echo "   Script: scripts/test/menu_quit_smoke.sh"
+    echo "═══════════════════════════════════════════════════════════════"
+    if ! sh "$DOTFILES_DIR/scripts/test/menu_quit_smoke.sh"; then
+        echo "⚠️  menu_quit_smoke : échec (voir ci-dessus)"
+        _matrix_rc=1
+    fi
+fi
+
 if [ "${RUN_SUBCOMMAND_MATRIX:-0}" = "1" ] && command -v bash >/dev/null 2>&1; then
     echo ""
     echo "═══════════════════════════════════════════════════════════════"

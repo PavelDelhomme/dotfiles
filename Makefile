@@ -442,6 +442,9 @@ test-menu-fzf: ## Vérifier intégration menus fzf + fallback tty
 test-tui-compact: ## Smoke EXT-002 : bannieres/regles adaptatives (COLUMNS=60)
 	@sh "$(SCRIPT_DIR)/test/tui_compact_smoke.sh"
 
+test-menu-quit: ## Smoke sortie menus 0/q (manager_ui + ncmenu + échantillon *man)
+	@sh "$(SCRIPT_DIR)/test/menu_quit_smoke.sh"
+
 sandbox-guide: ## Afficher le guide bac à sable (conteneur, chemins, commandes)
 	@if [ -f "$(DOTFILES_DIR)/scripts/test/SANDBOX.md" ]; then \
 		${PAGER:-cat} "$(DOTFILES_DIR)/scripts/test/SANDBOX.md"; \
