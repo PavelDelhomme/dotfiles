@@ -11,6 +11,11 @@ MANAGERS_LOG_FILE="${MANAGERS_LOG_FILE:-$MANAGERS_LOG_DIR/managers.log}"
 
 _managers_log_ensure_dir() {
     [ -n "$MANAGERS_LOG_DIR" ] && mkdir -p "$MANAGERS_LOG_DIR" 2>/dev/null
+    if ! ( : >>"$MANAGERS_LOG_FILE" ) 2>/dev/null; then
+        MANAGERS_LOG_FILE="${TMPDIR:-/tmp}/dotfiles-managers.log"
+        MANAGERS_LOG_DIR="$(dirname "$MANAGERS_LOG_FILE")"
+        mkdir -p "$MANAGERS_LOG_DIR" 2>/dev/null || true
+    fi
 }
 
 # Log une action pour un manager quelconque

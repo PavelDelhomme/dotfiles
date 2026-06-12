@@ -282,6 +282,15 @@ configman() {
         type log_manager_action &>/dev/null && log_manager_action "configman" "run" "$1" "start" ""
 
         case "$1" in
+            apply|reapply|bootstrap|converge)
+                if [ -f "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" ]; then
+                    shift
+                    bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" "$@"
+                else
+                    echo -e "${RED}❌ Script apply dotfiles non disponible${RESET}"
+                    return 1
+                fi
+                ;;
             git)
                 if [ -f "$CONFIGMAN_MODULES_DIR/git/git_config.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/git/git_config.sh"
@@ -351,6 +360,7 @@ configman() {
                 echo -e "${RED}Module inconnu: $1${RESET}"
                 echo ""
                 echo "Modules disponibles:"
+                echo "  - apply (réappliquer shell/prompt dotfiles)"
                 echo "  - git"
                 echo "  - git-remote"
                 echo "  - symlinks"

@@ -169,6 +169,14 @@ function configman
         set -l module_arg (string lower "$argv[1]")
         
         switch "$module_arg"
+            case "apply" "reapply" "bootstrap" "converge"
+                if test -f "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh"
+                    set -l apply_args $argv[2..-1]
+                    bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" $apply_args
+                else
+                    echo -e "$RED❌ Script apply dotfiles non disponible$RESET"
+                    return 1
+                end
             case "git"
                 if test -f "$CONFIGMAN_MODULES_DIR/git/git_config.sh"
                     bash "$CONFIGMAN_MODULES_DIR/git/git_config.sh"

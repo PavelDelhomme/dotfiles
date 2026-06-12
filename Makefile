@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -436,6 +436,9 @@ test-subcommands-quick: ## Matrice « quick » dans Docker (SUBCOMMAND_TIER=quic
 
 test-bootstrap-apply: ## Docker : tester la ré-application shell/prompt depuis le checkout local
 	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/docker/test_bootstrap_apply_local.sh"
+
+test-configman-apply: ## Smoke configman apply shell --dry-run (zsh, local)
+	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/configman_apply_smoke.sh"
 
 # Aide : personnaliser shells / managers / bac à sable (sans toucher au shell interactif).
 test-help: ## Aide tests : DOTFILES_TEST_MANAGERS, TEST_*, docker-in, SANDBOX.md

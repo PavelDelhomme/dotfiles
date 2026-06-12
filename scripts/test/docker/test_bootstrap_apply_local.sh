@@ -40,6 +40,7 @@ docker run --rm \
         if command -v zsh >/dev/null 2>&1; then
             zsh -n "$DOTFILES_DIR/zsh/zshrc_custom"
             zsh -n "$DOTFILES_DIR/.p10k.zsh"
+            bash "$DOTFILES_DIR/scripts/test/configman_apply_smoke.sh"
         fi
 
         echo "bootstrap/apply local smoke OK"

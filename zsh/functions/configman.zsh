@@ -1,19 +1,17 @@
 #!/bin/zsh
 # =============================================================================
-# CONFIGMAN WRAPPER - Wrapper de compatibilité pour configman
-# =============================================================================
-# Description: Wrapper pour maintenir la compatibilité avec l'ancien chemin
-# Author: Paul Delhomme
-# Version: 2.0
+# CONFIGMAN WRAPPER - point d'entrée Zsh (délègue au core POSIX)
 # =============================================================================
 
-# Charger le script principal depuis la nouvelle structure
-CONFIGMAN_CORE="$HOME/dotfiles/zsh/functions/configman/core/configman.zsh"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+CONFIGMAN_ADAPTER="$DOTFILES_DIR/shells/zsh/adapters/configman.zsh"
+CONFIGMAN_CORE="$DOTFILES_DIR/core/managers/configman/core/configman.sh"
 
-if [ -f "$CONFIGMAN_CORE" ]; then
+if [ -f "$CONFIGMAN_ADAPTER" ]; then
+    source "$CONFIGMAN_ADAPTER"
+elif [ -f "$CONFIGMAN_CORE" ]; then
     source "$CONFIGMAN_CORE"
 else
-    echo "❌ Erreur: configman core non trouvé: $CONFIGMAN_CORE"
+    echo "❌ Erreur: configman core non trouvé"
     return 1
 fi
-
