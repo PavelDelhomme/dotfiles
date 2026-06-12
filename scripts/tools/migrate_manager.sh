@@ -87,15 +87,17 @@ cat > "$ZSH_ADAPTER" <<EOF
 # =============================================================================
 
 # Charger le code commun depuis core/
-CORE_MANAGER="\$HOME/dotfiles/core/managers/${MANAGER_NAME}/core/${MANAGER_NAME}.sh"
+_dotfiles_manager_core="\$HOME/dotfiles/core/managers/${MANAGER_NAME}/core/${MANAGER_NAME}.sh"
 
-if [ -f "\$CORE_MANAGER" ]; then
+if [ -f "\$_dotfiles_manager_core" ]; then
     # Source le code commun
-    source "\$CORE_MANAGER"
+    source "\$_dotfiles_manager_core"
 else
-    echo "❌ Erreur: ${MANAGER_NAME} core non trouvé: \$CORE_MANAGER"
+    echo "❌ Erreur: ${MANAGER_NAME} core non trouvé: \$_dotfiles_manager_core"
+    unset _dotfiles_manager_core
     return 1
 fi
+unset _dotfiles_manager_core
 EOF
 chmod +x "$ZSH_ADAPTER"
 echo "✅ Adapter ZSH créé: $ZSH_ADAPTER"
@@ -113,15 +115,17 @@ cat > "$BASH_ADAPTER" <<EOF
 # =============================================================================
 
 # Charger le code commun depuis core/
-CORE_MANAGER="\$HOME/dotfiles/core/managers/${MANAGER_NAME}/core/${MANAGER_NAME}.sh"
+_dotfiles_manager_core="\$HOME/dotfiles/core/managers/${MANAGER_NAME}/core/${MANAGER_NAME}.sh"
 
-if [ -f "\$CORE_MANAGER" ]; then
+if [ -f "\$_dotfiles_manager_core" ]; then
     # Source le code commun
-    source "\$CORE_MANAGER"
+    source "\$_dotfiles_manager_core"
 else
-    echo "❌ Erreur: ${MANAGER_NAME} core non trouvé: \$CORE_MANAGER"
+    echo "❌ Erreur: ${MANAGER_NAME} core non trouvé: \$_dotfiles_manager_core"
+    unset _dotfiles_manager_core
     return 1
 fi
+unset _dotfiles_manager_core
 EOF
 chmod +x "$BASH_ADAPTER"
 echo "✅ Adapter Bash créé: $BASH_ADAPTER"

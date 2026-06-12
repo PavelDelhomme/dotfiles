@@ -13,14 +13,51 @@ Utilisez `configman` pour accéder à toutes les configurations :
 configman
 
 # Configuration directe
+configman apply shell --dry-run
+configman apply shell --apply
 configman git
 configman git-remote
 configman symlinks
 configman shell
+configman p10k
+configman p10k root --dry-run
+configman p10k root --apply
 configman qemu-libvirt
 configman qemu-network
 configman qemu-packages
 ```
+
+## Ré-appliquer une machine déjà configurée
+
+Pour remettre le shell et le prompt dans l'état attendu sans refaire tout le
+bootstrap interactif :
+
+```bash
+configman apply shell --dry-run
+configman apply shell --apply
+configman apply shell --apply --install-missing
+```
+
+Le profil `shell` vérifie le moteur du prompt actuel (Powerlevel10k système,
+Powerlevel10k Oh My Zsh ou prompt Manjaro), la police Nerd Font, puis converge
+`~/.zshrc` et `~/.p10k.zsh` vers le dépôt avec backup avant remplacement.
+
+Le test Docker local correspondant est :
+
+```bash
+make test-bootstrap-apply
+```
+
+### Prompt root Powerlevel10k
+
+`configman p10k root --dry-run` prévisualise la configuration du prompt `root`
+sans toucher `/root`. `configman p10k root --apply` applique la procédure avec
+backup horodaté de `/root/.zshrc`, `/root/.p10k.zsh` et `/root/dotfiles` si
+nécessaire.
+
+La procédure installe des symlinks prudents vers les dotfiles, utilise
+`.p10k-root.zsh` pour garder le même layout que l'utilisateur avec des couleurs
+rouge/orange, et signale les prérequis Powerlevel10k / Nerd Fonts.
 
 ## Structure
 

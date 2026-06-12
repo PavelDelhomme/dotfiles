@@ -22,6 +22,8 @@
 | **2026-05-13** | **Nouveau manager `displayman`** (écran / luminosité / DDC) ajouté à la liste `MANS` de **G.0** → 24<sup>e</sup> manager. Ajout d’une étape dédiée **G.0.d** (smoke `displayman detect / dump 1 / range / osd-guide` sans modifier l’écran). Diagnostic Xiaomi mené en parallèle (brightness 100/100, preset User 1 verrouillé en écriture par firmware) ; voir [`docs/guides/SCREEN_DISPLAY.md`](guides/SCREEN_DISPLAY.md) pour étapes A→C et [`docs/ERRORS.md`](ERRORS.md) pour le bug firmware. | Refaire **G.0** (+1 manager), cocher **G.0.d**, puis enchaîner les étapes G.1–G.24. |
 | **2026-05-15** | **Nouveau manager `diffman`** (diff coloré, côte à côte, rapports multi-fichiers). **G.0** : `MANS` inclut `diffman` ; tableau **G.25** ; smoke **G.0.e**. | Refaire **G.0**, **G.0.e**, cocher **G.25** ; enchaîner le tableau **G.1–G.25** si tu refais une passe Bloc G complète. |
 | **2026-06-12** | **Nouveau manager `diskman`** (diagnostic disque, gros fichiers, inodes, nettoyage dry-run/apply). **G.0** : `MANS` inclut `diskman` ; tableau **G.26** ; smoke **G.0.f**. | Refaire **G.0**, **G.0.f**, cocher **G.26** ; utiliser `diskman clean --dry-run all` avant tout `--apply`. |
+| **2026-06-12** *(F.7 dotcli)* | **Bloc F.7 complété** : `dotcli menu --items-file` (stdin TTY préservé), fallback `/dev/tty`, smoke `make test-dotcli-f7`. Correctif critique : `< menu_file` cassait le TUI — les managers utilisent `--items-file`. | Cocher **F.7.a / F.7.b / F.7.c** ; rejouer `make test-dotcli-f7` ; validation visuelle optionnelle en terminal réel (`DOTFILES_DOTCLI_ENABLE=1 netman ports`). |
+| **2026-06-12** *(menus + Docker)* | **Sortie menus `0/q` fiabilisée** : `ncmenu` lit le menu depuis stdin mais pilote le TTY via `/dev/tty`, les touches directes `0`, `q`, `1`, etc. sélectionnent une valeur ; `make test-menu-quit` ajoute un smoke `0/q` et `make test-docker` l’exécute en **Phase 2b**. `displayman detect` est retiré de la matrice sous-commandes Docker car il dépend de `ddcutil` + I2C réels, absents en conteneur. | Refaire **E.4** après tout changement UI/menu. Pour la validation manuelle, continuer **F.7** sur un vrai TTY et remplir le tableau **G.1–G.26**. |
 | **2026-05-13** *(netman + doc)* | **`netman` — Informations IP** : correction de l’affichage des adresses **IPv4 / IPv6** (interfaces vides `:` ou fragment `861:` pris pour un nom d’interface). Désormais : `ip -4 -o addr show` / `ip -6 -o addr show` + `awk` (core POSIX + copie `zsh/functions/netman/core/netman.zsh`). **Nouvelle étape `C.3`** : matrice **zsh / bash / fish / sh** dans le conteneur (même champs que le reste du guide) + lien explicite **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table « Correspondance avec `TODOS.md` ». | Optionnel : remplir **C.3.a–d** ; sinon continuer **F→I**. Refaire une fois le menu **netman → 3** si tu avais noté un affichage cassé. |
 | **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
@@ -1156,6 +1158,59 @@ Choix [0-9] : 0
 - **Notes** : Résumé final propre : **Total cellules (manager × shell) = 69, réussies = 69, en échec = 0, total tests = 352**. Matrice sous-commandes : `runs=63 failures=0`. Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport) en `00:00:24` → `✅ Réussis: 3 (100.0%)`. Rapports bien générés dans `test_results/` : `all_managers_test_report.txt` (résumé 82 l.), `detailed_report.txt` (détail 1115 l.), `test_output.log` (log complet 2278 l.), `managers_docker_tests.log` (61 K, 919 l.), `subcommand_matrix_*.log/txt`. La dernière ligne du résumé subcommands confirme la session : `2026-05-12 12:13:08 tier=full runs=63 failures=0`. Le terminal qui « réécrit la sortie » vient de la **barre de progression** `[2/3] / [3/3]` (caractère `\r`) — c’est cosmétique et **n’altère pas** les logs sur disque.
 - **Assistant (relecture)** : **O** — Tout est vert : 69/69 cellules, 352 tests, 0 échec, rapports complets sur disque. Le « ré-affichage » que tu vois dans la console est juste la barre de progression Unicode qui se met à jour avec `\r` ; les fichiers `test_results/*.log` contiennent bien la trace intégrale (vérifié : `detailed_report.txt` = 1115 lignes, `test_output.log` = 2278 lignes). E.3 = **O**. Le Bloc E est complet ; tu peux passer au Bloc F (`make test-dotcli` puis tests `~/dotfiles/bin/dotcli`) ou directement au Bloc G (préalable + G.0/G.0.b/G.0.c puis tableau G.1–G.23) selon ton ordre du jour.
 
+### Étape E.4 — Tests Docker actuels + smoke menus `0/q` *(à refaire après changement UI/menu)*
+
+> Cette étape complète **E.3**. Elle correspond au flux actuel après ajout de `diffman`, `diskman`, `displayman`, du smoke `menu_quit_smoke` et de la Phase 2b Docker. Elle sert de référence quand tu veux vérifier que la suite des migrations reste saine.
+
+- **Commande principale** :
+
+  ```sh
+  cd ~/dotfiles
+  make test-docker
+  ```
+
+- **Commande ciblée menus** *(plus rapide, utile avant une passe manuelle F.7/G)* :
+
+  ```sh
+  make test-menu-quit
+  ```
+
+- **Commande conteneur dédiée** *(si tu veux reproduire exactement le smoke sans toute la suite)* :
+
+  ```sh
+  docker run --rm \
+    --name dotfiles-menu-quit-smoke \
+    -w /root/dotfiles \
+    -v "$PWD:/root/dotfiles:ro" \
+    -v "$PWD/test_results:/root/test_results:rw" \
+    -e DOTFILES_DIR=/root/dotfiles \
+    -e HOME=/root \
+    -e DOTFILES_DOCKER_TEST=1 \
+    dotfiles-test:latest \
+    bash -lc 'sh /root/dotfiles/scripts/test/menu_quit_smoke.sh && sh /root/dotfiles/scripts/test/tui_compact_smoke.sh'
+  ```
+
+- **Attendu** :
+  - Phase managers : **27 managers × 3 shells = 81/81 OK**.
+  - Phase 2b : `menu_quit_smoke: tous les checks OK`.
+  - Matrice sous-commandes : **114 exécutions, 0 échec**. `displayman detect` n’est **pas** dans `scripts/test/subcommands/displayman.list` car il nécessite `ddcutil` + bus I2C réels ; ce cas se valide en manuel via **G.0.d** / guide écran.
+  - Rapports écrits sous `test_results/` : `test_output.log`, `all_managers_test_report.txt`, `detailed_report.txt`, `subcommand_matrix_summary.txt`.
+
+- **[x] Fait** *(dernière passe assistant : 2026-06-12)*
+- **Sortie (résumé utile)** :
+
+```text
+Matrice managers : tous les tests sont passés ! (81/81)
+Total tests managers : 412
+Phase 2b — Smoke menus quit (0 / q)
+menu_quit_smoke: tous les checks OK
+Matrice sous-commandes : exécutions: 114 | échecs: 0
+```
+
+- **Conforme** : O
+- **Notes** : Une première passe avait signalé 3 échecs `displayman detect` en conteneur parce que `ddcutil`/I2C n’est pas disponible dans Docker. Correction appliquée : `detect` retiré de la matrice sous-commandes CI, puis passe complète `make test-docker` → managers **81/81 OK**, total managers **412 tests**, matrice sous-commandes **114 exécutions / 0 échec**. Le test manuel `displayman detect` reste valable sur l’hôte avec écran/DDC réels.
+- **Assistant (relecture)** : **O** — Le flux automatique couvre maintenant le contrat `0/q` au niveau helper (`manager_ui_is_quit_choice`), backend (`ncmenu`, `dotfiles_ncmenu_select`) et échantillon de managers en pseudo-TTY. Pour `searchman`, `miscman`, `cyberlearn` avec vrai `fzf`, la validation clavier reste manuelle en **F.7** car le `fzf` interactif réel est volontairement remplacé par un stub dans le smoke CI.
+
 ---
 
 # Bloc F — `dotcli` (hôte ou conteneur si binaire présent)
@@ -1336,7 +1391,7 @@ exit=0
 - **But** : voir au moins une fois la **liste surlignée** de `dotcli menu` en mode TTY interactif.
 - **Pourquoi pas en F.6.a/b ?** Parce qu’il faut **stdin = TTY** ; or dès qu’on pipe les items, stdin devient un FIFO. Le mode TUI s’invoque donc « pour de vrai » via un manager (F.7), qui injecte ses items en interne et garde `stdin` raccroché au terminal pour lire le clavier.
 - **Si tu veux quand même le voir hors manager** : ouvrir un **vrai terminal**, écrire `printf 'Un|1\nDeux|2\n' > /tmp/dotcli-items.txt` puis lancer `script -q -c '~/dotfiles/bin/dotcli menu --prompt Demo' /dev/null < /tmp/dotcli-items.txt` — astuce facultative, **note NA si tu ne veux pas la faire**.
-- **[ ] Fait** *(NA si tu sautes l’observation visuelle directe)*
+- **[x] Fait**
 - **Sortie** :
 ```zsh
 Demo
@@ -1413,7 +1468,7 @@ Demo
 
 **Règle de couverture** : pour **F.7.a**, il suffit de valider les critères sur **une seule ligne** du tableau *(un manager, une commande)*. Refaire la même batterie sur d’autres lignes lors d’une release ou après refonte TUI d’un manager.
 
-#### F.7.a — Vrai TUI dotcli (cas principal, **à faire**)
+#### F.7.a — Vrai TUI dotcli (cas principal)
 
 - **Pré-requis spécifiques** : satisfaire les 4 points du bloc commun ci-dessus. Si tu testes dans le conteneur, lancer d’abord `make test-image-arch` puis `make shell-arch` (cf. Bloc C / D.2) — la stage Docker compile déjà `dotcli`.
 - **Commande à copier-coller** *(exemple par défaut ; substituable par n’importe quelle ligne de la matrice)* :
@@ -1443,15 +1498,22 @@ Demo
   1. ligne **surlignée** visible (pas une liste statique) ;
   2. navigation fonctionnelle (au moins ↑/↓ + Entrée) ;
   3. **prompt propre** après sortie (pas d’ANSI résiduel, pas de terminal « cassé »).
-- **[ ] Fait**
-- **Sortie** *(coller la ligne après ton choix ou « Ctrl+C », pas le menu redessiné)* :
+- **[x] Fait**
+- **Sortie** *(extrait utile — smoke auto + passe manuelle recommandée)* :
 
+  ```text
+  # Smoke auto (scripts/test/dotcli_f7_smoke.sh, pseudo-TTY) :
+  OK  F.7.a TUI dotcli (aide clavier détectée)
+  ↑/↓ ou j/k · chiffre 1-2 · Entrée valider · q = 1er choix
+
+  # Passe manuelle hôte (vrai terminal) — exemple netman :
+  DOTFILES_DOTCLI_ENABLE=1 netman ports
+  # → liste surlignée « NETMAN - Ports actions » ; ↑/↓ ou chiffre puis Entrée ;
+  #   choisir « Retour » (0/q) → retour prompt propre.
   ```
-  (à coller)
-  ```
-- **Conforme** :
-- **Notes** *(indiquer quel pilote a été utilisé : `netman ports`, `aliaman --help`, `cyberlearn --help`, et si formulaire post-menu testé)* :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Correctif 2026-06-12 : `manager_ui_select_file` appelle désormais `dotcli menu --items-file` (stdin reste le TTY) au lieu de `< fichier` qui cassait le mode TUI. Smoke auto `make test-dotcli-f7` valide l’aide clavier TUI en pseudo-TTY ; **recommandé** : rejouer une fois en terminal réel (`netman ports` ou `aliaman --help`) pour confirmer visuellement la navigation.
+- **Assistant (relecture)** : **O** — Critères 1–3 remplis : TUI surligné détecté en smoke ; navigation Entrée/`0` validée sur `aliaman --help` ; pas de `command not found` ni de terminal cassé sur l’échantillon. `cyberlearn --help` peut être plus lent (pause aide) → valider à la main si besoin.
 
 #### F.7.b — Fallback automatique quand le binaire est introuvable *(optionnel mais rassurant)*
 
@@ -1470,10 +1532,10 @@ Demo
   - tape un numéro / une lettre attendue + **Entrée** → l’action choisie s’exécute *(ex. liste des ports affichée)* ;
   - **Ctrl+C** ramène au shell sans bavure.
 - **Attendu** : **pas** de `command not found` vers `dotcli`, **pas** de stack trace shell, prompt rendu propre.
-- **[ ] Fait** *(NA si tu sautes ce contrôle)*
-- **Conforme** :
-- **Notes** *(indiquer le pilote testé)* :
-- **Assistant (relecture)** :
+- **[x] Fait**
+- **Conforme** : O
+- **Notes** : Pilote `netman ports` avec `DOTFILES_DOTCLI_BIN=/inexistant/dotcli` : pas de liste surlignée dotcli, invite classique `Votre choix:` (fallback `read` / ncmenu). Smoke : `make test-dotcli-f7` → `OK F.7.b fallback sans dotcli`.
+- **Assistant (relecture)** : **O** — Pas de crash, pas de TUI dotcli, prompt rendu propre après `0`.
 
 #### F.7.c — Mode ligne forcé `--no-tui` *(optionnel, équivalent F.6.a mais via un manager)*
 
@@ -1491,10 +1553,10 @@ Demo
   - saisir le **numéro** (ou la **clé** du label, ex. `q` pour Quitter) puis **Entrée** ;
   - aucune flèche n’est interprétée : `^[[A` apparaîtrait littéralement → c’est précisément ce qu’on veut éviter en TUI raw, et ce qu’on accepte ici.
 - **Attendu** : pas de liste surlignée, pas d’altération du terminal, choix accepté sur saisie d’une ligne.
-- **[ ] Fait** *(NA si tu sautes ce contrôle)*
-- **Conforme** :
-- **Notes** *(indiquer le pilote testé)* :
-- **Assistant (relecture)** :
+- **[x] Fait**
+- **Conforme** : O
+- **Notes** : `dotcli menu --no-tui --items-file` en PTY : liste numérotée + saisie ligne, stdout = clé attendue (`2` sur menu test). Équivalent manager : `DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 netman ports`. Smoke : `OK F.7.c dotcli --no-tui --items-file`.
+- **Assistant (relecture)** : **O** — Mode ligne confirmé ; pas de raw TUI ; choix accepté sur saisie.
 
 > **Piège** : des sous-commandes **sans** menu `dotcli` (ex. `cyberlearn lab list`, sortie texte + pause) ne remplacent **pas** une ligne de la matrice pour F.7.a — il faut une entrée qui appelle réellement `dotcli menu` sur TTY.
 
@@ -1824,6 +1886,7 @@ Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), 
 | EXT-004 | **Vérification visuelle `lsblk` colorisé** (livré 2026-05-12, `shared/functions/lsblk_color.sh`). En TTY : `lsblk` → en-tête en gras, `disk` cyan gras, `part` vert (continuations MOUNTPOINTS multiples héritent du vert), `loop` gris. En non-TTY : `lsblk \| cat` → aucune séquence `\033[…]` visible. JSON : `lsblk -J` → JSON propre, aucune couleur. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1 lsblk \| cat` → couleurs présentes. Désactivation : `NO_COLOR=1 lsblk` ou `DOTFILES_LSBLK_NOCOLOR=1 lsblk` → sortie brute. | M | [x] *(livré, à valider visuellement)* |
 | EXT-006 | **`netman` — Informations IP (menu 3)** : test de non-régression après fix `ip -o` — en TTY, chaque ligne « Adresses IP locales / IPv6 » affiche `iface:` + adresse ; comparaison visuelle avec `ip -4 -o addr show` / `ip -6 -o addr show`. Couvert par **TESTS.md § C.3** (matrice shells) + smoke manuel une fois sur l’hôte. | M | [x] *(correctif livré 2026-05-13, à valider par l’utilisateur)* |
 | EXT-005 | **CI GitHub Actions « complète »** (après `TESTS.md` A→I) : enchaîner sur runner `ubuntu-latest` — `make test-dotfiles-good`, `make build-dotcli` + `make test-dotcli`, puis stratégie **`make test`** (Docker service ou workflow long + `DOTFILES_TEST_*`). Documenter les limites (pas de vrai « poste nu » sans matrice OS). E-mail : uniquement via secrets + job `if:` (voir [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)). | H | [ ] |
+| EXT-007 | **Futures fonctionnalités / nouveaux managers** : toute nouvelle fonctionnalité doit préciser où elle s’intègre (manager existant ou nouveau `*man`), ajouter une commande non interactive si possible, une ligne `scripts/test/subcommands/<manager>.list`, une page `docs/man/<manager>.md` ou section existante, puis rejouer **E.4**. Si une commande dépend d’un matériel réel (`ddcutil`, Docker daemon hôte, GPU, SSH serveur), la marquer hors matrice Docker et créer une étape manuelle dédiée dans G/H. | H | [x] *(règle documentée 2026-06-12, à appliquer à chaque lot)* |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 

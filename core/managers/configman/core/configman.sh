@@ -239,6 +239,7 @@ QEMU Packages (installation paquets QEMU)|9
 OSINT Tools (configuration outils OSINT et cles API)|10
 Gestion de versions (Node, Python, Java)|11
 Visualisation de configuration complete|12
+Reappliquer shell/prompt dotfiles|13
 Quitter|0
 EOF
             choice=$(dotfiles_ncmenu_select "CONFIGMAN - Menu principal" < "$menu_input_file" 2>/dev/null || true)
@@ -345,6 +346,14 @@ EOF
             12)
                 show_config_overview
                 ;;
+            13)
+                if [ -f "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" ]; then
+                    bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" shell --dry-run
+                else
+                    printf "${RED}❌ Script apply dotfiles non disponible${RESET}\n"
+                    sleep 2
+                fi
+                ;;
             0|q|Q|quit|exit)
                 printf "${GREEN}Au revoir!${RESET}\n"
                 return 1
@@ -360,12 +369,16 @@ EOF
     configman_print_help() {
         printf "${CYAN}${BOLD}CONFIGMAN — raccourcis${RESET}\n"
         echo ""
-        echo "Modules : git, git-remote, symlinks, shell, p10k, ssh, ssh-auto,"
+        echo "Modules : apply, reapply, git, git-remote, symlinks, shell, p10k, ssh, ssh-auto,"
         echo "          qemu-libvirt, qemu-network, qemu-packages, osint, version, overview"
         echo ""
         echo "Interface :"
         echo "  configman / configman --help   menu (avec --help : aide puis menu en TTY)"
         echo "  configman -h, configman help   cette aide (stdout)"
+        echo "  configman apply shell --dry-run vérifier/réappliquer shell + prompt"
+        echo "  configman apply shell --apply   appliquer shell + prompt avec backup"
+        echo "  configman p10k root --dry-run  prévisualiser le prompt root Powerlevel10k"
+        echo "  configman p10k root --apply    installer le prompt root avec backup"
         echo ""
     }
     
@@ -388,6 +401,15 @@ EOF
         CONFIGMAN_MODULES_DIR="$CONFIGMAN_DIR/modules"
         
         case "$1" in
+            apply|reapply|bootstrap|converge)
+                if [ -f "$_logdf/scripts/bootstrap/apply_dotfiles.sh" ]; then
+                    shift
+                    bash "$_logdf/scripts/bootstrap/apply_dotfiles.sh" "$@"
+                else
+                    printf "${RED}❌ Script apply dotfiles non disponible${RESET}\n"
+                    return 1
+                fi
+                ;;
             git)
                 if [ -f "$CONFIGMAN_MODULES_DIR/git/git_config.sh" ]; then
                     bash "$CONFIGMAN_MODULES_DIR/git/git_config.sh"
@@ -410,7 +432,8 @@ EOF
                 ;;
             p10k|powerlevel10k|prompt)
                 if [ -f "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh" ]; then
-                    bash "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh"
+                    shift
+                    bash "$CONFIGMAN_MODULES_DIR/prompt/p10k_config.sh" "$@"
                 fi
                 ;;
             ssh)

@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -48,6 +48,7 @@ help: ## Afficher cette aide
 	@echo "  make test-docker-full  - Alias de test-docker"
 	@echo "  make test-subcommands   - Matrice sous-commandes × shells (Docker, image dotfiles-test)"
 	@echo "  make test-subcommands-quick - Idem SUBCOMMAND_TIER=quick dans Docker"
+	@echo "  make test-bootstrap-apply - Docker : re-apply shell/prompt depuis checkout local"
 	@echo "  make test-help           - Aide complète : DOTFILES_TEST_MANAGERS, bac à sable, fichiers .env"
 	@echo "  make test-menu-fzf       - Vérifie les menus fzf + fallback tty"
 	@echo "  make sandbox-guide       - Afficher scripts/test/SANDBOX.md (Docker live, chemins conteneur)"
@@ -393,6 +394,7 @@ test-dotcli: build-dotcli ## Smoke tests du binaire dotcli
 	@printf "item1|a\nitem2|b\n" | "$(DOTFILES_DIR)/bin/dotcli" menu --prompt "test" >/dev/null
 	@out=$$(printf "x|a\ny|b\n" | "$(DOTFILES_DIR)/bin/dotcli" menu --simulate-index 2 --prompt "t"); test "$$out" = "b"
 	@out=$$(printf "x|a\n" | "$(DOTFILES_DIR)/bin/dotcli" menu --dry-run --prompt "t" 2>/dev/null); test "$$out" = "a"
+	@tmp=$$(mktemp); printf 'A|1\nB|2\n' > "$$tmp"; out=$$("$(DOTFILES_DIR)/bin/dotcli" menu --simulate-index 2 --items-file "$$tmp" --prompt "t"); rm -f "$$tmp"; test "$$out" = "2"
 	@printf "ok\n" | "$(DOTFILES_DIR)/bin/dotcli" render --color green >/dev/null
 	@echo -e "$(GREEN)✓ dotcli smoke tests OK$(NC)"
 
@@ -432,6 +434,9 @@ test-subcommands: ## Matrice invocations × zsh/bash/fish dans Docker (SUBCOMMAN
 test-subcommands-quick: ## Matrice « quick » dans Docker (SUBCOMMAND_TIER=quick)
 	@DOTFILES_DIR="$(DOTFILES_DIR)" SUBCOMMAND_TIER=quick bash "$(SCRIPT_DIR)/test/docker/run_subcommand_matrix_docker.sh"
 
+test-bootstrap-apply: ## Docker : tester la ré-application shell/prompt depuis le checkout local
+	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/docker/test_bootstrap_apply_local.sh"
+
 # Aide : personnaliser shells / managers / bac à sable (sans toucher au shell interactif).
 test-help: ## Aide tests : DOTFILES_TEST_MANAGERS, TEST_*, docker-in, SANDBOX.md
 	@bash "$(SCRIPT_DIR)/test/print_test_help.sh"
@@ -441,6 +446,9 @@ test-menu-fzf: ## Vérifier intégration menus fzf + fallback tty
 
 test-tui-compact: ## Smoke EXT-002 : bannieres/regles adaptatives (COLUMNS=60)
 	@sh "$(SCRIPT_DIR)/test/tui_compact_smoke.sh"
+
+test-dotcli-f7: build-dotcli ## Smoke Bloc F.7 (dotcli TUI + fallback + --no-tui + pilotes)
+	@bash "$(SCRIPT_DIR)/test/dotcli_f7_smoke.sh"
 
 test-menu-quit: ## Smoke sortie menus 0/q (manager_ui + ncmenu + échantillon *man)
 	@sh "$(SCRIPT_DIR)/test/menu_quit_smoke.sh"

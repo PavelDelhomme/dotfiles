@@ -16,6 +16,11 @@
 
 ## En cours (lot / tâche actuelle)
 
+- [~] **Prompt root / sudo Powerlevel10k** (**immédiat**) : reproduire le design du prompt utilisateur (`~/.p10k.zsh` → `~/dotfiles/.p10k.zsh`) pour root sans casser le compte normal.
+  - **Diagnostic 2026-06-12** : utilisateur `pactivisme` OK (`~/.p10k.zsh` symlink vers `~/dotfiles/.p10k.zsh`, `p10k` disponible) ; root incomplet (`/root/.zshrc` absent, `/root/.p10k.zsh` absent).
+  - **Livré 2026-06-12** : procédure `configman p10k root --dry-run|--apply` via [`scripts/config/setup_root_prompt.sh`](scripts/config/setup_root_prompt.sh), variante [`.p10k-root.zsh`](.p10k-root.zsh), backup `/root/.zshrc` + `/root/.p10k.zsh`, symlinks prudents, vérification Powerlevel10k / MesloLGS-Nerd Fonts.
+  - **Livré 2026-06-12 (suite)** : ré-application idempotente `configman apply shell --dry-run|--apply` via [`scripts/bootstrap/apply_dotfiles.sh`](scripts/bootstrap/apply_dotfiles.sh) ; `configman p10k` vérifie/propose l'installation P10k + Nerd Fonts ; smoke Docker local `make test-bootstrap-apply`.
+  - **Sécurité** : privilégier `sudo` (pas de commande `surdo`) ; ne pas forcer root par défaut ; garder rollback documenté.
 - [~] **updateman Cursor** : updater AppImage reutilisable (`scripts/update/update-cursor-appimage`) + manager `updateman cursor` + timer `systemd --user`.
   - **Objectif** : `updateman cursor` met Cursor a jour maintenant ; `updateman cursor enable` installe/active l'automatisation quotidienne.
   - **Point cle** : detection adaptee au poste (`.desktop`, processus Cursor, commande `cursor`, `/opt`, `~/Applications`) au lieu d'un chemin versionne fixe.
@@ -29,10 +34,12 @@
 - [~] **P3b-b — interfaces terminal adaptatives** : bannieres + `manager_ui_section_line` ; pathman/doctorman ; `processman` + `tui_menu_height` ; sortie menu **0/q** (`manager_ui_is_quit_choice`, boucle `show_main_menu || break`) — `0e5647a` ; smoke `make test-tui-compact` (COLUMNS 60/69). **En pause** — suite plus tard : `tui_truncate`, pagination menus longs, aligner cyberman/installman/autres boucles inline, replay manuel EXT-002 sur `*man --help`.
 - [~] **P1 — normalisation modulaire** (demarre) : convention UI POSIX documentee (`MANAGERS_UI.md`, `dotfiles_manager_load_ui_libs`). **Reste** : adapters minces, logique hors `zsh/functions/`, menus `dotcli`.
 - [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**.
-  - **Avancement 2026-05-12** : Blocs **A**, **B**, **C**, **D**, **E**, **F.1 → F.5** validés (verdicts `O` + relectures). **Reste** : **F.6** (`--no-tui` / `--query`), **F.7** (manager + `DOTFILES_DOTCLI_ENABLE=1` en TTY), **Bloc G** (préalable + G.0/G.0.b/G.0.c + tableau G.1–G.26 + smokes G.0.d/e/f), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
+  - **Avancement 2026-06-12** : Blocs **A → F.7** validés (F.6.a/b/c + F.7.a/b/c cochés ; smoke `make test-dotcli-f7`). **Reste** : **Bloc G** (préalable + G.0/G.0.b–f + tableau G.1–G.26), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
   - **Ajout 2026-05-13** : nouveau manager `displayman` → **G.0.d** + ligne **G.24** ; **§ C.3** (matrice zsh/bash/fish/sh dans le conteneur) + lien **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table de correspondance avec `TESTS.md`.
   - **Ajout 2026-05-15** : manager **`diffman`** (diff coloré / côte à côte / rapports) → **G.0.e** + ligne **G.25** ; intégration `manman`, `migrated_managers.list`, [`docs/man/diffman.md`](docs/man/diffman.md).
   - **Ajout 2026-06-12** : manager **`diskman`** (diagnostic espace disque / nettoyage dry-run/apply) → **G.0.f** + ligne **G.26** ; intégration `manman`, adapters multi-shells, [`docs/man/diskman.md`](docs/man/diskman.md).
+  - **Ajout 2026-06-12 (F.7)** : Bloc **F.7** complété (`dotcli --items-file`, smoke `make test-dotcli-f7`, F.7.a/b/c cochés dans TESTS.md). **Reste manuel optionnel** : navigation TUI visuelle sur `netman ports` / `cyberlearn --help` en terminal réel.
+  - **Ajout 2026-06-12 (suite)** : **E.4** ajouté pour la passe Docker actuelle : `make test-docker` = managers **81/81 OK** (**412 tests**), Phase 2b `menu_quit_smoke` OK, matrice sous-commandes **114 exécutions / 0 échec** (`displayman detect` hors CI car matériel DDC réel) ; `make test-menu-quit` disponible pour vérifier rapidement les menus `0/q`.
   - **Correctif 2026-05-13** : **`netman` menu Informations IP** — affichage IPv4/IPv6 réécrit (`ip -o` + `awk`) ; voir **`docs/ERRORS.md`** + **EXT-006** dans `TESTS.md`.
 
 ---
@@ -98,7 +105,7 @@ Cases qualité :
 Cocher quand **toi** tu es satisfait :
 
 - [~] `make test-dotfiles-good` OK (ta machine, dernière branche). *— vérifié via `docs/TESTS.md` § E.2 (2026-05-12 = `O`) ; coche définitivement après ta relecture finale de TESTS.md.*
-- [~] `make test` (Docker) OK. *— vérifié via `docs/TESTS.md` § E.3 (2026-05-12 = `O`, **69/69 cellules**, 352 tests, 0 échec) ; coche définitivement après ta relecture finale.*
+- [~] `make test` / `make test-docker` (Docker) OK. *— vérifié via `docs/TESTS.md` § E.3 (2026-05-12 = `O`, **69/69 cellules**) puis § **E.4** (2026-06-12 : **81/81 cellules**, **412 tests managers**, `menu_quit_smoke OK`, matrice sous-commandes **114 exécutions / 0 échec** après exclusion du test matériel `displayman detect`) ; coche définitivement après ta relecture finale.*
 - [ ] Session réelle avec bootstrap `DOTFILES_GOOD` sans casse bloquante.
 - [ ] Décision notée : brancher `shared/config.sh` / entrées shell **oui / non / plus tard**.
 
@@ -125,6 +132,7 @@ Cocher quand **toi** tu es satisfait :
 - [~] Contrat **responsive terminal** : helpers communs dans `scripts/lib/tui_core.sh` ; pilotes manman + updateman status. **Reste** : etendre aux menus interactifs restants + EXT-002.
 - [ ] installman vers `core/` définitif ; **read/clear** hors TTY.
 - [ ] **`make test`** vert à chaque étape.
+- [x] Smoke menus `0/q` automatisé : `make test-menu-quit` + Phase 2b dans `make test-docker`.
 - [ ] Fallback visuel multi-shell (dégradation ASCII).
 
 ### Transformation globale (fil directeur)
@@ -184,6 +192,7 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 | V-2026-05-13-displayman | **Nouveau manager `displayman`** (écran externe / luminosité / DDC) — core POSIX [`core/managers/displayman/core/displayman.sh`](core/managers/displayman/core/displayman.sh), adapters zsh/bash/fish, page man [`docs/man/displayman.md`](docs/man/displayman.md), liste tests CI [`scripts/test/subcommands/displayman.list`](scripts/test/subcommands/displayman.list), enregistré dans `manman` + 3 rc files + `sync_managers.sh` + `scripts/test/config/migrated_managers.list` (24<sup>e</sup> manager) + fallbacks `run_tests.sh` / `test_migrated_managers.sh` / `dotfiles_test_config.sh` + tableau [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md). **Convention G.x** respectée (no-args / help / -h / aide / help --interactive / --help / arg inconnu → stderr+rc1). **Sous-commandes** : `detect`, `info`, `dump`, `brightness`, `contrast`, `preset`, `reset`, `range`, `osd-guide`. **Diagnostic Xiaomi** mené (étape A) : brightness/contraste déjà 100/100, preset `0x0b` (User 1) verrouillé en écriture par firmware. **Guide complet** : [`docs/guides/SCREEN_DISPLAY.md`](docs/guides/SCREEN_DISPLAY.md) (étapes A diag DDC / B OSD physique avec variantes A internationale + B française minimaliste / C Full Range NVIDIA). **Bug firmware** documenté dans [`docs/ERRORS.md`](docs/ERRORS.md). | [ ] |
 | V-2026-05-13-fullrange | **Étape C appliquée** — fragment `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf` (`Option "ColorRange" "Full"`) installé `root:root 0644` ; **relog graphique requis** pour observer le changement (noirs plus francs, blancs moins ternes). Rollback : `sudo rm /etc/X11/xorg.conf.d/20-nvidia-fullrange.conf` puis relog. À valider visuellement après relog ; si pire qu'avant → rollback. Lié à `V-2026-05-13-displayman`. | [ ] |
 | V-2026-05-22-updateman-cursor | **`updateman cursor`** : updater Cursor AppImage adaptable (`scripts/update/update-cursor-appimage`) + timer `systemd --user` (`systemd/user/cursor-update.service`, `.timer`) + adapters zsh/bash/fish + page man [`docs/man/updateman.md`](docs/man/updateman.md). Detection du Cursor existant via `.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`; installation vers un chemin stable `Cursor.AppImage`, backups `.cursor-backups`, shim `~/.local/bin/cursor`, lanceur desktop. L'updater reste interne : pas de commande publique `update-cursor-appimage`, usage via `updateman cursor`. Base globale : `updateman status` + `updateman all`. Si Cursor est ouvert, le mode manuel propose de fermer proprement l'application ; le timer n'essaie pas de tuer Cursor sans confirmation. A valider : lancer `updateman cursor`, accepter la fermeture de Cursor si demandee, relancer Cursor, verifier `updateman status`, `updateman cursor status` et `updateman cursor logs`. | [ ] |
+| V-2026-06-12-menu-quit-docker | **Menus `0/q` + tests Docker + F.7 dotcli** : `ncmenu`/`dotcli --items-file`, `make test-menu-quit`, `make test-dotcli-f7`, Phase 2b Docker, **E.4** + **F.7** dans TESTS.md. Validation auto : managers **81/81**, `menu_quit_smoke OK`, matrice **114/0**, F.7 smoke OK. Reste optionnel : validation visuelle TUI en terminal réel + **Bloc G**. | [ ] |
 
 > **Tant qu’une ligne ci-dessus n’est pas cochée**, considérer que ce lot n’est pas « officiellement » refermé pour enchaîner une nouvelle vague de tâches dépendantes.
 

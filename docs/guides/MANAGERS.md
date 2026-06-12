@@ -12,22 +12,48 @@
 
 Le projet inclut plusieurs gestionnaires interactifs organisés en structure modulaire pour faciliter l'utilisation et l'extension.
 
-### Structure Modulaire
+### Structure Modulaire Actuelle
 
-Tous les managers suivent la même structure :
+Les nouveaux managers et les managers migrés suivent la structure POSIX commune :
+
+```text
+core/managers/<manager>/
+├── core/<manager>.sh          # cœur POSIX : commandes, aide, menu
+├── modules/                   # modules métier si le manager devient gros
+├── lib/                       # helpers privés du manager
+├── config/                    # registres / listes versionnées
+└── README.md                  # optionnel si la page man ne suffit pas
+
+shells/
+├── zsh/adapters/<manager>.zsh # adapter mince
+├── bash/adapters/<manager>.sh # adapter mince
+└── fish/adapters/<manager>.fish
+
+docs/man/<manager>.md          # page man Markdown
+scripts/test/subcommands/<manager>.list
 ```
-zsh/functions/
-├── <manager>.zsh          # Wrapper de compatibilité
-└── <manager>/             # Répertoire du manager
-    ├── core/              # Script principal
-    │   └── <manager>.zsh
-    ├── modules/           # Modules organisés
-    │   ├── legacy/        # Anciens fichiers
-    │   └── ...            # Nouveaux modules
-    ├── utils/             # Utilitaires
-    ├── config/            # Configuration
-    └── install/           # Scripts d'installation
-```
+
+Les anciens chemins `zsh/functions/<manager>/...` restent parfois comme compatibilité ou modules legacy, mais la cible est : **un seul core POSIX**, des **adapters minces**, et des tests Docker reproductibles.
+
+### Ajouter Une Fonctionnalité Ou Un Manager
+
+Avant d’ajouter du code, choisir l’intégration la plus simple :
+
+- **Sous-commande d’un manager existant** si le domaine est déjà clair (`diskman clean`, `diffman report`, `sshman auto-setup`).
+- **Nouveau manager** si le domaine a ses propres commandes, sa page man et ses tests (`diffman`, `diskman`, `displayman`).
+- **Module interne** si le code dépasse une taille raisonnable mais reste privé au manager (`modules/`, `lib/`).
+
+Checklist minimale pour rester intégrable :
+
+1. Créer ou modifier `core/managers/<manager>/core/<manager>.sh` avec le contrat CLI : `help`, `-h`, `aide` → aide stdout ; `--help` → aide + menu si TTY ; argument inconnu → stderr + `rc != 0`.
+2. Charger l’UI commune si un menu existe : `scripts/lib/manager_ui.sh`, `manager_ui_select_file`, `manager_ui_is_quit_choice`; `0`, `q`, `quit`, `exit` doivent quitter.
+3. Ajouter les adapters zsh/bash/fish sous `shells/*/adapters/`.
+4. Enregistrer le manager dans `manman`, `scripts/test/config/migrated_managers.list`, `scripts/tools/sync_managers.sh` et les docs d’index si c’est un nouveau manager.
+5. Ajouter `scripts/test/subcommands/<manager>.list` avec uniquement des commandes non interactives et non destructives. Toute dépendance matérielle réelle (`ddcutil`, GPU, SSH serveur, Docker daemon hôte) doit être exclue de la matrice Docker et documentée en manuel dans `docs/TESTS.md`.
+6. Ajouter ou mettre à jour `docs/man/<manager>.md`, `docs/TESTS.md` Bloc G et, si besoin, `docs/ERRORS.md`.
+7. Lancer `make test-menu-quit` pour les menus, puis `make test-docker` ou au minimum `TEST_MANAGERS=<manager> bash scripts/test/docker/run_subcommand_matrix_docker.sh`.
+
+Voir aussi : [`../../core/managers/MANAGERS_UI.md`](../../core/managers/MANAGERS_UI.md).
 
 ### 🔐 Cyberman - Gestionnaire Cybersécurité
 

@@ -63,19 +63,19 @@ manager_ui_print_banner() {
     fi
     if command -v tui_repeat_char >/dev/null 2>&1; then
         printf '╔'
-        tui_repeat_char '═' "$_mui_w"
+        tui_repeat_char '═' "$((_mui_w + 2))"
         printf '╗\n'
         printf '║ %-*s ║\n' "$_mui_w" "$_mui_title"
         [ -n "$_mui_sub1" ] && printf '║ %-*s ║\n' "$_mui_w" "$_mui_sub1"
         [ -n "$_mui_sub2" ] && printf '║ %-*s ║\n' "$_mui_w" "$_mui_sub2"
         printf '╚'
-        tui_repeat_char '═' "$_mui_w"
+        tui_repeat_char '═' "$((_mui_w + 2))"
         printf '╝\n'
     else
         echo "╔════════════════════════════════════════════════════════════════╗"
-        printf '║ %-*s ║\n' 62 "$_mui_title"
-        [ -n "$_mui_sub1" ] && printf '║ %-*s ║\n' 62 "$_mui_sub1"
-        [ -n "$_mui_sub2" ] && printf '║ %-*s ║\n' 62 "$_mui_sub2"
+        printf '║ %-*s ║\n' 60 "$_mui_title"
+        [ -n "$_mui_sub1" ] && printf '║ %-*s ║\n' 60 "$_mui_sub1"
+        [ -n "$_mui_sub2" ] && printf '║ %-*s ║\n' 60 "$_mui_sub2"
         echo "╚════════════════════════════════════════════════════════════════╝"
     fi
 }
@@ -104,10 +104,10 @@ manager_ui_leave_main_menu() {
 manager_ui_section_line() {
     _mui_c1="${1:-}"
     _mui_c2="${2:-}"
-    [ -n "$_mui_c1" ] && printf '%s' "$_mui_c1"
+    [ -n "$_mui_c1" ] && printf '%b' "$_mui_c1"
     manager_ui_section_rule
     if [ -n "$_mui_c2" ]; then
-        printf '%s' "$_mui_c2"
+        printf '%b' "$_mui_c2"
     else
         printf '\n'
     fi
@@ -125,9 +125,9 @@ manager_ui_select_file() {
         _mui_dotcli="${DOTFILES_DOTCLI_BIN:-${DOTFILES_DIR:-$HOME/dotfiles}/bin/dotcli}"
         if [ -x "$_mui_dotcli" ]; then
             if [ "${DOTFILES_DOTCLI_MENU_NO_TUI:-0}" = "1" ]; then
-                "$_mui_dotcli" menu --no-tui --prompt "$_mui_title" < "$_mui_file" 2>/dev/null && return 0
+                "$_mui_dotcli" menu --no-tui --prompt "$_mui_title" --items-file "$_mui_file" 2>/dev/null && return 0
             else
-                "$_mui_dotcli" menu --prompt "$_mui_title" < "$_mui_file" 2>/dev/null && return 0
+                "$_mui_dotcli" menu --prompt "$_mui_title" --items-file "$_mui_file" 2>/dev/null && return 0
             fi
         fi
     fi

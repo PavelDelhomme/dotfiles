@@ -23,8 +23,17 @@ fi
 - **Depuis un fichier** : `manager_ui_select_file "Titre" "$menu_file"` avec des lignes `Label|valeur`.
 - **Depuis stdin** : `printf 'Label|valeur\n' | manager_ui_select "Titre"`.
 - Ordre cible : `dotcli menu` si `DOTFILES_DOTCLI_ENABLE=1`, puis `dotfiles_ncmenu_select` (`fzf`/`ncmenu`), puis retour `127` pour laisser le manager faire son `read` manuel.
+- **Convention quit** : chaque menu doit exposer `Quitter|0` et accepter aussi `q` si le backend le permet. Les actions historiques utilisant `0` doivent être déplacées (`x` pour export, par exemple).
+- **Automatisation** : `make test-menu-quit` vérifie `manager_ui_is_quit_choice`, `ncmenu`, `dotfiles_ncmenu_select` et un échantillon de managers `--help` en pseudo-TTY. `make test-docker` lance ce smoke en Phase 2b.
+- **Longues listes** : si un manager passe beaucoup d’items à `dotcli`, utiliser `manager_ui_select_file` / `--items-file` et laisser `dotcli` gérer le viewport. Si le manager imprime lui-même une table avant le menu (ex. `netman ports`), il doit paginer cette table avec `tui_menu_height` avant d’appeler le menu d’action.
 
 Les wrappers locaux (`netman_dotcli_menu_pick`, `aliaman_dotcli_menu_pick`, `cyberlearn_pick_menu`, etc.) doivent disparaître progressivement ou devenir de simples ponts vers `manager_ui_select_file`.
+
+## Backends De Menu
+
+- `ncmenu` doit lire les items depuis stdin mais lire les touches via `/dev/tty`, sinon `ncmenu < menu_file` n’est pas interactif.
+- `fzf` est pratique en vrai terminal mais doit rester remplaçable en CI ; les tests utilisent un stub qui sélectionne `Quitter|0`.
+- Les menus `dotcli` réels se valident en manuel avec `DOTFILES_DOTCLI_ENABLE=1` (voir `docs/TESTS.md` F.7).
 
 ## Menus Déclaratifs `dfm`
 
@@ -50,7 +59,7 @@ Voir [`docs/architecture/UI_MENU_RESTRUCTURE.md`](../../docs/architecture/UI_MEN
 
 ## Suite P3b-b
 
-- **Fait** : bannières ; `manager_ui_section_line` ; `pathman` / `doctorman` ; `processman` + `tui_menu_height` ; sortie **0/q** + boucle `show_main_menu || break` (devman, virtman, gitman, … — voir commit `0e5647a`) ; smoke `make test-tui-compact` (COLUMNS 60/69).
+- **Fait** : bannières ; `manager_ui_section_line` ; `pathman` / `doctorman` ; `processman` + `tui_menu_height` ; sortie **0/q** + boucle `show_main_menu || break` ; `ncmenu` avec sélection directe `0/q/1…` ; smoke `make test-tui-compact` (COLUMNS 60/69) + `make test-menu-quit`.
 - **En pause** : `tui_truncate`, pagination menus longs, aligner cyberman/installman et menus inline ; validation manuelle EXT-002.
 
 ## Suite P1

@@ -2,9 +2,11 @@
 # Utilisation: dfm configman
 Git global|configman git
 Git remote|configman git-remote
+Réappliquer shell/prompt (dry-run)|configman apply shell --dry-run
 Symlinks dotfiles|configman symlinks
 Shells|configman shell
 Powerlevel10k|configman p10k
+Powerlevel10k root (dry-run)|configman p10k root --dry-run
 SSH interactif|configman ssh
 SSH auto|configman ssh-auto
 QEMU libvirt|configman qemu-libvirt

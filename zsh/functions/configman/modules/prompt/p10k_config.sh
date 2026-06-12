@@ -22,14 +22,91 @@ log_warn() { echo -e "\033[1;33m[⚠]\033[0m $1"; }
 log_error() { echo -e "\033[0;31m[✗]\033[0m $1"; }
 log_section() { echo -e "\n\033[0;36m═══════════════════════════════════\033[0m\n\033[0;36m$1\033[0m\n\033[0;36m═══════════════════════════════════\033[0m"; }
 
+detect_prompt_engine() {
+    if [[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ]]; then
+        echo "powerlevel10k-system"
+    elif [[ -f "$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+        echo "powerlevel10k-oh-my-zsh"
+    elif [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+        echo "manjaro-zsh-prompt"
+    else
+        echo "missing"
+    fi
+}
+
+font_status() {
+    if ! command -v fc-match >/dev/null 2>&1; then
+        echo "unknown"
+        return
+    fi
+    if fc-match 'MesloLGS NF' 2>/dev/null | grep -qi 'Meslo'; then
+        echo "ok"
+    else
+        echo "missing"
+    fi
+}
+
+ensure_prompt_prerequisites() {
+    local engine
+    engine="$(detect_prompt_engine)"
+    log_info "Moteur prompt détecté: $engine"
+    log_info "Police MesloLGS NF: $(font_status)"
+
+    if [[ "$engine" == "missing" ]]; then
+        log_warn "Powerlevel10k n'est pas installé sur ce système."
+        if [[ -f "$DOTFILES_DIR/scripts/config/setup_p10k.sh" ]]; then
+            printf "Installer Powerlevel10k maintenant ? [y/N] "
+            read -r install_choice
+            case "$install_choice" in
+                y|Y|yes|YES|o|O|oui|OUI)
+                    bash "$DOTFILES_DIR/scripts/config/setup_p10k.sh" || return 1
+                    ;;
+                *)
+                    log_error "Installation annulée. Le prompt dotfiles ne pourra pas être appliqué."
+                    return 1
+                    ;;
+            esac
+        else
+            log_error "Script setup_p10k.sh introuvable"
+            return 1
+        fi
+    fi
+
+    if [[ "$(font_status)" == "missing" ]] && [[ -f "$DOTFILES_DIR/scripts/config/install_nerd_fonts.sh" ]]; then
+        log_warn "Police Nerd Font non détectée. Les icônes peuvent s'afficher mal."
+        printf "Installer les Nerd Fonts maintenant ? [y/N] "
+        read -r font_choice
+        case "$font_choice" in
+            y|Y|yes|YES|o|O|oui|OUI)
+                bash "$DOTFILES_DIR/scripts/config/install_nerd_fonts.sh" || true
+                ;;
+        esac
+    fi
+    return 0
+}
+
+if [[ "${1:-}" == "root" ]]; then
+    shift
+    if [[ -f "$DOTFILES_DIR/scripts/config/setup_root_prompt.sh" ]]; then
+        bash "$DOTFILES_DIR/scripts/config/setup_root_prompt.sh" "$@"
+        exit $?
+    fi
+    log_error "Script root prompt introuvable: $DOTFILES_DIR/scripts/config/setup_root_prompt.sh"
+    exit 1
+fi
+
+if [[ "${1:-}" == "apply" || "${1:-}" == "--apply" || "${1:-}" == "--dry-run" || "${1:-}" == "--install-missing" ]]; then
+    if [[ -f "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" ]]; then
+        bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" shell "$@"
+        exit $?
+    fi
+    log_error "Script apply dotfiles introuvable"
+    exit 1
+fi
+
 log_section "Configuration Powerlevel10k"
 
-# Vérifier que Powerlevel10k est disponible
-if ! [[ -e /usr/share/zsh/manjaro-zsh-prompt ]] && ! command -v p10k >/dev/null 2>&1; then
-    log_error "Powerlevel10k n'est pas installé!"
-    echo "Installez d'abord: sudo pacman -S zsh-theme-powerlevel10k"
-    return 1 2>/dev/null || exit 1
-fi
+ensure_prompt_prerequisites || exit 1
 
 echo ""
 echo "Options disponibles:"
@@ -38,9 +115,10 @@ echo "Options disponibles:"
       echo "3. Créer un symlink de ~/.p10k.zsh vers dotfiles (RECOMMANDÉ)"
       echo "4. Sauvegarder la configuration actuelle dans dotfiles"
       echo "5. Vérifier la configuration Powerlevel10k"
+      echo "6. Réappliquer le prompt dotfiles actuel (shell + .p10k.zsh)"
       echo "0. Retour"
       echo ""
-      printf "Choix [1-5]: "
+      printf "Choix [0-6]: "
 read -r choice
 
 case "$choice" in
@@ -125,6 +203,8 @@ case "$choice" in
     5)
         log_info "Vérification de la configuration Powerlevel10k..."
         echo ""
+        log_info "Moteur prompt: $(detect_prompt_engine)"
+        log_info "Police MesloLGS NF: $(font_status)"
         if [[ -f "$P10K_HOME" ]]; then
             if [[ -L "$P10K_HOME" ]]; then
                 log_info "✓ Configuration trouvée (symlink): $P10K_HOME"
@@ -153,6 +233,14 @@ case "$choice" in
             log_info "✓ Prompt Manjaro disponible"
         else
             log_warn "⚠ Prompt Manjaro non disponible"
+        fi
+        ;;
+    6)
+        if [[ -f "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" ]]; then
+            bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" shell --apply
+        else
+            log_error "Script apply dotfiles introuvable"
+            return 1 2>/dev/null || exit 1
         fi
         ;;
     0)

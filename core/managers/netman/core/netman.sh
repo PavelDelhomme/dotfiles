@@ -130,22 +130,7 @@ netman() {
         fi
 
         if command -v ss >/dev/null 2>&1; then
-            _ss_data=$(ss -ltnup 2>/dev/null | awk '
-                NR > 1 {
-                    addr=$5
-                    proc=$NF
-                    cmd="-"
-                    pid="-"
-                    if (match(proc, /"[^"]+"/)) {
-                        cmd=substr(proc, RSTART+1, RLENGTH-2)
-                    }
-                    if (match(proc, /pid=[0-9]+/)) {
-                        pid=substr(proc, RSTART+4, RLENGTH-4)
-                    }
-                    gsub(/\[|\]/, "", addr)
-                    printf "%s %s - - - - - - %s\n", cmd, pid, addr
-                }
-            ')
+            _ss_data=$(ss -ltnup 2>/dev/null | awk 'NR > 1 { addr=$5; proc=$NF; cmd=proc; pid="-"; gsub(/\[|\]/, "", addr); gsub(/^users:\(\("/, "", cmd); gsub(/".*/, "", cmd); if (cmd == "" || cmd == "-") cmd="ss"; if (match(proc, /pid=[0-9]+/)) pid=substr(proc, RSTART+4, RLENGTH-4); printf "%s %s - - - - - - %s\n", cmd, pid, addr }')
             if [ -n "$_ss_data" ]; then
                 NETMAN_PORT_SOURCE="ss"
                 printf "%s\n" "$_ss_data"
@@ -154,18 +139,7 @@ netman() {
         fi
 
         if command -v netstat >/dev/null 2>&1; then
-            _netstat_data=$(netstat -lntup 2>/dev/null | awk '
-                NR > 2 {
-                    addr=$4
-                    pidprog=$7
-                    pid="-"
-                    cmd="-"
-                    split(pidprog, a, "/")
-                    if (a[1] != "" && a[1] != "-") pid=a[1]
-                    if (a[2] != "") cmd=a[2]
-                    printf "%s %s - - - - - - %s\n", cmd, pid, addr
-                }
-            ')
+            _netstat_data=$(netstat -lntup 2>/dev/null | awk 'NR > 2 { addr=$4; pidprog=$7; pid="-"; cmd="-"; split(pidprog, a, "/"); if (a[1] != "" && a[1] != "-") pid=a[1]; if (a[2] != "") cmd=a[2]; printf "%s %s - - - - - - %s\n", cmd, pid, addr }')
             if [ -n "$_netstat_data" ]; then
                 NETMAN_PORT_SOURCE="netstat"
                 printf "%s\n" "$_netstat_data"
@@ -238,6 +212,7 @@ netman() {
     # Fonction pour afficher les ports en écoute avec interface interactive
     manage_ports() {
         SELECTED_ITEMS=""
+        PORT_PAGE=0
         while true; do
             show_header
             printf "${YELLOW}📡 Ports en écoute sur le système${RESET}\n"
@@ -259,23 +234,45 @@ netman() {
                 return
             fi
             
-            # Affichage formaté
+            port_count=$(printf '%s\n' "$PORTS_DATA" | grep -c . 2>/dev/null || printf '0')
+            if command -v tui_menu_height >/dev/null 2>&1; then
+                PORTS_PER_PAGE=$(tui_menu_height 18)
+            else
+                PORTS_PER_PAGE=12
+            fi
+            case "$PORTS_PER_PAGE" in
+                ''|*[!0-9]*) PORTS_PER_PAGE=12 ;;
+            esac
+            [ "$PORTS_PER_PAGE" -lt 5 ] && PORTS_PER_PAGE=5
+            [ "$PORTS_PER_PAGE" -gt 25 ] && PORTS_PER_PAGE=25
+            total_pages=$(( (port_count + PORTS_PER_PAGE - 1) / PORTS_PER_PAGE ))
+            [ "$total_pages" -lt 1 ] && total_pages=1
+            if [ "$PORT_PAGE" -ge "$total_pages" ]; then
+                PORT_PAGE=$((total_pages - 1))
+            fi
+            [ "$PORT_PAGE" -lt 0 ] && PORT_PAGE=0
+            page_start=$((PORT_PAGE * PORTS_PER_PAGE + 1))
+            page_end=$(((PORT_PAGE + 1) * PORTS_PER_PAGE))
+            [ "$page_end" -gt "$port_count" ] && page_end="$port_count"
+
+            # Affichage formaté (page courante uniquement)
             printf "${CYAN}%-5s %-10s %-20s %-10s %-15s %-25s %s${RESET}\n" \
                    "N°" "PORT" "COMMANDE" "PID" "USER" "ADRESSE" "STATUS"
             echo "────────────────────────────────────────────────────────────────────────────────"
             if [ -n "$NETMAN_PORT_SOURCE" ]; then
                 printf "${BLUE}Source: %s${RESET}\n" "$NETMAN_PORT_SOURCE"
             fi
+            if [ "$total_pages" -gt 1 ]; then
+                printf "${BLUE}Page %s/%s — ports %s-%s/%s${RESET}\n" \
+                    "$((PORT_PAGE + 1))" "$total_pages" "$page_start" "$page_end" "$port_count"
+            fi
             
-            port_list=""
             i=1
             
             echo "$PORTS_DATA" | while IFS= read -r line; do
-                if [ -z "$port_list" ]; then
-                    port_list="$line"
-                else
-                    port_list="$port_list
-$line"
+                if [ "$i" -lt "$page_start" ] || [ "$i" -gt "$page_end" ]; then
+                    i=$((i + 1))
+                    continue
                 fi
                 CMD=$(echo "$line" | awk '{print $1}')
                 PID=$(echo "$line" | awk '{print $2}')
@@ -291,7 +288,7 @@ $line"
                         ;;
                 esac
                 
-                printf "%-5d %-10s %-20.20s %-10s %-15s %-25.25s %s\n" \
+                printf "%-5d %-10s %-20.20s %-10s %-15s %-25.25s %b\n" \
                        "$i" "$PORT" "$CMD" "$PID" "$USER" "$ADDR" "$STATUS"
                 i=$((i + 1))
             done
@@ -306,6 +303,10 @@ $line"
             echo "  [n]   Désélectionner tout"
             echo "  [f]   Explorer les ports via fzf (preview)"
             echo "  [r]   Rafraîchir la liste"
+            if [ "$total_pages" -gt 1 ]; then
+                echo "  [>]   Page suivante"
+                echo "  [<]   Page précédente"
+            fi
             echo "  [0]   Retour au menu principal"
             echo "  [q]   Retour au menu principal"
             echo ""
@@ -320,6 +321,14 @@ Selectionner tous les ports|a
 Desel. tous les ports|n
 Explorer ports via fzf preview|f
 Rafraichir la liste|r
+EOF
+                if [ "$total_pages" -gt 1 ]; then
+                    cat >> "$_ports_actions_file" <<'EOF'
+Page suivante|]
+Page precedente|[
+EOF
+                fi
+                cat >> "$_ports_actions_file" <<'EOF'
 Retour menu principal|0
 Retour menu principal|q
 EOF
@@ -457,22 +466,8 @@ EOF
                 f|F)
                     if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
                         picked_port=$(
-                            echo "$PORTS_DATA" | awk '{
-                                cmd=$1; pid=$2; user=$3; addr=$9; port=addr; sub(/.*:/,"",port);
-                                printf "%-8s %-18s %-10s %-14s %s\n", port, cmd, pid, user, addr
-                            }' | netman_fzf_pick_line "Ports LISTEN" '
-                                port=$(printf "%s\n" "{}" | awk "{print \$1}");
-                                [ -z "$port" ] && exit 0;
-                                echo "Port: $port";
-                                echo "";
-                                if command -v lsof >/dev/null 2>&1; then
-                                    lsof -i :"$port" -P -n 2>/dev/null | sed -n "1,20p";
-                                fi;
-                                echo "";
-                                if command -v ss >/dev/null 2>&1; then
-                                    ss -tnp 2>/dev/null | grep ":$port" | sed -n "1,15p";
-                                fi
-                            '
+                            echo "$PORTS_DATA" | awk '{ cmd=$1; pid=$2; user=$3; addr=$9; port=addr; sub(/.*:/,"",port); printf "%-8s %-18s %-10s %-14s %s\n", port, cmd, pid, user, addr }' \
+                                | netman_fzf_pick_line "Ports LISTEN" 'printf "%s\n" "{}"'
                         )
                         if [ -n "$picked_port" ]; then
                             echo "Sélection: $picked_port"
@@ -485,6 +480,20 @@ EOF
                     fi
                     ;;
                 r|R)
+                    continue
+                    ;;
+                \]|\>|next|suivant)
+                    if [ "$total_pages" -gt 1 ]; then
+                        PORT_PAGE=$((PORT_PAGE + 1))
+                        [ "$PORT_PAGE" -ge "$total_pages" ] && PORT_PAGE=0
+                    fi
+                    continue
+                    ;;
+                \[|\<|prev|precedent|précédent)
+                    if [ "$total_pages" -gt 1 ]; then
+                        PORT_PAGE=$((PORT_PAGE - 1))
+                        [ "$PORT_PAGE" -lt 0 ] && PORT_PAGE=$((total_pages - 1))
+                    fi
                     continue
                     ;;
                 0|q|Q|quit|exit)
@@ -510,18 +519,7 @@ EOF
             _conn_rows=$(netstat -tunap 2>/dev/null | grep ESTABLISHED)
         fi
         if [ -n "$_conn_rows" ]; then
-            if _picked_conn=$(printf '%s\n' "$_conn_rows" | netman_fzf_pick_line "Connexions ESTAB" '
-                proto=$(printf "%s\n" "{}" | awk "{print \$1}");
-                local_addr=$(printf "%s\n" "{}" | awk "{print \$2}");
-                remote_addr=$(printf "%s\n" "{}" | awk "{print \$3}");
-                echo "Proto: $proto";
-                echo "Local: $local_addr";
-                echo "Remote: $remote_addr";
-                echo "";
-                if command -v ss >/dev/null 2>&1; then
-                    ss -tunap 2>/dev/null | grep "ESTAB" | grep "$local_addr" | grep "$remote_addr" | sed -n "1,12p";
-                fi
-            '); then
+            if _picked_conn=$(printf '%s\n' "$_conn_rows" | netman_fzf_pick_line "Connexions ESTAB" 'printf "%s\n" "{}"'); then
                 printf "%s\n" "$_picked_conn"
             else
                 printf '%s\n' "$_conn_rows"
@@ -1067,16 +1065,7 @@ EOF
         if [ -t 0 ] && [ -t 1 ] && command -v fzf >/dev/null 2>&1; then
             picked_iface=$(
                 ip -o link show 2>/dev/null | awk -F': ' '{print $2}' | cut -d: -f1 | \
-                netman_fzf_pick_line "Interfaces" '
-                    iface=$(printf "%s\n" "{}" | awk "{print \$1}" | sed "s/:$//");
-                    iface_base=${iface%%@*};
-                    [ -z "$iface" ] && exit 0;
-                    echo "Interface: $iface";
-                    echo "";
-                    ip addr show "$iface_base" 2>/dev/null | sed -n "1,30p";
-                    echo "";
-                    ip -s link show "$iface_base" 2>/dev/null | sed -n "1,20p"
-                '
+                netman_fzf_pick_line "Interfaces" 'printf "%s\n" "{}"'
             )
             if [ -n "$picked_iface" ]; then
                 netman_show_interface_details "$picked_iface"

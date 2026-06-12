@@ -46,6 +46,8 @@ detect_missing_components() {
     check_and_add "command" "gcc" "command -v gcc" "install_base_packages"
     check_and_add "command" "zsh" "command -v zsh" "install_base_packages"
     check_and_add "command" "btop" "command -v btop" "install_base_packages"
+    check_and_add "command" "powerlevel10k" "[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ] || [ -f \"\$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme\" ] || [ -f /usr/share/zsh/manjaro-zsh-prompt ]" "install_powerlevel10k"
+    check_and_add "command" "MesloLGS NF / Nerd Font" "command -v fc-match >/dev/null 2>&1 && fc-match 'MesloLGS NF' 2>/dev/null | grep -qi meslo" "install_nerd_fonts"
     
     # Gestionnaires de paquets (Arch seulement)
     if [ -f /etc/arch-release ]; then
@@ -82,6 +84,7 @@ detect_missing_components() {
     # Symlinks
     log_info "Vérification symlinks..."
     check_and_add "symlink" ".zshrc" "[ -L \"\$HOME/.zshrc\" ] && [[ \"\$(readlink \$HOME/.zshrc)\" == *\"dotfiles\"* ]]" "create_symlinks"
+    check_and_add "symlink" ".p10k.zsh" "[ -L \"\$HOME/.p10k.zsh\" ] && [[ \"\$(readlink \$HOME/.p10k.zsh)\" == *\"dotfiles/.p10k.zsh\"* ]]" "apply_shell"
     check_and_add "symlink" ".gitconfig" "[ -L \"\$HOME/.gitconfig\" ] && [[ \"\$(readlink \$HOME/.gitconfig)\" == *\"dotfiles\"* ]]" "create_symlinks"
     
     return 0

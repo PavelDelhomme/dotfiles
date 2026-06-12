@@ -23,35 +23,6 @@ NERD_FONTS_DIR="$FONTS_DIR/NerdFonts"
 # Créer le répertoire des polices si nécessaire
 mkdir -p "$NERD_FONTS_DIR"
 
-################################################################################
-# ÉTAPE 1: Installation via AUR (Arch Linux)
-################################################################################
-log_section "1. Installation via AUR"
-
-# Essayer d'installer via AUR d'abord
-if command -v yay >/dev/null 2>&1; then
-    log_info "Recherche de polices Nerd Fonts via AUR..."
-    
-    # Essayer plusieurs noms de paquets possibles
-    if yay -Qi ttf-meslo-nerd >/dev/null 2>&1 || yay -Qi nerd-fonts-meslo >/dev/null 2>&1; then
-        log_info "✓ Police Nerd Font déjà installée via AUR"
-    else
-        # Essayer d'installer
-        if yay -S --noconfirm ttf-meslo-nerd 2>/dev/null || yay -S --noconfirm nerd-fonts-meslo 2>/dev/null; then
-            log_info "✓ Police Nerd Font installée via AUR"
-        else
-            log_info "Aucun paquet AUR trouvé, installation manuelle..."
-            install_nerd_fonts_manual
-        fi
-    fi
-else
-    log_info "Installation manuelle (yay non disponible)..."
-    install_nerd_fonts_manual
-fi
-
-################################################################################
-# ÉTAPE 2: Installation manuelle (fallback)
-################################################################################
 install_nerd_fonts_manual() {
     log_section "Installation manuelle de Nerd Fonts"
     
@@ -93,6 +64,32 @@ install_nerd_fonts_manual() {
         log_info "✓ FiraCode Nerd Font déjà présent"
     fi
 }
+
+################################################################################
+# ÉTAPE 1: Installation via AUR (Arch Linux)
+################################################################################
+log_section "1. Installation via AUR"
+
+# Essayer d'installer via AUR d'abord
+if command -v yay >/dev/null 2>&1; then
+    log_info "Recherche de polices Nerd Fonts via AUR..."
+    
+    # Essayer plusieurs noms de paquets possibles
+    if yay -Qi ttf-meslo-nerd >/dev/null 2>&1 || yay -Qi nerd-fonts-meslo >/dev/null 2>&1; then
+        log_info "✓ Police Nerd Font déjà installée via AUR"
+    else
+        # Essayer d'installer
+        if yay -S --noconfirm ttf-meslo-nerd 2>/dev/null || yay -S --noconfirm nerd-fonts-meslo 2>/dev/null; then
+            log_info "✓ Police Nerd Font installée via AUR"
+        else
+            log_info "Aucun paquet AUR trouvé, installation manuelle..."
+            install_nerd_fonts_manual
+        fi
+    fi
+else
+    log_info "Installation manuelle (yay non disponible)..."
+    install_nerd_fonts_manual
+fi
 
 ################################################################################
 # ÉTAPE 3: Actualiser le cache des polices

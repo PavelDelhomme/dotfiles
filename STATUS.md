@@ -10,15 +10,16 @@
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
 - **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
 - **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`, `dfm` declaratif avec fallback pagine + pause apres action) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md), [`share/menus/README.md`](share/menus/README.md).
-- **CI** : `make test` (managers + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur.
+- **CI** : `make test` / `make test-docker` (managers + smoke menus `0/q` + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur. Dernière passe 2026-06-12 : managers **81/81 OK** (**412 tests**), `menu_quit_smoke OK`, matrice sous-commandes **114 exécutions / 0 échec** après exclusion de `displayman detect` (matériel DDC réel).
 
 ## Objectifs actuels (priorité) — reprise prévue plus tard
 
-1. **P3b-b (suite)** : `tui_truncate`, pagination menus longs, validation manuelle terminaux étroits (EXT-002) ; vérifier les managers non encore alignés (cyberman, installman, etc.).
-2. **`updateman`** : validation manuelle `status` / `all` / timer (V-2026-05-22-updateman-cursor).
-3. **P1** : adapters minces, menus `dotcli` ; **P8b** / **P8c** : `updateman dotfiles`, registre outils.
-4. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — Blocs F.6 → I ; `make test-tui-compact` en CI locale avant reprise.
-5. Jalon de validation [`TODOS.md`](TODOS.md) avant bascule structurelle majeure.
+1. **Prompt root / sudo Powerlevel10k (immédiat)** : procédure livrée via `configman p10k root --dry-run|--apply` avec backup `/root`, symlink `.p10k-root.zsh`, couleurs root rouge/orange et vérifications Powerlevel10k / Nerd Fonts. Reste : exécuter `--apply` en réel puis ouvrir `sudo zsh` pour validation visuelle.
+2. **P3b-b (suite)** : `tui_truncate`, pagination menus longs, validation manuelle terminaux étroits (EXT-002) ; vérifier les managers non encore alignés (cyberman, installman, etc.).
+3. **`updateman`** : validation manuelle `status` / `all` / timer (V-2026-05-22-updateman-cursor).
+4. **P1** : adapters minces, menus `dotcli` ; **P8b** / **P8c** : `updateman dotfiles`, registre outils.
+5. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — **F.7 complété** (smoke `make test-dotcli-f7`) ; reprendre côté utilisateur au tableau **G.1–G.26** ; côté automatique, rejouer **E.4** (`make test-docker`, Phase 2b menus) avant chaque lot UI/manager.
+6. Jalon de validation [`TODOS.md`](TODOS.md) avant bascule structurelle majeure.
 
 ## Où lire la suite
 
@@ -38,15 +39,23 @@
 
 ## Journal récent (suivi détaillé)
 
-1. **Livraison 2026-06-12** — lot **« diskman »** :
+1. **Livraison 2026-06-12** — lot **« prompt root Powerlevel10k »** :
+   - **Commande** : `configman p10k root --dry-run` prévisualise ; `configman p10k root --apply` applique avec confirmation et backup horodaté.
+   - **Fichiers** : [`.p10k-root.zsh`](.p10k-root.zsh) reprend le layout utilisateur puis force couleurs root ; [`scripts/config/setup_root_prompt.sh`](scripts/config/setup_root_prompt.sh) gère `/root/.zshrc`, `/root/.p10k.zsh`, `/root/dotfiles` et les prérequis.
+2. **Livraison 2026-06-12** — lot **« tests Docker menus / intégration future »** :
+   - **`ncmenu` / menus `0/q`** : sélection directe `0`, `q`, `1…`, lecture clavier via `/dev/tty`, smoke [`scripts/test/menu_quit_smoke.sh`](scripts/test/menu_quit_smoke.sh), cible `make test-menu-quit`, Phase 2b dans `make test-docker`.
+   - **`dotcli` longues listes** : viewport TUI (↑/↓, PgUp/PgDn, h/l, g/G) + `--items-file` pour conserver stdin comme clavier ; `netman ports` pagine maintenant la table des ports avec `tui_menu_height` avant le menu d’action.
+   - **Validation conteneur** : `make test-docker` relancé ; managers **81/81 OK** (**412 tests**), `menu_quit_smoke OK`, matrice sous-commandes **114 exécutions / 0 échec**. La matrice sous-commandes avait révélé `displayman detect` dépendant de `ddcutil`/I2C réel ; la liste CI exclut désormais `detect`.
+   - **Documentation** : [`docs/TESTS.md`](docs/TESTS.md) ajoute **E.4** ; [`docs/guides/MANAGERS.md`](docs/guides/MANAGERS.md) documente la checklist d’ajout d’un manager/fonctionnalité ; [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md) précise la convention quit/backends.
+3. **Livraison 2026-06-12** — lot **« diskman »** :
    - **Nouveau manager [`diskman`](core/managers/diskman/core/diskman.sh)** — diagnostic disque : `overview`, `usage`, `biggest`, `inodes`, `mounts`, `health`, `clean`, `report`. Le nettoyage est **dry-run par défaut** ; l’exécution réelle demande `--apply` et confirmation TTY (ou `--yes` en non-TTY contrôlé).
    - **Adapters** zsh / bash / fish + `load_manager` + entrée **`manman`** + liste migrée + [`scripts/test/subcommands/diskman.list`](scripts/test/subcommands/diskman.list) + page man [`docs/man/diskman.md`](docs/man/diskman.md) ; **TESTS.md** : **G.0.f**, tableau **G.26**.
-2. **Livraison 2026-05-22** — lots **dfm**, **P3b-b**, **sortie menus** :
+4. **Livraison 2026-05-22** — lots **dfm**, **P3b-b**, **sortie menus** :
    - **`dfm`** (`600a3be`) : fallback pagine, pause apres action.
    - **P3b-b** (`f9b130c`, `d660c9a`) : bannieres, `manager_ui_section_line`, smoke terminal etroit.
    - **Menus quit** (`0e5647a`) : `0` / `q` pour quitter `*man --help` (plus de boucle infinie + Ctrl+C) ; fzf adapte petits terminaux (69×24) ; `make test-tui-compact` elargi.
    - **Pause documentee** : reprise P3b-b / tests manuels / updateman — voir [`TODOS.md`](TODOS.md).
-3. **Livraison en cours 2026-05-22** — lot **« updateman Cursor »** :
+5. **Livraison en cours 2026-05-22** — lot **« updateman Cursor »** :
    - **Nouveau manager [`updateman`](core/managers/updateman/core/updateman.sh)** — commandes globales `updateman status`, `updateman all`, puis module `updateman cursor`.
    - **Updater Cursor AppImage** [`scripts/update/update-cursor-appimage`](scripts/update/update-cursor-appimage) : telechargement officiel, detection du Cursor local (`.desktop`, processus, commande `cursor`, `/opt`, `~/Applications`), chemin stable `Cursor.AppImage`, backups, shim `~/.local/bin/cursor`, lanceur desktop.
    - **Commande publique nettoyee** : l'ancien `~/.local/bin/update-cursor-appimage` n'est plus l'interface utilisateur ; le service systemd appelle maintenant `updateman cursor run`.
@@ -54,10 +63,10 @@
    - **Validation manuelle debloquee** : si Cursor est ouvert, `updateman cursor` propose de le fermer proprement en terminal interactif ; hors TTY, le timer echoue proprement et reessaiera plus tard.
    - **2026-05-22 (suite)** : registre `updatable-tools.list` ; `installman` appelle `updateman <outil> enable` ; shim `update-cursor` retire de `shared/config.sh` ; helpers TUI et pilotes manman/updateman status.
    - **Suite planifiee** : P3b (autres `*man`), P8c (plus d'outils au registre), P8b (`updateman dotfiles`).
-4. **Livraison 2026-05-15** — lot **« diffman »** :
+6. **Livraison 2026-05-15** — lot **« diffman »** :
    - **Nouveau manager [`diffman`](core/managers/diffman/core/diffman.sh)** — comparaison de fichiers : `compare` / `cmp` (unifié coloré via `git diff --no-index` ou `diff -u`), `side` (côte à côte `diff -y`), `report` (plusieurs fichiers, option `--all-pairs`), `diff3` si l’outil est présent. Variables `NO_COLOR` / `FORCE_COLOR=1`.
    - **Adapters** zsh / bash / fish + `load_manager` + entrée **`manman`** + liste migrée + [`scripts/test/subcommands/diffman.list`](scripts/test/subcommands/diffman.list) + page man [`docs/man/diffman.md`](docs/man/diffman.md) ; **TESTS.md** : **G.0** (`MANS`), **G.0.e**, tableau **G.25** ; mises à jour **INDEX**, **ARCHITECTURE**, **TODOS**, **CODEMAP**, **MANAGERS**, **sync_managers**.
-5. **Dernière livraison notable (2026-05-13)** — lot **« displayman + diagnostic écran »** :
+7. **Dernière livraison notable (2026-05-13)** — lot **« displayman + diagnostic écran »** :
    - **Nouveau manager [`displayman`](core/managers/displayman/core/displayman.sh)** — pilote DDC/CI (`ddcutil`) sur écrans externes : `detect`, `info`, `dump`, `brightness`, `contrast`, `preset`, `reset`, `range`, `osd-guide`. Convention G.x respectée (no-args / `help` / `-h` / `aide` / `help --interactive` / `--help` / arg inconnu → stderr + `rc≠0`).
    - **Adapters** zsh / bash / fish + enregistrement `manman` + 3 rc files + `scripts/tools/sync_managers.sh` + page man [`docs/man/displayman.md`](docs/man/displayman.md) + liste tests CI [`scripts/test/subcommands/displayman.list`](scripts/test/subcommands/displayman.list).
    - **Diagnostic écran Xiaomi (XMI Mi Monitor)** mené : brightness `100/100` et contraste `100/100` côté DDC, preset `0x0b` (User 1) **verrouillé en écriture par le firmware** Mi Monitor (MCCS 2.1). Aller-retour brightness `100→50→100` confirme que le canal DDC fonctionne ; seul le preset couleur est bloqué côté firmware.
@@ -65,17 +74,17 @@
    - **`docs/ERRORS.md`** : entrée ajoutée sur le bug firmware Mi Monitor preset DDC. **`TODOS.md`** : `V-2026-05-13-displayman` en attente + `P9 displayman`. **`docs/TESTS.md`** : bloc test dédié à intégrer (24<sup>e</sup> manager dans G.0).
    - **Étape C appliquée 2026-05-13** : fragment `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf` installé (`Option "ColorRange" "Full"`, `root:root 0644`) → **relog graphique requis** pour effet. Rollback documenté dans `docs/guides/SCREEN_DISPLAY.md`.
    - **Correctif `netman` (menu Informations IP)** : affichage IPv4/IPv6 réécrit avec `ip -4|-6 -o addr show` + `awk` (fini les colonnes vides `:` et les faux noms d’interface sur IPv6). Fichiers : `core/managers/netman/core/netman.sh` + `zsh/functions/netman/core/netman.zsh`. Doc : **`docs/TESTS.md` § C.3** (matrice shells), **EXT-006**, **`docs/ERRORS.md`**, **`TODOS.md` V-2026-05-13-netman-ip** + **P10**.
-6. **Livraison 2026-05-12** — lot **« cohérence CLI + UX terminal »** :
+8. **Livraison 2026-05-12** — lot **« cohérence CLI + UX terminal »** :
    - **Convention aide/CLI unifiée** sur tous les `*man` : `manager` / `help` / `-h` / `aide` → aide stdout non-interactive ; `help --interactive` → aide détaillée + pause si TTY ; `--help` → aide + pause + menu interactif (TTY) ou exit (non-TTY) ; **arg inconnu** → erreur stderr + `rc ≠ 0` (fin des **boucles infinies** type `aliaman --` corrigées sur `aliaman`, `cyberman`, `pathman`, `multimediaman`, `cyberlearn`, etc.).
    - **`core/utils/progress_bar.sh` adaptatif** : `\r` en TTY interactif, ligne par mise à jour en non-TTY (pipe, log, terminal IDE) → plus de réécriture sale. Variable `DOTFILES_PROGRESS_PLAIN=1` pour forcer le mode ligne.
    - **`shared/functions/lsblk_color.sh`** : wrapper `lsblk` colorisant la sortie par TYPE (gras+cyan pour `disk`, vert pour `part`, gris pour `loop`, etc.) en TTY ; passe-plat automatique hors TTY ou avec options machine (`-J/-P/-r/-n/-o/-O`). Chargé via `shared/config.sh` pour sh/bash/zsh.
    - **CI GitHub Actions** : guide [`docs/guides/GITHUB_ACTIONS.md`](docs/guides/GITHUB_ACTIONS.md) (correctif `dawidd6/action-send-mail` : pas de `content_type`, secret `EMAIL_FROM` obligatoire ou job `if:`) ; workflow [`.github/workflows/ci-checks.yml`](.github/workflows/ci-checks.yml) (`make test-checks` sur Ubuntu). Roadmap CI complète → **`TODOS.md` P8**.
    - **TESTS.md Blocs A → F.5** validés (verdicts `O` posés + relectures) ; Bloc G étendu aux 23 managers (G.0 + G.0.b reproducteur `aliaman --` + G.0.c smoke `aliaman search/list`) ; F.6 réécrit (l’ancienne consigne « pipe + TUI » était contradictoire).
    - **Jalon B avance** : 2/4 cases couvertes par TESTS.md E.2 (`make test-dotfiles-good : OK`) et E.3 (`make test : 69/69 cellules OK`). Restent à valider : *session réelle bootstrap DOTFILES_GOOD* + *décision branchement entrées shell*.
-7. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
-8. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
-9. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
-10. **À la reprise** : valider `updateman` en reel ; P3b-b restant ; [`docs/TESTS.md`](docs/TESTS.md) F.6 → I ; **P8c** / **P8b**.
+9. **Livraison 2026-05-11 (2)** — scission `docs/STRUCTURE.md` → **`STRUCTURE` (carte doc)** + **`CODEMAP.md` (arborescence code)** ; simplification **`README.md`** (3107 → ~82 lignes) ; contenu détaillé déplacé dans **`docs/guides/`** : `INSTALL.md`, `USAGE.md`, `MANAGERS.md`, `DOCKER.md`, `VM.md`. Mise à jour `INDEX.md` + bandeaux thématiques.
+10. **Livraison 2026-05-11 (1)** — réorganisation doc : ajout [`docs/INDEX.md`](docs/INDEX.md) (hub) et [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) (référentiel format d’étapes) ; allègement [`docs/TESTS.md`](docs/TESTS.md) ; clarification rôles STATUS / TODOS / ERRORS.
+11. **Livraison 2026-05-06** — `dotcli` (TUI, `--no-tui`, dry-run), pilotes netman/aliaman/cyberlearn, modules aliaman/cyberlearn.
+12. **À la reprise** : valider `updateman` en reel ; P3b-b restant ; [`docs/TESTS.md`](docs/TESTS.md) F.7 → I ; **P8c** / **P8b**.
 
 | Période | Sujet |
 |---------|--------|

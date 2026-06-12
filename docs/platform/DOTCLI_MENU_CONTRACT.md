@@ -10,15 +10,16 @@ Fournir une API de menu commune, réutilisable par tous les managers, indépenda
 
 ## Entrée
 
-- `stdin` reçoit des lignes au format:
-  - `label|key`
+- **Items du menu** (deux modes) :
+  - **`--items-file PATH`** *(recommandé depuis les managers)* : lit les lignes `label|key` depuis un fichier ; **stdin reste libre** pour le clavier TTY.
+  - **`stdin`** (pipe ou redirection) : lignes `label|key` — pratique en CI ; en TTY réel, préférer `--items-file` pour ne pas casser l’interaction clavier.
 - Exemple:
   - `Afficher les connexions|2`
   - `Quitter|q`
 
 ## Commande
 
-- `dotcli menu --prompt "NETMAN - Menu principal"`
+- `dotcli menu --prompt "NETMAN - Menu principal" --items-file /tmp/menu.txt`
 - Optionnel : `--query <texte>` (sélectionne la première entrée correspondante en non-TTY)
 - Optionnel : `--no-tui` ou variable **`DOTFILES_DOTCLI_MENU_NO_TUI=1`** — mode **ligne** (liste + saisie), sans mode brut terminal (tests prudents en TTY réel).
 - Optionnel : `--dry-run` — aperçu sur stderr, clé choisie sur stdout (non destructif).
@@ -34,7 +35,8 @@ Fournir une API de menu commune, réutilisable par tous les managers, indépenda
 - **Mode non-TTY** (CI, pipe): sélectionne la première entrée valide.
   - si `--query` est fourni, tente d'abord une correspondance `label`/`key`.
 - **Mode TTY** (par défaut, sans `--no-tui`) :
-  - **TUI** : liste avec **ligne surlignée** ; **↑/↓** ou **j/k** ; chiffres **1–9** pour déplacer le surlignage ; **Entrée** valide ; **q** choisit le **premier** item (sortie rapide) ; **Ctrl+C** restaure le terminal (code **130**).
+  - **TUI** : liste avec **ligne surlignée** ; **↑/↓** ou **j/k** ; **Entrée** valide ; **q** choisit le **premier** item (sortie rapide) ; **Ctrl+C** restaure le terminal (code **130**).
+  - **Longues listes** : `dotcli` affiche un viewport adapté à la hauteur du terminal au lieu de déborder. Navigation : **↑/↓** ligne par ligne, **PgUp/PgDn** ou **h/l** page par page, **g/G** début/fin. La barre indique `Lignes X-Y/N`.
   - Avec **`--no-tui`** : prompt + liste + saisie **une ligne** (numéro, clé, ou sous-chaîne) comme l’ancien comportement.
 
 ## Codes retour

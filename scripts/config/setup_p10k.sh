@@ -28,6 +28,25 @@ if [ ! -f "$P10K_DOTFILES" ]; then
 fi
 P10K_HOME="$HOME/.p10k.zsh"
 
+# Fonction pour installer p10k manuellement via git
+install_p10k_manual() {
+    log_info "Installation de Powerlevel10k via git..."
+    OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
+    P10K_THEME_DIR="$OH_MY_ZSH_DIR/custom/themes/powerlevel10k"
+    
+    mkdir -p "$OH_MY_ZSH_DIR/custom/themes"
+    
+    if [[ -d "$P10K_THEME_DIR" ]]; then
+        log_info "Mise à jour de Powerlevel10k..."
+        cd "$P10K_THEME_DIR" && git pull
+    else
+        log_info "Clonage de Powerlevel10k..."
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_THEME_DIR"
+    fi
+    
+    log_info "✓ Powerlevel10k installé dans $P10K_THEME_DIR"
+}
+
 # Vérifier si Powerlevel10k est déjà installé
 P10K_INSTALLED=false
 
@@ -60,26 +79,6 @@ if [[ "$P10K_INSTALLED" == "false" ]]; then
         install_p10k_manual
     fi
 fi
-
-# Fonction pour installer p10k manuellement via git
-install_p10k_manual() {
-    log_info "Installation de Powerlevel10k via git..."
-    OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
-    P10K_THEME_DIR="$OH_MY_ZSH_DIR/custom/themes/powerlevel10k"
-    
-    # Créer le répertoire si nécessaire
-    mkdir -p "$OH_MY_ZSH_DIR/custom/themes"
-    
-    if [[ -d "$P10K_THEME_DIR" ]]; then
-        log_info "Mise à jour de Powerlevel10k..."
-        cd "$P10K_THEME_DIR" && git pull
-    else
-        log_info "Clonage de Powerlevel10k..."
-        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$P10K_THEME_DIR"
-    fi
-    
-    log_info "✓ Powerlevel10k installé dans $P10K_THEME_DIR"
-}
 
 # Vérifier que gitstatus est disponible
 if [[ -d /usr/share/zsh-theme-powerlevel10k/gitstatus ]]; then

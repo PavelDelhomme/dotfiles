@@ -996,6 +996,30 @@ while true; do
                             log_install_action "install" "$name" "failed" "Échec installation"
                         fi
                         ;;
+                    install_powerlevel10k)
+                        run_script "$SCRIPT_DIR/install/system/install_powerlevel10k.sh" "Powerlevel10k"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_powerlevel10k.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    install_nerd_fonts)
+                        run_script "$SCRIPT_DIR/config/install_nerd_fonts.sh" "Nerd Fonts"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "install" "$name" "success" "Installation via install_nerd_fonts.sh"
+                        else
+                            log_install_action "install" "$name" "failed" "Échec installation"
+                        fi
+                        ;;
+                    apply_shell)
+                        run_script "$SCRIPT_DIR/bootstrap/apply_dotfiles.sh shell --apply --yes" "Réapplication shell/prompt"
+                        if [ $? -eq 0 ]; then
+                            log_install_action "config" "$name" "success" "Réapplication via apply_dotfiles.sh"
+                        else
+                            log_install_action "config" "$name" "failed" "Échec réapplication"
+                        fi
+                        ;;
                     create_symlinks)
                         run_script "$SCRIPT_DIR/config/create_symlinks.sh" "Symlinks"
                         if [ $? -eq 0 ]; then

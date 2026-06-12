@@ -2,7 +2,7 @@
 # =============================================================================
 # TUI CORE - Interface terminal adaptative (POSIX sh)
 # =============================================================================
-# Utilisable par tout shell (sh, bash, zsh). S'adapte à la taille du terminal.
+# Utilisable par tout shell (sh, bash, zsh). Adaptation a la taille du terminal.
 # Fournit: lignes/colonnes, pagination, menu compact.
 # =============================================================================
 
@@ -107,7 +107,9 @@ tui_is_compact() {
 tui_content_width() {
     _tc=$(tui_cols_safe)
     if tui_is_compact; then
-        echo $((_tc - 2))
+        _w=$((_tc - 2))
+        [ "$_w" -gt 76 ] && _w=76
+        echo "$_w"
     else
         _w=$((_tc - 4))
         [ "$_w" -gt 76 ] && _w=76
