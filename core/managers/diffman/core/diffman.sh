@@ -308,10 +308,6 @@ EOF
     fi
     if [ "$1" = "--help" ]; then
         _dm_print_help
-        if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
-        fi
-        _dm_pause_if_tty
         return 0
     fi
 

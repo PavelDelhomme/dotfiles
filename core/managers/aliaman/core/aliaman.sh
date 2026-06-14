@@ -453,11 +453,13 @@ EOF
             ;;
         --help)
             aliaman_print_usage
+            return 0
+            ;;
+        menu|--interactive)
             if ! { [ -t 0 ] && [ -t 1 ]; }; then
-                return 0
+                printf '%s\n' "aliaman: menu nécessite un terminal (TTY)." >&2
+                return 2
             fi
-            pause_if_tty
-            # poursuit avec le menu interactif (boucle ci-dessous)
             ;;
         *)
             printf '%s\n' "aliaman: commande inconnue : $1" >&2

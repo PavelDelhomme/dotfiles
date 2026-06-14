@@ -1,6 +1,13 @@
 # Sous-commandes CI diskman (non interactives, non destructives).
 help
 overview
+analyze . 1
+recommend .
+relocate candidates .
+duplicates . 1
+compress-candidates .
+archives . 2
+archives clean --dry-run .
 usage . 1
 biggest . 5
 inodes .

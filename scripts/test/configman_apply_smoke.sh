@@ -30,4 +30,25 @@ echo "$out" | grep -q 'dry-run' || {
     exit 1
 }
 
+root_out=$(zsh -fc '
+  export DOTFILES_DIR="'"$DOTFILES_DIR"'"
+  export HOME="${HOME:-/tmp/dotfiles-configman-apply-home}"
+  export ROOT_HOME="${ROOT_HOME:-/tmp/dotfiles-root-home}"
+  export DOTFILES_MANAGER_SHIM_DIR="${DOTFILES_MANAGER_SHIM_DIR:-/tmp/dotfiles-shims}"
+  mkdir -p "$HOME" "$ROOT_HOME" "$DOTFILES_MANAGER_SHIM_DIR"
+  source "'"$DOTFILES_DIR"'/zsh/functions/configman.zsh"
+  configman apply root --dry-run
+')
+
+printf '%s\n' "$root_out"
+
+echo "$root_out" | grep -q 'Ré-application root/sudo dotfiles' || {
+    echo "configman apply root: section attendue absente" >&2
+    exit 1
+}
+echo "$root_out" | grep -q 'diskman' || {
+    echo "configman apply root: shim diskman non détecté" >&2
+    exit 1
+}
+
 echo "configman_apply_smoke: OK"

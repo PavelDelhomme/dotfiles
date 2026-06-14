@@ -336,10 +336,14 @@ MODULEMAN_LIST_EOF
     # Si un argument est fourni, exécuter la commande directement
     if [ "$1" = "--help" ]; then
         moduleman_print_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "moduleman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-    elif [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+    elif [ "$1" = help ] || [ "$1" = "-h" ]; then
         moduleman_print_help
         return 0
     fi

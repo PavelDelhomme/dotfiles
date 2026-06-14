@@ -453,10 +453,13 @@ EOF
     fi
     if [ "$1" = "--help" ]; then
         displayman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "displayman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        pause_if_tty
         while true; do
             show_main_menu || break
         done

@@ -1711,10 +1711,13 @@ https://speed.hetzner.de/5GB.bin"
     fi
     if [ "$1" = "--help" ]; then
         netman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "netman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        pause_if_tty
         # Menu principal interactif
         while true; do
             show_header

@@ -864,11 +864,13 @@ EOF
     fi
     if [ "$1" = "--help" ]; then
         cyberlearn_print_usage
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "cyberlearn: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        printf "Appuyez sur Entrée pour continuer... "
-        read _cyl_dummy || true
         while true; do
             show_main_menu || break
         done

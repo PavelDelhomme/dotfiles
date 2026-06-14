@@ -30,11 +30,15 @@ docker run --rm \
 
         bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" shell --dry-run
         bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" shell --apply --yes
+        ROOT_HOME=/tmp/dotfiles-root-home DOTFILES_MANAGER_SHIM_DIR=/tmp/dotfiles-shims \
+            bash "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh" root --apply --yes
 
         test -L "$HOME/.zshrc"
         test "$(readlink "$HOME/.zshrc")" = "$DOTFILES_DIR/zshrc"
         test -L "$HOME/.p10k.zsh"
         test "$(readlink "$HOME/.p10k.zsh")" = "$DOTFILES_DIR/.p10k.zsh"
+        test -x /tmp/dotfiles-shims/diskman
+        /tmp/dotfiles-shims/diskman help >/dev/null
 
         bash -n "$DOTFILES_DIR/scripts/bootstrap/apply_dotfiles.sh"
         if command -v zsh >/dev/null 2>&1; then

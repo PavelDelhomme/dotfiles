@@ -28,22 +28,25 @@ fi
 usage() {
     cat <<'EOF'
 Usage:
-  apply_dotfiles.sh [shell|base] [--dry-run|--apply] [--install-missing] [--yes]
+  apply_dotfiles.sh [shell|root|base] [--dry-run|--apply] [--install-missing] [--yes]
 
 Profiles:
   shell   Reconfigure shell entrypoints and current Powerlevel10k design.
+  root    Configure root prompt and sudo-compatible manager commands.
   base    Alias for shell for now; future-safe entry for broader bootstrap.
 
 Examples:
   configman apply shell --dry-run
   configman apply shell --apply
   configman apply shell --apply --install-missing
+  configman apply root --dry-run
+  configman apply root --apply
 EOF
 }
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-        shell|base) PROFILE="$1" ;;
+        shell|root|base) PROFILE="$1" ;;
         --apply) APPLY=1 ;;
         --dry-run) APPLY=0 ;;
         --install-missing) INSTALL_MISSING=1 ;;
@@ -182,6 +185,29 @@ apply_shell_profile() {
     log_info "Ré-application terminée. Recharge ensuite avec: exec zsh"
 }
 
+apply_root_profile() {
+    log_section "Ré-application root/sudo dotfiles"
+
+    _mode="--dry-run"
+    [ "$APPLY" -eq 1 ] && _mode="--apply"
+    _yes=""
+    [ "$ASSUME_YES" -eq 1 ] && _yes="--yes"
+
+    if [ -f "$SCRIPT_DIR/config/setup_root_prompt.sh" ]; then
+        bash "$SCRIPT_DIR/config/setup_root_prompt.sh" "$_mode" $_yes
+    else
+        log_warn "setup_root_prompt.sh introuvable"
+    fi
+
+    if [ -f "$SCRIPT_DIR/bootstrap/install_manager_shims.sh" ]; then
+        bash "$SCRIPT_DIR/bootstrap/install_manager_shims.sh" "$_mode" $_yes --manager diskman
+    else
+        log_warn "install_manager_shims.sh introuvable"
+    fi
+
+    log_info "Root prêt après apply: sudo diskman overview"
+}
+
 if [ "$APPLY" -eq 1 ] && [ "$ASSUME_YES" -ne 1 ]; then
     printf 'Appliquer le profil %s sur ce compte (%s) ? [y/N] ' "$PROFILE" "$HOME"
     read -r answer
@@ -193,5 +219,6 @@ fi
 
 case "$PROFILE" in
     shell|base) apply_shell_profile ;;
+    root) apply_root_profile ;;
     *) log_error "Profil non supporté: $PROFILE"; exit 1 ;;
 esac

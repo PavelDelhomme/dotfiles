@@ -1,1 +1,2 @@
-@skip modules = menus interactifs
+help
+@skip modules interactifs (archive backup search sans args)

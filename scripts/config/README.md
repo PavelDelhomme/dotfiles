@@ -15,6 +15,8 @@ configman
 # Configuration directe
 configman apply shell --dry-run
 configman apply shell --apply
+configman apply root --dry-run
+configman apply root --apply
 configman git
 configman git-remote
 configman symlinks
@@ -41,6 +43,11 @@ configman apply shell --apply --install-missing
 Le profil `shell` vérifie le moteur du prompt actuel (Powerlevel10k système,
 Powerlevel10k Oh My Zsh ou prompt Manjaro), la police Nerd Font, puis converge
 `~/.zshrc` et `~/.p10k.zsh` vers le dépôt avec backup avant remplacement.
+
+Le profil `root` configure le prompt root et installe les shims nécessaires pour
+les commandes qui passent par `sudo`. Après `configman apply root --apply`,
+`sudo diskman overview` fonctionne même si `diskman` est normalement une fonction
+shell utilisateur.
 
 Le test Docker local correspondant est :
 

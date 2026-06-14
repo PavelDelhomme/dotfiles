@@ -1125,11 +1125,15 @@ EOF
     fi
     if [ "$1" = "--help" ]; then
         installman_print_quick_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "installman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        pause_if_tty
         show_main_menu
+        return 0
     elif [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
         [ -f "$_logdf/scripts/lib/managers_log_posix.sh" ] && . "$_logdf/scripts/lib/managers_log_posix.sh" && managers_cli_log installman "$@"

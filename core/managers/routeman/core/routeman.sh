@@ -233,10 +233,13 @@ routeman() {
     fi
     if [ "$1" = "--help" ]; then
         _rm_print_quick_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "routeman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        _rm_wait
         while true; do
         _rm_header
         echo "  ${BOLD}1${RESET}  📋 Visualiser les routes"

@@ -262,10 +262,13 @@ processman() {
     fi
     if [ "$1" = "--help" ]; then
         _pm_print_quick_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "processman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        _pm_wait
         while true; do
         _pm_header
         printf "${GREEN}Menu Principal${RESET}\n"

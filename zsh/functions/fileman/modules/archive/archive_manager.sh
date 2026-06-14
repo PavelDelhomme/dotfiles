@@ -14,10 +14,76 @@ set +e  # Désactivé pour éviter fermeture terminal si sourcé
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 
-log_info() { echo -e "\033[0;32m[✓]\033[0m $1"; }
-log_warn() { echo -e "\033[1;33m[⚠]\033[0m $1"; }
-log_error() { echo -e "\033[0;31m[✗]\033[0m $1"; }
-log_section() { echo -e "\n\033[0;36m═══════════════════════════════════\033[0m\n\033[0;36m$1\033[0m\n\033[0;36m═══════════════════════════════════\033[0m"; }
+log_info() { printf '\033[0;32m[✓]\033[0m %s\n' "$1"; }
+log_warn() { printf '\033[1;33m[⚠]\033[0m %s\n' "$1"; }
+log_error() { printf '\033[0;31m[✗]\033[0m %s\n' "$1" >&2; }
+log_section() { printf '\n\033[0;36m--- %s ---\033[0m\n' "$1"; }
+
+archive_do_extract() {
+    archive_path="$1"
+    dest="${2:-.}"
+    [ -f "$archive_path" ] || { log_error "Archive introuvable: $archive_path"; return 1; }
+    mkdir -p "$dest" || return 1
+    case "$archive_path" in
+        *.tar.gz|*.tgz) tar -xzf "$archive_path" -C "$dest" ;;
+        *.tar.bz2|*.tbz2) tar -xjf "$archive_path" -C "$dest" ;;
+        *.tar.xz|*.txz) tar -xJf "$archive_path" -C "$dest" ;;
+        *.tar) tar -xf "$archive_path" -C "$dest" ;;
+        *.zip)
+            command -v unzip >/dev/null 2>&1 || { log_error "unzip absent"; return 1; }
+            unzip -d "$dest" "$archive_path"
+            ;;
+        *.rar)
+            command -v unrar >/dev/null 2>&1 || { log_error "unrar absent"; return 1; }
+            unrar x -o+ "$archive_path" "$dest/"
+            ;;
+        *.7z)
+            command -v 7z >/dev/null 2>&1 || { log_error "7z absent"; return 1; }
+            7z x -o"$dest" "$archive_path"
+            ;;
+        *) log_error "Format non supporté: $archive_path"; return 1 ;;
+    esac
+    log_info "Extraction terminée -> $dest"
+}
+
+if [ $# -gt 0 ]; then
+    case "$1" in
+        help|-h|--help) printf '%s\n' "fileman archive extract|create|list|verify [args] — voir fileman help"; exit 0 ;;
+        extract|x)
+            shift
+            archive_do_extract "${1:?archive}" "${2:-.}" || exit 1
+            exit 0
+            ;;
+        list|ls)
+            shift
+            ap="${1:?archive}"
+            case "$ap" in
+                *.tar.*|*.tgz|*.tar) tar -tf "$ap" 2>/dev/null | head -50 ;;
+                *.zip) unzip -l "$ap" 2>/dev/null | head -50 ;;
+                *.7z) 7z l "$ap" 2>/dev/null | head -50 ;;
+                *) log_error "list non supporté pour $ap"; exit 1 ;;
+            esac
+            exit 0
+            ;;
+        create|c)
+            shift
+            src="${1:?source}"
+            out="${2:-${src##*/}.tar.gz}"
+            tar -czf "$out" "$src" && log_info "Créé: $out"
+            exit 0
+            ;;
+        verify|check)
+            shift
+            ap="${1:?archive}"
+            case "$ap" in
+                *.tar.*|*.tgz|*.tar) tar -tf "$ap" >/dev/null && log_info "OK: $ap" ;;
+                *.zip) unzip -t "$ap" >/dev/null && log_info "OK: $ap" ;;
+                *) log_warn "Vérification basique: fichier lisible"; test -r "$ap" ;;
+            esac
+            exit 0
+            ;;
+    esac
+fi
 
 log_section "Gestionnaire d'Archives"
 

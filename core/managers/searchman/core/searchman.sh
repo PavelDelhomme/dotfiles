@@ -656,11 +656,13 @@ EOF
     fi
     if [ "$1" = "--help" ]; then
         sm_print_cli_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            return 0
+            printf '%s\n' "searchman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
-        echo ""
-        pause_if_tty
         while true; do
         show_header
         printf "${GREEN}Menu Principal${RESET}\n"

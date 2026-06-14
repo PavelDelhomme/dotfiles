@@ -101,9 +101,12 @@ if [ -f "\$HOME/.p10k.zsh" ]; then
   source "\$HOME/.p10k.zsh"
 fi
 
-# Root gets the same useful project commands without changing user files.
-if [ -f "\$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh" ]; then
-  source "\$DOTFILES_DIR/shells/zsh/adapters/pathman.zsh" >/dev/null 2>&1 || true
+# Root gets the same manager functions without changing user files.
+if [ -d "\$DOTFILES_DIR/shells/zsh/adapters" ]; then
+  for adapter in "\$DOTFILES_DIR"/shells/zsh/adapters/*.zsh; do
+    [ -f "\$adapter" ] || continue
+    source "\$adapter" >/dev/null 2>&1 || true
+  done
 fi
 EOF
     if [ "$APPLY" -eq 1 ]; then

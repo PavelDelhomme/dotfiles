@@ -202,14 +202,15 @@ doctorman() {
         return 0
     fi
     if [ "$1" = "--help" ]; then
-        if [ -t 0 ] && [ -t 1 ]; then
-            __doctorman_help
-            printf '\n%s' "Appuyez sur Entrée pour ouvrir le menu… "
-            read -r _doc_dummy || true
-            __doctorman_menu
-        else
-            __doctorman_help
+        __doctorman_help
+        return 0
+    fi
+    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
+        if ! { [ -t 0 ] && [ -t 1 ]; }; then
+            printf '%s\n' "doctorman: menu nécessite un terminal (TTY)." >&2
+            return 2
         fi
+        __doctorman_menu
         return 0
     fi
     cmd="${1:-all}"

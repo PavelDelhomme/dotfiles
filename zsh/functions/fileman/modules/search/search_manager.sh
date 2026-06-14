@@ -12,10 +12,70 @@ fi
 
 set +e  # Désactivé pour éviter fermeture terminal si sourcé
 
-log_info() { echo -e "\033[0;32m[✓]\033[0m $1"; }
-log_warn() { echo -e "\033[1;33m[⚠]\033[0m $1"; }
-log_error() { echo -e "\033[0;31m[✗]\033[0m $1"; }
-log_section() { echo -e "\n\033[0;36m═══════════════════════════════════\033[0m\n\033[0;36m$1\033[0m\n\033[0;36m═══════════════════════════════════\033[0m"; }
+log_info() { printf '\033[0;32m[✓]\033[0m %s\n' "$1"; }
+log_warn() { printf '\033[1;33m[⚠]\033[0m %s\n' "$1"; }
+log_error() { printf '\033[0;31m[✗]\033[0m %s\n' "$1" >&2; }
+log_section() { printf '\n\033[0;36m--- %s ---\033[0m\n' "$1"; }
+
+search_print_help() {
+    cat <<'EOF'
+fileman search — recherche de fichiers
+
+  fileman search name PATTERN [DIR]     fichiers par nom (find -name)
+  fileman search content TEXTE [DIR]    fichiers contenant le texte
+  fileman search size TAILLE [DIR]      taille minimale (+10M, 1G, 500k…)
+  fileman search mtime JOURS [DIR]      modifiés depuis N jours
+  fileman search                        menu interactif (TTY)
+EOF
+}
+
+if [ $# -gt 0 ]; then
+    case "$1" in
+        help|-h|--help|aide)
+            search_print_help
+            exit 0
+            ;;
+        name|nom)
+            shift
+            pattern="${1:?Usage: fileman search name PATTERN [DIR]}"
+            search_dir="${2:-.}"
+            [ -d "$search_dir" ] || { log_error "Répertoire introuvable: $search_dir"; exit 1; }
+            log_info "Recherche par nom: $pattern dans $search_dir"
+            find "$search_dir" -name "$pattern" -type f 2>/dev/null | head -50
+            exit 0
+            ;;
+        content|contenu|grep)
+            shift
+            text="${1:?Usage: fileman search content TEXTE [DIR]}"
+            search_dir="${2:-.}"
+            [ -d "$search_dir" ] || { log_error "Répertoire introuvable: $search_dir"; exit 1; }
+            log_info "Recherche contenu: $text dans $search_dir"
+            grep -r -l -- "$text" "$search_dir" 2>/dev/null | head -50
+            exit 0
+            ;;
+        size|taille)
+            shift
+            size="${1:?Usage: fileman search size TAILLE [DIR] (ex: +10M)}"
+            search_dir="${2:-.}"
+            case "$size" in +*) ;; *) size="+$size" ;; esac
+            [ -d "$search_dir" ] || { log_error "Répertoire introuvable: $search_dir"; exit 1; }
+            log_info "Fichiers > $size dans $search_dir"
+            find "$search_dir" -type f -size "$size" -printf '%s\t%p\n' 2>/dev/null \
+                | sort -nr | head -50 \
+                | awk '{printf "%.1fM\t%s\n", $1/1024/1024, $2}'
+            exit 0
+            ;;
+        mtime|date)
+            shift
+            days="${1:?Usage: fileman search mtime JOURS [DIR]}"
+            search_dir="${2:-.}"
+            [ -d "$search_dir" ] || { log_error "Répertoire introuvable: $search_dir"; exit 1; }
+            log_info "Modifiés < $days jours dans $search_dir"
+            find "$search_dir" -type f -mtime "-$days" 2>/dev/null | head -50
+            exit 0
+            ;;
+    esac
+fi
 
 log_section "Gestionnaire de Recherche"
 
