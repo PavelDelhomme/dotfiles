@@ -59,6 +59,20 @@ plugins=(
   archlinux
 )
 
+# Complétions externes AVANT compinit Oh My Zsh (sinon dump incomplet / Tab cassé)
+if [[ -d "$HOME/.zsh/zsh-completions/src" ]]; then
+    fpath=("$HOME/.zsh/zsh-completions/src" $fpath)
+fi
+if [[ -d "$DOTFILES_PATH/zsh/completions" ]]; then
+    fpath=("$DOTFILES_PATH/zsh/completions" $fpath)
+fi
+# Dump compinit hors de $HOME si quota Btrfs plein (évite .zcompdump tronqué → Tab cassé)
+: "${XDG_CACHE_HOME:=$HOME/.cache}"
+[[ -d "$XDG_CACHE_HOME/zsh" ]] || mkdir -p "$XDG_CACHE_HOME/zsh" 2>/dev/null || true
+export ZSH_COMPDUMP="${XDG_CACHE_HOME}/zsh/zcompdump-${HOST/.*/}-${ZSH_VERSION}"
+# Éviter que compaudit bloque compinit (répertoires « insecure », NFS, dev dotfiles)
+export ZSH_DISABLE_COMPFIX=true
+
 # Charger Oh My Zsh
 if [ -f "$ZSH/oh-my-zsh.sh" ]; then
     source "$ZSH/oh-my-zsh.sh"
@@ -327,14 +341,7 @@ fi
 # ÉTAPE 0.5: Charger gitstatus plugin AVANT P10k (CRITIQUE)
 # Powerlevel10k ne charge PAS automatiquement gitstatus, il faut le charger explicitement
 # Sinon les variables VCS_STATUS_* ne seront jamais définies
-if [[ ! $+functions[gitstatus_start] ]] && [[ -f /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh ]]; then
-    source /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh 2>/dev/null || true
-fi
-
-# ÉTAPE 0.5: Charger gitstatus plugin AVANT P10k (CRITIQUE)
-# Powerlevel10k ne charge PAS automatiquement gitstatus, il faut le charger explicitement
-# Sinon les variables VCS_STATUS_* ne seront jamais définies
-if [[ ! $+functions[gitstatus_start] ]] && [[ -f /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh ]]; then
+if (( ! $+functions[gitstatus_start] )) && [[ -f /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh ]]; then
     source /usr/share/zsh-theme-powerlevel10k/gitstatus/gitstatus.plugin.zsh 2>/dev/null || true
 fi
 
@@ -385,25 +392,20 @@ if [[ -f "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; th
     source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null || true
 fi
 
-# Charger zsh-completions (completions supplémentaires)
-# Ajouter le répertoire au fpath pour les completions
-if [[ -d "$HOME/.zsh/zsh-completions/src" ]]; then
-    fpath=("$HOME/.zsh/zsh-completions/src" $fpath)
-fi
-# Complétion dotfiles (Makefile, etc.) — prioritaire
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-if [[ -d "$DOTFILES_DIR/zsh/completions" ]]; then
-    fpath=("$DOTFILES_DIR/zsh/completions" $fpath)
-fi
+# Réparer la complétion si le dump .zcompdump est corrompu (comptags/comptry introuvables → Tab casse)
+_dotfiles_ensure_completion() {
+    if whence comptags >/dev/null 2>&1 && whence comptry >/dev/null 2>&1; then
+        return 0
+    fi
+    local zdump="${ZSH_COMPDUMP:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${HOST/.*/}-${ZSH_VERSION}}"
+    rm -f "$zdump" "${zdump}".zwc \
+          "${ZDOTDIR:-$HOME}/.zcompdump" "${ZDOTDIR:-$HOME}/.zcompdump".zwc \
+          "${ZDOTDIR:-$HOME}"/.zcompdump-* 2>/dev/null || true
+    autoload -Uz compinit
+    compinit -u -D -d "$zdump" 2>/dev/null || compinit -u -d "$zdump"
+}
+_dotfiles_ensure_completion
 
-# Initialiser le système de complétion (une seule fois)
-# -u : ne pas demander confirmation pour répertoires "insecure" (Docker, NFS, etc.)
-autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
-    compinit -u
-else
-    compinit -u -C
-fi
 # Complétion make : privilégier les cibles Makefile (dotfiles/zsh/completions/_make)
 zstyle ':completion:*:*:make:*' tag-order 'targets'
 zstyle ':completion:*:make:*:targets' call-command true
