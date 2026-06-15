@@ -10,6 +10,7 @@
 updateman [help | -h | --help]
 updateman status
 updateman all
+updateman arch [status | pending | update | keys librewolf | fix-cache | clean-hints | help]
 updateman cursor [run | install | enable | status | logs | help]
 ```
 
@@ -23,6 +24,9 @@ Flux recommande :
 2. **Service auto** : apres install reussi, `installman` appelle `updateman cursor enable` si l'outil est dans le registre.
 3. **Mise a jour** : `updateman cursor` ou `updateman all`.
 4. **Vue d'ensemble** : `updateman status` (versions locales, disponibles, timers).
+
+Pour Arch/AUR, `updateman arch` fournit un helper prudent autour de `pacman` et `yay` :
+diagnostic, mise a jour officielle + AUR, import de cles PGP connues, et rappels de nettoyage.
 
 ## Registre
 
@@ -42,6 +46,20 @@ Pour ajouter un outil : une ligne dans le registre + handler dans `updateman` + 
 |----------|-------|
 | `updateman status` | Tableau des outils du registre : presence, versions, maj?, timer, emplacement. |
 | `updateman all` | Met a jour chaque outil **installe** du registre, un par un. |
+
+## Commandes Arch/AUR
+
+| Commande | Effet |
+|----------|-------|
+| `updateman arch status` | Affiche espace disque, verrou pacman, mises a jour pacman/AUR, tailles de caches. |
+| `updateman arch pending` | Liste uniquement les mises a jour `pacman -Qu` et `yay -Qua`. |
+| `updateman arch update` | Lance `sudo pacman -Syu`, puis `yay -Sua` si `yay` est disponible. |
+| `updateman arch keys librewolf` | Importe la cle PGP LibreWolf Maintainers utile a `librewolf-bin`. |
+| `updateman arch fix-cache` | Supprime les dossiers `download-*` orphelins qui cassent `pacman -Sc`. |
+| `updateman arch clean-hints` | Affiche des commandes de nettoyage prudentes sans les executer. |
+
+`updateman arch update` doit etre lance en utilisateur normal : **pas de `sudo yay`**.
+`yay` demandera `sudo` seulement pour l'etape pacman.
 
 ## Commandes Cursor
 

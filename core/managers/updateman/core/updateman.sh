@@ -2,7 +2,7 @@
 # =============================================================================
 # UPDATEMAN - Update Manager (POSIX)
 # =============================================================================
-# USAGE: updateman [status|all|cursor|help]
+# USAGE: updateman [status|all|arch|cursor|help]
 # =============================================================================
 
 updateman() {
@@ -41,6 +41,10 @@ updateman() {
         printf "${CYAN}${BOLD}UPDATEMAN${RESET} - mises a jour locales\n\n"
         printf "  ${BOLD}updateman status${RESET}              vue d'ensemble (versions + timers)\n"
         printf "  ${BOLD}updateman all${RESET}                 met a jour les outils du registre, un par un\n"
+        printf "  ${BOLD}updateman arch status${RESET}         diagnostic pacman/yay (maj, verrous, caches)\n"
+        printf "  ${BOLD}updateman arch update${RESET}         sudo pacman -Syu puis yay -Sua\n"
+        printf "  ${BOLD}updateman arch keys librewolf${RESET} importe la cle PGP LibreWolf\n"
+        printf "  ${BOLD}updateman arch fix-cache${RESET}      supprime les dossiers download-* orphelins (pacman -Sc)\n"
         printf "  ${BOLD}updateman cursor${RESET}              met Cursor a jour maintenant\n"
         printf "  ${BOLD}updateman cursor help${RESET}         detaille l'updater Cursor\n"
         printf "  ${BOLD}updateman cursor install${RESET}      installe les unites systemd user\n"
@@ -50,6 +54,160 @@ updateman() {
         printf "  ${BOLD}updateman help${RESET}                affiche cette aide\n"
         printf "\n${YELLOW}Note:${RESET} les scripts internes (ex. update-cursor-appimage) ne sont pas des commandes publiques.\n"
         printf "      Installation initiale : ${BOLD}installman <outil>${RESET} ; mises a jour : ${BOLD}updateman${RESET}.\n"
+    }
+
+    __updateman_arch_help() {
+        printf "${CYAN}${BOLD}UPDATEMAN Arch/AUR${RESET}\n\n"
+        printf "Commandes:\n"
+        printf "  ${BOLD}updateman arch status${RESET}         affiche les mises a jour et problemes probables\n"
+        printf "  ${BOLD}updateman arch update${RESET}         lance sudo pacman -Syu puis yay -Sua\n"
+        printf "  ${BOLD}updateman arch keys librewolf${RESET} importe la cle PGP LibreWolf/AUR\n"
+        printf "  ${BOLD}updateman arch fix-cache${RESET}      supprime download-* orphelins (erreur pacman -Sc)\n"
+        printf "  ${BOLD}updateman arch clean-hints${RESET}    affiche des commandes de nettoyage, sans les executer\n\n"
+        printf "Regles:\n"
+        printf "  - ne jamais lancer yay avec sudo ; yay gere sudo uniquement pour pacman\n"
+        printf "  - si une signature AUR echoue, importer la cle mainteneur puis relancer\n"
+        printf "  - garder /tmp et ~/.cache/yay raisonnables pour les builds AUR lourds\n"
+    }
+
+    __updateman_arch_pending() {
+        printf "${CYAN}${BOLD}Mises a jour pacman${RESET}\n"
+        if command -v pacman >/dev/null 2>&1; then
+            pacman -Qu 2>/dev/null || true
+        else
+            printf "${YELLOW}pacman absent.${RESET}\n"
+        fi
+        printf "\n${CYAN}${BOLD}Mises a jour AUR (yay)${RESET}\n"
+        if command -v yay >/dev/null 2>&1; then
+            yay -Qua 2>/dev/null || true
+        else
+            printf "${YELLOW}yay absent.${RESET}\n"
+        fi
+    }
+
+    __updateman_arch_status() {
+        printf "${CYAN}${BOLD}UPDATEMAN Arch status${RESET}\n\n"
+        if [ "$(id -u)" -eq 0 ]; then
+            printf "${YELLOW}Attention:${RESET} ne lance pas yay en root/sudo.\n\n"
+        fi
+
+        printf "${CYAN}${BOLD}Espace disque${RESET}\n"
+        df -h / /home /var /tmp 2>/dev/null || df -h 2>/dev/null || true
+        printf "\n"
+
+        printf "${CYAN}${BOLD}Verrou pacman${RESET}\n"
+        if [ -e /var/lib/pacman/db.lck ]; then
+            printf "${RED}Verrou present:${RESET} /var/lib/pacman/db.lck\n"
+            printf "Verifier qu'aucun pacman/yay n'est actif avant suppression manuelle.\n"
+        else
+            printf "${GREEN}OK:${RESET} pas de verrou pacman.\n"
+        fi
+        printf "\n"
+
+        __updateman_arch_pending
+        printf "\n${CYAN}${BOLD}Caches${RESET}\n"
+        du -sh /var/cache/pacman/pkg "$HOME/.cache/yay" /tmp 2>/dev/null || true
+        _ua_dl_count=0
+        if [ -d /var/cache/pacman/pkg ] && command -v find >/dev/null 2>&1; then
+            _ua_dl_count=$(find /var/cache/pacman/pkg -maxdepth 1 -type d -name 'download-*' 2>/dev/null | wc -l)
+            _ua_dl_count=${_ua_dl_count//[[:space:]]/}
+        fi
+        if [ "$_ua_dl_count" -gt 0 ]; then
+            printf "${YELLOW}Attention:${RESET} %s dossier(s) download-* dans /var/cache/pacman/pkg\n" "$_ua_dl_count"
+            printf "Cela casse souvent ${BOLD}sudo pacman -Sc${RESET} (Error reading fd 7).\n"
+            printf "Corriger: ${BOLD}updateman arch fix-cache${RESET}\n"
+        fi
+        printf "\nAstuce: ${BOLD}updateman arch clean-hints${RESET} affiche les nettoyages prudents.\n"
+    }
+
+    __updateman_arch_fix_cache() {
+        if [ -e /var/lib/pacman/db.lck ]; then
+            printf "${RED}Verrou pacman actif:${RESET} attendez la fin de pacman/yay.\n" >&2
+            return 1
+        fi
+        _afc_count=0
+        if [ -d /var/cache/pacman/pkg ] && command -v find >/dev/null 2>&1; then
+            _afc_count=$(find /var/cache/pacman/pkg -maxdepth 1 -type d -name 'download-*' 2>/dev/null | wc -l)
+            _afc_count=${_afc_count//[[:space:]]/}
+        fi
+        if [ "$_afc_count" -eq 0 ]; then
+            printf "${GREEN}OK:${RESET} aucun dossier download-* orphelin.\n"
+            return 0
+        fi
+        printf "${CYAN}${BOLD}Suppression de %s dossier(s) download-* orphelin(s)${RESET}\n" "$_afc_count"
+        printf "(restes de telechargements pacman/yay interrompus, proprietaire alpm)\n\n"
+        if [ "$(id -u)" -eq 0 ]; then
+            find /var/cache/pacman/pkg -maxdepth 1 -type d -name 'download-*' -exec rm -rf {} +
+        else
+            sudo find /var/cache/pacman/pkg -maxdepth 1 -type d -name 'download-*' -exec rm -rf {} +
+        fi
+        printf "${GREEN}OK:${RESET} cache pacman repare. Relancez ${BOLD}sudo pacman -Sc${RESET}.\n"
+    }
+
+    __updateman_arch_update() {
+        if [ "$(id -u)" -eq 0 ]; then
+            printf "${RED}Refus:${RESET} lance cette commande en utilisateur normal, pas avec sudo.\n" >&2
+            return 1
+        fi
+        if ! command -v pacman >/dev/null 2>&1; then
+            printf "${RED}pacman introuvable.${RESET}\n" >&2
+            return 1
+        fi
+        printf "${CYAN}${BOLD}==> sudo pacman -Syu${RESET}\n"
+        sudo pacman -Syu || return 1
+        if command -v yay >/dev/null 2>&1; then
+            printf "\n${CYAN}${BOLD}==> yay -Sua${RESET}\n"
+            yay -Sua
+        else
+            printf "${YELLOW}yay absent:${RESET} mise a jour AUR ignoree.\n"
+        fi
+    }
+
+    __updateman_arch_keys() {
+        _ak_target="${1:-help}"
+        case "$_ak_target" in
+            librewolf|librewolf-bin)
+                if ! command -v gpg >/dev/null 2>&1; then
+                    printf "${RED}gpg introuvable.${RESET}\n" >&2
+                    return 1
+                fi
+                printf "${CYAN}${BOLD}Import cle LibreWolf${RESET}\n"
+                gpg --keyserver keys.openpgp.org --recv-keys 662E3CDD6FE329002D0CA5BB40339DD82B12EF16 ||
+                    gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 662E3CDD6FE329002D0CA5BB40339DD82B12EF16
+                ;;
+            *)
+                printf "Cles connues:\n"
+                printf "  ${BOLD}updateman arch keys librewolf${RESET}  cle LibreWolf Maintainers\n"
+                ;;
+        esac
+    }
+
+    __updateman_arch_clean_hints() {
+        printf "${CYAN}${BOLD}Nettoyage prudent (commandes a lancer manuellement)${RESET}\n\n"
+        printf "  ${BOLD}yay -Sc${RESET}              nettoie les caches AUR non necessaires\n"
+        printf "  ${BOLD}updateman arch fix-cache${RESET}  supprime download-* avant pacman -Sc\n"
+        printf "  ${BOLD}sudo pacman -Sc${RESET}           nettoie le cache pacman en gardant les versions utiles\n"
+        printf "  ${BOLD}yay -Sc${RESET}                   nettoie le cache AUR utilisateur\n"
+        printf "  ${BOLD}rm -rf ~/.cache/yay/<pkg>${RESET}  reconstruit un paquet AUR au prochain yay\n\n"
+        printf "${YELLOW}Eviter:${RESET} sudo yay, nettoyage pendant une update en cours.\n"
+    }
+
+    __updateman_arch() {
+        _arch_sub="${1:-status}"
+        case "$_arch_sub" in
+            help|-h|--help|aide) __updateman_arch_help ;;
+            status|check|diagnose|diagnostic) __updateman_arch_status ;;
+            pending|updates|list) __updateman_arch_pending ;;
+            update|upgrade|run) __updateman_arch_update ;;
+            keys|key|gpg) shift; __updateman_arch_keys "${1:-help}" ;;
+            fix-cache|fixcache|repair-cache) __updateman_arch_fix_cache ;;
+            clean-hints|clean|cleanup) __updateman_arch_clean_hints ;;
+            *)
+                printf "${RED}Sous-commande arch inconnue:${RESET} %s\n\n" "$_arch_sub" >&2
+                __updateman_arch_help
+                return 1
+                ;;
+        esac
     }
 
     __updateman_tools() {
@@ -326,6 +484,10 @@ updateman() {
             ;;
         all|upgrade-all|update-all)
             __updateman_update_all
+            ;;
+        arch|pacman|yay)
+            shift
+            __updateman_arch "$@"
             ;;
         cursor)
             __updateman_dispatch_tool cursor "${2:-run}"
