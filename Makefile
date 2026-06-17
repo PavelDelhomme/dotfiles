@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -142,6 +142,8 @@ help: ## Afficher cette aide
 	@echo "  make install-ncmenu   - Compiler + installer ncmenu en /usr/local/bin (sudo)"
 	@echo "  make build-dotcli     - Compiler le socle C expérimental (bin/dotcli)"
 	@echo "  make test-dotcli      - Smoke tests du binaire dotcli"
+	@echo "  make build-dotcli-tui - Compiler le menu Ink/TS (bin/dotcli-tui, Node 20+)"
+	@echo "  make test-dotcli-tui  - Smoke tests dotcli-tui (non interactif)"
 	@echo ""
 	@echo -e "$(GREEN)Gestion des VM (tests):$(NC)"
 	@echo "  make vm-list          - Lister toutes les VM"
@@ -397,6 +399,23 @@ test-dotcli: build-dotcli ## Smoke tests du binaire dotcli
 	@tmp=$$(mktemp); printf 'A|1\nB|2\n' > "$$tmp"; out=$$("$(DOTFILES_DIR)/bin/dotcli" menu --simulate-index 2 --items-file "$$tmp" --prompt "t"); rm -f "$$tmp"; test "$$out" = "2"
 	@printf "ok\n" | "$(DOTFILES_DIR)/bin/dotcli" render --color green >/dev/null
 	@echo -e "$(GREEN)✓ dotcli smoke tests OK$(NC)"
+
+build-dotcli-tui: ## Installer deps et générer bin/dotcli-tui (Ink/TS via tsx, Node 20+)
+	@echo -e "$(BLUE)🔨 Préparation dotcli-tui (Ink/TS)...$(NC)"
+	@if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then \
+		echo -e "$(RED)❌ Node.js et npm requis (≥ 20)$(NC)"; \
+		exit 1; \
+	fi
+	@cd "$(DOTFILES_DIR)/tools/dotcli-tui" && npm install && npm run build
+	@chmod +x "$(DOTFILES_DIR)/bin/dotcli-tui" 2>/dev/null || true
+	@echo -e "$(GREEN)✓ Lanceur: $(DOTFILES_DIR)/bin/dotcli-tui$(NC)"
+
+test-dotcli-tui: build-dotcli-tui ## Smoke tests dotcli-tui (non interactif)
+	@echo -e "$(BLUE)🧪 Smoke tests dotcli-tui...$(NC)"
+	@"$(DOTFILES_DIR)/bin/dotcli-tui" doctor >/dev/null
+	@cd "$(DOTFILES_DIR)/tools/dotcli-tui" && npm test
+	@tmp=$$(mktemp); printf 'A|1\nB|2\n' > "$$tmp"; out=$$("$(DOTFILES_DIR)/bin/dotcli-tui" menu --simulate-index 2 --items-file "$$tmp" --prompt "t"); rm -f "$$tmp"; test "$$out" = "2"
+	@echo -e "$(GREEN)✓ dotcli-tui smoke tests OK$(NC)"
 
 ################################################################################
 # Tests

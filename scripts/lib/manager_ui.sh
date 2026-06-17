@@ -115,11 +115,22 @@ manager_ui_section_line() {
 
 # Selection de menu commune pour les managers.
 # Entree fichier: lignes "Label|valeur". Retourne la valeur choisie sur stdout.
-# Priorite: dotcli si active, puis dotfiles_ncmenu_select, puis fallback appelant.
+# Priorite: dotcli-tui (Ink) si active, puis dotcli C, puis dotfiles_ncmenu_select, puis fallback appelant.
 manager_ui_select_file() {
     _mui_title="${1:-Menu}"
     _mui_file="${2:-}"
     [ -n "$_mui_file" ] && [ -f "$_mui_file" ] || return 1
+
+    if [ "${DOTFILES_DOTCLI_TUI_ENABLE:-0}" = "1" ] && [ -t 0 ] && [ -t 1 ]; then
+        _mui_dotcli_tui="${DOTFILES_DOTCLI_TUI_BIN:-${DOTFILES_DIR:-$HOME/dotfiles}/bin/dotcli-tui}"
+        if [ -x "$_mui_dotcli_tui" ] && command -v node >/dev/null 2>&1; then
+            if [ "${DOTFILES_DOTCLI_MENU_NO_TUI:-0}" = "1" ]; then
+                "$_mui_dotcli_tui" menu --no-tui --prompt "$_mui_title" --items-file "$_mui_file" 2>/dev/null && return 0
+            else
+                "$_mui_dotcli_tui" menu --prompt "$_mui_title" --items-file "$_mui_file" 2>/dev/null && return 0
+            fi
+        fi
+    fi
 
     if [ "${DOTFILES_DOTCLI_ENABLE:-0}" = "1" ] && [ -t 0 ] && [ -t 1 ]; then
         _mui_dotcli="${DOTFILES_DOTCLI_BIN:-${DOTFILES_DIR:-$HOME/dotfiles}/bin/dotcli}"

@@ -1,0 +1,26 @@
+{
+  "name": "dotcli-tui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Menu TUI Ink/TypeScript pour dotfiles (inspiré Hermes ui-tui, contrat dotcli menu)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "tsx src/menu.tsx",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test test/menu.test.mjs"
+  },
+  "dependencies": {
+    "ink": "^6.8.0",
+    "react": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.14",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

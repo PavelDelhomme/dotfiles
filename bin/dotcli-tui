@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Lanceur dotcli-tui (Ink/TS via tsx) — généré par make build-dotcli-tui
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+TUI_DIR="$DOTFILES_DIR/tools/dotcli-tui"
+if [ ! -f "$TUI_DIR/node_modules/tsx/dist/cli.mjs" ]; then
+  echo "dotcli-tui: exécutez make build-dotcli-tui (npm install)" >&2
+  exit 1
+fi
+exec node "$TUI_DIR/node_modules/tsx/dist/cli.mjs" "$TUI_DIR/src/menu.tsx" "$@"

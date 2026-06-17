@@ -59,6 +59,7 @@
 | **P1** | Normalisation architecture modulaire | Homogénéiser `core/managers/<nom>/` + adapters ; réduire `zsh/functions/` métier ; monolithes → modules. |
 | **P2** | Domaine réseau | Cartographier `zsh/functions/commands/network/*` → `netman` ou commandes transverses. *(Note 2026-05-13 : menu **Informations IP** de `netman` corrigé — parsing `ip -o` ; voir `ERRORS.md` + `TESTS.md` C.3.)* |
 | **P3** | TUI mutualisée | `dotcli menu` + fallbacks (`ncmenu`, `fzf`, `read`) sans casser CI. |
+| **P3c** | **Moteur TUI Ink/TS (spike Hermes)** | Étude [`docs/architecture/TUI_HERMES_RESEARCH.md`](docs/architecture/TUI_HERMES_RESEARCH.md) — Hermes utilise **Ink + TypeScript** (pas MPJS/TJS). Prototype `tools/dotcli-tui/` + flag `DOTFILES_DOTCLI_TUI_ENABLE=1`. **Livré 2026-06-15** : spike menu ; **reste** : pagination longue liste, test visuel TTY, décider Ink vs dotcli C par défaut. |
 | **P3b** | **Interfaces terminal adaptatives** | Les menus et affichages `*man` doivent s'adapter a la taille reelle du terminal : largeur/hauteur via `tput cols/lines`, mode compact si petit ecran, pagination/scroll propre, colonnes tronquees intelligemment, fallback non-TTY testable. Centraliser les helpers dans `dotcli`/utils au lieu de corriger chaque manager a la main. |
 | **P4** | `shared/env.sh` → morceaux `DOTFILES_GOOD` | Voir phases historiques ; migration après jalon B si besoin. |
 | **P5** | **Épic installman** | [`docs/managers/INSTALLMAN_VISION.md`](docs/managers/INSTALLMAN_VISION.md) — par étapes. |

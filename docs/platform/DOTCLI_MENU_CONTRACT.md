@@ -50,3 +50,4 @@ Fournir une API de menu commune, réutilisable par tous les managers, indépenda
 - Toujours garder un fallback (`dotfiles_ncmenu_select`, `fzf`, ou saisie manuelle).
 - Ne jamais bloquer hors TTY.
 - Feature flag recommandé pendant la migration (`DOTFILES_DOTCLI_ENABLE=1`).
+- Option Ink/TS : `DOTFILES_DOTCLI_TUI_ENABLE=1` + `bin/dotcli-tui` (voir [`TUI_HERMES_RESEARCH.md`](../architecture/TUI_HERMES_RESEARCH.md)).
