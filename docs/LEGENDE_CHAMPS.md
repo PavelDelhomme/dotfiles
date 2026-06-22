@@ -48,6 +48,16 @@
 | G.1 | pathman | [ ] | | | | |
 ```
 
+### 2.c — **Copie presse-papiers** (étapes avec bloc bash)
+
+Ajouter sous le bloc **Commande** principal :
+
+1. **Blocs ` ```bash ` une ligne** — icône 📋 native Cursor/VS Code sur chaque ligne.
+2. **Ligne d’aide CLI** : `make tests-copy STEP=<ID>` · `LINE=n` · `make tests-preview` (HTML boutons).
+3. Pour le **tableau G.1–G.26** : `make tests-copy-smoke MANAGER=<nom>` · `make tests-smoke-manager MANAGER=<nom>`.
+
+**Arg inconnu `__bogus__`** dans les smokes Bloc G : message stderr + `rc=1` = **succès** du test (convention rejet CLI).
+
 ### 2.b — Étape **EXT-xxx** (demande adressée à l’assistant)
 
 ```markdown

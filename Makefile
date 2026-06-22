@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy tests-copy-smoke tests-smoke-manager tests-preview test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -43,6 +43,9 @@ help: ## Afficher cette aide
 	@echo "  make tests | test-menu - Menu interactif (shells, managers, Docker / local, aide)"
 	@echo "  make tests-start        - Parcours manuel (docs/TESTS.md) : prérequis, docker-in, dotcli, etc."
 	@echo "  make tests-copy STEP=G.0.b [LINE=n] - Copier bloc/ligne de docs/TESTS.md vers le presse-papiers"
+	@echo "  make tests-preview       - Générer docs/TESTS.preview.html (boutons copier par ligne)"
+	@echo "  make tests-copy-smoke MANAGER=pathman - Copier commande smoke G.x (tableau managers)"
+	@echo "  make tests-smoke-manager MANAGER=pathman - Exécuter smoke help d'un manager"
 	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (sans menu ; CI)"
 	@echo "  make test-full         - Alias de test-docker (même flux)"
 	@echo "  make test-docker       - Managers migrés + matrice subcommands dans le même conteneur"
@@ -442,6 +445,22 @@ tests-copy: ## Copier commande(s) de docs/TESTS.md (STEP=…, LINE=… optionnel
 	else \
 		bash "$(SCRIPT_DIR)/tools/tests_copy.sh" "$(STEP)"; \
 	fi
+
+tests-preview: ## Générer docs/TESTS.preview.html (boutons copier navigateur)
+	@python3 "$(SCRIPT_DIR)/tools/tests_preview.py"
+	@echo -e "$(GREEN)Ouvrir :$(NC) file://$(DOTFILES_DIR)/docs/TESTS.preview.html"
+
+tests-copy-smoke: ## Copier commande smoke manager (MANAGER=pathman, pour tableau G.1–G.26)
+	@if [ -z "$(MANAGER)" ]; then \
+		echo "Usage: make tests-copy-smoke MANAGER=pathman"; exit 1; \
+	fi
+	@bash "$(SCRIPT_DIR)/tools/tests_smoke_manager.sh" --copy "$(MANAGER)"
+
+tests-smoke-manager: ## Exécuter smoke help manager (MANAGER=pathman)
+	@if [ -z "$(MANAGER)" ]; then \
+		echo "Usage: make tests-smoke-manager MANAGER=pathman"; exit 1; \
+	fi
+	@bash "$(SCRIPT_DIR)/tools/tests_smoke_manager.sh" "$(MANAGER)"
 
 # Docker + managers migrés (matrice shells dans run_tests.sh).
 # Dans un conteneur docker-in (/.dockerenv) sans Docker : exécution directe de run_tests.sh.
