@@ -28,7 +28,9 @@ mgr="${1:-}"
 core="${DOTFILES_DIR}/core/managers/${mgr}/core/${mgr}.sh"
 [ -f "$core" ] || { echo "tests_smoke_manager: manager introuvable : $core" >&2; exit 1; }
 
-cmd="cd \"${DOTFILES_DIR}\" && . \"${core}\" 2>/dev/null && ${mgr} help </dev/null 2>&1 | head -n 8"
+# Sous-shell sans « set -u » ni pipefail (cores : $ZSH_VERSION ; head → SIGPIPE 141).
+_smoke_inner="set +o pipefail; cd \"${DOTFILES_DIR}\" && . \"${core}\" && ${mgr} help </dev/null 2>&1 | head -n 8"
+cmd="bash -c $(printf '%q' "$_smoke_inner")"
 
 if [ "$mode" = copy ]; then
     if [ -f "$CLIP" ]; then
@@ -51,4 +53,5 @@ if [ "$mode" = copy ]; then
     exit 0
 fi
 
-eval "$cmd"
+# shellcheck disable=SC2090
+bash -c "$_smoke_inner"

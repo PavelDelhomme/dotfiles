@@ -1879,7 +1879,7 @@ Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), 
 - **Commande** : `<manager> help` en non-TTY *(charger le core POSIX puis aide)* :
 
 ```bash
-cd ~/dotfiles && . core/managers/pathman/core/pathman.sh 2>/dev/null && pathman help </dev/null 2>&1 | head -n 8
+bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.sh && pathman help </dev/null 2>&1 | head -n 8'
 ```
 
 *(remplacer `pathman` par le manager de la ligne)*
@@ -1890,7 +1890,7 @@ cd ~/dotfiles && . core/managers/pathman/core/pathman.sh 2>/dev/null && pathman 
 
 | # | Manager | `[ ]` | Sortie (extrait) | Conforme | Notes | Assistant (relecture) |
 |---|---------|-------|------------------|----------|-------|----------------------|
-| G.1 | pathman | [ ] | | | | |
+| G.1 | pathman | [x] | PATHMAN — raccourcis ; show/add/remove/clean… (8 lignes) | O | Smoke via `make tests-smoke-manager MANAGER=pathman` *(2026-06-16)* | O |
 | G.2 | manman | [ ] | | | | |
 | G.3 | searchman | [ ] | | | | |
 | G.4 | aliaman | [ ] | | | | |
