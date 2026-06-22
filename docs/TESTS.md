@@ -1763,11 +1763,11 @@ But : vérifier que le nouveau manager `displayman` se charge, répond à la con
 --- 3) arg inconnu --- displayman: commande inconnue: __bogus__ ; rc=1
 --- 4) range --- OK (GPU NVIDIA GA104, session wayland/KDE, texte Full vs Limited)
 --- 5) osd-guide --- OK (Joystick, Picture Mode)
---- 6) detect --- Display 1 | XMI:Mi Monitor (via bash -c + timeout)
+--- 6) detect --- Display 1 XMI:Mi Monitor | Display 2 PHL 245E1 (DP) | Invalid display HWP HP 2011 (HDMI-A-2) + sorties kscreen-doctor
 --- 7) dump 1 --- VCP 10 Brightness C 100 100, VCP 12 Contrast C 100 100, …
 ```
 - **Conforme** : O
-- **Notes** : `timeout displayman …` seul **échoue** si `displayman` est une fonction shell (pas un binaire) — le bloc G.0.d utilise désormais `timeout bash -c '. …/displayman.sh; displayman …'`. Piège documenté pour rejouer les étapes 6/7.
+- **Notes** : `timeout displayman …` seul **échoue** si `displayman` est une fonction shell — utiliser `timeout bash -c '. …/displayman.sh; displayman …'`. Détection 2026-06-16 : **3 bus DDC** (Mi Monitor HDMI, Philips DP, HP 2011 HDMI-A-2 « Invalid display » — normal si écran éteint ou bus fantôme).
 - **Assistant (relecture)** : **O** — Critères 1–7 remplis sur matériel réel. Suite : **G.0.e** (`diffman`).
 
 ### Étape G.0.e — Smoke `diffman` (compare / side / report, non-TTY)
@@ -1781,7 +1781,8 @@ But : vérifier que `diffman` se charge, affiche l’aide, refuse un argument in
   echo "--- 1) help ---"
   diffman help </dev/null 2>&1 | head -n 4
   echo "--- 2) arg inconnu ---"
-  diffman __bogus__ </dev/null 2>&1 || true
+  diffman __bogus__ </dev/null 2>&1
+  echo "rc=$?  (attendu: 1)"
   echo "--- 3) compare (identiques) ---"
   diffman compare README.md README.md </dev/null; echo "rc=$?"
   echo "--- 4) side (identiques) ---"
@@ -1791,14 +1792,18 @@ But : vérifier que `diffman` se charge, affiche l’aide, refuse un argument in
   test -s /tmp/diffman_g0e.txt && echo "rapport OK ($(wc -l </tmp/diffman_g0e.txt) lignes)"
   ```
 - **Attendu** : (1) aide non vide ; (2) stderr « commande inconnue » + `rc=1` ; (3)(4) `rc=0` ; (5) fichier rapport non vide.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **[x] Fait** *(2026-06-16 — hôte Arch)*
+- **Sortie (résumé)** :
 ```
-(coller)
+--- 1) help --- OK (DIFFMAN — comparaison…)
+--- 2) arg inconnu --- diffman: commande inconnue : __bogus__ ; rc=1
+--- 3) compare --- rc=0 (README vs README identiques)
+--- 4) side --- rc=0 (sortie côte à côte, tronquée head)
+--- 5) report --- Rapport écrit : /tmp/diffman_g0e.txt ; rapport OK (3 lignes)
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : En **TTY interactif** sans `</dev/null`, `git diff --no-index` ouvrait le **pager** (touche `q` pour quitter) — corrigé dans `diffman` via `git --no-pager`. Ne pas utiliser `|| true` sur l’étape 2 (masque `rc=1`). Coller le bloc puis exécuter d’un coup (`bash` ou script), pas ligne à ligne sans redirection.
+- **Assistant (relecture)** : **O** — G.0.e OK après correctif pager. Suite : **G.0.f** (`diskman`).
 
 ### Étape G.0.f — Smoke `diskman` (diagnostic disque, non destructif) *(non-TTY)*
 
@@ -1811,7 +1816,8 @@ But : vérifier que `diskman` se charge, répond à la convention CLI/help, et q
   echo "--- 1) help ---"
   diskman help </dev/null 2>&1 | head -n 5
   echo "--- 2) arg inconnu ---"
-  diskman __bogus__ </dev/null 2>&1 || true
+  diskman __bogus__ </dev/null 2>&1
+  echo "rc=$?  (attendu: 1)"
   echo "--- 3) overview ---"
   diskman overview </dev/null 2>&1 | head -n 12
   echo "--- 4) usage . 1 ---"
@@ -1825,14 +1831,20 @@ But : vérifier que `diskman` se charge, répond à la convention CLI/help, et q
   test -s /tmp/diskman_g0f.txt && echo "rapport OK ($(wc -l </tmp/diskman_g0f.txt) lignes)"
   ```
 - **Attendu** : (1) aide non vide ; (2) stderr « commande inconnue » + `rc=1` ; (3)(4)(5) sorties non vides ; (6) mention **Dry-run uniquement** ; (7) rapport non vide. **Aucune suppression** dans cette étape.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **[x] Fait** *(2026-06-16 — hôte Arch, dry-run uniquement)*
+- **Sortie (résumé)** :
 ```
-(coller)
+--- 1) help --- OK (état df compact + texte DISKMAN — diagnostic…)
+--- 2) arg inconnu --- diskman: commande inconnue: __bogus__ ; rc=1
+--- 3) overview --- df + lsblk + caches (≥12 lignes)
+--- 4) usage . 1 --- du dossiers (tools, .git, …)
+--- 5) biggest . 5 --- top 5 fichiers (esbuild, typescript, …)
+--- 6) clean dry-run --- Mode: dry-run ; pacman 106M, journal 4G, ~/.cache 8,4G…
+--- 7) report --- /tmp/diskman_g0f.txt ; rapport OK (152 lignes)
 ```
-- **Conforme** :
-- **Notes** : *(pour nettoyer réellement : lancer manuellement `diskman clean --apply <target>` en TTY après lecture du dry-run.)*
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `diskman help` inclut volontairement un **aperçu df** avant l’aide (`_diskman_status_compact`). Ne pas confondre avec `overview`. Aucun `--apply` lancé.
+- **Assistant (relecture)** : **O** — G.0.f OK. Préalable G.0 terminé → enchaîner **tableau G.1–G.26**.
 
 ---
 
