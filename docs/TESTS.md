@@ -8,10 +8,16 @@
 
 1. Ouvrir **uniquement** ce fichier et descendre **dans l’ordre** (Bloc A → I).
 2. Pour chaque étape : exécuter la commande, **cocher** `[ ]`, **coller** la sortie utile, choisir **Conforme** `O / N / NA` (sémantique exacte : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §3). Laisser **`Assistant (relecture)`** vide tant qu’une relecture externe n’a pas été faite.
-3. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
-4. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
-5. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.26** comme d’habitude.
-6. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
+3. **Copier une commande vers le presse-papiers** (bloc entier **ou** une ligne) — prérequis : `wl-copy`, `xclip` ou `xsel` :
+   - **Bloc complet** : `make tests-copy STEP=G.0.b` ou `bash scripts/tools/tests_copy.sh G.0.b`
+   - **Une ligne** : `make tests-copy STEP=G.0.d LINE=12` ou `bash scripts/tools/tests_copy.sh G.0.d --line 12`
+   - **Lister les lignes numérotées** : `bash scripts/tools/tests_copy.sh G.0.d --list`
+   - **Menu interactif** (bloc ou ligne) : `bash scripts/tools/tests_copy.sh G.0.d --pick`
+   - **Toutes les étapes détectées** : `bash scripts/tools/tests_copy.sh --steps`
+4. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
+5. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
+6. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.26** comme d’habitude.
+7. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
 
 ### Journal doc (reprise `TESTS.md`)
 

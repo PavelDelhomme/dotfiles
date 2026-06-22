@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -42,6 +42,7 @@ help: ## Afficher cette aide
 	@echo -e "$(GREEN)Tests:$(NC)"
 	@echo "  make tests | test-menu - Menu interactif (shells, managers, Docker / local, aide)"
 	@echo "  make tests-start        - Parcours manuel (docs/TESTS.md) : prérequis, docker-in, dotcli, etc."
+	@echo "  make tests-copy STEP=G.0.b [LINE=n] - Copier bloc/ligne de docs/TESTS.md vers le presse-papiers"
 	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (sans menu ; CI)"
 	@echo "  make test-full         - Alias de test-docker (même flux)"
 	@echo "  make test-docker       - Managers migrés + matrice subcommands dans le même conteneur"
@@ -428,6 +429,19 @@ tests test-menu: ## Menu interactif des tests (explications, sans modifier le sh
 # Accompagnement du guide docs/TESTS.md (prérequis, docker-build, docker-in, smoke dotcli…).
 tests-start tests-manual-start: ## Menu pas-à-pas aligné sur docs/TESTS.md (voir ce fichier)
 	@bash "$(SCRIPT_DIR)/test/tests_manual_start.sh"
+
+# Copie presse-papiers : STEP obligatoire (ex. G.0.b), LINE optionnel (numéro de ligne 1-based).
+tests-copy: ## Copier commande(s) de docs/TESTS.md (STEP=…, LINE=… optionnel)
+	@if [ -z "$(STEP)" ]; then \
+		echo "Usage: make tests-copy STEP=G.0.b"; \
+		echo "       make tests-copy STEP=G.0.d LINE=12"; \
+		exit 1; \
+	fi
+	@if [ -n "$(LINE)" ]; then \
+		bash "$(SCRIPT_DIR)/tools/tests_copy.sh" "$(STEP)" --line "$(LINE)"; \
+	else \
+		bash "$(SCRIPT_DIR)/tools/tests_copy.sh" "$(STEP)"; \
+	fi
 
 # Docker + managers migrés (matrice shells dans run_tests.sh).
 # Dans un conteneur docker-in (/.dockerenv) sans Docker : exécution directe de run_tests.sh.

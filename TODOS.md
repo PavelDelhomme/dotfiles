@@ -11,6 +11,7 @@
 1. Toute tâche figurant dans **« Finalisées — en attente de validation par moi »** doit être **explicitement validée** (case cochée ou ligne signée) **par toi** avant de traiter les tâches suivantes comme définitivement closes.
 2. **Quoi qu’il en coûte** : sans cette validation, on **ne fait pas** comme si la suite du backlog était débloquée sur ce point.
 3. À chaque validation (ou fin de lot livré) : **`git add`**, **`git commit`**, **`git push`** pour figer l’état dans l’historique Git.
+4. **Branches** : ne **plus supprimer** les branches `feat/`, `test/`, `fix/` après merge — les conserver pour traçabilité. Voir [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
 
 ---
 
@@ -33,8 +34,8 @@
 - [~] **P3b-a — restructuration UI / menus avant adaptatif** (prioritaire) : `shared/` vs `share`, `scripts/menu/README.md` + LEGACY, `make bootstrap-menu` → `setup.sh`, selection via `manager_ui_select_file`, `dfm` reserve aux menus declaratifs `share/menus` (zsh/bash/fish), fallback pagine sans `fzf` + pause apres action, matrice core vs declaratif dans [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md). **Reste** : verifier adapters minces, bannieres autres `*man`, menus inline sans wrapper.
 - [~] **P3b-b — interfaces terminal adaptatives** : bannieres + `manager_ui_section_line` ; pathman/doctorman ; `processman` + `tui_menu_height` ; sortie menu **0/q** (`manager_ui_is_quit_choice`, boucle `show_main_menu || break`) — `0e5647a` ; smoke `make test-tui-compact` (COLUMNS 60/69). **En pause** — suite plus tard : `tui_truncate`, pagination menus longs, aligner cyberman/installman/autres boucles inline, replay manuel EXT-002 sur `*man --help`.
 - [~] **P1 — normalisation modulaire** (demarre) : convention UI POSIX documentee (`MANAGERS_UI.md`, `dotfiles_manager_load_ui_libs`). **Reste** : adapters minces, logique hors `zsh/functions/`, menus `dotcli`.
-- [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`**.
-  - **Avancement 2026-06-12** : Blocs **A → F.7** validés (F.6.a/b/c + F.7.a/b/c cochés ; smoke `make test-dotcli-f7`). **Reste** : **Bloc G** (préalable + G.0/G.0.b–f + tableau G.1–G.26), **H** (matrice variables), **I** (synthèse + cocher cases Jalon B).
+- [~] Exécuter et remplir **[`docs/TESTS.md`](docs/TESTS.md)** (procédure ordonnée + cases à cocher) ; menu d’appui : **`make tests-start`** ; copie commandes : **`make tests-copy STEP=…`**.
+  - **Avancement 2026-06-16** : **G.0**, **G.0.b**, **G.0.c** validés. **Reste** : **G.0.d–f**, tableau **G.1–G.26**, **H**, **I**.
   - **Ajout 2026-05-13** : nouveau manager `displayman` → **G.0.d** + ligne **G.24** ; **§ C.3** (matrice zsh/bash/fish/sh dans le conteneur) + lien **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table de correspondance avec `TESTS.md`.
   - **Ajout 2026-05-15** : manager **`diffman`** (diff coloré / côte à côte / rapports) → **G.0.e** + ligne **G.25** ; intégration `manman`, `migrated_managers.list`, [`docs/man/diffman.md`](docs/man/diffman.md).
   - **Ajout 2026-06-12** : manager **`diskman`** (diagnostic espace disque / nettoyage dry-run/apply) → **G.0.f** + ligne **G.26** ; intégration `manman`, adapters multi-shells, [`docs/man/diskman.md`](docs/man/diskman.md).
@@ -70,6 +71,10 @@
 | **P8d** | **`savemanager` — sauvegarde Git régulière des dotfiles** | Concevoir un manager dédié aux sauvegardes prudentes du dépôt dotfiles via Git : détection des changements utiles, `git status`/diff résumé, commits automatiques optionnels avec message daté, push régulier, dry-run, journal, verrou anti-concurrence et timer `systemd --user`. Objectif : sauvegarde fiable mais économe en ressources (pas de scan lourd inutile, pas de boucle permanente, fréquence configurable, exclusion claire des secrets/caches/gros fichiers). Étudier aussi les modes manuel/interactif (`savemanager status`, `backup`, `enable`, `disable`) et l’articulation avec `updateman dotfiles`. |
 | **P8c** | **Registre updateman pour les outils installman** | Base livree (`updatable-tools.list`, `installman` → `updateman <outil> enable`, sous-commandes generiques). **Suite** : ajouter docker, brave, etc. au registre + templates systemd par outil si besoin (pas de fichiers systemd eparpilles hors depot). |
 | **P10** | **Matrice shells conteneur** | Après la passe **A→D** « classique » : rejouer **`docs/TESTS.md` § C.3** (`C.3.a` → `C.3.d` : zsh, bash, fish, `sh`) pour valider chargement + smoke + menu **netman → 3** (IP) sur la **même distro**. Optionnel mais recommandé avant de considérer la couverture Docker « complète ». |
+| **P11** | **Matrice distro élargie** | Images ou **distrobox** pour Debian, Ubuntu, Manjaro, etc. — smoke `make test` sans toucher l’hôte. Voir [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md). |
+| **P12** | **Lab E2E (VM + enregistrement)** | QEMU/KVM + **asciinema** ou vidéo ; accès VNC pour inspection ; rejouer `TESTS.md` dans VM isolée. |
+| **P13** | **Cross-OS (WSL, fish, PowerShell)** | fishrc complet, wrappers Windows, scripts PowerShell pour managers ; parité installation. |
+| **P14** | **Personnalisation gitman / profils** | Profils utilisateur activables (conventions branches, hooks) sans casser le gitman générique du dépôt. |
 | **P9** | **displayman** (écran / luminosité / DDC) | Nouveau manager [`core/managers/displayman/`](core/managers/displayman/) — DDC/CI via `ddcutil`, preset couleur, range HDMI, guide OSD physique. Convention G.x respectée. **Ensuite** : étape C (override Full Range NVIDIA `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf`) à appliquer après validation manuelle ; tests dans [`docs/TESTS.md`](docs/TESTS.md) G.0 + bloc dédié displayman. Guide complet : [`docs/guides/SCREEN_DISPLAY.md`](docs/guides/SCREEN_DISPLAY.md). |
 
 ### Phases A → B → C (rappel)
@@ -211,3 +216,5 @@ Pause max 5 s par défaut ; `DOTFILES_TEST_MENU_SKIP_PAUSE=1` pour supprimer les
 ## Rappel final — Git
 
 Avant de passer à la **tâche suivante** après une finalisation : **`git add -A`** (ou ciblé), **`git commit`**, **`git push`**.
+
+**Branches** (depuis 2026-06-16) : `main` (prod), `dev` (intégration), `feat/*`, `test/*`, `fix/*`, `preprod`. **Ne pas supprimer** les branches distantes après merge. Guide : [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).

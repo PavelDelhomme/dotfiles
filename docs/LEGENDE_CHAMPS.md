@@ -28,7 +28,7 @@
 | Champ | Qui remplit | Règle |
 |--------|-------------|-------|
 | **Étape** | rédacteur du guide | Identifiant **stable** (`A.1`, `B.1`, `G.7`, `EXT-014`…). Ne **jamais** renommer rétroactivement : on cite cet ID dans les `Notes`, les commits, les chats. |
-| **Commande** | rédacteur | Copier-collable. Si plusieurs variantes existent → en lister une par bloc dédié. |
+| **Commande** | rédacteur | Copier-collable. Si plusieurs variantes existent → en lister une par bloc dédié. **Presse-papiers** : `make tests-copy STEP=<ID>` (bloc bash) ou `LINE=<n>` (une ligne) — voir [`TESTS.md`](TESTS.md) § « Comment utiliser ». |
 | **Attendu** | rédacteur | **Critère minimal** observable (un mot-clé, un fichier, un exit code). Pas un roman. |
 | **[ ] Fait** | toi | Coche **uniquement** quand la commande a été lancée. Une commande non lancée reste `[ ]`. |
 | **Sortie** | toi | **Extrait pertinent** (max ~20 lignes). Tu peux résumer avec `… (n lignes coupées) …`. |
