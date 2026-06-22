@@ -1591,9 +1591,8 @@ Depuis la racine des dotfiles (`cd ~/dotfiles` ou `/root/dotfiles` dans le conte
 ```bash
 cd ~/dotfiles || cd /root/dotfiles
 export DOTFILES_DIR="$PWD"
-MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman \
-processman devman virtman searchman testzshman fileman sshman testman \
-multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman"
+# IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout
+MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman"
 # 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
 for m in $MANS; do
   f="core/managers/$m/core/$m.sh"
@@ -1623,14 +1622,25 @@ done
 ```
 
 - **Attendu** : (1) aucune ligne `FAIL … TIMEOUT` ; (2) pour chaque manager, les quatre variantes affichent au moins une ligne de texte (sinon noter **N** dans **Notes** avec le nom du manager). Les `WARN rc=0` connus (`manman`, `doctorman` au 2026-05-12) sont à reporter en **Notes** mais ne bloquent pas la passe.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **[x] Fait** *(2026-06-16 — passe bash, hôte `~/dotfiles`)*
+- **Sortie (résumé)** :
 ```
-(coller)
+=== Boucle 1 ===
+OK   gitman … updateman (25 managers) : rc≠0 ou 127, aucun TIMEOUT
+WARN manman : rc=0 (attendu ≠0 — connu, non bloquant)
+WARN doctorman : rc=0 (attendu ≠0 — connu, non bloquant)
+--- resume boucle 1: OK=25 WARN=2 FAIL=0 SKIP=0 ---
+
+=== Boucle 2 ===
+OK miscman, cyberman, helpman, netman, installman, pathman, aliaman, routeman,
+   processman, searchman, fileman, sshman, cyberlearn, manman, configman,
+   doctorman, moduleman, displayman, diffman, diskman, updateman : ≥1 ligne(s) par variante
+WARN sortie vide (non bloquant, managers legacy / stub) :
+   gitman, devman, virtman, testzshman, testman, multimediaman
 ```
-- **Conforme** :
-- **Notes** : *(les managers hors boucle G.0 sont signalés dans `scripts/test/config/migrated_managers.list` si besoin.)*
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : La première tentative utilisateur (zsh + `MANS` sur plusieurs lignes avec `\`) a produit **un seul** `[SKIP]` géant — ce n’est **pas** un échec des managers, juste une mauvaise expansion de variable. Relancer avec `MANS` sur **une ligne** ou lancer `bash` avant les boucles. Boucle 2 peut être lente sur `configman` / `moduleman` (aide longue, 200+ lignes) — normal.
+- **Assistant (relecture)** : **O** — Boucle 1 : 0 FAIL TIMEOUT. Boucle 2 : managers migrés principaux OK ; WARN vides limités aux stubs connus (`gitman`, `devman`, etc.). G.0 conforme pour enchaîner G.0.b.
 
 ### Étape G.0.b — Reproducteur du bug `aliaman --` *(non-TTY)*
 
@@ -1653,14 +1663,16 @@ But : valider que l’ancien bug (boucle infinie d’affichage de l’usage) est
   done
   ```
 - **Attendu** : **aucune** ligne `FAIL` ; les trois invocations renvoient un code ≠ 0 avec un court message d’erreur sur stderr — **jamais** une attente infinie.
-- **[ ] Fait**
+- **[x] Fait** *(2026-06-16)*
 - **Sortie** :
 ```
-(coller)
+OK   aliaman '--' : rc=1 (2 ligne(s) émises)
+OK   aliaman '--bogus' : rc=1 (2 ligne(s) émises)
+OK   aliaman 'n-importe-quoi' : rc=1 (2 ligne(s) émises)
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : Aucun `FAIL` TIMEOUT. Les trois args inconnus renvoient `rc=1` avec message court — bug historique de boucle infinie bien corrigé.
+- **Assistant (relecture)** : **O** — Critère G.0.b rempli. Tu peux enchaîner **G.0.c**.
 
 ### Étape G.0.c — Smoke `aliaman` (search / list) en non-TTY
 
@@ -1678,14 +1690,25 @@ But : vérifier que les nouvelles commandes directes (`search|find|s`, `list|ls`
   aliaman find cd </dev/null 2>&1 | head -n 3
   ```
 - **Attendu** : chaque section affiche au moins une ligne (alias ou message explicite « aucun résultat »), **sans** déclencher de menu interactif ni boucle.
-- **[ ] Fait**
+- **[x] Fait** *(2026-06-16)*
 - **Sortie** :
 ```
-(coller)
+--- list (3 premières lignes) ---
+📋 Liste complète des alias:
+  msfconsole          sudo msfconsole
+  cls                 clear
+
+--- search 'ls' (3 premières lignes) ---
+🔍 Recherche d'alias contenant 'ls':
+❌ Aucun alias trouvé
+
+--- find (synonyme) 'cd' ---
+🔍 Recherche d'alias contenant 'cd':
+❌ Aucun alias trouvé
 ```
-- **Conforme** :
-- **Notes** : *(si `fzf` est installé en TTY, la commande **interactive** sera testée plus tard via le menu de `aliaman --help` — ne pas tenter ici.)*
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `list` affiche des alias ; `search`/`find` renvoient un message explicite « aucun alias trouvé » (pas de menu, pas de boucle). Si tu as des alias `ls`/`cd` dans ton `aliases.zsh`, la recherche pourrait lister des lignes — les deux cas sont conformes.
+- **Assistant (relecture)** : **O** — G.0.c OK. Suite : **G.0.d** (`displayman` + DDC réel) ou tableau **G.1–G.26**.
 
 ### Étape G.0.d — Smoke `displayman` (DDC en lecture seule, non destructif) *(non-TTY)*
 
