@@ -149,41 +149,38 @@ list_steps() {
 
 list_lines() {
     local step="$1"
-    local tmp
+    local tmp n=0 line
     tmp="$(mktemp)"
-    trap 'rm -f "$tmp"' RETURN
-    extract_block_file "$step" "$tmp" || die "étape « $step » introuvable ou sans bloc bash dans $TESTS_MD"
-    local n=0 line
+    extract_block_file "$step" "$tmp" || { rm -f "$tmp"; die "étape « $step » introuvable ou sans bloc bash dans $TESTS_MD"; }
     while IFS= read -r line || [ -n "$line" ]; do
         n=$((n + 1))
         printf '%4d | %s\n' "$n" "$line"
     done <"$tmp"
+    rm -f "$tmp"
 }
 
 copy_block() {
     local step="$1"
-    local tmp
+    local tmp content lines
     tmp="$(mktemp)"
-    trap 'rm -f "$tmp"' RETURN
-    extract_block_file "$step" "$tmp" || die "étape « $step » introuvable ou sans bloc bash dans $TESTS_MD"
-    local content lines
+    extract_block_file "$step" "$tmp" || { rm -f "$tmp"; die "étape « $step » introuvable ou sans bloc bash dans $TESTS_MD"; }
     content="$(cat "$tmp")"
+    lines="$(wc -l <"$tmp" | tr -d ' ')"
+    rm -f "$tmp"
     [ -n "$content" ] || die "bloc vide pour $step"
     clipboard_copy "$content"
-    lines="$(wc -l <"$tmp" | tr -d ' ')"
     printf '📋 Étape %s : bloc complet copié (%s ligne(s))\n' "$step" "$lines"
 }
 
 copy_line() {
     local step="$1"
     local num="$2"
-    local tmp
+    local tmp line max
     tmp="$(mktemp)"
-    trap 'rm -f "$tmp"' RETURN
-    extract_block_file "$step" "$tmp" || die "étape « $step » introuvable"
-    local line max
+    extract_block_file "$step" "$tmp" || { rm -f "$tmp"; die "étape « $step » introuvable"; }
     max="$(wc -l <"$tmp" | tr -d ' ')"
     line="$(sed -n "${num}p" "$tmp")"
+    rm -f "$tmp"
     [ -n "$line" ] || die "ligne $num absente (bloc $max ligne(s) max)"
     clipboard_copy "$line"
     printf '📋 Étape %s ligne %s copiée : %s\n' "$step" "$num" "$line"

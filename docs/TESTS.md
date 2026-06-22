@@ -1740,9 +1740,9 @@ But : vérifier que le nouveau manager `displayman` se charge, répond à la con
   displayman osd-guide </dev/null 2>&1 | head -n 5
   if command -v ddcutil >/dev/null 2>&1; then
     echo "--- 6) detect (ddcutil dispo) ---"
-    timeout 30 displayman detect </dev/null 2>&1 | head -n 6
+    timeout 30 bash -c '. core/managers/displayman/core/displayman.sh 2>/dev/null; displayman detect' </dev/null 2>&1 | head -n 6
     echo "--- 7) dump 1 (lecture VCP, ne modifie rien) ---"
-    timeout 60 displayman dump 1 </dev/null 2>&1 | head -n 12
+    timeout 60 bash -c '. core/managers/displayman/core/displayman.sh 2>/dev/null; displayman dump 1' </dev/null 2>&1 | head -n 12
   else
     echo "--- 6/7) ddcutil non installé → skip DDC ---"
   fi
@@ -1755,14 +1755,20 @@ But : vérifier que le nouveau manager `displayman` se charge, répond à la con
   5. Texte `osd-guide` non vide (`Joystick`, `Picture Mode`).
   6. Si `ddcutil` : au moins une ligne `Display 1` ou message d'erreur explicite.
   7. Si `ddcutil` : tableau VCP `[VCP 10] Brightness ...`.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **[x] Fait** *(2026-06-16 — hôte Arch, Mi Monitor HDMI, ddcutil OK)*
+- **Sortie (résumé)** :
 ```
-(coller)
+--- 1) no-args --- OK (aide DISPLAYMAN ≥ 6 lignes)
+--- 2) help --- OK (idem)
+--- 3) arg inconnu --- displayman: commande inconnue: __bogus__ ; rc=1
+--- 4) range --- OK (GPU NVIDIA GA104, session wayland/KDE, texte Full vs Limited)
+--- 5) osd-guide --- OK (Joystick, Picture Mode)
+--- 6) detect --- Display 1 | XMI:Mi Monitor (via bash -c + timeout)
+--- 7) dump 1 --- VCP 10 Brightness C 100 100, VCP 12 Contrast C 100 100, …
 ```
-- **Conforme** :
-- **Notes** : *(ne **jamais** lancer `displayman reset`, `displayman brightness ... <val>`, `displayman contrast ... <val>` ou `displayman preset ... <val>` dans G.0.d : ces commandes **écrivent** sur le moniteur et sortent du périmètre « smoke non destructif ». Les tester manuellement en TTY si souhaité.)*
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `timeout displayman …` seul **échoue** si `displayman` est une fonction shell (pas un binaire) — le bloc G.0.d utilise désormais `timeout bash -c '. …/displayman.sh; displayman …'`. Piège documenté pour rejouer les étapes 6/7.
+- **Assistant (relecture)** : **O** — Critères 1–7 remplis sur matériel réel. Suite : **G.0.e** (`diffman`).
 
 ### Étape G.0.e — Smoke `diffman` (compare / side / report, non-TTY)
 
