@@ -9,7 +9,8 @@
 ```text
 updateman [help | -h | --help]
 updateman status
-updateman all
+updateman all [--tools-only]
+updateman system [status | pending | refresh | update | help]
 updateman arch [status | pending | update | keys librewolf | fix-cache | clean-hints | help]
 updateman cursor [run | install | enable | status | logs | help]
 ```
@@ -22,8 +23,11 @@ Flux recommande :
 
 1. **Installation** : `installman cursor` (ou autre outil du registre).
 2. **Service auto** : apres install reussi, `installman` appelle `updateman cursor enable` si l'outil est dans le registre.
-3. **Mise a jour** : `updateman cursor` ou `updateman all`.
-4. **Vue d'ensemble** : `updateman status` (versions locales, disponibles, timers).
+3. **Mise a jour systeme** : `updateman system refresh` puis `updateman system update` (ou `updateman all` pour systeme + registre).
+4. **Mise a jour outils** : `updateman cursor` ou `updateman all --tools-only`.
+5. **Vue d'ensemble** : `updateman status` (versions locales, disponibles, timers).
+
+La couche **`updateman system`** detecte la distribution (Arch, Debian/Ubuntu, Fedora/RHEL/Rocky/Alma, Alpine, openSUSE, Gentoo, images immutables avec `rpm-ostree`) et pilote les backends disponibles : `pacman`, `yay`, `paru`, `apt`, `dnf`, `yum`, `tdnf`, `apk`, `zypper`, `emerge`, `flatpak`, `snap`.
 
 Pour Arch/AUR, `updateman arch` fournit un helper prudent autour de `pacman` et `yay` :
 diagnostic, mise a jour officielle + AUR, import de cles PGP connues, et rappels de nettoyage.
@@ -45,7 +49,21 @@ Pour ajouter un outil : une ligne dans le registre + handler dans `updateman` + 
 | Commande | Effet |
 |----------|-------|
 | `updateman status` | Tableau des outils du registre : presence, versions, maj?, timer, emplacement. |
-| `updateman all` | Met a jour chaque outil **installe** du registre, un par un. |
+| `updateman all` | Refresh + upgrade des paquets systeme detectes, puis chaque outil **installe** du registre. |
+| `updateman all --tools-only` | Met a jour uniquement les outils du registre (comportement historique). |
+
+## Commandes systeme (multi-distro)
+
+| Commande | Effet |
+|----------|-------|
+| `updateman system status` | Affiche la distro detectee, les backends disponibles et les mises a jour en attente. |
+| `updateman system pending` | Liste les mises a jour par backend (`pacman`, `apt`, `dnf`, `apk`, `zypper`, `flatpak`, …). |
+| `updateman system refresh` | Met a jour les index (`apt update`, `dnf makecache`, `apk update`, `zypper refresh`, …). |
+| `updateman system update` | Applique les mises a jour sur tous les backends detectes. |
+
+Backends pris en charge : pacman, yay, paru, apt, dnf, yum, tdnf, microdnf, apk, zypper, emerge, flatpak, snap, rpm-ostree (Flatcar/CoreOS).
+
+**Limites** : TrueNAS Scale (Debian-based) est couvert via `apt` si present ; TrueNAS Core (FreeBSD) est hors scope Linux. Les tests Docker couvrent arch, debian, ubuntu, alpine, fedora, centos, opensuse.
 
 ## Commandes Arch/AUR
 
@@ -91,6 +109,8 @@ Pour tout outil enregistre : `updateman <outil>`, `updateman <outil> enable`, `u
 ## Fichiers
 
 - Core : `core/managers/updateman/core/updateman.sh`
+- Lib distro : `core/lib/distro.sh`
+- Lib paquets : `core/lib/pkg_backend.sh`
 - Registre : `core/managers/updateman/config/updatable-tools.list`
 - Lib partagee : `core/managers/updateman/lib/updatable_tools.sh`
 - Updater interne Cursor : `scripts/update/update-cursor-appimage`

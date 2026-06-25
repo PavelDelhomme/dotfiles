@@ -6,7 +6,8 @@
 # Version: 1.0
 # =============================================================================
 
-FROM centos:latest
+# CentOS Stream / RHEL family — image Rocky Linux (centos:latest EOL sur Docker Hub).
+FROM rockylinux:9
 
 # Variables d'environnement
 ENV DOTFILES_DIR=/root/dotfiles
@@ -14,28 +15,13 @@ ENV HOME=/root
 ENV TERM=xterm-256color
 
 # Installer les dépendances de base
-RUN yum update -y && \
-    yum install -y \
-        git \
-        curl \
-        wget \
-        zsh \
-        bash \
-        python3 \
-        python3-pip \
-        gcc \
-        gcc-c++ \
-        make \
-        sudo \
-        vim \
-        nano \
-        less \
-        man-db \
-        man-pages \
-        ca-certificates \
-        && \
-    yum clean all && \
-    rm -rf /var/cache/yum/*
+RUN dnf update -y && \
+    dnf install -y \
+        git wget zsh python3 python3-pip \
+        gcc gcc-c++ make sudo vim nano \
+        && (dnf install -y fish man-db 2>/dev/null || true) && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf/*
 
 # Créer le répertoire dotfiles
 WORKDIR /root

@@ -6,6 +6,10 @@ updatable_tools_registry() {
 }
 
 updatable_tools_load_installman_utils() {
+    case "${ZSH_VERSION:+zsh}${BASH_VERSION:+bash}" in
+        zsh|bash) ;;
+        *) return 0 ;;
+    esac
     _ut_df="${DOTFILES_DIR:-$HOME/dotfiles}"
     _ut_utils="$_ut_df/zsh/functions/installman/utils"
     [ -f "$_ut_utils/check_installed.sh" ] && . "$_ut_utils/check_installed.sh" 2>/dev/null || true

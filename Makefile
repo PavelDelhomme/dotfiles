@@ -10,7 +10,7 @@
 #   make help             - Afficher l'aide
 #   make generate-man     - Générer les pages man pour toutes les fonctions
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy tests-copy-smoke tests-smoke-manager tests-preview test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
+.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy tests-copy-smoke tests-smoke-manager tests-preview test-updateman-system-smoke test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR := $(HOME)/dotfiles
@@ -461,6 +461,9 @@ tests-smoke-manager: ## Exécuter smoke help manager (MANAGER=pathman)
 		echo "Usage: make tests-smoke-manager MANAGER=pathman"; exit 1; \
 	fi
 	@bash "$(SCRIPT_DIR)/tools/tests_smoke_manager.sh" "$(MANAGER)"
+
+test-updateman-system-smoke: ## Smoke updateman system (DISTRO=arch par défaut)
+	@DOTFILES_DIR="$(DOTFILES_DIR)" bash "$(SCRIPT_DIR)/test/docker/test_updateman_system_smoke.sh" "$${DISTRO:-arch}"
 
 # Docker + managers migrés (matrice shells dans run_tests.sh).
 # Dans un conteneur docker-in (/.dockerenv) sans Docker : exécution directe de run_tests.sh.

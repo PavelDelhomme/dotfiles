@@ -14,6 +14,14 @@ updateman() {
     RESET='\033[0m'
 
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/core/lib/distro.sh" ]; then
+        # shellcheck source=../../../lib/distro.sh
+        . "$DOTFILES_DIR/core/lib/distro.sh"
+    fi
+    if [ -f "$DOTFILES_DIR/core/lib/pkg_backend.sh" ]; then
+        # shellcheck source=../../../lib/pkg_backend.sh
+        . "$DOTFILES_DIR/core/lib/pkg_backend.sh"
+    fi
     UPDATEMAN_LEGACY_BIN="$HOME/.local/bin/update-cursor-appimage"
     UPDATEMAN_SYSTEMD_DIR="${UPDATEMAN_SYSTEMD_DIR:-$HOME/.config/systemd/user}"
     UPDATEMAN_LIB="$DOTFILES_DIR/core/managers/updateman/lib/updatable_tools.sh"
@@ -40,8 +48,12 @@ updateman() {
     __updateman_help() {
         printf "${CYAN}${BOLD}UPDATEMAN${RESET} - mises a jour locales\n\n"
         printf "  ${BOLD}updateman status${RESET}              vue d'ensemble (versions + timers)\n"
-        printf "  ${BOLD}updateman all${RESET}                 met a jour les outils du registre, un par un\n"
-        printf "  ${BOLD}updateman arch status${RESET}         diagnostic pacman/yay (maj, verrous, caches)\n"
+        printf "  ${BOLD}updateman all${RESET}                 paquets systeme (detectes) + outils du registre\n"
+        printf "  ${BOLD}updateman all --tools-only${RESET}    uniquement les outils du registre (Cursor, …)\n"
+        printf "  ${BOLD}updateman system status${RESET}       distro, backends, maj en attente\n"
+        printf "  ${BOLD}updateman system refresh${RESET}    met a jour les index (apt/dnf/apk/zypper/…)\n"
+        printf "  ${BOLD}updateman system update${RESET}       applique les mises a jour systeme detectees\n"
+        printf "  ${BOLD}updateman arch status${RESET}         diagnostic pacman/yay (Arch detaille)\n"
         printf "  ${BOLD}updateman arch update${RESET}         sudo pacman -Syu puis yay -Sua\n"
         printf "  ${BOLD}updateman arch keys librewolf${RESET} importe la cle PGP LibreWolf\n"
         printf "  ${BOLD}updateman arch fix-cache${RESET}      supprime les dossiers download-* orphelins (pacman -Sc)\n"
@@ -54,6 +66,85 @@ updateman() {
         printf "  ${BOLD}updateman help${RESET}                affiche cette aide\n"
         printf "\n${YELLOW}Note:${RESET} les scripts internes (ex. update-cursor-appimage) ne sont pas des commandes publiques.\n"
         printf "      Installation initiale : ${BOLD}installman <outil>${RESET} ; mises a jour : ${BOLD}updateman${RESET}.\n"
+    }
+
+    __updateman_system_help() {
+        printf "${CYAN}${BOLD}UPDATEMAN system${RESET} — paquets multi-distro\n\n"
+        printf "Commandes:\n"
+        printf "  ${BOLD}updateman system status${RESET}   distro + backends detectes + pending\n"
+        printf "  ${BOLD}updateman system pending${RESET}  liste des mises a jour par backend\n"
+        printf "  ${BOLD}updateman system refresh${RESET}  refresh index (apt update, dnf makecache, apk update, …)\n"
+        printf "  ${BOLD}updateman system update${RESET}   upgrade des backends detectes\n\n"
+        printf "Backends: pacman yay paru | apt | dnf yum tdnf | apk | zypper | emerge | flatpak | snap\n"
+        printf "Sur Arch, ${BOLD}updateman arch${RESET} reste disponible pour le diagnostic detaille.\n"
+        printf "Immutable (Flatcar/CoreOS): ${BOLD}rpm-ostree${RESET} si present.\n"
+    }
+
+    __updateman_system_status() {
+        printf "${CYAN}${BOLD}UPDATEMAN system status${RESET}\n\n"
+        if command -v dotfiles_detect_distro_pretty >/dev/null 2>&1; then
+            printf "Distro: %s (famille: %s)\n\n" \
+                "$(dotfiles_detect_distro_pretty 2>/dev/null || echo '?')" \
+                "$(dotfiles_detect_distro 2>/dev/null || echo unknown)"
+        fi
+        if ! command -v pkg_backend_list >/dev/null 2>&1; then
+            printf "${RED}pkg_backend.sh introuvable.${RESET}\n" >&2
+            return 1
+        fi
+        printf "${CYAN}${BOLD}Backends detectes${RESET}\n"
+        printf '  %s\n\n' "$(pkg_backend_list)"
+        __updateman_system_pending
+    }
+
+    __updateman_system_pending() {
+        if ! command -v pkg_backend_list >/dev/null 2>&1; then
+            return 1
+        fi
+        _usp_any=0
+        for _usp in $(pkg_backend_list); do
+            printf "${CYAN}${BOLD}=== %s ===${RESET}\n" "$_usp"
+            if pkg_backend_pending "$_usp"; then
+                _usp_any=1
+            else
+                printf "  (aucune mise a jour ou backend indisponible)\n"
+            fi
+            printf '\n'
+        done
+        if [ "$_usp_any" -eq 0 ]; then
+            printf "${GREEN}Aucune mise a jour detectee sur les backends actifs.${RESET}\n"
+        fi
+    }
+
+    __updateman_system_refresh() {
+        if ! command -v pkg_backend_refresh_all >/dev/null 2>&1; then
+            printf "${RED}pkg_backend indisponible.${RESET}\n" >&2
+            return 1
+        fi
+        pkg_backend_refresh_all
+    }
+
+    __updateman_system_update() {
+        if ! command -v pkg_backend_upgrade_all >/dev/null 2>&1; then
+            printf "${RED}pkg_backend indisponible.${RESET}\n" >&2
+            return 1
+        fi
+        pkg_backend_upgrade_all
+    }
+
+    __updateman_system() {
+        _sys_sub="${1:-status}"
+        case "$_sys_sub" in
+            help|-h|--help|aide) __updateman_system_help ;;
+            status|check) __updateman_system_status ;;
+            pending|updates|list) __updateman_system_pending ;;
+            refresh|sync|update-index) __updateman_system_refresh ;;
+            update|upgrade|run) __updateman_system_update ;;
+            *)
+                printf "${RED}Sous-commande system inconnue:${RESET} %s\n\n" "$_sys_sub" >&2
+                __updateman_system_help
+                return 1
+                ;;
+        esac
     }
 
     __updateman_arch_help() {
@@ -360,6 +451,23 @@ updateman() {
 
     __updateman_update_all() {
         rc=0
+        _ua_tools_only=0
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                --tools-only|--registry-only) _ua_tools_only=1; shift ;;
+                *) break ;;
+            esac
+        done
+        if [ "$_ua_tools_only" -eq 0 ]; then
+            if command -v pkg_backend_refresh_all >/dev/null 2>&1; then
+                printf "${CYAN}${BOLD}==> updateman system refresh${RESET}\n"
+                pkg_backend_refresh_all || rc=1
+                printf "\n${CYAN}${BOLD}==> updateman system update${RESET}\n"
+                pkg_backend_upgrade_all || rc=1
+            else
+                printf "${YELLOW}pkg_backend absent:${RESET} passe systeme ignore (outils registre seulement).\n"
+            fi
+        fi
         for tool in $(__updateman_tools); do
             if ! updatable_tool_check_installed "$tool" 2>/dev/null; then
                 printf "${YELLOW}==> %s ignore (non installe)${RESET}\n" "$tool"
@@ -483,7 +591,12 @@ updateman() {
             __updateman_status_all
             ;;
         all|upgrade-all|update-all)
-            __updateman_update_all
+            shift
+            __updateman_update_all "$@"
+            ;;
+        system|os|packages)
+            shift
+            __updateman_system "$@"
             ;;
         arch|pacman|yay)
             shift

@@ -97,6 +97,14 @@ detect_package_managers() {
                 managers+=("yum")
             fi
             ;;
+        alpine)
+            command -v apk &>/dev/null && managers+=("apk")
+            ;;
+        opensuse|centos)
+            command -v zypper &>/dev/null && managers+=("zypper")
+            command -v dnf &>/dev/null && managers+=("dnf")
+            command -v yum &>/dev/null && managers+=("yum")
+            ;;
         gentoo)
             if command -v emerge &>/dev/null; then
                 managers+=("emerge")
@@ -113,7 +121,7 @@ detect_package_managers() {
 is_package_manager_available() {
     local manager="$1"
     case "$manager" in
-        pacman|yay|pamac|snap|flatpak|apt|apt-get|dpkg|dnf|rpm|yum|emerge|npm)
+        pacman|yay|pamac|snap|flatpak|apt|apt-get|dpkg|dnf|rpm|yum|emerge|npm|apk|zypper|paru|tdnf|microdnf)
             command -v "$manager" &>/dev/null
             ;;
         *)
@@ -537,6 +545,14 @@ list_available_updates() {
                 if ! is_package_manager_available "npm"; then return 0; fi
                 output=$(npm outdated -g --depth=0 2>/dev/null)
                 ;;
+            apk)
+                if ! is_package_manager_available "apk"; then return 0; fi
+                output=$(apk version -l '<' 2>/dev/null)
+                ;;
+            zypper)
+                if ! is_package_manager_available "zypper"; then return 0; fi
+                output=$(zypper -n list-updates 2>/dev/null)
+                ;;
             *)
                 return 2
                 ;;
@@ -552,7 +568,7 @@ list_available_updates() {
     }
 
     if [ "$manager" = "all" ]; then
-        for mgr in pacman yay apt dnf yum emerge flatpak snap npm; do
+        for mgr in pacman yay paru apt dnf yum apk zypper emerge flatpak snap npm; do
             _check_one_manager_updates "$mgr"
         done
     else
@@ -603,6 +619,12 @@ upgrade_all_packages() {
             npm)
                 npm update -g
                 ;;
+            apk)
+                if [ "$(id -u)" -eq 0 ]; then apk update && apk upgrade; else sudo apk update && sudo apk upgrade; fi
+                ;;
+            zypper)
+                if [ "$(id -u)" -eq 0 ]; then zypper --non-interactive update; else sudo zypper --non-interactive update; fi
+                ;;
             *)
                 return 2
                 ;;
@@ -631,6 +653,20 @@ upgrade_all_packages() {
                 ;;
             gentoo)
                 _upgrade_one_manager "emerge" || ret=1
+                ;;
+            alpine)
+                _upgrade_one_manager "apk" || ret=1
+                ;;
+            opensuse|centos)
+                if is_package_manager_available "zypper"; then
+                    _upgrade_one_manager "zypper" || ret=1
+                elif is_package_manager_available "dnf"; then
+                    _upgrade_one_manager "dnf" || ret=1
+                elif is_package_manager_available "yum"; then
+                    _upgrade_one_manager "yum" || ret=1
+                else
+                    ret=1
+                fi
                 ;;
             *)
                 ret=1
