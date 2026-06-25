@@ -34,6 +34,14 @@ installman() {
     RESET='\033[0m'
     
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/core/lib/distro.sh" ]; then
+        # shellcheck source=../../../lib/distro.sh
+        . "$DOTFILES_DIR/core/lib/distro.sh"
+    fi
+    if [ -f "$DOTFILES_DIR/core/lib/pkg_backend.sh" ]; then
+        # shellcheck source=../../../lib/pkg_backend.sh
+        . "$DOTFILES_DIR/core/lib/pkg_backend.sh"
+    fi
     INSTALLMAN_DIR="$DOTFILES_DIR/zsh/functions/installman"
     INSTALLMAN_MODULES_DIR="$INSTALLMAN_DIR/modules"
     INSTALLMAN_UTILS_DIR="$INSTALLMAN_DIR/utils"
@@ -101,6 +109,7 @@ installman() {
         echo "Liste des outils : installman list"
         echo "Paquets :          installman pl | search | install | remove"
         echo "Mises à jour :     installman update | update-all | check | upgrade | packages"
+        echo "Paquets système :  installman upgrade auto  (core/lib pkg_backend multi-distro)"
         echo "                   updateman status | updateman all (outils du registre, ex. cursor)"
         echo ""
         echo "Interface :"

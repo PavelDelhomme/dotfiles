@@ -7,11 +7,12 @@
 ## En bref
 
 - **Branches Git** : `main` = production ; `dev` = intégration ; flux `feat/` → `dev` → `test/` → `fix/` → `preprod` → `main`. **Ne plus supprimer** les branches après merge (archivage / traçabilité). Détail : [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
-- **Tests manuels** : G.0 / G.0.b / G.0.c validés ; copie presse-papiers des commandes via `make tests-copy STEP=…` ([`scripts/tools/tests_copy.sh`](scripts/tools/tests_copy.sh)).
+- **Tests manuels** : passe **A→I** documentée dans [`docs/TESTS.md`](docs/TESTS.md) — **G.0→G.27**, **H.1–H.3**, **I.1–I.2** *(2026-06-16)* ; `make tests-copy` / `make tests-smoke-manager`.
+- **updateman / installman** : `core/lib/distro.sh` + `pkg_backend.sh` ; `updateman system` multi-distro ; `installman upgrade auto` délègue à pkg_backend ; smoke Docker `make test-updateman-system-smoke`.
 - **Vision E2E multi-OS** : cadrage P11/P12 — [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md).
 - **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : diffs colorés / rapports ; **diskman** : diagnostic disque et nettoyage prudent (`clean --dry-run` par défaut).
 - **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
-- **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
+- **updateman** : registre partage avec **installman** ; `updateman system` + `updateman all` (système + registre) ; `installman upgrade auto` via `pkg_backend` ; smoke `make test-updateman-system-smoke`.
 - **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`, `dfm` declaratif avec fallback pagine + pause apres action) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md), [`share/menus/README.md`](share/menus/README.md).
 - **CI** : `make test` / `make test-docker` (managers + smoke menus `0/q` + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur. Dernière passe 2026-06-12 : managers **81/81 OK** (**412 tests**), `menu_quit_smoke OK`, matrice sous-commandes **114 exécutions / 0 échec** après exclusion de `displayman detect` (matériel DDC réel).
 
@@ -21,7 +22,7 @@
 2. **P3b-b (suite)** : `tui_truncate`, pagination menus longs, validation manuelle terminaux étroits (EXT-002) ; vérifier les managers non encore alignés (cyberman, installman, etc.).
 3. **`updateman`** : validation manuelle `status` / `all` / timer (V-2026-05-22-updateman-cursor).
 4. **P1** : adapters minces, menus `dotcli` ; **P8b** / **P8c** : `updateman dotfiles`, registre outils.
-5. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — **G.0–G.0.c** validés ; suite **G.0.d** (`displayman`) ; `make tests-copy` pour copier les blocs de commandes.
+5. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — **A→I** validés *(2026-06-16)* ; suite **P11** CI multi-distro, **P5** modules installman par outil.
 6. Jalon de validation [`TODOS.md`](TODOS.md) avant bascule structurelle majeure.
 
 ## Où lire la suite
@@ -43,6 +44,11 @@
 
 ## Journal récent (suivi détaillé)
 
+0. **Livraison 2026-06-16** — lot **« TESTS A→I + updateman multi-distro + installman pkg_backend »** :
+   - **`updateman system`** : `core/lib/distro.sh`, `pkg_backend.sh` ; `updateman all` = système + registre ; smoke Docker `make test-updateman-system-smoke` (arch/debian/ubuntu/alpine/fedora/opensuse/centos × bash/zsh/fish).
+   - **TESTS.md** : **G.1–G.27**, **H.1–H.3**, **I.1–I.2** ; fix **`fi` orphelins** (gitman, devman, virtman, testman, testzshman, multimediaman).
+   - **installman** : `detect_distro` / `upgrade auto` / `detect_package_managers` délèguent à `core/lib/` quand disponible.
+   - **Merge** : `feat/manual-tests-g0` → **`dev`**.
 1. **Livraison 2026-06-16** — lot **« tests manuels G.0 + outillage copie + branches »** :
    - **TESTS.md** : G.0, G.0.b, G.0.c documentés ; aide `make tests-copy` / `scripts/tools/tests_copy.sh` (bloc complet ou ligne).
    - **Branches** : convention `feat/` / `test/` / `fix/` / `preprod` ; règle **ne plus supprimer** les branches fusionnées — [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).

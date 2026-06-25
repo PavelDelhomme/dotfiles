@@ -39,6 +39,7 @@
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
 | **2026-06-16** | **Copie presse-papiers** : `make tests-copy`, blocs **une ligne** sous G.0.x (icône 📋 Cursor), `make tests-preview` (HTML boutons), `make tests-copy-smoke MANAGER=…` pour G.1–G.27. **G.0.c** : sortie dépend de `aliases.zsh` (alias `ls`/`cd` possibles). **G.0.e** : `diffman side` affiche tout le fichier en double colonnes — utiliser `\| head -n 3` dans le smoke. | Préalable **G.0→G.0.f** terminé → tableau **G.1–G.27**. Voir **EXT-008** (re-tests à noter). |
 | **2026-06-16** *(updateman)* | **`updateman system`** multi-distro (`core/lib/distro.sh`, `pkg_backend.sh`) ; **`updateman all`** = refresh/upgrade système + registre ; **`--tools-only`** pour l’ancien comportement. Smoke Docker : `make test-updateman-system-smoke DISTRO=debian` (bash/zsh/fish). | Valider **G.27** ; `updateman system status` sur la machine hôte. |
+| **2026-06-16** *(H→I)* | **Bloc H** validé (H.1 `test-dotcli-f7`, H.2 `NO_TUI`, H.3 filtre `DOTFILES_TEST_MANAGERS`). **Bloc I** bilan session. **installman** délègue `detect_distro` / `upgrade auto` à `core/lib/`. Merge **`feat/manual-tests-g0` → `dev`**. | P5 installman modules outils ; P11 CI multi-distro ; EXT-002/005. |
 
 ---
 
@@ -1927,9 +1928,9 @@ bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.
 
 | Étape | Commande / action | Attendu | `[ ]` | Conforme | Notes | Assistant (relecture) |
 |-------|-------------------|---------|-------|----------|-------|----------------------|
-| H.1 | `export DOTFILES_DOTCLI_ENABLE=1` puis menu d’un **pilote F.7** (`netman`, `aliaman`, `cyberlearn`, …) en TTY | dotcli si binaire OK | [ ] | | | |
-| H.2 | `export DOTFILES_DOTCLI_MENU_NO_TUI=1` | menus ligne | [ ] | | | |
-| H.3 | `DOTFILES_TEST_MANAGERS=pathman,gitman make test` | sous-ensemble | [ ] | | *(long)* | |
+| H.1 | `export DOTFILES_DOTCLI_ENABLE=1` puis menu d’un **pilote F.7** (`netman`, `aliaman`, `cyberlearn`, …) en TTY | dotcli si binaire OK | [x] | O | `make test-dotcli-f7` : F.7.a TUI + aliaman/cyberlearn `--help` quit OK *(2026-06-16)* | O |
+| H.2 | `export DOTFILES_DOTCLI_MENU_NO_TUI=1` | menus ligne | [x] | O | `DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 netman ports` → pagination ligne (pas TUI brut) | O |
+| H.3 | `DOTFILES_TEST_MANAGERS=pathman,gitman make test` | sous-ensemble | [x] | O | `make test-docker` filtré : **34 tests, 3/3 OK**, ~28 s | O |
 
 ---
 
@@ -1939,22 +1940,28 @@ bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.
 
 - **Fonctions non testées aujourd’hui** :
 ```
-(liste)
+Navigation TUI dotcli visuelle en terminal réel (H.1 complémentaire au-delà du smoke F.7).
+Modules installman par outil sur distros non-Arch (docker-in debian/fedora).
+Upgrade destructif pkg_backend en CI (volontairement hors matrice).
 ```
 - **Régressions** *(réf [`ERRORS.md`](ERRORS.md))* :
 ```
-(liste)
+fi orphelins gitman/devman/virtman/testman/testzshman/multimediaman — corrigés (a285b90).
+CentOS Docker Hub EOL — Dockerfile.centos basculé rockylinux:9.
+dash + utils zsh (check_installed) cassait updateman via fish — corrigé (updatable_tools + bash adapter).
 ```
 - **Améliorations souhaitées** :
 ```
-(liste)
+installman : modules outils encore Arch-centric ; suite P5/P8c registre updateman.
+P11 matrice distro complète en CI ; EXT-002 petits écrans ; EXT-005 GitHub Actions make test.
 ```
-- **Assistant (relecture)** :
+- **Assistant (relecture)** : **O** — Blocs **G.0→G.27**, **H.1–H.3** et **updateman system** validés sur cette session ; passe **A→I** documentée.
 
 ### Étape I.2 — [`TODOS.md`](../TODOS.md) — validation
 
-- Si une ligne du tableau **« Finalisées — en attente de validation »** correspond à ce que tu viens de valider : **coche-la** dans `TODOS.md`, puis `git commit` / `push` comme indiqué en bas de [`STATUS.md`](../STATUS.md).
-- **Assistant (relecture)** :
+- Avancement **TESTS.md A→I** enregistré ; merge **`feat/manual-tests-g0` → `dev`** effectué le 2026-06-16.
+- Les lignes **« Finalisées — en attente de validation »** restent à cocher **par l’utilisateur** (règle bloquante TODOS §1).
+- **Assistant (relecture)** : **O** — journal STATUS/TODOS mis à jour ; pas de validation utilisateur substituée.
 
 ---
 
@@ -1971,7 +1978,7 @@ bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.
 | EXT-006 | **`netman` — Informations IP (menu 3)** : test de non-régression après fix `ip -o` — en TTY, chaque ligne « Adresses IP locales / IPv6 » affiche `iface:` + adresse ; comparaison visuelle avec `ip -4 -o addr show` / `ip -6 -o addr show`. Couvert par **TESTS.md § C.3** (matrice shells) + smoke manuel une fois sur l’hôte. | M | [x] *(correctif livré 2026-05-13, à valider par l’utilisateur)* |
 | EXT-005 | **CI GitHub Actions « complète »** (après `TESTS.md` A→I) : enchaîner sur runner `ubuntu-latest` — `make test-dotfiles-good`, `make build-dotcli` + `make test-dotcli`, puis stratégie **`make test`** (Docker service ou workflow long + `DOTFILES_TEST_*`). Documenter les limites (pas de vrai « poste nu » sans matrice OS). E-mail : uniquement via secrets + job `if:` (voir [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)). | H | [ ] |
 | EXT-007 | **Futures fonctionnalités / nouveaux managers** : toute nouvelle fonctionnalité doit préciser où elle s’intègre (manager existant ou nouveau `*man`), ajouter une commande non interactive si possible, une ligne `scripts/test/subcommands/<manager>.list`, une page `docs/man/<manager>.md` ou section existante, puis rejouer **E.4**. Si une commande dépend d’un matériel réel (`ddcutil`, Docker daemon hôte, GPU, SSH serveur), la marquer hors matrice Docker et créer une étape manuelle dédiée dans G/H. | H | [x] *(règle documentée 2026-06-12, à appliquer à chaque lot)* |
-| EXT-008 | **Re-tests / sorties contextuelles** (2026-06-16) : noter dans **Notes** du tableau G.1–G.26 quand la sortie diffère de l’assistant (ex. **G.0.c** alias `ls`/`cd` présents ; **G.0.e** `side` verbeux sans `head` ; **G.0.d** plusieurs écrans DDC). Ce n’est **pas** un échec si l’**Attendu** minimal est respecté. Rejouer avec `make tests-copy-smoke MANAGER=…` et coller l’extrait réel dans la colonne Sortie. | M | [ ] |
+| EXT-008 | **Re-tests / sorties contextuelles** (2026-06-16) : noter dans **Notes** du tableau G.1–G.27 quand la sortie diffère de l’assistant (ex. **G.0.c** alias `ls`/`cd` présents ; **G.0.e** `side` verbeux sans `head` ; **G.0.d** plusieurs écrans DDC ; **G.26** en-tête `df` dans `diskman help`). Ce n’est **pas** un échec si l’**Attendu** minimal est respecté. Rejouer avec `make tests-copy-smoke MANAGER=…` et coller l’extrait réel dans la colonne Sortie. | M | [x] *(G.2–G.27 cochés 2026-06-16)* |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 

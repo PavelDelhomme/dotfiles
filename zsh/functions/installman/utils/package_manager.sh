@@ -15,6 +15,13 @@
 # USAGE: detect_distro
 # RETURNS: arch|debian|ubuntu|fedora|gentoo|unknown
 detect_distro() {
+    _pd_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$_pd_df/core/lib/distro.sh" ]; then
+        # shellcheck source=../../../../core/lib/distro.sh
+        . "$_pd_df/core/lib/distro.sh"
+        dotfiles_detect_distro
+        return 0
+    fi
     if [ -f /etc/os-release ]; then
         . /etc/os-release
         case "$ID" in
@@ -46,6 +53,17 @@ detect_distro() {
 # USAGE: detect_package_managers
 # RETURNS: Liste des gestionnaires disponibles (pacman,yay,snap,flatpak,apt,dpkg,dnf,rpm)
 detect_package_managers() {
+    _pd_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$_pd_df/core/lib/pkg_backend.sh" ]; then
+        # shellcheck source=../../../../core/lib/distro.sh
+        [ -f "$_pd_df/core/lib/distro.sh" ] && . "$_pd_df/core/lib/distro.sh"
+        # shellcheck source=../../../../core/lib/pkg_backend.sh
+        . "$_pd_df/core/lib/pkg_backend.sh"
+        if command -v pkg_backend_list >/dev/null 2>&1; then
+            pkg_backend_list
+            return 0
+        fi
+    fi
     local managers=()
     local distro=$(detect_distro)
     
@@ -588,6 +606,18 @@ upgrade_all_packages() {
     local manager="${1:-auto}"
     local ret=0
     local distro=""
+
+    if [ "$manager" = "auto" ] || [ "$manager" = "all" ]; then
+        _uap_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+        if [ -f "$_uap_df/core/lib/pkg_backend.sh" ]; then
+            [ -f "$_uap_df/core/lib/distro.sh" ] && . "$_uap_df/core/lib/distro.sh"
+            # shellcheck source=../../../../core/lib/pkg_backend.sh
+            . "$_uap_df/core/lib/pkg_backend.sh"
+            pkg_backend_refresh_all || ret=1
+            pkg_backend_upgrade_all || ret=1
+            return "$ret"
+        fi
+    fi
 
     _upgrade_one_manager() {
         local mgr="$1"
