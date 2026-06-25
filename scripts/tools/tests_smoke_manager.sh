@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Smoke G.1–G.26 : aide manager en non-TTY.
+# Smoke G.1–G.27 : aide manager en non-TTY.
 # Usage :
 #   tests_smoke_manager.sh pathman           # exécuter
 #   tests_smoke_manager.sh --copy pathman  # copier la commande → presse-papiers

@@ -37,7 +37,8 @@
 | **2026-05-13** *(netman + doc)* | **`netman` — Informations IP** : correction de l’affichage des adresses **IPv4 / IPv6** (interfaces vides `:` ou fragment `861:` pris pour un nom d’interface). Désormais : `ip -4 -o addr show` / `ip -6 -o addr show` + `awk` (core POSIX + copie `zsh/functions/netman/core/netman.zsh`). **Nouvelle étape `C.3`** : matrice **zsh / bash / fish / sh** dans le conteneur (même champs que le reste du guide) + lien explicite **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table « Correspondance avec `TODOS.md` ». | Optionnel : remplir **C.3.a–d** ; sinon continuer **F→I**. Refaire une fois le menu **netman → 3** si tu avais noté un affichage cassé. |
 | **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
-| **2026-06-16** | **Copie presse-papiers** : `make tests-copy`, blocs **une ligne** sous G.0.x (icône 📋 Cursor), `make tests-preview` (HTML boutons), `make tests-copy-smoke MANAGER=…` pour G.1–G.26. **G.0.c** : sortie dépend de `aliases.zsh` (alias `ls`/`cd` possibles). **G.0.e** : `diffman side` affiche tout le fichier en double colonnes — utiliser `\| head -n 3` dans le smoke. | Préalable **G.0→G.0.f** terminé → tableau **G.1–G.26**. Voir **EXT-008** (re-tests à noter). |
+| **2026-06-16** | **Copie presse-papiers** : `make tests-copy`, blocs **une ligne** sous G.0.x (icône 📋 Cursor), `make tests-preview` (HTML boutons), `make tests-copy-smoke MANAGER=…` pour G.1–G.27. **G.0.c** : sortie dépend de `aliases.zsh` (alias `ls`/`cd` possibles). **G.0.e** : `diffman side` affiche tout le fichier en double colonnes — utiliser `\| head -n 3` dans le smoke. | Préalable **G.0→G.0.f** terminé → tableau **G.1–G.27**. Voir **EXT-008** (re-tests à noter). |
+| **2026-06-16** *(updateman)* | **`updateman system`** multi-distro (`core/lib/distro.sh`, `pkg_backend.sh`) ; **`updateman all`** = refresh/upgrade système + registre ; **`--tools-only`** pour l’ancien comportement. Smoke Docker : `make test-updateman-system-smoke DISTRO=debian` (bash/zsh/fish). | Valider **G.27** ; `updateman system status` sur la machine hôte. |
 
 ---
 
@@ -1870,11 +1871,11 @@ But : vérifier que `diskman` se charge, répond à la convention CLI/help, et q
 ```
 - **Conforme** : O
 - **Notes** : `diskman help` inclut volontairement un **aperçu df** avant l’aide (`_diskman_status_compact`). Ne pas confondre avec `overview`. Aucun `--apply` lancé.
-- **Assistant (relecture)** : **O** — G.0.f OK. Préalable G.0 terminé → enchaîner **tableau G.1–G.26**.
+- **Assistant (relecture)** : **O** — G.0.f OK. Préalable G.0 terminé → enchaîner **tableau G.1–G.27** (G.2–G.27 validés en smoke le 2026-06-16).
 
 ---
 
-Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), même modèle :
+Pour **chaque** ligne du tableau **G.1–G.27** (smoke manuel complémentaire), même modèle :
 
 - **Commande** : `<manager> help` en non-TTY *(charger le core POSIX puis aide)* :
 
@@ -1891,31 +1892,32 @@ bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.
 | # | Manager | `[ ]` | Sortie (extrait) | Conforme | Notes | Assistant (relecture) |
 |---|---------|-------|------------------|----------|-------|----------------------|
 | G.1 | pathman | [x] | PATHMAN — raccourcis ; show/add/remove/clean… (8 lignes) | O | Smoke via `make tests-smoke-manager MANAGER=pathman` *(2026-06-16)* | O |
-| G.2 | manman | [ ] | | | | |
-| G.3 | searchman | [ ] | | | | |
-| G.4 | aliaman | [ ] | | | | |
-| G.5 | installman | [ ] | | | | |
-| G.6 | configman | [ ] | | | | |
-| G.7 | gitman | [ ] | | | | |
-| G.8 | fileman | [ ] | | | | |
-| G.9 | helpman | [ ] | | | | |
-| G.10 | cyberman | [ ] | | | | |
-| G.11 | devman | [ ] | | | | |
-| G.12 | virtman | [ ] | | | | |
-| G.13 | miscman | [ ] | | | | |
-| G.14 | doctorman | [ ] | | | | |
-| G.15 | netman | [ ] | | | | |
-| G.16 | sshman | [ ] | | | | |
-| G.17 | processman | [ ] | | | | |
-| G.18 | routeman | [ ] | | | | |
-| G.19 | testman | [ ] | | | | |
-| G.20 | testzshman | [ ] | | | | |
-| G.21 | moduleman | [ ] | | | | |
-| G.22 | multimediaman | [ ] | | | | |
-| G.23 | cyberlearn | [ ] | | | | |
-| G.24 | displayman | [ ] | | | | |
-| G.25 | diffman | [ ] | | | | |
-| G.26 | diskman | [ ] | | | | |
+| G.2 | manman | [x] | MANMAN — raccourcis ; menu / help stdout | O | Smoke `make tests-smoke-manager MANAGER=manman` *(2026-06-16)* | O |
+| G.3 | searchman | [x] | searchman — recherche d'exécutables… | O | idem | O |
+| G.4 | aliaman | [x] | Usage aliaman help / search / list | O | idem | O |
+| G.5 | installman | [x] | INSTALLMAN — raccourcis (list, pl, update…) | O | idem | O |
+| G.6 | configman | [x] | CONFIGMAN — modules apply, git, symlinks… | O | idem | O |
+| G.7 | gitman | [x] | GITMAN — Gestionnaire Git ; Interface help | O | Fix syntaxe `fi` orphelin *(2026-06-16)* | O |
+| G.8 | fileman | [x] | FILEMAN — gestion fichiers, archives… | O | idem | O |
+| G.9 | helpman | [x] | HELPMAN — aide centralisée stdout | O | idem | O |
+| G.10 | cyberman | [x] | Usage cyberman help stdout | O | idem | O |
+| G.11 | devman | [x] | DEVMAN — Development Manager | O | Fix syntaxe `fi` orphelin | O |
+| G.12 | virtman | [x] | VIRTMAN — Virtual Environment Manager | O | Fix syntaxe `fi` orphelin | O |
+| G.13 | miscman | [x] | MISCMAN — outils divers | O | idem | O |
+| G.14 | doctorman | [x] | DOCTORMAN — diagnostic dotfiles | O | idem | O |
+| G.15 | netman | [x] | NETMAN — raccourcis | O | idem | O |
+| G.16 | sshman | [x] | SSHMAN — raccourcis | O | idem | O |
+| G.17 | processman | [x] | Aide PROCESSMAN | O | idem | O |
+| G.18 | routeman | [x] | ROUTEMAN — routes IP | O | idem | O |
+| G.19 | testman | [x] | TESTMAN — Test Manager Applications | O | Fix syntaxe `fi` orphelin | O |
+| G.20 | testzshman | [x] | TESTZSHMAN — Test Manager ZSH/Dotfiles | O | Fix syntaxe `fi` orphelin | O |
+| G.21 | moduleman | [x] | MODULEMAN — enable module | O | idem | O |
+| G.22 | multimediaman | [x] | MULTIMEDIAMAN — DVD / archives | O | Fix syntaxe `fi` orphelin | O |
+| G.23 | cyberlearn | [x] | Usage cyberlearn help stdout | O | idem | O |
+| G.24 | displayman | [x] | DISPLAYMAN — écrans / luminosité / DDC | O | idem | O |
+| G.25 | diffman | [x] | DIFFMAN — comparaison lisible | O | idem | O |
+| G.26 | diskman | [x] | `diskman help` : df -hT puis DISKMAN — diagnostic… | O | EXT-008 : en-tête df normal sur cette machine | O |
+| G.27 | updateman | [x] | UPDATEMAN — system status / all / cursor… | O | + `make test-updateman-system-smoke` Docker | O |
 
 **Approfondir** : pour chaque fichier `scripts/test/subcommands/<manager>.list`, ajouter des lignes **G.x.y** dans tes **Notes** ou une annexe perso — c’est la voie pour se rapprocher d’une couverture « chaque sous-commande ».
 
