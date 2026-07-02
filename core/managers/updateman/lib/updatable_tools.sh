@@ -62,11 +62,16 @@ updatable_tool_check_installed() {
 updatable_tool_timer_state() {
     _ut_line="$(updatable_tool_find "$1")"
     _ut_timer="$(updatable_tool_field "$_ut_line" 3)"
-    [ -n "$_ut_timer" ] && [ "$_ut_timer" != "-" ] || { printf '%s\n' "-"; return 0; }
+    [ -n "$_ut_timer" ] && [ "$_ut_timer" != "-" ] || { printf '%s' "-"; return 0; }
     if command -v systemctl >/dev/null 2>&1; then
-        systemctl --user is-active "$_ut_timer" 2>/dev/null || printf '%s\n' "inactive"
+        _ut_state="$(systemctl --user is-active "$_ut_timer" 2>/dev/null)" || _ut_state="inactive"
+        case "$_ut_state" in
+            active|inactive|failed|activating|deactivating) ;;
+            *) _ut_state="inactive" ;;
+        esac
+        printf '%s' "$_ut_state"
     else
-        printf '%s\n' "n/a"
+        printf '%s' "n/a"
     fi
 }
 

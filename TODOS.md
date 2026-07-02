@@ -24,13 +24,9 @@
   - **Sécurité** : privilégier `sudo` (pas de commande `surdo`) ; ne pas forcer root par défaut ; garder rollback documenté.
 - [~] **updateman Cursor** : updater AppImage reutilisable (`scripts/update/update-cursor-appimage`) + manager `updateman cursor` + timer `systemd --user`.
   - **Objectif** : `updateman cursor` met Cursor a jour maintenant ; `updateman cursor enable` installe/active l'automatisation quotidienne.
-  - **Point cle** : detection adaptee au poste (`.desktop`, processus Cursor, commande `cursor`, `/opt`, `~/Applications`) au lieu d'un chemin versionne fixe.
-  - **Etat local 2026-05-22** : l'updater reste interne au depot ; la commande publique `~/.local/bin/update-cursor-appimage` est retiree au profit de `updateman cursor`; timer `cursor-update.timer` enabled + active.
-  - [x] Registre `updatable-tools.list` + lib `updatable_tools.sh` + `updateman status` / `updateman all`.
-  - [x] `installman` active le timer via `updateman <outil> enable` (registre) et delegue les updates au registre.
-  - [x] Shim legacy `update-cursor` retire de `shared/config.sh`.
-  - [x] Garde-fou validation manuelle : si Cursor est ouvert, `updateman cursor` propose de le fermer en TTY ; le timer systemd echoue proprement sans tuer l'application.
-  - **Reste** : validation manuelle utilisateur (tableau V-2026-05-22) ; ajouter d'autres outils installman au registre (P8c).
+  - **Livré 2026-06-16** : API officielle `api2.cursor.sh` via `core/lib/tool_release.sh` ; `updateman cursor check` ; skip si deja a jour ; fix `compare_versions` bash ; smoke `make test-updateman-cursor-release`.
+  - **Etat local** : `updateman status` peut afficher une version locale obsolete (ex. `1.1.3` dans `.desktop`) alors que l'API indique `3.9.16` — **maj? oui** = lancer `updateman cursor` (fermer Cursor d'abord).
+  - **Reste** : `updateman cursor enable` si timer `inactive` ; validation manuelle post-update ; autres outils au registre (P8c).
 - [~] **P3b-a — restructuration UI / menus avant adaptatif** (prioritaire) : `shared/` vs `share`, `scripts/menu/README.md` + LEGACY, `make bootstrap-menu` → `setup.sh`, selection via `manager_ui_select_file`, `dfm` reserve aux menus declaratifs `share/menus` (zsh/bash/fish), fallback pagine sans `fzf` + pause apres action, matrice core vs declaratif dans [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md). **Reste** : verifier adapters minces, bannieres autres `*man`, menus inline sans wrapper.
 - [~] **P3b-b — interfaces terminal adaptatives** : bannieres + `manager_ui_section_line` ; pathman/doctorman ; `processman` + `tui_menu_height` ; sortie menu **0/q** (`manager_ui_is_quit_choice`, boucle `show_main_menu || break`) — `0e5647a` ; smoke `make test-tui-compact` (COLUMNS 60/69). **En pause** — suite plus tard : `tui_truncate`, pagination menus longs, aligner cyberman/installman/autres boucles inline, replay manuel EXT-002 sur `*man --help`.
 - [~] **P1 — normalisation modulaire** (demarre) : convention UI POSIX documentee (`MANAGERS_UI.md`, `dotfiles_manager_load_ui_libs`). **Reste** : adapters minces, logique hors `zsh/functions/`, menus `dotcli`.
@@ -74,6 +70,7 @@
 | **P11** | **Matrice distro élargie** | Images ou **distrobox** pour Debian, Ubuntu, Manjaro, etc. — smoke `make test` sans toucher l’hôte. Voir [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md). |
 | **P12** | **Lab E2E (VM + enregistrement)** | QEMU/KVM + **asciinema** ou vidéo ; accès VNC pour inspection ; rejouer `TESTS.md` dans VM isolée. |
 | **P13** | **Cross-OS (WSL, fish, PowerShell)** | fishrc complet, wrappers Windows, scripts PowerShell pour managers ; parité installation. |
+| **P15** | **`shellman` — gestion et bascule des shells** | Nouveau manager pour configurer et **switcher** entre shells (zsh, bash, fish, sh, …) : shell par défaut (`chsh`), rc/dotfiles par shell, adapters `shells/{zsh,bash,fish}/`, validation `login`/`interactive`, smoke multi-shell (Docker + hôte), intégration `configman apply shell` et `pathman`. Objectif : une commande unique (`shellman status`, `shellman use fish`, `shellman doctor`) au lieu de scripts éparpillés. |
 | **P14** | **Personnalisation gitman / profils** | Profils utilisateur activables (conventions branches, hooks) sans casser le gitman générique du dépôt. |
 | **P9** | **displayman** (écran / luminosité / DDC) | Nouveau manager [`core/managers/displayman/`](core/managers/displayman/) — DDC/CI via `ddcutil`, preset couleur, range HDMI, guide OSD physique. Convention G.x respectée. **Ensuite** : étape C (override Full Range NVIDIA `/etc/X11/xorg.conf.d/20-nvidia-fullrange.conf`) à appliquer après validation manuelle ; tests dans [`docs/TESTS.md`](docs/TESTS.md) G.0 + bloc dédié displayman. Guide complet : [`docs/guides/SCREEN_DISPLAY.md`](docs/guides/SCREEN_DISPLAY.md). |
 
@@ -144,7 +141,7 @@ Cocher quand **toi** tu es satisfait :
 
 ### Transformation globale (fil directeur)
 
-- [ ] Arborescence cible finale + règles de placement strictes.
+- [ ] **`shellman`** (nouveau manager) : bascule et configuration des shells (zsh/bash/fish/sh), shell par defaut, rc dotfiles, doctor multi-shell — voir **P15** dans le tableau « À faire ensuite ».
 - [ ] Contrat unique menus/TUI + fallback non-interactif.
 - [ ] Installation « nouvelle machine » guidée + silencieuse.
 - [ ] Migration progressive + checkpoints tests.
