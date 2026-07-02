@@ -1,0 +1,37 @@
+# Smoke updateman (API Cursor + system multi-distro Docker) — P11
+# Voir docs/guides/GITHUB_ACTIONS.md · make test-updateman-cursor-release · make test-updateman-system-smoke
+
+name: CI updateman smoke
+
+on:
+  push:
+    branches: [dev, main, master, 'feat/**', 'test/**', 'fix/**']
+  pull_request:
+    branches: [dev, main, master]
+  workflow_dispatch:
+
+jobs:
+  cursor-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke API Cursor + updateman cursor check
+        env:
+          DOTFILES_DIR: ${{ github.workspace }}
+        run: make test-updateman-cursor-release
+
+  system-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [arch, debian, alpine]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke updateman system (${{ matrix.distro }})
+        env:
+          DOTFILES_DIR: ${{ github.workspace }}
+          DISTRO: ${{ matrix.distro }}
+        run: make test-updateman-system-smoke
