@@ -7,3 +7,4 @@ arch help
 arch fix-cache
 arch clean-hints
 cursor help
+cursor check

@@ -83,7 +83,8 @@ Backends pris en charge : pacman, yay, paru, apt, dnf, yum, tdnf, microdnf, apk,
 
 | Commande | Effet |
 |----------|-------|
-| `updateman cursor` | Telecharge et installe l'AppImage (script interne). |
+| `updateman cursor` | Telecharge et installe l'AppImage (script interne, URL via API officielle). |
+| `updateman cursor check` | Compare version locale et release stable de l'API Cursor. |
 | `updateman cursor install` | Installe les unites systemd user ; supprime l'ancien `~/.local/bin/update-cursor-appimage`. |
 | `updateman cursor enable` | Installe puis active `cursor-update.timer`. |
 | `updateman cursor status` | Statut du timer. |
@@ -111,6 +112,7 @@ Pour tout outil enregistre : `updateman <outil>`, `updateman <outil> enable`, `u
 - Core : `core/managers/updateman/core/updateman.sh`
 - Lib distro : `core/lib/distro.sh`
 - Lib paquets : `core/lib/pkg_backend.sh`
+- Lib releases outils : `core/lib/tool_release.sh`
 - Registre : `core/managers/updateman/config/updatable-tools.list`
 - Lib partagee : `core/managers/updateman/lib/updatable_tools.sh`
 - Updater interne Cursor : `scripts/update/update-cursor-appimage`

@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-DOWNLOAD_URL="${DOWNLOAD_URL:-https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/${CURSOR_UPDATE_VERSION:-3.5}}"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+if [ -f "$DOTFILES_DIR/core/lib/tool_release.sh" ]; then
+    # shellcheck source=../../core/lib/tool_release.sh
+    . "$DOTFILES_DIR/core/lib/tool_release.sh"
+fi
+
+DOWNLOAD_URL="${DOWNLOAD_URL:-}"
 DEFAULT_APP_DIR="${APP_DIR:-${CURSOR_APP_DIR:-$HOME/Applications}}"
 BACKUP_KEEP="${BACKUP_KEEP:-5}"
 CREATE_DESKTOP="${CREATE_DESKTOP:-1}"
@@ -271,6 +277,7 @@ prune_backups() {
 
 write_desktop_file() {
   local app_path="$1"
+  local app_version="${2:-}"
   [ "$CREATE_DESKTOP" = "1" ] || return 0
   mkdir -p "$HOME/.local/share/applications" "$HOME/.local/share/icons"
 
@@ -293,8 +300,40 @@ Terminal=false
 StartupWMClass=Cursor
 MimeType=text/plain;inode/directory;
 DESKTOP
+  if [ -n "$app_version" ]; then
+    printf 'Version=%s\n' "$app_version" >> "$HOME/.local/share/applications/cursor.desktop"
+  fi
 
   update-desktop-database "$HOME/.local/share/applications" >/dev/null 2>&1 || true
+}
+
+read_installed_version() {
+  local vf path
+  for vf in "$app_dir/.cursor-version" "$HOME/Applications/.cursor-version"; do
+    [ -f "$vf" ] || continue
+    tr -d ' \n\r' <"$vf"
+    return 0
+  done
+  if [ -f "$HOME/.local/share/applications/cursor.desktop" ]; then
+    sed -n 's/^Version=//p' "$HOME/.local/share/applications/cursor.desktop" 2>/dev/null | head -n 1 | tr -d ' \n\r'
+    return 0
+  fi
+  if [ -n "${current_appimage:-}" ]; then
+    path="$(basename "$current_appimage")"
+    case "$path" in
+      Cursor-*-x86_64.AppImage|Cursor-*-aarch64.AppImage|cursor-*-x86_64.AppImage)
+        printf '%s' "$path" | sed -n 's/.*Cursor-\([0-9][0-9.]*\)-.*/\1/p'
+        return 0
+        ;;
+    esac
+  fi
+  if [ -f /usr/share/cursor/resources/app/product.json ]; then
+    grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' \
+      /usr/share/cursor/resources/app/product.json 2>/dev/null |
+      head -n 1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+'
+    return 0
+  fi
+  printf ''
 }
 
 write_cursor_shim() {
@@ -318,6 +357,29 @@ backup_dir="${BACKUP_DIR:-$app_dir/.cursor-backups}"
 stamp="$(date +%Y%m%d-%H%M%S)"
 
 mkdir -p "$app_dir" "$backup_dir"
+
+if [ -z "$DOWNLOAD_URL" ]; then
+  command -v tool_release_cursor_fetch >/dev/null 2>&1 ||
+    fail "tool_release.sh introuvable (DOTFILES_DIR=$DOTFILES_DIR)"
+  tool_release_cursor_fetch || fail "impossible de resoudre la release Cursor (API officielle)"
+  DOWNLOAD_URL="$TOOL_RELEASE_URL"
+  log "API: ${TOOL_RELEASE_API_URL:-?}"
+  log "version distante: ${TOOL_RELEASE_VERSION:-?}"
+else
+  log "URL forcee: $DOWNLOAD_URL"
+fi
+
+installed_version="$(read_installed_version)"
+if [ "${CURSOR_UPDATE_FORCE:-0}" != "1" ] && [ -n "${TOOL_RELEASE_VERSION:-}" ] &&
+   [ -n "$installed_version" ] && [ "$installed_version" = "$TOOL_RELEASE_VERSION" ] &&
+   [ -f "$app_path" ]; then
+  log "deja a jour ($installed_version) — rien a telecharger"
+  log "emplacement: $app_path"
+  exit 0
+fi
+if [ -n "$installed_version" ]; then
+  log "version locale: $installed_version"
+fi
 
 ensure_cursor_closed
 
@@ -356,8 +418,11 @@ if [ -n "$current_appimage" ] && [ "$current_appimage" != "$app_path" ]; then
   esac
 fi
 
-write_desktop_file "$app_path"
+write_desktop_file "$app_path" "${TOOL_RELEASE_VERSION:-}"
 write_cursor_shim "$app_path"
+if [ -n "${TOOL_RELEASE_VERSION:-}" ]; then
+  printf '%s\n' "$TOOL_RELEASE_VERSION" > "$app_dir/.cursor-version"
+fi
 prune_backups "$backup_dir"
 
-log "Cursor mis a jour: $app_path"
+log "Cursor mis a jour: $app_path (${TOOL_RELEASE_VERSION:-version inconnue})"

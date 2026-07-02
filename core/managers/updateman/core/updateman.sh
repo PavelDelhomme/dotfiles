@@ -22,6 +22,10 @@ updateman() {
         # shellcheck source=../../../lib/pkg_backend.sh
         . "$DOTFILES_DIR/core/lib/pkg_backend.sh"
     fi
+    if [ -f "$DOTFILES_DIR/core/lib/tool_release.sh" ]; then
+        # shellcheck source=../../../lib/tool_release.sh
+        . "$DOTFILES_DIR/core/lib/tool_release.sh"
+    fi
     UPDATEMAN_LEGACY_BIN="$HOME/.local/bin/update-cursor-appimage"
     UPDATEMAN_SYSTEMD_DIR="${UPDATEMAN_SYSTEMD_DIR:-$HOME/.config/systemd/user}"
     UPDATEMAN_LIB="$DOTFILES_DIR/core/managers/updateman/lib/updatable_tools.sh"
@@ -58,6 +62,7 @@ updateman() {
         printf "  ${BOLD}updateman arch keys librewolf${RESET} importe la cle PGP LibreWolf\n"
         printf "  ${BOLD}updateman arch fix-cache${RESET}      supprime les dossiers download-* orphelins (pacman -Sc)\n"
         printf "  ${BOLD}updateman cursor${RESET}              met Cursor a jour maintenant\n"
+        printf "  ${BOLD}updateman cursor check${RESET}        version locale vs API officielle\n"
         printf "  ${BOLD}updateman cursor help${RESET}         detaille l'updater Cursor\n"
         printf "  ${BOLD}updateman cursor install${RESET}      installe les unites systemd user\n"
         printf "  ${BOLD}updateman cursor enable${RESET}       active le timer systemd user\n"
@@ -313,6 +318,7 @@ updateman() {
         printf "${CYAN}${BOLD}UPDATEMAN Cursor${RESET}\n\n"
         printf "Commandes:\n"
         printf "  ${BOLD}updateman cursor${RESET}              telecharge et installe Cursor maintenant\n"
+        printf "  ${BOLD}updateman cursor check${RESET}        compare version locale et API stable\n"
         printf "  ${BOLD}updateman cursor install${RESET}      installe les unites systemd user\n"
         printf "  ${BOLD}updateman cursor enable${RESET}       installe puis active le timer quotidien\n"
         printf "  ${BOLD}updateman cursor status${RESET}       statut du timer systemd user\n"
@@ -322,7 +328,11 @@ updateman() {
         printf "  APP_DIR=/chemin                       force le dossier final si APP_PATH est absent\n"
         printf "  CURRENT_APPIMAGE=/chemin/app.AppImage  force l'ancien chemin a sauvegarder/rediriger\n"
         printf "  DOWNLOAD_URL=https://...               remplace l'URL officielle\n"
+        printf "  CURSOR_RELEASE_TRACK=stable            stable ou insiders (API Cursor)\n"
+        printf "  CURSOR_UPDATE_FORCE=1                  telecharge meme si version identique\n"
         printf "  BACKUP_KEEP=5                          nombre de backups a garder\n\n"
+        printf "Release API: api2.cursor.sh/updates/api/download/<track>/<platform>/cursor\n"
+        printf "Fallback: www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable\n\n"
         printf "Detection automatique: .desktop Cursor, processus Cursor en cours, commande cursor, /opt, puis ~/Applications.\n"
         printf "Apres ${BOLD}installman cursor${RESET}, le timer est active automatiquement si possible.\n"
     }
@@ -427,6 +437,37 @@ updateman() {
             printf "${RED}Fichier introuvable:${RESET} %s\n" "$1" >&2
             return 1
         fi
+        return 0
+    }
+
+    __updateman_cursor_check() {
+        if ! command -v tool_release_cursor_fetch >/dev/null 2>&1; then
+            printf "${RED}tool_release.sh introuvable.${RESET}\n" >&2
+            return 1
+        fi
+        if ! tool_release_cursor_fetch; then
+            printf "${RED}Impossible de joindre l'API Cursor.${RESET}\n" >&2
+            return 1
+        fi
+        _ucc_local="n/a"
+        if command -v get_current_version >/dev/null 2>&1; then
+            _ucc_local="$(get_current_version cursor 2>/dev/null || echo n/a)"
+        fi
+        printf "${CYAN}${BOLD}Cursor — verification release${RESET}\n\n"
+        printf "  API:      %s\n" "${TOOL_RELEASE_API_URL:-?}"
+        printf "  Locale:   %s\n" "$_ucc_local"
+        printf "  Distante: %s\n" "${TOOL_RELEASE_VERSION:-?}"
+        printf "  URL:      %s\n" "${TOOL_RELEASE_URL:-?}"
+        if [ "$_ucc_local" != "n/a" ] && [ "$_ucc_local" != "unknown" ] && [ "$_ucc_local" != "not_installed" ] &&
+           [ -n "${TOOL_RELEASE_VERSION:-}" ] && [ "$_ucc_local" = "$TOOL_RELEASE_VERSION" ]; then
+            printf "\n${GREEN}A jour — aucune action requise.${RESET}\n"
+            return 0
+        fi
+        if [ "$_ucc_local" = "not_installed" ]; then
+            printf "\n${YELLOW}Cursor non detecte localement — lance: installman cursor${RESET}\n"
+            return 1
+        fi
+        printf "\n${YELLOW}Mise a jour disponible ou version locale inconnue — lance: updateman cursor${RESET}\n"
         return 0
     }
 
@@ -570,6 +611,14 @@ updateman() {
                 fi
                 ;;
             run|update|now) __updateman_run_tool "$_dt_tool" ;;
+            check|status-release|pending)
+                if [ "$_dt_tool" = "cursor" ]; then
+                    __updateman_cursor_check
+                else
+                    printf "${RED}check non implemente pour:${RESET} %s\n" "$_dt_tool" >&2
+                    return 1
+                fi
+                ;;
             install|setup) __updateman_install_tool_files "$_dt_tool" ;;
             enable|timer|auto) __updateman_setup_tool_service "$_dt_tool" ;;
             status) __updateman_tool_timer_status "$_dt_tool" ;;
