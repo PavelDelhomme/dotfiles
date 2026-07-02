@@ -11,5 +11,7 @@ cursor check
 cursor status
 docker status
 docker check
+docker install
 brave status
 brave check
+brave install

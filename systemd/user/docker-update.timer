@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Docker updater weekly via updateman
+
+[Timer]
+OnBootSec=30min
+OnUnitActiveSec=7d
+Persistent=true
+Unit=docker-update.service
+
+[Install]
+WantedBy=timers.target

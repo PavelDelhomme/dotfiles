@@ -101,6 +101,7 @@ Objectif : sur **GitHub-hosted runner**, enchaîner autant que possible de faço
 | ✅ | `make test-checks` | faible | Déjà en `ci-checks.yml` (branches `dev` + `main`). |
 | ✅ | `make test-updateman-cursor-release` | faible | `ci-checks.yml` + `ci-updateman-smoke.yml`. |
 | ⏳ | `make test-updateman-system-smoke` (Docker matrix) | moyenne | `ci-updateman-smoke.yml` (arch/debian/alpine). |
+| ✅ | `make test-updateman-registry-smoke` | moyenne | `ci-updateman-smoke.yml` (debian/arch) — registre + timers en conteneur. |
 | ⏳ | `make test-dotfiles-good` | faible | Pure shell, pas de Docker. |
 | ⏳ | `make build-dotcli` + `make test-dotcli` | moyenne | Nécessite compilateur C (`gcc`) sur le runner. |
 | ⏳ | `make test` (Docker complet) | élevée | Nécessite service Docker ou workflow dédié ; durée longue ; variables `DOTFILES_TEST_*`. |

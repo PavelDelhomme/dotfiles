@@ -722,51 +722,80 @@ updateman() {
         return "$rc"
     }
 
-    __updateman_install_cursor_files() {
-        __updateman_need_file "$UPDATEMAN_SCRIPT" || return 1
-        __updateman_need_file "$UPDATEMAN_SERVICE_SRC" || return 1
-        __updateman_need_file "$UPDATEMAN_TIMER_SRC" || return 1
+    __updateman_tool_systemd_paths() {
+        _tsp_tool="$1"
+        _tsp_line="$(updatable_tool_find "$_tsp_tool" 2>/dev/null)"
+        [ -n "$_tsp_line" ] || return 1
+        _tsp_timer="$(updatable_tool_field "$_tsp_line" 3)"
+        [ -n "$_tsp_timer" ] && [ "$_tsp_timer" != "-" ] || return 1
+        _tsp_svc="${_tsp_timer%.timer}.service"
+        _TSP_SERVICE_SRC="$DOTFILES_DIR/systemd/user/$_tsp_svc"
+        _TSP_TIMER_SRC="$DOTFILES_DIR/systemd/user/$_tsp_timer"
+        _TSP_SERVICE_DST="$UPDATEMAN_SYSTEMD_DIR/$_tsp_svc"
+        _TSP_TIMER_DST="$UPDATEMAN_SYSTEMD_DIR/$_tsp_timer"
+        _TSP_TIMER_UNIT="$_tsp_timer"
+        return 0
+    }
+
+    __updateman_install_tool_systemd_files() {
+        _its_tool="$1"
+        if ! __updateman_tool_systemd_paths "$_its_tool"; then
+            printf "${YELLOW}aucune unite systemd a installer pour:${RESET} %s\n" "$_its_tool"
+            return 0
+        fi
+        if [ "$_its_tool" = "cursor" ]; then
+            __updateman_need_file "$UPDATEMAN_SCRIPT" || return 1
+        fi
+        __updateman_need_file "$_TSP_SERVICE_SRC" || return 1
+        __updateman_need_file "$_TSP_TIMER_SRC" || return 1
 
         mkdir -p "$UPDATEMAN_SYSTEMD_DIR" || return 1
-        cp "$UPDATEMAN_SERVICE_SRC" "$UPDATEMAN_SERVICE_DST" || return 1
-        cp "$UPDATEMAN_TIMER_SRC" "$UPDATEMAN_TIMER_DST" || return 1
-        rm -f "$UPDATEMAN_LEGACY_BIN" 2>/dev/null || true
-
-        if command -v systemctl >/dev/null 2>&1; then
-            systemctl --user daemon-reload || return 1
+        cp "$_TSP_SERVICE_SRC" "$_TSP_SERVICE_DST" || return 1
+        cp "$_TSP_TIMER_SRC" "$_TSP_TIMER_DST" || return 1
+        if [ "$_its_tool" = "cursor" ]; then
+            rm -f "$UPDATEMAN_LEGACY_BIN" 2>/dev/null || true
         fi
 
-        printf "${GREEN}OK:${RESET} unites systemd installees dans %s\n" "$UPDATEMAN_SYSTEMD_DIR"
-        printf "${GREEN}OK:${RESET} pas de commande publique update-cursor-appimage (utiliser updateman cursor)\n"
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl --user daemon-reload 2>/dev/null || \
+                printf "${YELLOW}Note:${RESET} daemon-reload user ignore (conteneur sans bus systemd user)\n" >&2
+        fi
+
+        printf "${GREEN}OK:${RESET} unites %s installees dans %s\n" "$_TSP_TIMER_UNIT" "$UPDATEMAN_SYSTEMD_DIR"
+        if [ "$_its_tool" = "cursor" ]; then
+            printf "${GREEN}OK:${RESET} pas de commande publique update-cursor-appimage (utiliser updateman cursor)\n"
+        fi
+    }
+
+    __updateman_enable_tool_timer() {
+        _ett_tool="$1"
+        if ! __updateman_tool_systemd_paths "$_ett_tool"; then
+            printf "${YELLOW}aucun timer configure pour:${RESET} %s\n" "$_ett_tool" >&2
+            return 0
+        fi
+        __updateman_install_tool_systemd_files "$_ett_tool" || return 1
+        if ! command -v systemctl >/dev/null 2>&1; then
+            printf "${YELLOW}systemctl absent:${RESET} unites copiees dans %s — active sur l'hote avec:${RESET} updateman %s enable\n" \
+                "$UPDATEMAN_SYSTEMD_DIR" "$_ett_tool" >&2
+            return 1
+        fi
+        systemctl --user enable --now "$_TSP_TIMER_UNIT"
+    }
+
+    __updateman_install_cursor_files() {
+        __updateman_install_tool_systemd_files cursor
     }
 
     __updateman_enable_cursor_timer() {
-        __updateman_install_cursor_files || return 1
-        if ! command -v systemctl >/dev/null 2>&1; then
-            printf "${YELLOW}systemctl absent:${RESET} timer installe mais non active.\n" >&2
-            return 1
-        fi
-        systemctl --user enable --now cursor-update.timer
+        __updateman_enable_tool_timer cursor
     }
 
     __updateman_install_tool_files() {
-        case "$1" in
-            cursor) __updateman_install_cursor_files ;;
-            *)
-                printf "${YELLOW}aucune unite systemd a installer pour:${RESET} %s\n" "$1"
-                return 0
-                ;;
-        esac
+        __updateman_install_tool_systemd_files "$1"
     }
 
     __updateman_setup_tool_service() {
-        case "$1" in
-            cursor) __updateman_enable_cursor_timer ;;
-            *)
-                printf "${YELLOW}aucun timer configure pour:${RESET} %s\n" "$1" >&2
-                return 0
-                ;;
-        esac
+        __updateman_enable_tool_timer "$1"
     }
 
     __updateman_tool_timer_unit() {
@@ -823,13 +852,19 @@ updateman() {
                 [ -n "$_uts_last" ] && printf "  Dernier service : %s\n" "$_uts_last"
             fi
         else
-            printf "  Timer : %s (${YELLOW}systemctl absent${RESET})\n" "$_uts_timer"
+            printf "  Timer : %s\n" "$_uts_timer"
+            if __updateman_tool_systemd_paths "$_uts_tool" 2>/dev/null && [ -f "$_TSP_TIMER_DST" ]; then
+                printf "  Unites user : ${GREEN}installees${RESET} (systemctl absent — activer sur l'hote: updateman %s enable)\n" "$_uts_tool"
+            else
+                printf "  Unites user : ${YELLOW}non installees${RESET} — lance: updateman %s install\n" "$_uts_tool"
+            fi
         fi
 
         printf "\n${BOLD}Actions :${RESET}\n"
         printf "  updateman %s           mise a jour maintenant\n" "$_uts_tool"
         printf "  updateman %s check     verification versions\n" "$_uts_tool"
         if [ "$_uts_timer" != "-" ] && [ -n "$_uts_timer" ]; then
+            printf "  updateman %s install   copier les unites systemd user\n" "$_uts_tool"
             printf "  updateman %s enable    activer le timer auto\n" "$_uts_tool"
             printf "  updateman %s logs      journal systemd\n" "$_uts_tool"
         fi

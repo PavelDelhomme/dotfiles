@@ -35,3 +35,18 @@ jobs:
           DOTFILES_DIR: ${{ github.workspace }}
           DISTRO: ${{ matrix.distro }}
         run: make test-updateman-system-smoke
+
+  registry-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [debian, arch]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke updateman registre (${{ matrix.distro }})
+        env:
+          DOTFILES_DIR: ${{ github.workspace }}
+          DISTRO: ${{ matrix.distro }}
+        run: make test-updateman-registry-smoke

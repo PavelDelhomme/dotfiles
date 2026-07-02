@@ -69,7 +69,22 @@ updateman <outil> logs       # logs du service
 updateman <outil>            # mise a jour manuelle immediate
 ```
 
-Exemples : `updateman cursor enable`, `updateman docker enable` *(quand docker sera dans le registre — voir P8c)*.
+Exemples : `updateman cursor enable`, `updateman docker enable`, `updateman brave enable`.
+
+### Validation avant deploiement sur l'hote
+
+1. **Tester en conteneur** (isole, ne modifie pas ta machine) :
+   ```bash
+   make test-updateman-registry-smoke
+   make test-updateman-registry-smoke DISTRO=arch
+   ```
+2. **Sur l'hote** (apres ta validation explicite) :
+   ```bash
+   updateman docker install && updateman docker enable
+   updateman brave install && updateman brave enable
+   updateman docker status
+   ```
+   `auto_service=0` pour docker/brave : **pas d'activation auto** via `installman` tant que tu n'as pas valide.
 
 ### Desactiver / diagnostic
 
@@ -89,11 +104,11 @@ updateman cursor check                                 # compare version locale 
 
 | Outil | Timer | Auto apres `installman` | Mise a jour |
 |-------|-------|-------------------------|-------------|
-| cursor | `cursor-update.timer` | oui (`auto_service=1`) | AppImage via API officielle |
-| docker | *(aucun)* | non | Paquets depot (`pkg_backend`) |
-| brave | *(aucun)* | non | Paquets depot (`pkg_backend`) |
+| cursor | `cursor-update.timer` (quotidien) | oui | AppImage via API officielle |
+| docker | `docker-update.timer` (hebdo) | **non** (validation manuelle) | Paquets depot |
+| brave | `brave-update.timer` (hebdo) | **non** (validation manuelle) | Paquets depot |
 
-*(Extension P8c : timers systemd optionnels pour docker/brave plus tard.)*
+Fichiers : `systemd/user/{cursor,docker,brave}-update.{service,timer}`
 
 ## Commandes globales
 
