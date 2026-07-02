@@ -33,3 +33,4 @@ run/artifacts/home-import/
 zsh/backups/
 scripts/.ssh/
 scripts/.gitconfig
+docs/TESTS.preview.html
