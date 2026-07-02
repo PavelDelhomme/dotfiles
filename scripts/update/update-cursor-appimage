@@ -232,10 +232,23 @@ pick_app_path() {
     return 0
   fi
 
-  if [ -n "$current" ]; then
+  if [ -n "$current" ] && [ -f "$current" ]; then
     local dir base
     dir="$(dirname "$current")"
     base="$(basename "$current")"
+    if [ -w "$current" ] 2>/dev/null || [ -w "$dir" ] 2>/dev/null; then
+      printf '%s\n' "$current"
+      return 0
+    fi
+    case "$dir" in
+      /opt|/opt/*|/usr/local/*)
+        if [ "${CURSOR_UPDATE_USE_SUDO:-1}" = "1" ] && command -v sudo >/dev/null 2>&1; then
+          printf '%s\n' "$current"
+          return 0
+        fi
+        warn "chemin systeme non inscriptible ($current) — cible utilisateur: $DEFAULT_APP_DIR/Cursor.AppImage"
+        ;;
+    esac
     case "$dir" in
       "$HOME"/*)
         if [ -w "$dir" ]; then
@@ -250,6 +263,22 @@ pick_app_path() {
   fi
 
   printf '%s\n' "$DEFAULT_APP_DIR/Cursor.AppImage"
+}
+
+install_appimage_to() {
+  local dest="$1"
+  local dest_dir
+  dest_dir="$(dirname "$dest")"
+  if { [ -w "$dest_dir" ] 2>/dev/null; } && { [ ! -e "$dest" ] || [ -w "$dest" ] 2>/dev/null; }; then
+    install -m 0755 "$TMP_FILE" "$dest"
+    return 0
+  fi
+  if command -v sudo >/dev/null 2>&1; then
+    log "installation systeme (sudo): $dest"
+    sudo install -m 0755 "$TMP_FILE" "$dest"
+    return 0
+  fi
+  fail "destination non inscriptible: $dest (essayez APP_PATH=~/Applications/Cursor.AppImage)"
 }
 
 backup_file() {
@@ -309,7 +338,11 @@ DESKTOP
 
 read_installed_version() {
   local vf path
-  for vf in "$app_dir/.cursor-version" "$HOME/Applications/.cursor-version"; do
+  for vf in \
+    "$HOME/Applications/.cursor-version" \
+    "$HOME/.config/cursor/version" \
+    "$app_dir/.cursor-version" \
+    "$HOME/Applications/.cursor-version"; do
     [ -f "$vf" ] || continue
     tr -d ' \n\r' <"$vf"
     return 0
@@ -350,10 +383,19 @@ SHIM
 command -v curl >/dev/null 2>&1 || fail "curl introuvable"
 command -v file >/dev/null 2>&1 || fail "file introuvable"
 
+# pipefail + awk {exit} : detect_current_appimage peut encore ecrire → SIGPIPE (exit 141) sans message.
+set +o pipefail
 current_appimage="$(detect_current_appimage | awk 'NF && !seen[$0]++ {print; exit}')"
+set -o pipefail
+[ -n "$current_appimage" ] || current_appimage=""
+
 app_path="$(pick_app_path "$current_appimage")"
 app_dir="$(dirname "$app_path")"
-backup_dir="${BACKUP_DIR:-$app_dir/.cursor-backups}"
+if case "$app_dir" in /opt|/opt/*|/usr/*) true ;; *) false ;; esac; then
+  backup_dir="${BACKUP_DIR:-$HOME/Applications/.cursor-backups}"
+else
+  backup_dir="${BACKUP_DIR:-$app_dir/.cursor-backups}"
+fi
 stamp="$(date +%Y%m%d-%H%M%S)"
 
 mkdir -p "$app_dir" "$backup_dir"
@@ -399,7 +441,7 @@ fi
 if [ -L "$app_path" ]; then
   rm -f "$app_path"
 fi
-install -m 0755 "$TMP_FILE" "$app_path"
+install_appimage_to "$app_path"
 
 if [ -n "$current_appimage" ] && [ "$current_appimage" != "$app_path" ]; then
   current_dir="$(dirname "$current_appimage")"
@@ -421,7 +463,12 @@ fi
 write_desktop_file "$app_path" "${TOOL_RELEASE_VERSION:-}"
 write_cursor_shim "$app_path"
 if [ -n "${TOOL_RELEASE_VERSION:-}" ]; then
-  printf '%s\n' "$TOOL_RELEASE_VERSION" > "$app_dir/.cursor-version"
+  _cv_dir="$app_dir"
+  case "$app_dir" in
+    /opt|/opt/*|/usr|/usr/*) _cv_dir="$HOME/Applications" ;;
+  esac
+  mkdir -p "$_cv_dir"
+  printf '%s\n' "$TOOL_RELEASE_VERSION" > "$_cv_dir/.cursor-version"
 fi
 prune_backups "$backup_dir"
 

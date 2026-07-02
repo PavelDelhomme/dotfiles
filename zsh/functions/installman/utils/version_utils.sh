@@ -72,6 +72,7 @@ get_current_version() {
             df="${DOTFILES_DIR:-$HOME/dotfiles}"
             for vf in \
                 "$HOME/Applications/.cursor-version" \
+                "$HOME/.config/cursor/version" \
                 "$HOME/Applications/cursor/.cursor-version" \
                 "$HOME/.cursor-version"; do
                 if [[ -f "$vf" ]]; then

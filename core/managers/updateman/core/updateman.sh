@@ -478,6 +478,7 @@ updateman() {
             return 1
         fi
         bash "$UPDATEMAN_SCRIPT"
+        return $?
     }
 
     __updateman_run_tool() {
