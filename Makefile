@@ -13,7 +13,7 @@
 .PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy tests-copy-smoke tests-smoke-manager tests-preview test-updateman-system-smoke test-updateman-cursor-release test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
 .DEFAULT_GOAL := help
 
-DOTFILES_DIR := $(HOME)/dotfiles
+DOTFILES_DIR ?= $(HOME)/dotfiles
 SCRIPT_DIR := $(DOTFILES_DIR)/scripts
 
 # Couleurs pour les messages
