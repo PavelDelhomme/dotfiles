@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>TESTS.md — copie presse-papiers</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.4rem; }
+    .step { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; }
+    pre { background: #f6f8fa; padding: 1rem; overflow-x: auto; border-radius: 6px; }
+    button.copy { cursor: pointer; margin: 0.15rem; padding: 0.35rem 0.55rem; border-radius: 4px; border: 1px solid #888; background: #fff; }
+    button.copy.primary { background: #e8f4ff; font-weight: 600; }
+    button.copy.ok { background: #d4edda; border-color: #28a745; }
+    .cli { font-size: 0.9rem; color: #444; }
+    #toast { position: fixed; bottom: 1rem; right: 1rem; background: #222; color: #fff; padding: 0.6rem 1rem; border-radius: 6px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Copie commandes — TESTS.md</h1>
+  <p>Généré depuis <code>/home/pactivisme/dotfiles/docs/TESTS.md</code>. Ouvrir avec <code>make tests-preview</code> puis un navigateur.</p>
+  <nav><strong>Étapes :</strong> <a href="#D.3">D.3</a> · <a href="#E.1">E.1</a> · <a href="#E.3">E.3</a> · <a href="#G.0">G.0</a> · <a href="#G.0.b">G.0.b</a> · <a href="#G.0.c">G.0.c</a> · <a href="#G.0.d">G.0.d</a> · <a href="#G.0.e">G.0.e</a> · <a href="#G.0.f">G.0.f</a></nav>
+  
+<section class="step" id="D.3">
+  <h2>D.3 — Smoke manager minimal</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 126 ✘  with root@6cc7662c295a  at 10:39:32  ▓▒░─╮
+╰─❯ pathman help                                                                                                                                                                                                                         ─╯
+PATHMAN — raccourcis
+
+Gestion PATH :
+  pathman show            afficher le PATH courant
+  pathman add &lt;dir&gt;       ajouter un répertoire
+  pathman remove &lt;dir&gt;    retirer un répertoire
+  pathman clean           nettoyer doublons + invalides
+  pathman invalid         retirer uniquement les invalides
+  pathman stats           statistiques PATH
+  pathman export          exporter vers un fichier texte
+
+Interface :
+  pathman                    cette page (stdout)
+  pathman help | -h          idem
+  pathman help --interactive aide détaillée + pause (TTY)
+  pathman --help             menu interactif (fzf ou menu console)
+
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:42:05  ▓▒░─╮
+╰─❯            ">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 126 ✘  with root@6cc7662c295a  at 10:39:32  ▓▒░─╮" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="╰─❯ pathman help                                                                                                                                                                                                                         ─╯" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="PATHMAN — raccourcis" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="Gestion PATH :" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="  pathman show            afficher le PATH courant" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="  pathman add &lt;dir&gt;       ajouter un répertoire" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="  pathman remove &lt;dir&gt;    retirer un répertoire" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="  pathman clean           nettoyer doublons + invalides" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="  pathman invalid         retirer uniquement les invalides" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="  pathman stats           statistiques PATH" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="  pathman export          exporter vers un fichier texte" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 14">L14</button> <button type="button" class="copy" data-copy="  pathman                    cette page (stdout)" title="Ligne 15">L15</button> <button type="button" class="copy" data-copy="  pathman help | -h          idem" title="Ligne 16">L16</button> <button type="button" class="copy" data-copy="  pathman help --interactive aide détaillée + pause (TTY)" title="Ligne 17">L17</button> <button type="button" class="copy" data-copy="  pathman --help             menu interactif (fzf ou menu console)" title="Ligne 18">L18</button> <button type="button" class="copy" data-copy="" title="Ligne 19">L19</button> <button type="button" class="copy" data-copy="" title="Ligne 20">L20</button> <button type="button" class="copy" data-copy="╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:42:05  ▓▒░─╮" title="Ligne 21">L21</button> <button type="button" class="copy" data-copy="╰─❯            " title="Ligne 22">L22</button></span>
+  </div>
+  <pre><code>╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 126 ✘  with root@6cc7662c295a  at 10:39:32  ▓▒░─╮
+╰─❯ pathman help                                                                                                                                                                                                                         ─╯
+PATHMAN — raccourcis
+
+Gestion PATH :
+  pathman show            afficher le PATH courant
+  pathman add &lt;dir&gt;       ajouter un répertoire
+  pathman remove &lt;dir&gt;    retirer un répertoire
+  pathman clean           nettoyer doublons + invalides
+  pathman invalid         retirer uniquement les invalides
+  pathman stats           statistiques PATH
+  pathman export          exporter vers un fichier texte
+
+Interface :
+  pathman                    cette page (stdout)
+  pathman help | -h          idem
+  pathman help --interactive aide détaillée + pause (TTY)
+  pathman --help             menu interactif (fzf ou menu console)
+
+
+╭─░▒▓    ~ ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  with root@6cc7662c295a  at 10:42:05  ▓▒░─╮
+╰─❯            </code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=D.3</code>
+  · ligne n : <code>make tests-copy STEP=D.3 LINE=n</code></p>
+</section>
+
+<section class="step" id="E.1">
+  <h2>E.1 — Aide tests</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:54  ▓▒░─╮
+╰─❯ make test-help                                                                                                                                                                                                                       ─╯
+
+═══════════════════════════════════════════════════════════════════
+  Tests dotfiles — variables, bac à sable, Makefile
+═══════════════════════════════════════════════════════════════════
+
+1) Filtrer les managers à tester (Docker)
+   ─────────────────────────────────────
+   DOTFILES_TEST_MANAGERS   liste avec virgules ou espaces (recommandé)
+   TEST_MANAGERS            même rôle ; prioritaire si les deux sont posés
+
+   Exemples :
+     DOTFILES_TEST_MANAGERS=pathman,installman,searchman make test
+     TEST_MANAGERS=&quot;pathman installman&quot; make test-subcommands
+     TEST_SHELLS=zsh DOTFILES_TEST_MANAGERS=netman make test
+
+2) Fichier local (non versionné)
+   ────────────────────────────────
+   cp scripts/test/config/test.local.env.example scripts/test/config/test.local.env
+   # puis éditer : TEST_SHELLS, TEST_MANAGERS, SUBCOMMAND_TIER, TEST_DOTFILES_ISOLATE=1, …
+   DOTFILES_TEST_USER_ENV=/chemin/custom.env  make test
+
+3) Bac à sable « live » (shell dans le conteneur)
+   ───────────────────────────────────────────────
+   make docker-in              # menus distro + shell si terminal ; sinon Arch + zsh
+   make docker-in DOCKER_DISTRO=debian DOCKER_SHELL=fish   # forcer sans menus
+   Distros : arch (image docker-build), ubuntu, debian, alpine, fedora, centos, opensuse, gentoo (build long)
+   Sans export manuel : DOCKER_DOTFILES_DIR, DOCKER_INSTALLMAN_ASSUME (voir Makefile / docker_in.sh)
+   Confirmations installman :  make docker-in DOCKER_INSTALLMAN_ASSUME=0
+   Dans le conteneur : root par défaut ; source $DOTFILES_DIR/zsh/zshrc_custom si besoin
+   make test dans le conteneur : sans Docker imbriqué → run_tests.sh directement (fichier /.dockerenv)
+   Forcer ce mode sur l&#x27;hôte : DOTFILES_TEST_NO_NESTED_DOCKER=1 make test (si pas de daemon Docker)
+   Doc détaillée :     cat scripts/test/SANDBOX.md
+
+   Smoke vs assertions métier : make test / matrice = surtout « ne plante pas / timeout » ; assertions
+   ciblées (golden, grep) = évolution — voir TODOS.md § « Phase A — tests ».
+
+4) Autres cibles utiles
+   ───────────────────
+   make tests              # menu interactif des tests
+   DOTFILES_TEST_MENU_SKIP_PAUSE=1 make tests   # pas de pause « Entrée » après chaque action
+   make test-checks        # syntaxe cores + adapters + URLs (local ou CI)
+   make test-menu-fzf      # vérifie intégration des menus fzf + fallback /dev/tty
+   make test-dotfiles-good # bac à sable DOTFILES_GOOD/ (smoke POSIX, additif)
+   sh scripts/test/installman_check.sh
+   bash scripts/test/verify_multishell.sh
+
+5) Liste par défaut des managers pour « make test »
+   ───────────────────────────────────────────────
+   scripts/test/config/migrated_managers.list
+
+═══════════════════════════════════════════════════════════════════
+
+
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:58  ▓▒░─╮
+╰─❯                                     ">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:54  ▓▒░─╮" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="╰─❯ make test-help                                                                                                                                                                                                                       ─╯" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════════" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="  Tests dotfiles — variables, bac à sable, Makefile" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════════" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="1) Filtrer les managers à tester (Docker)" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="   ─────────────────────────────────────" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="   DOTFILES_TEST_MANAGERS   liste avec virgules ou espaces (recommandé)" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="   TEST_MANAGERS            même rôle ; prioritaire si les deux sont posés" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="   Exemples :" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="     DOTFILES_TEST_MANAGERS=pathman,installman,searchman make test" title="Ligne 14">L14</button> <button type="button" class="copy" data-copy="     TEST_MANAGERS=&quot;pathman installman&quot; make test-subcommands" title="Ligne 15">L15</button> <button type="button" class="copy" data-copy="     TEST_SHELLS=zsh DOTFILES_TEST_MANAGERS=netman make test" title="Ligne 16">L16</button> <button type="button" class="copy" data-copy="" title="Ligne 17">L17</button> <button type="button" class="copy" data-copy="2) Fichier local (non versionné)" title="Ligne 18">L18</button> <button type="button" class="copy" data-copy="   ────────────────────────────────" title="Ligne 19">L19</button> <button type="button" class="copy" data-copy="   cp scripts/test/config/test.local.env.example scripts/test/config/test.local.env" title="Ligne 20">L20</button> <button type="button" class="copy" data-copy="   # puis éditer : TEST_SHELLS, TEST_MANAGERS, SUBCOMMAND_TIER, TEST_DOTFILES_ISOLATE=1, …" title="Ligne 21">L21</button> <button type="button" class="copy" data-copy="   DOTFILES_TEST_USER_ENV=/chemin/custom.env  make test" title="Ligne 22">L22</button> <button type="button" class="copy" data-copy="" title="Ligne 23">L23</button> <button type="button" class="copy" data-copy="3) Bac à sable « live » (shell dans le conteneur)" title="Ligne 24">L24</button> <button type="button" class="copy" data-copy="   ───────────────────────────────────────────────" title="Ligne 25">L25</button> <button type="button" class="copy" data-copy="   make docker-in              # menus distro + shell si terminal ; sinon Arch + zsh" title="Ligne 26">L26</button> <button type="button" class="copy" data-copy="   make docker-in DOCKER_DISTRO=debian DOCKER_SHELL=fish   # forcer sans menus" title="Ligne 27">L27</button> <button type="button" class="copy" data-copy="   Distros : arch (image docker-build), ubuntu, debian, alpine, fedora, centos, opensuse, gentoo (build long)" title="Ligne 28">L28</button> <button type="button" class="copy" data-copy="   Sans export manuel : DOCKER_DOTFILES_DIR, DOCKER_INSTALLMAN_ASSUME (voir Makefile / docker_in.sh)" title="Ligne 29">L29</button> <button type="button" class="copy" data-copy="   Confirmations installman :  make docker-in DOCKER_INSTALLMAN_ASSUME=0" title="Ligne 30">L30</button> <button type="button" class="copy" data-copy="   Dans le conteneur : root par défaut ; source $DOTFILES_DIR/zsh/zshrc_custom si besoin" title="Ligne 31">L31</button> <button type="button" class="copy" data-copy="   make test dans le conteneur : sans Docker imbriqué → run_tests.sh directement (fichier /.dockerenv)" title="Ligne 32">L32</button> <button type="button" class="copy" data-copy="   Forcer ce mode sur l&#x27;hôte : DOTFILES_TEST_NO_NESTED_DOCKER=1 make test (si pas de daemon Docker)" title="Ligne 33">L33</button> <button type="button" class="copy" data-copy="   Doc détaillée :     cat scripts/test/SANDBOX.md" title="Ligne 34">L34</button> <button type="button" class="copy" data-copy="" title="Ligne 35">L35</button> <button type="button" class="copy" data-copy="   Smoke vs assertions métier : make test / matrice = surtout « ne plante pas / timeout » ; assertions" title="Ligne 36">L36</button> <button type="button" class="copy" data-copy="   ciblées (golden, grep) = évolution — voir TODOS.md § « Phase A — tests »." title="Ligne 37">L37</button> <button type="button" class="copy" data-copy="" title="Ligne 38">L38</button> <button type="button" class="copy" data-copy="4) Autres cibles utiles" title="Ligne 39">L39</button> <button type="button" class="copy" data-copy="   ───────────────────" title="Ligne 40">L40</button> <button type="button" class="copy" data-copy="   make tests              # menu interactif des tests" title="Ligne 41">L41</button> <button type="button" class="copy" data-copy="   DOTFILES_TEST_MENU_SKIP_PAUSE=1 make tests   # pas de pause « Entrée » après chaque action" title="Ligne 42">L42</button> <button type="button" class="copy" data-copy="   make test-checks        # syntaxe cores + adapters + URLs (local ou CI)" title="Ligne 43">L43</button> <button type="button" class="copy" data-copy="   make test-menu-fzf      # vérifie intégration des menus fzf + fallback /dev/tty" title="Ligne 44">L44</button> <button type="button" class="copy" data-copy="   make test-dotfiles-good # bac à sable DOTFILES_GOOD/ (smoke POSIX, additif)" title="Ligne 45">L45</button> <button type="button" class="copy" data-copy="   sh scripts/test/installman_check.sh" title="Ligne 46">L46</button> <button type="button" class="copy" data-copy="   bash scripts/test/verify_multishell.sh" title="Ligne 47">L47</button> <button type="button" class="copy" data-copy="" title="Ligne 48">L48</button> <button type="button" class="copy" data-copy="5) Liste par défaut des managers pour « make test »" title="Ligne 49">L49</button> <button type="button" class="copy" data-copy="   ───────────────────────────────────────────────" title="Ligne 50">L50</button> <button type="button" class="copy" data-copy="   scripts/test/config/migrated_managers.list" title="Ligne 51">L51</button> <button type="button" class="copy" data-copy="" title="Ligne 52">L52</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════════" title="Ligne 53">L53</button> <button type="button" class="copy" data-copy="" title="Ligne 54">L54</button> <button type="button" class="copy" data-copy="" title="Ligne 55">L55</button> <button type="button" class="copy" data-copy="╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:58  ▓▒░─╮" title="Ligne 56">L56</button> <button type="button" class="copy" data-copy="╰─❯                                     " title="Ligne 57">L57</button></span>
+  </div>
+  <pre><code>╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:54  ▓▒░─╮
+╰─❯ make test-help                                                                                                                                                                                                                       ─╯
+
+═══════════════════════════════════════════════════════════════════
+  Tests dotfiles — variables, bac à sable, Makefile
+═══════════════════════════════════════════════════════════════════
+
+1) Filtrer les managers à tester (Docker)
+   ─────────────────────────────────────
+   DOTFILES_TEST_MANAGERS   liste avec virgules ou espaces (recommandé)
+   TEST_MANAGERS            même rôle ; prioritaire si les deux sont posés
+
+   Exemples :
+     DOTFILES_TEST_MANAGERS=pathman,installman,searchman make test
+     TEST_MANAGERS=&quot;pathman installman&quot; make test-subcommands
+     TEST_SHELLS=zsh DOTFILES_TEST_MANAGERS=netman make test
+
+2) Fichier local (non versionné)
+   ────────────────────────────────
+   cp scripts/test/config/test.local.env.example scripts/test/config/test.local.env
+   # puis éditer : TEST_SHELLS, TEST_MANAGERS, SUBCOMMAND_TIER, TEST_DOTFILES_ISOLATE=1, …
+   DOTFILES_TEST_USER_ENV=/chemin/custom.env  make test
+
+3) Bac à sable « live » (shell dans le conteneur)
+   ───────────────────────────────────────────────
+   make docker-in              # menus distro + shell si terminal ; sinon Arch + zsh
+   make docker-in DOCKER_DISTRO=debian DOCKER_SHELL=fish   # forcer sans menus
+   Distros : arch (image docker-build), ubuntu, debian, alpine, fedora, centos, opensuse, gentoo (build long)
+   Sans export manuel : DOCKER_DOTFILES_DIR, DOCKER_INSTALLMAN_ASSUME (voir Makefile / docker_in.sh)
+   Confirmations installman :  make docker-in DOCKER_INSTALLMAN_ASSUME=0
+   Dans le conteneur : root par défaut ; source $DOTFILES_DIR/zsh/zshrc_custom si besoin
+   make test dans le conteneur : sans Docker imbriqué → run_tests.sh directement (fichier /.dockerenv)
+   Forcer ce mode sur l&#x27;hôte : DOTFILES_TEST_NO_NESTED_DOCKER=1 make test (si pas de daemon Docker)
+   Doc détaillée :     cat scripts/test/SANDBOX.md
+
+   Smoke vs assertions métier : make test / matrice = surtout « ne plante pas / timeout » ; assertions
+   ciblées (golden, grep) = évolution — voir TODOS.md § « Phase A — tests ».
+
+4) Autres cibles utiles
+   ───────────────────
+   make tests              # menu interactif des tests
+   DOTFILES_TEST_MENU_SKIP_PAUSE=1 make tests   # pas de pause « Entrée » après chaque action
+   make test-checks        # syntaxe cores + adapters + URLs (local ou CI)
+   make test-menu-fzf      # vérifie intégration des menus fzf + fallback /dev/tty
+   make test-dotfiles-good # bac à sable DOTFILES_GOOD/ (smoke POSIX, additif)
+   sh scripts/test/installman_check.sh
+   bash scripts/test/verify_multishell.sh
+
+5) Liste par défaut des managers pour « make test »
+   ───────────────────────────────────────────────
+   scripts/test/config/migrated_managers.list
+
+═══════════════════════════════════════════════════════════════════
+
+
+╭─░▒▓    ~/dotfiles    main ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:04:58  ▓▒░─╮
+╰─❯                                     </code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=E.1</code>
+  · ligne n : <code>make tests-copy STEP=E.1 LINE=n</code></p>
+</section>
+
+<section class="step" id="E.3">
+  <h2>E.3 — Tests Docker complets *(long)*</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:10:25  ▓▒░─╮
+╰─❯              
+══════════════════════════════════════════════════════════╗
+║                    NETMAN - Network Manager                    ║
+║                     Gestionnaire Réseau                       ║
+╚════════════════════════════════════════════════════════════════╝
+
+🖧  Interfaces réseau
+══════════════════════════════════════════════════════════════════
+
+Interface: lo
+─────────────────────────
+  État: UNKNOWN
+  MAC: N/A
+  IPv4:
+    127.0.0.1/8
+  IPv6:
+    ::1/128
+  Statistiques:
+    RX: 0B
+    TX: 0B
+
+Interface: eth0@if548
+─────────────────────────
+  État: UP
+  MAC: 7a:16:7a:5c:50:9e
+  IPv4:
+    172.17.0.2/16
+  IPv6:
+  Statistiques:
+    RX: 7.0KiB
+    TX: 126B
+
+   ✓ ok (code 0)
+🧪 [zsh] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+🧪 [bash] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+🧪 [fish] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+⏭  processman — pas de scripts/test/subcommands/processman.list
+⏭  routeman — pas de scripts/test/subcommands/routeman.list
+⏭  testman — @skip dans scripts/test/subcommands/testman.list (volontaire : trop interactif pour la matrice CI ; tester à la main ou make test-docker-manager MANAGER=testman)
+🧪 [zsh] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [bash] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [fish] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [zsh] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [bash] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [fish] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [zsh] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d&#x27;une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [bash] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d&#x27;une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [fish] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d&#x27;une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [zsh] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module &lt;nom&gt;    démarrer un module
+  cyberlearn lab start &lt;nom&gt;       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+🧪 [bash] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module &lt;nom&gt;    démarrer un module
+  cyberlearn lab start &lt;nom&gt;       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+🧪 [fish] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module &lt;nom&gt;    démarrer un module
+  cyberlearn lab start &lt;nom&gt;       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+
+📊 Matrice sous-commandes — exécutions: 63 | échecs: 0
+✅ Matrice sous-commandes : OK
+
+───────────────────────────────────────────────────────────────
+── Fin du flux conteneur — journal : /home/pactivisme/dotfiles/test_results/test_output.log
+[2/3] 66.7% |███████████████████████████░░░░░░░░░░░░░| ✅ 2 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:12 restant
+═══════════════════════════════════════════════════════════════
+📊 RAPPORT DE TEST
+═══════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════
+RAPPORT DE TEST - Tue May 12 12:12:50 UTC 2026
+═══════════════════════════════════════════════════════════════
+
+✅ pathman (zsh): OK
+✅ pathman (bash): OK
+✅ pathman (fish): OK
+✅ manman (zsh): OK
+✅ manman (bash): OK
+✅ manman (fish): OK
+✅ searchman (zsh): OK
+✅ searchman (bash): OK
+✅ searchman (fish): OK
+✅ aliaman (zsh): OK
+✅ aliaman (bash): OK
+✅ aliaman (fish): OK
+✅ installman (zsh): OK
+✅ installman (bash): OK
+✅ installman (fish): OK
+✅ configman (zsh): OK
+✅ configman (bash): OK
+✅ configman (fish): OK
+✅ gitman (zsh): OK
+✅ gitman (bash): OK
+✅ gitman (fish): OK
+✅ fileman (zsh): OK
+✅ fileman (bash): OK
+✅ fileman (fish): OK
+✅ helpman (zsh): OK
+✅ helpman (bash): OK
+✅ helpman (fish): OK
+✅ cyberman (zsh): OK
+✅ cyberman (bash): OK
+✅ cyberman (fish): OK
+✅ devman (zsh): OK
+✅ devman (bash): OK
+✅ devman (fish): OK
+✅ virtman (zsh): OK
+✅ virtman (bash): OK
+✅ virtman (fish): OK
+✅ miscman (zsh): OK
+✅ miscman (bash): OK
+✅ miscman (fish): OK
+✅ doctorman (zsh): OK
+✅ doctorman (bash): OK
+✅ doctorman (fish): OK
+✅ netman (zsh): OK
+✅ netman (bash): OK
+✅ netman (fish): OK
+✅ sshman (zsh): OK
+✅ sshman (bash): OK
+✅ sshman (fish): OK
+✅ processman (zsh): OK
+✅ processman (bash): OK
+✅ processman (fish): OK
+✅ routeman (zsh): OK
+✅ routeman (bash): OK
+✅ routeman (fish): OK
+✅ testman (zsh): OK
+✅ testman (bash): OK
+✅ testman (fish): OK
+✅ testzshman (zsh): OK
+✅ testzshman (bash): OK
+✅ testzshman (fish): OK
+✅ moduleman (zsh): OK
+✅ moduleman (bash): OK
+✅ moduleman (fish): OK
+✅ multimediaman (zsh): OK
+✅ multimediaman (bash): OK
+✅ multimediaman (fish): OK
+✅ cyberlearn (zsh): OK
+✅ cyberlearn (bash): OK
+✅ cyberlearn (fish): OK
+
+═══════════════════════════════════════════════════════════════
+RÉSUMÉ FINAL
+═══════════════════════════════════════════════════════════════
+Total cellules (manager × shell): 69
+Cellules réussies: 69
+Cellules en échec: 0
+Total tests: 352
+
+
+📁 Rapports disponibles dans:
+  - Résumé: /home/pactivisme/dotfiles/test_results/all_managers_test_report.txt
+  - Détail: /home/pactivisme/dotfiles/test_results/detailed_report.txt
+  - Log complet: /home/pactivisme/dotfiles/test_results/test_output.log
+[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant
+🧹 Nettoyage...
+✅ Nettoyage terminé
+[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant
+═══════════════════════════════════════════════════════════════
+📊 RÉSUMÉ - Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport)
+═══════════════════════════════════════════════════════════════
+⏱  Temps total: 00:00:24
+✅ Réussis: 3 (100.0%)
+❌ Échoués: 0 (0.0%)
+═══════════════════════════════════════════════════════════════
+
+✅ Tests terminés!
+📁 Résultats dans: /home/pactivisme/dotfiles/test_results
+
+💡 Pour voir les résultats détaillés:
+   cat /home/pactivisme/dotfiles/test_results/detailed_report.txt
+
+🧹 Nettoyage...
+✅ Nettoyage terminé
+
+💡 Matrice sous-commandes seule (log dédié) : make test-subcommands
+make[1] : on quitte le répertoire « /home/pactivisme/dotfiles »
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tests manuels — voir docs/TESTS.md (parcours lettre par lettre)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Répertoire dotfiles : /home/pactivisme/dotfiles
+
+  1) Prérequis hôte (docker, cc, chemins) — équivalent étapes A.1–A.3
+  2) make docker-build (image Arch / dotfiles-test)
+  3) make docker-in  → menus : distribution puis shell (Bloc C du guide)
+  4) Afficher exemples docker-in sans menu (copier-coller)
+  5) make test-dotcli (compilation + smoke dotcli)
+  6) make test-help
+  7) make test-dotfiles-good
+  8) make test (Docker complet — long)
+  9) Ouvrir docs/TESTS.md dans $PAGER (less)
+  0) Quitter
+
+Choix [0-9] : 0
+À bientôt — coche les étapes dans docs/TESTS.md.
+
+╭─░▒▓    ~/dotfiles    main 1 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  took 54s   system   at 14:13:35  ▓▒░─╮
+╰─❯ make tests-start             ">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:10:25  ▓▒░─╮" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="╰─❯              " title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="══════════════════════════════════════════════════════════╗" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="║                    NETMAN - Network Manager                    ║" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="║                     Gestionnaire Réseau                       ║" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="╚════════════════════════════════════════════════════════════════╝" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="🖧  Interfaces réseau" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="══════════════════════════════════════════════════════════════════" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="Interface: lo" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="─────────────────────────" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="  État: UNKNOWN" title="Ligne 14">L14</button> <button type="button" class="copy" data-copy="  MAC: N/A" title="Ligne 15">L15</button> <button type="button" class="copy" data-copy="  IPv4:" title="Ligne 16">L16</button> <button type="button" class="copy" data-copy="    127.0.0.1/8" title="Ligne 17">L17</button> <button type="button" class="copy" data-copy="  IPv6:" title="Ligne 18">L18</button> <button type="button" class="copy" data-copy="    ::1/128" title="Ligne 19">L19</button> <button type="button" class="copy" data-copy="  Statistiques:" title="Ligne 20">L20</button> <button type="button" class="copy" data-copy="    RX: 0B" title="Ligne 21">L21</button> <button type="button" class="copy" data-copy="    TX: 0B" title="Ligne 22">L22</button> <button type="button" class="copy" data-copy="" title="Ligne 23">L23</button> <button type="button" class="copy" data-copy="Interface: eth0@if548" title="Ligne 24">L24</button> <button type="button" class="copy" data-copy="─────────────────────────" title="Ligne 25">L25</button> <button type="button" class="copy" data-copy="  État: UP" title="Ligne 26">L26</button> <button type="button" class="copy" data-copy="  MAC: 7a:16:7a:5c:50:9e" title="Ligne 27">L27</button> <button type="button" class="copy" data-copy="  IPv4:" title="Ligne 28">L28</button> <button type="button" class="copy" data-copy="    172.17.0.2/16" title="Ligne 29">L29</button> <button type="button" class="copy" data-copy="  IPv6:" title="Ligne 30">L30</button> <button type="button" class="copy" data-copy="  Statistiques:" title="Ligne 31">L31</button> <button type="button" class="copy" data-copy="    RX: 7.0KiB" title="Ligne 32">L32</button> <button type="button" class="copy" data-copy="    TX: 126B" title="Ligne 33">L33</button> <button type="button" class="copy" data-copy="" title="Ligne 34">L34</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 35">L35</button> <button type="button" class="copy" data-copy="🧪 [zsh] sshman help" title="Ligne 36">L36</button> <button type="button" class="copy" data-copy="SSHMAN — raccourcis" title="Ligne 37">L37</button> <button type="button" class="copy" data-copy="══════════════════════════════════════════════════════════════════" title="Ligne 38">L38</button> <button type="button" class="copy" data-copy="" title="Ligne 39">L39</button> <button type="button" class="copy" data-copy="Sous-commandes :" title="Ligne 40">L40</button> <button type="button" class="copy" data-copy="  sshman list           Connexions (~/.ssh/config)" title="Ligne 41">L41</button> <button type="button" class="copy" data-copy="  sshman test           Tester une connexion" title="Ligne 42">L42</button> <button type="button" class="copy" data-copy="  sshman keys           Gérer les clés SSH" title="Ligne 43">L43</button> <button type="button" class="copy" data-copy="  sshman stats          Statistiques + permissions ~/.ssh" title="Ligne 44">L44</button> <button type="button" class="copy" data-copy="  sshman auto-setup     Config auto (mot de passe .env si dispo)" title="Ligne 45">L45</button> <button type="button" class="copy" data-copy="" title="Ligne 46">L46</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 47">L47</button> <button type="button" class="copy" data-copy="  sshman                       cette aide (stdout)" title="Ligne 48">L48</button> <button type="button" class="copy" data-copy="  sshman help | -h             idem" title="Ligne 49">L49</button> <button type="button" class="copy" data-copy="  sshman help --interactive    cette aide + pause (TTY)" title="Ligne 50">L50</button> <button type="button" class="copy" data-copy="  sshman --help                cette aide + pause + menu interactif" title="Ligne 51">L51</button> <button type="button" class="copy" data-copy="" title="Ligne 52">L52</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 53">L53</button> <button type="button" class="copy" data-copy="🧪 [bash] sshman help" title="Ligne 54">L54</button> <button type="button" class="copy" data-copy="SSHMAN — raccourcis" title="Ligne 55">L55</button> <button type="button" class="copy" data-copy="══════════════════════════════════════════════════════════════════" title="Ligne 56">L56</button> <button type="button" class="copy" data-copy="" title="Ligne 57">L57</button> <button type="button" class="copy" data-copy="Sous-commandes :" title="Ligne 58">L58</button> <button type="button" class="copy" data-copy="  sshman list           Connexions (~/.ssh/config)" title="Ligne 59">L59</button> <button type="button" class="copy" data-copy="  sshman test           Tester une connexion" title="Ligne 60">L60</button> <button type="button" class="copy" data-copy="  sshman keys           Gérer les clés SSH" title="Ligne 61">L61</button> <button type="button" class="copy" data-copy="  sshman stats          Statistiques + permissions ~/.ssh" title="Ligne 62">L62</button> <button type="button" class="copy" data-copy="  sshman auto-setup     Config auto (mot de passe .env si dispo)" title="Ligne 63">L63</button> <button type="button" class="copy" data-copy="" title="Ligne 64">L64</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 65">L65</button> <button type="button" class="copy" data-copy="  sshman                       cette aide (stdout)" title="Ligne 66">L66</button> <button type="button" class="copy" data-copy="  sshman help | -h             idem" title="Ligne 67">L67</button> <button type="button" class="copy" data-copy="  sshman help --interactive    cette aide + pause (TTY)" title="Ligne 68">L68</button> <button type="button" class="copy" data-copy="  sshman --help                cette aide + pause + menu interactif" title="Ligne 69">L69</button> <button type="button" class="copy" data-copy="" title="Ligne 70">L70</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 71">L71</button> <button type="button" class="copy" data-copy="🧪 [fish] sshman help" title="Ligne 72">L72</button> <button type="button" class="copy" data-copy="SSHMAN — raccourcis" title="Ligne 73">L73</button> <button type="button" class="copy" data-copy="══════════════════════════════════════════════════════════════════" title="Ligne 74">L74</button> <button type="button" class="copy" data-copy="" title="Ligne 75">L75</button> <button type="button" class="copy" data-copy="Sous-commandes :" title="Ligne 76">L76</button> <button type="button" class="copy" data-copy="  sshman list           Connexions (~/.ssh/config)" title="Ligne 77">L77</button> <button type="button" class="copy" data-copy="  sshman test           Tester une connexion" title="Ligne 78">L78</button> <button type="button" class="copy" data-copy="  sshman keys           Gérer les clés SSH" title="Ligne 79">L79</button> <button type="button" class="copy" data-copy="  sshman stats          Statistiques + permissions ~/.ssh" title="Ligne 80">L80</button> <button type="button" class="copy" data-copy="  sshman auto-setup     Config auto (mot de passe .env si dispo)" title="Ligne 81">L81</button> <button type="button" class="copy" data-copy="" title="Ligne 82">L82</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 83">L83</button> <button type="button" class="copy" data-copy="  sshman                       cette aide (stdout)" title="Ligne 84">L84</button> <button type="button" class="copy" data-copy="  sshman help | -h             idem" title="Ligne 85">L85</button> <button type="button" class="copy" data-copy="  sshman help --interactive    cette aide + pause (TTY)" title="Ligne 86">L86</button> <button type="button" class="copy" data-copy="  sshman --help                cette aide + pause + menu interactif" title="Ligne 87">L87</button> <button type="button" class="copy" data-copy="" title="Ligne 88">L88</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 89">L89</button> <button type="button" class="copy" data-copy="⏭  processman — pas de scripts/test/subcommands/processman.list" title="Ligne 90">L90</button> <button type="button" class="copy" data-copy="⏭  routeman — pas de scripts/test/subcommands/routeman.list" title="Ligne 91">L91</button> <button type="button" class="copy" data-copy="⏭  testman — @skip dans scripts/test/subcommands/testman.list (volontaire : trop interactif pour la matrice CI ; tester à la main ou make test-docker-manager MANAGER=testman)" title="Ligne 92">L92</button> <button type="button" class="copy" data-copy="🧪 [zsh] testzshman help" title="Ligne 93">L93</button> <button type="button" class="copy" data-copy="🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles" title="Ligne 94">L94</button> <button type="button" class="copy" data-copy="" title="Ligne 95">L95</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 96">L96</button> <button type="button" class="copy" data-copy="  testzshman                       cette aide (stdout)" title="Ligne 97">L97</button> <button type="button" class="copy" data-copy="  testzshman help | -h             idem" title="Ligne 98">L98</button> <button type="button" class="copy" data-copy="  testzshman help --interactive    cette aide + pause (TTY)" title="Ligne 99">L99</button> <button type="button" class="copy" data-copy="  testzshman --help                cette aide + pause + menu interactif" title="Ligne 100">L100</button> <button type="button" class="copy" data-copy="" title="Ligne 101">L101</button> <button type="button" class="copy" data-copy="Usage: testzshman [test-type]" title="Ligne 102">L102</button> <button type="button" class="copy" data-copy="" title="Ligne 103">L103</button> <button type="button" class="copy" data-copy="Tests disponibles:" title="Ligne 104">L104</button> <button type="button" class="copy" data-copy="  managers   - Test des managers" title="Ligne 105">L105</button> <button type="button" class="copy" data-copy="  functions  - Test des fonctions" title="Ligne 106">L106</button> <button type="button" class="copy" data-copy="  structure  - Test de la structure" title="Ligne 107">L107</button> <button type="button" class="copy" data-copy="  config     - Test de la configuration" title="Ligne 108">L108</button> <button type="button" class="copy" data-copy="  symlinks   - Test des symlinks" title="Ligne 109">L109</button> <button type="button" class="copy" data-copy="  syntax     - Test de la syntaxe" title="Ligne 110">L110</button> <button type="button" class="copy" data-copy="  cyberlearn - Test de cyberlearn" title="Ligne 111">L111</button> <button type="button" class="copy" data-copy="  logging    - actions_logger / managers_log (hermétique + audit statique)" title="Ligne 112">L112</button> <button type="button" class="copy" data-copy="  all        - Tous les tests" title="Ligne 113">L113</button> <button type="button" class="copy" data-copy="" title="Ligne 114">L114</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 115">L115</button> <button type="button" class="copy" data-copy="🧪 [bash] testzshman help" title="Ligne 116">L116</button> <button type="button" class="copy" data-copy="🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles" title="Ligne 117">L117</button> <button type="button" class="copy" data-copy="" title="Ligne 118">L118</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 119">L119</button> <button type="button" class="copy" data-copy="  testzshman                       cette aide (stdout)" title="Ligne 120">L120</button> <button type="button" class="copy" data-copy="  testzshman help | -h             idem" title="Ligne 121">L121</button> <button type="button" class="copy" data-copy="  testzshman help --interactive    cette aide + pause (TTY)" title="Ligne 122">L122</button> <button type="button" class="copy" data-copy="  testzshman --help                cette aide + pause + menu interactif" title="Ligne 123">L123</button> <button type="button" class="copy" data-copy="" title="Ligne 124">L124</button> <button type="button" class="copy" data-copy="Usage: testzshman [test-type]" title="Ligne 125">L125</button> <button type="button" class="copy" data-copy="" title="Ligne 126">L126</button> <button type="button" class="copy" data-copy="Tests disponibles:" title="Ligne 127">L127</button> <button type="button" class="copy" data-copy="  managers   - Test des managers" title="Ligne 128">L128</button> <button type="button" class="copy" data-copy="  functions  - Test des fonctions" title="Ligne 129">L129</button> <button type="button" class="copy" data-copy="  structure  - Test de la structure" title="Ligne 130">L130</button> <button type="button" class="copy" data-copy="  config     - Test de la configuration" title="Ligne 131">L131</button> <button type="button" class="copy" data-copy="  symlinks   - Test des symlinks" title="Ligne 132">L132</button> <button type="button" class="copy" data-copy="  syntax     - Test de la syntaxe" title="Ligne 133">L133</button> <button type="button" class="copy" data-copy="  cyberlearn - Test de cyberlearn" title="Ligne 134">L134</button> <button type="button" class="copy" data-copy="  logging    - actions_logger / managers_log (hermétique + audit statique)" title="Ligne 135">L135</button> <button type="button" class="copy" data-copy="  all        - Tous les tests" title="Ligne 136">L136</button> <button type="button" class="copy" data-copy="" title="Ligne 137">L137</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 138">L138</button> <button type="button" class="copy" data-copy="🧪 [fish] testzshman help" title="Ligne 139">L139</button> <button type="button" class="copy" data-copy="🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles" title="Ligne 140">L140</button> <button type="button" class="copy" data-copy="" title="Ligne 141">L141</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 142">L142</button> <button type="button" class="copy" data-copy="  testzshman                       cette aide (stdout)" title="Ligne 143">L143</button> <button type="button" class="copy" data-copy="  testzshman help | -h             idem" title="Ligne 144">L144</button> <button type="button" class="copy" data-copy="  testzshman help --interactive    cette aide + pause (TTY)" title="Ligne 145">L145</button> <button type="button" class="copy" data-copy="  testzshman --help                cette aide + pause + menu interactif" title="Ligne 146">L146</button> <button type="button" class="copy" data-copy="" title="Ligne 147">L147</button> <button type="button" class="copy" data-copy="Usage: testzshman [test-type]" title="Ligne 148">L148</button> <button type="button" class="copy" data-copy="" title="Ligne 149">L149</button> <button type="button" class="copy" data-copy="Tests disponibles:" title="Ligne 150">L150</button> <button type="button" class="copy" data-copy="  managers   - Test des managers" title="Ligne 151">L151</button> <button type="button" class="copy" data-copy="  functions  - Test des fonctions" title="Ligne 152">L152</button> <button type="button" class="copy" data-copy="  structure  - Test de la structure" title="Ligne 153">L153</button> <button type="button" class="copy" data-copy="  config     - Test de la configuration" title="Ligne 154">L154</button> <button type="button" class="copy" data-copy="  symlinks   - Test des symlinks" title="Ligne 155">L155</button> <button type="button" class="copy" data-copy="  syntax     - Test de la syntaxe" title="Ligne 156">L156</button> <button type="button" class="copy" data-copy="  cyberlearn - Test de cyberlearn" title="Ligne 157">L157</button> <button type="button" class="copy" data-copy="  logging    - actions_logger / managers_log (hermétique + audit statique)" title="Ligne 158">L158</button> <button type="button" class="copy" data-copy="  all        - Tous les tests" title="Ligne 159">L159</button> <button type="button" class="copy" data-copy="" title="Ligne 160">L160</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 161">L161</button> <button type="button" class="copy" data-copy="🧪 [zsh] moduleman list" title="Ligne 162">L162</button> <button type="button" class="copy" data-copy="Modules disponibles:" title="Ligne 163">L163</button> <button type="button" class="copy" data-copy="  ✓ pathman [ACTIVÉ]" title="Ligne 164">L164</button> <button type="button" class="copy" data-copy="  ✓ netman [ACTIVÉ]" title="Ligne 165">L165</button> <button type="button" class="copy" data-copy="  ✓ aliaman [ACTIVÉ]" title="Ligne 166">L166</button> <button type="button" class="copy" data-copy="  ✓ miscman [ACTIVÉ]" title="Ligne 167">L167</button> <button type="button" class="copy" data-copy="  ✓ searchman [ACTIVÉ]" title="Ligne 168">L168</button> <button type="button" class="copy" data-copy="  ✓ cyberman [ACTIVÉ]" title="Ligne 169">L169</button> <button type="button" class="copy" data-copy="  ✓ devman [ACTIVÉ]" title="Ligne 170">L170</button> <button type="button" class="copy" data-copy="  ✓ gitman [ACTIVÉ]" title="Ligne 171">L171</button> <button type="button" class="copy" data-copy="  ✓ helpman [ACTIVÉ]" title="Ligne 172">L172</button> <button type="button" class="copy" data-copy="  ✓ manman [ACTIVÉ]" title="Ligne 173">L173</button> <button type="button" class="copy" data-copy="  ✓ configman [ACTIVÉ]" title="Ligne 174">L174</button> <button type="button" class="copy" data-copy="  ✓ installman [ACTIVÉ]" title="Ligne 175">L175</button> <button type="button" class="copy" data-copy="  ✓ moduleman [ACTIVÉ]" title="Ligne 176">L176</button> <button type="button" class="copy" data-copy="  ✓ fileman [ACTIVÉ]" title="Ligne 177">L177</button> <button type="button" class="copy" data-copy="  ✓ virtman [ACTIVÉ]" title="Ligne 178">L178</button> <button type="button" class="copy" data-copy="  ✓ sshman [ACTIVÉ]" title="Ligne 179">L179</button> <button type="button" class="copy" data-copy="  ✓ processman [ACTIVÉ]" title="Ligne 180">L180</button> <button type="button" class="copy" data-copy="  ✓ routeman [ACTIVÉ]" title="Ligne 181">L181</button> <button type="button" class="copy" data-copy="  ✓ testzshman [ACTIVÉ]" title="Ligne 182">L182</button> <button type="button" class="copy" data-copy="  ✓ testman [ACTIVÉ]" title="Ligne 183">L183</button> <button type="button" class="copy" data-copy="  ✓ doctorman [ACTIVÉ]" title="Ligne 184">L184</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 185">L185</button> <button type="button" class="copy" data-copy="🧪 [bash] moduleman list" title="Ligne 186">L186</button> <button type="button" class="copy" data-copy="Modules disponibles:" title="Ligne 187">L187</button> <button type="button" class="copy" data-copy="  ✓ pathman [ACTIVÉ]" title="Ligne 188">L188</button> <button type="button" class="copy" data-copy="  ✓ netman [ACTIVÉ]" title="Ligne 189">L189</button> <button type="button" class="copy" data-copy="  ✓ aliaman [ACTIVÉ]" title="Ligne 190">L190</button> <button type="button" class="copy" data-copy="  ✓ miscman [ACTIVÉ]" title="Ligne 191">L191</button> <button type="button" class="copy" data-copy="  ✓ searchman [ACTIVÉ]" title="Ligne 192">L192</button> <button type="button" class="copy" data-copy="  ✓ cyberman [ACTIVÉ]" title="Ligne 193">L193</button> <button type="button" class="copy" data-copy="  ✓ devman [ACTIVÉ]" title="Ligne 194">L194</button> <button type="button" class="copy" data-copy="  ✓ gitman [ACTIVÉ]" title="Ligne 195">L195</button> <button type="button" class="copy" data-copy="  ✓ helpman [ACTIVÉ]" title="Ligne 196">L196</button> <button type="button" class="copy" data-copy="  ✓ manman [ACTIVÉ]" title="Ligne 197">L197</button> <button type="button" class="copy" data-copy="  ✓ configman [ACTIVÉ]" title="Ligne 198">L198</button> <button type="button" class="copy" data-copy="  ✓ installman [ACTIVÉ]" title="Ligne 199">L199</button> <button type="button" class="copy" data-copy="  ✓ moduleman [ACTIVÉ]" title="Ligne 200">L200</button> <button type="button" class="copy" data-copy="  ✓ fileman [ACTIVÉ]" title="Ligne 201">L201</button> <button type="button" class="copy" data-copy="  ✓ virtman [ACTIVÉ]" title="Ligne 202">L202</button> <button type="button" class="copy" data-copy="  ✓ sshman [ACTIVÉ]" title="Ligne 203">L203</button> <button type="button" class="copy" data-copy="  ✓ processman [ACTIVÉ]" title="Ligne 204">L204</button> <button type="button" class="copy" data-copy="  ✓ routeman [ACTIVÉ]" title="Ligne 205">L205</button> <button type="button" class="copy" data-copy="  ✓ testzshman [ACTIVÉ]" title="Ligne 206">L206</button> <button type="button" class="copy" data-copy="  ✓ testman [ACTIVÉ]" title="Ligne 207">L207</button> <button type="button" class="copy" data-copy="  ✓ doctorman [ACTIVÉ]" title="Ligne 208">L208</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 209">L209</button> <button type="button" class="copy" data-copy="🧪 [fish] moduleman list" title="Ligne 210">L210</button> <button type="button" class="copy" data-copy="Modules disponibles:" title="Ligne 211">L211</button> <button type="button" class="copy" data-copy="  ✓ pathman [ACTIVÉ]" title="Ligne 212">L212</button> <button type="button" class="copy" data-copy="  ✓ netman [ACTIVÉ]" title="Ligne 213">L213</button> <button type="button" class="copy" data-copy="  ✓ aliaman [ACTIVÉ]" title="Ligne 214">L214</button> <button type="button" class="copy" data-copy="  ✓ miscman [ACTIVÉ]" title="Ligne 215">L215</button> <button type="button" class="copy" data-copy="  ✓ searchman [ACTIVÉ]" title="Ligne 216">L216</button> <button type="button" class="copy" data-copy="  ✓ cyberman [ACTIVÉ]" title="Ligne 217">L217</button> <button type="button" class="copy" data-copy="  ✓ devman [ACTIVÉ]" title="Ligne 218">L218</button> <button type="button" class="copy" data-copy="  ✓ gitman [ACTIVÉ]" title="Ligne 219">L219</button> <button type="button" class="copy" data-copy="  ✓ helpman [ACTIVÉ]" title="Ligne 220">L220</button> <button type="button" class="copy" data-copy="  ✓ manman [ACTIVÉ]" title="Ligne 221">L221</button> <button type="button" class="copy" data-copy="  ✓ configman [ACTIVÉ]" title="Ligne 222">L222</button> <button type="button" class="copy" data-copy="  ✓ installman [ACTIVÉ]" title="Ligne 223">L223</button> <button type="button" class="copy" data-copy="  ✓ moduleman [ACTIVÉ]" title="Ligne 224">L224</button> <button type="button" class="copy" data-copy="  ✓ fileman [ACTIVÉ]" title="Ligne 225">L225</button> <button type="button" class="copy" data-copy="  ✓ virtman [ACTIVÉ]" title="Ligne 226">L226</button> <button type="button" class="copy" data-copy="  ✓ sshman [ACTIVÉ]" title="Ligne 227">L227</button> <button type="button" class="copy" data-copy="  ✓ processman [ACTIVÉ]" title="Ligne 228">L228</button> <button type="button" class="copy" data-copy="  ✓ routeman [ACTIVÉ]" title="Ligne 229">L229</button> <button type="button" class="copy" data-copy="  ✓ testzshman [ACTIVÉ]" title="Ligne 230">L230</button> <button type="button" class="copy" data-copy="  ✓ testman [ACTIVÉ]" title="Ligne 231">L231</button> <button type="button" class="copy" data-copy="  ✓ doctorman [ACTIVÉ]" title="Ligne 232">L232</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 233">L233</button> <button type="button" class="copy" data-copy="🧪 [zsh] multimediaman help" title="Ligne 234">L234</button> <button type="button" class="copy" data-copy="MULTIMEDIAMAN — DVD / archives" title="Ligne 235">L235</button> <button type="button" class="copy" data-copy="" title="Ligne 236">L236</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 237">L237</button> <button type="button" class="copy" data-copy="  multimediaman                        cette aide (stdout)" title="Ligne 238">L238</button> <button type="button" class="copy" data-copy="  multimediaman help | -h | aide       idem" title="Ligne 239">L239</button> <button type="button" class="copy" data-copy="  multimediaman help --interactive     cette aide + pause (TTY)" title="Ligne 240">L240</button> <button type="button" class="copy" data-copy="  multimediaman --help                 cette aide + pause + menu interactif" title="Ligne 241">L241</button> <button type="button" class="copy" data-copy="" title="Ligne 242">L242</button> <button type="button" class="copy" data-copy="Commandes :" title="Ligne 243">L243</button> <button type="button" class="copy" data-copy="  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4" title="Ligne 244">L244</button> <button type="button" class="copy" data-copy="  multimediaman extract [archive] [dest]  Extraire une archive (progression)" title="Ligne 245">L245</button> <button type="button" class="copy" data-copy="  multimediaman list [archive]        Lister le contenu d&#x27;une archive" title="Ligne 246">L246</button> <button type="button" class="copy" data-copy="" title="Ligne 247">L247</button> <button type="button" class="copy" data-copy="Exemples :" title="Ligne 248">L248</button> <button type="button" class="copy" data-copy="  multimediaman rip-dvd Mon_Film" title="Ligne 249">L249</button> <button type="button" class="copy" data-copy="  multimediaman extract archive.zip" title="Ligne 250">L250</button> <button type="button" class="copy" data-copy="  multimediaman extract archive.tar.gz /tmp/extract" title="Ligne 251">L251</button> <button type="button" class="copy" data-copy="  multimediaman list archive.zip" title="Ligne 252">L252</button> <button type="button" class="copy" data-copy="" title="Ligne 253">L253</button> <button type="button" class="copy" data-copy="Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake." title="Ligne 254">L254</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 255">L255</button> <button type="button" class="copy" data-copy="🧪 [bash] multimediaman help" title="Ligne 256">L256</button> <button type="button" class="copy" data-copy="MULTIMEDIAMAN — DVD / archives" title="Ligne 257">L257</button> <button type="button" class="copy" data-copy="" title="Ligne 258">L258</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 259">L259</button> <button type="button" class="copy" data-copy="  multimediaman                        cette aide (stdout)" title="Ligne 260">L260</button> <button type="button" class="copy" data-copy="  multimediaman help | -h | aide       idem" title="Ligne 261">L261</button> <button type="button" class="copy" data-copy="  multimediaman help --interactive     cette aide + pause (TTY)" title="Ligne 262">L262</button> <button type="button" class="copy" data-copy="  multimediaman --help                 cette aide + pause + menu interactif" title="Ligne 263">L263</button> <button type="button" class="copy" data-copy="" title="Ligne 264">L264</button> <button type="button" class="copy" data-copy="Commandes :" title="Ligne 265">L265</button> <button type="button" class="copy" data-copy="  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4" title="Ligne 266">L266</button> <button type="button" class="copy" data-copy="  multimediaman extract [archive] [dest]  Extraire une archive (progression)" title="Ligne 267">L267</button> <button type="button" class="copy" data-copy="  multimediaman list [archive]        Lister le contenu d&#x27;une archive" title="Ligne 268">L268</button> <button type="button" class="copy" data-copy="" title="Ligne 269">L269</button> <button type="button" class="copy" data-copy="Exemples :" title="Ligne 270">L270</button> <button type="button" class="copy" data-copy="  multimediaman rip-dvd Mon_Film" title="Ligne 271">L271</button> <button type="button" class="copy" data-copy="  multimediaman extract archive.zip" title="Ligne 272">L272</button> <button type="button" class="copy" data-copy="  multimediaman extract archive.tar.gz /tmp/extract" title="Ligne 273">L273</button> <button type="button" class="copy" data-copy="  multimediaman list archive.zip" title="Ligne 274">L274</button> <button type="button" class="copy" data-copy="" title="Ligne 275">L275</button> <button type="button" class="copy" data-copy="Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake." title="Ligne 276">L276</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 277">L277</button> <button type="button" class="copy" data-copy="🧪 [fish] multimediaman help" title="Ligne 278">L278</button> <button type="button" class="copy" data-copy="MULTIMEDIAMAN — DVD / archives" title="Ligne 279">L279</button> <button type="button" class="copy" data-copy="" title="Ligne 280">L280</button> <button type="button" class="copy" data-copy="Interface :" title="Ligne 281">L281</button> <button type="button" class="copy" data-copy="  multimediaman                        cette aide (stdout)" title="Ligne 282">L282</button> <button type="button" class="copy" data-copy="  multimediaman help | -h | aide       idem" title="Ligne 283">L283</button> <button type="button" class="copy" data-copy="  multimediaman help --interactive     cette aide + pause (TTY)" title="Ligne 284">L284</button> <button type="button" class="copy" data-copy="  multimediaman --help                 cette aide + pause + menu interactif" title="Ligne 285">L285</button> <button type="button" class="copy" data-copy="" title="Ligne 286">L286</button> <button type="button" class="copy" data-copy="Commandes :" title="Ligne 287">L287</button> <button type="button" class="copy" data-copy="  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4" title="Ligne 288">L288</button> <button type="button" class="copy" data-copy="  multimediaman extract [archive] [dest]  Extraire une archive (progression)" title="Ligne 289">L289</button> <button type="button" class="copy" data-copy="  multimediaman list [archive]        Lister le contenu d&#x27;une archive" title="Ligne 290">L290</button> <button type="button" class="copy" data-copy="" title="Ligne 291">L291</button> <button type="button" class="copy" data-copy="Exemples :" title="Ligne 292">L292</button> <button type="button" class="copy" data-copy="  multimediaman rip-dvd Mon_Film" title="Ligne 293">L293</button> <button type="button" class="copy" data-copy="  multimediaman extract archive.zip" title="Ligne 294">L294</button> <button type="button" class="copy" data-copy="  multimediaman extract archive.tar.gz /tmp/extract" title="Ligne 295">L295</button> <button type="button" class="copy" data-copy="  multimediaman list archive.zip" title="Ligne 296">L296</button> <button type="button" class="copy" data-copy="" title="Ligne 297">L297</button> <button type="button" class="copy" data-copy="Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake." title="Ligne 298">L298</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 299">L299</button> <button type="button" class="copy" data-copy="🧪 [zsh] cyberlearn help" title="Ligne 300">L300</button> <button type="button" class="copy" data-copy="Usage :" title="Ligne 301">L301</button> <button type="button" class="copy" data-copy="  cyberlearn                        cette aide sur stdout (non interactif)" title="Ligne 302">L302</button> <button type="button" class="copy" data-copy="  cyberlearn help | -h | aide       idem" title="Ligne 303">L303</button> <button type="button" class="copy" data-copy="  cyberlearn help --interactive     aide détaillée + pause (TTY)" title="Ligne 304">L304</button> <button type="button" class="copy" data-copy="  cyberlearn --help                 cette aide + pause + menu interactif (TTY)" title="Ligne 305">L305</button> <button type="button" class="copy" data-copy="" title="Ligne 306">L306</button> <button type="button" class="copy" data-copy="Commandes :" title="Ligne 307">L307</button> <button type="button" class="copy" data-copy="  cyberlearn start-module &lt;nom&gt;    démarrer un module" title="Ligne 308">L308</button> <button type="button" class="copy" data-copy="  cyberlearn lab start &lt;nom&gt;       démarrer un lab" title="Ligne 309">L309</button> <button type="button" class="copy" data-copy="  cyberlearn lab stop [nom]        arrêter un lab" title="Ligne 310">L310</button> <button type="button" class="copy" data-copy="  cyberlearn lab list              lister les labs" title="Ligne 311">L311</button> <button type="button" class="copy" data-copy="  cyberlearn lab status            statut des labs" title="Ligne 312">L312</button> <button type="button" class="copy" data-copy="  cyberlearn progress              afficher la progression (menu en TTY)" title="Ligne 313">L313</button> <button type="button" class="copy" data-copy="" title="Ligne 314">L314</button> <button type="button" class="copy" data-copy="Modules reconnus :" title="Ligne 315">L315</button> <button type="button" class="copy" data-copy="  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident" title="Ligne 316">L316</button> <button type="button" class="copy" data-copy="" title="Ligne 317">L317</button> <button type="button" class="copy" data-copy="Labs (exemples) :" title="Ligne 318">L318</button> <button type="button" class="copy" data-copy="  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic" title="Ligne 319">L319</button> <button type="button" class="copy" data-copy="" title="Ligne 320">L320</button> <button type="button" class="copy" data-copy="Exemples :" title="Ligne 321">L321</button> <button type="button" class="copy" data-copy="  cyberlearn start-module basics" title="Ligne 322">L322</button> <button type="button" class="copy" data-copy="  cyberlearn lab start web-basics" title="Ligne 323">L323</button> <button type="button" class="copy" data-copy="  cyberlearn progress" title="Ligne 324">L324</button> <button type="button" class="copy" data-copy="" title="Ligne 325">L325</button> <button type="button" class="copy" data-copy="Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices." title="Ligne 326">L326</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 327">L327</button> <button type="button" class="copy" data-copy="🧪 [bash] cyberlearn help" title="Ligne 328">L328</button> <button type="button" class="copy" data-copy="Usage :" title="Ligne 329">L329</button> <button type="button" class="copy" data-copy="  cyberlearn                        cette aide sur stdout (non interactif)" title="Ligne 330">L330</button> <button type="button" class="copy" data-copy="  cyberlearn help | -h | aide       idem" title="Ligne 331">L331</button> <button type="button" class="copy" data-copy="  cyberlearn help --interactive     aide détaillée + pause (TTY)" title="Ligne 332">L332</button> <button type="button" class="copy" data-copy="  cyberlearn --help                 cette aide + pause + menu interactif (TTY)" title="Ligne 333">L333</button> <button type="button" class="copy" data-copy="" title="Ligne 334">L334</button> <button type="button" class="copy" data-copy="Commandes :" title="Ligne 335">L335</button> <button type="button" class="copy" data-copy="  cyberlearn start-module &lt;nom&gt;    démarrer un module" title="Ligne 336">L336</button> <button type="button" class="copy" data-copy="  cyberlearn lab start &lt;nom&gt;       démarrer un lab" title="Ligne 337">L337</button> <button type="button" class="copy" data-copy="  cyberlearn lab stop [nom]        arrêter un lab" title="Ligne 338">L338</button> <button type="button" class="copy" data-copy="  cyberlearn lab list              lister les labs" title="Ligne 339">L339</button> <button type="button" class="copy" data-copy="  cyberlearn lab status            statut des labs" title="Ligne 340">L340</button> <button type="button" class="copy" data-copy="  cyberlearn progress              afficher la progression (menu en TTY)" title="Ligne 341">L341</button> <button type="button" class="copy" data-copy="" title="Ligne 342">L342</button> <button type="button" class="copy" data-copy="Modules reconnus :" title="Ligne 343">L343</button> <button type="button" class="copy" data-copy="  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident" title="Ligne 344">L344</button> <button type="button" class="copy" data-copy="" title="Ligne 345">L345</button> <button type="button" class="copy" data-copy="Labs (exemples) :" title="Ligne 346">L346</button> <button type="button" class="copy" data-copy="  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic" title="Ligne 347">L347</button> <button type="button" class="copy" data-copy="" title="Ligne 348">L348</button> <button type="button" class="copy" data-copy="Exemples :" title="Ligne 349">L349</button> <button type="button" class="copy" data-copy="  cyberlearn start-module basics" title="Ligne 350">L350</button> <button type="button" class="copy" data-copy="  cyberlearn lab start web-basics" title="Ligne 351">L351</button> <button type="button" class="copy" data-copy="  cyberlearn progress" title="Ligne 352">L352</button> <button type="button" class="copy" data-copy="" title="Ligne 353">L353</button> <button type="button" class="copy" data-copy="Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices." title="Ligne 354">L354</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 355">L355</button> <button type="button" class="copy" data-copy="🧪 [fish] cyberlearn help" title="Ligne 356">L356</button> <button type="button" class="copy" data-copy="Usage :" title="Ligne 357">L357</button> <button type="button" class="copy" data-copy="  cyberlearn                        cette aide sur stdout (non interactif)" title="Ligne 358">L358</button> <button type="button" class="copy" data-copy="  cyberlearn help | -h | aide       idem" title="Ligne 359">L359</button> <button type="button" class="copy" data-copy="  cyberlearn help --interactive     aide détaillée + pause (TTY)" title="Ligne 360">L360</button> <button type="button" class="copy" data-copy="  cyberlearn --help                 cette aide + pause + menu interactif (TTY)" title="Ligne 361">L361</button> <button type="button" class="copy" data-copy="" title="Ligne 362">L362</button> <button type="button" class="copy" data-copy="Commandes :" title="Ligne 363">L363</button> <button type="button" class="copy" data-copy="  cyberlearn start-module &lt;nom&gt;    démarrer un module" title="Ligne 364">L364</button> <button type="button" class="copy" data-copy="  cyberlearn lab start &lt;nom&gt;       démarrer un lab" title="Ligne 365">L365</button> <button type="button" class="copy" data-copy="  cyberlearn lab stop [nom]        arrêter un lab" title="Ligne 366">L366</button> <button type="button" class="copy" data-copy="  cyberlearn lab list              lister les labs" title="Ligne 367">L367</button> <button type="button" class="copy" data-copy="  cyberlearn lab status            statut des labs" title="Ligne 368">L368</button> <button type="button" class="copy" data-copy="  cyberlearn progress              afficher la progression (menu en TTY)" title="Ligne 369">L369</button> <button type="button" class="copy" data-copy="" title="Ligne 370">L370</button> <button type="button" class="copy" data-copy="Modules reconnus :" title="Ligne 371">L371</button> <button type="button" class="copy" data-copy="  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident" title="Ligne 372">L372</button> <button type="button" class="copy" data-copy="" title="Ligne 373">L373</button> <button type="button" class="copy" data-copy="Labs (exemples) :" title="Ligne 374">L374</button> <button type="button" class="copy" data-copy="  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic" title="Ligne 375">L375</button> <button type="button" class="copy" data-copy="" title="Ligne 376">L376</button> <button type="button" class="copy" data-copy="Exemples :" title="Ligne 377">L377</button> <button type="button" class="copy" data-copy="  cyberlearn start-module basics" title="Ligne 378">L378</button> <button type="button" class="copy" data-copy="  cyberlearn lab start web-basics" title="Ligne 379">L379</button> <button type="button" class="copy" data-copy="  cyberlearn progress" title="Ligne 380">L380</button> <button type="button" class="copy" data-copy="" title="Ligne 381">L381</button> <button type="button" class="copy" data-copy="Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices." title="Ligne 382">L382</button> <button type="button" class="copy" data-copy="   ✓ ok (code 0)" title="Ligne 383">L383</button> <button type="button" class="copy" data-copy="" title="Ligne 384">L384</button> <button type="button" class="copy" data-copy="📊 Matrice sous-commandes — exécutions: 63 | échecs: 0" title="Ligne 385">L385</button> <button type="button" class="copy" data-copy="✅ Matrice sous-commandes : OK" title="Ligne 386">L386</button> <button type="button" class="copy" data-copy="" title="Ligne 387">L387</button> <button type="button" class="copy" data-copy="───────────────────────────────────────────────────────────────" title="Ligne 388">L388</button> <button type="button" class="copy" data-copy="── Fin du flux conteneur — journal : /home/pactivisme/dotfiles/test_results/test_output.log" title="Ligne 389">L389</button> <button type="button" class="copy" data-copy="[2/3] 66.7% |███████████████████████████░░░░░░░░░░░░░| ✅ 2 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:12 restant" title="Ligne 390">L390</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 391">L391</button> <button type="button" class="copy" data-copy="📊 RAPPORT DE TEST" title="Ligne 392">L392</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 393">L393</button> <button type="button" class="copy" data-copy="" title="Ligne 394">L394</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 395">L395</button> <button type="button" class="copy" data-copy="RAPPORT DE TEST - Tue May 12 12:12:50 UTC 2026" title="Ligne 396">L396</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 397">L397</button> <button type="button" class="copy" data-copy="" title="Ligne 398">L398</button> <button type="button" class="copy" data-copy="✅ pathman (zsh): OK" title="Ligne 399">L399</button> <button type="button" class="copy" data-copy="✅ pathman (bash): OK" title="Ligne 400">L400</button> <button type="button" class="copy" data-copy="✅ pathman (fish): OK" title="Ligne 401">L401</button> <button type="button" class="copy" data-copy="✅ manman (zsh): OK" title="Ligne 402">L402</button> <button type="button" class="copy" data-copy="✅ manman (bash): OK" title="Ligne 403">L403</button> <button type="button" class="copy" data-copy="✅ manman (fish): OK" title="Ligne 404">L404</button> <button type="button" class="copy" data-copy="✅ searchman (zsh): OK" title="Ligne 405">L405</button> <button type="button" class="copy" data-copy="✅ searchman (bash): OK" title="Ligne 406">L406</button> <button type="button" class="copy" data-copy="✅ searchman (fish): OK" title="Ligne 407">L407</button> <button type="button" class="copy" data-copy="✅ aliaman (zsh): OK" title="Ligne 408">L408</button> <button type="button" class="copy" data-copy="✅ aliaman (bash): OK" title="Ligne 409">L409</button> <button type="button" class="copy" data-copy="✅ aliaman (fish): OK" title="Ligne 410">L410</button> <button type="button" class="copy" data-copy="✅ installman (zsh): OK" title="Ligne 411">L411</button> <button type="button" class="copy" data-copy="✅ installman (bash): OK" title="Ligne 412">L412</button> <button type="button" class="copy" data-copy="✅ installman (fish): OK" title="Ligne 413">L413</button> <button type="button" class="copy" data-copy="✅ configman (zsh): OK" title="Ligne 414">L414</button> <button type="button" class="copy" data-copy="✅ configman (bash): OK" title="Ligne 415">L415</button> <button type="button" class="copy" data-copy="✅ configman (fish): OK" title="Ligne 416">L416</button> <button type="button" class="copy" data-copy="✅ gitman (zsh): OK" title="Ligne 417">L417</button> <button type="button" class="copy" data-copy="✅ gitman (bash): OK" title="Ligne 418">L418</button> <button type="button" class="copy" data-copy="✅ gitman (fish): OK" title="Ligne 419">L419</button> <button type="button" class="copy" data-copy="✅ fileman (zsh): OK" title="Ligne 420">L420</button> <button type="button" class="copy" data-copy="✅ fileman (bash): OK" title="Ligne 421">L421</button> <button type="button" class="copy" data-copy="✅ fileman (fish): OK" title="Ligne 422">L422</button> <button type="button" class="copy" data-copy="✅ helpman (zsh): OK" title="Ligne 423">L423</button> <button type="button" class="copy" data-copy="✅ helpman (bash): OK" title="Ligne 424">L424</button> <button type="button" class="copy" data-copy="✅ helpman (fish): OK" title="Ligne 425">L425</button> <button type="button" class="copy" data-copy="✅ cyberman (zsh): OK" title="Ligne 426">L426</button> <button type="button" class="copy" data-copy="✅ cyberman (bash): OK" title="Ligne 427">L427</button> <button type="button" class="copy" data-copy="✅ cyberman (fish): OK" title="Ligne 428">L428</button> <button type="button" class="copy" data-copy="✅ devman (zsh): OK" title="Ligne 429">L429</button> <button type="button" class="copy" data-copy="✅ devman (bash): OK" title="Ligne 430">L430</button> <button type="button" class="copy" data-copy="✅ devman (fish): OK" title="Ligne 431">L431</button> <button type="button" class="copy" data-copy="✅ virtman (zsh): OK" title="Ligne 432">L432</button> <button type="button" class="copy" data-copy="✅ virtman (bash): OK" title="Ligne 433">L433</button> <button type="button" class="copy" data-copy="✅ virtman (fish): OK" title="Ligne 434">L434</button> <button type="button" class="copy" data-copy="✅ miscman (zsh): OK" title="Ligne 435">L435</button> <button type="button" class="copy" data-copy="✅ miscman (bash): OK" title="Ligne 436">L436</button> <button type="button" class="copy" data-copy="✅ miscman (fish): OK" title="Ligne 437">L437</button> <button type="button" class="copy" data-copy="✅ doctorman (zsh): OK" title="Ligne 438">L438</button> <button type="button" class="copy" data-copy="✅ doctorman (bash): OK" title="Ligne 439">L439</button> <button type="button" class="copy" data-copy="✅ doctorman (fish): OK" title="Ligne 440">L440</button> <button type="button" class="copy" data-copy="✅ netman (zsh): OK" title="Ligne 441">L441</button> <button type="button" class="copy" data-copy="✅ netman (bash): OK" title="Ligne 442">L442</button> <button type="button" class="copy" data-copy="✅ netman (fish): OK" title="Ligne 443">L443</button> <button type="button" class="copy" data-copy="✅ sshman (zsh): OK" title="Ligne 444">L444</button> <button type="button" class="copy" data-copy="✅ sshman (bash): OK" title="Ligne 445">L445</button> <button type="button" class="copy" data-copy="✅ sshman (fish): OK" title="Ligne 446">L446</button> <button type="button" class="copy" data-copy="✅ processman (zsh): OK" title="Ligne 447">L447</button> <button type="button" class="copy" data-copy="✅ processman (bash): OK" title="Ligne 448">L448</button> <button type="button" class="copy" data-copy="✅ processman (fish): OK" title="Ligne 449">L449</button> <button type="button" class="copy" data-copy="✅ routeman (zsh): OK" title="Ligne 450">L450</button> <button type="button" class="copy" data-copy="✅ routeman (bash): OK" title="Ligne 451">L451</button> <button type="button" class="copy" data-copy="✅ routeman (fish): OK" title="Ligne 452">L452</button> <button type="button" class="copy" data-copy="✅ testman (zsh): OK" title="Ligne 453">L453</button> <button type="button" class="copy" data-copy="✅ testman (bash): OK" title="Ligne 454">L454</button> <button type="button" class="copy" data-copy="✅ testman (fish): OK" title="Ligne 455">L455</button> <button type="button" class="copy" data-copy="✅ testzshman (zsh): OK" title="Ligne 456">L456</button> <button type="button" class="copy" data-copy="✅ testzshman (bash): OK" title="Ligne 457">L457</button> <button type="button" class="copy" data-copy="✅ testzshman (fish): OK" title="Ligne 458">L458</button> <button type="button" class="copy" data-copy="✅ moduleman (zsh): OK" title="Ligne 459">L459</button> <button type="button" class="copy" data-copy="✅ moduleman (bash): OK" title="Ligne 460">L460</button> <button type="button" class="copy" data-copy="✅ moduleman (fish): OK" title="Ligne 461">L461</button> <button type="button" class="copy" data-copy="✅ multimediaman (zsh): OK" title="Ligne 462">L462</button> <button type="button" class="copy" data-copy="✅ multimediaman (bash): OK" title="Ligne 463">L463</button> <button type="button" class="copy" data-copy="✅ multimediaman (fish): OK" title="Ligne 464">L464</button> <button type="button" class="copy" data-copy="✅ cyberlearn (zsh): OK" title="Ligne 465">L465</button> <button type="button" class="copy" data-copy="✅ cyberlearn (bash): OK" title="Ligne 466">L466</button> <button type="button" class="copy" data-copy="✅ cyberlearn (fish): OK" title="Ligne 467">L467</button> <button type="button" class="copy" data-copy="" title="Ligne 468">L468</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 469">L469</button> <button type="button" class="copy" data-copy="RÉSUMÉ FINAL" title="Ligne 470">L470</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 471">L471</button> <button type="button" class="copy" data-copy="Total cellules (manager × shell): 69" title="Ligne 472">L472</button> <button type="button" class="copy" data-copy="Cellules réussies: 69" title="Ligne 473">L473</button> <button type="button" class="copy" data-copy="Cellules en échec: 0" title="Ligne 474">L474</button> <button type="button" class="copy" data-copy="Total tests: 352" title="Ligne 475">L475</button> <button type="button" class="copy" data-copy="" title="Ligne 476">L476</button> <button type="button" class="copy" data-copy="" title="Ligne 477">L477</button> <button type="button" class="copy" data-copy="📁 Rapports disponibles dans:" title="Ligne 478">L478</button> <button type="button" class="copy" data-copy="  - Résumé: /home/pactivisme/dotfiles/test_results/all_managers_test_report.txt" title="Ligne 479">L479</button> <button type="button" class="copy" data-copy="  - Détail: /home/pactivisme/dotfiles/test_results/detailed_report.txt" title="Ligne 480">L480</button> <button type="button" class="copy" data-copy="  - Log complet: /home/pactivisme/dotfiles/test_results/test_output.log" title="Ligne 481">L481</button> <button type="button" class="copy" data-copy="[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant" title="Ligne 482">L482</button> <button type="button" class="copy" data-copy="🧹 Nettoyage..." title="Ligne 483">L483</button> <button type="button" class="copy" data-copy="✅ Nettoyage terminé" title="Ligne 484">L484</button> <button type="button" class="copy" data-copy="[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant" title="Ligne 485">L485</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 486">L486</button> <button type="button" class="copy" data-copy="📊 RÉSUMÉ - Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport)" title="Ligne 487">L487</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 488">L488</button> <button type="button" class="copy" data-copy="⏱  Temps total: 00:00:24" title="Ligne 489">L489</button> <button type="button" class="copy" data-copy="✅ Réussis: 3 (100.0%)" title="Ligne 490">L490</button> <button type="button" class="copy" data-copy="❌ Échoués: 0 (0.0%)" title="Ligne 491">L491</button> <button type="button" class="copy" data-copy="═══════════════════════════════════════════════════════════════" title="Ligne 492">L492</button> <button type="button" class="copy" data-copy="" title="Ligne 493">L493</button> <button type="button" class="copy" data-copy="✅ Tests terminés!" title="Ligne 494">L494</button> <button type="button" class="copy" data-copy="📁 Résultats dans: /home/pactivisme/dotfiles/test_results" title="Ligne 495">L495</button> <button type="button" class="copy" data-copy="" title="Ligne 496">L496</button> <button type="button" class="copy" data-copy="💡 Pour voir les résultats détaillés:" title="Ligne 497">L497</button> <button type="button" class="copy" data-copy="   cat /home/pactivisme/dotfiles/test_results/detailed_report.txt" title="Ligne 498">L498</button> <button type="button" class="copy" data-copy="" title="Ligne 499">L499</button> <button type="button" class="copy" data-copy="🧹 Nettoyage..." title="Ligne 500">L500</button> <button type="button" class="copy" data-copy="✅ Nettoyage terminé" title="Ligne 501">L501</button> <button type="button" class="copy" data-copy="" title="Ligne 502">L502</button> <button type="button" class="copy" data-copy="💡 Matrice sous-commandes seule (log dédié) : make test-subcommands" title="Ligne 503">L503</button> <button type="button" class="copy" data-copy="make[1] : on quitte le répertoire « /home/pactivisme/dotfiles »" title="Ligne 504">L504</button> <button type="button" class="copy" data-copy="" title="Ligne 505">L505</button> <button type="button" class="copy" data-copy="━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" title="Ligne 506">L506</button> <button type="button" class="copy" data-copy="Tests manuels — voir docs/TESTS.md (parcours lettre par lettre)" title="Ligne 507">L507</button> <button type="button" class="copy" data-copy="━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" title="Ligne 508">L508</button> <button type="button" class="copy" data-copy="" title="Ligne 509">L509</button> <button type="button" class="copy" data-copy="Répertoire dotfiles : /home/pactivisme/dotfiles" title="Ligne 510">L510</button> <button type="button" class="copy" data-copy="" title="Ligne 511">L511</button> <button type="button" class="copy" data-copy="  1) Prérequis hôte (docker, cc, chemins) — équivalent étapes A.1–A.3" title="Ligne 512">L512</button> <button type="button" class="copy" data-copy="  2) make docker-build (image Arch / dotfiles-test)" title="Ligne 513">L513</button> <button type="button" class="copy" data-copy="  3) make docker-in  → menus : distribution puis shell (Bloc C du guide)" title="Ligne 514">L514</button> <button type="button" class="copy" data-copy="  4) Afficher exemples docker-in sans menu (copier-coller)" title="Ligne 515">L515</button> <button type="button" class="copy" data-copy="  5) make test-dotcli (compilation + smoke dotcli)" title="Ligne 516">L516</button> <button type="button" class="copy" data-copy="  6) make test-help" title="Ligne 517">L517</button> <button type="button" class="copy" data-copy="  7) make test-dotfiles-good" title="Ligne 518">L518</button> <button type="button" class="copy" data-copy="  8) make test (Docker complet — long)" title="Ligne 519">L519</button> <button type="button" class="copy" data-copy="  9) Ouvrir docs/TESTS.md dans $PAGER (less)" title="Ligne 520">L520</button> <button type="button" class="copy" data-copy="  0) Quitter" title="Ligne 521">L521</button> <button type="button" class="copy" data-copy="" title="Ligne 522">L522</button> <button type="button" class="copy" data-copy="Choix [0-9] : 0" title="Ligne 523">L523</button> <button type="button" class="copy" data-copy="À bientôt — coche les étapes dans docs/TESTS.md." title="Ligne 524">L524</button> <button type="button" class="copy" data-copy="" title="Ligne 525">L525</button> <button type="button" class="copy" data-copy="╭─░▒▓    ~/dotfiles    main 1 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  took 54s   system   at 14:13:35  ▓▒░─╮" title="Ligne 526">L526</button> <button type="button" class="copy" data-copy="╰─❯ make tests-start             " title="Ligne 527">L527</button></span>
+  </div>
+  <pre><code>
+╭─░▒▓    ~/dotfiles    main 1 ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  system   at 14:10:25  ▓▒░─╮
+╰─❯              
+══════════════════════════════════════════════════════════╗
+║                    NETMAN - Network Manager                    ║
+║                     Gestionnaire Réseau                       ║
+╚════════════════════════════════════════════════════════════════╝
+
+🖧  Interfaces réseau
+══════════════════════════════════════════════════════════════════
+
+Interface: lo
+─────────────────────────
+  État: UNKNOWN
+  MAC: N/A
+  IPv4:
+    127.0.0.1/8
+  IPv6:
+    ::1/128
+  Statistiques:
+    RX: 0B
+    TX: 0B
+
+Interface: eth0@if548
+─────────────────────────
+  État: UP
+  MAC: 7a:16:7a:5c:50:9e
+  IPv4:
+    172.17.0.2/16
+  IPv6:
+  Statistiques:
+    RX: 7.0KiB
+    TX: 126B
+
+   ✓ ok (code 0)
+🧪 [zsh] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+🧪 [bash] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+🧪 [fish] sshman help
+SSHMAN — raccourcis
+══════════════════════════════════════════════════════════════════
+
+Sous-commandes :
+  sshman list           Connexions (~/.ssh/config)
+  sshman test           Tester une connexion
+  sshman keys           Gérer les clés SSH
+  sshman stats          Statistiques + permissions ~/.ssh
+  sshman auto-setup     Config auto (mot de passe .env si dispo)
+
+Interface :
+  sshman                       cette aide (stdout)
+  sshman help | -h             idem
+  sshman help --interactive    cette aide + pause (TTY)
+  sshman --help                cette aide + pause + menu interactif
+
+   ✓ ok (code 0)
+⏭  processman — pas de scripts/test/subcommands/processman.list
+⏭  routeman — pas de scripts/test/subcommands/routeman.list
+⏭  testman — @skip dans scripts/test/subcommands/testman.list (volontaire : trop interactif pour la matrice CI ; tester à la main ou make test-docker-manager MANAGER=testman)
+🧪 [zsh] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [bash] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [fish] testzshman help
+🧪 TESTZSHMAN - Test Manager ZSH/Dotfiles
+
+Interface :
+  testzshman                       cette aide (stdout)
+  testzshman help | -h             idem
+  testzshman help --interactive    cette aide + pause (TTY)
+  testzshman --help                cette aide + pause + menu interactif
+
+Usage: testzshman [test-type]
+
+Tests disponibles:
+  managers   - Test des managers
+  functions  - Test des fonctions
+  structure  - Test de la structure
+  config     - Test de la configuration
+  symlinks   - Test des symlinks
+  syntax     - Test de la syntaxe
+  cyberlearn - Test de cyberlearn
+  logging    - actions_logger / managers_log (hermétique + audit statique)
+  all        - Tous les tests
+
+   ✓ ok (code 0)
+🧪 [zsh] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [bash] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [fish] moduleman list
+Modules disponibles:
+  ✓ pathman [ACTIVÉ]
+  ✓ netman [ACTIVÉ]
+  ✓ aliaman [ACTIVÉ]
+  ✓ miscman [ACTIVÉ]
+  ✓ searchman [ACTIVÉ]
+  ✓ cyberman [ACTIVÉ]
+  ✓ devman [ACTIVÉ]
+  ✓ gitman [ACTIVÉ]
+  ✓ helpman [ACTIVÉ]
+  ✓ manman [ACTIVÉ]
+  ✓ configman [ACTIVÉ]
+  ✓ installman [ACTIVÉ]
+  ✓ moduleman [ACTIVÉ]
+  ✓ fileman [ACTIVÉ]
+  ✓ virtman [ACTIVÉ]
+  ✓ sshman [ACTIVÉ]
+  ✓ processman [ACTIVÉ]
+  ✓ routeman [ACTIVÉ]
+  ✓ testzshman [ACTIVÉ]
+  ✓ testman [ACTIVÉ]
+  ✓ doctorman [ACTIVÉ]
+   ✓ ok (code 0)
+🧪 [zsh] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d&#x27;une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [bash] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d&#x27;une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [fish] multimediaman help
+MULTIMEDIAMAN — DVD / archives
+
+Interface :
+  multimediaman                        cette aide (stdout)
+  multimediaman help | -h | aide       idem
+  multimediaman help --interactive     cette aide + pause (TTY)
+  multimediaman --help                 cette aide + pause + menu interactif
+
+Commandes :
+  multimediaman rip-dvd [nom]          Ripping DVD + encodage MP4
+  multimediaman extract [archive] [dest]  Extraire une archive (progression)
+  multimediaman list [archive]        Lister le contenu d&#x27;une archive
+
+Exemples :
+  multimediaman rip-dvd Mon_Film
+  multimediaman extract archive.zip
+  multimediaman extract archive.tar.gz /tmp/extract
+  multimediaman list archive.zip
+
+Pré-requis : HandBrakeCLI, dvdbackup, libdvdcss (DVD chiffrés) — voir installman handbrake.
+   ✓ ok (code 0)
+🧪 [zsh] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module &lt;nom&gt;    démarrer un module
+  cyberlearn lab start &lt;nom&gt;       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+🧪 [bash] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module &lt;nom&gt;    démarrer un module
+  cyberlearn lab start &lt;nom&gt;       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+🧪 [fish] cyberlearn help
+Usage :
+  cyberlearn                        cette aide sur stdout (non interactif)
+  cyberlearn help | -h | aide       idem
+  cyberlearn help --interactive     aide détaillée + pause (TTY)
+  cyberlearn --help                 cette aide + pause + menu interactif (TTY)
+
+Commandes :
+  cyberlearn start-module &lt;nom&gt;    démarrer un module
+  cyberlearn lab start &lt;nom&gt;       démarrer un lab
+  cyberlearn lab stop [nom]        arrêter un lab
+  cyberlearn lab list              lister les labs
+  cyberlearn lab status            statut des labs
+  cyberlearn progress              afficher la progression (menu en TTY)
+
+Modules reconnus :
+  basics, network, web, crypto, linux, windows, mobile, forensics, pentest, incident
+
+Labs (exemples) :
+  web-basics, network-scan, crypto-basics, linux-pentest, forensics-basic
+
+Exemples :
+  cyberlearn start-module basics
+  cyberlearn lab start web-basics
+  cyberlearn progress
+
+Pré-requis : Docker (labs), outils de sécu courants, Python 3 pour certains exercices.
+   ✓ ok (code 0)
+
+📊 Matrice sous-commandes — exécutions: 63 | échecs: 0
+✅ Matrice sous-commandes : OK
+
+───────────────────────────────────────────────────────────────
+── Fin du flux conteneur — journal : /home/pactivisme/dotfiles/test_results/test_output.log
+[2/3] 66.7% |███████████████████████████░░░░░░░░░░░░░| ✅ 2 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:12 restant
+═══════════════════════════════════════════════════════════════
+📊 RAPPORT DE TEST
+═══════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════
+RAPPORT DE TEST - Tue May 12 12:12:50 UTC 2026
+═══════════════════════════════════════════════════════════════
+
+✅ pathman (zsh): OK
+✅ pathman (bash): OK
+✅ pathman (fish): OK
+✅ manman (zsh): OK
+✅ manman (bash): OK
+✅ manman (fish): OK
+✅ searchman (zsh): OK
+✅ searchman (bash): OK
+✅ searchman (fish): OK
+✅ aliaman (zsh): OK
+✅ aliaman (bash): OK
+✅ aliaman (fish): OK
+✅ installman (zsh): OK
+✅ installman (bash): OK
+✅ installman (fish): OK
+✅ configman (zsh): OK
+✅ configman (bash): OK
+✅ configman (fish): OK
+✅ gitman (zsh): OK
+✅ gitman (bash): OK
+✅ gitman (fish): OK
+✅ fileman (zsh): OK
+✅ fileman (bash): OK
+✅ fileman (fish): OK
+✅ helpman (zsh): OK
+✅ helpman (bash): OK
+✅ helpman (fish): OK
+✅ cyberman (zsh): OK
+✅ cyberman (bash): OK
+✅ cyberman (fish): OK
+✅ devman (zsh): OK
+✅ devman (bash): OK
+✅ devman (fish): OK
+✅ virtman (zsh): OK
+✅ virtman (bash): OK
+✅ virtman (fish): OK
+✅ miscman (zsh): OK
+✅ miscman (bash): OK
+✅ miscman (fish): OK
+✅ doctorman (zsh): OK
+✅ doctorman (bash): OK
+✅ doctorman (fish): OK
+✅ netman (zsh): OK
+✅ netman (bash): OK
+✅ netman (fish): OK
+✅ sshman (zsh): OK
+✅ sshman (bash): OK
+✅ sshman (fish): OK
+✅ processman (zsh): OK
+✅ processman (bash): OK
+✅ processman (fish): OK
+✅ routeman (zsh): OK
+✅ routeman (bash): OK
+✅ routeman (fish): OK
+✅ testman (zsh): OK
+✅ testman (bash): OK
+✅ testman (fish): OK
+✅ testzshman (zsh): OK
+✅ testzshman (bash): OK
+✅ testzshman (fish): OK
+✅ moduleman (zsh): OK
+✅ moduleman (bash): OK
+✅ moduleman (fish): OK
+✅ multimediaman (zsh): OK
+✅ multimediaman (bash): OK
+✅ multimediaman (fish): OK
+✅ cyberlearn (zsh): OK
+✅ cyberlearn (bash): OK
+✅ cyberlearn (fish): OK
+
+═══════════════════════════════════════════════════════════════
+RÉSUMÉ FINAL
+═══════════════════════════════════════════════════════════════
+Total cellules (manager × shell): 69
+Cellules réussies: 69
+Cellules en échec: 0
+Total tests: 352
+
+
+📁 Rapports disponibles dans:
+  - Résumé: /home/pactivisme/dotfiles/test_results/all_managers_test_report.txt
+  - Détail: /home/pactivisme/dotfiles/test_results/detailed_report.txt
+  - Log complet: /home/pactivisme/dotfiles/test_results/test_output.log
+[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant
+🧹 Nettoyage...
+✅ Nettoyage terminé
+[3/3] 100.0% |████████████████████████████████████████| ✅ 3 | ❌ 0 | ⏱  00:00:24 écoulé | ~00:00:00 restant
+═══════════════════════════════════════════════════════════════
+📊 RÉSUMÉ - Pipeline Docker (1/3 image · 2/3 tests conteneur · 3/3 rapport)
+═══════════════════════════════════════════════════════════════
+⏱  Temps total: 00:00:24
+✅ Réussis: 3 (100.0%)
+❌ Échoués: 0 (0.0%)
+═══════════════════════════════════════════════════════════════
+
+✅ Tests terminés!
+📁 Résultats dans: /home/pactivisme/dotfiles/test_results
+
+💡 Pour voir les résultats détaillés:
+   cat /home/pactivisme/dotfiles/test_results/detailed_report.txt
+
+🧹 Nettoyage...
+✅ Nettoyage terminé
+
+💡 Matrice sous-commandes seule (log dédié) : make test-subcommands
+make[1] : on quitte le répertoire « /home/pactivisme/dotfiles »
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Tests manuels — voir docs/TESTS.md (parcours lettre par lettre)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Répertoire dotfiles : /home/pactivisme/dotfiles
+
+  1) Prérequis hôte (docker, cc, chemins) — équivalent étapes A.1–A.3
+  2) make docker-build (image Arch / dotfiles-test)
+  3) make docker-in  → menus : distribution puis shell (Bloc C du guide)
+  4) Afficher exemples docker-in sans menu (copier-coller)
+  5) make test-dotcli (compilation + smoke dotcli)
+  6) make test-help
+  7) make test-dotfiles-good
+  8) make test (Docker complet — long)
+  9) Ouvrir docs/TESTS.md dans $PAGER (less)
+  0) Quitter
+
+Choix [0-9] : 0
+À bientôt — coche les étapes dans docs/TESTS.md.
+
+╭─░▒▓    ~/dotfiles    main 1 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── ✔  took 54s   system   at 14:13:35  ▓▒░─╮
+╰─❯ make tests-start             </code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=E.3</code>
+  · ligne n : <code>make tests-copy STEP=E.3 LINE=n</code></p>
+</section>
+
+<section class="step" id="G.0">
+  <h2>G.0 — Contrôle global non-TTY *(recommandé avant G.1–G.26)*</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="cd ~/dotfiles || cd /root/dotfiles
+export DOTFILES_DIR=&quot;$PWD&quot;
+# IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout
+MANS=&quot;gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman&quot;
+# 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
+for m in $MANS; do
+  f=&quot;core/managers/$m/core/$m.sh&quot;
+  [ -f &quot;$f&quot; ] || { echo &quot;[SKIP] $m&quot;; continue; }
+  timeout 3 bash -c &quot;. \&quot;$f\&quot; 2&gt;/dev/null; $m __nonexistent_arg__123 &lt;/dev/null&quot; &gt;/dev/null 2&gt;&amp;1
+  ec=$?
+  case &quot;$ec&quot; in
+    124) echo &quot;FAIL $m : TIMEOUT (boucle ou blocage)&quot; ;;
+    0)   echo &quot;WARN $m : rc=0 (attendu plutôt ≠0 pour un arg inconnu — à noter)&quot; ;;
+    *)   echo &quot;OK   $m : rc=$ec&quot; ;;
+  esac
+done
+# 2) Flux aide minimal (stdout+stderr non vides ou au moins une sortie) — même liste
+for m in $MANS; do
+  f=&quot;core/managers/$m/core/$m.sh&quot;
+  [ -f &quot;$f&quot; ] || continue
+  for sub in &quot;&quot; &quot;help&quot; &quot;-h&quot; &quot;--help&quot;; do
+    out=$(bash -c &quot;. \&quot;$f\&quot; 2&gt;/dev/null; $m $sub &lt;/dev/null&quot; 2&gt;&amp;1) || true
+    n=$(printf &#x27;%s&#x27; &quot;$out&quot; | wc -l)
+    if [ &quot;$n&quot; -gt 0 ]; then
+      echo &quot;OK $m ${sub:-&#x27;(vide)&#x27;}: $n ligne(s)&quot;
+    else
+      echo &quot;WARN $m ${sub:-&#x27;(vide)&#x27;}: sortie vide&quot;
+    fi
+  done
+done">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="cd ~/dotfiles || cd /root/dotfiles" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="export DOTFILES_DIR=&quot;$PWD&quot;" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="# IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="MANS=&quot;gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman&quot;" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="# 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="for m in $MANS; do" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="  f=&quot;core/managers/$m/core/$m.sh&quot;" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="  [ -f &quot;$f&quot; ] || { echo &quot;[SKIP] $m&quot;; continue; }" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="  timeout 3 bash -c &quot;. \&quot;$f\&quot; 2&gt;/dev/null; $m __nonexistent_arg__123 &lt;/dev/null&quot; &gt;/dev/null 2&gt;&amp;1" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="  ec=$?" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="  case &quot;$ec&quot; in" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="    124) echo &quot;FAIL $m : TIMEOUT (boucle ou blocage)&quot; ;;" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="    0)   echo &quot;WARN $m : rc=0 (attendu plutôt ≠0 pour un arg inconnu — à noter)&quot; ;;" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="    *)   echo &quot;OK   $m : rc=$ec&quot; ;;" title="Ligne 14">L14</button> <button type="button" class="copy" data-copy="  esac" title="Ligne 15">L15</button> <button type="button" class="copy" data-copy="done" title="Ligne 16">L16</button> <button type="button" class="copy" data-copy="# 2) Flux aide minimal (stdout+stderr non vides ou au moins une sortie) — même liste" title="Ligne 17">L17</button> <button type="button" class="copy" data-copy="for m in $MANS; do" title="Ligne 18">L18</button> <button type="button" class="copy" data-copy="  f=&quot;core/managers/$m/core/$m.sh&quot;" title="Ligne 19">L19</button> <button type="button" class="copy" data-copy="  [ -f &quot;$f&quot; ] || continue" title="Ligne 20">L20</button> <button type="button" class="copy" data-copy="  for sub in &quot;&quot; &quot;help&quot; &quot;-h&quot; &quot;--help&quot;; do" title="Ligne 21">L21</button> <button type="button" class="copy" data-copy="    out=$(bash -c &quot;. \&quot;$f\&quot; 2&gt;/dev/null; $m $sub &lt;/dev/null&quot; 2&gt;&amp;1) || true" title="Ligne 22">L22</button> <button type="button" class="copy" data-copy="    n=$(printf &#x27;%s&#x27; &quot;$out&quot; | wc -l)" title="Ligne 23">L23</button> <button type="button" class="copy" data-copy="    if [ &quot;$n&quot; -gt 0 ]; then" title="Ligne 24">L24</button> <button type="button" class="copy" data-copy="      echo &quot;OK $m ${sub:-&#x27;(vide)&#x27;}: $n ligne(s)&quot;" title="Ligne 25">L25</button> <button type="button" class="copy" data-copy="    else" title="Ligne 26">L26</button> <button type="button" class="copy" data-copy="      echo &quot;WARN $m ${sub:-&#x27;(vide)&#x27;}: sortie vide&quot;" title="Ligne 27">L27</button> <button type="button" class="copy" data-copy="    fi" title="Ligne 28">L28</button> <button type="button" class="copy" data-copy="  done" title="Ligne 29">L29</button> <button type="button" class="copy" data-copy="done" title="Ligne 30">L30</button></span>
+  </div>
+  <pre><code>cd ~/dotfiles || cd /root/dotfiles
+export DOTFILES_DIR=&quot;$PWD&quot;
+# IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout
+MANS=&quot;gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman&quot;
+# 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
+for m in $MANS; do
+  f=&quot;core/managers/$m/core/$m.sh&quot;
+  [ -f &quot;$f&quot; ] || { echo &quot;[SKIP] $m&quot;; continue; }
+  timeout 3 bash -c &quot;. \&quot;$f\&quot; 2&gt;/dev/null; $m __nonexistent_arg__123 &lt;/dev/null&quot; &gt;/dev/null 2&gt;&amp;1
+  ec=$?
+  case &quot;$ec&quot; in
+    124) echo &quot;FAIL $m : TIMEOUT (boucle ou blocage)&quot; ;;
+    0)   echo &quot;WARN $m : rc=0 (attendu plutôt ≠0 pour un arg inconnu — à noter)&quot; ;;
+    *)   echo &quot;OK   $m : rc=$ec&quot; ;;
+  esac
+done
+# 2) Flux aide minimal (stdout+stderr non vides ou au moins une sortie) — même liste
+for m in $MANS; do
+  f=&quot;core/managers/$m/core/$m.sh&quot;
+  [ -f &quot;$f&quot; ] || continue
+  for sub in &quot;&quot; &quot;help&quot; &quot;-h&quot; &quot;--help&quot;; do
+    out=$(bash -c &quot;. \&quot;$f\&quot; 2&gt;/dev/null; $m $sub &lt;/dev/null&quot; 2&gt;&amp;1) || true
+    n=$(printf &#x27;%s&#x27; &quot;$out&quot; | wc -l)
+    if [ &quot;$n&quot; -gt 0 ]; then
+      echo &quot;OK $m ${sub:-&#x27;(vide)&#x27;}: $n ligne(s)&quot;
+    else
+      echo &quot;WARN $m ${sub:-&#x27;(vide)&#x27;}: sortie vide&quot;
+    fi
+  done
+done</code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=G.0</code>
+  · ligne n : <code>make tests-copy STEP=G.0 LINE=n</code></p>
+</section>
+
+<section class="step" id="G.0.b">
+  <h2>G.0.b — Reproducteur du bug `aliaman --` *(non-TTY)*</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="  cd ~/dotfiles || cd /root/dotfiles
+  for arg in &quot;--&quot; &quot;--bogus&quot; &quot;n-importe-quoi&quot;; do
+    timeout 3 bash -c &quot;. core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null; aliaman $arg &lt;/dev/null&quot; &gt;/tmp/aliaman_$$.out 2&gt;&amp;1
+    ec=$?
+    if [ &quot;$ec&quot; -eq 124 ]; then
+      echo &quot;FAIL aliaman &#x27;$arg&#x27; : TIMEOUT&quot;
+    elif [ &quot;$ec&quot; -eq 0 ]; then
+      echo &quot;WARN aliaman &#x27;$arg&#x27; : rc=0 (attendu ≠0)&quot;
+    else
+      echo &quot;OK   aliaman &#x27;$arg&#x27; : rc=$ec ($(wc -l &lt;/tmp/aliaman_$$.out) ligne(s) émises)&quot;
+    fi
+    rm -f /tmp/aliaman_$$.out
+  done">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="  cd ~/dotfiles || cd /root/dotfiles" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="  for arg in &quot;--&quot; &quot;--bogus&quot; &quot;n-importe-quoi&quot;; do" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="    timeout 3 bash -c &quot;. core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null; aliaman $arg &lt;/dev/null&quot; &gt;/tmp/aliaman_$$.out 2&gt;&amp;1" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="    ec=$?" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="    if [ &quot;$ec&quot; -eq 124 ]; then" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="      echo &quot;FAIL aliaman &#x27;$arg&#x27; : TIMEOUT&quot;" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="    elif [ &quot;$ec&quot; -eq 0 ]; then" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="      echo &quot;WARN aliaman &#x27;$arg&#x27; : rc=0 (attendu ≠0)&quot;" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="    else" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="      echo &quot;OK   aliaman &#x27;$arg&#x27; : rc=$ec ($(wc -l &lt;/tmp/aliaman_$$.out) ligne(s) émises)&quot;" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="    fi" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="    rm -f /tmp/aliaman_$$.out" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="  done" title="Ligne 13">L13</button></span>
+  </div>
+  <pre><code>  cd ~/dotfiles || cd /root/dotfiles
+  for arg in &quot;--&quot; &quot;--bogus&quot; &quot;n-importe-quoi&quot;; do
+    timeout 3 bash -c &quot;. core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null; aliaman $arg &lt;/dev/null&quot; &gt;/tmp/aliaman_$$.out 2&gt;&amp;1
+    ec=$?
+    if [ &quot;$ec&quot; -eq 124 ]; then
+      echo &quot;FAIL aliaman &#x27;$arg&#x27; : TIMEOUT&quot;
+    elif [ &quot;$ec&quot; -eq 0 ]; then
+      echo &quot;WARN aliaman &#x27;$arg&#x27; : rc=0 (attendu ≠0)&quot;
+    else
+      echo &quot;OK   aliaman &#x27;$arg&#x27; : rc=$ec ($(wc -l &lt;/tmp/aliaman_$$.out) ligne(s) émises)&quot;
+    fi
+    rm -f /tmp/aliaman_$$.out
+  done</code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=G.0.b</code>
+  · ligne n : <code>make tests-copy STEP=G.0.b LINE=n</code></p>
+</section>
+
+<section class="step" id="G.0.c">
+  <h2>G.0.c — Smoke `aliaman` (search / list) en non-TTY</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null
+  echo &quot;--- list (3 premières lignes) ---&quot;
+  aliaman list &lt;/dev/null 2&gt;&amp;1 | head -n 3
+  echo &quot;--- search &#x27;ls&#x27; (3 premières lignes) ---&quot;
+  aliaman search ls &lt;/dev/null 2&gt;&amp;1 | head -n 3
+  echo &quot;--- find (synonyme) &#x27;cd&#x27; ---&quot;
+  aliaman find cd &lt;/dev/null 2&gt;&amp;1 | head -n 3
+cd ~/dotfiles || cd /root/dotfiles
+. core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null
+aliaman list &lt;/dev/null 2&gt;&amp;1 | head -n 3
+aliaman search ls &lt;/dev/null 2&gt;&amp;1 | head -n 3
+aliaman find cd &lt;/dev/null 2&gt;&amp;1 | head -n 3">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="  cd ~/dotfiles || cd /root/dotfiles" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="  . core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="  echo &quot;--- list (3 premières lignes) ---&quot;" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="  aliaman list &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="  echo &quot;--- search &#x27;ls&#x27; (3 premières lignes) ---&quot;" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="  aliaman search ls &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="  echo &quot;--- find (synonyme) &#x27;cd&#x27; ---&quot;" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="  aliaman find cd &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="cd ~/dotfiles || cd /root/dotfiles" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy=". core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="aliaman list &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="aliaman search ls &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="aliaman find cd &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 13">L13</button></span>
+  </div>
+  <pre><code>  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null
+  echo &quot;--- list (3 premières lignes) ---&quot;
+  aliaman list &lt;/dev/null 2&gt;&amp;1 | head -n 3
+  echo &quot;--- search &#x27;ls&#x27; (3 premières lignes) ---&quot;
+  aliaman search ls &lt;/dev/null 2&gt;&amp;1 | head -n 3
+  echo &quot;--- find (synonyme) &#x27;cd&#x27; ---&quot;
+  aliaman find cd &lt;/dev/null 2&gt;&amp;1 | head -n 3
+cd ~/dotfiles || cd /root/dotfiles
+. core/managers/aliaman/core/aliaman.sh 2&gt;/dev/null
+aliaman list &lt;/dev/null 2&gt;&amp;1 | head -n 3
+aliaman search ls &lt;/dev/null 2&gt;&amp;1 | head -n 3
+aliaman find cd &lt;/dev/null 2&gt;&amp;1 | head -n 3</code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=G.0.c</code>
+  · ligne n : <code>make tests-copy STEP=G.0.c LINE=n</code></p>
+</section>
+
+<section class="step" id="G.0.d">
+  <h2>G.0.d — Smoke `displayman` (DDC en lecture seule, non destructif) *(non-TTY)*</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/displayman/core/displayman.sh 2&gt;/dev/null
+
+  echo &quot;--- 1) no-args (aide stdout) ---&quot;
+  displayman &lt;/dev/null 2&gt;&amp;1 | head -n 6
+  echo &quot;--- 2) help (idem) ---&quot;
+  displayman help &lt;/dev/null 2&gt;&amp;1 | head -n 3
+  echo &quot;--- 3) arg inconnu (stderr + rc1) ---&quot;
+  displayman __bogus__ &lt;/dev/null
+  echo &quot;rc=$?  (attendu: 1)&quot;
+  echo &quot;--- 4) range (diagnostic GPU + texte explicatif) ---&quot;
+  displayman range &lt;/dev/null 2&gt;&amp;1 | head -n 8
+  echo &quot;--- 5) osd-guide (texte statique) ---&quot;
+  displayman osd-guide &lt;/dev/null 2&gt;&amp;1 | head -n 5
+  if command -v ddcutil &gt;/dev/null 2&gt;&amp;1; then
+    echo &quot;--- 6) detect (ddcutil dispo) ---&quot;
+    timeout 30 bash -c &#x27;. core/managers/displayman/core/displayman.sh 2&gt;/dev/null; displayman detect&#x27; &lt;/dev/null 2&gt;&amp;1 | head -n 6
+    echo &quot;--- 7) dump 1 (lecture VCP, ne modifie rien) ---&quot;
+    timeout 60 bash -c &#x27;. core/managers/displayman/core/displayman.sh 2&gt;/dev/null; displayman dump 1&#x27; &lt;/dev/null 2&gt;&amp;1 | head -n 12
+  else
+    echo &quot;--- 6/7) ddcutil non installé → skip DDC ---&quot;
+  fi">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="  cd ~/dotfiles || cd /root/dotfiles" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="  . core/managers/displayman/core/displayman.sh 2&gt;/dev/null" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="  echo &quot;--- 1) no-args (aide stdout) ---&quot;" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="  displayman &lt;/dev/null 2&gt;&amp;1 | head -n 6" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="  echo &quot;--- 2) help (idem) ---&quot;" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="  displayman help &lt;/dev/null 2&gt;&amp;1 | head -n 3" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="  echo &quot;--- 3) arg inconnu (stderr + rc1) ---&quot;" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="  displayman __bogus__ &lt;/dev/null" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="  echo &quot;rc=$?  (attendu: 1)&quot;" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="  echo &quot;--- 4) range (diagnostic GPU + texte explicatif) ---&quot;" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="  displayman range &lt;/dev/null 2&gt;&amp;1 | head -n 8" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="  echo &quot;--- 5) osd-guide (texte statique) ---&quot;" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="  displayman osd-guide &lt;/dev/null 2&gt;&amp;1 | head -n 5" title="Ligne 14">L14</button> <button type="button" class="copy" data-copy="  if command -v ddcutil &gt;/dev/null 2&gt;&amp;1; then" title="Ligne 15">L15</button> <button type="button" class="copy" data-copy="    echo &quot;--- 6) detect (ddcutil dispo) ---&quot;" title="Ligne 16">L16</button> <button type="button" class="copy" data-copy="    timeout 30 bash -c &#x27;. core/managers/displayman/core/displayman.sh 2&gt;/dev/null; displayman detect&#x27; &lt;/dev/null 2&gt;&amp;1 | head -n 6" title="Ligne 17">L17</button> <button type="button" class="copy" data-copy="    echo &quot;--- 7) dump 1 (lecture VCP, ne modifie rien) ---&quot;" title="Ligne 18">L18</button> <button type="button" class="copy" data-copy="    timeout 60 bash -c &#x27;. core/managers/displayman/core/displayman.sh 2&gt;/dev/null; displayman dump 1&#x27; &lt;/dev/null 2&gt;&amp;1 | head -n 12" title="Ligne 19">L19</button> <button type="button" class="copy" data-copy="  else" title="Ligne 20">L20</button> <button type="button" class="copy" data-copy="    echo &quot;--- 6/7) ddcutil non installé → skip DDC ---&quot;" title="Ligne 21">L21</button> <button type="button" class="copy" data-copy="  fi" title="Ligne 22">L22</button></span>
+  </div>
+  <pre><code>  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/displayman/core/displayman.sh 2&gt;/dev/null
+
+  echo &quot;--- 1) no-args (aide stdout) ---&quot;
+  displayman &lt;/dev/null 2&gt;&amp;1 | head -n 6
+  echo &quot;--- 2) help (idem) ---&quot;
+  displayman help &lt;/dev/null 2&gt;&amp;1 | head -n 3
+  echo &quot;--- 3) arg inconnu (stderr + rc1) ---&quot;
+  displayman __bogus__ &lt;/dev/null
+  echo &quot;rc=$?  (attendu: 1)&quot;
+  echo &quot;--- 4) range (diagnostic GPU + texte explicatif) ---&quot;
+  displayman range &lt;/dev/null 2&gt;&amp;1 | head -n 8
+  echo &quot;--- 5) osd-guide (texte statique) ---&quot;
+  displayman osd-guide &lt;/dev/null 2&gt;&amp;1 | head -n 5
+  if command -v ddcutil &gt;/dev/null 2&gt;&amp;1; then
+    echo &quot;--- 6) detect (ddcutil dispo) ---&quot;
+    timeout 30 bash -c &#x27;. core/managers/displayman/core/displayman.sh 2&gt;/dev/null; displayman detect&#x27; &lt;/dev/null 2&gt;&amp;1 | head -n 6
+    echo &quot;--- 7) dump 1 (lecture VCP, ne modifie rien) ---&quot;
+    timeout 60 bash -c &#x27;. core/managers/displayman/core/displayman.sh 2&gt;/dev/null; displayman dump 1&#x27; &lt;/dev/null 2&gt;&amp;1 | head -n 12
+  else
+    echo &quot;--- 6/7) ddcutil non installé → skip DDC ---&quot;
+  fi</code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=G.0.d</code>
+  · ligne n : <code>make tests-copy STEP=G.0.d LINE=n</code></p>
+</section>
+
+<section class="step" id="G.0.e">
+  <h2>G.0.e — Smoke `diffman` (compare / side / report, non-TTY)</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/diffman/core/diffman.sh 2&gt;/dev/null
+  echo &quot;--- 1) help ---&quot;
+  diffman help &lt;/dev/null 2&gt;&amp;1 | head -n 4
+  echo &quot;--- 2) arg inconnu ---&quot;
+  diffman __bogus__ &lt;/dev/null 2&gt;&amp;1
+  echo &quot;rc=$?  (attendu: 1)&quot;
+  echo &quot;--- 3) compare (identiques) ---&quot;
+  diffman compare README.md README.md &lt;/dev/null; echo &quot;rc=$?&quot;
+  echo &quot;--- 4) side (identiques) ---&quot;
+  diffman side README.md README.md &lt;/dev/null 2&gt;&amp;1 | head -n 3; echo &quot;rc=$?&quot;
+  echo &quot;--- 5) report ---&quot;
+  diffman report --out /tmp/diffman_g0e.txt README.md README.md &lt;/dev/null
+  test -s /tmp/diffman_g0e.txt &amp;&amp; echo &quot;rapport OK ($(wc -l &lt;/tmp/diffman_g0e.txt) lignes)&quot;">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="  cd ~/dotfiles || cd /root/dotfiles" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="  . core/managers/diffman/core/diffman.sh 2&gt;/dev/null" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="  echo &quot;--- 1) help ---&quot;" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="  diffman help &lt;/dev/null 2&gt;&amp;1 | head -n 4" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="  echo &quot;--- 2) arg inconnu ---&quot;" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="  diffman __bogus__ &lt;/dev/null 2&gt;&amp;1" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="  echo &quot;rc=$?  (attendu: 1)&quot;" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="  echo &quot;--- 3) compare (identiques) ---&quot;" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="  diffman compare README.md README.md &lt;/dev/null; echo &quot;rc=$?&quot;" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="  echo &quot;--- 4) side (identiques) ---&quot;" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="  diffman side README.md README.md &lt;/dev/null 2&gt;&amp;1 | head -n 3; echo &quot;rc=$?&quot;" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="  echo &quot;--- 5) report ---&quot;" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="  diffman report --out /tmp/diffman_g0e.txt README.md README.md &lt;/dev/null" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="  test -s /tmp/diffman_g0e.txt &amp;&amp; echo &quot;rapport OK ($(wc -l &lt;/tmp/diffman_g0e.txt) lignes)&quot;" title="Ligne 14">L14</button></span>
+  </div>
+  <pre><code>  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/diffman/core/diffman.sh 2&gt;/dev/null
+  echo &quot;--- 1) help ---&quot;
+  diffman help &lt;/dev/null 2&gt;&amp;1 | head -n 4
+  echo &quot;--- 2) arg inconnu ---&quot;
+  diffman __bogus__ &lt;/dev/null 2&gt;&amp;1
+  echo &quot;rc=$?  (attendu: 1)&quot;
+  echo &quot;--- 3) compare (identiques) ---&quot;
+  diffman compare README.md README.md &lt;/dev/null; echo &quot;rc=$?&quot;
+  echo &quot;--- 4) side (identiques) ---&quot;
+  diffman side README.md README.md &lt;/dev/null 2&gt;&amp;1 | head -n 3; echo &quot;rc=$?&quot;
+  echo &quot;--- 5) report ---&quot;
+  diffman report --out /tmp/diffman_g0e.txt README.md README.md &lt;/dev/null
+  test -s /tmp/diffman_g0e.txt &amp;&amp; echo &quot;rapport OK ($(wc -l &lt;/tmp/diffman_g0e.txt) lignes)&quot;</code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=G.0.e</code>
+  · ligne n : <code>make tests-copy STEP=G.0.e LINE=n</code></p>
+</section>
+
+<section class="step" id="G.0.f">
+  <h2>G.0.f — Smoke `diskman` (diagnostic disque, non destructif) *(non-TTY)*</h2>
+  <div class="toolbar">
+    <button type="button" class="copy primary" data-copy="  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/diskman/core/diskman.sh 2&gt;/dev/null
+  echo &quot;--- 1) help ---&quot;
+  diskman help &lt;/dev/null 2&gt;&amp;1 | head -n 5
+  echo &quot;--- 2) arg inconnu ---&quot;
+  diskman __bogus__ &lt;/dev/null 2&gt;&amp;1
+  echo &quot;rc=$?  (attendu: 1)&quot;
+  echo &quot;--- 3) overview ---&quot;
+  diskman overview &lt;/dev/null 2&gt;&amp;1 | head -n 12
+  echo &quot;--- 4) usage . 1 ---&quot;
+  diskman usage . 1 &lt;/dev/null 2&gt;&amp;1 | head -n 8
+  echo &quot;--- 5) biggest . 5 ---&quot;
+  diskman biggest . 5 &lt;/dev/null 2&gt;&amp;1 | head -n 8
+  echo &quot;--- 6) clean dry-run ---&quot;
+  diskman clean --dry-run all &lt;/dev/null 2&gt;&amp;1 | head -n 20
+  echo &quot;--- 7) report ---&quot;
+  diskman report /tmp/diskman_g0f.txt &lt;/dev/null
+  test -s /tmp/diskman_g0f.txt &amp;&amp; echo &quot;rapport OK ($(wc -l &lt;/tmp/diskman_g0f.txt) lignes)&quot;
+cd ~/dotfiles &amp;&amp; . core/managers/pathman/core/pathman.sh 2&gt;/dev/null &amp;&amp; pathman help &lt;/dev/null 2&gt;&amp;1 | head -n 8">📋 Bloc complet</button>
+    <span class="lines">Lignes : <button type="button" class="copy" data-copy="  cd ~/dotfiles || cd /root/dotfiles" title="Ligne 1">L1</button> <button type="button" class="copy" data-copy="  . core/managers/diskman/core/diskman.sh 2&gt;/dev/null" title="Ligne 2">L2</button> <button type="button" class="copy" data-copy="  echo &quot;--- 1) help ---&quot;" title="Ligne 3">L3</button> <button type="button" class="copy" data-copy="  diskman help &lt;/dev/null 2&gt;&amp;1 | head -n 5" title="Ligne 4">L4</button> <button type="button" class="copy" data-copy="  echo &quot;--- 2) arg inconnu ---&quot;" title="Ligne 5">L5</button> <button type="button" class="copy" data-copy="  diskman __bogus__ &lt;/dev/null 2&gt;&amp;1" title="Ligne 6">L6</button> <button type="button" class="copy" data-copy="  echo &quot;rc=$?  (attendu: 1)&quot;" title="Ligne 7">L7</button> <button type="button" class="copy" data-copy="  echo &quot;--- 3) overview ---&quot;" title="Ligne 8">L8</button> <button type="button" class="copy" data-copy="  diskman overview &lt;/dev/null 2&gt;&amp;1 | head -n 12" title="Ligne 9">L9</button> <button type="button" class="copy" data-copy="  echo &quot;--- 4) usage . 1 ---&quot;" title="Ligne 10">L10</button> <button type="button" class="copy" data-copy="  diskman usage . 1 &lt;/dev/null 2&gt;&amp;1 | head -n 8" title="Ligne 11">L11</button> <button type="button" class="copy" data-copy="  echo &quot;--- 5) biggest . 5 ---&quot;" title="Ligne 12">L12</button> <button type="button" class="copy" data-copy="  diskman biggest . 5 &lt;/dev/null 2&gt;&amp;1 | head -n 8" title="Ligne 13">L13</button> <button type="button" class="copy" data-copy="  echo &quot;--- 6) clean dry-run ---&quot;" title="Ligne 14">L14</button> <button type="button" class="copy" data-copy="  diskman clean --dry-run all &lt;/dev/null 2&gt;&amp;1 | head -n 20" title="Ligne 15">L15</button> <button type="button" class="copy" data-copy="  echo &quot;--- 7) report ---&quot;" title="Ligne 16">L16</button> <button type="button" class="copy" data-copy="  diskman report /tmp/diskman_g0f.txt &lt;/dev/null" title="Ligne 17">L17</button> <button type="button" class="copy" data-copy="  test -s /tmp/diskman_g0f.txt &amp;&amp; echo &quot;rapport OK ($(wc -l &lt;/tmp/diskman_g0f.txt) lignes)&quot;" title="Ligne 18">L18</button> <button type="button" class="copy" data-copy="cd ~/dotfiles &amp;&amp; . core/managers/pathman/core/pathman.sh 2&gt;/dev/null &amp;&amp; pathman help &lt;/dev/null 2&gt;&amp;1 | head -n 8" title="Ligne 19">L19</button></span>
+  </div>
+  <pre><code>  cd ~/dotfiles || cd /root/dotfiles
+  . core/managers/diskman/core/diskman.sh 2&gt;/dev/null
+  echo &quot;--- 1) help ---&quot;
+  diskman help &lt;/dev/null 2&gt;&amp;1 | head -n 5
+  echo &quot;--- 2) arg inconnu ---&quot;
+  diskman __bogus__ &lt;/dev/null 2&gt;&amp;1
+  echo &quot;rc=$?  (attendu: 1)&quot;
+  echo &quot;--- 3) overview ---&quot;
+  diskman overview &lt;/dev/null 2&gt;&amp;1 | head -n 12
+  echo &quot;--- 4) usage . 1 ---&quot;
+  diskman usage . 1 &lt;/dev/null 2&gt;&amp;1 | head -n 8
+  echo &quot;--- 5) biggest . 5 ---&quot;
+  diskman biggest . 5 &lt;/dev/null 2&gt;&amp;1 | head -n 8
+  echo &quot;--- 6) clean dry-run ---&quot;
+  diskman clean --dry-run all &lt;/dev/null 2&gt;&amp;1 | head -n 20
+  echo &quot;--- 7) report ---&quot;
+  diskman report /tmp/diskman_g0f.txt &lt;/dev/null
+  test -s /tmp/diskman_g0f.txt &amp;&amp; echo &quot;rapport OK ($(wc -l &lt;/tmp/diskman_g0f.txt) lignes)&quot;
+cd ~/dotfiles &amp;&amp; . core/managers/pathman/core/pathman.sh 2&gt;/dev/null &amp;&amp; pathman help &lt;/dev/null 2&gt;&amp;1 | head -n 8</code></pre>
+  <p class="cli">CLI : <code>make tests-copy STEP=G.0.f</code>
+  · ligne n : <code>make tests-copy STEP=G.0.f LINE=n</code></p>
+</section>
+  <div id="toast">Copié</div>
+  <script>
+    const toast = document.getElementById('toast');
+    function showToast() {
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 1200);
+    }
+    document.querySelectorAll('button.copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const text = btn.getAttribute('data-copy');
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.classList.add('ok');
+          setTimeout(() => btn.classList.remove('ok'), 800);
+          showToast();
+        } catch (e) {
+          alert('Copie impossible : ' + e);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

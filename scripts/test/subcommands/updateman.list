@@ -8,3 +8,8 @@ arch fix-cache
 arch clean-hints
 cursor help
 cursor check
+cursor status
+docker status
+docker check
+brave status
+brave check

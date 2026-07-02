@@ -80,16 +80,16 @@ get_current_version() {
                     [[ -n "$cur" ]] && { echo "$cur"; return 0; }
                 fi
             done
-            if [[ -f /usr/share/cursor/resources/app/product.json ]]; then
-                grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' /usr/share/cursor/resources/app/product.json 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown"
-                return 0
-            fi
             for df in "$HOME/.local/share/applications/cursor.desktop" /usr/share/applications/cursor.desktop; do
                 if [[ -f "$df" ]] && grep -qE '^Version=' "$df" 2>/dev/null; then
                     grep -m1 '^Version=' "$df" | cut -d= -f2- | tr -d ' \n\r' || echo "unknown"
                     return 0
                 fi
             done
+            if [[ -f /usr/share/cursor/resources/app/product.json ]]; then
+                grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' /usr/share/cursor/resources/app/product.json 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown"
+                return 0
+            fi
             for vf in "$HOME/Applications"/Cursor*.AppImage "$HOME/Applications"/cursor*.AppImage /opt/cursor.appimage; do
                 [[ -f "$vf" ]] || continue
                 cur="$(basename "$vf")"

@@ -90,8 +90,10 @@ updateman cursor check                                 # compare version locale 
 | Outil | Timer | Auto apres `installman` | Mise a jour |
 |-------|-------|-------------------------|-------------|
 | cursor | `cursor-update.timer` | oui (`auto_service=1`) | AppImage via API officielle |
+| docker | *(aucun)* | non | Paquets depot (`pkg_backend`) |
+| brave | *(aucun)* | non | Paquets depot (`pkg_backend`) |
 
-*(Extension P8c : docker, brave, … — une ligne registre + unites `systemd/user/` par outil.)*
+*(Extension P8c : timers systemd optionnels pour docker/brave plus tard.)*
 
 ## Commandes globales
 
@@ -136,7 +138,8 @@ Backends pris en charge : pacman, yay, paru, apt, dnf, yum, tdnf, microdnf, apk,
 | `updateman cursor check` | Compare version locale et release stable de l'API Cursor. |
 | `updateman cursor install` | Installe les unites systemd user ; supprime l'ancien `~/.local/bin/update-cursor-appimage`. |
 | `updateman cursor enable` | Installe puis active `cursor-update.timer`. |
-| `updateman cursor status` | Statut du timer. |
+| `updateman cursor status` | **Statut complet** : installation, versions locale/distante, maj?, emplacement, timer (etat, prochain run, dernier service). Option `--verbose` pour le detail systemd. |
+| `updateman cursor status --verbose` | Idem + sortie `systemctl --user status` du timer. |
 | `updateman cursor logs` | Logs du service. |
 
 ## Fermeture de Cursor

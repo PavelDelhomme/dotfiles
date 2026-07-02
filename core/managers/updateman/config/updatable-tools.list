@@ -2,3 +2,5 @@
 # Format: name|check_fn|timer_unit|auto_service|update_kind
 # update_kind: cursor_appimage (API api2.cursor.sh + script scripts/update/update-cursor-appimage)
 cursor|check_cursor_installed|cursor-update.timer|1|cursor_appimage
+docker|check_docker_installed|-|0|pkg
+brave|check_brave_installed|-|0|pkg

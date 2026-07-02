@@ -280,3 +280,88 @@ pkg_backend_upgrade_all() {
     _has snap && _run snap
     return "$_rc"
 }
+
+# Noms de paquets / patterns par outil registre (update_kind=pkg)
+pkg_backend_tool_package_patterns() {
+    case "$1" in
+        docker) printf '%s' 'docker docker.io docker-ce docker-ce-cli containerd.io' ;;
+        brave)  printf '%s' 'brave-bin brave-browser com.brave.Browser' ;;
+        *) return 1 ;;
+    esac
+}
+
+pkg_backend_tool_has_pending_update() {
+    _pbt_tool="$1"
+    _pbt_patterns="$(pkg_backend_tool_package_patterns "$_pbt_tool")" || return 1
+    for _pbt_b in $(pkg_backend_list); do
+        _pbt_pending="$(pkg_backend_pending "$_pbt_b" 2>/dev/null)" || continue
+        for _pbt_p in $_pbt_patterns; do
+            if printf '%s\n' "$_pbt_pending" | grep -qiE "(^|[ /\"'])${_pbt_p}([ /\"'|]|$)"; then
+                return 0
+            fi
+        done
+    done
+    return 1
+}
+
+pkg_backend_upgrade_registered_tool() {
+    _pbt_tool="$1"
+    _pbt_patterns="$(pkg_backend_tool_package_patterns "$_pbt_tool")" || return 1
+    _pbt_distro="$(dotfiles_detect_distro 2>/dev/null || echo unknown)"
+    _pbt_list="$(pkg_backend_list)"
+    _pbt_has() { case " $_pbt_list " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
+
+    pkg_backend_refresh_all || true
+
+    case "$_pbt_distro" in
+        arch)
+            if _pbt_has yay; then
+                for _pbt_p in $_pbt_patterns; do
+                    if yay -Qu "$_pbt_p" >/dev/null 2>&1; then
+                        yay -S --noconfirm "$_pbt_p"
+                        return $?
+                    fi
+                done
+            fi
+            if _pbt_has pacman; then
+                for _pbt_p in $_pbt_patterns; do
+                    if pacman -Qu "$_pbt_p" >/dev/null 2>&1; then
+                        sudo pacman -S --noconfirm "$_pbt_p"
+                        return $?
+                    fi
+                done
+            fi
+            ;;
+        debian)
+            if _pbt_has apt; then
+                for _pbt_p in $_pbt_patterns; do
+                    if apt list --upgradable 2>/dev/null | grep -qiE "(^|[ /])${_pbt_p}([ /]|$)"; then
+                        if [ "$(id -u)" -eq 0 ]; then
+                            DEBIAN_FRONTEND=noninteractive apt-get install --only-upgrade -y "$_pbt_p"
+                        else
+                            sudo DEBIAN_FRONTEND=noninteractive apt-get install --only-upgrade -y "$_pbt_p"
+                        fi
+                        return $?
+                    fi
+                done
+            fi
+            ;;
+        fedora|rhel)
+            if _pbt_has dnf; then
+                for _pbt_p in $_pbt_patterns; do
+                    if dnf -q check-update "$_pbt_p" >/dev/null 2>&1; then
+                        if [ "$(id -u)" -eq 0 ]; then dnf upgrade -y "$_pbt_p"; else sudo dnf upgrade -y "$_pbt_p"; fi
+                        return $?
+                    fi
+                done
+            fi
+            ;;
+    esac
+
+    if pkg_backend_tool_has_pending_update "$_pbt_tool"; then
+        printf "${YELLOW}Mise a jour detectee mais cible non resolue — lance:${RESET} updateman system update\n" >&2
+        return 1
+    fi
+    printf "${GREEN}A jour (depot) — aucun paquet en attente pour %s.${RESET}\n" "$_pbt_tool"
+    return 0
+}

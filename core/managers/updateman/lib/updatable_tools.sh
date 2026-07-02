@@ -79,3 +79,9 @@ updatable_tool_auto_service_enabled() {
     _ut_line="$(updatable_tool_find "$1")"
     [ "$(updatable_tool_field "$_ut_line" 4)" = "1" ]
 }
+
+updatable_tool_update_kind() {
+    _ut_line="$(updatable_tool_find "$1")"
+    _ut_kind="$(updatable_tool_field "$_ut_line" 5)"
+    [ -n "$_ut_kind" ] && [ "$_ut_kind" != "-" ] && printf '%s' "$_ut_kind" || printf '%s' "unknown"
+}
