@@ -16,7 +16,14 @@ esac
 echo "OK tool_release cursor $TOOL_RELEASE_VERSION"
 
 . "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"
-updateman cursor check </dev/null >/dev/null
+_check_out="$(updateman cursor check </dev/null 2>&1)" || _check_rc=$?
+printf '%s\n' "$_check_out"
+if [ "${_check_rc:-0}" -ne 0 ]; then
+    printf '%s\n' "$_check_out" | grep -q "Cursor non detecte" || {
+        echo "FAIL: updateman cursor check (rc=${_check_rc:-?})"
+        exit 1
+    }
+fi
 echo "OK updateman cursor check"
 
 echo "OK smoke cursor release"
