@@ -262,6 +262,35 @@ installman emacs
 
 **Documentation :** `help installman` ou `man installman`
 
+**Mises a jour automatiques :** apres installation, les outils du registre **updateman** peuvent etre mis a jour seuls via un timer `systemd --user`. Voir [`docs/man/updateman.md`](../man/updateman.md) section *Mises a jour automatiques*.
+
+```bash
+updateman status              # vue d'ensemble (versions + timers)
+updateman cursor enable         # activer le timer quotidien Cursor (pas "enabled")
+updateman cursor status         # timer actif ou inactive ?
+updateman cursor logs           # dernier run du service
+updateman cursor                # mise a jour immediate (fermer Cursor si demande)
+updateman all                   # paquets systeme + outils du registre installes
+```
+
+Si `installman cursor` a reussi avec `auto_service=1`, le timer est normalement **deja active** ; sinon lancer **`updateman cursor enable`** une fois.
+
+### 🔄 Updateman - Gestionnaire de mises a jour
+
+Centralise les mises a jour des outils installes via **installman** et des paquets systeme (multi-distro).
+
+**Documentation complete :** [`docs/man/updateman.md`](../man/updateman.md)
+
+**Commandes essentielles :**
+
+| Commande | Usage |
+|----------|--------|
+| `updateman status` | Versions, maj disponibles, etat des timers |
+| `updateman all` | Refresh/upgrade systeme + outils du registre |
+| `updateman system status` | Distro detectee, backends, pending |
+| `updateman cursor enable` | **Activer** le timer auto Cursor |
+| `updateman cursor check` | Comparer version locale vs API (non destructif) |
+
 ### 🎯 Manman - Manager of Managers
 
 Gestionnaire centralisé pour accéder à tous les autres gestionnaires.

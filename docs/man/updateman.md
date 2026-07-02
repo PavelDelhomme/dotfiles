@@ -44,6 +44,55 @@ Format : `nom|fonction_check|timer_systemd|auto_service`
 
 Pour ajouter un outil : une ligne dans le registre + handler dans `updateman` + module `installman` si besoin.
 
+## Mises a jour automatiques (timers systemd)
+
+Les outils du **registre** peuvent etre mis a jour en arriere-plan via des unites **`systemd --user`** (timer + service). La commande publique est toujours **`updateman <outil> enable`** (pas `enabled`).
+
+### Flux recommande
+
+| Etape | Commande | Effet |
+|-------|----------|-------|
+| 1. Installer | `installman cursor` (ou autre outil du registre) | Installe l'outil ; si `auto_service=1` dans le registre, **`installman` appelle automatiquement** `updateman <outil> enable` a la fin. |
+| 2. Activer le timer (manuel) | `updateman cursor enable` | Copie `cursor-update.service` + `.timer` dans `~/.config/systemd/user/`, puis `systemctl --user enable --now cursor-update.timer`. |
+| 3. Verifier | `updateman status` | Tableau : version locale, maj disponible, **etat du timer** (`active` / `inactive`). |
+| 4. Detail timer | `updateman cursor status` | Equivalent cible sur un seul outil. |
+| 5. Logs | `updateman cursor logs` | Journal du dernier declenchement (`journalctl --user -u cursor-update.service`). |
+| 6. Mise a jour immediate | `updateman cursor` | Lance l'updater maintenant (independamment du timer). |
+
+### Pattern generique (tout outil du registre)
+
+```text
+updateman <outil> install    # copie les unites systemd user (si definies)
+updateman <outil> enable     # installe + active le timer
+updateman <outil> status     # etat du timer
+updateman <outil> logs       # logs du service
+updateman <outil>            # mise a jour manuelle immediate
+```
+
+Exemples : `updateman cursor enable`, `updateman docker enable` *(quand docker sera dans le registre — voir P8c)*.
+
+### Desactiver / diagnostic
+
+```bash
+systemctl --user disable --now cursor-update.timer   # arreter le timer Cursor
+systemctl --user list-timers --all | grep cursor       # prochain declenchement
+updateman cursor check                                 # compare version locale vs API (sans telecharger)
+```
+
+### Comportement timer Cursor
+
+- Declenchement quotidien via `cursor-update.timer` → execute `updateman cursor run`.
+- **Ne tue pas Cursor** sans confirmation : si l'IDE est ouvert, le service echoue proprement et reessaie au prochain creneau.
+- En terminal interactif, `updateman cursor` propose de fermer Cursor avant de remplacer l'AppImage.
+
+### Registre actuel (timers)
+
+| Outil | Timer | Auto apres `installman` | Mise a jour |
+|-------|-------|-------------------------|-------------|
+| cursor | `cursor-update.timer` | oui (`auto_service=1`) | AppImage via API officielle |
+
+*(Extension P8c : docker, brave, … — une ligne registre + unites `systemd/user/` par outil.)*
+
 ## Commandes globales
 
 | Commande | Effet |
