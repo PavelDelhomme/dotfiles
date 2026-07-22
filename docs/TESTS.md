@@ -1604,7 +1604,7 @@ Depuis la racine des dotfiles (`cd ~/dotfiles` ou `/root/dotfiles` dans le conte
 cd ~/dotfiles || cd /root/dotfiles
 export DOTFILES_DIR="$PWD"
 # IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout
-MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman anonyman"
+MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman anonyman shellman"
 # 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
 for m in $MANS; do
   f="core/managers/$m/core/$m.sh"
@@ -1895,9 +1895,28 @@ bash -c '
 - **`[x]`** *(smoke agent 2026-07-22)* · **Conforme** : O · **Notes** : pas de `proxy refresh` / `tor start` / `i2p enable` sur l’hôte dans ce smoke.
 - **Assistant (relecture)** : O — suite **G.28**.
 
+### Étape G.0.h — Smoke `shellman` + `manman list` (non-TTY)
+
+```bash
+bash -c '
+  set +o pipefail
+  cd ~/dotfiles || exit 1
+  . core/managers/shellman/core/shellman.sh
+  shellman help </dev/null 2>&1 | head -n 8
+  shellman status </dev/null 2>&1 | head -n 10
+  shellman list </dev/null 2>&1 | head -n 12
+  shellman use fish --session </dev/null 2>&1 | head -n 3
+  . core/managers/manman/core/manman.sh
+  manman list </dev/null 2>&1 | head -n 20
+'
+```
+
+- **Attendu** : helpman en premiere ligne du catalogue ; icones `[?]` ASCII ; shellman use --session en non-TTY = simulation sans exec.
+- **`[x]`** *(2026-07-22)* · **Conforme** : O
+
 ---
 
-Pour **chaque** ligne du tableau **G.1–G.28** (smoke manuel complémentaire), même modèle :
+Pour **chaque** ligne du tableau **G.1–G.29** (smoke manuel complémentaire), même modèle :
 
 - **Commande** : `<manager> help` en non-TTY *(charger le core POSIX puis aide)* :
 
@@ -1941,6 +1960,7 @@ bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.
 | G.26 | diskman | [x] | `diskman help` : df -hT puis DISKMAN — diagnostic… | O | EXT-008 : en-tête df normal sur cette machine | O |
 | G.27 | updateman | [x] | UPDATEMAN — system status / all / cursor… | O | + `make test-updateman-system-smoke` Docker | O |
 | G.28 | anonyman | [x] | ANONYMAN — status/check/tor/i2p/proxy | O | Smoke `make tests-smoke-manager MANAGER=anonyman` *(2026-07-22)* ; alias anonymman | O |
+| G.29 | shellman | [x] | SHELLMAN — status/list/use --session|user|system | O | Smoke 2026-07-22 ; manman list : helpman #1 | O |
 
 **Approfondir** : pour chaque fichier `scripts/test/subcommands/<manager>.list`, ajouter des lignes **G.x.y** dans tes **Notes** ou une annexe perso — c’est la voie pour se rapprocher d’une couverture « chaque sous-commande ».
 

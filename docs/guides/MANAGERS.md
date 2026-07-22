@@ -451,7 +451,22 @@ netman tor | netman i2p
 
 **Documentation :** [`../man/anonyman.md`](../man/anonyman.md) · WGMD : [`../projects/wheregoesmydatas.md`](../projects/wheregoesmydatas.md) · Kali matrix : [`../managers/CYBERMAN_KALI_MATRIX.md`](../managers/CYBERMAN_KALI_MATRIX.md)
 
+### 🐚 Shellman — bascule de shells
+
+```bash
+shellman status
+shellman list
+shellman doctor
+shellman use fish --session    # ce terminal seulement
+shellman use zsh --user        # login (chsh)
+shellman use bash --system     # defaut comptes futurs (root)
+manman list                    # catalogue : helpman en #1, icones ASCII, statut
+```
+
+**Documentation :** [`../man/shellman.md`](../man/shellman.md) · racine : [`../architecture/ROOT_LAYOUT.md`](../architecture/ROOT_LAYOUT.md)
+
 ### 🛠️ Miscman - Gestionnaire Outils Divers
+
 
 
 Gestionnaire pour les outils divers et utilitaires système.

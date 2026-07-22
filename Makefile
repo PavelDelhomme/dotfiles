@@ -822,10 +822,12 @@ docker-shell: ## Ouvrir un shell dans le conteneur dotfiles-test en cours d'exé
 docker-test-auto: ## Tester l'installation complète et automatique dans Docker isolé
 	@echo -e "$(BLUE)🧪 Test d'installation automatique complète dans Docker...$(NC)"
 	@if command -v docker >/dev/null 2>&1; then \
-		if [ -f "test-docker.sh" ]; then \
+		if [ -f "scripts/test/test_docker.sh" ]; then \
+			bash scripts/test/test_docker.sh; \
+		elif [ -f "test-docker.sh" ]; then \
 			bash test-docker.sh; \
 		else \
-			echo -e "$(YELLOW)⚠️  Script test-docker.sh non trouvé$(NC)"; \
+			echo -e "$(YELLOW)⚠️  Script test_docker.sh non trouvé$(NC)"; \
 			exit 1; \
 		fi; \
 	else \

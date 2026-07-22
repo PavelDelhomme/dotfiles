@@ -2,12 +2,11 @@
 # =============================================================================
 # MANMAN - Manager of Managers (Code Commun POSIX)
 # =============================================================================
-# Description: Gestionnaire centralisé pour tous les gestionnaires (*man)
-# Author: Paul Delhomme
-# Version: 2.0 - Structure Hybride
+# Ordre logique : aide → diagnostic → config/shell → install/update → outils
+# Icônes ASCII toujours lisibles (+ emoji optionnel si DOTFILES_MANMAN_EMOJI=1)
+# Pagination TUI : n/p, 0=quitter
 # =============================================================================
 
-# Détecter le shell pour adapter certaines syntaxes
 if [ -n "$ZSH_VERSION" ]; then
     SHELL_TYPE="zsh"
 elif [ -n "$BASH_VERSION" ]; then
@@ -18,231 +17,285 @@ else
     SHELL_TYPE="sh"
 fi
 
-# DESC: Gestionnaire centralisé pour accéder à tous les gestionnaires interactifs (*man)
-# USAGE: manman
-# EXAMPLE: manman
 manman() {
-    # Couleurs (compatibles tous shells)
     RED='\033[0;31m'
     GREEN='\033[0;32m'
     YELLOW='\033[1;33m'
     BLUE='\033[0;34m'
-    MAGENTA='\033[0;35m'
     CYAN='\033[0;36m'
     BOLD='\033[1m'
     RESET='\033[0m'
-    
+    DIM='\033[2m'
+
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
     DOTFILES_FUNCTIONS_DIR="$DOTFILES_DIR/zsh/functions"
+    MANMAN_EMOJI="${DOTFILES_MANMAN_EMOJI:-0}"
+    MANMAN_PER_PAGE="${DOTFILES_MANMAN_PER_PAGE:-0}"
+
     if [ -f "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh" ]; then
-        # shellcheck source=managers_log_posix.sh
+        # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/managers_log_posix.sh"
-        managers_log_line "manman" "invoke" "menu" "info" "session interactive"
+        managers_log_line "manman" "invoke" "menu" "info" "session interactive" 2>/dev/null || true
+    fi
+    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
+        command -v dotfiles_manager_load_ui_libs >/dev/null 2>&1 && dotfiles_manager_load_ui_libs
+    elif [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
+        # shellcheck source=/dev/null
+        . "$DOTFILES_DIR/scripts/lib/tui_core.sh"
     fi
     if [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
     fi
-    if [ -f "$DOTFILES_DIR/scripts/lib/manager_ui.sh" ]; then
-        # shellcheck source=/dev/null
-        . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
-        dotfiles_manager_load_ui_libs
-    elif [ -f "$DOTFILES_DIR/scripts/lib/tui_core.sh" ]; then
-        # shellcheck source=/dev/null
-        . "$DOTFILES_DIR/scripts/lib/tui_core.sh"
-    fi
 
     manman_print_help() {
-        printf "${CYAN}${BOLD}MANMAN — raccourcis${RESET}\n"
-        echo ""
-        echo "  manman                menu des managers"
-        echo "  manman --help         aide puis menu (TTY)"
-        echo "  manman help | -h      cette aide (stdout)"
-        echo ""
+        printf "${CYAN}${BOLD}MANMAN${RESET} — catalogue des gestionnaires (*man)\n\n"
+        printf "  manman                 menu pagine (TTY)\n"
+        printf "  manman list            liste stdout (non interactif)\n"
+        printf "  manman help | -h       cette aide\n"
+        printf "  manman --help          aide (+ pause TTY)\n\n"
+        printf "Legende statut : ${GREEN}[OK]${RESET} charge  ${YELLOW}[--]${RESET} absent  ${CYAN}[^]${RESET} dans registre updateman\n"
+        printf "Icones ASCII toujours affichees ; emoji si DOTFILES_MANMAN_EMOJI=1\n"
+        printf "Pagination : n=suivant p=precedent 0=quitter\n"
     }
 
-    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+    # Catalogue ordonne : ascii|emoji|name|desc|cmd
+    # Ordre : aide → diag → config/shell → install → domaine → tests
+    _manman_catalog() {
+        cat <<'EOF'
+[?]|📚|helpman|Aide / documentation|helpman
+[!]|🩺|doctorman|Diagnostic dotfiles / dev|doctorman
+[=]|⚙️|configman|Configuration systeme|configman
+[$]|🐚|shellman|Bascule shells (session/user/system)|shellman
+[P]|📁|pathman|Gestionnaire PATH|pathman
+[+]|📦|installman|Installation d outils|installman
+[^]|⬆️|updateman|Mises a jour locales / systeme|updateman
+[#]|⚙️|moduleman|Modules dotfiles|moduleman
+[@]|📝|aliaman|Alias|aliaman
+[G]|🔧|gitman|Git|gitman
+[F]|📁|fileman|Fichiers / archives|fileman
+[/]|🔍|searchman|Recherche executables|searchman
+[N]|🌐|netman|Reseau|netman
+[R]|🧭|routeman|Routes IP|routeman
+[S]|🔐|sshman|SSH|sshman
+[*]|⚙️|processman|Processus|processman
+[C]|🛡️|cyberman|Cybersecurite|cyberman
+[A]|🕵️|anonyman|Anonymisation Tor/I2P/proxies|anonyman
+[L]|📖|cyberlearn|Apprentissage cyber|cyberlearn
+[D]|💻|devman|Developpement|devman
+[V]|🖥️|virtman|Virtualisation|virtman
+[E]|🖥|displayman|Ecran / luminosite DDC|displayman
+[K]|💽|diskman|Disque / nettoyage|diskman
+[X]|📑|diffman|Comparaison de fichiers|diffman
+[M]|🎬|multimediaman|Multimedia|multimediaman
+[~]|🔧|miscman|Outils divers|miscman
+[T]|🧪|testman|Tests applications|testman
+[Z]|🧪|testzshman|Tests ZSH / dotfiles|testzshman
+EOF
+    }
+
+    _manman_icon() {
+        _ascii="$1"
+        _emoji="$2"
+        if [ "$MANMAN_EMOJI" = "1" ] && [ -n "$_emoji" ]; then
+            printf '%s' "$_emoji"
+        else
+            printf '%s' "$_ascii"
+        fi
+    }
+
+    _manman_status() {
+        _name="$1"
+        _cmd="$2"
+        _st="--"
+        _core="$DOTFILES_DIR/core/managers/$_name/core/${_name}.sh"
+        _zshf="$DOTFILES_FUNCTIONS_DIR/${_name}.zsh"
+        if command -v "$_cmd" >/dev/null 2>&1 || [ -f "$_core" ] || [ -f "$_zshf" ]; then
+            _st="OK"
+        fi
+        _reg="$DOTFILES_DIR/core/managers/updateman/config/updatable-tools.list"
+        if [ -f "$_reg" ] && grep -qE "^${_name}\\|" "$_reg" 2>/dev/null; then
+            if [ "$_st" = "OK" ]; then
+                _st="OK^"
+            fi
+        fi
+        printf '%s' "$_st"
+    }
+
+    _manman_build_list() {
+        _out="$1"
+        : >"$_out"
+        _idx=1
+        while IFS='|' read -r _ascii _emoji _name _desc _cmd; do
+            [ -z "$_name" ] && continue
+            case "$_name" in \#*) continue ;; esac
+            _st="$(_manman_status "$_name" "$_cmd")"
+            _ic="$(_manman_icon "$_ascii" "$_emoji")"
+            printf '%s|%s|%s|%s|%s|%s\n' "$_idx" "$_ic" "$_name" "$_desc" "$_cmd" "$_st" >>"$_out"
+            _idx=$((_idx + 1))
+        done <<EOF
+$(_manman_catalog)
+EOF
+    }
+
+    _manman_print_rows() {
+        _file="$1"
+        _start="$2"
+        _end="$3"
+        _n=0
+        while IFS='|' read -r num ic name desc cmd st; do
+            _n=$((_n + 1))
+            [ "$_n" -lt "$_start" ] && continue
+            [ "$_n" -gt "$_end" ] && break
+            case "$st" in
+                OK)   _sc="${GREEN}[OK]${RESET}" ;;
+                OK^)  _sc="${CYAN}[OK^]${RESET}" ;;
+                *)    _sc="${YELLOW}[--]${RESET}" ;;
+            esac
+            printf "  ${BOLD}%2s${RESET} %s  %-14s %-36s %b\n" "$num" "$ic" "$name" "$desc" "$_sc"
+        done <"$_file"
+    }
+
+    manman_list() {
+        _mf=$(mktemp)
+        _manman_build_list "$_mf"
+        printf "${CYAN}${BOLD}MANMAN — catalogue${RESET}\n\n"
+        printf "  ${BOLD}##${RESET} ic  %-14s %-36s statut\n" "nom" "description"
+        _manman_print_rows "$_mf" 1 999
+        printf "\n${DIM}[OK]=disponible  [OK^]=aussi registre updateman  [--]=core/commande absents${RESET}\n"
+        rm -f "$_mf"
+    }
+
+    if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "aide" ]; then
         manman_print_help
         return 0
     fi
     if [ "$1" = "--help" ]; then
         manman_print_help
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Appuyez sur Entrée... "
+            read -r _ || true
+        fi
         return 0
     fi
-    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
-        if ! { [ -t 0 ] && [ -t 1 ]; }; then
-            printf '%s\n' "manman: menu nécessite un terminal (TTY)." >&2
-            return 2
-        fi
-        printf "Appuyez sur Entrée pour ouvrir le menu... "
-        read -r _manman_dummy || true
+    if [ "$1" = "list" ] || [ "$1" = "ls" ]; then
+        manman_list
+        return 0
     fi
-    
-    # Détecter tous les gestionnaires disponibles (utiliser un fichier temporaire)
+
+    # Non-TTY : liste seulement
+    if ! { [ -t 0 ] && [ -t 1 ]; }; then
+        manman_list
+        return 0
+    fi
+
     managers_file=$(mktemp)
-    index=1
-    
-    check_manager() {
-        local name="$1"
-        local desc="$2"
-        local cmd="$3"
-        if [ -f "$DOTFILES_FUNCTIONS_DIR/${name}.zsh" ] || command -v "$cmd" >/dev/null 2>&1; then
-            echo "${index}:${name}:${desc}:${cmd}" >> "$managers_file"
-            index=$((index + 1))
-        fi
-    }
-    
-    check_manager "pathman" "📁 Gestionnaire PATH" "pathman"
-    check_manager "netman" "🌐 Gestionnaire réseau" "netman"
-    check_manager "aliaman" "📝 Gestionnaire alias" "aliaman"
-    check_manager "miscman" "🔧 Gestionnaire divers" "miscman"
-    check_manager "searchman" "🔍 Gestionnaire recherche" "searchman"
-    check_manager "cyberman" "🛡️ Gestionnaire cybersécurité" "cyberman"
-    check_manager "devman" "💻 Gestionnaire développement" "devman"
-    check_manager "gitman" "📦 Gestionnaire Git" "gitman"
-    check_manager "helpman" "📚 Gestionnaire aide/documentation" "helpman"
-    check_manager "configman" "⚙️ Gestionnaire configuration" "configman"
-    check_manager "installman" "📦 Gestionnaire installation" "installman"
-    check_manager "updateman" "⬆️ Gestionnaire mises a jour locales" "updateman"
-    check_manager "moduleman" "⚙️ Gestionnaire modules" "moduleman"
-    check_manager "fileman" "📁 Gestionnaire fichiers" "fileman"
-    check_manager "virtman" "🖥️ Gestionnaire virtualisation" "virtman"
-    check_manager "sshman" "🔐 Gestionnaire SSH" "sshman"
-    check_manager "processman" "⚙️ Gestionnaire processus" "processman"
-    check_manager "routeman" "🧭 Gestionnaire routes IP" "routeman"
-    check_manager "testzshman" "🧪 Gestionnaire tests ZSH/dotfiles" "testzshman"
-    check_manager "testman" "🧪 Gestionnaire tests applications" "testman"
-    check_manager "doctorman" "🩺 Diagnostic dotfiles / dev" "doctorman"
-    check_manager "displayman" "🖥  Gestionnaire écran / luminosité (DDC)" "displayman"
-    check_manager "diffman" "📑 Comparateur de fichiers (diff coloré)" "diffman"
-    check_manager "diskman" "💽 Analyse et nettoyage disque" "diskman"
-    check_manager "anonyman" "🕵️ Anonymisation Tor/I2P/proxies" "anonyman"
-
-    clear
-    printf "${CYAN}${BOLD}"
-    if command -v manager_ui_print_banner >/dev/null 2>&1; then
-        manager_ui_print_banner "MANMAN - Manager of Managers" "Gestionnaires centralises"
-    elif command -v tui_is_compact >/dev/null 2>&1 && tui_is_compact; then
-        echo "MANMAN — managers"
-        command -v tui_hrule >/dev/null 2>&1 && tui_hrule || echo "------------------------"
-    else
-        echo "╔════════════════════════════════════════════════════════════════╗"
-        echo "║                  MANMAN - Manager of Managers                   ║"
-        echo "║           Gestionnaire centralisé des gestionnaires            ║"
-        echo "╚════════════════════════════════════════════════════════════════╝"
-    fi
-    printf "${RESET}\n"
-    echo
-
-    printf "${YELLOW}Gestionnaires disponibles:${RESET}\n"
-    if command -v tui_hrule >/dev/null 2>&1; then
-        printf "${BLUE}"
-        tui_hrule
-        printf "${RESET}"
-    else
-        manager_ui_section_line "${BLUE}" "${RESET}\n"
-    fi
-    echo
-    
-    # Compter les managers
-    manager_count=$(wc -l < "$managers_file" 2>/dev/null || echo "0")
-    if [ "$manager_count" -eq 0 ]; then
-        printf "${RED}❌ Aucun gestionnaire disponible${RESET}\n"
+    _manman_build_list "$managers_file"
+    manager_count=$(wc -l <"$managers_file" | tr -d ' ')
+    if [ "${manager_count:-0}" -eq 0 ]; then
+        printf "${RED}Aucun gestionnaire dans le catalogue${RESET}\n" >&2
         rm -f "$managers_file"
         return 1
     fi
-    
-    # Mode ncurses (si disponible et terminal interactif), sinon menu classique.
-    choice=""
-    if [ -t 0 ] && [ -t 1 ] && command -v dotfiles_ncmenu_select >/dev/null 2>&1; then
-        menu_input_file=$(mktemp)
-        while IFS=':' read -r num name desc cmd; do
-            if [ -n "$name" ]; then
-                printf "%s (%s)|%s\n" "$desc" "$cmd" "$num" >> "$menu_input_file"
-            fi
-        done < "$managers_file"
-        choice=$(dotfiles_ncmenu_select "MANMAN - Choisir un gestionnaire" < "$menu_input_file" 2>/dev/null || true)
-        rm -f "$menu_input_file"
-    fi
 
-    if [ -z "$choice" ]; then
-        # Afficher les managers avec numérotation
-        _mm_desc_w=40
-        if command -v tui_is_compact >/dev/null 2>&1 && tui_is_compact; then
-            _mm_desc_w=24
-        fi
-        while IFS=':' read -r num name desc cmd; do
-            if [ -n "$name" ]; then
-                _mm_d="$desc"
-                if command -v tui_truncate >/dev/null 2>&1; then
-                    _mm_d="$(tui_truncate "$desc" "$_mm_desc_w")"
-                fi
-                printf "  ${BOLD}%s${RESET}  %-${_mm_desc_w}s ${CYAN}%s${RESET}\n" "$num" "$_mm_d" "$cmd"
-            fi
-        done < "$managers_file"
-
-        echo
-        if command -v tui_hrule >/dev/null 2>&1; then
-            printf "${BLUE}"
-            tui_hrule
-            printf "${RESET}"
+    per_page="$MANMAN_PER_PAGE"
+    if [ "$per_page" = "0" ] || [ -z "$per_page" ]; then
+        if command -v tui_menu_height >/dev/null 2>&1; then
+            per_page=$(tui_menu_height 12 2>/dev/null || echo 12)
         else
-            manager_ui_section_line "${BLUE}" "${RESET}\n"
+            per_page=12
         fi
-        echo "  0) Retour"
-        echo
-        printf "${YELLOW}Choisir un gestionnaire [1-%d]: ${RESET}" "$manager_count"
-        read -r choice
-        echo
     fi
-    
-    if [ "$choice" = "0" ] || [ -z "$choice" ]; then
-        rm -f "$managers_file"
-        return 0
-    fi
-    
-    # Récupérer le manager sélectionné
-    selected_line=$(grep "^${choice}:" "$managers_file" 2>/dev/null)
-    if [ -z "$selected_line" ]; then
-        printf "${RED}Choix invalide${RESET}\n"
-        rm -f "$managers_file"
-        sleep 2
-        manman
-        return
-    fi
-    
-    IFS=':' read -r num name description command <<EOF
+    [ "$per_page" -lt 5 ] && per_page=5
+    total_pages=$(( (manager_count + per_page - 1) / per_page ))
+    [ "$total_pages" -lt 1 ] && total_pages=1
+    page=0
+
+    while true; do
+        clear 2>/dev/null || true
+        printf "${CYAN}${BOLD}"
+        if command -v manager_ui_print_banner >/dev/null 2>&1; then
+            manager_ui_print_banner "MANMAN" "Manager of Managers"
+        else
+            echo "MANMAN — Manager of Managers"
+            echo "----------------------------"
+        fi
+        printf "${RESET}\n"
+        printf "${YELLOW}Gestionnaires${RESET}  page $((page + 1))/${total_pages}  (${manager_count} total)\n"
+        printf "${DIM}statut: [OK] dispo  [OK^] updateman  [--] absent | n/p pages | 0 quitter${RESET}\n\n"
+
+        start=$((page * per_page + 1))
+        end=$(( (page + 1) * per_page ))
+        [ "$end" -gt "$manager_count" ] && end=$manager_count
+        _manman_print_rows "$managers_file" "$start" "$end"
+
+        printf "\n"
+        if command -v tui_hrule >/dev/null 2>&1; then
+            tui_hrule
+        fi
+        printf "  ${BOLD}n${RESET}) page suivante   ${BOLD}p${RESET}) precedente   ${BOLD}0${RESET}) quitter\n"
+        printf "${YELLOW}Choisir [numero|n|p|0]: ${RESET}"
+        read -r choice || choice=0
+
+        case "$choice" in
+            0|q|Q|"")
+                rm -f "$managers_file"
+                return 0
+                ;;
+            n|N)
+                if [ "$page" -lt $((total_pages - 1)) ]; then
+                    page=$((page + 1))
+                fi
+                continue
+                ;;
+            p|P)
+                if [ "$page" -gt 0 ]; then
+                    page=$((page - 1))
+                fi
+                continue
+                ;;
+        esac
+
+        selected_line=$(awk -F'|' -v c="$choice" '$1 == c {print; exit}' "$managers_file")
+        if [ -z "$selected_line" ]; then
+            printf "${RED}Choix invalide${RESET}\n"
+            sleep 1
+            continue
+        fi
+
+        IFS='|' read -r num ic name description command st <<EOF
 $selected_line
 EOF
-    rm -f "$managers_file"
-    
-    printf "${GREEN}Lancement de $description...${RESET}\n"
-    echo
-    sleep 1
-    
-    # S'assurer que le gestionnaire est chargé
-    manager_file="$DOTFILES_FUNCTIONS_DIR/${name}.zsh"
-    if [ -f "$manager_file" ]; then
-        # Source le fichier si nécessaire (s'il n'est pas déjà chargé)
-        . "$manager_file" 2>/dev/null || true
-    fi
-    
-    # Appeler directement la fonction du gestionnaire
-    if command -v "$command" >/dev/null 2>&1; then
-        "$command"
-    else
-        # Si la fonction n'existe pas, essayer avec eval en dernier recours
-        eval "$command" 2>/dev/null || {
-            printf "${RED}❌ Erreur: Impossible de lancer $name${RESET}\n"
-            echo "💡 Assurez-vous que le gestionnaire est correctement chargé"
-            sleep 2
-        }
-    fi
-    
-    # Retourner au menu manman après avoir quitté le gestionnaire
-    echo
-    printf "Appuyez sur une touche pour retourner au menu...\n"
-    read -r dummy
-    manman
-}
+        rm -f "$managers_file"
 
+        printf "${GREEN}Lancement %s %s...${RESET}\n" "$ic" "$name"
+        sleep 0.3
+
+        # Charger core POSIX si besoin
+        _core="$DOTFILES_DIR/core/managers/${name}/core/${name}.sh"
+        if [ -f "$_core" ]; then
+            # shellcheck source=/dev/null
+            . "$_core" 2>/dev/null || true
+        fi
+        _zshf="$DOTFILES_FUNCTIONS_DIR/${name}.zsh"
+        if [ -f "$_zshf" ]; then
+            # shellcheck source=/dev/null
+            . "$_zshf" 2>/dev/null || true
+        fi
+
+        if command -v "$command" >/dev/null 2>&1; then
+            "$command"
+        else
+            printf "${RED}Impossible de lancer %s (commande absente)${RESET}\n" "$name"
+            printf "Installe/charge le manager, puis reessaie.\n"
+            sleep 2
+        fi
+
+        printf "\nAppuyez sur Entrée pour retourner a manman...\n"
+        read -r _ || true
+        manman
+        return $?
+    done
+}

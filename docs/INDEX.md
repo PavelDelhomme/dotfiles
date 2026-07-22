@@ -39,6 +39,9 @@
 | **Comparer des fichiers** (diff coloré, deux colonnes, rapports multi-fichiers). | [`man/diffman.md`](man/diffman.md) · commande `diffman` (cf. [`guides/MANAGERS.md`](guides/MANAGERS.md)) |
 | **Nettoyer / diagnostiquer le disque** (espace, gros fichiers, inodes, dry-run/apply). | [`man/diskman.md`](man/diskman.md) · commande `diskman` |
 | **Anonymisation** Tor / I2P / proxies labo. | [`man/anonyman.md`](man/anonyman.md) · `anonyman` / `anonymman` · `configman i2p` · `netman tor\|i2p` |
+| **Changer de shell** (session / user / system). | [`man/shellman.md`](man/shellman.md) · `shellman use fish --session` |
+| **Catalogue managers** (ordre, icones, pages). | `manman` / `manman list` |
+| **Racine epuree / DOTFILES_GOOD**. | [`architecture/ROOT_LAYOUT.md`](architecture/ROOT_LAYOUT.md) · jalon B dans [`../TODOS.md`](../TODOS.md) |
 | **WhereGoesMyDatas** (observation DNS/flux, future passerelle). | [`projects/wheregoesmydatas.md`](projects/wheregoesmydatas.md) |
 | **Matrice cyber / Kali tools** (roadmap). | [`managers/CYBERMAN_KALI_MATRIX.md`](managers/CYBERMAN_KALI_MATRIX.md) |
 | Comprendre l’architecture managers / shells / `dotcli`. | [`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md) + [`platform/UNIFIED_PLATFORM_ROADMAP.md`](platform/UNIFIED_PLATFORM_ROADMAP.md) |

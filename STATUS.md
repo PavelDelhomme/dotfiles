@@ -8,6 +8,7 @@
 
 - **Branches Git** : `main` = production ; `dev` = intégration ; flux `feat/` → `dev` → `test/` → `fix/` → `preprod` → `main`. **Ne plus supprimer** les branches après merge (archivage / traçabilité). Détail : [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
 - **Tests manuels** : passe **A→I** documentée dans [`docs/TESTS.md`](docs/TESTS.md) — **G.0→G.28**, **H.1–H.3**, **I.1–I.2** ; `make tests-copy` / `make tests-smoke-manager`.
+- **Lot 2026-07-22 (suite)** : **`shellman`** (session/user/system) ; **manman** reordonne (helpman #1, icones ASCII, pagination) ; plan racine [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md) ; wrappers scripts racine.
 - **Lot 2026-07-22** : **`anonyman`** (Tor/I2P/proxies) ; `installman icecat` ; `configman i2p` ; `netman tor|i2p` ; vision [`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md) + matrice Kali [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md). Activation hôte **après validation** (tests Docker d’abord).
 - **updateman / installman** : `core/lib/distro.sh` + `pkg_backend.sh` ; registre cursor/docker/brave/i2p/icecat ; smoke `make test-updateman-registry-smoke`.
 - **Vision E2E multi-OS** : cadrage P11/P12 — [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md).

@@ -38,6 +38,8 @@ make tests-start # menu de tests manuels (voir docs/TESTS.md)
 | **Format d’une étape** (`Conforme O·N·NA`, Notes, Assistant relecture…) | [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) |
 | **Statut instantané** + journal récent | [`STATUS.md`](STATUS.md) |
 | **Tâches** (en cours, à faire, validation bloquante) | [`TODOS.md`](TODOS.md) |
+| **Disposition racine** (moins de fichiers à la racine) | [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md) |
+| **Shells** (zsh/bash/fish session ou login) | `shellman` · [`docs/man/shellman.md`](docs/man/shellman.md) |
 | **Tests manuels** pas à pas | [`docs/TESTS.md`](docs/TESTS.md) |
 | **Erreurs** / correctifs | [`docs/ERRORS.md`](docs/ERRORS.md) |
 | **Carte doc** (`docs/`) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) |

@@ -22,7 +22,12 @@
   - **Livré 2026-06-12** : procédure `configman p10k root --dry-run|--apply` via [`scripts/config/setup_root_prompt.sh`](scripts/config/setup_root_prompt.sh), variante [`.p10k-root.zsh`](.p10k-root.zsh), backup `/root/.zshrc` + `/root/.p10k.zsh`, symlinks prudents, vérification Powerlevel10k / MesloLGS-Nerd Fonts.
   - **Livré 2026-06-12 (suite)** : ré-application idempotente `configman apply shell --dry-run|--apply` via [`scripts/bootstrap/apply_dotfiles.sh`](scripts/bootstrap/apply_dotfiles.sh) ; `configman p10k` vérifie/propose l'installation P10k + Nerd Fonts ; smoke Docker local `make test-bootstrap-apply`.
   - **Sécurité** : privilégier `sudo` (pas de commande `surdo`) ; ne pas forcer root par défaut ; garder rollback documenté.
-- [~] **Lot anonymat / I2P / IceCat / WGMD / cyber Kali** (**actif 2026-07-22**, tests Docker d’abord) :
+- [~] **Lot shellman + manman + racine** (**actif 2026-07-22**) :
+  - **shellman** : session / user / system — base livree (tests smoke).
+  - **manman** : helpman en #1, icones ASCII + statut [OK]/[--]/[OK^], pagination n/p.
+  - **Racine** : wrappers `test-docker.sh` / `install_zsh_complete.sh` ; plan [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md).
+  - **DOTFILES_GOOD** : ne pas supprimer tant que jalon B incomplete (P4 / P19).
+- [~] **Lot anonymat / I2P / IceCat / WGMD / cyber Kali** :
   - **Livré (test)** : manager **`anonyman`** (+ alias `anonymman`) ; `installman icecat` multi-distro ; I2P enable/disable/status ; `configman i2p` ; `netman tor|i2p` ; docs [`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md) + [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md) ; registre updateman i2p/icecat.
   - **Reste hôte (après ta validation)** : `installman icecat` / `anonyman i2p enable` / `configman i2p --apply-user` sur Arch.
   - **Reste chantier** : menus TUI riches ; proxy scoring/chiffrement ; modularité core/modules vides (P1) ; cyberman menus Kali complets (P17) ; bridge WGMD (P16) ; **P15 shellman** ; **preprod → main**.
@@ -73,7 +78,8 @@
 | **P11** | **Matrice distro élargie** | CI [`.github/workflows/ci-updateman-smoke.yml`](.github/workflows/ci-updateman-smoke.yml) : `make test-updateman-cursor-release` + Docker matrix arch/debian/alpine. **Reste** : fedora/opensuse/centos ; distrobox ; voir [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md). |
 | **P12** | **Lab E2E (VM + enregistrement)** | QEMU/KVM + **asciinema** ou vidéo ; accès VNC pour inspection ; rejouer `TESTS.md` dans VM isolée. |
 | **P13** | **Cross-OS (WSL, fish, PowerShell)** | fishrc complet, wrappers Windows, scripts PowerShell pour managers ; parité installation. |
-| **P15** | **`shellman` — gestion et bascule des shells** | Nouveau manager pour configurer et **switcher** entre shells (zsh, bash, fish, sh, …) : shell par défaut (`chsh`), rc/dotfiles par shell, adapters `shells/{zsh,bash,fish}/`, validation `login`/`interactive`, smoke multi-shell (Docker + hôte), intégration `configman apply shell` et `pathman`. Objectif : une commande unique (`shellman status`, `shellman use fish`, `shellman doctor`) au lieu de scripts éparpillés. |
+| **P15** | **`shellman` — bascule shells** | **Base livree** : `shellman status\|list\|doctor\|use <shell> --session\|--user\|--system` + adapters zsh/bash/fish + man. **Reste** : integration profonde `configman apply shell`, sync rc, smoke Docker multi-shell `use --session`. |
+| **P19** | **Racine `~/dotfiles` epuree** | Plan [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md). Wrappers : `test-docker.sh` → `scripts/test/test_docker.sh`, `install_zsh_complete.sh` → `scripts/install/`. **Reste** : `docker/`, `var/{run,logs,images,test_results}`, fusion/suppression `DOTFILES_GOOD` apres jalon B. |
 | **P16** | **WhereGoesMyDatas** | Intégrer le projet passerelle/observation ([`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md)) : helpers Make/CLI, bridge cyberman/netman, checklist avant `NETWORK_MODE=gateway`, smoke Docker local sans toucher la box. |
 | **P17** | **Cyberman matrice Kali + cyberlearn** | Menus/help par catégories [kali.org/tools](https://www.kali.org/tools/) — voir [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md) ; UI web = WGMD seulement ; labs cyberlearn étendus. |
 | **P18** | **Anonyman + I2P/IceCat (hôte)** | Après validation smoke : activer timers/services sur Arch ; scoring proxies ; configman i2p apply ; IceCat AUR. Base livrée en conteneur (`anonyman`, `installman icecat`, `configman i2p`). |
@@ -147,7 +153,9 @@ Cocher quand **toi** tu es satisfait :
 
 ### Transformation globale (fil directeur)
 
-- [ ] **`shellman`** (nouveau manager) : bascule et configuration des shells (zsh/bash/fish/sh), shell par defaut, rc dotfiles, doctor multi-shell — voir **P15** dans le tableau « À faire ensuite ».
+- [x] **`shellman`** (base) : bascule shells session/user/system — voir **P15**. Reste sync rc / configman.
+- [ ] **`shellman`** (suite) : integration profonde configman + smoke Docker `use --session` interactif.
+- [ ] **Racine epuree (P19)** : docker/, var/, suppression DOTFILES_GOOD apres jalon B — [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md).
 - [ ] Contrat unique menus/TUI + fallback non-interactif.
 - [ ] Installation « nouvelle machine » guidée + silencieuse.
 - [ ] Migration progressive + checkpoints tests.

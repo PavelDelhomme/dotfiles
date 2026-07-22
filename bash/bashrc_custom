@@ -85,6 +85,7 @@ load_manager "displayman" "$DOTFILES_DIR/shells/bash/adapters/displayman.sh" "DI
 load_manager "diffman" "$DOTFILES_DIR/shells/bash/adapters/diffman.sh" "DIFFMAN"
 load_manager "diskman" "$DOTFILES_DIR/shells/bash/adapters/diskman.sh" "DISKMAN"
 load_manager "anonyman" "$DOTFILES_DIR/shells/bash/adapters/anonyman.sh" "ANONYMAN"
+load_manager "shellman" "$DOTFILES_DIR/shells/bash/adapters/shellman.sh" "SHELLMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)
