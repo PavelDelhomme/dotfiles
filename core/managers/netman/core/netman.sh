@@ -171,12 +171,15 @@ netman() {
         echo "  netman mtr <hôte>        diagnostic route/latence (si mtr installé)"
         echo "  netman whois <cible>     whois détaillé"
         echo "  netman connectivity | speed | monitor | analyze | export"
+        echo "  netman tor [status]        statut Tor (→ anonyman tor)"
+        echo "  netman i2p [status|ports]  statut I2P (→ anonyman i2p)"
         echo ""
         echo "Interface :"
         echo "  netman                    cette page (stdout, non interactif)"
         echo "  netman help | -h          idem"
         echo "  netman help --interactive aide guidée + pause (TTY requis)"
         echo "  netman --help             menu principal interactif"
+        echo "  anonyman / anonymman      anonymisation Tor/I2P/proxies"
         echo ""
     }
 
@@ -1701,6 +1704,28 @@ https://speed.hetzner.de/5GB.bin"
                 ;;
             export)
                 export_network_config
+                ;;
+            tor)
+                shift
+                if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh" ]; then
+                    # shellcheck source=/dev/null
+                    . "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh"
+                    anonyman tor "${1:-status}"
+                else
+                    printf "${YELLOW}anonyman introuvable — installman tor${RESET}\n" >&2
+                    return 1
+                fi
+                ;;
+            i2p|i2pd)
+                shift
+                if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh" ]; then
+                    # shellcheck source=/dev/null
+                    . "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh"
+                    anonyman i2p "${1:-status}"
+                else
+                    printf "${YELLOW}anonyman introuvable — installman i2p · configman i2p${RESET}\n" >&2
+                    return 1
+                fi
                 ;;
             *)
                 printf "${RED}Commande inconnue: %s${RESET}\n" "$1"

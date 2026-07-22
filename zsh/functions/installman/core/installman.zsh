@@ -73,6 +73,7 @@ typeset -ga TOOLS=(
     "tor-browser:torbrowser,tor-browser:🌐:Tor Browser (navigateur anonyme):check_tor_browser_installed:tor/install_tor_browser.sh:install_tor_browser"
     "tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation"
     "i2p:i2pd,purple-i2p,purple:🧅:I2P (i2pd / réseau I2P):check_i2p_installed:i2p/install_i2p.sh:install_i2p"
+    "icecat:gnu-icecat,iceweasel:🦊:GNU IceCat (navigateur libre):check_icecat_installed:icecat/install_icecat.sh:install_icecat"
     "nvidia-driver:nvidia,nvidia-gpu:🎮:Pilotes NVIDIA (détection GPU):check_nvidia_driver_installed:nvidia/install_nvidia_driver.sh:install_nvidia_driver"
     "wine::🍷:Wine (compatibilité Windows):check_wine_installed:wine/install_wine.sh:install_wine"
     "portproton:portproton,pp:🎮:PortProton (jeux Windows):check_portproton_installed:portproton/install_portproton.sh:install_portproton"

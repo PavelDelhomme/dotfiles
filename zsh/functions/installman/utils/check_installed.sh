@@ -629,6 +629,20 @@ check_i2p_installed() {
     return 1
 }
 
+# DESC: GNU IceCat (ou iceweasel legacy)
+# USAGE: check_icecat_installed
+check_icecat_installed() {
+    _check_binaries icecat iceweasel && { echo "installed"; return 0; }
+    _check_paths /usr/bin/icecat /usr/bin/iceweasel && { echo "installed"; return 0; }
+    _check_package icecat icecat-bin iceweasel && { echo "installed"; return 0; }
+    if command -v flatpak &>/dev/null && flatpak list --app 2>/dev/null | grep -qiE 'icecat|org\.gnu\.icecat'; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Pilotes NVIDIA (nvidia-smi ou module noyau)
 # USAGE: check_nvidia_driver_installed
 check_nvidia_driver_installed() {

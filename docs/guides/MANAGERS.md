@@ -435,7 +435,24 @@ diskman report ~/disk-report.txt    # rapport complet
 
 **Documentation :** [`../man/diskman.md`](../man/diskman.md)
 
+### 🕵️ Anonyman — Tor / I2P / proxies (labo)
+
+```bash
+anonyman help                 # alias: anonymman
+anonyman status | check | doctor
+anonyman tor start|stop|status
+anonyman i2p enable|disable|ports
+anonyman proxy refresh|list
+installman icecat             # GNU IceCat multi-distro (AUR/apt/flatpak/…)
+installman i2p                # puis anonyman i2p enable / configman i2p
+configman i2p --status|--dry-run|--apply-user
+netman tor | netman i2p
+```
+
+**Documentation :** [`../man/anonyman.md`](../man/anonyman.md) · WGMD : [`../projects/wheregoesmydatas.md`](../projects/wheregoesmydatas.md) · Kali matrix : [`../managers/CYBERMAN_KALI_MATRIX.md`](../managers/CYBERMAN_KALI_MATRIX.md)
+
 ### 🛠️ Miscman - Gestionnaire Outils Divers
+
 
 Gestionnaire pour les outils divers et utilitaires système.
 

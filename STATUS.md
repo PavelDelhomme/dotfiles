@@ -2,20 +2,18 @@
 
 > **Rôle de ce fichier** : version, **objectifs en cours**, **journal récent**. Il n’y a **ni backlog complet** (→ [`TODOS.md`](TODOS.md)) **ni procédure de test** (→ [`docs/TESTS.md`](docs/TESTS.md)) **ni incidents** (→ [`docs/ERRORS.md`](docs/ERRORS.md)). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md).
 
-**Dernière mise à jour** : 2026-06-16
+**Dernière mise à jour** : 2026-07-22
 
 ## En bref
 
 - **Branches Git** : `main` = production ; `dev` = intégration ; flux `feat/` → `dev` → `test/` → `fix/` → `preprod` → `main`. **Ne plus supprimer** les branches après merge (archivage / traçabilité). Détail : [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
-- **Tests manuels** : passe **A→I** documentée dans [`docs/TESTS.md`](docs/TESTS.md) — **G.0→G.27**, **H.1–H.3**, **I.1–I.2** *(2026-06-16)* ; `make tests-copy` / `make tests-smoke-manager`.
-- **updateman / installman** : `core/lib/distro.sh` + `pkg_backend.sh` ; `updateman system` multi-distro ; `installman upgrade auto` délègue à pkg_backend ; smoke Docker `make test-updateman-system-smoke`.
+- **Tests manuels** : passe **A→I** documentée dans [`docs/TESTS.md`](docs/TESTS.md) — **G.0→G.28**, **H.1–H.3**, **I.1–I.2** ; `make tests-copy` / `make tests-smoke-manager`.
+- **Lot 2026-07-22** : **`anonyman`** (Tor/I2P/proxies) ; `installman icecat` ; `configman i2p` ; `netman tor|i2p` ; vision [`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md) + matrice Kali [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md). Activation hôte **après validation** (tests Docker d’abord).
+- **updateman / installman** : `core/lib/distro.sh` + `pkg_backend.sh` ; registre cursor/docker/brave/i2p/icecat ; smoke `make test-updateman-registry-smoke`.
 - **Vision E2E multi-OS** : cadrage P11/P12 — [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md).
-- **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : diffs colorés / rapports ; **diskman** : diagnostic disque et nettoyage prudent (`clean --dry-run` par défaut).
-- **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
-- **updateman** : registre partage avec **installman** ; `updateman system` + `updateman all` (système + registre) ; `installman upgrade auto` via `pkg_backend` ; smoke `make test-updateman-system-smoke`.
-- **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`, `dfm` declaratif avec fallback pagine + pause apres action) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md), [`share/menus/README.md`](share/menus/README.md).
-- **CI** : `make test` / `make test-docker` (managers + smoke menus `0/q` + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur. Dernière passe 2026-06-12 : managers **81/81 OK** (**412 tests**), `menu_quit_smoke OK`, matrice sous-commandes **114 exécutions / 0 échec** après exclusion de `displayman detect` (matériel DDC réel).
-
+- **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`.
+- **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1`.
+- **CI** : `make test` / `make test-docker` ; smoke updateman registry + system.
 ## Objectifs actuels (priorité) — reprise prévue plus tard
 
 1. **Prompt root / sudo Powerlevel10k (immédiat)** : procédure livrée via `configman p10k root --dry-run|--apply` avec backup `/root`, symlink `.p10k-root.zsh`, couleurs root rouge/orange et vérifications Powerlevel10k / Nerd Fonts. Reste : exécuter `--apply` en réel puis ouvrir `sudo zsh` pour validation visuelle.

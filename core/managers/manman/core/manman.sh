@@ -116,6 +116,7 @@ manman() {
     check_manager "displayman" "🖥  Gestionnaire écran / luminosité (DDC)" "displayman"
     check_manager "diffman" "📑 Comparateur de fichiers (diff coloré)" "diffman"
     check_manager "diskman" "💽 Analyse et nettoyage disque" "diskman"
+    check_manager "anonyman" "🕵️ Anonymisation Tor/I2P/proxies" "anonyman"
 
     clear
     printf "${CYAN}${BOLD}"

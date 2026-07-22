@@ -4,3 +4,5 @@
 cursor|check_cursor_installed|cursor-update.timer|1|cursor_appimage
 docker|check_docker_installed|docker-update.timer|0|pkg
 brave|check_brave_installed|brave-update.timer|0|pkg
+i2p|check_i2p_installed|-|0|pkg
+icecat|check_icecat_installed|-|0|pkg

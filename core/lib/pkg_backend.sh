@@ -286,6 +286,8 @@ pkg_backend_tool_package_patterns() {
     case "$1" in
         docker) printf '%s' 'docker docker.io docker-ce docker-ce-cli containerd.io' ;;
         brave)  printf '%s' 'brave-bin brave-browser com.brave.Browser' ;;
+        i2p)    printf '%s' 'i2pd i2p' ;;
+        icecat) printf '%s' 'icecat icecat-bin iceweasel' ;;
         *) return 1 ;;
     esac
 }
