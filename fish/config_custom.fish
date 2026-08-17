@@ -97,6 +97,7 @@ load_manager "helpman" "$DOTFILES_DIR/shells/fish/adapters/helpman.fish" "HELPMA
 load_manager "cyberman" "$DOTFILES_DIR/shells/fish/adapters/cyberman.fish" "CYBERMAN"
 load_manager "devman" "$DOTFILES_DIR/shells/fish/adapters/devman.fish" "DEVMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/fish/adapters/virtman.fish" "VIRTMAN"
+load_manager "dockerman" "$DOTFILES_DIR/shells/fish/adapters/dockerman.fish" "DOCKERMAN"
 load_manager "miscman" "$DOTFILES_DIR/shells/fish/adapters/miscman.fish" "MISCMAN"
 # Managers restants (wrappers temporaires)
 load_manager "netman" "$DOTFILES_DIR/shells/fish/adapters/netman.fish" "NETMAN"

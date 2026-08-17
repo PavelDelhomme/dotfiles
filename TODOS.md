@@ -27,6 +27,10 @@
   - **manman** : helpman en #1, icones ASCII + statut [OK]/[--]/[OK^], pagination n/p.
   - **Racine** : wrappers `test-docker.sh` / `install_zsh_complete.sh` ; plan [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md).
   - **DOTFILES_GOOD** : ne pas supprimer tant que jalon B incomplete (P4 / P19).
+- [~] **Init / preflight / aide Make** (**actif 2026-07-27**) :
+  - **Livré** : `scripts/bootstrap/preflight.sh` + `init.sh` ; `make init help|status|plan|install|tests` ; `make help` court + `make help-all` ; garde avant `make install` / bootstrap ; docs INSTALL/README/INDEX.
+  - **Reste** : smoke `make init tests` en Docker ; aligner `reset_all` messages avec preflight ; suite P19 racine.
+- [~] **`dockerman`** (**actif 2026-08-17**) : aide-mémoire + vues Docker (`ps`/`images`/`compose` lecture, `cheat`/`search`/`explain`, prune dry-run). manman `[O]`, helpman, adapters zsh/bash/fish, TESTS G.0.i / G.30. **Reste** : smoke Docker matrice ; `compose up` volontairement hors manager.
 - [~] **Lot anonymat / I2P / IceCat / WGMD / cyber Kali** :
   - **Livré (test)** : manager **`anonyman`** (+ alias `anonymman`) ; `installman icecat` multi-distro ; I2P enable/disable/status ; `configman i2p` ; `netman tor|i2p` ; docs [`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md) + [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md) ; registre updateman i2p/icecat.
   - **Reste hôte (après ta validation)** : `installman icecat` / `anonyman i2p enable` / `configman i2p --apply-user` sur Arch.
@@ -80,6 +84,7 @@
 | **P13** | **Cross-OS (WSL, fish, PowerShell)** | fishrc complet, wrappers Windows, scripts PowerShell pour managers ; parité installation. |
 | **P15** | **`shellman` — bascule shells** | **Base livree** : `shellman status\|list\|doctor\|use <shell> --session\|--user\|--system` + adapters zsh/bash/fish + man. **Reste** : integration profonde `configman apply shell`, sync rc, smoke Docker multi-shell `use --session`. |
 | **P19** | **Racine `~/dotfiles` epuree** | Plan [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md). Wrappers : `test-docker.sh` → `scripts/test/test_docker.sh`, `install_zsh_complete.sh` → `scripts/install/`. **Reste** : `docker/`, `var/{run,logs,images,test_results}`, fusion/suppression `DOTFILES_GOOD` apres jalon B. |
+| **P20** | **`dockerman` — commandes Docker** | **Base livree** : `status\|doctor\|ps\|images\|cheat\|search\|explain\|prefix\|prune --dry-run` + adapters + man. **Reste** : smoke Docker matrice ; pas d’enveloppe `compose up/down` (doc only). |
 | **P16** | **WhereGoesMyDatas** | Intégrer le projet passerelle/observation ([`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md)) : helpers Make/CLI, bridge cyberman/netman, checklist avant `NETWORK_MODE=gateway`, smoke Docker local sans toucher la box. |
 | **P17** | **Cyberman matrice Kali + cyberlearn** | Menus/help par catégories [kali.org/tools](https://www.kali.org/tools/) — voir [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md) ; UI web = WGMD seulement ; labs cyberlearn étendus. |
 | **P18** | **Anonyman + I2P/IceCat (hôte)** | Après validation smoke : activer timers/services sur Arch ; scoring proxies ; configman i2p apply ; IceCat AUR. Base livrée en conteneur (`anonyman`, `installman icecat`, `configman i2p`). |

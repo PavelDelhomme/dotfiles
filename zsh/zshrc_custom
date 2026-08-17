@@ -152,6 +152,7 @@ load_manager "updateman" "$DOTFILES_DIR/shells/zsh/adapters/updateman.zsh" "UPDA
 load_manager "moduleman" "$DOTFILES_DIR/shells/zsh/adapters/moduleman.zsh" "MODULEMAN"
 load_manager "fileman" "$DOTFILES_DIR/shells/zsh/adapters/fileman.zsh" "FILEMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/zsh/adapters/virtman.zsh" "VIRTMAN"
+load_manager "dockerman" "$DOTFILES_DIR/shells/zsh/adapters/dockerman.zsh" "DOCKERMAN"
 load_manager "sshman" "$DOTFILES_DIR/shells/zsh/adapters/sshman.zsh" "SSHMAN"
 load_manager "processman" "$DOTFILES_DIR/shells/zsh/adapters/processman.zsh" "PROCESSMAN"
 load_manager "routeman" "$DOTFILES_DIR/shells/zsh/adapters/routeman.zsh" "ROUTEMAN"

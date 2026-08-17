@@ -86,6 +86,7 @@ manman() {
 [L]|📖|cyberlearn|Apprentissage cyber|cyberlearn
 [D]|💻|devman|Developpement|devman
 [V]|🖥️|virtman|Virtualisation|virtman
+[O]|🐳|dockerman|Docker (ps/images/compose/cheat)|dockerman
 [E]|🖥|displayman|Ecran / luminosite DDC|displayman
 [K]|💽|diskman|Disque / nettoyage|diskman
 [X]|📑|diffman|Comparaison de fichiers|diffman

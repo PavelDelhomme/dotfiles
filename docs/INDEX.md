@@ -29,10 +29,11 @@
 | Connaître la version et le journal récent. | [`../STATUS.md`](../STATUS.md) |
 | Trouver un fichier de **doc**, comprendre l’arborescence `docs/`. | [`STRUCTURE.md`](STRUCTURE.md) |
 | Trouver un fichier de **code** (script, manager, fonction). | [`CODEMAP.md`](CODEMAP.md) |
-| **Installer** sur une nouvelle machine. | [`guides/INSTALL.md`](guides/INSTALL.md) |
-| **Usage quotidien** (Makefile, aide, maintenance, Powerlevel10k…). | [`guides/USAGE.md`](guides/USAGE.md) |
+| **Installer** sur une nouvelle machine (preflight + plan). | [`guides/INSTALL.md`](guides/INSTALL.md) · `make init help` · `make init status` · `make init plan` |
+| **Explorer sans installer l’hôte** (clone + Make + Docker). | `make init help` · `make tests` · `make docker-in` · `bash test-docker.sh --help` |
+| **Usage quotidien** (Makefile, aide, maintenance, Powerlevel10k…). | [`guides/USAGE.md`](guides/USAGE.md) · `make help` · `make help-all` |
 | **Utiliser les managers** (`pathman`, `netman`, `installman`, …). | [`guides/MANAGERS.md`](guides/MANAGERS.md) + [`managers/`](managers/) + [`man/`](man/) |
-| **Docker** (utilisateur, BuildKit, conteneur isolé). | [`guides/DOCKER.md`](guides/DOCKER.md) |
+| **Docker** (utilisateur, BuildKit, conteneur isolé). | [`guides/DOCKER.md`](guides/DOCKER.md) · `dockerman` · [`man/dockerman.md`](man/dockerman.md) |
 | **VM** QEMU/KVM (tests isolés). | [`guides/VM.md`](guides/VM.md) |
 | **CI GitHub Actions** (workflows, secrets e-mail, roadmap). | [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md) |
 | **Écrans / luminosité** (DDC, preset, Full Range HDMI, OSD physique). | [`guides/SCREEN_DISPLAY.md`](guides/SCREEN_DISPLAY.md) + [`man/displayman.md`](man/displayman.md) |
@@ -41,6 +42,7 @@
 | **Anonymisation** Tor / I2P / proxies labo. | [`man/anonyman.md`](man/anonyman.md) · `anonyman` / `anonymman` · `configman i2p` · `netman tor\|i2p` |
 | **Changer de shell** (session / user / system). | [`man/shellman.md`](man/shellman.md) · `shellman use fish --session` |
 | **Catalogue managers** (ordre, icones, pages). | `manman` / `manman list` |
+| **Commandes Docker du quotidien** (ps, images, compose, cheat). | [`man/dockerman.md`](man/dockerman.md) · `dockerman` · `helpman dockerman` |
 | **Racine epuree / DOTFILES_GOOD**. | [`architecture/ROOT_LAYOUT.md`](architecture/ROOT_LAYOUT.md) · jalon B dans [`../TODOS.md`](../TODOS.md) |
 | **WhereGoesMyDatas** (observation DNS/flux, future passerelle). | [`projects/wheregoesmydatas.md`](projects/wheregoesmydatas.md) |
 | **Matrice cyber / Kali tools** (roadmap). | [`managers/CYBERMAN_KALI_MATRIX.md`](managers/CYBERMAN_KALI_MATRIX.md) |

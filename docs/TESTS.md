@@ -40,6 +40,7 @@
 | **2026-06-16** | **Copie presse-papiers** : `make tests-copy`, blocs **une ligne** sous G.0.x (icône 📋 Cursor), `make tests-preview` (HTML boutons), `make tests-copy-smoke MANAGER=…` pour G.1–G.27. **G.0.c** : sortie dépend de `aliases.zsh` (alias `ls`/`cd` possibles). **G.0.e** : `diffman side` affiche tout le fichier en double colonnes — utiliser `\| head -n 3` dans le smoke. | Préalable **G.0→G.0.f** terminé → tableau **G.1–G.27**. Voir **EXT-008** (re-tests à noter). |
 | **2026-06-16** *(updateman)* | **`updateman system`** multi-distro (`core/lib/distro.sh`, `pkg_backend.sh`) ; **`updateman all`** = refresh/upgrade système + registre ; **`--tools-only`** pour l’ancien comportement. Smoke Docker : `make test-updateman-system-smoke DISTRO=debian` (bash/zsh/fish). | Valider **G.27** ; `updateman system status` sur la machine hôte. |
 | **2026-06-16** *(H→I)* | **Bloc H** validé (H.1 `test-dotcli-f7`, H.2 `NO_TUI`, H.3 filtre `DOTFILES_TEST_MANAGERS`). **Bloc I** bilan session. **installman** délègue `detect_distro` / `upgrade auto` à `core/lib/`. Merge **`feat/manual-tests-g0` → `dev`**. | P5 installman modules outils ; P11 CI multi-distro ; EXT-002/005. |
+| **2026-08-17** | **Nouveau manager `dockerman`** (vue/aide Docker : cheat, search, explain, ps/images lecture, prune dry-run). **G.0** : `MANS` + `dockerman` ; tableau **G.30** ; smoke **G.0.i**. Intégré `manman` (`[O]` après virtman), `helpman`, adapters zsh/bash/fish. | Refaire **G.0**, **G.0.i**, cocher **G.30**. `ps`/`images`/`prune --apply` hors matrice CI (daemon hôte). |
 
 ---
 
@@ -1604,7 +1605,7 @@ Depuis la racine des dotfiles (`cd ~/dotfiles` ou `/root/dotfiles` dans le conte
 cd ~/dotfiles || cd /root/dotfiles
 export DOTFILES_DIR="$PWD"
 # IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout
-MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman anonyman shellman"
+MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman anonyman shellman dockerman"
 # 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
 for m in $MANS; do
   f="core/managers/$m/core/$m.sh"
@@ -1914,9 +1915,33 @@ bash -c '
 - **Attendu** : helpman en premiere ligne du catalogue ; icones `[?]` ASCII ; shellman use --session en non-TTY = simulation sans exec.
 - **`[x]`** *(2026-07-22)* · **Conforme** : O
 
+### Étape G.0.i — Smoke `dockerman` (aide Docker, non destructif) *(non-TTY)*
+
+But : charger le core POSIX, convention help, cheat/search **sans** `prune --apply` ni `docker run`.
+
+```bash
+bash -c '
+  set +o pipefail
+  cd ~/dotfiles || exit 1
+  . core/managers/dockerman/core/dockerman.sh
+  dockerman help </dev/null 2>&1 | head -n 8
+  dockerman __bogus__ </dev/null 2>&1; echo "rc_bogus=$?"
+  dockerman doctor </dev/null 2>&1 | head -n 12
+  dockerman cheat run </dev/null 2>&1 | head -n 10
+  dockerman search compose </dev/null 2>&1 | head -n 6
+  dockerman prune --dry-run </dev/null 2>&1 | head -n 8
+  . core/managers/manman/core/manman.sh
+  manman list </dev/null 2>&1 | grep dockerman
+'
+```
+
+- **Attendu** : aide DOCKERMAN sur stdout ; arg inconnu → stderr + rc≠0 ; `manman list` contient `dockerman` ; prune dry-run ne supprime rien.
+- **`[ ]`** · **Conforme** : · **Notes** : pas de `prune --apply` / `docker system prune` sur l’hôte dans ce smoke.
+- **Assistant (relecture)** : O — suite **G.30**.
+
 ---
 
-Pour **chaque** ligne du tableau **G.1–G.29** (smoke manuel complémentaire), même modèle :
+Pour **chaque** ligne du tableau **G.1–G.30** (smoke manuel complémentaire), même modèle :
 
 - **Commande** : `<manager> help` en non-TTY *(charger le core POSIX puis aide)* :
 
@@ -1961,6 +1986,7 @@ bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.
 | G.27 | updateman | [x] | UPDATEMAN — system status / all / cursor… | O | + `make test-updateman-system-smoke` Docker | O |
 | G.28 | anonyman | [x] | ANONYMAN — status/check/tor/i2p/proxy | O | Smoke `make tests-smoke-manager MANAGER=anonyman` *(2026-07-22)* ; alias anonymman | O |
 | G.29 | shellman | [x] | SHELLMAN — status/list/use --session|user|system | O | Smoke 2026-07-22 ; manman list : helpman #1 | O |
+| G.30 | dockerman | [ ] | DOCKERMAN — cheat/search/doctor/ps lecture |  | Smoke `make tests-smoke-manager MANAGER=dockerman` ; daemon optionnel |  |
 
 **Approfondir** : pour chaque fichier `scripts/test/subcommands/<manager>.list`, ajouter des lignes **G.x.y** dans tes **Notes** ou une annexe perso — c’est la voie pour se rapprocher d’une couverture « chaque sous-commande ».
 

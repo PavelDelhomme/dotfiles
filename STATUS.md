@@ -2,10 +2,12 @@
 
 > **Rôle de ce fichier** : version, **objectifs en cours**, **journal récent**. Il n’y a **ni backlog complet** (→ [`TODOS.md`](TODOS.md)) **ni procédure de test** (→ [`docs/TESTS.md`](docs/TESTS.md)) **ni incidents** (→ [`docs/ERRORS.md`](docs/ERRORS.md)). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md).
 
-**Dernière mise à jour** : 2026-07-22
+**Dernière mise à jour** : 2026-08-17
 
 ## En bref
 
+- **`dockerman`** : aide et vue Docker (`cheat` / `search` / `explain` / `ps` / prune dry-run). Catalogue `manman` icône `[O]` après virtman. Page [`docs/man/dockerman.md`](docs/man/dockerman.md).
+- **Init / preflight** : `make init help` · `make init status|plan|install|tests` · `make preflight` — plan + confirmation `OUI` avant install/bootstrap. Aide Make courte : `make help` ; catalogue : `make help-all`.
 - **Branches Git** : `main` = production ; `dev` = intégration ; flux `feat/` → `dev` → `test/` → `fix/` → `preprod` → `main`. **Ne plus supprimer** les branches après merge (archivage / traçabilité). Détail : [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
 - **Tests manuels** : passe **A→I** documentée dans [`docs/TESTS.md`](docs/TESTS.md) — **G.0→G.28**, **H.1–H.3**, **I.1–I.2** ; `make tests-copy` / `make tests-smoke-manager`.
 - **Lot 2026-07-22 (suite)** : **`shellman`** (session/user/system) ; **manman** reordonne (helpman #1, icones ASCII, pagination) ; plan racine [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md) ; wrappers scripts racine.
@@ -101,6 +103,7 @@
 
 | Période | Sujet |
 |---------|--------|
+| 2026-08-17 | **dockerman** (aide/vue Docker, cheat, prune dry-run) |
 | 2026-06-12 | **diskman** (diagnostic disque, nettoyage dry-run/apply, rapport) |
 | 2026-05-22 | **updateman cursor/status/all** (Cursor AppImage + timer systemd user) ; P3b/P8b/P8c planifies |
 | 2026-05-15 | **diffman** (diff coloré, rapports) + doc INDEX / ARCHITECTURE / TODOS |

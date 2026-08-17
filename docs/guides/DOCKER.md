@@ -10,6 +10,18 @@
 
 ## 🐳 Docker
 
+Point d’entrée quotidien : **`dockerman`** (aide-mémoire + vues lecture, sans `up`/`down` forcés).
+
+```bash
+dockerman help
+dockerman doctor
+dockerman cheat compose
+dockerman search prune
+dockerman ps all
+```
+
+Page man : [`../man/dockerman.md`](../man/dockerman.md) · catalogue : `manman list` / `helpman dockerman`.
+
 ### Installation
 
 Installation complète via le menu scripts/setup.sh (option 15) :
@@ -69,10 +81,12 @@ docker run hello-world
 ### Commandes utiles
 
 ```bash
+dockerman doctor              # daemon, compose, socket
+dockerman cheat               # toutes les commandes groupées
+dockerman search compose
 docker --version              # Vérifier la version
 docker ps                     # Lister les conteneurs
-docker-compose up             # Lancer avec docker-compose
-docker compose up             # Lancer avec docker compose (plugin)
+docker compose up             # Lancer avec docker compose (plugin v2)
 ```
 
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
@@ -122,10 +136,16 @@ make docker-clean
 - ✅ **Tests intégrés** : Vérification automatique de tous les managers
 - ✅ **Isolation totale** : Préfixe unique `dotfiles-test-*` pour ne pas toucher vos autres conteneurs
 
-**Fichiers créés :**
+**Fichiers :**
 - `Dockerfile.test` : Dockerfile pour installation automatique complète
-- `test-docker.sh` : Script de test automatique
+- `test-docker.sh` → `scripts/test/test_docker.sh` : CLI (`--help`, `--yes`, `--clean` / `--no-clean`, `--managers`, `--shell`)
 - `docker-compose.yml` : Orchestration (projet isolé avec préfixe)
+
+```bash
+bash test-docker.sh --help
+bash test-docker.sh --yes
+bash test-docker.sh --no-clean --managers shellman,helpman --shell bash
+```
 
 **Sécurité :**
 - ✅ Tous les conteneurs/images/volumes utilisent le préfixe `dotfiles-test-*`

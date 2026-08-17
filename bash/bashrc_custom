@@ -71,6 +71,7 @@ load_manager "helpman" "$DOTFILES_DIR/shells/bash/adapters/helpman.sh" "HELPMAN"
 load_manager "cyberman" "$DOTFILES_DIR/shells/bash/adapters/cyberman.sh" "CYBERMAN"
 load_manager "devman" "$DOTFILES_DIR/shells/bash/adapters/devman.sh" "DEVMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/bash/adapters/virtman.sh" "VIRTMAN"
+load_manager "dockerman" "$DOTFILES_DIR/shells/bash/adapters/dockerman.sh" "DOCKERMAN"
 load_manager "miscman" "$DOTFILES_DIR/shells/bash/adapters/miscman.sh" "MISCMAN"
 # Managers restants (wrappers temporaires)
 load_manager "netman" "$DOTFILES_DIR/shells/bash/adapters/netman.sh" "NETMAN"

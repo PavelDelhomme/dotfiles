@@ -1,13 +1,17 @@
 #!/bin/bash
 # Script pour tester l'installation complète des dotfiles dans Docker
-# Environnement complètement isolé
+# Environnement complètement isolé.
+#
+# Usage non interactif :
+#   bash scripts/test/test_docker.sh --help
+#   bash scripts/test/test_docker.sh --no-clean --managers all --shell zsh
+#   bash test-docker.sh --clean --managers pathman,gitman --shell bash
 
-set -e
+set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
@@ -16,88 +20,194 @@ log_warn()  { echo -e "${YELLOW}[!]${NC} $1"; }
 log_error() { echo -e "${RED}[✗]${NC} $1"; }
 log_step()  { echo -e "${CYAN}[→]${NC} $1"; }
 
-# Préfixe unique pour isoler des autres conteneurs Docker
 DOTFILES_PREFIX="dotfiles-test"
 CONTAINER_NAME="${DOTFILES_PREFIX}-auto"
 IMAGE_NAME="${DOTFILES_PREFIX}:auto"
 
-# Demander si on veut nettoyer les images existantes
-echo ""
-echo -e "${YELLOW}⚠️  Image Docker existante détectée${NC}"
-read -p "Voulez-vous nettoyer les images Docker existantes avant de reconstruire? (o/N): " clean_choice
-clean_choice=${clean_choice:-n}
+# Racine du dépôt (script peut être appelé via wrapper racine)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+DOCKERFILE="${DOTFILES_DIR}/Dockerfile.test"
 
-if [[ "$clean_choice" =~ ^[oO]$ ]]; then
-    log_step "Nettoyage UNIQUEMENT des conteneurs et images dotfiles-test..."
-    # Nettoyer uniquement les conteneurs avec notre préfixe
-    CONTAINERS=$(docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" 2>/dev/null || true)
-    if [ -n "$CONTAINERS" ]; then
-        echo "$CONTAINERS" | xargs -r docker stop 2>/dev/null || true
-        echo "$CONTAINERS" | xargs -r docker rm 2>/dev/null || true
-        log_info "✓ Conteneurs nettoyés"
-    fi
-    # Nettoyer uniquement les images avec notre préfixe
-    IMAGES=$(docker images --filter "reference=${DOTFILES_PREFIX}*" --format "{{.Repository}}:{{.Tag}}" 2>/dev/null || true)
-    if [ -n "$IMAGES" ]; then
-        echo "$IMAGES" | xargs -r docker rmi 2>/dev/null || true
-        log_info "✓ Images nettoyées"
-    fi
-    # Nettoyer aussi les images avec le tag exact
-    docker rmi "${IMAGE_NAME}" 2>/dev/null || true
-    log_info "✅ Nettoyage terminé"
-else
-    log_info "ℹ️  Nettoyage ignoré, utilisation des images existantes si disponibles"
-fi
+CLEAN_MODE=""          # yes | no | "" (demander si TTY)
+MANAGERS_CHOICE=""     # all | none | liste CSV | "" (demander si TTY)
+SELECTED_SHELL=""      # zsh | bash | fish | "" (demander si TTY)
+ASSUME_YES=0
 
-# Demander quels managers activer
-echo ""
-echo -e "${CYAN}📦 SÉLECTION DES MANAGERS À ACTIVER${NC}"
-echo -e "${YELLOW}Quels managers voulez-vous activer dans Docker?${NC}"
-echo ""
+usage() {
+	cat <<'EOF'
+test-docker.sh — construire et lancer l'image de test isolée (dotfiles-test)
 
-# Liste des managers avec leurs descriptions (triée par ordre alphabétique)
-declare -A MANAGER_DESCS=(
-    ["aliaman"]="Gestionnaire alias"
-    ["configman"]="Gestionnaire configuration"
-    ["cyberman"]="Gestionnaire cybersécurité"
-    ["devman"]="Gestionnaire développement"
-    ["fileman"]="Gestionnaire fichiers"
-    ["gitman"]="Gestionnaire Git"
-    ["helpman"]="Gestionnaire aide/documentation"
-    ["installman"]="Gestionnaire installation"
-    ["manman"]="Manager of Managers"
-    ["miscman"]="Gestionnaire divers"
-    ["moduleman"]="Gestionnaire modules"
-    ["netman"]="Gestionnaire réseau"
-    ["pathman"]="Gestionnaire PATH"
-    ["searchman"]="Gestionnaire recherche"
-    ["sshman"]="Gestionnaire SSH"
-    ["testman"]="Gestionnaire tests applications"
-    ["testzshman"]="Gestionnaire tests ZSH/dotfiles"
-    ["virtman"]="Gestionnaire virtualisation"
-)
+Usage:
+  test-docker.sh [options]
+  bash test-docker.sh --help
 
-# Créer un tableau trié des noms de managers
-MANAGER_NAMES=($(printf '%s\n' "${!MANAGER_DESCS[@]}" | sort))
+Options:
+  -h, --help              Afficher cette aide et quitter (aucune interaction)
+  --clean                 Supprimer conteneurs/images préfixe dotfiles-test avant build
+  --no-clean              Garder les images existantes (défaut non-TTY / CI)
+  -y, --yes               Mode non interactif : --no-clean + managers=all + shell=zsh
+                          si les options correspondantes ne sont pas fournies
+  --managers LIST         all | none | noms séparés par des virgules
+                          (ex: pathman,gitman,shellman)
+  --shell SHELL           zsh | bash | fish (défaut: zsh)
 
-# Afficher la liste triée
-echo "Managers disponibles (triés par ordre alphabétique):"
-local_index=1
-declare -A MANAGER_MAP
-for manager_name in "${MANAGER_NAMES[@]}"; do
-    MANAGER_MAP["$local_index"]="$manager_name"
-    printf " %2d) %-15s - %s\n" "$local_index" "$manager_name" "${MANAGER_DESCS[$manager_name]}"
-    ((local_index++))
+Exemples:
+  bash test-docker.sh --help
+  bash test-docker.sh --yes
+  bash test-docker.sh --no-clean --managers all --shell zsh
+  bash test-docker.sh --clean --managers shellman,helpman --shell bash
+
+Notes:
+  - Sans options et sur un TTY : menus interactifs (nettoyage seulement si image
+    préfixe détectée, puis managers, puis shell).
+  - Sans TTY (pipe/CI) : équivalent à --yes (pas de prompts).
+  - Préfixe Docker isolé : dotfiles-test (ne touche pas vos autres images).
+EOF
+}
+
+is_tty() {
+	[[ -t 0 && -t 1 ]]
+}
+
+existing_dotfiles_images() {
+	docker images --filter "reference=${DOTFILES_PREFIX}*" --format "{{.Repository}}:{{.Tag}}" 2>/dev/null || true
+}
+
+existing_dotfiles_containers() {
+	docker ps -a --filter "name=${DOTFILES_PREFIX}" --format "{{.Names}}" 2>/dev/null || true
+}
+
+cleanup_dotfiles_docker() {
+	log_step "Nettoyage UNIQUEMENT des conteneurs et images ${DOTFILES_PREFIX}..."
+	local containers images
+	containers=$(existing_dotfiles_containers)
+	if [[ -n "$containers" ]]; then
+		echo "$containers" | xargs -r docker stop 2>/dev/null || true
+		echo "$containers" | xargs -r docker rm 2>/dev/null || true
+		log_info "Conteneurs nettoyés"
+	fi
+	images=$(existing_dotfiles_images)
+	if [[ -n "$images" ]]; then
+		echo "$images" | xargs -r docker rmi 2>/dev/null || true
+		log_info "Images nettoyées"
+	fi
+	docker rmi "${IMAGE_NAME}" 2>/dev/null || true
+	log_info "Nettoyage terminé"
+}
+
+# --- parse args (avant tout prompt / message trompeur) ---
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		--clean)
+			CLEAN_MODE=yes
+			shift
+			;;
+		--no-clean)
+			CLEAN_MODE=no
+			shift
+			;;
+		-y|--yes|--non-interactive)
+			ASSUME_YES=1
+			shift
+			;;
+		--managers)
+			[[ $# -ge 2 ]] || { log_error "--managers nécessite une valeur"; exit 2; }
+			MANAGERS_CHOICE="$2"
+			shift 2
+			;;
+		--managers=*)
+			MANAGERS_CHOICE="${1#*=}"
+			shift
+			;;
+		--shell)
+			[[ $# -ge 2 ]] || { log_error "--shell nécessite une valeur"; exit 2; }
+			SELECTED_SHELL="$2"
+			shift 2
+			;;
+		--shell=*)
+			SELECTED_SHELL="${1#*=}"
+			shift
+			;;
+		*)
+			log_error "Option inconnue: $1"
+			echo "Essayez: bash test-docker.sh --help" >&2
+			exit 2
+			;;
+	esac
 done
 
-echo ""
-echo -e "${YELLOW}Format: numéros séparés par des espaces (ex: 1 2 3 6 7 9)${NC}"
-echo -e "${YELLOW}Ou 'all' pour tout activer, 'none' pour rien activer${NC}"
-read -p "Votre choix: " managers_choice
-managers_choice=${managers_choice:-all}
+# Non-TTY ou --yes → defaults silencieux
+if [[ "$ASSUME_YES" -eq 1 ]] || ! is_tty; then
+	[[ -n "$CLEAN_MODE" ]] || CLEAN_MODE=no
+	[[ -n "$MANAGERS_CHOICE" ]] || MANAGERS_CHOICE=all
+	[[ -n "$SELECTED_SHELL" ]] || SELECTED_SHELL=zsh
+fi
 
-# Créer un fichier temporaire avec la configuration des managers
+declare -A MANAGER_DESCS=(
+	["aliaman"]="Gestionnaire alias"
+	["configman"]="Gestionnaire configuration"
+	["cyberman"]="Gestionnaire cybersécurité"
+	["devman"]="Gestionnaire développement"
+	["fileman"]="Gestionnaire fichiers"
+	["gitman"]="Gestionnaire Git"
+	["helpman"]="Gestionnaire aide/documentation"
+	["installman"]="Gestionnaire installation"
+	["manman"]="Manager of Managers"
+	["miscman"]="Gestionnaire divers"
+	["moduleman"]="Gestionnaire modules"
+	["netman"]="Gestionnaire réseau"
+	["pathman"]="Gestionnaire PATH"
+	["searchman"]="Gestionnaire recherche"
+	["shellman"]="Gestionnaire shell (session/user/system)"
+	["dockerman"]="Gestionnaire Docker (ps/images/compose/cheat)"
+	["sshman"]="Gestionnaire SSH"
+	["testman"]="Gestionnaire tests applications"
+	["testzshman"]="Gestionnaire tests ZSH/dotfiles"
+	["virtman"]="Gestionnaire virtualisation"
+)
+MANAGER_NAMES=($(printf '%s\n' "${!MANAGER_DESCS[@]}" | sort))
+
+# --- nettoyage ---
+do_clean=0
+if [[ "$CLEAN_MODE" == "yes" ]]; then
+	do_clean=1
+elif [[ "$CLEAN_MODE" == "no" ]]; then
+	do_clean=0
+else
+	# Interactif : ne proposer le nettoyage que s'il y a réellement quelque chose
+	imgs=$(existing_dotfiles_images)
+	ctrs=$(existing_dotfiles_containers)
+	if [[ -n "$imgs" || -n "$ctrs" ]]; then
+		echo ""
+		log_warn "Ressources Docker « ${DOTFILES_PREFIX} » déjà présentes"
+		[[ -n "$ctrs" ]] && echo -e "  Conteneurs: ${CYAN}${ctrs}${NC}"
+		[[ -n "$imgs" ]] && echo -e "  Images:     ${CYAN}${imgs}${NC}"
+		echo -e "${YELLOW}Cela ne concerne QUE le préfixe ${DOTFILES_PREFIX} (pas vos autres images).${NC}"
+		read -r -p "Nettoyer avant de reconstruire ? (o/N): " clean_choice
+		clean_choice=${clean_choice:-n}
+		if [[ "$clean_choice" =~ ^[oO]$ ]]; then
+			do_clean=1
+		else
+			log_info "Nettoyage ignoré — réutilisation des images existantes si possible"
+		fi
+	else
+		log_info "Aucune image/conteneur ${DOTFILES_PREFIX} détecté — pas de nettoyage"
+	fi
+fi
+
+if [[ "$do_clean" -eq 1 ]]; then
+	cleanup_dotfiles_docker
+fi
+
+# --- sélection managers ---
 MANAGERS_CONFIG=$(mktemp)
+trap 'rm -f "$MANAGERS_CONFIG"' EXIT
+
 cat > "$MANAGERS_CONFIG" << 'EOF'
 # Configuration des modules - Moduleman
 # Format compatible Zsh et Fish
@@ -105,96 +215,153 @@ cat > "$MANAGERS_CONFIG" << 'EOF'
 # Fish: set -g MODULE_<nom> enabled|disabled
 EOF
 
-# Traiter le choix
-if [[ "$managers_choice" == "all" ]]; then
-    # Activer tous les managers
-    for manager in "${MANAGER_NAMES[@]}"; do
-        echo "MODULE_${manager}=enabled" >> "$MANAGERS_CONFIG"
-    done
-    log_info "✓ Tous les managers seront activés"
-elif [[ "$managers_choice" == "none" ]]; then
-    # Désactiver tous les managers
-    for manager in "${MANAGER_NAMES[@]}"; do
-        echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
-    done
-    log_info "✓ Aucun manager ne sera activé"
-else
-    # Activer seulement les managers sélectionnés
-    for num in $managers_choice; do
-        if [[ -n "${MANAGER_MAP[$num]}" ]]; then
-            echo "MODULE_${MANAGER_MAP[$num]}=enabled" >> "$MANAGERS_CONFIG"
-            log_info "✓ ${MANAGER_MAP[$num]} sera activé"
-        fi
-    done
-    # Désactiver les autres
-    for manager in "${MANAGER_NAMES[@]}"; do
-        # Vérifier si ce manager a été sélectionné
-        found=false
-        for num in $managers_choice; do
-            if [[ "${MANAGER_MAP[$num]}" == "$manager" ]]; then
-                found=true
-                break
-            fi
-        done
-        if [[ "$found" == "false" ]]; then
-            echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
-        fi
-    done
+if [[ -z "$MANAGERS_CHOICE" ]]; then
+	echo ""
+	echo -e "${CYAN}📦 SÉLECTION DES MANAGERS À ACTIVER${NC}"
+	echo -e "${YELLOW}Quels managers voulez-vous activer dans Docker?${NC}"
+	echo ""
+	echo "Managers disponibles:"
+	local_index=1
+	declare -A MANAGER_MAP
+	for manager_name in "${MANAGER_NAMES[@]}"; do
+		MANAGER_MAP["$local_index"]="$manager_name"
+		printf " %2d) %-15s - %s\n" "$local_index" "$manager_name" "${MANAGER_DESCS[$manager_name]}"
+		((local_index++)) || true
+	done
+	echo ""
+	echo -e "${YELLOW}Format: numéros (ex: 1 2 3) | 'all' | 'none' | noms (ex: pathman,gitman)${NC}"
+	read -r -p "Votre choix [all]: " managers_input
+	MANAGERS_CHOICE=${managers_input:-all}
 fi
 
-# Demander quel shell utiliser pour les tests
-echo ""
-echo -e "${CYAN}🐚 SÉLECTION DU SHELL DE TEST${NC}"
-echo -e "${YELLOW}Quel shell voulez-vous utiliser pour tester?${NC}"
-echo ""
-echo "  1) zsh (recommandé - toutes les fonctionnalités)"
-echo "  2) bash (test de compatibilité basique)"
-echo "  3) fish (test de compatibilité basique)"
-echo ""
-read -p "Votre choix [défaut: 1 (zsh)]: " shell_choice
-shell_choice=${shell_choice:-1}
+write_all_enabled() {
+	local m
+	for m in "${MANAGER_NAMES[@]}"; do
+		echo "MODULE_${m}=enabled" >> "$MANAGERS_CONFIG"
+	done
+}
 
-case "$shell_choice" in
-    1) SELECTED_SHELL="zsh" ;;
-    2) SELECTED_SHELL="bash" ;;
-    3) SELECTED_SHELL="fish" ;;
-    *) SELECTED_SHELL="zsh" ;;
+write_all_disabled() {
+	local m
+	for m in "${MANAGER_NAMES[@]}"; do
+		echo "MODULE_${m}=disabled" >> "$MANAGERS_CONFIG"
+	done
+}
+
+case "$MANAGERS_CHOICE" in
+	all)
+		write_all_enabled
+		log_info "Tous les managers seront activés"
+		;;
+	none)
+		write_all_disabled
+		log_info "Aucun manager ne sera activé"
+		;;
+	*)
+		# Numéros (interactif) ou noms CSV
+		if [[ "$MANAGERS_CHOICE" =~ ^[0-9\ ]+$ ]]; then
+			declare -A MANAGER_MAP=()
+			local_index=1
+			for manager_name in "${MANAGER_NAMES[@]}"; do
+				MANAGER_MAP["$local_index"]="$manager_name"
+				((local_index++)) || true
+			done
+			declare -A SELECTED=()
+			for num in $MANAGERS_CHOICE; do
+				if [[ -n "${MANAGER_MAP[$num]:-}" ]]; then
+					SELECTED["${MANAGER_MAP[$num]}"]=1
+					log_info "${MANAGER_MAP[$num]} sera activé"
+				fi
+			done
+			for manager in "${MANAGER_NAMES[@]}"; do
+				if [[ -n "${SELECTED[$manager]:-}" ]]; then
+					echo "MODULE_${manager}=enabled" >> "$MANAGERS_CONFIG"
+				else
+					echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
+				fi
+			done
+		else
+			IFS=', ' read -r -a WANT <<< "$MANAGERS_CHOICE"
+			declare -A SELECTED=()
+			local any=0
+			for name in "${WANT[@]}"; do
+				[[ -z "$name" ]] && continue
+				if [[ -z "${MANAGER_DESCS[$name]+x}" ]]; then
+					log_warn "Manager inconnu ignoré: $name"
+					continue
+				fi
+				SELECTED["$name"]=1
+				any=1
+				log_info "$name sera activé"
+			done
+			if [[ "$any" -eq 0 ]]; then
+				log_error "Aucun manager valide dans: $MANAGERS_CHOICE"
+				exit 2
+			fi
+			for manager in "${MANAGER_NAMES[@]}"; do
+				if [[ -n "${SELECTED[$manager]:-}" ]]; then
+					echo "MODULE_${manager}=enabled" >> "$MANAGERS_CONFIG"
+				else
+					echo "MODULE_${manager}=disabled" >> "$MANAGERS_CONFIG"
+				fi
+			done
+		fi
+		;;
 esac
 
-log_info "✓ Shell sélectionné: $SELECTED_SHELL"
+# --- shell ---
+if [[ -z "$SELECTED_SHELL" ]]; then
+	echo ""
+	echo -e "${CYAN}🐚 SÉLECTION DU SHELL DE TEST${NC}"
+	echo "  1) zsh (recommandé)"
+	echo "  2) bash"
+	echo "  3) fish"
+	read -r -p "Votre choix [1]: " shell_choice
+	shell_choice=${shell_choice:-1}
+	case "$shell_choice" in
+		1|zsh) SELECTED_SHELL=zsh ;;
+		2|bash) SELECTED_SHELL=bash ;;
+		3|fish) SELECTED_SHELL=fish ;;
+		*) SELECTED_SHELL=zsh ;;
+	esac
+fi
 
-log_step "Construction de l'image Docker avec installation automatique (isolée)..."
-# Utiliser --load pour charger l'image dans Docker (nécessaire avec BuildKit)
-# Passer le fichier de configuration des managers et le shell comme build arg
+case "$SELECTED_SHELL" in
+	zsh|bash|fish) ;;
+	*)
+		log_error "Shell invalide: $SELECTED_SHELL (zsh|bash|fish)"
+		exit 2
+		;;
+esac
+log_info "Shell sélectionné: $SELECTED_SHELL"
+
+if [[ ! -f "$DOCKERFILE" ]]; then
+	log_error "Dockerfile.test introuvable: $DOCKERFILE"
+	exit 1
+fi
+
+log_step "Construction de l'image Docker isolée..."
 docker build --load \
-    --build-arg MANAGERS_CONFIG="$(cat "$MANAGERS_CONFIG")" \
-    --build-arg SELECTED_SHELL="$SELECTED_SHELL" \
-    -f Dockerfile.test \
-    -t "$IMAGE_NAME" . || {
-    log_error "Échec de la construction de l'image"
-    rm -f "$MANAGERS_CONFIG"
-    exit 1
+	--build-arg MANAGERS_CONFIG="$(cat "$MANAGERS_CONFIG")" \
+	--build-arg SELECTED_SHELL="$SELECTED_SHELL" \
+	-f "$DOCKERFILE" \
+	-t "$IMAGE_NAME" \
+	"$DOTFILES_DIR" || {
+	log_error "Échec de la construction de l'image"
+	exit 1
 }
-rm -f "$MANAGERS_CONFIG"
-log_info "✅ Image isolée créée: $IMAGE_NAME (ne touche pas vos autres conteneurs)"
+log_info "Image isolée créée: $IMAGE_NAME"
 
-log_info "✅ Image construite avec succès"
-
-log_step "Lancement du conteneur avec installation automatique..."
-# Utiliser --rm pour supprimer automatiquement le conteneur après exécution
-# Ne pas utiliser -it si on veut juste voir la sortie sans interaction
+log_step "Lancement du conteneur..."
 docker run --rm \
-    --name "$CONTAINER_NAME" \
-    -v "$(pwd):/root/dotfiles:ro" \
-    "$IMAGE_NAME" || {
-    log_error "Échec du lancement du conteneur"
-    exit 1
+	--name "$CONTAINER_NAME" \
+	-v "${DOTFILES_DIR}:/root/dotfiles:ro" \
+	"$IMAGE_NAME" || {
+	log_error "Échec du lancement du conteneur"
+	exit 1
 }
 
-log_info "✅ Tests terminés !"
+log_info "Tests terminés !"
 echo ""
-echo -e "${CYAN}💡 Pour tester manuellement, lancez:${NC}"
-echo -e "${GREEN}   make docker-start${NC}"
-echo -e "${YELLOW}   (Plus simple que docker exec !)${NC}"
+echo -e "${CYAN}Pour tester manuellement:${NC} make docker-start"
 echo ""
-

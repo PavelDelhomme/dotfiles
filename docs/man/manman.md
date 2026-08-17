@@ -67,6 +67,7 @@ Le menu affichera tous les gestionnaires disponibles :
 - **moduleman** - Gestion des modules
 - **fileman** - Gestion des fichiers
 - **virtman** - Virtualisation (QEMU/KVM, Docker, etc.)
+- **dockerman** - Docker quotidien (ps, images, compose, cheat)
 - **sshman** - Gestion SSH (connexions, clés, configuration)
 - **processman** - Gestion des processus (recherche, kill, restart, signaux)
 - **routeman** - Gestion des routes IP (ajout, suppression, modification, visualisation)
@@ -89,6 +90,7 @@ Le menu affichera tous les gestionnaires disponibles :
 - **moduleman**(1) - Gestionnaire modules
 - **fileman**(1) - Gestionnaire fichiers
 - **virtman**(1) - Gestionnaire virtualisation
+- **dockerman**(1) - Vue et aide Docker
 - **sshman**(1) - Gestionnaire SSH
 - **processman**(1) - Gestionnaire processus
 - **routeman**(1) - Gestionnaire routes IP

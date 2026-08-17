@@ -66,6 +66,32 @@ DOTFILES_REPO="${GITHUB_REPO_URL:-https://github.com/PavelDelhomme/dotfiles.git}
 
 log_section "Bootstrap Installation - Dotfiles"
 
+################################################################################
+# 0. PREFLIGHT — état existant + plan (sauf si DOTFILES_SKIP_PREFLIGHT=1)
+################################################################################
+_PREFLIGHT="${DOTFILES_DIR}/scripts/bootstrap/preflight.sh"
+if [ "${DOTFILES_SKIP_PREFLIGHT:-0}" != "1" ] && [ -f "$_PREFLIGHT" ]; then
+    bash "$_PREFLIGHT" --plan bootstrap --gate || {
+        log_warn "Bootstrap annulé après preflight."
+        exit 1
+    }
+elif [ "${DOTFILES_SKIP_PREFLIGHT:-0}" != "1" ] && [ ! -f "$_PREFLIGHT" ]; then
+    # Dépôt pas encore cloné : mini-garde locale
+    if [ -d "$DOTFILES_DIR" ] || [ -L "$HOME/.zshrc" ] || [ -f "$HOME/.bashrc" ]; then
+        echo ""
+        log_warn "Traces possibles d'une config shell / dossier $DOTFILES_DIR déjà présents."
+        log_warn "Après clonage, préférez: cd ~/dotfiles && make init status|plan|install"
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Continuer le bootstrap quand même? (tapez 'OUI'): "
+            read -r _pf_ans </dev/tty 2>/dev/null || read -r _pf_ans
+            if [ "$_pf_ans" != "OUI" ]; then
+                log_warn "Bootstrap annulé."
+                exit 1
+            fi
+        fi
+    fi
+fi
+
 # Créer le fichier .env depuis .env.example si nécessaire (après le clonage)
 # Cette partie sera exécutée plus tard dans le script
 

@@ -465,6 +465,27 @@ manman list                    # catalogue : helpman en #1, icones ASCII, statut
 
 **Documentation :** [`../man/shellman.md`](../man/shellman.md) · racine : [`../architecture/ROOT_LAYOUT.md`](../architecture/ROOT_LAYOUT.md)
 
+### 🐳 Dockerman — commandes Docker du quotidien
+
+Aide-mémoire + vues lecture (`ps`, images, compose). Rien de destructif sans `prune --apply`.
+
+```bash
+dockerman help
+dockerman doctor              # daemon / compose / socket
+dockerman status              # ps compact + df
+dockerman cheat run           # aide-memoire groupe (ps|run|images|compose|…)
+dockerman search compose
+dockerman explain prune
+dockerman ps all
+dockerman prefix              # seulement dotfiles-test*
+dockerman prune --dry-run
+dockerman cmd -- docker ps -a
+manman list                   # [O] dockerman après virtman
+helpman dockerman             # délégation --help
+```
+
+**Documentation :** [`../man/dockerman.md`](../man/dockerman.md) · guide : [`DOCKER.md`](DOCKER.md)
+
 ### 🛠️ Miscman - Gestionnaire Outils Divers
 
 
@@ -688,6 +709,7 @@ virtman overview           # Vue d'ensemble
 - **LXC** : Gestion des conteneurs LXC (créer, démarrer, arrêter, shell)
 - **Vagrant** : Gestion des VMs Vagrant (init, up, down, ssh, provision)
 - **Vue d'ensemble** : Résumé de tous les environnements virtuels
+- Pour **uniquement Docker** (aide-mémoire + `ps`/`images`/`cheat`) : **`dockerman`** — [`../man/dockerman.md`](../man/dockerman.md)
 
 **Exemples :**
 ```bash

@@ -80,6 +80,7 @@ Usage :
 Exemples :
   helpman --help                tutoriel man / help / dotfiles (menu)
   helpman installman            délègue à installman --help
+  helpman dockerman             aide Docker (cheat / ps / compose)
   man ls                        page man système
   help extract                  aide courte (DESC / USAGE / EXAMPLE)
 

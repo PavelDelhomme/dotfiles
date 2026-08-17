@@ -23,6 +23,34 @@
 
 ## 🚀 Installation rapide (nouvelle machine)
 
+### Preflight (obligatoire avant d’agir)
+
+Avant toute install / reset / bootstrap, le dépôt vérifie l’état machine et affiche un **plan** :
+
+```bash
+cd ~/dotfiles          # si déjà cloné
+make init status       # rapport
+make init plan         # plan d’install sans appliquer
+make init help         # aide procédures (≠ make init --help = aide GNU Make)
+make preflight         # alias check
+```
+
+Confirmation explicite : taper **`OUI`**. Contournement CI : `DOTFILES_SKIP_PREFLIGHT=1` ou `--yes`.
+
+### Machine vide — accès Makefile / tests SANS installer l’hôte
+
+```bash
+git clone https://github.com/PavelDelhomme/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make init help
+make help              # aide courte
+make help-all          # catalogue
+make tests | make docker-in
+bash test-docker.sh --yes
+```
+
+Les managers sur l’hôte (pathman, shellman, …) nécessitent ensuite `make init install` ou `make setup`.
+
 ### Installation en une seule commande
 
 **UNE SEULE LIGNE** pour tout installer et configurer :

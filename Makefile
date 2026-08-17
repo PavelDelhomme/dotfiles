@@ -1,16 +1,11 @@
 # Makefile pour dotfiles - PavelDelhomme
-# Version: 2.0.0
+# Version: 2.1.0
 #
-# Usage:
-#   make install          - Installation complète (bootstrap)
-#   make setup            - Lancer le menu interactif
-#   make validate         - Valider le setup
-#   make rollback         - Rollback complet
-#   make reset            - Réinitialisation complète
-#   make help             - Afficher l'aide
-#   make generate-man     - Générer les pages man pour toutes les fonctions
+# Point d'entrée:
+#   make help | make init help | make help-all
+#   make init status|plan|install|tests
 
-.PHONY: help install setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy tests-copy-smoke tests-smoke-manager tests-preview test-updateman-system-smoke test-updateman-cursor-release test-updateman-registry-smoke test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
+.PHONY: help help-all init init-help help-init preflight install install-all setup validate rollback reset clean symlinks migrate generate-man test tests test-menu tests-start tests-manual-start tests-copy tests-copy-smoke tests-smoke-manager tests-preview test-updateman-system-smoke test-updateman-cursor-release test-updateman-registry-smoke test-all test-checks test-dotfiles-good test-docker test-docker-full test-docker-manager test-subcommands test-subcommands-quick test-bootstrap-apply test-configman-apply test-full test-syntax test-managers test-manager test-scripts test-libs test-zshrc test-alias test-help test-menu-fzf test-menu-quit test-dotcli-f7 sandbox-guide docker-build docker-run docker-test docker-stop docker-clean docker-test-auto docker-build-test docker-start sync-all-shells sync-manager sync-managers test-multi-shells test-sync test-all-complete convert-manager build-ncmenu install-ncmenu build-dotcli test-dotcli build-dotcli-tui test-dotcli-tui
 .DEFAULT_GOAL := help
 
 DOTFILES_DIR ?= $(HOME)/dotfiles
@@ -25,184 +20,170 @@ RED := \033[0;31m
 MAGENTA := \033[0;35m
 NC := \033[0m
 
-help: ## Afficher cette aide
+# Sous-commandes « make init <cmd> » : neutraliser les cibles Make homonymes
+ifneq ($(filter init,$(MAKECMDGOALS)),)
+  INIT_ACTIVE := 1
+else
+  INIT_ACTIVE := 0
+endif
+
+# Fantômes pour sous-commandes sans cible Make (évite « No rule to make target »)
+# help / install / tests / menu : recettes existantes + INIT_ACTIVE
+ifeq ($(INIT_ACTIVE),1)
+status plan check:
+	@:
+endif
+
+help: ## Aide courte (démarrer ici)
+ifeq ($(INIT_ACTIVE),1)
+	@:
+else
 	@echo -e "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
-	@echo -e "$(BLUE)  Dotfiles - Makefile Commands$(NC)"
+	@echo -e "$(BLUE)  Dotfiles — aide Makefile$(NC)"
 	@echo -e "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
 	@echo ""
+	@echo -e "$(GREEN)Par où commencer$(NC)"
+	@echo "  make init help       - Aide d'initialisation (machine vide, plan, install, tests)"
+	@echo "  make init status     - Voir ce qui est déjà installé / présent sur la machine"
+	@echo "  make init plan       - Afficher le plan d'install SANS rien appliquer"
+	@echo "  make init install    - Preflight + confirmation (OUI) + bootstrap"
+	@echo "  make init tests      - Chemin tests isolés (Docker) sans polluer l'hôte"
+	@echo "  make init            - Menu court init"
+	@echo ""
+	@echo -e "$(YELLOW)Note: « make init --help » = aide de GNU Make. Utilisez: make init help$(NC)"
+	@echo ""
+	@echo -e "$(GREEN)Installation / setup$(NC)"
+	@echo "  make install         - Idem init install (preflight + bootstrap)"
+	@echo "  make setup           - Menu interactif scripts/setup.sh"
+	@echo "  make validate        - Valider le setup"
+	@echo "  make symlinks        - Créer les symlinks shell"
+	@echo "  make migrate         - Migrer une config existante"
+	@echo ""
+	@echo -e "$(GREEN)Tests (recommandé: conteneur)$(NC)"
+	@echo "  make tests           - Menu interactif des tests"
+	@echo "  make tests-start     - Parcours manuel docs/TESTS.md"
+	@echo "  make docker-in       - Bac à sable distro × shell (isolé)"
+	@echo "  make test            - CI Docker (managers + matrice sous-commandes)"
+	@echo "  bash test-docker.sh --help | --yes"
+	@echo "  make test-help       - Aide détaillée filtres / bac à sable"
+	@echo "  make sandbox-guide   - Afficher scripts/test/SANDBOX.md"
+	@echo ""
+	@echo -e "$(GREEN)Maintenance$(NC)"
+	@echo "  make rollback        - Désinstaller (preflight + confirmation OUI)"
+	@echo "  make reset           - Remise à zéro (preflight + confirmation OUI)"
+	@echo "  make clean           - Fichiers temporaires / locks"
+	@echo "  make preflight       - Rapport d'état seul"
+	@echo ""
+	@echo -e "$(GREEN)Menus / outils$(NC)"
+	@echo "  make menu | setup | shell-menu | fix | docker-vm | vm-list …"
+	@echo "  make help-all        - Catalogue complet de toutes les cibles"
+	@echo ""
+	@echo -e "Docs: docs/INDEX.md · docs/guides/INSTALL.md · docs/TESTS.md"
+	@echo ""
+endif
+
+help-all: ## Catalogue complet des cibles Make
+	@echo -e "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
+	@echo -e "$(BLUE)  Dotfiles — catalogue complet (make help-all)$(NC)"
+	@echo -e "$(BLUE)════════════════════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo -e "$(GREEN)Init / preflight:$(NC)"
+	@echo "  make init | init help | init status | init plan | init install | init tests"
+	@echo "  make preflight       - scripts/bootstrap/preflight.sh --check"
+	@echo ""
 	@echo -e "$(GREEN)Installation:$(NC)"
-	@echo "  make install          - Installation complète depuis zéro (bootstrap)"
-	@echo "  make setup             - Lancer le menu interactif setup.sh"
-	@echo "  make symlinks          - Créer les symlinks pour centraliser la config"
-	@echo "  make migrate           - Migrer configuration existante vers dotfiles"
+	@echo "  make install          - Preflight + bootstrap"
+	@echo "  make setup             - Menu interactif setup.sh"
+	@echo "  make symlinks          - Créer les symlinks"
+	@echo "  make migrate           - Migrer configuration existante"
 	@echo ""
 	@echo -e "$(GREEN)Validation:$(NC)"
 	@echo "  make validate          - Valider le setup complet"
 	@echo ""
 	@echo -e "$(GREEN)Tests:$(NC)"
-	@echo "  make tests | test-menu - Menu interactif (shells, managers, Docker / local, aide)"
-	@echo "  make tests-start        - Parcours manuel (docs/TESTS.md) : prérequis, docker-in, dotcli, etc."
-	@echo "  make tests-copy STEP=G.0.b [LINE=n] - Copier bloc/ligne de docs/TESTS.md vers le presse-papiers"
-	@echo "  make tests-preview       - Générer docs/TESTS.preview.html (boutons copier par ligne)"
-	@echo "  make tests-copy-smoke MANAGER=pathman - Copier commande smoke G.x (tableau managers)"
-	@echo "  make tests-smoke-manager MANAGER=pathman - Exécuter smoke help d'un manager"
-	@echo "  make test              - Docker : manager_tester + matrice sous-commandes (sans menu ; CI)"
-	@echo "  make test-full         - Alias de test-docker (même flux)"
-	@echo "  make test-docker       - Managers migrés + matrice subcommands dans le même conteneur"
-	@echo "  make test-docker-full  - Alias de test-docker"
-	@echo "  make test-subcommands   - Matrice sous-commandes × shells (Docker, image dotfiles-test)"
-	@echo "  make test-subcommands-quick - Idem SUBCOMMAND_TIER=quick dans Docker"
-	@echo "  make test-bootstrap-apply - Docker : re-apply shell/prompt depuis checkout local"
-	@echo "  make test-help           - Aide complète : DOTFILES_TEST_MANAGERS, bac à sable, fichiers .env"
-	@echo "  make test-menu-fzf       - Vérifie les menus fzf + fallback tty"
-	@echo "  make sandbox-guide       - Afficher scripts/test/SANDBOX.md (Docker live, chemins conteneur)"
-	@echo "  Filtrer les managers :   DOTFILES_TEST_MANAGERS=pathman,installman make test"
-	@echo "  (alias explicite)        TEST_MANAGERS=\"pathman installman\" make test-subcommands"
-	@echo "  make test-docker-manager MANAGER=gitman - Tester un seul manager dans Docker"
-	@echo "  make test-checks       - Vérif. projet (syntaxe core/adapters/scripts + URLs), Docker ou local"
-	@echo "  make test-all          - Test local (syntaxe + présence managers, sans Docker)"
-	@echo "  make test-syntax       - Tester la syntaxe de tous les scripts"
-	@echo "  make test-managers     - Vérifier présence et structure des managers"
-	@echo "  make test-manager MANAGER=aliaman - Tester un manager spécifique (local)"
-	@echo "  make test-scripts      - Tester les scripts de configuration"
-	@echo "  make test-libs         - Tester les bibliothèques communes"
-	@echo "  make test-zshrc        - Tester zshrc_custom"
-	@echo "  make test-alias        - Tester les alias"
+	@echo "  make tests | test-menu - Menu interactif"
+	@echo "  make tests-start        - Parcours manuel docs/TESTS.md"
+	@echo "  make tests-copy STEP=G.0.b [LINE=n]"
+	@echo "  make tests-preview | tests-copy-smoke MANAGER=pathman | tests-smoke-manager MANAGER=pathman"
+	@echo "  make test | test-docker | test-docker-full | test-full"
+	@echo "  make test-subcommands | test-subcommands-quick"
+	@echo "  make test-bootstrap-apply | test-help | test-menu-fzf | sandbox-guide"
+	@echo "  DOTFILES_TEST_MANAGERS=pathman,installman make test"
+	@echo "  make test-docker-manager MANAGER=gitman"
+	@echo "  make test-checks | test-all | test-syntax | test-managers | test-manager MANAGER=aliaman"
+	@echo "  make test-scripts | test-libs | test-zshrc | test-alias"
 	@echo ""
-	@echo -e "$(GREEN)Docker (Tests conteneurisés):$(NC)"
-	@echo "  make docker-in         - Bac à sable : distro + shell (menus si TTY), DOCKER_* (voir Makefile + scripts/test/docker/docker_in.sh)"
-	@echo "  make docker-build      - Construire l'image Docker"
-	@echo "  make docker-rebuild   - Reconstruire l'image (nocache)"
-	@echo "  make docker-run        - Lancer un conteneur interactif (zsh)"
-	@echo "  make docker-compose-up - Lancer avec docker-compose"
-	@echo "  make docker-test       - Tester les dotfiles dans Docker"
-	@echo "  make docker-shell      - Ouvrir un shell dans le conteneur"
-	@echo "  make docker-stop       - Arrêter le conteneur"
-	@echo "  make docker-clean      - Nettoyer images et volumes Docker"
-	@echo "  make docker-build-test - Construire l'image de test auto (Dockerfile.test)"
-	@echo "  make docker-start      - Conteneur interactif après docker-build-test (choix shell)"
-	@echo ""
-	@echo -e "$(GREEN)Docker VM (Tests multi-distributions):$(NC)"
-	@echo "  make docker-vm         - Lancer conteneur dotfiles-vm (Arch/Ubuntu/Debian/Gentoo)"
-	@echo "  make docker-vm-reset   - Réinitialiser le conteneur dotfiles-vm"
-	@echo "  make docker-vm-shell   - Ouvrir un shell dans dotfiles-vm"
-	@echo "  make docker-vm-stop    - Arrêter dotfiles-vm"
-	@echo "  make docker-vm-clean   - Nettoyer complètement dotfiles-vm"
-	@echo "  make docker-vm-list    - Lister tous les conteneurs dotfiles"
-	@echo "  make docker-vm-all-clean - Nettoyer TOUS les conteneurs dotfiles"
-	@echo "  make docker-test-install - Tester installation complète (distro + shell + mode)"
-	@echo "  make docker-test-bootstrap - Tester installation bootstrap dans conteneur propre"
-	@echo ""
-	@echo -e "$(GREEN)Complétion Zsh:$(NC)"
-	@echo "  (Complétion make/Makefile chargée automatiquement après install via zsh/completions)"
+	@echo -e "$(GREEN)Docker:$(NC)"
+	@echo "  make docker-in | docker-build | docker-rebuild | docker-run | docker-compose-up"
+	@echo "  make docker-test | docker-shell | docker-stop | docker-clean"
+	@echo "  make docker-build-test | docker-start"
+	@echo "  make docker-vm | docker-vm-reset | docker-vm-shell | docker-vm-stop | docker-vm-clean"
+	@echo "  make docker-vm-list | docker-vm-all-clean | docker-test-install | docker-test-bootstrap"
 	@echo ""
 	@echo -e "$(GREEN)Maintenance:$(NC)"
-	@echo "  make rollback          - Rollback complet (désinstaller tout)"
-	@echo "  make reset             - Réinitialisation complète (remise à zéro)"
-	@echo "  make clean             - Nettoyer les fichiers temporaires"
-	@echo "  make generate-man      - Générer les pages man pour toutes les fonctions"
+	@echo "  make rollback | reset | clean | generate-man"
 	@echo ""
-	@echo -e "$(GREEN)Configuration:$(NC)"
-	@echo "  make git-config        - Configurer Git (nom, email)"
-	@echo "  make git-remote        - Configurer remote Git (SSH/HTTPS)"
-	@echo "  make auto-sync         - Configurer auto-sync Git (systemd timer)"
+	@echo -e "$(GREEN)Configuration / fix / apps:$(NC)"
+	@echo "  make git-config | git-remote | auto-sync"
+	@echo "  make fix | fix FIX=exec|timer-auto-sync|symlink-gitconfig|ssh-agent|all|detect"
+	@echo "  make install-docker | install-go | install-cursor | install-brave | install-yay | install-nvm"
+	@echo "  (préférer: installman …)"
 	@echo ""
-	@echo -e "$(GREEN)Corrections automatiques:$(NC)"
-	@echo "  make fix               - Afficher les fixes disponibles"
-	@echo "  make fix FIX=exec          - Rendre tous les scripts exécutables"
-	@echo "  make fix FIX=timer-auto-sync - Configurer timer auto-sync"
-	@echo "  make fix FIX=symlink-gitconfig - Créer symlink .gitconfig"
-	@echo "  make fix FIX=ssh-agent     - Configurer et démarrer SSH agent"
-	@echo "  make fix FIX=all           - Appliquer tous les fixes détectés"
-	@echo "  make fix FIX=detect        - Détecter les problèmes"
+	@echo -e "$(GREEN)Menus:$(NC)"
+	@echo "  make menu | install-menu | tests | config-menu | shell-menu | vm-menu | fix-menu | validate-menu"
+	@echo "  make dfmenu MENU=pathman"
 	@echo ""
-	@echo -e "$(GREEN)Installations spécifiques:$(NC)"
-	@echo "  make install APP=docker   - Installer Docker & Docker Compose"
-	@echo "  make install APP=go       - Installer Go (Golang)"
-	@echo "  make install APP=cursor   - Installer Cursor IDE"
-	@echo "  make install APP=brave    - Installer Brave Browser"
-	@echo "  make install APP=yay      - Installer yay (AUR helper - Arch Linux)"
-	@echo "  make install APP=nvm      - Installer NVM (Node Version Manager)"
-	@echo "  (installman zsh)          - installman help | ollama | flatpak-stack | pyenv | snap | user-project"
+	@echo -e "$(GREEN)Outils / VM:$(NC)"
+	@echo "  make detect-shell | convert-zsh-to-sh | build-ncmenu | install-ncmenu"
+	@echo "  make build-dotcli | test-dotcli | build-dotcli-tui | test-dotcli-tui"
+	@echo "  make vm-list | vm-create | vm-start | vm-stop | vm-info | vm-snapshot | vm-snapshots"
+	@echo "  make vm-rollback | vm-test | vm-delete"
 	@echo ""
-	@echo -e "$(YELLOW)Note: Les commandes install-* sont dépréciées, utilisez make install APP=...$(NC)"
-	@echo ""
-	@echo -e "$(GREEN)Menus interactifs:$(NC)"
-	@echo "  make menu            - Menu principal (tous les menus)"
-	@echo "  make install-menu    - Menu d'installation (applications, outils)"
-	@echo "  make tests           - Menu des tests dotfiles (Docker, options expliquées)"
-	@echo "  make config-menu     - Menu de configuration (Git, shell, symlinks)"
-	@echo "  make shell-menu      - Menu de gestion des shells (zsh/fish/bash)"
-	@echo "  make vm-menu         - Menu interactif de gestion des VM"
-	@echo "  make fix-menu        - Menu de corrections automatiques"
-	@echo "  make validate-menu   - Afficher la validation du setup"
-	@echo "  make dfmenu MENU=pathman - Menu déclaratif dfm (share/menus)"
-	@echo ""
-	@echo -e "$(GREEN)Outils:$(NC)"
-	@echo "  make detect-shell     - Détecter le shell actuel et disponibles"
-	@echo "  make convert-zsh-to-sh - Convertir fonctions Zsh en Sh compatible"
-	@echo "  make generate-man     - Générer les pages man pour toutes les fonctions"
-	@echo "  make build-ncmenu     - Compiler le sélecteur Go TUI (bin/ncmenu)"
-	@echo "  make install-ncmenu   - Compiler + installer ncmenu en /usr/local/bin (sudo)"
-	@echo "  make build-dotcli     - Compiler le socle C expérimental (bin/dotcli)"
-	@echo "  make test-dotcli      - Smoke tests du binaire dotcli"
-	@echo "  make build-dotcli-tui - Compiler le menu Ink/TS (bin/dotcli-tui, Node 20+)"
-	@echo "  make test-dotcli-tui  - Smoke tests dotcli-tui (non interactif)"
-	@echo ""
-	@echo -e "$(GREEN)Gestion des VM (tests):$(NC)"
-	@echo "  make vm-list          - Lister toutes les VM"
-	@echo "  make vm-create        - Créer une VM (VM=name MEMORY=2048 VCPUS=2 DISK=20 ISO=path)"
-	@echo "  make vm-start         - Démarrer une VM (VM=name)"
-	@echo "  make vm-stop          - Arrêter une VM (VM=name)"
-	@echo "  make vm-info          - Infos d'une VM (VM=name)"
-	@echo "  make vm-snapshot      - Créer snapshot (VM=name NAME=snap DESC=\"desc\")"
-	@echo "  make vm-snapshots     - Lister snapshots (VM=name)"
-	@echo "  make vm-rollback      - Restaurer snapshot (VM=name SNAPSHOT=name)"
-	@echo "  make vm-test          - Tester dotfiles dans VM (VM=name)"
-	@echo "  make vm-delete        - Supprimer une VM (VM=name)"
-	@echo ""
-	@echo -e "$(YELLOW)Pour plus d'options, utilisez: make setup$(NC)"
+	@echo -e "$(YELLOW)Aide courte: make help · Init: make init help · Docs: docs/INDEX.md$(NC)"
 	@echo ""
 
-install-all: ## Installation complète depuis zéro (bootstrap)
-	@echo -e "$(BLUE)🚀 Installation complète des dotfiles...$(NC)"
+# --- Init / preflight ---
+init: ## Hub init (make init help|status|plan|install|tests)
+	@bash "$(SCRIPT_DIR)/bootstrap/init.sh" $(filter-out $@,$(MAKECMDGOALS)) $(INIT_ARGS)
+
+init-help help-init: ## Aide d'initialisation
+	@bash "$(SCRIPT_DIR)/bootstrap/init.sh" help
+
+preflight: ## Rapport d'état machine (rien n'est modifié)
+	@bash "$(SCRIPT_DIR)/bootstrap/preflight.sh" --check
+
+install-all: ## Installation complète (preflight + bootstrap)
+ifeq ($(INIT_ACTIVE),1)
+	@:
+else
+	@echo -e "$(BLUE)Installation complète des dotfiles…$(NC)"
+	@bash "$(SCRIPT_DIR)/bootstrap/preflight.sh" --plan install --gate
 	@if [ -f "$(DOTFILES_DIR)/bootstrap.sh" ]; then \
-		bash "$(DOTFILES_DIR)/bootstrap.sh"; \
+		DOTFILES_SKIP_PREFLIGHT=1 bash "$(DOTFILES_DIR)/bootstrap.sh"; \
 	else \
-		echo -e "$(YELLOW)⚠️  bootstrap.sh non trouvé, clonage depuis GitHub...$(NC)"; \
+		echo -e "$(YELLOW)bootstrap.sh absent — curl distant…$(NC)"; \
 		curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash; \
 	fi
+endif
 
 # Alias pour compatibilité
-install: install-all ## Alias pour install-all (ou make install APP=... pour installer une app)
+install: install-all ## Alias pour install-all
 
 setup: ## Lancer le menu interactif setup.sh
-	@echo -e "$(BLUE)📋 Menu interactif setup.sh...$(NC)"
+	@echo -e "$(BLUE)Menu interactif setup.sh…$(NC)"
 	@bash "$(SCRIPT_DIR)/setup.sh"
 
 validate: ## Valider le setup complet
-	@echo -e "$(BLUE)✅ Validation du setup...$(NC)"
+	@echo -e "$(BLUE)Validation du setup…$(NC)"
 	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"
 
-rollback: ## Rollback complet (désinstaller tout)
-	@echo -e "$(YELLOW)⚠️  ROLLBACK - Désinstallation complète$(NC)"
-	@printf "Continuer? (tapez 'OUI' en majuscules): "
-	@read confirm && \
-	if [ "$$confirm" = "OUI" ]; then \
-		bash "$(SCRIPT_DIR)/uninstall/rollback_all.sh"; \
-	else \
-		echo -e "$(YELLOW)Rollback annulé$(NC)"; \
-	fi
+rollback: ## Rollback complet (plan preflight + confirmation script)
+	@bash "$(SCRIPT_DIR)/bootstrap/preflight.sh" --plan reset
+	@bash "$(SCRIPT_DIR)/uninstall/rollback_all.sh"
 
-reset: ## Réinitialisation complète (remise à zéro)
-	@echo -e "$(YELLOW)⚠️  RÉINITIALISATION - Remise à zéro complète$(NC)"
-	@printf "Continuer? (tapez 'OUI' en majuscules): "
-	@read confirm && \
-	if [ "$$confirm" = "OUI" ]; then \
-		bash "$(SCRIPT_DIR)/uninstall/reset_all.sh"; \
-	else \
-		echo -e "$(YELLOW)Réinitialisation annulée$(NC)"; \
-	fi
+reset: ## Réinitialisation complète (plan preflight + confirmation script)
+	@bash "$(SCRIPT_DIR)/bootstrap/preflight.sh" --plan reset
+	@bash "$(SCRIPT_DIR)/uninstall/reset_all.sh"
 
 clean: ## Nettoyer les fichiers temporaires
 	@echo -e "$(BLUE)🧹 Nettoyage des fichiers temporaires...$(NC)"
@@ -323,7 +304,11 @@ bootstrap-menu: ## Menu post-install (= bootstrap.sh → setup.sh)
 	@sh "$(SCRIPT_DIR)/bootstrap_menu.sh"
 
 menu: ## Menu principal legacy (scripts/menu — voir scripts/menu/README.md)
+ifeq ($(INIT_ACTIVE),1)
+	@:
+else
 	@bash "$(SCRIPT_DIR)/menu/main_menu.sh"
+endif
 
 install-menu: ## Menu d'installation (applications, outils)
 	@bash "$(SCRIPT_DIR)/menu/install_menu.sh"
@@ -427,7 +412,11 @@ test-dotcli-tui: build-dotcli-tui ## Smoke tests dotcli-tui (non interactif)
 
 # Menu interactif : shells, managers, tier, bac à sable, lancement Docker / local.
 tests test-menu: ## Menu interactif des tests (explications, sans modifier le shell courant)
+ifeq ($(INIT_ACTIVE),1)
+	@:
+else
 	@bash "$(SCRIPT_DIR)/test/test_menu.sh"
+endif
 
 # Accompagnement du guide docs/TESTS.md (prérequis, docker-build, docker-in, smoke dotcli…).
 tests-start tests-manual-start: ## Menu pas-à-pas aligné sur docs/TESTS.md (voir ce fichier)
