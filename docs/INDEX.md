@@ -23,6 +23,7 @@
 | Tu veux… | Va dans |
 |----------|---------|
 | Tester depuis zéro (ordre A→I, validation O/N/NA). | [`TESTS.md`](TESTS.md) + `make tests-start` |
+| **Rejouer** après un lot code / étape N ou partielle. | [`TESTS.md`](TESTS.md) § « Rejeu TESTS.md » · G.0.i = smoke dockerman (existe) |
 | Définir comment remplir un champ d’étape. | [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) |
 | Valider une tâche finalisée (case bloquante). | [`../TODOS.md`](../TODOS.md) → **« Finalisées — en attente de validation »** |
 | Documenter une erreur reproductible. | [`ERRORS.md`](ERRORS.md) → ajouter une entrée datée |

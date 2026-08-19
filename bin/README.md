@@ -54,6 +54,18 @@ alias dfmenu='dotfiles_menu_run'
 - Cote helper shell : `dfm --list` liste les menus declaratifs disponibles.
 - Variables : `DOTFILES_MENU_FZF_HEIGHT=90%` ajuste la hauteur fzf ; `DOTFILES_MENU_PAUSE_AFTER_ACTION=0` désactive la pause après action dans `dfm`.
 
+## handbrake
+
+Le paquet Linux installe la GUI sous le nom interne GTK **`ghb`** (`/usr/bin/ghb`) : on ne le remplace **pas**. Les shells exposent `handbrake` via un **alias** (`[ -x /usr/bin/ghb ]`), sans ajouter `~/dotfiles/bin` au PATH.
+
+```bash
+handbrake            # alias → /usr/bin/ghb
+HandBrakeCLI …       # CLI
+installman handbrake # installe le paquet + mini-wrapper ~/.local/bin/handbrake
+```
+
+`bin/handbrake` est un `exec /usr/bin/ghb` optionnel (appel par chemin, pas au login).
+
 ## ncmenu
 
 Sélecteur interactif en **Go** (navigation flèches, validation Entrée).

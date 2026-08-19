@@ -2,6 +2,13 @@
 # DESC: Lance msfconsole avec les privilèges sudo
 alias msfconsole 'sudo msfconsole'
 
+# DESC: HandBrake GUI (binaire distro = ghb)
+if test -x /usr/bin/ghb
+    alias handbrake '/usr/bin/ghb'
+end
+
+
+
 # DESC: Efface l'écran du terminal
 alias cls 'clear'
 

@@ -31,6 +31,7 @@
   - **Livré** : `scripts/bootstrap/preflight.sh` + `init.sh` ; `make init help|status|plan|install|tests` ; `make help` court + `make help-all` ; garde avant `make install` / bootstrap ; docs INSTALL/README/INDEX.
   - **Reste** : smoke `make init tests` en Docker ; aligner `reset_all` messages avec preflight ; suite P19 racine.
 - [~] **`dockerman`** (**actif 2026-08-17**) : aide-mémoire + vues Docker (`ps`/`images`/`compose` lecture, `cheat`/`search`/`explain`, prune dry-run). manman `[O]`, helpman, adapters zsh/bash/fish, TESTS G.0.i / G.30. **Reste** : smoke Docker matrice ; `compose up` volontairement hors manager.
+- [~] **HandBrake `handbrake` vs `ghb`** (**2026-08-17**) : alias shell `handbrake` → `/usr/bin/ghb` (pas de PATH extra, pas de probe flatpak au login). `installman handbrake` + mini-wrapper `~/.local/bin`. Ne pas écraser le binaire distro.
 - [~] **Lot anonymat / I2P / IceCat / WGMD / cyber Kali** :
   - **Livré (test)** : manager **`anonyman`** (+ alias `anonymman`) ; `installman icecat` multi-distro ; I2P enable/disable/status ; `configman i2p` ; `netman tor|i2p` ; docs [`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md) + [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md) ; registre updateman i2p/icecat.
   - **Reste hôte (après ta validation)** : `installman icecat` / `anonyman i2p enable` / `configman i2p --apply-user` sur Arch.

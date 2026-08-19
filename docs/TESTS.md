@@ -20,8 +20,23 @@
    - **Arg inconnu `__bogus__`** : le message `commande inconnue` sur **stderr** + **`rc=1`** est **attendu** (convention Bloc G) — ce n’est **pas** un bug.
 4. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
 5. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
-6. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.26** comme d’habitude.
+6. **Reprise après évolutions code** : **obligatoire**, pas optionnel. Voir **§ « Rejeu TESTS.md »** ci-dessous. `G.0.i` existe (smoke `dockerman`, après **G.0.h**). Un numéro `G.0.x` dans le journal n’est **pas** une invitation à sauter A→F.
 7. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
+
+### Rejeu TESTS.md (garde-fou — à chaque lot code)
+
+Ce fichier n’est pas un journal « on a déjà tout validé donc on saute ». C’est la **procédure à rejouer** quand le code, la doc ou une note `N` / partielle a bougé.
+
+| Quand | Quoi rejouer | Comment noter |
+|-------|----------------|---------------|
+| **Nouveau manager / CLI / install** (ex. `dockerman`, lanceur `handbrake`) | 1) Lire le **journal doc** (colonne *Action pour toi*). 2) **Préalable G.0** (liste `MANS` à jour). 3) Le **G.0.x** du lot (ex. **G.0.i**). 4) La ligne tableau (**G.30**, …). 5) Si le lot touche Docker/menus/install : **E.4** / **A** selon le journal. | `Conforme` O/N/NA ; écarts dans **Notes**. |
+| **Étape déjà cochée mais le code a changé** | **Rejouer cette étape** (décocher `[x]` → `[ ]`, nouvelle sortie). Ne pas garder un O périmé. | Dans **Notes** : « rejoué le AAAA-MM-JJ après \<lot\> ». |
+| **Conforme = N** ou **partiel** (le min est OK mais un autre cas devait marcher) | **Bloquant** : corriger le code, puis **rejouer uniquement ces étapes** une par une jusqu’à O (ou NA justifié). | Notes : « partiel : X OK, Y attendu aussi / a fait Z à la place ». Puis ERRORS.md ou EXT-xxx. |
+| **Passe A→I « finie »** | Relire **toutes** les Notes + N + « Assistant (relecture) » contradictoires. Traiter **une étape à la fois**. | Tant qu’il reste un N non corrigé, la passe n’est pas close. |
+
+**Partiel** : la légende n’a que `O / N / NA`. Ne pas inventer `P`. Si le critère **Attendu** est rempli → `O` + Notes « partiel : … devait aussi … ». Si l’Attendu est **contredit** → `N`.
+
+**G.0.i** : étape réelle, section « Étape G.0.i — Smoke dockerman » (après G.0.h). Elle n’apparaît pas comme ligne G.1 du tableau : c’est un **préalable** comme G.0.a–h.
 
 ### Journal doc (reprise `TESTS.md`)
 
@@ -41,6 +56,7 @@
 | **2026-06-16** *(updateman)* | **`updateman system`** multi-distro (`core/lib/distro.sh`, `pkg_backend.sh`) ; **`updateman all`** = refresh/upgrade système + registre ; **`--tools-only`** pour l’ancien comportement. Smoke Docker : `make test-updateman-system-smoke DISTRO=debian` (bash/zsh/fish). | Valider **G.27** ; `updateman system status` sur la machine hôte. |
 | **2026-06-16** *(H→I)* | **Bloc H** validé (H.1 `test-dotcli-f7`, H.2 `NO_TUI`, H.3 filtre `DOTFILES_TEST_MANAGERS`). **Bloc I** bilan session. **installman** délègue `detect_distro` / `upgrade auto` à `core/lib/`. Merge **`feat/manual-tests-g0` → `dev`**. | P5 installman modules outils ; P11 CI multi-distro ; EXT-002/005. |
 | **2026-08-17** | **Nouveau manager `dockerman`** (vue/aide Docker : cheat, search, explain, ps/images lecture, prune dry-run). **G.0** : `MANS` + `dockerman` ; tableau **G.30** ; smoke **G.0.i**. Intégré `manman` (`[O]` après virtman), `helpman`, adapters zsh/bash/fish. | Refaire **G.0**, **G.0.i**, cocher **G.30**. `ps`/`images`/`prune --apply` hors matrice CI (daemon hôte). |
+| **2026-08-17** *(handbrake + rejeu)* | Commande **`handbrake`** (GUI) : alias → `/usr/bin/ghb` (pas de PATH `~/dotfiles/bin`, pas de probe au login). `installman handbrake` + mini-wrapper `~/.local/bin`. **Règle de rejeu** TESTS.md explicitée. | Après ce lot : **G.0** + **G.0.i** + **G.30** ; smoke `handbrake` (alias) / `type handbrake`. Rejouer toute étape **N** encore ouverte. |
 
 ---
 
@@ -2047,6 +2063,7 @@ P11 matrice distro complète en CI ; EXT-002 petits écrans ; EXT-005 GitHub Act
 | EXT-005 | **CI GitHub Actions « complète »** (après `TESTS.md` A→I) : enchaîner sur runner `ubuntu-latest` — `make test-dotfiles-good`, `make build-dotcli` + `make test-dotcli`, puis stratégie **`make test`** (Docker service ou workflow long + `DOTFILES_TEST_*`). Documenter les limites (pas de vrai « poste nu » sans matrice OS). E-mail : uniquement via secrets + job `if:` (voir [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)). | H | [ ] |
 | EXT-007 | **Futures fonctionnalités / nouveaux managers** : toute nouvelle fonctionnalité doit préciser où elle s’intègre (manager existant ou nouveau `*man`), ajouter une commande non interactive si possible, une ligne `scripts/test/subcommands/<manager>.list`, une page `docs/man/<manager>.md` ou section existante, puis rejouer **E.4**. Si une commande dépend d’un matériel réel (`ddcutil`, Docker daemon hôte, GPU, SSH serveur), la marquer hors matrice Docker et créer une étape manuelle dédiée dans G/H. | H | [x] *(règle documentée 2026-06-12, à appliquer à chaque lot)* |
 | EXT-008 | **Re-tests / sorties contextuelles** (2026-06-16) : noter dans **Notes** du tableau G.1–G.27 quand la sortie diffère de l’assistant (ex. **G.0.c** alias `ls`/`cd` présents ; **G.0.e** `side` verbeux sans `head` ; **G.0.d** plusieurs écrans DDC ; **G.26** en-tête `df` dans `diskman help`). Ce n’est **pas** un échec si l’**Attendu** minimal est respecté. Rejouer avec `make tests-copy-smoke MANAGER=…` et coller l’extrait réel dans la colonne Sortie. | M | [x] *(G.2–G.27 cochés 2026-06-16)* |
+| EXT-009 | **HandBrake GUI nom `ghb`** : exposer `handbrake` (alias shell + mini-wrapper `~/.local/bin`, `installman handbrake`) sans écraser `/usr/bin/ghb` et **sans** prepend PATH / probe au login. CLI = `HandBrakeCLI`. | M | [x] *(2026-08-17)* |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 

@@ -444,8 +444,8 @@ check_ssh_configured() {
 # DESC: Vérifie si HandBrake est installé (CLI, GUI, toute distro: ghb, HandBrakeCLI, flatpak, .desktop)
 # USAGE: check_handbrake_installed
 check_handbrake_installed() {
-    _check_binaries HandBrakeCLI HandBrake handbrake handbrake-cli ghb && { echo "installed"; return 0; }
-    _check_paths /usr/bin/HandBrakeCLI /usr/bin/handbrake /usr/bin/ghb /usr/bin/HandBrake && { echo "installed"; return 0; }
+    _check_binaries HandBrakeCLI HandBrake handbrake-cli ghb && { echo "installed"; return 0; }
+    _check_paths /usr/bin/HandBrakeCLI /usr/bin/ghb /usr/bin/HandBrake && { echo "installed"; return 0; }
     _check_desktop_pattern "handbrake" && { echo "installed"; return 0; }
     _check_desktop_pattern "ghb" && { echo "installed"; return 0; }
     _check_package handbrake handbrake-cli HandBrake-cli fr.handbrake.ghb org.handbrake.HandBrake && { echo "installed"; return 0; }

@@ -224,8 +224,8 @@ if [ -d "$FUNCTIONS_DIR" ]; then
     
     # Charger récursivement tous les scripts .sh et .zsh
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        # Ignore les gestionnaires déjà chargés, les backups, les sous-dossiers de cyber, alias_utils, update_system, install-tool, et les scripts d'installation
-        # Ignore aussi les scripts de modules configman/fileman qui sont exécutés via les managers, pas sourcés
+        # Ignore les gestionnaires déjà chargés, backups, cyber, installman (modules d'install, pas le login),
+        # et les scripts de modules configman/fileman (exécutés via les managers, pas sourcés)
         if [[ "$func_file" != *"man.zsh" ]] && \
            [[ "$func_file" != *"backup"* ]] && \
            [[ "$func_file" != *"/cyber/"*.zsh ]] && \
@@ -235,6 +235,7 @@ if [ -d "$FUNCTIONS_DIR" ]; then
            [[ "$func_file" != *"installman.zsh" ]] && \
            [[ "$func_file" != *"configman.zsh" ]] && \
            [[ "$func_file" != *"/install/"* ]] && \
+           [[ "$func_file" != *"/installman/"* ]] && \
            [[ "$func_file" != *"/configman/modules/"* ]] && \
            [[ "$func_file" != *"/fileman/modules/"* ]] && \
            [ -f "$func_file" ]; then

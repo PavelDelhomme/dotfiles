@@ -216,7 +216,8 @@ installman emacs             # Installation Emacs + Doom Emacs + config de base
 installman java17            # Installation Java 17 OpenJDK
 installman android-studio    # Installation Android Studio
 installman android-tools     # Installation outils Android (ADB, SDK, etc.)
-installman handbrake         # Installation HandBrake CLI + GUI (si GUI disponible)
+installman handbrake         # CLI + GUI ; commande « handbrake » (alias → ghb)
+
 installman ssh-config        # Configuration SSH automatique (avec mot de passe .env)
 ```
 

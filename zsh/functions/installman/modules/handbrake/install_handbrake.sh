@@ -142,8 +142,8 @@ install_handbrake() {
     if has_gui; then
         log_info "Interface graphique détectée, installation de HandBrake GUI..."
         
-        if command -v HandBrake &>/dev/null || command -v handbrake &>/dev/null; then
-            log_info "HandBrake GUI est déjà installé"
+        if command -v ghb >/dev/null 2>&1 || command -v HandBrake >/dev/null 2>&1; then
+            log_info "HandBrake GUI est déjà installé (binaire distro souvent : ghb)"
         else
             case "$distro" in
                 arch|manjaro)
@@ -177,19 +177,33 @@ install_handbrake() {
                     ;;
             esac
             
-            if command -v HandBrake &>/dev/null || command -v handbrake &>/dev/null; then
-                log_info "✓ HandBrake GUI installé"
+            if command -v ghb >/dev/null 2>&1 || command -v HandBrake >/dev/null 2>&1; then
+                log_info "✓ HandBrake GUI installé (commande distro : ghb — lanceur : handbrake)"
             fi
         fi
     else
         log_info "Aucune interface graphique détectée, HandBrake GUI non installé"
         log_info "HandBrake CLI est disponible pour utilisation en ligne de commande"
     fi
-    
+
+    # Mini-wrapper hors login : alias shell + ~/.local/bin (pas de PATH extra, pas de probe)
+    if [ -x /usr/bin/ghb ]; then
+        _hb_dest="${HOME}/.local/bin/handbrake"
+        mkdir -p "${HOME}/.local/bin" 2>/dev/null || true
+        if [ -d "${HOME}/.local/bin" ] && [ -w "${HOME}/.local/bin" ]; then
+            rm -f "$_hb_dest" "${HOME}/.local/bin/HandBrake"
+            printf '%s\n' '#!/bin/sh' 'exec /usr/bin/ghb "$@"' > "$_hb_dest"
+            chmod +x "$_hb_dest" 2>/dev/null || true
+        fi
+    fi
+
     log_info "✓ Installation HandBrake terminée!"
-    log_info "  - HandBrake CLI: disponible"
-    if has_gui && (command -v HandBrake &>/dev/null || command -v handbrake &>/dev/null); then
-        log_info "  - HandBrake GUI: disponible"
+    log_info "  - HandBrake CLI: HandBrakeCLI (pas ghb)"
+    if command -v ghb >/dev/null 2>&1 || command -v HandBrake >/dev/null 2>&1; then
+        log_info "  - HandBrake GUI: tape « handbrake » (ghb reste le binaire GTK interne)"
+        if command -v handbrake >/dev/null 2>&1; then
+            log_info "  - which handbrake → $(command -v handbrake)"
+        fi
     fi
     
     local dvdbackup_status="non installé"

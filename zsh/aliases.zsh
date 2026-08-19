@@ -78,6 +78,8 @@ alias gca="git commit -a -m"
 # Alias ghs pour ghostscript (la commande système gs)
 # L'alias gs="git status" ci-dessus a la priorité sur la commande système
 alias ghs="command gs"
+# HandBrake GUI : le binaire distro s'appelle ghb. Alias instantané (stat unique, pas de PATH extra).
+[ -x /usr/bin/ghb ] && alias handbrake='/usr/bin/ghb'
 alias cd_auto_apply="cd /home/pactivisme/Documents/Dev/Perso/auto_apply/auto_apply/"
 alias cd_streammake="cd /home/pactivisme/Documents/Dev/Perso/StreamMake"
 alias cd_vtcbuilder="/home/pactivisme/Documents/Dev/Perso/VTCBuilder"
