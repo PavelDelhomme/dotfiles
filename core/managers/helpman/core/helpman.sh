@@ -75,11 +75,13 @@ Usage :
   helpman help --interactive    guide général interactif (TTY requis)
   helpman --help                idem que « helpman i » (menu interactif)
   helpman i | interactive       alias du menu interactif (TTY requis)
-  helpman <gestionnaire>        comme « <gestionnaire> --help » (souvent menu du gestionnaire)
+  helpman <gestionnaire> [sous-cmd]  « <gestionnaire> help [sous-cmd] »
 
 Exemples :
   helpman --help                tutoriel man / help / dotfiles (menu)
-  helpman installman            délègue à installman --help
+  helpman installman            délègue à installman help
+  helpman netman                aide netman (stdout)
+  helpman netman dig            aide sous-commande dig
   helpman dockerman             aide Docker (cheat / ps / compose)
   man ls                        page man système
   help extract                  aide courte (DESC / USAGE / EXAMPLE)
@@ -94,6 +96,7 @@ EOF
 
     helpman_dispatch_manager() {
         _hmm="$1"
+        shift
         if [ "$_hmm" = "helpman" ]; then
             helpman_print_usage
             return 0
@@ -107,7 +110,13 @@ EOF
             printf '%s\n' "helpman: « $_hmm » n'est pas disponible dans ce shell (source les dotfiles)." >&2
             return 1
         fi
-        "$_hmm" --help
+        # helpman netman          → netman help
+        # helpman netman dig      → netman help dig
+        if [ -n "${1:-}" ]; then
+            "$_hmm" help "$@"
+        else
+            "$_hmm" help
+        fi
     }
 
     case "${1:-}" in
@@ -128,7 +137,7 @@ EOF
     --help|i|I|interactive|--interactive)
         ;;
     *)
-        helpman_dispatch_manager "$1"
+        helpman_dispatch_manager "$@"
         return $?
         ;;
     esac

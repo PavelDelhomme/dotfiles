@@ -1,4 +1,9 @@
 help
+dig
+dig help
+lookup
+whois
+dns-bench help
 interfaces
 tor
 i2p

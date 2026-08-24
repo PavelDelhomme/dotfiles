@@ -153,36 +153,218 @@ netman() {
         return 1
     }
 
-    # Aide courte (stdout) — netman help | -h et option « h » du menu
+    # -------------------------------------------------------------------------
+    # Aide par sous-commande (netman help dig | netman dig sans args)
+    # -------------------------------------------------------------------------
+    netman_print_cmd_help() {
+        _cmd="${1:-}"
+        case "$_cmd" in
+        dig|dns-query)
+            cat <<'EOF'
+netman dig — requêtes DNS (binaire « dig », paquet bind/dnsutils/bind-utils)
+
+Usage :
+  netman dig                         cette aide
+  netman dig help | -h               idem
+  netman dig <domaine>               A + AAAA (+short)
+  netman dig @<résolveur> <domaine>  ex. @1.1.1.1 example.com
+  netman dig <type> <domaine>        A|AAAA|MX|NS|TXT|SOA|CNAME|ANY
+  netman dig -x <ip>                 reverse DNS (PTR)
+  netman dig +trace <domaine>        délégation DNS
+  netman dig --raw <args…>           passe-plat vers dig
+
+Exemples :
+  netman dig example.com
+  netman dig MX example.com
+  netman dig @8.8.8.8 google.com
+  netman dig -x 1.1.1.1
+
+Voir aussi : netman lookup · netman dns · netman dns-bench · helpman netman dig
+EOF
+            ;;
+        lookup|resolve)
+            cat <<'EOF'
+netman lookup — résolution DNS + reverse + extrait whois
+
+Usage :
+  netman lookup                      cette aide
+  netman lookup <ip|domaine>         dig +short + reverse + whois (25 lignes)
+  netman lookup --interactive        demande la cible (TTY)
+
+Exemples :
+  netman lookup example.com
+  netman lookup 8.8.8.8
+
+Voir aussi : netman dig · netman whois · helpman netman lookup
+EOF
+            ;;
+        dns)
+            cat <<'EOF'
+netman dns — afficher la config / serveurs DNS locaux
+
+Usage :
+  netman dns                         statut DNS (resolv.conf / systemd-resolved…)
+  netman dns help                    cette aide
+
+Voir aussi : netman dig · netman dns-bench · netman lookup
+EOF
+            ;;
+        dns-bench|dnsbench)
+            cat <<'EOF'
+netman dns-bench — comparer la latence de plusieurs résolveurs
+
+Usage :
+  netman dns-bench                   benchmark (domaine défaut)
+  netman dns-bench <domaine>         ex. netman dns-bench cloudflare.com
+  netman dns-bench help              cette aide
+
+Requis : dig. Install : packages_base / installman network-tools
+EOF
+            ;;
+        whois)
+            cat <<'EOF'
+netman whois — fiche whois
+
+Usage :
+  netman whois                       cette aide
+  netman whois <cible>               whois détaillé
+
+Voir aussi : netman lookup
+EOF
+            ;;
+        trace|traceroute|tracepath)
+            cat <<'EOF'
+netman trace — chemin réseau (traceroute / tracepath)
+
+Usage :
+  netman trace                       cette aide
+  netman trace <hôte>                traceroute -n (ou tracepath)
+
+Voir aussi : netman mtr · netman connectivity
+EOF
+            ;;
+        mtr)
+            cat <<'EOF'
+netman mtr — latence / pertes (si mtr installé)
+
+Usage :
+  netman mtr                         cette aide
+  netman mtr <hôte>                  rapport mtr
+
+Install : sudo pacman -S mtr  |  apt install mtr-tiny
+EOF
+            ;;
+        scan)
+            cat <<'EOF'
+netman scan — test TCP rapide (/dev/tcp)
+
+Usage :
+  netman scan                        aide / mode interactif selon TTY
+  netman scan <hôte> [port]          défaut port 80
+  netman scan help                   cette aide
+
+Exemple : netman scan 192.168.1.1 22
+EOF
+            ;;
+        kill)
+            cat <<'EOF'
+netman kill — terminer le processus qui écoute un port
+
+Usage :
+  netman kill                        aide / interactif
+  netman kill <port>                 kill -TERM via lsof
+  netman kill help                   cette aide
+
+Exemple : netman kill 8080
+EOF
+            ;;
+        ports)
+            cat <<'EOF'
+netman ports — ports en écoute / gestion
+
+Usage :
+  netman ports                       liste / menu ports
+  netman ports help                  cette aide
+
+Voir aussi : netman kill · netman connections
+EOF
+            ;;
+        connections|conn)
+            cat <<'EOF'
+netman connections — connexions réseau actives
+
+Usage : netman connections | netman conn
+EOF
+            ;;
+        diagnose|diag|health|diagnose-deep|diag-deep)
+            cat <<'EOF'
+netman diagnose — diagnostic réseau
+
+Usage :
+  netman diagnose                    checks interface / gateway / DNS / HTTP
+  netman diagnose-deep               + RX/TX, drops, processus
+  netman diag-report                 rapport fichier
+
+Voir aussi : netman dns-bench · netman firewall
+EOF
+            ;;
+        firewall|fw)
+            cat <<'EOF'
+netman firewall — statut ufw / nftables / iptables
+
+Usage : netman firewall | netman fw
+EOF
+            ;;
+        ip|ipinfo|interfaces|iface|routing|route|routeman|stats|connectivity|ping|speed|monitor|analyze|export|tor|i2p)
+            cat <<EOF
+netman $_cmd — voir aussi la page générale :
+
+  netman help
+  helpman netman
+  netman help --interactive    (TTY)
+
+Rappel DNS : netman dig · netman lookup · netman dns-bench
+EOF
+            ;;
+        ""|*)
+            printf '%s\n' "Sous-commande inconnue pour l'aide: ${_cmd:-(vide)}"
+            printf '%s\n' "Essayez: netman help"
+            return 1
+            ;;
+        esac
+        return 0
+    }
+
+    # Aide courte (stdout) — netman | netman help | -h
     netman_print_quick_help() {
-        printf "${CYAN}NETMAN — raccourcis${RESET}\n"
+        printf "${CYAN}NETMAN — aide${RESET}\n"
         manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
-        echo "Sous-commandes :"
-        echo "  netman ports              Ports en écoute (ou menu dédié)"
-        echo "  netman connections        Connexions actives"
-        echo "  netman ip | dns | routing | interfaces"
-        echo "  netman routeman           Gestionnaire de routes"
-        echo "  netman scan <host> [port]   Test port TCP rapide"
-        echo "  netman kill <port>       Kill processus sur port"
-        echo "  netman stats             Statistiques"
-        echo "  netman diagnose | diag-report | diagnose-deep"
-        echo "  netman dns-bench [opts]  Benchmark DNS"
-        echo "  netman firewall          ufw / nft / iptables"
-        echo "  netman lookup <cible>    DNS + extrait whois"
-        echo "  netman trace <hôte>      traceroute (ou tracepath)"
-        echo "  netman mtr <hôte>        diagnostic route/latence (si mtr installé)"
-        echo "  netman whois <cible>     whois détaillé"
-        echo "  netman connectivity | speed | monitor | analyze | export"
-        echo "  netman tor [status]        statut Tor (→ anonyman tor)"
-        echo "  netman i2p [status|ports]  statut I2P (→ anonyman i2p)"
+        echo "Usage :"
+        echo "  netman                         cette page"
+        echo "  netman help | -h               idem"
+        echo "  netman help <sous-commande>   aide d'une sous-commande (ex. dig)"
+        echo "  netman help --interactive     aide + pause (TTY)"
+        echo "  netman menu | --interactive   menu TUI"
+        echo "  helpman netman [sous-cmd]     même aide via helpman"
         echo ""
-        echo "Interface :"
-        echo "  netman                    cette page (stdout, non interactif)"
-        echo "  netman help | -h          idem"
-        echo "  netman help --interactive aide guidée + pause (TTY requis)"
-        echo "  netman --help             menu principal interactif"
-        echo "  anonyman / anonymman      anonymisation Tor/I2P/proxies"
+        echo "DNS / nommage :"
+        echo "  netman dig …                  dig (A/AAAA/MX/NS/TXT, @résolveur, -x)"
+        echo "  netman lookup <cible>         dig + reverse + whois"
+        echo "  netman dns                    config DNS locale"
+        echo "  netman dns-bench [domaine]    latence multi-résolveurs"
+        echo "  netman whois <cible>          whois"
+        echo ""
+        echo "Réseau / diagnostic :"
+        echo "  netman ports | connections | interfaces | ip | routing | routeman"
+        echo "  netman scan <hôte> [port] | kill <port> | stats"
+        echo "  netman diagnose | diagnose-deep | diag-report | firewall"
+        echo "  netman trace <hôte> | mtr <hôte> | connectivity | speed"
+        echo "  netman monitor | analyze | export"
+        echo "  netman tor | i2p               → anonyman"
+        echo ""
+        echo "Sans argument sur une sous-commande qui en exige → son aide :"
+        echo "  netman dig | netman lookup | netman whois | netman trace | …"
         echo ""
     }
 
@@ -192,11 +374,87 @@ netman() {
         printf "${CYAN}NETMAN — aide guidée (mode interactif)${RESET}\n"
         manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
-        echo "Rappel : les sous-commandes ci-dessous s'exécutent en non interactif."
-        echo "Le menu complet (fzf / ncurses / saisie) s'obtient avec : netman --help"
+        echo "Rappel : les sous-commandes s'exécutent en non interactif."
+        echo "Menu TUI : netman menu   ·   Aide dig : netman dig   ·   helpman netman dig"
         echo ""
         netman_print_quick_help
         pause_if_tty
+    }
+
+    # Exécution dig (CLI) — sans dig → message deps
+    netman_cmd_dig() {
+        if [ -z "${1:-}" ] || [ "${1:-}" = "help" ] || [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+            netman_print_cmd_help dig
+            return 0
+        fi
+        if ! command -v dig >/dev/null 2>&1; then
+            printf "${YELLOW}⚠ dig absent${RESET} — Arch: sudo pacman -S bind · Debian: apt install dnsutils\n" >&2
+            printf "    ou: bash \"\${DOTFILES_DIR:-\$HOME/dotfiles}/scripts/install/system/packages_base.sh\"\n" >&2
+            return 1
+        fi
+        # Passe-plat
+        if [ "$1" = "--raw" ]; then
+            shift
+            dig "$@"
+            return $?
+        fi
+        # Reverse
+        if [ "$1" = "-x" ] || [ "$1" = "+x" ]; then
+            shift
+            [ -n "${1:-}" ] || { netman_print_cmd_help dig; return 1; }
+            printf "${CYAN}PTR / reverse %s${RESET}\n" "$1"
+            dig +short -x "$1"
+            return $?
+        fi
+        # Trace délégation
+        if [ "$1" = "+trace" ]; then
+            shift
+            [ -n "${1:-}" ] || { netman_print_cmd_help dig; return 1; }
+            dig +trace "$1"
+            return $?
+        fi
+        _resolver=""
+        _type=""
+        _target=""
+        # @resolver
+        case "$1" in
+        @*)
+            _resolver="$1"
+            shift
+            ;;
+        esac
+        # TYPE domaine  OU  domaine seul
+        case "${1:-}" in
+        [Aa]|AAAA|aaaa|[Mm][Xx]|[Nn][Ss]|TXT|txt|SOA|soa|CNAME|cname|ANY|any|PTR|ptr)
+            _type=$(printf '%s' "$1" | tr 'a-z' 'A-Z')
+            shift
+            _target="${1:-}"
+            ;;
+        *)
+            _target="${1:-}"
+            ;;
+        esac
+        if [ -z "$_target" ]; then
+            netman_print_cmd_help dig
+            return 1
+        fi
+        if [ -n "$_type" ]; then
+            printf "${CYAN}dig %s %s %s${RESET}\n" "${_resolver:-(système)}" "$_type" "$_target"
+            if [ -n "$_resolver" ]; then
+                dig "$_resolver" "$_type" "$_target" +noall +answer
+            else
+                dig "$_type" "$_target" +noall +answer
+            fi
+        else
+            printf "${CYAN}dig A/AAAA %s %s${RESET}\n" "${_resolver:-(système)}" "$_target"
+            if [ -n "$_resolver" ]; then
+                printf "A:    "; dig "$_resolver" +short A "$_target"
+                printf "AAAA: "; dig "$_resolver" +short AAAA "$_target"
+            else
+                printf "A:    "; dig +short A "$_target"
+                printf "AAAA: "; dig +short AAAA "$_target"
+            fi
+        fi
     }
     
     # Fonction pour afficher le header
@@ -1309,29 +1567,24 @@ EOF
         case "$size_arg" in
             10M|10m)
                 label="10MB"
-                test_urls="https://proof.ovh.net/files/10Mb.dat
-https://speed.hetzner.de/10MB.bin"
+                test_urls="https://proof.ovh.net/files/10Mb.dat https://speed.hetzner.de/10MB.bin"
                 ;;
             100M|100m)
                 label="100MB"
-                test_urls="https://proof.ovh.net/files/100Mb.dat
-https://speed.hetzner.de/100MB.bin"
+                test_urls="https://proof.ovh.net/files/100Mb.dat https://speed.hetzner.de/100MB.bin"
                 ;;
             1G|1g)
                 label="1GB"
-                test_urls="https://proof.ovh.net/files/1Gb.dat
-https://speed.hetzner.de/1GB.bin"
+                test_urls="https://proof.ovh.net/files/1Gb.dat https://speed.hetzner.de/1GB.bin"
                 ;;
             5G|5g)
                 label="5GB"
-                test_urls="https://proof.ovh.net/files/5Gb.dat
-https://speed.hetzner.de/5GB.bin"
+                test_urls="https://proof.ovh.net/files/5Gb.dat https://speed.hetzner.de/5GB.bin"
                 ;;
             *)
                 printf "${YELLOW}⚠ Taille inconnue '%s', fallback 5G${RESET}\n" "$size_arg"
                 label="5GB"
-                test_urls="https://proof.ovh.net/files/5Gb.dat
-https://speed.hetzner.de/5GB.bin"
+                test_urls="https://proof.ovh.net/files/5Gb.dat https://speed.hetzner.de/5GB.bin"
                 ;;
         esac
 
@@ -1360,17 +1613,18 @@ https://speed.hetzner.de/5GB.bin"
         downloaded=0
         elapsed=0
         test_url=""
-        echo "$test_urls" | while IFS= read -r candidate_url; do
+        : > /tmp/netman_speed_result.$$
+        for candidate_url in $test_urls; do
             [ -z "$candidate_url" ] && continue
             curl_out=$(curl -L -s --output /dev/null -w "%{size_download} %{time_total}" "$candidate_url" 2>/dev/null)
             rc=$?
             dl=$(echo "$curl_out" | awk '{print $1}')
             tt=$(echo "$curl_out" | awk '{print $2}')
             if [ "$rc" -eq 0 ] && awk -v b="$dl" 'BEGIN { exit !(b+0 > 0) }'; then
-                echo "$candidate_url|$dl|$tt"
-                exit 0
+                echo "$candidate_url|$dl|$tt" > /tmp/netman_speed_result.$$
+                break
             fi
-        done > /tmp/netman_speed_result.$$ 2>/dev/null
+        done
 
         if [ -s /tmp/netman_speed_result.$$ ]; then
             end_ok=0
@@ -1549,8 +1803,8 @@ https://speed.hetzner.de/5GB.bin"
     }
     
     # Gestion des arguments en ligne de commande
-    # Convention : sans arg / help / -h = stdout ; help --interactive = aide TTY ;
-    # --help seul = menu principal interactif.
+    # Convention : sans arg / help / -h = stdout ; help <cmd> = aide sous-commande ;
+    # help --interactive = aide TTY ; menu | --interactive = menu TUI.
     if [ -z "${1:-}" ]; then
         netman_print_quick_help
         return 0
@@ -1566,9 +1820,14 @@ https://speed.hetzner.de/5GB.bin"
             fi
             return 0
             ;;
-        *)
+        "")
             netman_print_quick_help
             return 0
+            ;;
+        *)
+            # netman help dig | netman help lookup …
+            netman_print_cmd_help "$2"
+            return $?
             ;;
         esac
     fi
@@ -1582,16 +1841,32 @@ https://speed.hetzner.de/5GB.bin"
         fi
         case "$1" in
             ports)
-                manage_ports
+                if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help ports
+                else
+                    manage_ports
+                fi
                 ;;
             connections|conn)
-                show_connections
+                if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help connections
+                else
+                    show_connections
+                fi
                 ;;
             ip|ipinfo)
                 show_ip_info
                 ;;
             dns)
-                show_dns_info
+                if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help dns
+                else
+                    show_dns_info
+                fi
+                ;;
+            dig|dns-query)
+                shift
+                netman_cmd_dig "$@"
                 ;;
             routing|route)
                 show_routing
@@ -1603,7 +1878,9 @@ https://speed.hetzner.de/5GB.bin"
                 show_interfaces
                 ;;
             scan)
-                if [ -n "$2" ]; then
+                if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help scan
+                elif [ -n "$2" ]; then
                     host="$2"
                     port="${3:-80}"
                     printf "Scan du port %s sur %s...\n" "$port" "$host"
@@ -1617,7 +1894,9 @@ https://speed.hetzner.de/5GB.bin"
                 fi
                 ;;
             kill)
-                if [ -n "$2" ]; then
+                if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help kill
+                elif [ -n "$2" ]; then
                     port="$2"
                     printf "Kill rapide du port %s...\n" "$port"
                     pids=""
@@ -1647,13 +1926,21 @@ https://speed.hetzner.de/5GB.bin"
                 show_network_stats
                 ;;
             diagnose|diag|health)
-                network_diagnose
+                if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help diagnose
+                else
+                    network_diagnose
+                fi
                 ;;
             diagnose-report|diag-report)
                 network_diagnose_report "$@"
                 ;;
             dns-bench|dnsbench)
-                dns_benchmark "$2"
+                if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help dns-bench
+                else
+                    dns_benchmark "$2"
+                fi
                 ;;
             diagnose-deep|diag-deep|health-deep)
                 network_diagnose_deep
@@ -1662,7 +1949,11 @@ https://speed.hetzner.de/5GB.bin"
                 firewall_status
                 ;;
             lookup|resolve)
-                if [ -n "$2" ]; then
+                if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help lookup
+                elif [ "$2" = "--interactive" ] || [ "$2" = "-i" ]; then
+                    network_lookup
+                else
                     show_header
                     printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
                     manager_ui_section_line "${BLUE}" "${RESET}\n"
@@ -1680,18 +1971,28 @@ https://speed.hetzner.de/5GB.bin"
                         printf "\n${CYAN}WHOIS (extrait):${RESET}\n"
                         whois "$target" 2>/dev/null | awk 'NR<=25 {print "  " $0}'
                     fi
-                else
-                    network_lookup
                 fi
                 ;;
             trace|traceroute|tracepath)
-                network_trace "$2"
+                if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help trace
+                else
+                    network_trace "$2"
+                fi
                 ;;
             mtr)
-                network_mtr "$2"
+                if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help mtr
+                else
+                    network_mtr "$2"
+                fi
                 ;;
             whois)
-                network_whois "$2"
+                if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                    netman_print_cmd_help whois
+                else
+                    network_whois "$2"
+                fi
                 ;;
             connectivity|ping)
                 test_connectivity "$2"
@@ -1732,10 +2033,12 @@ https://speed.hetzner.de/5GB.bin"
                 ;;
             *)
                 printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
-                echo "Utilisez 'netman help' pour voir les commandes disponibles"
+                echo "Utilisez 'netman help' ou 'helpman netman' pour la liste"
+                echo "Aide d'une sous-commande : netman help dig"
                 return 1
                 ;;
         esac
+        return $?
     fi
     if [ "$1" = "--help" ]; then
         netman_print_quick_help
