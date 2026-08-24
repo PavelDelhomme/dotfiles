@@ -257,6 +257,10 @@ TOOLS_TO_CHECK=(
     # "cmake:cmake"  # Commenté - vérification spéciale en dessous si nécessaire
     "pkg-config:pkg-config"
     "neofetch:neofetch"
+    "dig:dig (DNS — paquet bind/dnsutils/bind-utils)"
+    "jq:jq (JSON — deps managers)"
+    "git:git"
+    "curl:curl"
 )
 
 for tool_entry in "${TOOLS_TO_CHECK[@]}"; do

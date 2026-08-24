@@ -185,17 +185,33 @@ verify_and_configure_managers() {
 install_managers_dependencies() {
     log_info "Installation des dépendances pour tous les managers..."
     echo ""
-    
-    # Dépendances communes
-    local deps=("jq" "git")
-    
-    # Vérifier le gestionnaire de paquets
+
+    # Binaires requis → paquet selon distro
+    # dig: Arch=bind, Debian=dnsutils, Fedora=bind-utils
+    local bins=("jq" "git" "dig" "curl")
+
+    _dep_pkg() {
+        local bin="$1"
+        if command -v pacman >/dev/null 2>&1; then
+            case "$bin" in dig) echo "bind" ;; *) echo "$bin" ;; esac
+        elif command -v apt-get >/dev/null 2>&1; then
+            case "$bin" in dig) echo "dnsutils" ;; *) echo "$bin" ;; esac
+        elif command -v dnf >/dev/null 2>&1 || command -v yum >/dev/null 2>&1; then
+            case "$bin" in dig) echo "bind-utils" ;; *) echo "$bin" ;; esac
+        else
+            echo "$bin"
+        fi
+    }
+
     if command -v pacman >/dev/null 2>&1; then
         PKG_MANAGER="pacman"
-        INSTALL_CMD="sudo pacman -S --noconfirm"
+        INSTALL_CMD="sudo pacman -S --noconfirm --needed"
     elif command -v apt-get >/dev/null 2>&1; then
         PKG_MANAGER="apt"
         INSTALL_CMD="sudo apt-get install -y"
+    elif command -v dnf >/dev/null 2>&1; then
+        PKG_MANAGER="dnf"
+        INSTALL_CMD="sudo dnf install -y"
     elif command -v yum >/dev/null 2>&1; then
         PKG_MANAGER="yum"
         INSTALL_CMD="sudo yum install -y"
@@ -203,27 +219,33 @@ install_managers_dependencies() {
         log_error "Gestionnaire de paquets non supporté"
         return 1
     fi
-    
+
     log_info "Gestionnaire détecté: $PKG_MANAGER"
     echo ""
-    
-    # Installer les dépendances manquantes
-    for dep in "${deps[@]}"; do
+
+    for dep in "${bins[@]}"; do
         if command -v "$dep" >/dev/null 2>&1; then
             log_info "✅ $dep déjà installé"
         else
-            log_info "📦 Installation de $dep..."
-            $INSTALL_CMD "$dep" || log_warn "⚠️  Échec installation de $dep"
+            pkg="$(_dep_pkg "$dep")"
+            log_info "📦 Installation de $dep (paquet: $pkg)..."
+            $INSTALL_CMD "$pkg" || log_warn "⚠️  Échec installation de $pkg"
         fi
     done
-    
+
+    # Socle DNS complet via packages_base si dig encore absent
+    if ! command -v dig >/dev/null 2>&1; then
+        log_info "Relai packages_base.sh pour dig…"
+        bash "$SCRIPT_DIR/install/system/packages_base.sh" || true
+    fi
+
     echo ""
     log_info "✅ Installation des dépendances terminée"
     echo ""
-    log_info "Dépendances installées:"
-    for dep in "${deps[@]}"; do
+    log_info "Dépendances:"
+    for dep in "${bins[@]}"; do
         if command -v "$dep" >/dev/null 2>&1; then
-            echo "  ✅ $dep"
+            echo "  ✅ $dep → $(command -v "$dep")"
         else
             echo "  ❌ $dep"
         fi

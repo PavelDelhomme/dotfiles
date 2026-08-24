@@ -35,6 +35,12 @@ dotfiles_manager_load_ui_libs() {
         # shellcheck source=scripts/lib/ncurses_menu.sh
         . "${_df}/scripts/lib/ncurses_menu.sh"
     fi
+    if [ -f "${_df}/scripts/lib/manager_deps.sh" ]; then
+        # shellcheck source=scripts/lib/manager_deps.sh
+        . "${_df}/scripts/lib/manager_deps.sh"
+        # Soft-check une fois / session (pas d'install, pas de sudo) — dig/jq/git
+        manager_deps_check_base 2>/dev/null || true
+    fi
     dotfiles_load_manager_ui
 }
 

@@ -38,6 +38,9 @@ netman() {
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
         dotfiles_manager_load_ui_libs
+        if command -v manager_deps_check_once >/dev/null 2>&1; then
+            manager_deps_check_once netman 2>/dev/null || true
+        fi
     elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"

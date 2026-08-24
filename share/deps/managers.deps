@@ -1,0 +1,20 @@
+# Dépendances binaires déclaratives pour les *man
+# Format: manager:bin1 bin2 bin3
+# Utilisé par scripts/lib/manager_deps.sh (fallback si non hardcodé)
+#
+# dig = paquet Arch « bind », Debian « dnsutils », Fedora « bind-utils »
+
+base:dig jq git curl
+netman:dig jq ip
+sshman:ssh ssh-keygen
+dockerman:docker
+gitman:git
+virtman:virsh
+pathman:jq
+aliaman:jq
+helpman:jq
+manman:jq
+doctorman:jq
+installman:jq
+updateman:jq
+configman:jq

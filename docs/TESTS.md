@@ -57,6 +57,7 @@ Ce fichier n’est pas un journal « on a déjà tout validé donc on saute ». 
 | **2026-06-16** *(H→I)* | **Bloc H** validé (H.1 `test-dotcli-f7`, H.2 `NO_TUI`, H.3 filtre `DOTFILES_TEST_MANAGERS`). **Bloc I** bilan session. **installman** délègue `detect_distro` / `upgrade auto` à `core/lib/`. Merge **`feat/manual-tests-g0` → `dev`**. | P5 installman modules outils ; P11 CI multi-distro ; EXT-002/005. |
 | **2026-08-17** | **Nouveau manager `dockerman`** (vue/aide Docker : cheat, search, explain, ps/images lecture, prune dry-run). **G.0** : `MANS` + `dockerman` ; tableau **G.30** ; smoke **G.0.i**. Intégré `manman` (`[O]` après virtman), `helpman`, adapters zsh/bash/fish. | Refaire **G.0**, **G.0.i**, cocher **G.30**. `ps`/`images`/`prune --apply` hors matrice CI (daemon hôte). |
 | **2026-08-17** *(handbrake + rejeu)* | Commande **`handbrake`** (GUI) : alias → `/usr/bin/ghb` (pas de PATH `~/dotfiles/bin`, pas de probe au login). `installman handbrake` + mini-wrapper `~/.local/bin`. **Règle de rejeu** TESTS.md explicitée. | Après ce lot : **G.0** + **G.0.i** + **G.30** ; smoke `handbrake` (alias) / `type handbrake`. Rejouer toute étape **N** encore ouverte. |
+| **2026-08-24** *(deps dig + manager_deps)* | Paquets base multi-distro + **`dig`** ; `manager_deps` soft-check à l’appel *man (pas login) ; validate dig/jq. Stash WIP persist/VM **non** réappliqué. | `bash scripts/install/system/packages_base.sh` ; `netman help` ; validate dig. |
 
 ---
 
