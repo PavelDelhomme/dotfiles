@@ -414,6 +414,22 @@ _dotfiles_ensure_completion
 zstyle ':completion:*:*:make:*' tag-order 'targets'
 zstyle ':completion:*:make:*:targets' call-command true
 
+# Associer explicitement les *man au completer (si dump compinit incomplet)
+if (( $+functions[compdef] )) || whence compdef >/dev/null 2>&1; then
+    autoload -Uz _dotfiles_mans 2>/dev/null || true
+    if whence -w _dotfiles_mans >/dev/null 2>&1 || [[ -f "$DOTFILES_PATH/zsh/completions/_dotfiles_mans" ]]; then
+        autoload -Uz _dotfiles_mans
+        for _dm in netman sshman pathman aliaman aliasman installman updateman configman \
+            gitman fileman helpman manman moduleman miscman searchman cyberman cyberlearn \
+            devman virtman displayman diffman diskman doctorman processman routeman \
+            multimediaman shellman anonyman anonymman dockerman testman testzshman dfm dfmenu
+        do
+            compdef _dotfiles_mans "$_dm" 2>/dev/null || true
+        done
+        unset _dm
+    fi
+fi
+
 
 # =============================================================================
 # FIN DU CHARGEMENT

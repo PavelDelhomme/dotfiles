@@ -208,5 +208,14 @@ function dfmenu -d "Alias long de dfm"
     dfm $argv
 end
 
+# Complétions *man (Tab) — share/completions/mans.conf
+set -l _df_comp "$DOTFILES_PATH/fish/completions/dotfiles_mans.fish"
+if set -q DOTFILES_DIR
+    set _df_comp "$DOTFILES_DIR/fish/completions/dotfiles_mans.fish"
+end
+if test -f $_df_comp
+    source $_df_comp
+end
+
 #neofetch
 start_auto_backup_if_not_running

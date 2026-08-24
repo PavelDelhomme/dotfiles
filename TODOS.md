@@ -32,7 +32,8 @@
   - **Reste** : smoke `make init tests` en Docker ; aligner `reset_all` messages avec preflight ; suite P19 racine.
 - [~] **`dockerman`** (**actif 2026-08-17**) : aide-mémoire + vues Docker (`ps`/`images`/`compose` lecture, `cheat`/`search`/`explain`, prune dry-run). manman `[O]`, helpman, adapters zsh/bash/fish, TESTS G.0.i / G.30. **Reste** : smoke Docker matrice ; `compose up` volontairement hors manager.
 - [~] **HandBrake `handbrake` vs `ghb`** (**2026-08-17**) : alias shell `handbrake` → `/usr/bin/ghb` (pas de PATH extra, pas de probe flatpak au login). `installman handbrake` + mini-wrapper `~/.local/bin`. Ne pas écraser le binaire distro.
-- [~] **Paquets base + deps *man** (**actif 2026-08-24**) : `packages_base.sh` multi-distro + **`dig`** (bind/dnsutils/bind-utils) ; `scripts/lib/manager_deps.sh` + `share/deps/managers.deps` (warn soft à l’appel *man, pas au login) ; `install_menu` deps managers inclut dig. **Reste** : étendre `manager_deps_check_once` à tous les cores ; `configman deps` ; smoke Docker.
+- [~] **Paquets base + deps *man** (**actif 2026-08-24**) : `packages_base.sh` multi-distro + **`dig`** ; `manager_deps` soft-check ; validate dig/jq.
+- [~] **Complétions *man** (**actif 2026-08-24**) : `share/completions/mans.conf` + zsh `_dotfiles_mans` + bash/fish. **sh** : pas de Tab natif. Recharger shell / invalider `zcompdump`.
 - [ ] **Backlog session 2026-08-24 (après incident terminaux — NE PAS tout réappliquer d’un coup)** :
   - Stash encore présent : `stash@{0}` *sshman persist + vm libvirt + help-tests/vm* → réintroduire **par lots** dans env isolé (Docker/VM), jamais en bloquant le shell hôte.
   - `alias zshrc="zsh"` → remplacer par `exec zsh` / `source ~/.zshrc` (présent aussi sur main).

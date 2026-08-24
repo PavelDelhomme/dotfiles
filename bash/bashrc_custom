@@ -115,6 +115,12 @@ if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/dotfiles_menu.sh" ]; then
     alias dfm='dotfiles_menu_run'
 fi
 
+# Complétion Bash des *man (Tab) — share/completions/mans.conf
+if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/bash/completions/dotfiles_mans.sh" ]; then
+    # shellcheck source=/dev/null
+    source "${DOTFILES_DIR:-$HOME/dotfiles}/bash/completions/dotfiles_mans.sh" 2>/dev/null || true
+fi
+
 # =============================================================================
 # ÉTAPE 4.5 : CHARGEMENT DES COMMANDES STANDALONE (NON-MANAGERS)
 # =============================================================================
