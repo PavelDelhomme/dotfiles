@@ -1,6 +1,15 @@
 #compdef netman sshman pathman aliaman aliasman installman updateman configman gitman fileman helpman manman moduleman miscman searchman cyberman cyberlearn devman virtman displayman diffman diskman doctorman processman routeman multimediaman shellman anonyman anonymman dockerman testman testzshman dfm dfmenu
 # Complétion unifiée des *man — share/completions/mans.conf
 
+[[ -n "$curcontext" ]] || return 0
+
+# compadd = builtin zsh/complist ; compinit peut laisser un stub autoload cassé
+if ! whence compadd 2>/dev/null | grep -q 'shell builtin'; then
+  unfunction compadd 2>/dev/null
+  zmodload -i zsh/complist 2>/dev/null || return 0
+fi
+whence compadd 2>/dev/null | grep -q 'shell builtin' || return 0
+
 local df="${DOTFILES_DIR:-$HOME/dotfiles}"
 local conf="$df/share/completions/mans.conf"
 local cmd="${words[1]:-}"
@@ -15,27 +24,19 @@ if [[ -f "$conf" ]]; then
   subs=(${=line})
 fi
 
-_dotfiles_mans_add() {
-  (( $# == 0 )) && return 0
-  if (( $+functions[compadd] )); then
-    compadd -U -- "$@"
-  else
-    autoload -Uz compadd 2>/dev/null
-    (( $+functions[compadd] )) && compadd -U -- "$@"
-  fi
-}
-
 # helpman <manager> [sous-cmd]
 if [[ "$cmd" == helpman ]]; then
   if (( CURRENT == 2 )); then
     [[ -d "$df/core/managers" ]] && mans=("$df"/core/managers/*(/N:t))
-    _dotfiles_mans_add "$meta[@]" "$mans[@]"
+    common=($meta $mans)
+    (( ${#common[@]} )) && compadd -a common
     return 0
   fi
   if (( CURRENT >= 3 )) && [[ -f "$conf" ]]; then
     line=$(grep -E "^${words[2]}:" "$conf" 2>/dev/null | head -1 | cut -d: -f2-)
     subs=(${=line})
-    _dotfiles_mans_add "$meta[@]" "$subs[@]"
+    common=($meta $subs)
+    (( ${#common[@]} )) && compadd -a common
     return 0
   fi
 fi
@@ -45,20 +46,20 @@ if [[ "$cmd" == dfm || "$cmd" == dfmenu ]]; then
   if (( CURRENT == 2 )); then
     local d="$df/share/menus"
     [[ -d "$d" ]] && menus=("$d"/*.menu(N:t:r))
-    _dotfiles_mans_add "$menus[@]"
+    (( ${#menus[@]} )) && compadd -a menus
     return 0
   fi
 fi
 
 if (( CURRENT == 2 )); then
-  common=("$meta[@]" "$subs[@]")
-  _dotfiles_mans_add "$common[@]"
+  common=($meta $subs)
+  (( ${#common[@]} )) && compadd -a common
   return 0
 fi
 
 if [[ "$cmd" == netman && "${words[2]:-}" == dig ]]; then
   dig_extra=(help -h A AAAA MX NS TXT SOA CNAME ANY +trace -x --raw @1.1.1.1 @8.8.8.8)
-  _dotfiles_mans_add "$dig_extra[@]"
+  (( ${#dig_extra[@]} )) && compadd -a dig_extra
   return 0
 fi
 

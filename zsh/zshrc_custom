@@ -396,17 +396,30 @@ if [[ -f "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; th
     source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null || true
 fi
 
-# Réparer la complétion si le dump .zcompdump est corrompu (comptags/comptry introuvables → Tab casse)
+# Réparer la complétion si le dump .zcompdump est corrompu (comptags/comptry/compadd introuvables → Tab casse)
+_dotfiles_ensure_compadd() {
+    whence compadd 2>/dev/null | grep -q 'shell builtin' && return 0
+    unfunction compadd 2>/dev/null
+    zmodload -i zsh/complist 2>/dev/null || return 1
+}
+
 _dotfiles_ensure_completion() {
-    if whence comptags >/dev/null 2>&1 && whence comptry >/dev/null 2>&1; then
+    _dotfiles_ensure_compadd 2>/dev/null || true
+    if whence compadd 2>/dev/null | grep -q 'shell builtin' \
+        && whence comptags >/dev/null 2>&1 \
+        && whence comptry >/dev/null 2>&1; then
         return 0
     fi
     local zdump="${ZSH_COMPDUMP:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${HOST/.*/}-${ZSH_VERSION}}"
+    setopt local_options null_glob
     rm -f "$zdump" "${zdump}".zwc \
           "${ZDOTDIR:-$HOME}/.zcompdump" "${ZDOTDIR:-$HOME}/.zcompdump".zwc \
           "${ZDOTDIR:-$HOME}"/.zcompdump-* 2>/dev/null || true
-    autoload -Uz compinit
+    unfunction compadd compinit 2>/dev/null
+    zmodload -i zsh/complist 2>/dev/null || true
+    autoload -Uz compinit compadd
     compinit -u -D -d "$zdump" 2>/dev/null || compinit -u -d "$zdump"
+    _dotfiles_ensure_compadd 2>/dev/null || true
 }
 _dotfiles_ensure_completion
 
@@ -415,7 +428,8 @@ zstyle ':completion:*:*:make:*' tag-order 'targets'
 zstyle ':completion:*:make:*:targets' call-command true
 
 # Associer explicitement les *man au completer (si dump compinit incomplet)
-if (( $+functions[compdef] )) || whence compdef >/dev/null 2>&1; then
+if _dotfiles_ensure_compadd 2>/dev/null \
+    && { (( $+functions[compdef] )) || whence compdef >/dev/null 2>&1; }; then
     autoload -Uz _dotfiles_mans 2>/dev/null || true
     if whence -w _dotfiles_mans >/dev/null 2>&1 || [[ -f "$DOTFILES_PATH/zsh/completions/_dotfiles_mans" ]]; then
         autoload -Uz _dotfiles_mans
