@@ -1,5 +1,8 @@
 # Sous-commandes CI displayman (non interactives, safe en non-TTY).
 # detect exclu : nécessite ddcutil + bus I2C (absent en conteneur Docker CI).
+# layout/doctor/fix : OK hors Plasma (message d'erreur propre si pas kscreen).
 help
 range
 osd-guide
+layout
+doctor
