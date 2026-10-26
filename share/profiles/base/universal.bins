@@ -1,0 +1,21 @@
+# Binaires minimum — une clé par ligne (# commentaires ignorés)
+# Vérifiés par « command -v » ; le paquet réel vient de pkgmap.conf
+git
+curl
+wget
+make
+cmake
+gcc
+zsh
+btop
+jq
+dig
+ssh
+sshpass
+zip
+unzip
+tar
+unrar
+man
+hwinfo
+fastfetch

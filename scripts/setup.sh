@@ -226,10 +226,11 @@ show_menu() {
     echo "1.  Configuration Git"
     echo "2.  Configuration remote Git (SSH/HTTPS)"
     echo ""
-    echo "3.  Installation paquets de base (btop, curl, wget, etc.)"
+    echo "3.  Profil de base multi-distro (git/zsh/btop/dig/zip/… + doctor)"
+    echo "3b. Doctor profil de base (ce qui manque)"
     echo "4.  Installation complète Zsh (Oh My Zsh + Powerlevel10k + plugins + Nerd Fonts)"
     echo "5.  Installation Powerlevel10k uniquement (thème Zsh avec support Git)"
-    echo "6.  Installation gestionnaires (yay, snap, flatpak)"
+    echo "6.  Gestionnaires (yay/paru Arch · snap · flatpak — toutes distros)"
     echo ""
     echo "7.  Installation QEMU/KVM (paquets)"
     echo "8.  Configuration réseau QEMU"
@@ -373,7 +374,15 @@ while true; do
             printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
             ;;
         3)
-            run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            run_script "$SCRIPT_DIR/install/system/base_profile.sh install" "Profil de base (install)"
+            run_script_exit_code=$?
+            if [ $run_script_exit_code -eq 130 ]; then
+                continue
+            fi
+            printf "\nAppuyez sur Entrée pour continuer... "; read -r dummy
+            ;;
+        3b|3B)
+            run_script "$SCRIPT_DIR/install/system/base_profile.sh doctor" "Doctor profil de base"
             run_script_exit_code=$?
             if [ $run_script_exit_code -eq 130 ]; then
                 continue
@@ -462,7 +471,7 @@ while true; do
                 continue
             fi
             
-            run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+            run_script "$SCRIPT_DIR/install/system/base_profile.sh install" "Profil de base (install)"
             echo ""
             printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
             read -r install_p10k
@@ -910,7 +919,7 @@ while true; do
                 
                 case "$action" in
                     install_base_packages)
-                        run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+                        run_script "$SCRIPT_DIR/install/system/base_profile.sh install" "Profil de base (install)"
             echo ""
             printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
             read -r install_p10k
@@ -1065,7 +1074,7 @@ while true; do
             # Paquets de base
             if ! command -v git &> /dev/null || ! command -v curl &> /dev/null || ! command -v zsh &> /dev/null; then
                 log_info "Installation des paquets de base..."
-                run_script "$SCRIPT_DIR/install/system/packages_base.sh" "Paquets de base"
+                run_script "$SCRIPT_DIR/install/system/base_profile.sh install" "Profil de base (install)"
             echo ""
             printf "Installer Powerlevel10k (thème Zsh avec Git)? (o/n) [o]: "
             read -r install_p10k

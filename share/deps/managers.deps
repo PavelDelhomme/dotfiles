@@ -4,7 +4,7 @@
 #
 # dig = paquet Arch « bind », Debian « dnsutils », Fedora « bind-utils »
 
-base:dig jq git curl
+base:dig jq git curl wget make zsh btop zip tar ssh
 netman:dig jq ip
 sshman:ssh ssh-keygen
 dockerman:docker

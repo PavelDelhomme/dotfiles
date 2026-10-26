@@ -89,8 +89,28 @@ Voir [Configuration Git via .env](#configuration-git-via-env) pour plus de déta
 Cette commande va automatiquement exécuter les étapes suivantes :
 
 **1. Vérification et installation de Git**
-- Détection automatique du gestionnaire de paquets (pacman/apt/dnf)
+- Détection automatique du gestionnaire de paquets (pacman/apt/dnf/emerge)
 - Installation automatique si Git n'est pas présent
+
+**1bis. Profil machine de base (multi-distro, personnalisable)**
+
+Après le clone, le bootstrap propose d’installer le **socle outils**
+(`share/profiles/base/`) : git, curl, wget, make, cmake, gcc, zsh, btop, jq,
+dig, ssh, zip/unzip/tar/unrar, man, hwinfo, fastfetch, + sur Arch `base-devel`
+et un helper AUR (`yay`/`paru`), + **flatpak** et **snap** sur les distros
+supportées. GUI (`xclip`…) sauf si `DOTFILES_HEADLESS=1`.
+
+```sh
+make base              # install
+make base-doctor       # vérifier
+make base-plan         # tableau clé → paquet
+DOTFILES_AUTO_BASE=1 bash bootstrap.sh
+DOTFILES_AUR_HELPER=paru DOTFILES_SET_DEFAULT_SHELL=1 make base
+DOTFILES_HEADLESS=1 make base
+```
+
+Détail des listes / variables : [`share/profiles/base/README.md`](../../share/profiles/base/README.md).
+Menu setup : option **3** (install) · **3b** (doctor) · **6** (yay/snap/flatpak).
 
 **2. Configuration Git (nom et email)** ⚠️ **INTERACTIF**
 - **Si Git est déjà configuré** : Utilise la configuration existante (aucune demande)

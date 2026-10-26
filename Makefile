@@ -173,6 +173,15 @@ setup: ## Lancer le menu interactif setup.sh
 	@echo -e "$(BLUE)Menu interactif setup.sh…$(NC)"
 	@bash "$(SCRIPT_DIR)/setup.sh"
 
+base: ## Installer le profil machine de base (multi-distro)
+	@bash "$(SCRIPT_DIR)/install/system/base_profile.sh" install
+
+base-doctor: ## Vérifier le profil de base (manques)
+	@bash "$(SCRIPT_DIR)/install/system/base_profile.sh" doctor
+
+base-plan: ## Plan clé→paquet→état (dry)
+	@bash "$(SCRIPT_DIR)/install/system/base_profile.sh" plan
+
 validate: ## Valider le setup complet
 	@echo -e "$(BLUE)Validation du setup…$(NC)"
 	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"

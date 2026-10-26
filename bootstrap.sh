@@ -886,6 +886,28 @@ log_section "Installation des dotfiles"
         
         # Passer le shell sélectionné à setup.sh via variable d'environnement
         export SELECTED_SHELL_FOR_SETUP
+
+        # Profil de base multi-distro (outils minimum) — optionnel / auto
+        if [ -f "$DOTFILES_DIR/scripts/install/system/base_profile.sh" ]; then
+            if [ "${DOTFILES_AUTO_BASE:-0}" = "1" ]; then
+                log_info "DOTFILES_AUTO_BASE=1 → installation du profil de base…"
+                bash "$DOTFILES_DIR/scripts/install/system/base_profile.sh" install || log_warn "Profil de base : erreurs non bloquantes"
+            elif [ -t 0 ] && [ -t 1 ]; then
+                echo ""
+                log_info "Installer le profil de base maintenant ? (git/zsh/btop/dig/zip/flatpak/…)"
+                printf "  [O]ui / [n]on / [d]octor seulement (défaut O): "
+                read -r _bp_ans || _bp_ans=O
+                case "${_bp_ans:-O}" in
+                    n|N|non|Non) log_skip "Profil de base reporté (make base plus tard)" ;;
+                    d|D|doctor)
+                        bash "$DOTFILES_DIR/scripts/install/system/base_profile.sh" doctor || true
+                        ;;
+                    *)
+                        bash "$DOTFILES_DIR/scripts/install/system/base_profile.sh" install || log_warn "Profil de base : erreurs non bloquantes"
+                        ;;
+                esac
+            fi
+        fi
         
         # Lancer directement setup.sh
         bash "$DOTFILES_DIR/scripts/setup.sh"

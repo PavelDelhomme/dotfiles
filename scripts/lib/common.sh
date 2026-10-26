@@ -82,10 +82,17 @@ is_installed() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Vérifie si un paquet est installé (Arch Linux uniquement)
+# Vérifie si un paquet est installé (multi-distro best-effort)
 is_package_installed() {
+    local pkg="$1"
     if command -v pacman >/dev/null 2>&1; then
-        pacman -Q "$1" >/dev/null 2>&1
+        pacman -Q "$pkg" >/dev/null 2>&1
+    elif command -v dpkg-query >/dev/null 2>&1; then
+        dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "install ok installed"
+    elif command -v rpm >/dev/null 2>&1; then
+        rpm -q "$pkg" >/dev/null 2>&1
+    elif command -v equery >/dev/null 2>&1; then
+        equery -q list "$pkg" >/dev/null 2>&1
     else
         return 1
     fi
