@@ -2,11 +2,12 @@
 
 # NETMAN(1) - Gestionnaire réseau
 
-> Mise à jour 2026-05 : document revu dans la trajectoire plateforme unifiée (voir `docs/platform/UNIFIED_PLATFORM_ROADMAP.md`).
+> Mise à jour 2026-10 : lookup URL/PTR, aide par sous-commande, pont routeman,
+> soft recon (`probe` / `neigh` / `lan`).
 
 ## NOM
 
-netman - Gestionnaire interactif complet pour la gestion réseau
+netman - Couteau suisse réseau (local, DNS, soft recon)
 
 ## SYNOPSIS
 
@@ -14,46 +15,78 @@ netman - Gestionnaire interactif complet pour la gestion réseau
 
 ## DESCRIPTION
 
-NETMAN gère le réseau local : ports, DNS (**dig**), lookup, diagnostic, firewall, etc.
+NETMAN centralise l’analyse et le diagnostic réseau : DNS (dig/lookup),
+chemin (trace/mtr), ports, firewall, découverte LAN soft, et pont vers
+**routeman** / **anonyman**.
 
-Sans argument : **aide stdout** (liste des sous-commandes).  
+Sans argument : **aide stdout** (carte des sous-commandes).  
+`netman help <cmd>` : aide ciblée.  
 `netman <cmd>` sans les args requis : **aide de la sous-commande**.  
 Menu TUI : `netman menu` ou `netman --interactive`.
 
-## OPTIONS / SOUS-COMMANDES
+Les cibles acceptent aussi les **URL collées** (`https://host/path` → `host`)
+pour dig, lookup, whois, trace, mtr, probe, scan.
 
-- **dig** — requêtes DNS (`netman dig`, `netman dig example.com`, `MX`, `@1.1.1.1`, `-x`)
-- **lookup** *cible* — dig + reverse + whois
-- **dns** / **dns-bench** — config locale / benchmark résolveurs
-- **ports** / **connections** / **interfaces** / **ip** / **routing** / **routeman**
-- **scan** / **kill** / **stats** / **diagnose** / **firewall**
-- **trace** / **mtr** / **whois** / **connectivity** / **speed** / **monitor** / **analyze** / **export**
-- **tor** / **i2p** — délègue à anonyman
-- **help** [*sous-cmd*] — aide générale ou ciblée ; `help --interactive` (TTY)
-- **menu** — menu interactif
+## SOUS-COMMANDES
+
+### DNS / identité
+
+| Commande | Rôle |
+|----------|------|
+| **dig** | Requêtes dig (A/AAAA/MX/NS/TXT, `@résolveur`, `-x`, `+trace`, `--raw`) |
+| **lookup** | Fiche dig-like + **PTR par IP** + whois (URL OK) |
+| **probe** | Soft recon one-shot (DNS+ping+trace+ports courants) |
+| **dns** / **dns-bench** | Config locale / latence multi-résolveurs |
+| **whois** | Fiche whois |
+
+### Hôte / chemin
+
+| Commande | Rôle |
+|----------|------|
+| **ip** / **interfaces** / **connections** / **ports** / **stats** | État local |
+| **routing** | Table de routage (lecture) |
+| **routeman** [*args*] | Pont vers routeman (`show`/`add`/`del`/menu) |
+| **trace** / **mtr** / **connectivity** / **speed** | Chemin & perf |
+| **scan** / **kill** | Port TCP rapide / kill process |
+
+### Soft recon / LAN
+
+| Commande | Rôle |
+|----------|------|
+| **neigh** / **arp** | Table voisins L2 (ARP/NDP) |
+| **lan** | Découverte locale (neigh + arp-scan/nmap `-sn` si dispo) |
+| **diagnose** / **diagnose-deep** / **diag-report** / **firewall** | Santé |
+| **monitor** / **analyze** / **export** | Trafic / snapshot |
+
+### Anonymat
+
+| Commande | Rôle |
+|----------|------|
+| **tor** / **i2p** | Délègue à **anonyman** |
 
 ## EXEMPLES
 
 ```
 $ netman
-$ netman dig
+$ netman help lookup
+$ netman lookup https://example.com/path
+$ netman lookup 1.1.1.1
 $ netman dig example.com
-$ netman dig MX example.com
-$ netman dig @1.1.1.1 google.com
-$ netman help dig
-$ helpman netman dig
-$ netman lookup example.com
+$ netman dig -x 8.8.8.8
+$ netman probe example.com
+$ netman neigh
+$ netman lan
+$ netman routeman show
 $ netman menu
 ```
 
 ## VOIR AUSSI
 
-- **help**(1) - Système d'aide pour les fonctions personnalisées
-- **man**(1) - Pages de manuel système
-- **kill_port**(1) - Tuer un processus par port
-- **port_process**(1) - Afficher les processus par port
+- **routeman**(1) — édition des routes IP
+- **anonyman**(1) — Tor / I2P
+- **helpman**(1) — `helpman netman dig`
+- [`docs/guides`](../guides/) · [`docs/ERRORS.md`](../ERRORS.md)
 
 ## AUTEUR
 
 Paul Delhomme - Système de dotfiles personnalisé
-

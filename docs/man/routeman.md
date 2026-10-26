@@ -14,29 +14,34 @@ routeman - Gestionnaire interactif de routes IP (visualisation, ajout, suppressi
 
 ## DESCRIPTION
 
-ROUTEMAN permet de gerer les routes IP du systeme depuis une interface interactive
-ou via des sous-commandes CLI.
+ROUTEMAN gère les routes IP (visualiser, ajouter, supprimer, remplacer).
 
-Fonctions principales:
-- visualiser les routes IPv4/IPv6
-- ajouter une route
-- supprimer une route
-- modifier (replace) une route existante
+Sans argument : **aide stdout**.  
+Menu TUI : `routeman menu` ou `routeman --interactive`.  
+Aussi via netman : `netman routeman show|add|del|…`.
 
 ## OPTIONS
 
-**command** peut etre :
-- **show** | **list** - Affiche les routes
-- **add** *reseau/cidr* [gateway] [interface] [metric] - Ajoute une route
-- **del** | **delete** *reseau/cidr|default* - Supprime une route
-- **replace** | **mod** *reseau/cidr* [gateway] [interface] [metric] - Modifie une route
-- **help** - Affiche l'aide
+**command** peut être :
+- **show** | **list** — Affiche les routes IPv4/IPv6
+- **add** *reseau/cidr* [gateway] [interface] [metric] — Ajoute une route
+- **del** | **delete** *reseau/cidr|default* — Supprime une route
+- **replace** | **mod** *reseau/cidr* [gateway] [interface] [metric] — Modifie une route
+- **menu** | **--interactive** — Menu TUI (TTY)
+- **help** | **-h** — Aide
 
 ## EXEMPLES
 
-Lancer le menu interactif :
 ```
 $ routeman
+$ routeman menu
+$ routeman show
+$ netman routeman show
+```
+
+Menu interactif :
+```
+$ routeman menu
 ```
 
 Afficher les routes :

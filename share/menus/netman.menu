@@ -1,0 +1,22 @@
+# netman - Menu dotfiles-menu (label|command)
+# Utilisation: dfm netman
+Aide generale|netman help
+Lookup DNS (exemple)|netman lookup example.com
+Dig A/AAAA|netman dig example.com
+Probe soft recon|netman probe example.com
+Voisins ARP/NDP|netman neigh
+Decouverte LAN|netman lan
+DNS local|netman dns
+Benchmark DNS|netman dns-bench
+Whois|netman whois example.com
+IP publique/locale|netman ip
+Interfaces|netman interfaces
+Connexions|netman connections
+Ports|netman ports
+Routage (lecture)|netman routing
+Routeman show|netman routeman show
+Diagnostic|netman diagnose
+Firewall|netman firewall
+Trace|netman trace 1.1.1.1
+Menu TUI|netman menu
+Quitter (ne rien faire)|true
