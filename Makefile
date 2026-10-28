@@ -182,6 +182,15 @@ base-doctor: ## Vérifier le profil de base (manques)
 base-plan: ## Plan clé→paquet→état (dry)
 	@bash "$(SCRIPT_DIR)/install/system/base_profile.sh" plan
 
+doctor: ## Santé globale (base + managers + session) — depuis n'importe où
+	@"$(DOTFILES_DIR)/bin/dotfiles" doctor
+
+session-doctor: ## Display managers / sessions GNOME vs KDE
+	@"$(DOTFILES_DIR)/bin/dotfiles" session doctor
+
+shims: ## Installer *man + dotfiles dans ~/.local/bin
+	@"$(DOTFILES_DIR)/bin/dotfiles" shims install
+
 validate: ## Valider le setup complet
 	@echo -e "$(BLUE)Validation du setup…$(NC)"
 	@bash "$(SCRIPT_DIR)/test/validate_setup.sh"

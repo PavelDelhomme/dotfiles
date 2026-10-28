@@ -112,6 +112,43 @@ DOTFILES_HEADLESS=1 make base
 Détail des listes / variables : [`share/profiles/base/README.md`](../../share/profiles/base/README.md).
 Menu setup : option **3** (install) · **3b** (doctor) · **6** (yay/snap/flatpak).
 
+### Vérifier depuis `~/` (n’importe quel shell) — machine déjà installée
+
+Les `*man` sont souvent des **fonctions** zsh : invisibles en bash/fish/root/`sudo`.
+Utilise le CLI portable :
+
+```sh
+# chemin absolu (toujours OK)
+~/dotfiles/bin/dotfiles doctor
+
+# une fois les shims installés (~/.local/bin) :
+~/dotfiles/bin/dotfiles shims install
+dotfiles doctor
+dotfiles base doctor
+dotfiles session doctor          # DM : sddm/gdm/lightdm + sessions
+dotfiles session prefer-kde      # si login GNOME alors que tu veux Plasma
+make doctor                      # depuis le dépôt
+```
+
+### Fresh OS — seulement un terminal (root ou user)
+
+```sh
+# 1. Paquets critiques
+# Arch:   sudo pacman -S --needed git curl wget make base-devel
+# Debian: sudo apt install -y git curl wget make build-essential
+# Fedora: sudo dnf install -y git curl wget make gcc
+
+# 2. Bootstrap
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+# ou clone puis :
+~/dotfiles/bin/dotfiles mincheck
+~/dotfiles/bin/dotfiles base install
+~/dotfiles/bin/dotfiles doctor
+```
+
+Login cassé après un gros `pacman -Syu` (plusieurs DM / GNOME vs KDE) :
+voir [`docs/ERRORS.md`](../ERRORS.md) + `dotfiles session prefer-kde`.
+
 **2. Configuration Git (nom et email)** ⚠️ **INTERACTIF**
 - **Si Git est déjà configuré** : Utilise la configuration existante (aucune demande)
 - **Si le fichier `.env` existe** (après le clonage) : Charge `GIT_USER_NAME` et `GIT_USER_EMAIL` depuis `.env`

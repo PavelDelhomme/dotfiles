@@ -71,6 +71,7 @@ updateman() {
         printf "  ${BOLD}updateman help${RESET}                affiche cette aide\n"
         printf "\n${YELLOW}Note:${RESET} les scripts internes (ex. update-cursor-appimage) ne sont pas des commandes publiques.\n"
         printf "      Installation initiale : ${BOLD}installman <outil>${RESET} ; mises a jour : ${BOLD}updateman${RESET}.\n"
+        printf "      Sante globale / login DM : ${BOLD}dotfiles doctor${RESET} · ${BOLD}dotfiles session prefer-kde${RESET}\n"
     }
 
     __updateman_system_help() {

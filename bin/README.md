@@ -1,5 +1,21 @@
 # bin/ - Exécutables dotfiles
 
+## dotfiles
+
+CLI **portable** (bash) : doctor / base / session / shims — fonctionne depuis `~/`,
+en root, sans sourcer zsh/fish.
+
+```bash
+~/dotfiles/bin/dotfiles doctor
+~/dotfiles/bin/dotfiles base install
+~/dotfiles/bin/dotfiles session prefer-kde
+~/dotfiles/bin/dotfiles shims install   # → ~/.local/bin/{dotfiles,netman,…}
+# ensuite depuis n'importe quel shell :
+dotfiles doctor
+```
+
+Fresh OS (CLI only) : `dotfiles mincheck` puis bootstrap / `base install`.
+
 ## dotfiles-menu
 
 Menu générique basé sur **fzf** (cross-shell). Lit des lignes `label|command`, affiche un menu, imprime la commande sélectionnée.
