@@ -47,18 +47,30 @@ if ! "${DOCKER_RUN[@]}" bash -c '
         printf "%s\n" "$_out" | grep -q "Mise a jour" || { echo "FAIL maj? $tool"; exit 1; }
     done
 
+    # Timers user uniquement (pas de téléchargement AppImage / apt dans le smoke).
+    updateman cursor install </dev/null
+    test -f "$HOME/.config/systemd/user/cursor-update.timer"
+    test -f "$HOME/.config/systemd/user/cursor-update.service"
+    echo "OK: unites cursor-update.timer installees dans $HOME/.config/systemd/user"
+
     updateman docker install </dev/null
     test -f "$HOME/.config/systemd/user/docker-update.timer"
     test -f "$HOME/.config/systemd/user/docker-update.service"
+    echo "OK: unites docker-update.timer installees dans $HOME/.config/systemd/user"
 
     updateman brave install </dev/null
     test -f "$HOME/.config/systemd/user/brave-update.timer"
+    echo "OK: unites brave-update.timer installees dans $HOME/.config/systemd/user"
 
     _out="$(updateman docker status </dev/null 2>&1)"
     printf "%s\n" "$_out" | grep -q "docker-update.timer"
     printf "%s\n" "$_out" | grep -qE "installees|Etat timer"
 
+    _out="$(updateman cursor status </dev/null 2>&1)"
+    printf "%s\n" "$_out" | grep -q "cursor-update.timer"
+
     updateman status </dev/null | grep -qE "cursor|docker|brave"
+    updateman cursor check </dev/null >/dev/null
     updateman docker check </dev/null >/dev/null
     updateman brave check </dev/null >/dev/null
 
