@@ -56,8 +56,11 @@ Usage:
   dotfiles doctor                 santé globale (base + managers + session + pacman)
   dotfiles base doctor|install|plan
   dotfiles session doctor
-  dotfiles session prefer-kde     SDDM/Plasma (ou LightDM)
-  dotfiles session prefer-gnome   GDM/GNOME
+  dotfiles session prefer-kde     SDDM + Plasma (GNOME/Openbox au greeter)
+  dotfiles session prefer-gnome   GDM + GNOME
+  dotfiles session emergency      session Openbox minimale
+  dotfiles adb …                  adbman (USB/Wi-Fi sans spam)
+  dotfiles perso status|backup    audit Git Perso / snapshot home
   dotfiles shims install          *man dans ~/.local/bin (marche sous sudo)
   dotfiles update [pull|full|status|enable|disable]
   dotfiles preflight              état avant install/reset
@@ -137,11 +140,32 @@ case "$cmd" in
             doctor|status|check) df_session_doctor ;;
             prefer-kde|kde|plasma) df_session_prefer_kde ;;
             prefer-gnome|gnome) df_session_prefer_gnome ;;
+            emergency|openbox|minimal) df_session_ensure_emergency ;;
             enable-sddm) df_session_enable_dm sddm ;;
             enable-gdm) df_session_enable_dm gdm ;;
             enable-lightdm) df_session_enable_dm lightdm ;;
             *)
-                echo "session: doctor | prefer-kde | prefer-gnome" >&2
+                echo "session: doctor | prefer-kde | prefer-gnome | emergency" >&2
+                exit 1
+                ;;
+        esac
+        ;;
+    adb|adbman)
+        # shellcheck source=/dev/null
+        . "$ROOT/core/managers/adbman/core/adbman.sh"
+        adbman "$@"
+        ;;
+    perso)
+        sub="${1:-status}"
+        case "$sub" in
+            status|git|audit)
+                bash "$ROOT/scripts/sync/perso_git_status.sh"
+                ;;
+            backup|snapshot)
+                bash "$ROOT/scripts/sync/perso_backup_home.sh"
+                ;;
+            *)
+                echo "perso: status | backup" >&2
                 exit 1
                 ;;
         esac

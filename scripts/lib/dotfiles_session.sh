@@ -8,6 +8,7 @@ df_session_doctor() {
     echo "════════════════════════════════════════════════════════"
     echo ""
     echo "Desktop actuel: ${XDG_CURRENT_DESKTOP:-?}  type=${XDG_SESSION_TYPE:-?}"
+    echo "dmrc: $(grep -E '^Session=' "$HOME/.dmrc" 2>/dev/null || echo '(absent)')"
     echo ""
     if ! command -v systemctl >/dev/null 2>&1; then
         echo "systemd absent — skip"
@@ -20,14 +21,16 @@ df_session_doctor() {
         ac=$(systemctl is-active "$u" 2>/dev/null | head -1)
         [ -n "$en" ] || en="absent"
         [ -n "$ac" ] || ac="inactive"
-        # is-enabled renvoie exit 1 pour « disabled » — ne pas concaténer « absent »
         printf "  %-18s enabled=%-12s active=%s\n" "$u" "$en" "$ac"
     done
+    echo ""
+    dm_link=$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null || echo '?')
+    echo "display-manager → $dm_link"
     echo ""
 
     if command -v pacman >/dev/null 2>&1; then
         echo "Paquets DM/DE:"
-        pacman -Q sddm gdm lightdm plasma-desktop gnome-shell 2>/dev/null | sed 's/^/  /' || true
+        pacman -Q sddm gdm lightdm plasma-desktop gnome-shell openbox 2>/dev/null | sed 's/^/  /' || true
         echo ""
     fi
 
@@ -49,6 +52,20 @@ df_session_doctor() {
     else
         echo "✓ Un seul DM enabled"
     fi
+
+    # Diagnostic boucle login connue (LightDM X11 + GNOME Shell assert)
+    if systemctl is-enabled lightdm.service >/dev/null 2>&1; then
+        echo ""
+        echo "⚠ LightDM enabled : greeter X11. Plasma est surtout Wayland →"
+        echo "  sessions GNOME X11 peuvent planter (assert gnome-shell) → retour login."
+        echo "  → dotfiles session prefer-kde   # SDDM + Plasma"
+        echo "  Urgence graphique: choisir « Openbox (urgence) » au greeter."
+    fi
+    if systemctl is-enabled sddm.service >/dev/null 2>&1; then
+        echo ""
+        echo "Au greeter SDDM tu peux choisir: Plasma / GNOME / Openbox (urgence)."
+        echo "GDM reste installé mais disabled (dotfiles session prefer-gnome pour basculer)."
+    fi
     echo ""
 }
 
@@ -68,6 +85,10 @@ df_session_enable_dm() {
         else sudo "$@"
         fi
     }
+    # GDM souvent masked après incident multi-DM
+    if [ "$want" = "gdm" ]; then
+        _run systemctl unmask gdm.service 2>/dev/null || true
+    fi
     echo "Activation de ${want}.service (disable des autres)…"
     for u in sddm gdm lightdm; do
         if [ "$u" = "$want" ]; then
@@ -76,21 +97,55 @@ df_session_enable_dm() {
             _run systemctl disable "$u.service" 2>/dev/null || true
         fi
     done
-    echo "OK. Pour basculer maintenant (coupe la session graphique) :"
-    echo "  sudo systemctl isolate ${want}.service"
+    # Session par défaut utilisateur
+    if [ -n "${HOME:-}" ] && [ "$(id -u)" -ne 0 ]; then
+        printf '%s\n' '[Desktop]' 'Session=plasma' >"$HOME/.dmrc" 2>/dev/null || true
+        if [ "$want" = "gdm" ] || [ "${1:-}" = "gnome-force" ]; then
+            printf '%s\n' '[Desktop]' 'Session=gnome' >"$HOME/.dmrc" 2>/dev/null || true
+        fi
+    fi
+    echo "OK. Appliqué au prochain boot (ne coupe pas la session courante)."
+    echo "  sudo systemctl isolate ${want}.service   # bascule immédiate (ferme le bureau)"
     echo "  # ou reboot"
 }
 
 df_session_prefer_kde() {
-    echo "Cible: Plasma (KDE) + SDDM (recommandé) ou LightDM si SDDM absent"
+    echo "Cible: Plasma (KDE) + SDDM — GNOME reste sélectionnable au greeter"
     if command -v pacman >/dev/null 2>&1; then
         if ! pacman -Q plasma-desktop >/dev/null 2>&1; then
             echo "plasma-desktop absent — installe: sudo pacman -S plasma-desktop sddm"
         fi
+        # Session urgence
+        if ! pacman -Q openbox >/dev/null 2>&1; then
+            echo "Install openbox (session urgence minimale)…"
+            sudo pacman -S --needed --noconfirm openbox || true
+        fi
+        if [ ! -f /usr/share/xsessions/openbox-emergency.desktop ]; then
+            sudo tee /usr/share/xsessions/openbox-emergency.desktop >/dev/null <<'EOF'
+[Desktop Entry]
+Name=Openbox (urgence)
+Comment=Session graphique minimale pour dépannage
+Exec=openbox-session
+TryExec=openbox
+Type=Application
+DesktopNames=Openbox
+EOF
+        fi
         if pacman -Q sddm >/dev/null 2>&1; then
+            # garder GDM installé mais disabled (parallèle au besoin)
+            sudo systemctl unmask gdm.service 2>/dev/null || true
             df_session_enable_dm sddm
+            printf '%s\n' '[Desktop]' 'Session=plasma' >"${HOME:-/tmp}/.dmrc"
+            if [ -d /var/lib/AccountsService/users ]; then
+                sudo tee /var/lib/AccountsService/users/"${USER:-pactivisme}" >/dev/null <<EOF
+[User]
+Session=plasma
+XSession=plasma
+SystemAccount=false
+EOF
+            fi
         elif pacman -Q lightdm >/dev/null 2>&1; then
-            echo "SDDM absent, fallback LightDM (choisis session Plasma au greeter)"
+            echo "SDDM absent, fallback LightDM (risque boucle si GNOME X11 cassé)"
             df_session_enable_dm lightdm
         else
             echo "Aucun DM adapté. sudo pacman -S sddm && dotfiles session prefer-kde"
@@ -102,13 +157,14 @@ df_session_prefer_kde() {
 }
 
 df_session_prefer_gnome() {
-    echo "Cible: GNOME + GDM"
+    echo "Cible: GNOME + GDM (Plasma reste installé, bascule au greeter après prefer-kde)"
     if command -v pacman >/dev/null 2>&1; then
         if ! pacman -Q gnome-shell >/dev/null 2>&1; then
             echo "gnome-shell absent — installe: sudo pacman -S gnome gdm"
         fi
         if pacman -Q gdm >/dev/null 2>&1; then
             df_session_enable_dm gdm
+            printf '%s\n' '[Desktop]' 'Session=gnome' >"${HOME:-/tmp}/.dmrc"
         else
             echo "GDM absent. sudo pacman -S gdm && dotfiles session prefer-gnome"
             return 1
@@ -116,4 +172,21 @@ df_session_prefer_gnome() {
     else
         df_session_enable_dm gdm
     fi
+}
+
+df_session_ensure_emergency() {
+    echo "Session urgence Openbox…"
+    if command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --needed --noconfirm openbox || true
+    fi
+    sudo tee /usr/share/xsessions/openbox-emergency.desktop >/dev/null <<'EOF'
+[Desktop Entry]
+Name=Openbox (urgence)
+Comment=Session graphique minimale pour dépannage
+Exec=openbox-session
+TryExec=openbox
+Type=Application
+DesktopNames=Openbox
+EOF
+    echo "✓ Choisis « Openbox (urgence) » sur l'écran de login si Plasma/GNOME cassés."
 }
