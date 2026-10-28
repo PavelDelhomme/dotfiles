@@ -856,56 +856,57 @@ update-cursor.sh
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
 
-## 🔄 Auto-Synchronisation Git
+## 🔄 Mise à jour auto du dépôt (multi-machine / multi-shell)
 
-Système de synchronisation automatique des dotfiles toutes les heures via systemd timer.
+Objectif : tu modifies sur **Arch + zsh**, tu ouvres un terminal sur **Gentoo + fish**
+→ le dépôt se met à jour **sans `cd ~/dotfiles`**.
 
-### Installation
+Trois couches (cumulables) :
 
-Via le menu scripts/setup.sh (option 12) ou directement :
+| Couche | Rôle |
+|--------|------|
+| **Hook login** (`shared/dotfiles_autoupdate.sh`) | Pull silencieux à l’ouverture du shell (zsh/bash/fish), throttlé (défaut 60 min) |
+| **Timer systemd user** | Pull toutes les heures + 2 min après boot |
+| **CLI** `dotfiles update` | Manuel, depuis n’importe où |
+
+### Modes
+
+| Mode | Comportement |
+|------|----------------|
+| `pull` (défaut) | Reçoit les commits distants (safe) |
+| `full` | pull + auto-commit des changements locaux + push (exclut `.env` / clés) |
+
 ```bash
-bash ~/dotfiles/scripts/sync/install_auto_sync.sh
+dotfiles update enable                 # timer + 1er pull (mode pull)
+DOTFILES_SYNC_MODE=full dotfiles update enable   # aussi push auto
+dotfiles update                        # pull maintenant
+dotfiles update full                   # pull + push locaux
+dotfiles update status
+dotfiles update disable
+make auto-sync                         # = update enable
 ```
 
+Désactiver le hook login seulement : `export DOTFILES_AUTO_UPDATE=0`  
+Intervalle login : `DOTFILES_UPDATE_INTERVAL_MIN=30`
+
+### Logs
+
+- `~/dotfiles/logs/auto_sync.log`
+- `journalctl --user -u dotfiles-sync.service`
+
+Unités versionnées : `systemd/user/dotfiles-sync.{service,timer}`
+
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
-### Fonctionnement
-
-- **Timer systemd** : Exécution toutes les heures
-- **Pull automatique** : Récupère les modifications distantes
-- **Push automatique** : Envoie les modifications locales (si changements)
-- **Logs** : Disponibles dans `~/dotfiles/logs/auto_sync.log`
-
-  [🔝 Retour en haut](#dotfiles-paveldelhomme)
-
-### Commandes utiles
+### Ancienne section timer (détail systemd)
 
 ```bash
-# Vérifier le statut
 systemctl --user status dotfiles-sync.timer
-
-# Voir tous les timers
 systemctl --user list-timers
-
-# Arrêter/Démarrer le timer
-systemctl --user stop dotfiles-sync.timer
-systemctl --user start dotfiles-sync.timer
-
-# Voir les logs
 journalctl --user -u dotfiles-sync.service
-
-# Tester manuellement
-bash ~/dotfiles/scripts/sync/git_auto_sync.sh
 ```
 
-  [🔝 Retour en haut](#dotfiles-paveldelhomme)
-
-### Configuration
-
-Le timer est configuré pour :
-- Démarrer 5 minutes après le boot
-- S'exécuter toutes les heures
-- Précision de 1 minute
+Le timer démarre ~2 min après le boot, puis toutes les heures (`Persistent=true`).
 
 ---
 

@@ -446,6 +446,18 @@ fi
 
 
 # =============================================================================
+# Auto-update dépôt (pull silencieux si stamp > 1h) — Arch/Gentoo/… indépendant
+# Désactiver : export DOTFILES_AUTO_UPDATE=0
+# =============================================================================
+if [[ -f "${DOTFILES_DIR:-$HOME/dotfiles}/shared/dotfiles_autoupdate.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "${DOTFILES_DIR:-$HOME/dotfiles}/shared/dotfiles_autoupdate.sh" 2>/dev/null || true
+elif [[ -f "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" 2>/dev/null || true
+fi
+
+# =============================================================================
 # FIN DU CHARGEMENT
 # =============================================================================
 # Neofetch (si installé) - désactivé pendant l'initialisation

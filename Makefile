@@ -237,8 +237,17 @@ git-config: ## Configurer Git (nom, email)
 git-remote: ## Configurer remote Git (SSH/HTTPS)
 	@bash "$(SCRIPT_DIR)/config/git_remote.sh"
 
-auto-sync: ## Configurer auto-sync Git (systemd timer)
+auto-sync: ## Activer sync auto (timer + hook login, pull)
 	@bash "$(SCRIPT_DIR)/sync/install_auto_sync.sh"
+
+update: ## Pull du dépôt maintenant
+	@"$(DOTFILES_DIR)/bin/dotfiles" update pull
+
+update-full: ## Pull + auto-commit/push locaux
+	@"$(DOTFILES_DIR)/bin/dotfiles" update full
+
+update-status: ## Statut sync / timer / ahead-behind
+	@"$(DOTFILES_DIR)/bin/dotfiles" update status
 
 restore: ## Restaurer depuis Git (annuler modifications locales)
 	@bash "$(SCRIPT_DIR)/sync/restore_from_git.sh"

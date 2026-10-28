@@ -10,11 +10,13 @@ en root, sans sourcer zsh/fish.
 ~/dotfiles/bin/dotfiles base install
 ~/dotfiles/bin/dotfiles session prefer-kde
 ~/dotfiles/bin/dotfiles shims install   # → ~/.local/bin/{dotfiles,netman,…}
+~/dotfiles/bin/dotfiles update enable  # sync auto multi-machine
 # ensuite depuis n'importe quel shell :
 dotfiles doctor
+dotfiles update
 ```
 
-Fresh OS (CLI only) : `dotfiles mincheck` puis bootstrap / `base install`.
+Fresh OS (CLI only) : `dotfiles mincheck` puis bootstrap / `base install` / `update enable`.
 
 ## dotfiles-menu
 

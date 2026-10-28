@@ -217,5 +217,17 @@ if test -f $_df_comp
     source $_df_comp
 end
 
+# Auto-update dépôt (pull background si stamp vieux) — même logique que zsh/bash
+# Désactiver : set -gx DOTFILES_AUTO_UPDATE 0
+if test "$DOTFILES_AUTO_UPDATE" != "0"
+    set -l _df_root $HOME/dotfiles
+    set -q DOTFILES_DIR; and set _df_root $DOTFILES_DIR
+    set -q DOTFILES_PATH; and set _df_root $DOTFILES_PATH
+    set -l _df_hook "$_df_root/shared/dotfiles_autoupdate.sh"
+    if test -f $_df_hook
+        bash -c "source '$_df_hook'" 2>/dev/null &
+    end
+end
+
 #neofetch
 start_auto_backup_if_not_running

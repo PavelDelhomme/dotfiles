@@ -34,6 +34,11 @@ elif [ -n "$BASH_VERSION" ]; then
         # Les alias simples devraient fonctionner
         source "$HOME/dotfiles/zsh/aliases.zsh" 2>/dev/null || true
     fi
+    # Auto-update dépôt (pull silencieux)
+    if [ -f "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" ]; then
+        # shellcheck source=/dev/null
+        source "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" 2>/dev/null || true
+    fi
     # Afficher un message
     echo "ℹ️  Configuration Bash chargée (mode unifié avec Zsh)"
 fi

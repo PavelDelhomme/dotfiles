@@ -908,6 +908,35 @@ log_section "Installation des dotfiles"
                 esac
             fi
         fi
+
+        # Sync auto du dépôt (timer + hook login) — recommandé multi-machine
+        if [ -f "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" ]; then
+            if [ "${DOTFILES_AUTO_SYNC:-1}" = "1" ]; then
+                if [ "${DOTFILES_AUTO_SYNC_FORCE:-0}" = "1" ] || { [ -t 0 ] && [ -t 1 ]; }; then
+                    if [ "${DOTFILES_AUTO_SYNC_FORCE:-0}" = "1" ]; then
+                        _sync_ans=O
+                    else
+                        echo ""
+                        log_info "Activer la mise à jour auto du dépôt ? (pull horaire + à chaque login)"
+                        printf "  [O]ui / [n]on / [f]ull=aussi push auto (défaut O): "
+                        read -r _sync_ans || _sync_ans=O
+                    fi
+                    case "${_sync_ans:-O}" in
+                        n|N|non) log_skip "Sync auto reportée (dotfiles update enable plus tard)" ;;
+                        f|F|full)
+                            DOTFILES_SYNC_MODE=full bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" \
+                                || log_warn "Sync auto : erreurs non bloquantes"
+                            ;;
+                        *)
+                            bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" \
+                                || log_warn "Sync auto : erreurs non bloquantes"
+                            ;;
+                    esac
+                else
+                    bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" || true
+                fi
+            fi
+        fi
         
         # Lancer directement setup.sh
         bash "$DOTFILES_DIR/scripts/setup.sh"
