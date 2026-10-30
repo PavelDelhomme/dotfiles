@@ -370,7 +370,7 @@ EOF
         printf "${CYAN}${BOLD}CONFIGMAN — raccourcis${RESET}\n"
         echo ""
         echo "Modules : apply, reapply, git, git-remote, symlinks, shell, p10k, ssh, ssh-auto,"
-        echo "          qemu-libvirt, qemu-network, qemu-packages, osint, version, overview"
+        echo "          qemu-libvirt, qemu-network, qemu-packages, osint, i2p, version, overview"
         echo ""
         echo "Interface :"
         echo "  configman / configman --help   menu (avec --help : aide puis menu en TTY)"
@@ -476,6 +476,16 @@ EOF
                     printf "${CYAN}CONFIGMAN_DIR: %s${RESET}\n" "$CONFIGMAN_DIR"
                     printf "${CYAN}CONFIGMAN_MODULES_DIR: %s${RESET}\n" "$CONFIGMAN_MODULES_DIR"
                     ls -la "$CONFIGMAN_MODULES_DIR" 2>/dev/null || echo "Répertoire modules n'existe pas"
+                    return 1
+                fi
+                ;;
+            i2p|i2pd)
+                i2p_script="$CONFIGMAN_MODULES_DIR/i2p/i2p_config.sh"
+                if [ -f "$i2p_script" ]; then
+                    shift
+                    bash "$i2p_script" "$@"
+                else
+                    printf "${YELLOW}Fichier attendu: %s${RESET}\n" "$i2p_script"
                     return 1
                 fi
                 ;;

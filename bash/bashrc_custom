@@ -71,6 +71,7 @@ load_manager "helpman" "$DOTFILES_DIR/shells/bash/adapters/helpman.sh" "HELPMAN"
 load_manager "cyberman" "$DOTFILES_DIR/shells/bash/adapters/cyberman.sh" "CYBERMAN"
 load_manager "devman" "$DOTFILES_DIR/shells/bash/adapters/devman.sh" "DEVMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/bash/adapters/virtman.sh" "VIRTMAN"
+load_manager "dockerman" "$DOTFILES_DIR/shells/bash/adapters/dockerman.sh" "DOCKERMAN"
 load_manager "miscman" "$DOTFILES_DIR/shells/bash/adapters/miscman.sh" "MISCMAN"
 # Managers restants (wrappers temporaires)
 load_manager "netman" "$DOTFILES_DIR/shells/bash/adapters/netman.sh" "NETMAN"
@@ -84,6 +85,9 @@ load_manager "cyberlearn" "$DOTFILES_DIR/shells/bash/adapters/cyberlearn.sh" "CY
 load_manager "displayman" "$DOTFILES_DIR/shells/bash/adapters/displayman.sh" "DISPLAYMAN"
 load_manager "diffman" "$DOTFILES_DIR/shells/bash/adapters/diffman.sh" "DIFFMAN"
 load_manager "diskman" "$DOTFILES_DIR/shells/bash/adapters/diskman.sh" "DISKMAN"
+load_manager "anonyman" "$DOTFILES_DIR/shells/bash/adapters/anonyman.sh" "ANONYMAN"
+load_manager "shellman" "$DOTFILES_DIR/shells/bash/adapters/shellman.sh" "SHELLMAN"
+load_manager "versionman" "$DOTFILES_DIR/shells/bash/adapters/versionman.sh" "VERSIONMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)
@@ -110,6 +114,12 @@ if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/dotfiles_menu.sh" ]; then
     source "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/lib/dotfiles_menu.sh" 2>/dev/null || true
     alias dfmenu='dotfiles_menu_run'
     alias dfm='dotfiles_menu_run'
+fi
+
+# Complétion Bash des *man (Tab) — share/completions/mans.conf
+if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/bash/completions/dotfiles_mans.sh" ]; then
+    # shellcheck source=/dev/null
+    source "${DOTFILES_DIR:-$HOME/dotfiles}/bash/completions/dotfiles_mans.sh" 2>/dev/null || true
 fi
 
 # =============================================================================

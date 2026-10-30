@@ -216,7 +216,8 @@ installman emacs             # Installation Emacs + Doom Emacs + config de base
 installman java17            # Installation Java 17 OpenJDK
 installman android-studio    # Installation Android Studio
 installman android-tools     # Installation outils Android (ADB, SDK, etc.)
-installman handbrake         # Installation HandBrake CLI + GUI (si GUI disponible)
+installman handbrake         # CLI + GUI ; commande « handbrake » (alias → ghb)
+
 installman ssh-config        # Configuration SSH automatique (avec mot de passe .env)
 ```
 
@@ -261,6 +262,35 @@ installman emacs
 ```
 
 **Documentation :** `help installman` ou `man installman`
+
+**Mises a jour automatiques :** apres installation, les outils du registre **updateman** peuvent etre mis a jour seuls via un timer `systemd --user`. Voir [`docs/man/updateman.md`](../man/updateman.md) section *Mises a jour automatiques*.
+
+```bash
+updateman status              # vue d'ensemble (versions + timers)
+updateman cursor enable         # activer le timer quotidien Cursor (pas "enabled")
+updateman cursor status         # timer actif ou inactive ?
+updateman cursor logs           # dernier run du service
+updateman cursor                # mise a jour immediate (fermer Cursor si demande)
+updateman all                   # paquets systeme + outils du registre installes
+```
+
+Si `installman cursor` a reussi avec `auto_service=1`, le timer est normalement **deja active** ; sinon lancer **`updateman cursor enable`** une fois.
+
+### 🔄 Updateman - Gestionnaire de mises a jour
+
+Centralise les mises a jour des outils installes via **installman** et des paquets systeme (multi-distro).
+
+**Documentation complete :** [`docs/man/updateman.md`](../man/updateman.md)
+
+**Commandes essentielles :**
+
+| Commande | Usage |
+|----------|--------|
+| `updateman status` | Versions, maj disponibles, etat des timers |
+| `updateman all` | Refresh/upgrade systeme + outils du registre |
+| `updateman system status` | Distro detectee, backends, pending |
+| `updateman cursor enable` | **Activer** le timer auto Cursor |
+| `updateman cursor check` | Comparer version locale vs API (non destructif) |
 
 ### 🎯 Manman - Manager of Managers
 
@@ -406,7 +436,60 @@ diskman report ~/disk-report.txt    # rapport complet
 
 **Documentation :** [`../man/diskman.md`](../man/diskman.md)
 
+### 🕵️ Anonyman — Tor / I2P / proxies (labo)
+
+```bash
+anonyman help                 # alias: anonymman
+anonyman status | check | doctor
+anonyman tor start|stop|status
+anonyman i2p enable|disable|ports
+anonyman proxy refresh|list
+installman icecat             # GNU IceCat multi-distro (AUR/apt/flatpak/…)
+installman i2p                # puis anonyman i2p enable / configman i2p
+configman i2p --status|--dry-run|--apply-user
+netman tor | netman i2p
+```
+
+**Documentation :** [`../man/anonyman.md`](../man/anonyman.md) · WGMD : [`../projects/wheregoesmydatas.md`](../projects/wheregoesmydatas.md) · Kali matrix : [`../managers/CYBERMAN_KALI_MATRIX.md`](../managers/CYBERMAN_KALI_MATRIX.md)
+
+### 🐚 Shellman — bascule de shells
+
+```bash
+shellman status
+shellman list
+shellman doctor
+shellman use fish --session    # ce terminal seulement
+shellman use zsh --user        # login (chsh)
+shellman use bash --system     # defaut comptes futurs (root)
+manman list                    # catalogue : helpman en #1, icones ASCII, statut
+```
+
+**Documentation :** [`../man/shellman.md`](../man/shellman.md) · racine : [`../architecture/ROOT_LAYOUT.md`](../architecture/ROOT_LAYOUT.md)
+
+### 🐳 Dockerman — commandes Docker du quotidien
+
+Aide-mémoire + vues lecture (`ps`, images, compose). Rien de destructif sans `prune --apply`.
+
+```bash
+dockerman help
+dockerman doctor              # daemon / compose / socket
+dockerman status              # ps compact + df
+dockerman cheat run           # aide-memoire groupe (ps|run|images|compose|…)
+dockerman search compose
+dockerman explain prune
+dockerman ps all
+dockerman prefix              # seulement dotfiles-test*
+dockerman prune --dry-run
+dockerman cmd -- docker ps -a
+manman list                   # [O] dockerman après virtman
+helpman dockerman             # délégation --help
+```
+
+**Documentation :** [`../man/dockerman.md`](../man/dockerman.md) · guide : [`DOCKER.md`](DOCKER.md)
+
 ### 🛠️ Miscman - Gestionnaire Outils Divers
+
+
 
 Gestionnaire pour les outils divers et utilitaires système.
 
@@ -627,6 +710,7 @@ virtman overview           # Vue d'ensemble
 - **LXC** : Gestion des conteneurs LXC (créer, démarrer, arrêter, shell)
 - **Vagrant** : Gestion des VMs Vagrant (init, up, down, ssh, provision)
 - **Vue d'ensemble** : Résumé de tous les environnements virtuels
+- Pour **uniquement Docker** (aide-mémoire + `ps`/`images`/`cheat`) : **`dockerman`** — [`../man/dockerman.md`](../man/dockerman.md)
 
 **Exemples :**
 ```bash

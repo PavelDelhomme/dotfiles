@@ -1,0 +1,20 @@
+[Unit]
+Description=Synchronisation automatique du dépôt dotfiles
+Documentation=file://%h/dotfiles/docs/guides/INSTALL.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=DOTFILES_DIR=%h/dotfiles
+# pull = recevoir les autres machines ; full = aussi push auto des commits locaux
+Environment=DOTFILES_SYNC_MODE=pull
+# Canal prod par défaut (surcharge via ~/.config/dotfiles/sync.env)
+Environment=DOTFILES_SYNC_TRACK=main
+Environment=DOTFILES_UPDATE_QUIET=1
+ExecStart=%h/dotfiles/scripts/sync/dotfiles_update.sh
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

@@ -14,16 +14,33 @@ Configuration personnelle Linux (Arch / Manjaro en priorité, support Debian / F
 bash <(curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh)
 ```
 
-> Détails complets, alternatives, prérequis SSH/HTTPS, étapes pas à pas → [`docs/guides/INSTALL.md`](docs/guides/INSTALL.md).
+Le bootstrap affiche un **preflight** (état détecté + plan) et demande `OUI` avant d’agir.
 
-### Après installation
+### Machine vide — tout explorer SANS installer sur l’hôte
+
+```bash
+git clone https://github.com/PavelDelhomme/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make init help          # procédures init / install / tests
+make init status        # que détecte déjà la machine ?
+make init plan          # plan d’install sans appliquer
+make help               # aide courte Makefile
+make help-all           # catalogue complet
+make tests              # menu tests
+make docker-in          # bac à sable isolé
+bash test-docker.sh --help
+```
+
+> Détails → [`docs/guides/INSTALL.md`](docs/guides/INSTALL.md).
+
+### Après installation (hôte)
 
 ```bash
 cd ~/dotfiles
-make help        # liste toutes les cibles make
+make init status
 make setup       # menu interactif scripts/setup.sh
-make validate    # validation exhaustive du setup (117+ vérifications)
-make tests-start # menu de tests manuels (voir docs/TESTS.md)
+make validate
+make tests-start # parcours docs/TESTS.md
 ```
 
 ---
@@ -38,6 +55,8 @@ make tests-start # menu de tests manuels (voir docs/TESTS.md)
 | **Format d’une étape** (`Conforme O·N·NA`, Notes, Assistant relecture…) | [`docs/LEGENDE_CHAMPS.md`](docs/LEGENDE_CHAMPS.md) |
 | **Statut instantané** + journal récent | [`STATUS.md`](STATUS.md) |
 | **Tâches** (en cours, à faire, validation bloquante) | [`TODOS.md`](TODOS.md) |
+| **Disposition racine** (moins de fichiers à la racine) | [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md) |
+| **Shells** (zsh/bash/fish session ou login) | `shellman` · [`docs/man/shellman.md`](docs/man/shellman.md) |
 | **Tests manuels** pas à pas | [`docs/TESTS.md`](docs/TESTS.md) |
 | **Erreurs** / correctifs | [`docs/ERRORS.md`](docs/ERRORS.md) |
 | **Carte doc** (`docs/`) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) |

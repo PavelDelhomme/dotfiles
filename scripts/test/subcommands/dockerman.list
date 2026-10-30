@@ -1,0 +1,10 @@
+help
+doctor
+status
+cheat
+search ps
+explain run
+prefix
+sandbox
+prune --dry-run
+cmd docker --version

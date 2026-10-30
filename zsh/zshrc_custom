@@ -152,6 +152,7 @@ load_manager "updateman" "$DOTFILES_DIR/shells/zsh/adapters/updateman.zsh" "UPDA
 load_manager "moduleman" "$DOTFILES_DIR/shells/zsh/adapters/moduleman.zsh" "MODULEMAN"
 load_manager "fileman" "$DOTFILES_DIR/shells/zsh/adapters/fileman.zsh" "FILEMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/zsh/adapters/virtman.zsh" "VIRTMAN"
+load_manager "dockerman" "$DOTFILES_DIR/shells/zsh/adapters/dockerman.zsh" "DOCKERMAN"
 load_manager "sshman" "$DOTFILES_DIR/shells/zsh/adapters/sshman.zsh" "SSHMAN"
 load_manager "processman" "$DOTFILES_DIR/shells/zsh/adapters/processman.zsh" "PROCESSMAN"
 load_manager "routeman" "$DOTFILES_DIR/shells/zsh/adapters/routeman.zsh" "ROUTEMAN"
@@ -161,6 +162,9 @@ load_manager "doctorman" "$DOTFILES_DIR/shells/zsh/adapters/doctorman.zsh" "DOCT
 load_manager "displayman" "$DOTFILES_DIR/shells/zsh/adapters/displayman.zsh" "DISPLAYMAN"
 load_manager "diffman" "$DOTFILES_DIR/shells/zsh/adapters/diffman.zsh" "DIFFMAN"
 load_manager "diskman" "$DOTFILES_DIR/shells/zsh/adapters/diskman.zsh" "DISKMAN"
+load_manager "anonyman" "$DOTFILES_DIR/shells/zsh/adapters/anonyman.zsh" "ANONYMAN"
+load_manager "shellman" "$DOTFILES_DIR/shells/zsh/adapters/shellman.zsh" "SHELLMAN"
+load_manager "versionman" "$DOTFILES_DIR/shells/zsh/adapters/versionman.zsh" "VERSIONMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)
@@ -221,8 +225,8 @@ if [ -d "$FUNCTIONS_DIR" ]; then
     
     # Charger récursivement tous les scripts .sh et .zsh
     for func_file in "$FUNCTIONS_DIR"/**/*.sh "$FUNCTIONS_DIR"/**/*.zsh; do
-        # Ignore les gestionnaires déjà chargés, les backups, les sous-dossiers de cyber, alias_utils, update_system, install-tool, et les scripts d'installation
-        # Ignore aussi les scripts de modules configman/fileman qui sont exécutés via les managers, pas sourcés
+        # Ignore les gestionnaires déjà chargés, backups, cyber, installman (modules d'install, pas le login),
+        # et les scripts de modules configman/fileman (exécutés via les managers, pas sourcés)
         if [[ "$func_file" != *"man.zsh" ]] && \
            [[ "$func_file" != *"backup"* ]] && \
            [[ "$func_file" != *"/cyber/"*.zsh ]] && \
@@ -232,6 +236,7 @@ if [ -d "$FUNCTIONS_DIR" ]; then
            [[ "$func_file" != *"installman.zsh" ]] && \
            [[ "$func_file" != *"configman.zsh" ]] && \
            [[ "$func_file" != *"/install/"* ]] && \
+           [[ "$func_file" != *"/installman/"* ]] && \
            [[ "$func_file" != *"/configman/modules/"* ]] && \
            [[ "$func_file" != *"/fileman/modules/"* ]] && \
            [ -f "$func_file" ]; then
@@ -392,17 +397,30 @@ if [[ -f "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; th
     source "$HOME/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" 2>/dev/null || true
 fi
 
-# Réparer la complétion si le dump .zcompdump est corrompu (comptags/comptry introuvables → Tab casse)
+# Réparer la complétion si le dump .zcompdump est corrompu (comptags/comptry/compadd introuvables → Tab casse)
+_dotfiles_ensure_compadd() {
+    whence compadd 2>/dev/null | grep -q 'shell builtin' && return 0
+    unfunction compadd 2>/dev/null
+    zmodload -i zsh/complist 2>/dev/null || return 1
+}
+
 _dotfiles_ensure_completion() {
-    if whence comptags >/dev/null 2>&1 && whence comptry >/dev/null 2>&1; then
+    _dotfiles_ensure_compadd 2>/dev/null || true
+    if whence compadd 2>/dev/null | grep -q 'shell builtin' \
+        && whence comptags >/dev/null 2>&1 \
+        && whence comptry >/dev/null 2>&1; then
         return 0
     fi
     local zdump="${ZSH_COMPDUMP:-${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${HOST/.*/}-${ZSH_VERSION}}"
+    setopt local_options null_glob
     rm -f "$zdump" "${zdump}".zwc \
           "${ZDOTDIR:-$HOME}/.zcompdump" "${ZDOTDIR:-$HOME}/.zcompdump".zwc \
           "${ZDOTDIR:-$HOME}"/.zcompdump-* 2>/dev/null || true
-    autoload -Uz compinit
+    unfunction compadd compinit 2>/dev/null
+    zmodload -i zsh/complist 2>/dev/null || true
+    autoload -Uz compinit compadd
     compinit -u -D -d "$zdump" 2>/dev/null || compinit -u -d "$zdump"
+    _dotfiles_ensure_compadd 2>/dev/null || true
 }
 _dotfiles_ensure_completion
 
@@ -410,6 +428,35 @@ _dotfiles_ensure_completion
 zstyle ':completion:*:*:make:*' tag-order 'targets'
 zstyle ':completion:*:make:*:targets' call-command true
 
+# Associer explicitement les *man au completer (si dump compinit incomplet)
+if _dotfiles_ensure_compadd 2>/dev/null \
+    && { (( $+functions[compdef] )) || whence compdef >/dev/null 2>&1; }; then
+    autoload -Uz _dotfiles_mans 2>/dev/null || true
+    if whence -w _dotfiles_mans >/dev/null 2>&1 || [[ -f "$DOTFILES_PATH/zsh/completions/_dotfiles_mans" ]]; then
+        autoload -Uz _dotfiles_mans
+        for _dm in netman sshman pathman aliaman aliasman installman updateman configman \
+            gitman fileman helpman manman moduleman miscman searchman cyberman cyberlearn \
+            devman virtman displayman diffman diskman doctorman processman routeman versionman \
+            multimediaman shellman anonyman anonymman dockerman testman testzshman dfm dfmenu
+        do
+            compdef _dotfiles_mans "$_dm" 2>/dev/null || true
+        done
+        unset _dm
+    fi
+fi
+
+
+# =============================================================================
+# Auto-update dépôt (pull silencieux si stamp > 1h) — Arch/Gentoo/… indépendant
+# Désactiver : export DOTFILES_AUTO_UPDATE=0
+# =============================================================================
+if [[ -f "${DOTFILES_DIR:-$HOME/dotfiles}/shared/dotfiles_autoupdate.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "${DOTFILES_DIR:-$HOME/dotfiles}/shared/dotfiles_autoupdate.sh" 2>/dev/null || true
+elif [[ -f "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" ]]; then
+    # shellcheck source=/dev/null
+    source "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" 2>/dev/null || true
+fi
 
 # =============================================================================
 # FIN DU CHARGEMENT

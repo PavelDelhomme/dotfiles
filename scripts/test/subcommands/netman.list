@@ -1,1 +1,19 @@
+help
+help dig
+help lookup
+help probe
+help routeman
+dig
+dig help
+lookup
+lookup example.com
+whois
+dns-bench help
 interfaces
+neigh
+lan help
+probe help
+routeman show
+tor
+i2p
+i2p ports

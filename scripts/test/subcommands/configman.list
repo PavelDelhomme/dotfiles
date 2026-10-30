@@ -1,1 +1,5 @@
-@skip sous-commandes = scripts interactifs
+help
+i2p
+i2p --status
+i2p --ports
+i2p --dry-run

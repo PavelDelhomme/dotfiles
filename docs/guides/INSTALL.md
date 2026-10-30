@@ -23,6 +23,34 @@
 
 ## 🚀 Installation rapide (nouvelle machine)
 
+### Preflight (obligatoire avant d’agir)
+
+Avant toute install / reset / bootstrap, le dépôt vérifie l’état machine et affiche un **plan** :
+
+```bash
+cd ~/dotfiles          # si déjà cloné
+make init status       # rapport
+make init plan         # plan d’install sans appliquer
+make init help         # aide procédures (≠ make init --help = aide GNU Make)
+make preflight         # alias check
+```
+
+Confirmation explicite : taper **`OUI`**. Contournement CI : `DOTFILES_SKIP_PREFLIGHT=1` ou `--yes`.
+
+### Machine vide — accès Makefile / tests SANS installer l’hôte
+
+```bash
+git clone https://github.com/PavelDelhomme/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make init help
+make help              # aide courte
+make help-all          # catalogue
+make tests | make docker-in
+bash test-docker.sh --yes
+```
+
+Les managers sur l’hôte (pathman, shellman, …) nécessitent ensuite `make init install` ou `make setup`.
+
 ### Installation en une seule commande
 
 **UNE SEULE LIGNE** pour tout installer et configurer :
@@ -61,8 +89,65 @@ Voir [Configuration Git via .env](#configuration-git-via-env) pour plus de déta
 Cette commande va automatiquement exécuter les étapes suivantes :
 
 **1. Vérification et installation de Git**
-- Détection automatique du gestionnaire de paquets (pacman/apt/dnf)
+- Détection automatique du gestionnaire de paquets (pacman/apt/dnf/emerge)
 - Installation automatique si Git n'est pas présent
+
+**1bis. Profil machine de base (multi-distro, personnalisable)**
+
+Après le clone, le bootstrap propose d’installer le **socle outils**
+(`share/profiles/base/`) : git, curl, wget, make, cmake, gcc, zsh, btop, jq,
+dig, ssh, zip/unzip/tar/unrar, man, hwinfo, fastfetch, + sur Arch `base-devel`
+et un helper AUR (`yay`/`paru`), + **flatpak** et **snap** sur les distros
+supportées. GUI (`xclip`…) sauf si `DOTFILES_HEADLESS=1`.
+
+```sh
+make base              # install
+make base-doctor       # vérifier
+make base-plan         # tableau clé → paquet
+DOTFILES_AUTO_BASE=1 bash bootstrap.sh
+DOTFILES_AUR_HELPER=paru DOTFILES_SET_DEFAULT_SHELL=1 make base
+DOTFILES_HEADLESS=1 make base
+```
+
+Détail des listes / variables : [`share/profiles/base/README.md`](../../share/profiles/base/README.md).
+Menu setup : option **3** (install) · **3b** (doctor) · **6** (yay/snap/flatpak).
+
+### Vérifier depuis `~/` (n’importe quel shell) — machine déjà installée
+
+Les `*man` sont souvent des **fonctions** zsh : invisibles en bash/fish/root/`sudo`.
+Utilise le CLI portable :
+
+```sh
+# chemin absolu (toujours OK)
+~/dotfiles/bin/dotfiles doctor
+
+# une fois les shims installés (~/.local/bin) :
+~/dotfiles/bin/dotfiles shims install
+dotfiles doctor
+dotfiles base doctor
+dotfiles session doctor          # DM : sddm/gdm/lightdm + sessions
+dotfiles session prefer-kde      # si login GNOME alors que tu veux Plasma
+make doctor                      # depuis le dépôt
+```
+
+### Fresh OS — seulement un terminal (root ou user)
+
+```sh
+# 1. Paquets critiques
+# Arch:   sudo pacman -S --needed git curl wget make base-devel
+# Debian: sudo apt install -y git curl wget make build-essential
+# Fedora: sudo dnf install -y git curl wget make gcc
+
+# 2. Bootstrap
+curl -fsSL https://raw.githubusercontent.com/PavelDelhomme/dotfiles/main/bootstrap.sh | bash
+# ou clone puis :
+~/dotfiles/bin/dotfiles mincheck
+~/dotfiles/bin/dotfiles base install
+~/dotfiles/bin/dotfiles doctor
+```
+
+Login cassé après un gros `pacman -Syu` (plusieurs DM / GNOME vs KDE) :
+voir [`docs/ERRORS.md`](../ERRORS.md) + `dotfiles session prefer-kde`.
 
 **2. Configuration Git (nom et email)** ⚠️ **INTERACTIF**
 - **Si Git est déjà configuré** : Utilise la configuration existante (aucune demande)
@@ -771,56 +856,57 @@ update-cursor.sh
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
 
-## 🔄 Auto-Synchronisation Git
+## 🔄 Mise à jour auto du dépôt (multi-machine / multi-shell)
 
-Système de synchronisation automatique des dotfiles toutes les heures via systemd timer.
+Objectif : tu modifies sur **Arch + zsh**, tu ouvres un terminal sur **Gentoo + fish**
+→ le dépôt se met à jour **sans `cd ~/dotfiles`**.
 
-### Installation
+Trois couches (cumulables) :
 
-Via le menu scripts/setup.sh (option 12) ou directement :
+| Couche | Rôle |
+|--------|------|
+| **Hook login** (`shared/dotfiles_autoupdate.sh`) | Pull silencieux à l’ouverture du shell (zsh/bash/fish), throttlé (défaut 60 min) |
+| **Timer systemd user** | Pull toutes les heures + 2 min après boot |
+| **CLI** `dotfiles update` | Manuel, depuis n’importe où |
+
+### Modes
+
+| Mode | Comportement |
+|------|----------------|
+| `pull` (défaut) | Reçoit les commits distants (safe) |
+| `full` | pull + auto-commit des changements locaux + push (exclut `.env` / clés) |
+
 ```bash
-bash ~/dotfiles/scripts/sync/install_auto_sync.sh
+dotfiles update enable                 # timer + 1er pull (mode pull)
+DOTFILES_SYNC_MODE=full dotfiles update enable   # aussi push auto
+dotfiles update                        # pull maintenant
+dotfiles update full                   # pull + push locaux
+dotfiles update status
+dotfiles update disable
+make auto-sync                         # = update enable
 ```
 
+Désactiver le hook login seulement : `export DOTFILES_AUTO_UPDATE=0`  
+Intervalle login : `DOTFILES_UPDATE_INTERVAL_MIN=30`
+
+### Logs
+
+- `~/dotfiles/logs/auto_sync.log`
+- `journalctl --user -u dotfiles-sync.service`
+
+Unités versionnées : `systemd/user/dotfiles-sync.{service,timer}`
+
   [🔝 Retour en haut](#dotfiles-paveldelhomme)
 
-### Fonctionnement
-
-- **Timer systemd** : Exécution toutes les heures
-- **Pull automatique** : Récupère les modifications distantes
-- **Push automatique** : Envoie les modifications locales (si changements)
-- **Logs** : Disponibles dans `~/dotfiles/logs/auto_sync.log`
-
-  [🔝 Retour en haut](#dotfiles-paveldelhomme)
-
-### Commandes utiles
+### Ancienne section timer (détail systemd)
 
 ```bash
-# Vérifier le statut
 systemctl --user status dotfiles-sync.timer
-
-# Voir tous les timers
 systemctl --user list-timers
-
-# Arrêter/Démarrer le timer
-systemctl --user stop dotfiles-sync.timer
-systemctl --user start dotfiles-sync.timer
-
-# Voir les logs
 journalctl --user -u dotfiles-sync.service
-
-# Tester manuellement
-bash ~/dotfiles/scripts/sync/git_auto_sync.sh
 ```
 
-  [🔝 Retour en haut](#dotfiles-paveldelhomme)
-
-### Configuration
-
-Le timer est configuré pour :
-- Démarrer 5 minutes après le boot
-- S'exécuter toutes les heures
-- Précision de 1 minute
+Le timer démarre ~2 min après le boot, puis toutes les heures (`Persistent=true`).
 
 ---
 

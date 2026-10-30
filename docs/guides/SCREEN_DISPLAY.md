@@ -233,3 +233,54 @@ modifier les groupes.
 - Convention CLI / help : [`../TESTS.md`](../TESTS.md) Bloc G
 - Bug firmware Xiaomi (preset DDC) : [`../ERRORS.md`](../ERRORS.md)
 - `lsblk` colorisé (autre amélioration UI récente) : [`../../shared/functions/lsblk_color.sh`](../../shared/functions/lsblk_color.sh)
+
+---
+
+## Hotplug DisplayPort — Philips 245E1 (perte layout / résolution)
+
+Cas typique sur cette machine (KDE Plasma Wayland + NVIDIA) :
+
+| Sortie     | Écran            | Mode cible      | Rôle                          |
+|------------|------------------|-----------------|-------------------------------|
+| `HDMI-A-1` | Xiaomi (Mi)      | `1920x1080@75`  | Gauche, priority 2            |
+| `DP-1`     | **Philips 245E1**| `2560x1440@75`  | **Primary**, priority 1       |
+| `HDMI-A-2` | HP 2011 (petit)  | `1600x900@60`   | Droite, priority 3            |
+
+### Symptômes
+
+1. Tu éteins le Philips au **bouton power**, tu le rallumes.
+2. Les fenêtres se retrouvent sur le **petit HP**.
+3. Le Philips n'est plus en 2560×1440 (mauvais mode / primary perdu).
+4. Seul un **débranchement / rebranchement DisplayPort** répare — jusqu'à
+   `displayman fix`.
+
+### Pourquoi
+
+1. Le bouton power coupe le lien **DisplayPort** (hot-unplug), pas juste le
+   rétroéclairage.
+2. KWin redistribue primary + fenêtres sur les sorties encore présentes
+   (souvent `HDMI-A-2`).
+3. Au reconnect, le combo **NVIDIA propriétaire + DP** renégocie parfois un
+   mauvais mode EDID ; un unplug physique force une relecture propre.
+
+### Remédiation
+
+```sh
+displayman doctor          # diagnostique DRM + mode + priorités
+displayman fix             # soft-replug DP-1 si besoin + layout cible
+displayman fix --replug    # force le soft-replug même si le mode a l'air OK
+```
+
+`displayman fix` fait l'équivalent logiciel du câble : `kscreen-doctor
+output.DP-1.disable` → pause → réactivation avec modes / positions / priorities
+du tableau ci-dessus.
+
+### Prévention
+
+- Préférer la **veille de session** (DPMS / verrouillage) au bouton power du
+  Philips si tu veux juste « éteindre » un moment.
+- Après un `fix`, les fenêtres déjà déplacées sur le HP **ne reviennent pas
+  toutes seules** — à re-glisser une fois sur le Philips.
+
+Profil surchargeable via `DISPLAYMAN_PRIMARY`, `DISPLAYMAN_PRIMARY_MODE`,
+`DISPLAYMAN_LEFT`, `DISPLAYMAN_RIGHT`, etc. (voir `displayman help`).

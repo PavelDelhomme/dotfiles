@@ -38,6 +38,9 @@ netman() {
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/manager_ui.sh"
         dotfiles_manager_load_ui_libs
+        if command -v manager_deps_check_once >/dev/null 2>&1; then
+            manager_deps_check_once netman 2>/dev/null || true
+        fi
     elif [ -f "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh" ]; then
         # shellcheck source=/dev/null
         . "$DOTFILES_DIR/scripts/lib/ncurses_menu.sh"
@@ -150,33 +153,383 @@ netman() {
         return 1
     }
 
-    # Aide courte (stdout) — netman help | -h et option « h » du menu
+    # -------------------------------------------------------------------------
+    # Aide par sous-commande (netman help dig | netman dig sans args)
+    # -------------------------------------------------------------------------
+    netman_print_cmd_help() {
+        _cmd="${1:-}"
+        case "$_cmd" in
+        dig|dns-query)
+            cat <<'EOF'
+netman dig — requêtes DNS (binaire « dig », paquet bind/dnsutils/bind-utils)
+
+Accepte aussi une URL collée (normalisée vers le host).
+
+Usage :
+  netman dig                         cette aide
+  netman dig help | -h               idem
+  netman dig <domaine|URL>           A + AAAA (+short)
+  netman dig @<résolveur> <domaine>  ex. @1.1.1.1 example.com
+  netman dig <type> <domaine>        A|AAAA|MX|NS|TXT|SOA|CNAME|ANY
+  netman dig -x <ip|domaine>         PTR (si domaine : PTR de chaque A/AAAA)
+  netman dig +trace <domaine>        délégation DNS
+  netman dig --raw <args…>           passe-plat vers dig
+
+Exemples :
+  netman dig example.com
+  netman dig https://example.com/path
+  netman dig MX example.com
+  netman dig @8.8.8.8 google.com
+  netman dig -x 1.1.1.1
+
+Voir aussi : netman lookup · netman probe · netman dns-bench · helpman netman dig
+EOF
+            ;;
+        lookup|resolve)
+            cat <<'EOF'
+netman lookup — fiche DNS dig-like + reverse PTR + whois
+
+Accepte IP, domaine ou URL (https://host/path → host).
+
+Usage :
+  netman lookup                      cette aide
+  netman lookup <cible>              A/AAAA (+ NS/MX) · PTR par IP · whois
+  netman lookup --interactive        demande la cible (TTY)
+
+Exemples :
+  netman lookup example.com
+  netman lookup https://example.com/foo
+  netman lookup 8.8.8.8
+  netman lookup 1.1.1.1
+
+Notes :
+  • Reverse sur un domaine = PTR de chaque A/AAAA (pas dig -x du nom).
+  • Affichage aligné sur netman dig (sections claires, pas un dump brut).
+
+Voir aussi : netman dig · netman probe · netman whois · helpman netman lookup
+EOF
+            ;;
+        dns)
+            cat <<'EOF'
+netman dns — afficher la config / serveurs DNS locaux
+
+Usage :
+  netman dns                         statut DNS (resolv.conf / systemd-resolved…)
+  netman dns help                    cette aide
+
+Voir aussi : netman dig · netman dns-bench · netman lookup
+EOF
+            ;;
+        dns-bench|dnsbench)
+            cat <<'EOF'
+netman dns-bench — comparer la latence de plusieurs résolveurs
+
+Usage :
+  netman dns-bench                   benchmark (domaine défaut)
+  netman dns-bench <domaine>         ex. netman dns-bench cloudflare.com
+  netman dns-bench help              cette aide
+
+Requis : dig. Install : packages_base / installman network-tools
+EOF
+            ;;
+        whois)
+            cat <<'EOF'
+netman whois — fiche whois
+
+Usage :
+  netman whois                       cette aide
+  netman whois <cible>               whois détaillé
+
+Voir aussi : netman lookup
+EOF
+            ;;
+        trace|traceroute|tracepath)
+            cat <<'EOF'
+netman trace — chemin réseau (traceroute / tracepath)
+
+Usage :
+  netman trace                       cette aide
+  netman trace <hôte>                traceroute -n (ou tracepath)
+
+Voir aussi : netman mtr · netman connectivity
+EOF
+            ;;
+        mtr)
+            cat <<'EOF'
+netman mtr — latence / pertes (si mtr installé)
+
+Usage :
+  netman mtr                         cette aide
+  netman mtr <hôte>                  rapport mtr
+
+Install : sudo pacman -S mtr  |  apt install mtr-tiny
+EOF
+            ;;
+        scan)
+            cat <<'EOF'
+netman scan — test TCP rapide (/dev/tcp)
+
+Usage :
+  netman scan                        aide / mode interactif selon TTY
+  netman scan <hôte> [port]          défaut port 80
+  netman scan help                   cette aide
+
+Exemple : netman scan 192.168.1.1 22
+EOF
+            ;;
+        kill)
+            cat <<'EOF'
+netman kill — terminer le processus qui écoute un port
+
+Usage :
+  netman kill                        aide / interactif
+  netman kill <port>                 kill -TERM via lsof
+  netman kill help                   cette aide
+
+Exemple : netman kill 8080
+EOF
+            ;;
+        ports)
+            cat <<'EOF'
+netman ports — ports en écoute / gestion
+
+Usage :
+  netman ports                       liste / menu ports
+  netman ports help                  cette aide
+
+Voir aussi : netman kill · netman connections
+EOF
+            ;;
+        connections|conn)
+            cat <<'EOF'
+netman connections — connexions réseau actives
+
+Usage : netman connections | netman conn
+EOF
+            ;;
+        diagnose|diag|health|diagnose-deep|diag-deep)
+            cat <<'EOF'
+netman diagnose — diagnostic réseau
+
+Usage :
+  netman diagnose                    checks interface / gateway / DNS / HTTP
+  netman diagnose-deep               + RX/TX, drops, processus
+  netman diag-report                 rapport fichier
+
+Voir aussi : netman dns-bench · netman firewall
+EOF
+            ;;
+        firewall|fw)
+            cat <<'EOF'
+netman firewall — statut ufw / nftables / iptables
+
+Usage : netman firewall | netman fw
+EOF
+            ;;
+        ip|ipinfo)
+            cat <<'EOF'
+netman ip — adresses publique / locale
+
+Usage :
+  netman ip | netman ipinfo          affiche IPs + aperçu
+  netman ip help                     cette aide
+
+Voir aussi : netman interfaces · netman connections
+EOF
+            ;;
+        interfaces|iface)
+            cat <<'EOF'
+netman interfaces — détails par interface (ip link/addr)
+
+Usage :
+  netman interfaces | netman iface
+  netman interfaces help
+EOF
+            ;;
+        routing|route)
+            cat <<'EOF'
+netman routing — table de routage (lecture seule)
+
+Usage :
+  netman routing | netman route      IPv4/IPv6 + gateway
+  netman routing help
+
+Pour ajouter / supprimer / remplacer une route :
+  netman routeman                    → manager dédié
+  netman routeman show|add|del|…
+EOF
+            ;;
+        routeman|routes|route-manager)
+            cat <<'EOF'
+netman routeman — pont vers le manager de routes
+
+Usage :
+  netman routeman                    menu TTY (sinon show)
+  netman routeman show               routes IPv4/IPv6
+  netman routeman add <cidr> [gw] [dev] [metric]
+  netman routeman del <cidr|default>
+  netman routeman replace …
+  netman routeman menu
+
+Équivalent direct : routeman <args>
+EOF
+            ;;
+        stats)
+            cat <<'EOF'
+netman stats — statistiques RX/TX / erreurs
+
+Usage : netman stats
+EOF
+            ;;
+        connectivity|ping)
+            cat <<'EOF'
+netman connectivity — tests ping / reachability
+
+Usage :
+  netman connectivity [hôte]
+  netman ping [hôte]
+
+Voir aussi : netman probe · netman trace · netman mtr
+EOF
+            ;;
+        speed)
+            cat <<'EOF'
+netman speed — test de débit approximatif
+
+Usage : netman speed
+EOF
+            ;;
+        monitor|bandwidth)
+            cat <<'EOF'
+netman monitor — bande passante temps réel
+
+Usage : netman monitor | netman bandwidth
+EOF
+            ;;
+        analyze|traffic)
+            cat <<'EOF'
+netman analyze — aperçu du trafic / connexions
+
+Usage : netman analyze | netman traffic
+EOF
+            ;;
+        export)
+            cat <<'EOF'
+netman export — exporter un snapshot de config réseau
+
+Usage : netman export
+EOF
+            ;;
+        tor)
+            cat <<'EOF'
+netman tor — statut / contrôle Tor via anonyman
+
+Usage :
+  netman tor [status|…]
+  anonyman tor …
+EOF
+            ;;
+        i2p|i2pd)
+            cat <<'EOF'
+netman i2p — statut I2P via anonyman
+
+Usage :
+  netman i2p [status|…]
+  anonyman i2p · configman i2p
+EOF
+            ;;
+        neigh|arp|neighbors)
+            cat <<'EOF'
+netman neigh — table des voisins L2 (ARP / NDP)
+
+Usage :
+  netman neigh | netman arp          ip neigh show
+  netman neigh help
+
+Soft recon LAN. Voir aussi : netman lan
+EOF
+            ;;
+        probe|recon)
+            cat <<'EOF'
+netman probe — soft recon one-shot d'une cible
+
+Enchaîne : normalize URL → DNS+PTR+whois → ping → traceroute court → ports courants.
+
+Usage :
+  netman probe <cible>               IP, domaine ou URL
+  netman probe help
+
+Exemple : netman probe https://example.com
+Mode soft (pas de scan agressif). Pour LAN : netman lan
+EOF
+            ;;
+        lan|discover|lan-scan)
+            cat <<'EOF'
+netman lan — découverte du réseau local (soft)
+
+Usage :
+  netman lan                         neigh + arp-scan/nmap -sn si dispo
+  netman lan help
+
+Outils optionnels : arp-scan, nmap (host discovery -sn uniquement).
+EOF
+            ;;
+        menu)
+            cat <<'EOF'
+netman menu — menu TUI interactif
+
+Usage :
+  netman menu | netman --interactive
+EOF
+            ;;
+        ""|*)
+            printf '%s\n' "Sous-commande inconnue pour l'aide: ${_cmd:-(vide)}"
+            printf '%s\n' "Essayez: netman help"
+            return 1
+            ;;
+        esac
+        return 0
+    }
+
+    # Aide courte (stdout) — netman | netman help | -h
     netman_print_quick_help() {
-        printf "${CYAN}NETMAN — raccourcis${RESET}\n"
+        printf "${CYAN}${BOLD}NETMAN${RESET} — couteau suisse réseau (local · DNS · soft recon)\n"
         manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
-        echo "Sous-commandes :"
-        echo "  netman ports              Ports en écoute (ou menu dédié)"
-        echo "  netman connections        Connexions actives"
-        echo "  netman ip | dns | routing | interfaces"
-        echo "  netman routeman           Gestionnaire de routes"
-        echo "  netman scan <host> [port]   Test port TCP rapide"
-        echo "  netman kill <port>       Kill processus sur port"
-        echo "  netman stats             Statistiques"
-        echo "  netman diagnose | diag-report | diagnose-deep"
-        echo "  netman dns-bench [opts]  Benchmark DNS"
-        echo "  netman firewall          ufw / nft / iptables"
-        echo "  netman lookup <cible>    DNS + extrait whois"
-        echo "  netman trace <hôte>      traceroute (ou tracepath)"
-        echo "  netman mtr <hôte>        diagnostic route/latence (si mtr installé)"
-        echo "  netman whois <cible>     whois détaillé"
-        echo "  netman connectivity | speed | monitor | analyze | export"
+        echo "Usage :"
+        echo "  netman                         cette page"
+        echo "  netman help <sous-commande>    aide détaillée (ex. : netman help lookup)"
+        echo "  netman help --interactive      aide + pause (TTY)"
+        echo "  netman menu | --interactive    menu TUI"
+        echo "  helpman netman [sous-cmd]      même contenu via helpman"
         echo ""
-        echo "Interface :"
-        echo "  netman                    cette page (stdout, non interactif)"
-        echo "  netman help | -h          idem"
-        echo "  netman help --interactive aide guidée + pause (TTY requis)"
-        echo "  netman --help             menu principal interactif"
+        echo "DNS / identité (accepte aussi les URL collées) :"
+        echo "  dig …                 requêtes dig (A/AAAA/MX/NS/TXT, @résolveur, -x, +trace)"
+        echo "  lookup <cible>        fiche dig-like + PTR par IP + whois"
+        echo "  probe <cible>         soft recon (DNS+ping+trace+ports courants)"
+        echo "  dns | dns-bench       config locale / latence multi-résolveurs"
+        echo "  whois <cible>         fiche whois"
+        echo ""
+        echo "Hôte / chemin :"
+        echo "  ip | interfaces | connections | ports | stats"
+        echo "  routing               table (lecture)   ·  routeman [show|add|del|…]  (édition)"
+        echo "  trace | mtr | connectivity | speed"
+        echo "  scan <hôte> [port] | kill <port>"
+        echo ""
+        echo "Soft recon / LAN :"
+        echo "  neigh | arp           voisins L2 (ARP/NDP)"
+        echo "  lan                   découverte locale (neigh + arp-scan/nmap -sn)"
+        echo "  diagnose | diagnose-deep | diag-report | firewall"
+        echo "  monitor | analyze | export"
+        echo ""
+        echo "Anonymat (délègue) :  tor | i2p  → anonyman"
+        echo ""
+        echo "Exemples :"
+        echo "  netman lookup https://example.com/path"
+        echo "  netman dig -x 1.1.1.1"
+        echo "  netman probe 8.8.8.8"
+        echo "  netman routeman show"
+        echo "  netman help dig"
         echo ""
     }
 
@@ -186,11 +539,111 @@ netman() {
         printf "${CYAN}NETMAN — aide guidée (mode interactif)${RESET}\n"
         manager_ui_section_line "${BLUE}" "${RESET}\n"
         echo ""
-        echo "Rappel : les sous-commandes ci-dessous s'exécutent en non interactif."
-        echo "Le menu complet (fzf / ncurses / saisie) s'obtient avec : netman --help"
+        echo "Rappel : les sous-commandes s'exécutent en non interactif."
+        echo "Menu TUI : netman menu   ·   Aide dig : netman dig   ·   helpman netman dig"
         echo ""
         netman_print_quick_help
         pause_if_tty
+    }
+
+    # Exécution dig (CLI) — sans dig → message deps
+    netman_cmd_dig() {
+        if [ -z "${1:-}" ] || [ "${1:-}" = "help" ] || [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+            netman_print_cmd_help dig
+            return 0
+        fi
+        if ! command -v dig >/dev/null 2>&1; then
+            printf "${YELLOW}⚠ dig absent${RESET} — Arch: sudo pacman -S bind · Debian: apt install dnsutils\n" >&2
+            printf "    ou: bash \"\${DOTFILES_DIR:-\$HOME/dotfiles}/scripts/install/system/packages_base.sh\"\n" >&2
+            return 1
+        fi
+        # Passe-plat
+        if [ "$1" = "--raw" ]; then
+            shift
+            dig "$@"
+            return $?
+        fi
+        # Reverse
+        if [ "$1" = "-x" ] || [ "$1" = "+x" ]; then
+            shift
+            [ -n "${1:-}" ] || { netman_print_cmd_help dig; return 1; }
+            _rx=$(netman_normalize_host "$1")
+            [ -n "$_rx" ] || _rx="$1"
+            if netman_is_ip "$_rx"; then
+                printf "${CYAN}PTR / reverse %s${RESET}\n" "$_rx"
+                dig +short -x "$_rx"
+                return $?
+            fi
+            # Domaine collé à -x → reverse chaque A/AAAA (comme lookup)
+            printf "${CYAN}PTR / reverse via A/AAAA de %s${RESET}\n" "$_rx"
+            _had=0
+            for _ip in $(dig +short A "$_rx" 2>/dev/null; dig +short AAAA "$_rx" 2>/dev/null); do
+                [ -n "$_ip" ] || continue
+                _had=1
+                printf "  %s → " "$_ip"
+                dig +short -x "$_ip" 2>/dev/null | tr '\n' ' '
+                printf "\n"
+            done
+            [ "$_had" -eq 1 ] || printf "${YELLOW}  (aucune IP)${RESET}\n"
+            return 0
+        fi
+        # Trace délégation
+        if [ "$1" = "+trace" ]; then
+            shift
+            [ -n "${1:-}" ] || { netman_print_cmd_help dig; return 1; }
+            _tr=$(netman_normalize_host "$1")
+            dig +trace "${_tr:-$1}"
+            return $?
+        fi
+        _resolver=""
+        _type=""
+        _target=""
+        # @resolver
+        case "$1" in
+        @*)
+            _resolver="$1"
+            shift
+            ;;
+        esac
+        # TYPE domaine  OU  domaine seul
+        case "${1:-}" in
+        [Aa]|AAAA|aaaa|[Mm][Xx]|[Nn][Ss]|TXT|txt|SOA|soa|CNAME|cname|ANY|any|PTR|ptr)
+            _type=$(printf '%s' "$1" | tr 'a-z' 'A-Z')
+            shift
+            _target="${1:-}"
+            ;;
+        *)
+            _target="${1:-}"
+            ;;
+        esac
+        if [ -z "$_target" ]; then
+            netman_print_cmd_help dig
+            return 1
+        fi
+        _norm=$(netman_normalize_host "$_target")
+        if [ -n "$_norm" ] && [ "$_norm" != "$_target" ]; then
+            printf "${YELLOW}↳ normalisé${RESET} %s → %s\n" "$_target" "$_norm"
+            _target="$_norm"
+        elif [ -n "$_norm" ]; then
+            _target="$_norm"
+        fi
+        if [ -n "$_type" ]; then
+            printf "${CYAN}dig %s %s %s${RESET}\n" "${_resolver:-(système)}" "$_type" "$_target"
+            if [ -n "$_resolver" ]; then
+                dig "$_resolver" "$_type" "$_target" +noall +answer
+            else
+                dig "$_type" "$_target" +noall +answer
+            fi
+        else
+            printf "${CYAN}dig A/AAAA %s %s${RESET}\n" "${_resolver:-(système)}" "$_target"
+            if [ -n "$_resolver" ]; then
+                printf "A:    "; dig "$_resolver" +short A "$_target"
+                printf "AAAA: "; dig "$_resolver" +short AAAA "$_target"
+            else
+                printf "A:    "; dig +short A "$_target"
+                printf "AAAA: "; dig +short AAAA "$_target"
+            fi
+        fi
     }
     
     # Fonction pour afficher le header
@@ -880,53 +1333,217 @@ EOF
         pause_if_tty
     }
 
-    # Lookup IP/domaine (dig + whois + reverse DNS)
-    network_lookup() {
-        show_header
-        printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
-        manager_ui_section_line "${BLUE}" "${RESET}\n"
-        printf "Cible (IP ou domaine): "
-        read target
+    # -------------------------------------------------------------------------
+    # Helpers cibles (URL → host) + lookup dig-like + reverse PTR correct
+    # -------------------------------------------------------------------------
+    # DESC: extrait host/IP d'une URL ou chaîne collée (https://a/b → a)
+    netman_normalize_host() {
+        _raw="${1:-}"
+        [ -n "$_raw" ] || { printf '\n'; return 1; }
+        # trim espaces
+        _raw=$(printf '%s' "$_raw" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        # scheme://
+        _raw=$(printf '%s' "$_raw" | sed 's|^[a-zA-Z][a-zA-Z0-9+.-]*://||')
+        # userinfo@
+        case "$_raw" in
+            *@*) _raw=$(printf '%s' "$_raw" | sed 's/^[^@]*@//') ;;
+        esac
+        # IPv6 entre crochets [2001:db8::1]:443
+        case "$_raw" in
+            \[*\]*)
+                _raw=$(printf '%s' "$_raw" | sed 's/^\[\([^]]*\)\].*/\1/')
+                printf '%s\n' "$_raw"
+                return 0
+                ;;
+        esac
+        # chemin / query / fragment
+        _raw=$(printf '%s' "$_raw" | sed 's/[/?#].*$//')
+        # port :443 (sauf IPv6 déjà géré)
+        case "$_raw" in
+            *:*)
+                # si ça ressemble à IPv4:port → strip port ; sinon laisser (hostname rare avec :)
+                if printf '%s' "$_raw" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$'; then
+                    _raw=$(printf '%s' "$_raw" | sed 's/:[0-9]*$//')
+                elif printf '%s' "$_raw" | grep -Eq '^[A-Za-z0-9._-]+:[0-9]+$'; then
+                    _raw=$(printf '%s' "$_raw" | sed 's/:[0-9]*$//')
+                fi
+                ;;
+        esac
+        # trailing dot DNS optionnel conservé ; strip slash résiduel
+        _raw=$(printf '%s' "$_raw" | sed 's|/*$||')
+        printf '%s\n' "$_raw"
+    }
 
-        if [ -z "$target" ]; then
-            printf "${RED}❌ Cible vide${RESET}\n"
-            sleep 1
+    netman_is_ip() {
+        _t="${1:-}"
+        # IPv4
+        printf '%s' "$_t" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' && return 0
+        # IPv6 grossier
+        printf '%s' "$_t" | grep -Eq '^[0-9a-fA-F:]+$' && printf '%s' "$_t" | grep -q ':' && return 0
+        return 1
+    }
+
+    # Affiche PTR pour une IP ; retourne 0 si au moins une ligne
+    netman_ptr_of_ip() {
+        _ip="${1:-}"
+        [ -n "$_ip" ] || return 1
+        if command -v dig >/dev/null 2>&1; then
+            dig +short -x "$_ip" 2>/dev/null | sed '/^$/d'
+        elif command -v getent >/dev/null 2>&1; then
+            getent hosts "$_ip" 2>/dev/null | awk '{print $2}'
+        else
+            return 1
+        fi
+    }
+
+    # DESC: lookup unifié (CLI + interactif) — affichage style dig, reverse OK
+    # USAGE: netman_cmd_lookup [cible|--interactive]
+    netman_cmd_lookup() {
+        if [ -z "${1:-}" ] || [ "${1:-}" = "help" ] || [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+            netman_print_cmd_help lookup
+            return 0
+        fi
+        _target=""
+        _show_hdr=0
+        if [ "$1" = "--interactive" ] || [ "$1" = "-i" ]; then
+            if ! { [ -t 0 ] && [ -t 1 ]; }; then
+                printf '%s\n' "netman lookup: --interactive nécessite un TTY." >&2
+                return 2
+            fi
+            _show_hdr=1
+            show_header
+            printf "${YELLOW}🔎 Lookup réseau (IP / domaine / URL)${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
+            printf "Cible (IP, domaine ou URL): "
+            read _target
+        else
+            _target="$1"
+        fi
+        if [ -z "$_target" ]; then
+            printf "${RED}❌ Cible vide${RESET}\n" >&2
             return 1
         fi
 
-        printf "\n${CYAN}Resolution DNS:${RESET}\n"
-        if command -v dig >/dev/null 2>&1; then
-            dig +short "$target" 2>/dev/null | sed 's/^/  /'
-        else
-            getent hosts "$target" 2>/dev/null | sed 's/^/  /'
+        _raw="$_target"
+        _host=$(netman_normalize_host "$_raw")
+        if [ -z "$_host" ]; then
+            printf "${RED}❌ Impossible d'extraire un hôte depuis: %s${RESET}\n" "$_raw" >&2
+            return 1
         fi
 
-        printf "\n${CYAN}Reverse DNS:${RESET}\n"
-        if command -v dig >/dev/null 2>&1; then
-            dig +short -x "$target" 2>/dev/null | sed 's/^/  /'
+        if [ "$_show_hdr" -eq 0 ]; then
+            printf "${CYAN}${BOLD}netman lookup${RESET}  raw=%s  →  host=%s\n" "$_raw" "$_host"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
+        else
+            printf "\n  raw : %s\n  host: %s\n" "$_raw" "$_host"
+        fi
+
+        _ips=""
+        if netman_is_ip "$_host"; then
+            printf "\n${CYAN}Type${RESET}     IP (pas de résolution forward)\n"
+            printf "${CYAN}Adresse${RESET}  %s\n" "$_host"
+            _ips="$_host"
+        else
+            printf "\n${CYAN}Forward DNS (A / AAAA)${RESET}  — style dig +short\n"
+            if command -v dig >/dev/null 2>&1; then
+                _a=$(dig +short A "$_host" 2>/dev/null | sed '/^$/d')
+                _aaaa=$(dig +short AAAA "$_host" 2>/dev/null | sed '/^$/d')
+                if [ -n "$_a" ]; then
+                    printf "  ${BOLD}A${RESET}\n"
+                    printf '%s\n' "$_a" | sed 's/^/    /'
+                    _ips=$(printf '%s\n%s\n' "$_ips" "$_a")
+                else
+                    printf "  ${BOLD}A${RESET}     (aucun)\n"
+                fi
+                if [ -n "$_aaaa" ]; then
+                    printf "  ${BOLD}AAAA${RESET}\n"
+                    printf '%s\n' "$_aaaa" | sed 's/^/    /'
+                    _ips=$(printf '%s\n%s\n' "$_ips" "$_aaaa")
+                else
+                    printf "  ${BOLD}AAAA${RESET}  (aucun)\n"
+                fi
+                # NS / MX utiles en un coup d'œil
+                _ns=$(dig +short NS "$_host" 2>/dev/null | sed '/^$/d' | head -6)
+                _mx=$(dig +short MX "$_host" 2>/dev/null | sed '/^$/d' | head -6)
+                if [ -n "$_ns" ]; then
+                    printf "  ${BOLD}NS${RESET}\n"
+                    printf '%s\n' "$_ns" | sed 's/^/    /'
+                fi
+                if [ -n "$_mx" ]; then
+                    printf "  ${BOLD}MX${RESET}\n"
+                    printf '%s\n' "$_mx" | sed 's/^/    /'
+                fi
+            else
+                getent hosts "$_host" 2>/dev/null | sed 's/^/  /'
+                _ips=$(getent hosts "$_host" 2>/dev/null | awk '{print $1}')
+            fi
+        fi
+
+        printf "\n${CYAN}Reverse DNS (PTR)${RESET}\n"
+        _ip_list=$(printf '%s\n' "$_ips" | sed '/^$/d')
+        if [ -z "$_ip_list" ]; then
+            printf "  ${YELLOW}(aucune IP à reverse)${RESET}\n"
+        else
+            # IFS newline pour itérer sans sous-shell pipe
+            old_ifs=$IFS
+            IFS='
+'
+            for _ip in $_ip_list; do
+                IFS=$old_ifs
+                [ -n "$_ip" ] || continue
+                _ptrs=$(netman_ptr_of_ip "$_ip")
+                if [ -n "$_ptrs" ]; then
+                    printf "  ${GREEN}%s${RESET}\n" "$_ip"
+                    printf '%s\n' "$_ptrs" | sed 's/^/    PTR  /'
+                else
+                    printf "  %s\n    ${YELLOW}PTR  (aucun)${RESET}\n" "$_ip"
+                fi
+                IFS='
+'
+            done
+            IFS=$old_ifs
         fi
 
         if command -v whois >/dev/null 2>&1; then
-            printf "\n${CYAN}WHOIS (extrait):${RESET}\n"
-            whois "$target" 2>/dev/null | awk 'NR<=25 {print "  " $0}'
+            printf "\n${CYAN}WHOIS (extrait, 30 lignes)${RESET}  — cible whois=%s\n" "$_host"
+            whois "$_host" 2>/dev/null | awk '
+                BEGIN { n=0 }
+                /^[Ss]earching|^%\s|^#|^$/ { next }
+                { print "  " $0; n++; if (n>=30) exit }
+            '
         else
-            printf "\n${YELLOW}⚠ whois non installe${RESET}\n"
+            printf "\n${YELLOW}⚠ whois non installé${RESET} (pacman -S whois)\n"
         fi
 
         echo ""
-        pause_if_tty
+        if [ "$_show_hdr" -eq 1 ]; then
+            pause_if_tty
+        fi
+        return 0
+    }
+
+    # Compat menu interactif (ancien nom)
+    network_lookup() {
+        netman_cmd_lookup --interactive
     }
 
     network_trace() {
-        show_header
-        printf "${YELLOW}🧭 Traceroute / Tracepath${RESET}\n"
-        manager_ui_section_line "${BLUE}" "${RESET}\n"
+        _cli=0
+        [ -n "${1:-}" ] && _cli=1
+        if [ "$_cli" -eq 0 ]; then
+            show_header
+            printf "${YELLOW}🧭 Traceroute / Tracepath${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
+        fi
         _target="${1:-}"
         if [ -z "$_target" ]; then
             printf "Hôte ou IP cible: "
             read _target
         fi
         [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        _n=$(netman_normalize_host "$_target")
+        [ -n "$_n" ] && _target="$_n"
+        printf "${CYAN}trace → %s${RESET}\n" "$_target"
         if command -v traceroute >/dev/null 2>&1; then
             traceroute -n "$_target" 2>/dev/null | sed -n '1,40p'
         elif command -v tracepath >/dev/null 2>&1; then
@@ -936,7 +1553,8 @@ EOF
             return 1
         fi
         echo ""
-        pause_if_tty
+        [ "$_cli" -eq 0 ] && pause_if_tty
+        return 0
     }
 
     network_mtr() {
@@ -949,6 +1567,8 @@ EOF
             read _target
         fi
         [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        _mn=$(netman_normalize_host "$_target")
+        [ -n "$_mn" ] && _target="$_mn"
         case "$_target" in
             127.0.0.1|localhost|::1)
                 printf "${BLUE}Cible loopback détectée, test local via ping.${RESET}\n"
@@ -985,15 +1605,22 @@ EOF
     }
 
     network_whois() {
-        show_header
-        printf "${YELLOW}📄 WHOIS détaillé${RESET}\n"
-        manager_ui_section_line "${BLUE}" "${RESET}\n"
+        _cli=0
+        [ -n "${1:-}" ] && _cli=1
+        if [ "$_cli" -eq 0 ]; then
+            show_header
+            printf "${YELLOW}📄 WHOIS détaillé${RESET}\n"
+            manager_ui_section_line "${BLUE}" "${RESET}\n"
+        fi
         _target="${1:-}"
         if [ -z "$_target" ]; then
             printf "Domaine/IP cible: "
             read _target
         fi
         [ -z "$_target" ] && printf "${RED}❌ Cible vide${RESET}\n" && return 1
+        _n=$(netman_normalize_host "$_target")
+        [ -n "$_n" ] && _target="$_n"
+        printf "${CYAN}whois → %s${RESET}\n" "$_target"
         if command -v whois >/dev/null 2>&1; then
             whois "$_target" 2>/dev/null | sed -n '1,120p'
         else
@@ -1001,7 +1628,112 @@ EOF
             return 1
         fi
         echo ""
-        pause_if_tty
+        [ "$_cli" -eq 0 ] && pause_if_tty
+        return 0
+    }
+
+    # Voisinage L2 (ARP / NDP) — soft recon LAN
+    netman_cmd_neigh() {
+        if [ "${1:-}" = "help" ] || [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+            netman_print_cmd_help neigh
+            return 0
+        fi
+        printf "${CYAN}${BOLD}netman neigh${RESET} — table voisins (ARP / NDP)\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
+        if command -v ip >/dev/null 2>&1; then
+            printf "${YELLOW}IPv4 (ip -4 neigh)${RESET}\n"
+            ip -4 neigh show 2>/dev/null | sed 's/^/  /' || printf "  (vide)\n"
+            echo ""
+            printf "${YELLOW}IPv6 (ip -6 neigh)${RESET}\n"
+            ip -6 neigh show 2>/dev/null | sed 's/^/  /' | head -40 || printf "  (vide)\n"
+        elif command -v arp >/dev/null 2>&1; then
+            arp -an 2>/dev/null | sed 's/^/  /'
+        else
+            printf "${RED}ip/arp introuvable${RESET}\n" >&2
+            return 1
+        fi
+        echo ""
+        return 0
+    }
+
+    # Soft recon one-shot : normalize + dig + reverse + ping + whois extrait
+    netman_cmd_probe() {
+        if [ -z "${1:-}" ] || [ "${1:-}" = "help" ] || [ "${1:-}" = "-h" ]; then
+            netman_print_cmd_help probe
+            return 0
+        fi
+        _raw="$1"
+        _host=$(netman_normalize_host "$_raw")
+        [ -n "$_host" ] || { printf "${RED}cible invalide${RESET}\n" >&2; return 1; }
+        printf "${CYAN}${BOLD}netman probe${RESET} (soft)  %s → %s\n" "$_raw" "$_host"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
+        echo ""
+        printf "${YELLOW}1/4 DNS${RESET}\n"
+        netman_cmd_lookup "$_host"
+        echo ""
+        printf "${YELLOW}2/4 Ping (4 paquets)${RESET}\n"
+        if command -v ping >/dev/null 2>&1; then
+            if netman_is_ip "$_host" && printf '%s' "$_host" | grep -q ':'; then
+                ping -6 -c 4 -W 2 "$_host" 2>/dev/null || ping -c 4 -W 2 "$_host" 2>/dev/null || true
+            else
+                ping -c 4 -W 2 "$_host" 2>/dev/null || true
+            fi
+        else
+            printf "  ${YELLOW}ping absent${RESET}\n"
+        fi
+        echo ""
+        printf "${YELLOW}3/4 Chemin (10 premiers hops)${RESET}\n"
+        if command -v traceroute >/dev/null 2>&1; then
+            traceroute -n -w 2 -q 1 -m 10 "$_host" 2>/dev/null | sed 's/^/  /'
+        elif command -v tracepath >/dev/null 2>&1; then
+            tracepath -m 10 "$_host" 2>/dev/null | sed 's/^/  /'
+        else
+            printf "  ${YELLOW}traceroute absent${RESET}\n"
+        fi
+        echo ""
+        printf "${YELLOW}4/4 Ports courants (soft /dev/tcp)${RESET}\n"
+        for _p in 22 53 80 443 8080; do
+            if timeout 1 bash -c "echo >/dev/tcp/$_host/$_p" 2>/dev/null; then
+                printf "  ${GREEN}%-5s OPEN${RESET}\n" "$_p"
+            else
+                printf "  %-5s closed/filtered\n" "$_p"
+            fi
+        done
+        echo ""
+        return 0
+    }
+
+    # Découverte LAN soft (neigh + optionnel nmap/arp-scan si présents)
+    netman_cmd_lan() {
+        if [ "${1:-}" = "help" ] || [ "${1:-}" = "-h" ]; then
+            netman_print_cmd_help lan
+            return 0
+        fi
+        printf "${CYAN}${BOLD}netman lan${RESET} — découverte locale (soft)\n"
+        manager_ui_section_line "${BLUE}" "${RESET}\n"
+        _iface=$(ip route show default 2>/dev/null | awk '/default/ {print $5; exit}')
+        _cidr=$(ip -4 -o addr show dev "${_iface:-}" 2>/dev/null | awk '{print $4; exit}')
+        printf "  iface=%s  cidr=%s\n\n" "${_iface:-(?)}" "${_cidr:-(?)}"
+        netman_cmd_neigh
+        if command -v arp-scan >/dev/null 2>&1 && [ -n "$_iface" ]; then
+            printf "${YELLOW}arp-scan (local)${RESET}\n"
+            if [ "$(id -u)" -eq 0 ]; then
+                arp-scan -I "$_iface" --localnet 2>/dev/null | sed 's/^/  /' | head -40
+            elif command -v sudo >/dev/null 2>&1; then
+                sudo arp-scan -I "$_iface" --localnet 2>/dev/null | sed 's/^/  /' | head -40
+            else
+                printf "  ${YELLOW}sudo requis pour arp-scan${RESET}\n"
+            fi
+            echo ""
+        fi
+        if command -v nmap >/dev/null 2>&1 && [ -n "$_cidr" ]; then
+            printf "${YELLOW}nmap -sn %s (host discovery)${RESET}\n" "$_cidr"
+            nmap -sn "$_cidr" 2>/dev/null | sed 's/^/  /' | head -60
+            echo ""
+        else
+            printf "${BLUE}Astuce${RESET} : pacman -S arp-scan nmap pour un scan LAN plus riche.\n"
+        fi
+        return 0
     }
     
     # Fonction pour afficher la table de routage
@@ -1035,24 +1767,35 @@ EOF
         pause_if_tty
     }
 
-    # Lancer le manager de routes dédié
+    # Pont vers routeman — passe-plat des args ; sans args → menu TTY ou show
     launch_routeman() {
         _routeman_core_path="${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/routeman/core/routeman.sh"
-        if command -v routeman >/dev/null 2>&1; then
-            routeman
-        elif [ -f "$_routeman_core_path" ]; then
-            # shellcheck source=/dev/null
-            . "$_routeman_core_path"
-            if command -v routeman >/dev/null 2>&1; then
-                routeman
+        if ! command -v routeman >/dev/null 2>&1; then
+            if [ -f "$_routeman_core_path" ]; then
+                # shellcheck source=/dev/null
+                . "$_routeman_core_path"
             else
-                printf "${RED}❌ routeman chargé mais commande indisponible${RESET}\n"
-                sleep 2
+                printf "${RED}❌ ROUTEMAN non trouvé (%s)${RESET}\n" "$_routeman_core_path" >&2
+                return 1
             fi
-        else
-            printf "${RED}❌ ROUTEMAN non trouvé (%s)${RESET}\n" "$_routeman_core_path"
-            sleep 2
         fi
+        if ! command -v routeman >/dev/null 2>&1; then
+            printf "${RED}❌ routeman chargé mais commande indisponible${RESET}\n" >&2
+            return 1
+        fi
+        if [ "$#" -eq 0 ]; then
+            if [ -t 0 ] && [ -t 1 ]; then
+                routeman menu
+            else
+                routeman show
+            fi
+            return $?
+        fi
+        if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+            netman_print_cmd_help routeman
+            return 0
+        fi
+        routeman "$@"
     }
     
     # Fonction pour afficher les interfaces réseau
@@ -1303,29 +2046,24 @@ EOF
         case "$size_arg" in
             10M|10m)
                 label="10MB"
-                test_urls="https://proof.ovh.net/files/10Mb.dat
-https://speed.hetzner.de/10MB.bin"
+                test_urls="https://proof.ovh.net/files/10Mb.dat https://speed.hetzner.de/10MB.bin"
                 ;;
             100M|100m)
                 label="100MB"
-                test_urls="https://proof.ovh.net/files/100Mb.dat
-https://speed.hetzner.de/100MB.bin"
+                test_urls="https://proof.ovh.net/files/100Mb.dat https://speed.hetzner.de/100MB.bin"
                 ;;
             1G|1g)
                 label="1GB"
-                test_urls="https://proof.ovh.net/files/1Gb.dat
-https://speed.hetzner.de/1GB.bin"
+                test_urls="https://proof.ovh.net/files/1Gb.dat https://speed.hetzner.de/1GB.bin"
                 ;;
             5G|5g)
                 label="5GB"
-                test_urls="https://proof.ovh.net/files/5Gb.dat
-https://speed.hetzner.de/5GB.bin"
+                test_urls="https://proof.ovh.net/files/5Gb.dat https://speed.hetzner.de/5GB.bin"
                 ;;
             *)
                 printf "${YELLOW}⚠ Taille inconnue '%s', fallback 5G${RESET}\n" "$size_arg"
                 label="5GB"
-                test_urls="https://proof.ovh.net/files/5Gb.dat
-https://speed.hetzner.de/5GB.bin"
+                test_urls="https://proof.ovh.net/files/5Gb.dat https://speed.hetzner.de/5GB.bin"
                 ;;
         esac
 
@@ -1354,17 +2092,18 @@ https://speed.hetzner.de/5GB.bin"
         downloaded=0
         elapsed=0
         test_url=""
-        echo "$test_urls" | while IFS= read -r candidate_url; do
+        : > /tmp/netman_speed_result.$$
+        for candidate_url in $test_urls; do
             [ -z "$candidate_url" ] && continue
             curl_out=$(curl -L -s --output /dev/null -w "%{size_download} %{time_total}" "$candidate_url" 2>/dev/null)
             rc=$?
             dl=$(echo "$curl_out" | awk '{print $1}')
             tt=$(echo "$curl_out" | awk '{print $2}')
             if [ "$rc" -eq 0 ] && awk -v b="$dl" 'BEGIN { exit !(b+0 > 0) }'; then
-                echo "$candidate_url|$dl|$tt"
-                exit 0
+                echo "$candidate_url|$dl|$tt" > /tmp/netman_speed_result.$$
+                break
             fi
-        done > /tmp/netman_speed_result.$$ 2>/dev/null
+        done
 
         if [ -s /tmp/netman_speed_result.$$ ]; then
             end_ok=0
@@ -1543,13 +2282,13 @@ https://speed.hetzner.de/5GB.bin"
     }
     
     # Gestion des arguments en ligne de commande
-    # Convention : sans arg / help / -h = stdout ; help --interactive = aide TTY ;
-    # --help seul = menu principal interactif.
+    # Convention : sans arg / help / -h = stdout ; help <cmd> = aide sous-commande ;
+    # help --interactive = aide TTY ; menu | --interactive = menu TUI.
     if [ -z "${1:-}" ]; then
         netman_print_quick_help
         return 0
     fi
-    if [ "$1" = "help" ] || [ "$1" = "-h" ]; then
+    if [ "$1" = "help" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         case "${2:-}" in
         --interactive|-i)
             if [ -t 0 ] && [ -t 1 ]; then
@@ -1560,165 +2299,24 @@ https://speed.hetzner.de/5GB.bin"
             fi
             return 0
             ;;
-        *)
+        "")
             netman_print_quick_help
             return 0
+            ;;
+        *)
+            # netman help dig | netman help lookup …
+            netman_print_cmd_help "$2"
+            return $?
             ;;
         esac
     fi
 
-    if [ -n "$1" ] && [ "$1" != "--help" ]; then
-        _nmdf="${DOTFILES_DIR:-$HOME/dotfiles}"
-        if [ -f "$_nmdf/scripts/lib/managers_log_posix.sh" ]; then
-            # shellcheck source=managers_log_posix.sh
-            . "$_nmdf/scripts/lib/managers_log_posix.sh"
-            managers_cli_log netman "$@"
-        fi
-        case "$1" in
-            ports)
-                manage_ports
-                ;;
-            connections|conn)
-                show_connections
-                ;;
-            ip|ipinfo)
-                show_ip_info
-                ;;
-            dns)
-                show_dns_info
-                ;;
-            routing|route)
-                show_routing
-                ;;
-            routeman|routes|route-manager)
-                launch_routeman
-                ;;
-            interfaces|iface)
-                show_interfaces
-                ;;
-            scan)
-                if [ -n "$2" ]; then
-                    host="$2"
-                    port="${3:-80}"
-                    printf "Scan du port %s sur %s...\n" "$port" "$host"
-                    if timeout 2 bash -c "echo >/dev/tcp/$host/$port" 2>/dev/null; then
-                        printf "${GREEN}✓ Port %s OUVERT${RESET}\n" "$port"
-                    else
-                        printf "${RED}✗ Port %s FERMÉ${RESET}\n" "$port"
-                    fi
-                else
-                    scan_port
-                fi
-                ;;
-            kill)
-                if [ -n "$2" ]; then
-                    port="$2"
-                    printf "Kill rapide du port %s...\n" "$port"
-                    pids=""
-                    if command -v sudo >/dev/null 2>&1; then
-                        pids=$(sudo lsof -t -i:"$port" 2>/dev/null)
-                    else
-                        pids=$(lsof -t -i:"$port" 2>/dev/null)
-                    fi
-                    
-                    if [ -n "$pids" ]; then
-                        echo "PIDs trouvés: $pids"
-                        for pid in $pids; do
-                            if command -v sudo >/dev/null 2>&1; then
-                                sudo kill -TERM "$pid" 2>/dev/null && printf "✓ PID %s terminé\n" "$pid"
-                            else
-                                kill -TERM "$pid" 2>/dev/null && printf "✓ PID %s terminé\n" "$pid"
-                            fi
-                        done
-                    else
-                        printf "Aucun processus sur le port %s\n" "$port"
-                    fi
-                else
-                    kill_port_quick
-                fi
-                ;;
-            stats)
-                show_network_stats
-                ;;
-            diagnose|diag|health)
-                network_diagnose
-                ;;
-            diagnose-report|diag-report)
-                network_diagnose_report "$@"
-                ;;
-            dns-bench|dnsbench)
-                dns_benchmark "$2"
-                ;;
-            diagnose-deep|diag-deep|health-deep)
-                network_diagnose_deep
-                ;;
-            firewall|fw)
-                firewall_status
-                ;;
-            lookup|resolve)
-                if [ -n "$2" ]; then
-                    show_header
-                    printf "${YELLOW}🔎 Lookup réseau (IP / domaine)${RESET}\n"
-                    manager_ui_section_line "${BLUE}" "${RESET}\n"
-                    target="$2"
-                    printf "Cible: %s\n\n" "$target"
-                    printf "${CYAN}Resolution DNS:${RESET}\n"
-                    if command -v dig >/dev/null 2>&1; then
-                        dig +short "$target" 2>/dev/null | sed 's/^/  /'
-                        printf "\n${CYAN}Reverse DNS:${RESET}\n"
-                        dig +short -x "$target" 2>/dev/null | sed 's/^/  /'
-                    else
-                        getent hosts "$target" 2>/dev/null | sed 's/^/  /'
-                    fi
-                    if command -v whois >/dev/null 2>&1; then
-                        printf "\n${CYAN}WHOIS (extrait):${RESET}\n"
-                        whois "$target" 2>/dev/null | awk 'NR<=25 {print "  " $0}'
-                    fi
-                else
-                    network_lookup
-                fi
-                ;;
-            trace|traceroute|tracepath)
-                network_trace "$2"
-                ;;
-            mtr)
-                network_mtr "$2"
-                ;;
-            whois)
-                network_whois "$2"
-                ;;
-            connectivity|ping)
-                test_connectivity "$2"
-                ;;
-            speed)
-                test_network_speed "$2"
-                ;;
-            monitor|bandwidth)
-                monitor_bandwidth
-                ;;
-            analyze|traffic)
-                analyze_traffic
-                ;;
-            export)
-                export_network_config
-                ;;
-            *)
-                printf "${RED}Commande inconnue: %s${RESET}\n" "$1"
-                echo "Utilisez 'netman help' pour voir les commandes disponibles"
-                return 1
-                ;;
-        esac
-    fi
-    if [ "$1" = "--help" ]; then
-        netman_print_quick_help
-        return 0
-    fi
-    if [ "$1" = menu ] || [ "$1" = "--interactive" ]; then
+    # Menu TUI — traité AVANT le case CLI (sinon « Commande inconnue »)
+    if [ "$1" = "menu" ] || [ "$1" = "--interactive" ]; then
         if ! { [ -t 0 ] && [ -t 1 ]; }; then
             printf '%s\n' "netman: menu nécessite un terminal (TTY)." >&2
             return 2
         fi
-        # Menu principal interactif
         while true; do
             show_header
             printf "${GREEN}Menu Principal${RESET}\n"
@@ -1738,7 +2336,10 @@ https://speed.hetzner.de/5GB.bin"
             echo "  ${BOLD}k${RESET}  🧪 Diagnostic profond perf (RX/TX)"
             echo "  ${BOLD}g${RESET}  ⚡ Benchmark DNS"
             echo "  ${BOLD}i${RESET}  🛡️ Statut firewall"
-            echo "  ${BOLD}j${RESET}  🔎 Lookup IP / domaine"
+            echo "  ${BOLD}j${RESET}  🔎 Lookup IP / domaine / URL"
+            echo "  ${BOLD}p${RESET}  🕵️  Probe soft recon"
+            echo "  ${BOLD}n${RESET}  📡 Voisins ARP/NDP (neigh)"
+            echo "  ${BOLD}l${RESET}  🏠 Découverte LAN"
             echo "  ${BOLD}t${RESET}  🧭 Traceroute / tracepath"
             echo "  ${BOLD}m${RESET}  🧪 MTR (latence/pertes)"
             echo "  ${BOLD}w${RESET}  📄 WHOIS détaillé"
@@ -1770,7 +2371,10 @@ Diagnostic reseau complet|f
 Diagnostic profond perf (RX/TX)|k
 Benchmark DNS|g
 Statut firewall|i
-Lookup IP / domaine|j
+Lookup IP / domaine / URL|j
+Probe soft recon|p
+Voisins ARP/NDP (neigh)|n
+Decouverte LAN|l
 Traceroute / tracepath|t
 MTR (latence/pertes)|m
 WHOIS detaille|w
@@ -1812,6 +2416,14 @@ EOF
                 g|G) dns_benchmark ;;
                 i|I) firewall_status ;;
                 j|J) network_lookup ;;
+                p|P)
+                    printf "Cible probe (IP/domaine/URL): "
+                    read _probe_t
+                    [ -n "$_probe_t" ] && netman_cmd_probe "$_probe_t"
+                    pause_if_tty
+                    ;;
+                n|N) netman_cmd_neigh; pause_if_tty ;;
+                l|L) netman_cmd_lan; pause_if_tty ;;
                 t|T) network_trace ;;
                 m|M) network_mtr ;;
                 w|W) network_whois ;;
@@ -1835,5 +2447,242 @@ EOF
                     ;;
             esac
         done
+        return 0
     fi
+
+    # --- CLI non-interactif -------------------------------------------------
+    _nmdf="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$_nmdf/scripts/lib/managers_log_posix.sh" ]; then
+        # shellcheck source=managers_log_posix.sh
+        . "$_nmdf/scripts/lib/managers_log_posix.sh"
+        managers_cli_log netman "$@"
+    fi
+    case "$1" in
+        ports)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help ports
+            else
+                manage_ports
+            fi
+            ;;
+        connections|conn)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help connections
+            else
+                show_connections
+            fi
+            ;;
+        ip|ipinfo)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help ip
+            else
+                show_ip_info
+            fi
+            ;;
+        dns)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help dns
+            else
+                show_dns_info
+            fi
+            ;;
+        dig|dns-query)
+            shift
+            netman_cmd_dig "$@"
+            ;;
+        routing|route)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help routing
+            else
+                show_routing
+            fi
+            ;;
+        routeman|routes|route-manager)
+            shift
+            launch_routeman "$@"
+            ;;
+        interfaces|iface)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help interfaces
+            else
+                show_interfaces
+            fi
+            ;;
+        scan)
+            if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help scan
+            else
+                host=$(netman_normalize_host "$2")
+                [ -n "$host" ] || host="$2"
+                port="${3:-80}"
+                printf "Scan du port %s sur %s...\n" "$port" "$host"
+                if timeout 2 bash -c "echo >/dev/tcp/$host/$port" 2>/dev/null; then
+                    printf "${GREEN}✓ Port %s OUVERT${RESET}\n" "$port"
+                else
+                    printf "${RED}✗ Port %s FERMÉ${RESET}\n" "$port"
+                fi
+            fi
+            ;;
+        kill)
+            if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help kill
+            else
+                port="$2"
+                printf "Kill rapide du port %s...\n" "$port"
+                pids=""
+                if command -v sudo >/dev/null 2>&1; then
+                    pids=$(sudo lsof -t -i:"$port" 2>/dev/null)
+                else
+                    pids=$(lsof -t -i:"$port" 2>/dev/null)
+                fi
+                if [ -n "$pids" ]; then
+                    echo "PIDs trouvés: $pids"
+                    for pid in $pids; do
+                        if command -v sudo >/dev/null 2>&1; then
+                            sudo kill -TERM "$pid" 2>/dev/null && printf "✓ PID %s terminé\n" "$pid"
+                        else
+                            kill -TERM "$pid" 2>/dev/null && printf "✓ PID %s terminé\n" "$pid"
+                        fi
+                    done
+                else
+                    printf "Aucun processus sur le port %s\n" "$port"
+                fi
+            fi
+            ;;
+        stats)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help stats
+            else
+                show_network_stats
+            fi
+            ;;
+        diagnose|diag|health)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help diagnose
+            else
+                network_diagnose
+            fi
+            ;;
+        diagnose-report|diag-report)
+            network_diagnose_report "$@"
+            ;;
+        dns-bench|dnsbench)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help dns-bench
+            else
+                dns_benchmark "$2"
+            fi
+            ;;
+        diagnose-deep|diag-deep|health-deep)
+            network_diagnose_deep
+            ;;
+        firewall|fw)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help firewall
+            else
+                firewall_status
+            fi
+            ;;
+        lookup|resolve)
+            shift
+            netman_cmd_lookup "$@"
+            ;;
+        probe|recon)
+            shift
+            netman_cmd_probe "$@"
+            ;;
+        neigh|arp|neighbors)
+            shift
+            netman_cmd_neigh "$@"
+            ;;
+        lan|discover|lan-scan)
+            shift
+            netman_cmd_lan "$@"
+            ;;
+        trace|traceroute|tracepath)
+            if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help trace
+            else
+                network_trace "$2"
+            fi
+            ;;
+        mtr)
+            if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help mtr
+            else
+                network_mtr "$2"
+            fi
+            ;;
+        whois)
+            if [ -z "${2:-}" ] || [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help whois
+            else
+                network_whois "$2"
+            fi
+            ;;
+        connectivity|ping)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help connectivity
+            else
+                test_connectivity "$2"
+            fi
+            ;;
+        speed)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help speed
+            else
+                test_network_speed "$2"
+            fi
+            ;;
+        monitor|bandwidth)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help monitor
+            else
+                monitor_bandwidth
+            fi
+            ;;
+        analyze|traffic)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help analyze
+            else
+                analyze_traffic
+            fi
+            ;;
+        export)
+            if [ "${2:-}" = "help" ] || [ "${2:-}" = "-h" ]; then
+                netman_print_cmd_help export
+            else
+                export_network_config
+            fi
+            ;;
+        tor)
+            shift
+            if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh" ]; then
+                # shellcheck source=/dev/null
+                . "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh"
+                anonyman tor "${1:-status}"
+            else
+                printf "${YELLOW}anonyman introuvable — installman tor${RESET}\n" >&2
+                return 1
+            fi
+            ;;
+        i2p|i2pd)
+            shift
+            if [ -f "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh" ]; then
+                # shellcheck source=/dev/null
+                . "${DOTFILES_DIR:-$HOME/dotfiles}/core/managers/anonyman/core/anonyman.sh"
+                anonyman i2p "${1:-status}"
+            else
+                printf "${YELLOW}anonyman introuvable — installman i2p · configman i2p${RESET}\n" >&2
+                return 1
+            fi
+            ;;
+        *)
+            printf "${RED}Commande inconnue: %s${RESET}\n" "$1" >&2
+            echo "Utilisez 'netman help' ou 'helpman netman'" >&2
+            echo "Aide d'une sous-commande : netman help dig | netman help lookup" >&2
+            return 1
+            ;;
+    esac
+    return $?
 }

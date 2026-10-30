@@ -34,6 +34,14 @@ installman() {
     RESET='\033[0m'
     
     DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [ -f "$DOTFILES_DIR/core/lib/distro.sh" ]; then
+        # shellcheck source=../../../lib/distro.sh
+        . "$DOTFILES_DIR/core/lib/distro.sh"
+    fi
+    if [ -f "$DOTFILES_DIR/core/lib/pkg_backend.sh" ]; then
+        # shellcheck source=../../../lib/pkg_backend.sh
+        . "$DOTFILES_DIR/core/lib/pkg_backend.sh"
+    fi
     INSTALLMAN_DIR="$DOTFILES_DIR/zsh/functions/installman"
     INSTALLMAN_MODULES_DIR="$INSTALLMAN_DIR/modules"
     INSTALLMAN_UTILS_DIR="$INSTALLMAN_DIR/utils"
@@ -101,6 +109,7 @@ installman() {
         echo "Liste des outils : installman list"
         echo "Paquets :          installman pl | search | install | remove"
         echo "Mises à jour :     installman update | update-all | check | upgrade | packages"
+        echo "Paquets système :  installman upgrade auto  (core/lib pkg_backend multi-distro)"
         echo "                   updateman status | updateman all (outils du registre, ex. cursor)"
         echo ""
         echo "Interface :"
@@ -126,7 +135,13 @@ android-licenses:android-license,licenses:📝:Accepter licences Android SDK:che
 docker::🐳:Docker & Docker Compose:check_docker_installed:docker/install_docker.sh:install_docker
 brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave
 cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor
+dotfiles:dots,dotfiles-sync:📁:Dépôt dotfiles (clone/sync canal main):check_dotfiles_installed:dotfiles/install_dotfiles.sh:install_dotfiles
 handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake
+cgoban:kgs,go-client:⚫:CGoban (client Go KGS):check_cgoban_installed:cgoban/install_cgoban.sh:install_cgoban
+stoat:stoatchat,revolt:💬:Stoat Chat (AppImage GitHub):check_stoat_installed:stoat/install_stoat.sh:install_stoat
+noita::🪄:Noita (archive locale /data/jeux):check_noita_installed:noita/install_noita.sh:install_noita
+terraria::🌳:Terraria GOG (installeur .sh):check_terraria_installed:terraria/install_terraria.sh:install_terraria
+zomboid:projectzomboid,pz:🧟:Project Zomboid (PortProton):check_zomboid_installed:zomboid/install_zomboid.sh:install_zomboid
 network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools
 qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu
 sshpass:sshpass-bin:🔑:sshpass (SSH automatisé / setup VPS):check_sshpass_installed:ssh/install_sshpass.sh:install_sshpass
@@ -139,6 +154,7 @@ tor::🔒:Tor (anonymisation réseau):check_tor_installed:tor/install_tor.sh:ins
 tor-browser:torbrowser,tor-browser:🌐:Tor Browser (navigateur anonyme):check_tor_browser_installed:tor/install_tor_browser.sh:install_tor_browser
 tor-navigation:tor-nav,tor-navigation:🔐:Navigation Tor (avec/sans navigateur):check_tor_navigation_installed:tor/install_tor_navigation.sh:install_tor_navigation
 i2p:i2pd,purple-i2p,purple:🧅:I2P (i2pd / réseau I2P):check_i2p_installed:i2p/install_i2p.sh:install_i2p
+icecat:gnu-icecat,iceweasel:🦊:GNU IceCat (navigateur libre):check_icecat_installed:icecat/install_icecat.sh:install_icecat
 nvidia-driver:nvidia,nvidia-gpu:🎮:Pilotes NVIDIA (détection GPU):check_nvidia_driver_installed:nvidia/install_nvidia_driver.sh:install_nvidia_driver
 snap:snapd:📦:Snapd (daemon snap):check_snap_installed:snap/install_snap.sh:install_snap
 ollama::🦙:Ollama (LLM local):check_ollama_installed:ollama/install_ollama.sh:install_ollama

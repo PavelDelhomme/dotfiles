@@ -119,3 +119,44 @@ install_i2p() {
     log_error "Échec de l'installation i2pd. Essayez le paquet « i2pd » ou « i2p » selon votre dépôt."
     return 1
 }
+
+# DESC: Active le service i2pd
+# USAGE: enable_i2p
+enable_i2p() {
+    if [[ "$(check_i2p_installed 2>/dev/null)" != installed ]]; then
+        log_error "I2P non installé — lance: installman i2p"
+        return 1
+    fi
+    _install_i2p_enable_service
+    if command -v systemctl &>/dev/null; then
+        systemctl is-active --quiet i2pd 2>/dev/null && log_info "i2pd actif." && return 0
+    fi
+    pgrep -x i2pd >/dev/null 2>&1 && log_info "i2pd actif (processus)." && return 0
+    log_warn "Activation incertaine — vérifie: systemctl status i2pd"
+    return 1
+}
+
+# DESC: Désactive le service i2pd
+# USAGE: disable_i2p
+disable_i2p() {
+    if command -v systemctl &>/dev/null; then
+        log_step "Désactivation i2pd..."
+        sudo systemctl disable --now i2pd 2>/dev/null || sudo systemctl stop i2pd 2>/dev/null || true
+    fi
+    pkill -x i2pd 2>/dev/null || true
+    log_info "I2P désactivé (si permissions ok)."
+    return 0
+}
+
+# DESC: Statut I2P / ports
+# USAGE: status_i2p
+status_i2p() {
+    echo "=== I2P status ==="
+    check_i2p_installed
+    if command -v systemctl &>/dev/null; then
+        echo "systemd: $(systemctl is-active i2pd 2>/dev/null || echo n/a) / enabled=$(systemctl is-enabled i2pd 2>/dev/null || echo n/a)"
+    fi
+    echo "HTTP proxy typique : 127.0.0.1:4444"
+    echo "SOCKS typique      : 127.0.0.1:4447"
+    echo "Config             : configman i2p · anonyman i2p ports"
+}

@@ -110,40 +110,31 @@ else
     echo -e "${YELLOW}⚠️  Fichier Vulkan NVIDIA non trouvé${NC}"
 fi
 
-# Configuration multi-écrans - Forcer l'écran principal (DP-1)
+# Multi-écrans : forcer le Philips (DP-1 / PHL 245E1), pas le Xiaomi (HDMI-A-1)
 echo -e "${BLUE}🖥️  Configuration écran:${NC}"
-PRIMARY_DISPLAY=$(xrandr --listactivemonitors 2>/dev/null | grep -E "^\s*0:" | awk '{print $4}' | sed 's/\+//' || echo "DP-1")
-echo -e "${GREEN}✓ Écran principal détecté: $PRIMARY_DISPLAY${NC}"
+# Index SDL / Unity : 0=Xiaomi HDMI-A-1, 1=Philips DP-1, 2=HP HDMI-A-2 (ordre Unity actuel)
+PHILIPS_SDL_INDEX=2
+PHILIPS_OUTPUT=DP-1
+if command -v xrandr >/dev/null 2>&1; then
+  # Si l'ordre xrandr change, cherche toujours le PHL / 2560x1440
+  mapfile -t _mons < <(xrandr --listactivemonitors 2>/dev/null | awk 'NR>1{print $NF}')
+  for i in "${!_mons[@]}"; do
+    case "${_mons[$i]}" in
+      DP-1|DP-1-*|*DP-1*) PHILIPS_SDL_INDEX=$i; PHILIPS_OUTPUT="${_mons[$i]}"; break ;;
+    esac
+  done
+fi
+echo -e "${GREEN}✓ Philips ciblé: ${PHILIPS_OUTPUT} (SDL/Unity index ${PHILIPS_SDL_INDEX})${NC}"
 
-# Variables d'environnement pour forcer l'écran principal
-# IMPORTANT: Ces variables sont locales au processus du jeu uniquement
-# Elles ne doivent PAS affecter les autres applications
-# SDL_VIDEO_FULLSCREEN_DISPLAY force SDL à utiliser un écran spécifique
-# On utilise env -i pour isoler l'environnement si nécessaire, mais ici
-# on les exporte seulement dans le contexte de ce script
-SDL_VIDEO_FULLSCREEN_DISPLAY=0  # 0 = premier écran (DP-1) - SANS export
-SDL_VIDEODRIVER=x11  # Forcer X11 - SANS export
-# DISPLAY est déjà défini globalement, on ne le modifie pas
-# WINE_DISPLAY n'est pas nécessaire, Wine utilise DISPLAY par défaut
-
-# Exporter uniquement pour le processus du jeu (via env dans exec)
-# On passe ces variables directement à la commande plutôt que de les exporter globalement
-
-# Utiliser gamescope pour forcer l'affichage sur l'écran principal
-# gamescope peut forcer une sortie spécifique
 if command -v gamescope >/dev/null 2>&1; then
-    echo -e "${GREEN}✓ gamescope disponible (peut forcer l'écran)${NC}"
-    # Option: utiliser gamescope avec --output pour forcer DP-1
-    # Mais PortProton gère déjà gamescope, donc on configure via variables
+    echo -e "${GREEN}✓ gamescope disponible${NC}"
 fi
 
 echo ""
-echo -e "${BLUE}🚀 Lancement avec PortProton (NVIDIA + Écran principal)...${NC}"
+echo -e "${BLUE}🚀 Lancement avec PortProton (NVIDIA + Philips)...${NC}"
 echo ""
 
-# Lancer le jeu avec l'option --launch pour un lancement direct
-# Passer les variables SDL uniquement au processus du jeu (pas d'export global)
-# Cela évite l'interface graphique et lance directement le jeu
-env SDL_VIDEO_FULLSCREEN_DISPLAY=0 SDL_VIDEODRIVER=x11 \
+# Passer SDL uniquement au processus du jeu (pas d'export global)
+env SDL_VIDEO_FULLSCREEN_DISPLAY="$PHILIPS_SDL_INDEX" SDL_VIDEODRIVER=x11 \
     bash "$PORTPROTON_SCRIPT" --launch "$ULTRAKILL_EXE"
 

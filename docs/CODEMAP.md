@@ -436,6 +436,7 @@ bash ~/dotfiles/scripts/install/tools/install_yay.sh
 | `displayman` | Gestionnaire écran / luminosité / DDC (preset, range, OSD) | `core/managers/displayman/core/displayman.sh` |
 | `diffman` | Comparateur de fichiers (diff coloré, côte à côte, rapports) | `core/managers/diffman/core/diffman.sh` |
 | `diskman` | Analyse et nettoyage disque (usage, gros fichiers, inodes, clean) | `core/managers/diskman/core/diskman.sh` |
+| `dockerman` | Vue / aide Docker (ps, images, compose, cheat, prune dry-run) | `core/managers/dockerman/core/dockerman.sh` |
 | `manman` | Gestionnaire centralisé (menu pour tous les *man) | `manman.zsh` |
 
 **Utilisation:**

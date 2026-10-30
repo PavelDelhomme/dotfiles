@@ -1,3 +1,11 @@
-# Registre des outils geres par updateman (format: name|check_fn|timer_unit|auto_service)
-# auto_service=1 : installman active le timer systemd apres installation reussie
-cursor|check_cursor_installed|cursor-update.timer|1
+# Registre des outils geres par updateman
+# Format: name|check_fn|timer_unit|auto_service|update_kind
+# update_kind: cursor_appimage | cgoban_jar | stoat_appimage | dotfiles_git | pkg
+dotfiles|check_dotfiles_installed|dotfiles-sync.timer|1|dotfiles_git
+cursor|check_cursor_installed|cursor-update.timer|1|cursor_appimage
+docker|check_docker_installed|docker-update.timer|0|pkg
+brave|check_brave_installed|brave-update.timer|0|pkg
+i2p|check_i2p_installed|-|0|pkg
+icecat|check_icecat_installed|-|0|pkg
+cgoban|check_cgoban_installed|cgoban-update.timer|1|cgoban_jar
+stoat|check_stoat_installed|stoat-update.timer|1|stoat_appimage

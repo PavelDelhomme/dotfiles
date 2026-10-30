@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Brave updater weekly via updateman
+
+[Timer]
+OnBootSec=45min
+OnUnitActiveSec=7d
+Persistent=true
+Unit=brave-update.service
+
+[Install]
+WantedBy=timers.target

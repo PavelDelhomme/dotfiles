@@ -1,0 +1,230 @@
+#!/usr/bin/env bash
+# =============================================================================
+# dotfiles — CLI portable (n'importe quel cwd / shell / root|user)
+#
+# Usage:
+#   dotfiles doctor
+#   dotfiles base doctor|install|plan
+#   dotfiles session doctor|prefer-kde|prefer-gnome
+#   dotfiles shims install
+#   dotfiles preflight
+#   dotfiles help
+# =============================================================================
+
+set -u
+
+_resolve_root() {
+    if [ -n "${DOTFILES_DIR:-}" ] && [ -e "$DOTFILES_DIR/bootstrap.sh" ]; then
+        printf '%s\n' "$DOTFILES_DIR"
+        return 0
+    fi
+    # depuis bin/ → parent
+    local self
+    self="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)"
+    if [ -f "$self/bootstrap.sh" ]; then
+        printf '%s\n' "$self"
+        return 0
+    fi
+    for cand in "${HOME:-}/dotfiles" /root/dotfiles; do
+        [ -f "$cand/bootstrap.sh" ] && { printf '%s\n' "$cand"; return 0; }
+    done
+    return 1
+}
+
+ROOT="$(_resolve_root)" || {
+    echo "dotfiles: dépôt introuvable. Clone: git clone … ~/dotfiles" >&2
+    echo "  ou: export DOTFILES_DIR=/chemin/vers/dotfiles" >&2
+    exit 127
+}
+export DOTFILES_DIR="$ROOT"
+
+# shellcheck source=/dev/null
+[ -f "$ROOT/scripts/lib/common.sh" ] && . "$ROOT/scripts/lib/common.sh"
+# shellcheck source=/dev/null
+[ -f "$ROOT/scripts/lib/dotfiles_doctor.sh" ] && . "$ROOT/scripts/lib/dotfiles_doctor.sh"
+# shellcheck source=/dev/null
+[ -f "$ROOT/scripts/lib/dotfiles_session.sh" ] && . "$ROOT/scripts/lib/dotfiles_session.sh"
+
+_usage() {
+    cat <<EOF
+dotfiles — doctor & maintenance (portable)
+
+Dépôt: $DOTFILES_DIR
+Shell/cwd/root: peu importe — ce binaire suffit (pas besoin de sourcer zsh).
+
+Usage:
+  dotfiles doctor                 santé globale (base + managers + session + pacman)
+  dotfiles base doctor|install|plan
+  dotfiles session doctor
+  dotfiles session prefer-kde     SDDM + Plasma (GNOME/Openbox au greeter)
+  dotfiles session prefer-gnome   GDM + GNOME
+  dotfiles session emergency      session Openbox minimale
+  dotfiles adb …                  adbman (USB/Wi-Fi sans spam)
+  dotfiles version …              versionman (Java & logiciels)
+  dotfiles games …                miroir jeux hors-git (noita/terraria/…)
+  dotfiles perso status|backup    audit Git Perso / snapshot home
+  dotfiles shims install          *man dans ~/.local/bin (marche sous sudo)
+  dotfiles update [pull|full|status|enable|disable|track]
+  dotfiles preflight              état avant install/reset
+  dotfiles mincheck               binaires critiques only (fresh OS)
+  dotfiles help
+
+Update multi-machine (Arch zsh → Gentoo fish, …) :
+  dotfiles update enable          timer systemd + hook login (pull)
+  DOTFILES_SYNC_MODE=full dotfiles update enable   # + auto commit/push
+  dotfiles update                 # pull maintenant (canal main)
+  dotfiles update full            # pull + push locaux
+  dotfiles update track main      # canal prod (défaut toutes machines)
+  updateman dotfiles | installman dotfiles
+
+Fresh install (CLI only, root ou user) :
+  ~/dotfiles/bin/dotfiles doctor
+  ~/dotfiles/bin/dotfiles base install
+  ~/dotfiles/bin/dotfiles update enable
+
+Variables: DOTFILES_DIR DOTFILES_HEADLESS DOTFILES_AUR_HELPER
+  DOTFILES_SYNC_MODE=pull|full  DOTFILES_AUTO_UPDATE=0  DOTFILES_UPDATE_INTERVAL_MIN=60
+EOF
+}
+
+_cmd_shims_install() {
+    local dest="${DOTFILES_MANAGER_SHIM_DIR:-$HOME/.local/bin}"
+    export DOTFILES_MANAGER_SHIM_DIR="$dest"
+    bash "$ROOT/scripts/bootstrap/install_manager_shims.sh" --apply --yes --all
+    # aussi ce CLI
+    mkdir -p "$dest"
+    ln -sfn "$ROOT/bin/dotfiles" "$dest/dotfiles"
+    echo "PATH: assure-toi que $dest est dans PATH (souvent déjà via .zshrc)."
+    echo "Test: hash -r 2>/dev/null; command -v netman; command -v dotfiles"
+}
+
+_cmd_mincheck() {
+    echo "Mincheck fresh OS (sans profil complet)"
+    local miss=0 b
+    for b in git curl wget make bash; do
+        if command -v "$b" >/dev/null 2>&1; then
+            echo "  ✓ $b"
+        else
+            echo "  ✗ $b"
+            miss=$((miss+1))
+        fi
+    done
+    if [ "$miss" -eq 0 ]; then
+        echo "OK pour cloner/bootstrap. Ensuite: dotfiles base install"
+        return 0
+    fi
+    echo "Installe les manquants puis relance."
+    case "$(detect_distro 2>/dev/null || echo unknown)" in
+        arch) echo "  sudo pacman -S --needed git curl wget make base-devel" ;;
+        debian) echo "  sudo apt-get install -y git curl wget make build-essential" ;;
+        fedora) echo "  sudo dnf install -y git curl wget make gcc" ;;
+        gentoo) echo "  sudo emerge --ask=n dev-vcs/git net-misc/curl net-misc/wget sys-devel/make" ;;
+    esac
+    return 1
+}
+
+cmd="${1:-help}"
+shift $(( $# > 0 ? 1 : 0 )) || true
+
+case "$cmd" in
+    help|-h|--help) _usage ;;
+    doctor|check|health)
+        df_doctor_run
+        ;;
+    mincheck|min)
+        _cmd_mincheck
+        ;;
+    base)
+        sub="${1:-doctor}"
+        bash "$ROOT/scripts/install/system/base_profile.sh" "$sub"
+        ;;
+    session)
+        sub="${1:-doctor}"
+        case "$sub" in
+            doctor|status|check) df_session_doctor ;;
+            prefer-kde|kde|plasma) df_session_prefer_kde ;;
+            prefer-gnome|gnome) df_session_prefer_gnome ;;
+            emergency|openbox|minimal) df_session_ensure_emergency ;;
+            enable-sddm) df_session_enable_dm sddm ;;
+            enable-gdm) df_session_enable_dm gdm ;;
+            enable-lightdm) df_session_enable_dm lightdm ;;
+            *)
+                echo "session: doctor | prefer-kde | prefer-gnome | emergency" >&2
+                exit 1
+                ;;
+        esac
+        ;;
+    adb|adbman)
+        # shellcheck source=/dev/null
+        . "$ROOT/core/managers/adbman/core/adbman.sh"
+        adbman "$@"
+        ;;
+    version|versions|versionman|vm)
+        # shellcheck source=/dev/null
+        . "$ROOT/core/managers/versionman/core/versionman.sh"
+        versionman "$@"
+        ;;
+    games|jeux)
+        bash "$ROOT/scripts/install/games/games_cli.sh" "$@"
+        ;;
+    perso)
+        sub="${1:-status}"
+        case "$sub" in
+            status|git|audit)
+                bash "$ROOT/scripts/sync/perso_git_status.sh"
+                ;;
+            backup|snapshot)
+                bash "$ROOT/scripts/sync/perso_backup_home.sh"
+                ;;
+            *)
+                echo "perso: status | backup" >&2
+                exit 1
+                ;;
+        esac
+        ;;
+    shims)
+        sub="${1:-help}"
+        case "$sub" in
+            install|apply) _cmd_shims_install ;;
+            *) echo "Usage: dotfiles shims install" >&2; exit 1 ;;
+        esac
+        ;;
+    preflight)
+        bash "$ROOT/scripts/bootstrap/preflight.sh" --check
+        ;;
+    update|sync|pull)
+        sub="${1:-pull}"
+        case "$sub" in
+            ""|pull|full|status)
+                [ -z "${1:-}" ] && sub=pull
+                bash "$ROOT/scripts/sync/dotfiles_update.sh" "$sub"
+                ;;
+            track)
+                shift || true
+                bash "$ROOT/scripts/sync/dotfiles_update.sh" track "${1:-main}"
+                ;;
+            enable|install|on)
+                DOTFILES_SYNC_MODE="${DOTFILES_SYNC_MODE:-pull}" \
+                    bash "$ROOT/scripts/sync/install_auto_sync.sh"
+                ;;
+            disable|off|uninstall)
+                if command -v systemctl >/dev/null 2>&1; then
+                    systemctl --user disable --now dotfiles-sync.timer 2>/dev/null || true
+                    echo "Timer désactivé. Hook login: export DOTFILES_AUTO_UPDATE=0"
+                fi
+                ;;
+            now)
+                bash "$ROOT/scripts/sync/dotfiles_update.sh" pull
+                ;;
+            *)
+                echo "update: pull|full|status|enable|disable|track" >&2
+                exit 1
+                ;;
+        esac
+        ;;
+    *)
+        echo "Commande inconnue: $cmd" >&2
+        _usage
+        exit 1
+        ;;
+esac

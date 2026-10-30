@@ -6,6 +6,10 @@ updatable_tools_registry() {
 }
 
 updatable_tools_load_installman_utils() {
+    case "${ZSH_VERSION:+zsh}${BASH_VERSION:+bash}" in
+        zsh|bash) ;;
+        *) return 0 ;;
+    esac
     _ut_df="${DOTFILES_DIR:-$HOME/dotfiles}"
     _ut_utils="$_ut_df/zsh/functions/installman/utils"
     [ -f "$_ut_utils/check_installed.sh" ] && . "$_ut_utils/check_installed.sh" 2>/dev/null || true
@@ -58,15 +62,26 @@ updatable_tool_check_installed() {
 updatable_tool_timer_state() {
     _ut_line="$(updatable_tool_find "$1")"
     _ut_timer="$(updatable_tool_field "$_ut_line" 3)"
-    [ -n "$_ut_timer" ] && [ "$_ut_timer" != "-" ] || { printf '%s\n' "-"; return 0; }
+    [ -n "$_ut_timer" ] && [ "$_ut_timer" != "-" ] || { printf '%s' "-"; return 0; }
     if command -v systemctl >/dev/null 2>&1; then
-        systemctl --user is-active "$_ut_timer" 2>/dev/null || printf '%s\n' "inactive"
+        _ut_state="$(systemctl --user is-active "$_ut_timer" 2>/dev/null)" || _ut_state="inactive"
+        case "$_ut_state" in
+            active|inactive|failed|activating|deactivating) ;;
+            *) _ut_state="inactive" ;;
+        esac
+        printf '%s' "$_ut_state"
     else
-        printf '%s\n' "n/a"
+        printf '%s' "n/a"
     fi
 }
 
 updatable_tool_auto_service_enabled() {
     _ut_line="$(updatable_tool_find "$1")"
     [ "$(updatable_tool_field "$_ut_line" 4)" = "1" ]
+}
+
+updatable_tool_update_kind() {
+    _ut_line="$(updatable_tool_find "$1")"
+    _ut_kind="$(updatable_tool_field "$_ut_line" 5)"
+    [ -n "$_ut_kind" ] && [ "$_ut_kind" != "-" ] && printf '%s' "$_ut_kind" || printf '%s' "unknown"
 }

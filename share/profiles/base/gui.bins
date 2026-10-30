@@ -1,0 +1,3 @@
+# Uniquement si profil desktop / GUI (pas DOTFILES_HEADLESS=1)
+xclip
+wl-clipboard

@@ -34,6 +34,11 @@ elif [ -n "$BASH_VERSION" ]; then
         # Les alias simples devraient fonctionner
         source "$HOME/dotfiles/zsh/aliases.zsh" 2>/dev/null || true
     fi
+    # Auto-update dépôt (pull silencieux)
+    if [ -f "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" ]; then
+        # shellcheck source=/dev/null
+        source "$HOME/dotfiles/shared/dotfiles_autoupdate.sh" 2>/dev/null || true
+    fi
     # Afficher un message
     echo "ℹ️  Configuration Bash chargée (mode unifié avec Zsh)"
 fi
@@ -42,3 +47,11 @@ fi
 export PATH="$PATH:/home/pactivisme/.lmstudio/bin"
 # End of LM Studio CLI section
 
+
+# pnpm
+export PNPM_HOME="/home/pactivisme/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME/bin:"*) ;;
+  *) export PATH="$PNPM_HOME/bin:$PATH" ;;
+esac
+# pnpm end

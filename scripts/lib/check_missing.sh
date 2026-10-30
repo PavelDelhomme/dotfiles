@@ -37,30 +37,47 @@ detect_missing_components() {
     
     log_section "Détection des composants manquants"
     
-    # Paquets de base
+    # Paquets de base (profil share/profiles/base)
     log_info "Vérification paquets de base..."
-    check_and_add "command" "git" "command -v git" "install_base_packages"
-    check_and_add "command" "curl" "command -v curl" "install_base_packages"
-    check_and_add "command" "wget" "command -v wget" "install_base_packages"
-    check_and_add "command" "make" "command -v make" "install_base_packages"
-    check_and_add "command" "gcc" "command -v gcc" "install_base_packages"
-    check_and_add "command" "zsh" "command -v zsh" "install_base_packages"
+    for _b in git curl wget make gcc zsh btop jq dig ssh zip unzip tar man; do
+        check_and_add "command" "$_b" "command -v $_b" "install_base_packages"
+    done
+    # Optionnels utiles (soft)
     check_and_add "command" "btop" "command -v btop" "install_base_packages"
+    check_and_add "command" "unrar" "command -v unrar" "install_base_packages"
+    check_and_add "command" "hwinfo" "command -v hwinfo" "install_base_packages"
+    check_and_add "command" "fastfetch" "command -v fastfetch" "install_base_packages"
     check_and_add "command" "powerlevel10k" "[ -f /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme ] || [ -f \"\$HOME/.oh-my-zsh/custom/themes/powerlevel10k/powerlevel10k.zsh-theme\" ] || [ -f /usr/share/zsh/manjaro-zsh-prompt ]" "install_powerlevel10k"
-    check_and_add "command" "MesloLGS NF / Nerd Font" "command -v fc-match >/dev/null 2>&1 && fc-match 'MesloLGS NF' 2>/dev/null | grep -qi meslo" "install_nerd_fonts"
-    
-    # Gestionnaires de paquets (Arch seulement)
+    if [ "${DOTFILES_HEADLESS:-0}" != "1" ] && [ "${DOTFILES_BASE_PROFILE:-desktop}" != "headless" ]; then
+        check_and_add "command" "MesloLGS NF / Nerd Font" "command -v fc-match >/dev/null 2>&1 && fc-match 'MesloLGS NF' 2>/dev/null | grep -qi meslo" "install_nerd_fonts"
+    fi
+
+    # Gestionnaires de paquets (toutes distros)
+    log_info "Vérification gestionnaires de paquets..."
     if [ -f /etc/arch-release ]; then
-        log_info "Vérification gestionnaires de paquets..."
-        check_and_add "command" "yay" "command -v yay" "install_yay"
-        check_and_add "service" "snapd" "systemctl is-enabled snapd.socket" "install_package_managers"
+        case "${DOTFILES_AUR_HELPER:-yay}" in
+            none) ;;
+            paru) check_and_add "command" "paru" "command -v paru" "install_package_managers" ;;
+            both)
+                check_and_add "command" "yay" "command -v yay" "install_package_managers"
+                check_and_add "command" "paru" "command -v paru" "install_package_managers"
+                ;;
+            *) check_and_add "command" "yay" "command -v yay" "install_package_managers" ;;
+        esac
+    fi
+    if [ "${DOTFILES_WANT_SNAP:-1}" = "1" ]; then
+        check_and_add "command" "snap" "command -v snap" "install_package_managers"
+    fi
+    if [ "${DOTFILES_WANT_FLATPAK:-1}" = "1" ]; then
         check_and_add "command" "flatpak" "command -v flatpak" "install_package_managers"
     fi
-    
-    # Applications
-    log_info "Vérification applications..."
-    check_and_add "command" "cursor" "command -v cursor || [ -f /opt/cursor.appimage ] || [ -f \$HOME/.local/bin/cursor ]" "install_cursor"
-    check_and_add "command" "brave" "command -v brave || command -v brave-browser" "install_brave"
+
+    # Applications (skip en headless)
+    if [ "${DOTFILES_HEADLESS:-0}" != "1" ] && [ "${DOTFILES_BASE_PROFILE:-desktop}" != "headless" ]; then
+        log_info "Vérification applications..."
+        check_and_add "command" "cursor" "command -v cursor || [ -f /opt/cursor.appimage ] || [ -f \$HOME/.local/bin/cursor ]" "install_cursor"
+        check_and_add "command" "brave" "command -v brave || command -v brave-browser" "install_brave"
+    fi
     
     # Outils de développement
     log_info "Vérification outils de développement..."

@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Stoat AppImage updater daily
+
+[Timer]
+OnBootSec=12min
+OnUnitActiveSec=1d
+Persistent=true
+Unit=stoat-update.service
+
+[Install]
+WantedBy=timers.target

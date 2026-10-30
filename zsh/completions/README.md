@@ -1,26 +1,40 @@
-# Complétions Zsh (dotfiles)
+# Complétions Zsh / Bash / Fish (dotfiles)
 
-Ce répertoire est ajouté au `fpath` dans `zshrc_custom` pour fournir des complétions personnalisées.
+## Zsh (`zsh/completions/`)
 
-## Contenu
+Ajouté au `fpath` dans `zshrc_custom` **avant** `compinit`.
 
-- **`_make`** : complétion des **cibles Makefile** pour `make` et `gmake`.  
-  En projet (répertoire contenant un Makefile), `make <TAB>` propose les cibles.
+| Fichier | Rôle |
+|---------|------|
+| `_make` | Cibles Makefile |
+| `_dfm` | Menus `share/menus/*.menu` |
+| **`_dotfiles_mans`** | Sous-commandes de tous les `*man` (+ `dfm`) |
 
-## Chargement
+Données : [`share/completions/mans.conf`](../../share/completions/mans.conf).
 
-Après `make install` (bootstrap) ou mise en place des symlinks, le shell charge `~/.zshrc` → `shared/config.sh` → `zsh/zshrc_custom`.  
-`zshrc_custom` ajoute `$DOTFILES_DIR/zsh/completions` au `fpath` puis lance `compinit`.  
-Aucune action supplémentaire : les complétions sont actives dès l’ouverture d’un nouveau zsh.
+Recharger après ajout : `rm -f "${ZSH_COMPDUMP:-$HOME/.cache/zsh/zcompdump-*}" && exec zsh`  
+Puis : `netman <Tab>` → `dig`, `lookup`, …
 
-## Ajouter une complétion
+## Bash (`bash/completions/`)
 
-1. Créer un fichier `_commande` dans ce répertoire.
-2. Première ligne : `#compdef commande` (ou `#compdef cmd1 cmd2`).
-3. Implémenter la fonction de complétion (ex. `compadd`, `_describe`, etc.).
-4. Recharger : `exec zsh` ou `compinit` pour prendre en compte un nouveau fichier.
+Sourcé depuis `bash/bashrc_custom` :
 
-## Référence
+- `dotfiles_mans.sh` — `complete -F` pour chaque entrée de `mans.conf`
 
-- [Zsh Completion System](https://zsh.sourceforge.io/Doc/Release/Completion-System.html)
-- Complétions supplémentaires : `~/.zsh/zsh-completions/src` (installé via scripts/config/install_zsh_plugins.sh).
+## Fish (`fish/completions/`)
+
+Sourcé depuis `fish/config_custom.fish` :
+
+- `dotfiles_mans.fish` — `complete -c` par manager
+
+Optionnel : symlink vers `~/.config/fish/completions/dotfiles_mans.fish` si tu n’utilises pas `config_custom.fish`.
+
+## sh (POSIX)
+
+Pas de système de complétion standard. Utiliser bash/zsh/fish, ou `netman help` / `helpman <man>`.
+
+## Ajouter / mettre à jour des sous-commandes
+
+1. Éditer **`share/completions/mans.conf`** : `commande:sous1 sous2 …`
+2. Recharger le shell (zsh : invalider le dump compinit).
+3. Pas besoin de retoucher les scripts zsh/bash/fish (ils lisent le conf).

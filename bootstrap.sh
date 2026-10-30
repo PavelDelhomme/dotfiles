@@ -66,6 +66,32 @@ DOTFILES_REPO="${GITHUB_REPO_URL:-https://github.com/PavelDelhomme/dotfiles.git}
 
 log_section "Bootstrap Installation - Dotfiles"
 
+################################################################################
+# 0. PREFLIGHT — état existant + plan (sauf si DOTFILES_SKIP_PREFLIGHT=1)
+################################################################################
+_PREFLIGHT="${DOTFILES_DIR}/scripts/bootstrap/preflight.sh"
+if [ "${DOTFILES_SKIP_PREFLIGHT:-0}" != "1" ] && [ -f "$_PREFLIGHT" ]; then
+    bash "$_PREFLIGHT" --plan bootstrap --gate || {
+        log_warn "Bootstrap annulé après preflight."
+        exit 1
+    }
+elif [ "${DOTFILES_SKIP_PREFLIGHT:-0}" != "1" ] && [ ! -f "$_PREFLIGHT" ]; then
+    # Dépôt pas encore cloné : mini-garde locale
+    if [ -d "$DOTFILES_DIR" ] || [ -L "$HOME/.zshrc" ] || [ -f "$HOME/.bashrc" ]; then
+        echo ""
+        log_warn "Traces possibles d'une config shell / dossier $DOTFILES_DIR déjà présents."
+        log_warn "Après clonage, préférez: cd ~/dotfiles && make init status|plan|install"
+        if [ -t 0 ] && [ -t 1 ]; then
+            printf "Continuer le bootstrap quand même? (tapez 'OUI'): "
+            read -r _pf_ans </dev/tty 2>/dev/null || read -r _pf_ans
+            if [ "$_pf_ans" != "OUI" ]; then
+                log_warn "Bootstrap annulé."
+                exit 1
+            fi
+        fi
+    fi
+fi
+
 # Créer le fichier .env depuis .env.example si nécessaire (après le clonage)
 # Cette partie sera exécutée plus tard dans le script
 
@@ -860,6 +886,57 @@ log_section "Installation des dotfiles"
         
         # Passer le shell sélectionné à setup.sh via variable d'environnement
         export SELECTED_SHELL_FOR_SETUP
+
+        # Profil de base multi-distro (outils minimum) — optionnel / auto
+        if [ -f "$DOTFILES_DIR/scripts/install/system/base_profile.sh" ]; then
+            if [ "${DOTFILES_AUTO_BASE:-0}" = "1" ]; then
+                log_info "DOTFILES_AUTO_BASE=1 → installation du profil de base…"
+                bash "$DOTFILES_DIR/scripts/install/system/base_profile.sh" install || log_warn "Profil de base : erreurs non bloquantes"
+            elif [ -t 0 ] && [ -t 1 ]; then
+                echo ""
+                log_info "Installer le profil de base maintenant ? (git/zsh/btop/dig/zip/flatpak/…)"
+                printf "  [O]ui / [n]on / [d]octor seulement (défaut O): "
+                read -r _bp_ans || _bp_ans=O
+                case "${_bp_ans:-O}" in
+                    n|N|non|Non) log_skip "Profil de base reporté (make base plus tard)" ;;
+                    d|D|doctor)
+                        bash "$DOTFILES_DIR/scripts/install/system/base_profile.sh" doctor || true
+                        ;;
+                    *)
+                        bash "$DOTFILES_DIR/scripts/install/system/base_profile.sh" install || log_warn "Profil de base : erreurs non bloquantes"
+                        ;;
+                esac
+            fi
+        fi
+
+        # Sync auto du dépôt (timer + hook login) — recommandé multi-machine
+        if [ -f "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" ]; then
+            if [ "${DOTFILES_AUTO_SYNC:-1}" = "1" ]; then
+                if [ "${DOTFILES_AUTO_SYNC_FORCE:-0}" = "1" ] || { [ -t 0 ] && [ -t 1 ]; }; then
+                    if [ "${DOTFILES_AUTO_SYNC_FORCE:-0}" = "1" ]; then
+                        _sync_ans=O
+                    else
+                        echo ""
+                        log_info "Activer la mise à jour auto du dépôt ? (pull horaire + à chaque login)"
+                        printf "  [O]ui / [n]on / [f]ull=aussi push auto (défaut O): "
+                        read -r _sync_ans || _sync_ans=O
+                    fi
+                    case "${_sync_ans:-O}" in
+                        n|N|non) log_skip "Sync auto reportée (dotfiles update enable plus tard)" ;;
+                        f|F|full)
+                            DOTFILES_SYNC_MODE=full bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" \
+                                || log_warn "Sync auto : erreurs non bloquantes"
+                            ;;
+                        *)
+                            bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" \
+                                || log_warn "Sync auto : erreurs non bloquantes"
+                            ;;
+                    esac
+                else
+                    bash "$DOTFILES_DIR/scripts/sync/install_auto_sync.sh" || true
+                fi
+            fi
+        fi
         
         # Lancer directement setup.sh
         bash "$DOTFILES_DIR/scripts/setup.sh"

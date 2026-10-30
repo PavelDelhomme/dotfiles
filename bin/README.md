@@ -1,5 +1,23 @@
 # bin/ - Exécutables dotfiles
 
+## dotfiles
+
+CLI **portable** (bash) : doctor / base / session / shims — fonctionne depuis `~/`,
+en root, sans sourcer zsh/fish.
+
+```bash
+~/dotfiles/bin/dotfiles doctor
+~/dotfiles/bin/dotfiles base install
+~/dotfiles/bin/dotfiles session prefer-kde
+~/dotfiles/bin/dotfiles shims install   # → ~/.local/bin/{dotfiles,netman,…}
+~/dotfiles/bin/dotfiles update enable  # sync auto multi-machine
+# ensuite depuis n'importe quel shell :
+dotfiles doctor
+dotfiles update
+```
+
+Fresh OS (CLI only) : `dotfiles mincheck` puis bootstrap / `base install` / `update enable`.
+
 ## dotfiles-menu
 
 Menu générique basé sur **fzf** (cross-shell). Lit des lignes `label|command`, affiche un menu, imprime la commande sélectionnée.
@@ -53,6 +71,18 @@ alias dfmenu='dotfiles_menu_run'
 - `--no-fzf` : menu numéroté paginé si fzf absent.
 - Cote helper shell : `dfm --list` liste les menus declaratifs disponibles.
 - Variables : `DOTFILES_MENU_FZF_HEIGHT=90%` ajuste la hauteur fzf ; `DOTFILES_MENU_PAUSE_AFTER_ACTION=0` désactive la pause après action dans `dfm`.
+
+## handbrake
+
+Le paquet Linux installe la GUI sous le nom interne GTK **`ghb`** (`/usr/bin/ghb`) : on ne le remplace **pas**. Les shells exposent `handbrake` via un **alias** (`[ -x /usr/bin/ghb ]`), sans ajouter `~/dotfiles/bin` au PATH.
+
+```bash
+handbrake            # alias → /usr/bin/ghb
+HandBrakeCLI …       # CLI
+installman handbrake # installe le paquet + mini-wrapper ~/.local/bin/handbrake
+```
+
+`bin/handbrake` est un `exec /usr/bin/ghb` optionnel (appel par chemin, pas au login).
 
 ## ncmenu
 

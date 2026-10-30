@@ -2,23 +2,28 @@
 
 > **Rôle de ce fichier** : version, **objectifs en cours**, **journal récent**. Il n’y a **ni backlog complet** (→ [`TODOS.md`](TODOS.md)) **ni procédure de test** (→ [`docs/TESTS.md`](docs/TESTS.md)) **ni incidents** (→ [`docs/ERRORS.md`](docs/ERRORS.md)). Pour s’orienter dans la doc : [`docs/INDEX.md`](docs/INDEX.md).
 
-**Dernière mise à jour** : 2026-06-12
+**Dernière mise à jour** : 2026-08-17
 
 ## En bref
 
-- **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`. **diffman** : diffs colorés / rapports ; **diskman** : diagnostic disque et nettoyage prudent (`clean --dry-run` par défaut).
-- **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1` (**netman**, **aliaman**, **cyberlearn**) ; mode prudent `DOTFILES_DOTCLI_MENU_NO_TUI=1` ou `dotcli menu --no-tui`.
-- **updateman** : registre partage avec **installman** (`updatable-tools.list`) ; `updateman status` / `updateman all` ; `installman cursor` active le timer via `updateman cursor enable` ; pas de commande publique `update-cursor-appimage`.
-- **UX terminal / menus** : P3b est separe en **P3b-a** (restructuration UI/menus : `shared/` vs `share/`, adapters minces, selection commune `manager_ui_select_file`, `dfm` declaratif avec fallback pagine + pause apres action) puis **P3b-b** (adaptatif pur). Docs : [`docs/architecture/UI_MENU_RESTRUCTURE.md`](docs/architecture/UI_MENU_RESTRUCTURE.md), [`core/managers/MANAGERS_UI.md`](core/managers/MANAGERS_UI.md), [`share/menus/README.md`](share/menus/README.md).
-- **CI** : `make test` / `make test-docker` (managers + smoke menus `0/q` + matrice sous-commandes) ; rapports sous `TEST_RESULTS_DIR` inscriptible dans le conteneur. Dernière passe 2026-06-12 : managers **81/81 OK** (**412 tests**), `menu_quit_smoke OK`, matrice sous-commandes **114 exécutions / 0 échec** après exclusion de `displayman detect` (matériel DDC réel).
-
+- **`dockerman`** : aide et vue Docker (`cheat` / `search` / `explain` / `ps` / prune dry-run). Catalogue `manman` icône `[O]` après virtman. Page [`docs/man/dockerman.md`](docs/man/dockerman.md).
+- **Init / preflight** : `make init help` · `make init status|plan|install|tests` · `make preflight` — plan + confirmation `OUI` avant install/bootstrap. Aide Make courte : `make help` ; catalogue : `make help-all`.
+- **Branches Git** : `main` = production ; `dev` = intégration ; flux `feat/` → `dev` → `test/` → `fix/` → `preprod` → `main`. **Ne plus supprimer** les branches après merge (archivage / traçabilité). Détail : [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
+- **Tests manuels** : passe **A→I** documentée dans [`docs/TESTS.md`](docs/TESTS.md) — **G.0→G.28**, **H.1–H.3**, **I.1–I.2** ; `make tests-copy` / `make tests-smoke-manager`.
+- **Lot 2026-07-22 (suite)** : **`shellman`** (session/user/system) ; **manman** reordonne (helpman #1, icones ASCII, pagination) ; plan racine [`docs/architecture/ROOT_LAYOUT.md`](docs/architecture/ROOT_LAYOUT.md) ; wrappers scripts racine.
+- **Lot 2026-07-22** : **`anonyman`** (Tor/I2P/proxies) ; `installman icecat` ; `configman i2p` ; `netman tor|i2p` ; vision [`docs/projects/wheregoesmydatas.md`](docs/projects/wheregoesmydatas.md) + matrice Kali [`docs/managers/CYBERMAN_KALI_MATRIX.md`](docs/managers/CYBERMAN_KALI_MATRIX.md). Activation hôte **après validation** (tests Docker d’abord).
+- **updateman / installman** : `core/lib/distro.sh` + `pkg_backend.sh` ; registre cursor/docker/brave/i2p/icecat ; smoke `make test-updateman-registry-smoke`.
+- **Vision E2E multi-OS** : cadrage P11/P12 — [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md).
+- **Architecture** : managers sous `core/managers/<nom>/` + adapters `shells/{zsh,bash,fish}/adapters/` ; tests Docker par défaut sur la liste `scripts/test/config/migrated_managers.list`.
+- **Socle `dotcli`** : C dans `tools/dotcli/` ; `make build-dotcli` / `make test-dotcli` ; menus pilotés derrière `DOTFILES_DOTCLI_ENABLE=1`.
+- **CI** : `make test` / `make test-docker` ; smoke updateman registry + system.
 ## Objectifs actuels (priorité) — reprise prévue plus tard
 
 1. **Prompt root / sudo Powerlevel10k (immédiat)** : procédure livrée via `configman p10k root --dry-run|--apply` avec backup `/root`, symlink `.p10k-root.zsh`, couleurs root rouge/orange et vérifications Powerlevel10k / Nerd Fonts. Reste : exécuter `--apply` en réel puis ouvrir `sudo zsh` pour validation visuelle.
 2. **P3b-b (suite)** : `tui_truncate`, pagination menus longs, validation manuelle terminaux étroits (EXT-002) ; vérifier les managers non encore alignés (cyberman, installman, etc.).
 3. **`updateman`** : validation manuelle `status` / `all` / timer (V-2026-05-22-updateman-cursor).
 4. **P1** : adapters minces, menus `dotcli` ; **P8b** / **P8c** : `updateman dotfiles`, registre outils.
-5. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — **F.7 complété** (smoke `make test-dotcli-f7`) ; reprendre côté utilisateur au tableau **G.1–G.26** ; côté automatique, rejouer **E.4** (`make test-docker`, Phase 2b menus) avant chaque lot UI/manager.
+5. **Tests** : [`docs/TESTS.md`](docs/TESTS.md) — **A→I** validés *(2026-06-16)* ; suite **P11** CI multi-distro, **P5** modules installman par outil.
 6. Jalon de validation [`TODOS.md`](TODOS.md) avant bascule structurelle majeure.
 
 ## Où lire la suite
@@ -33,13 +38,23 @@
 | **Tests manuels** (checklist) | [`docs/TESTS.md`](docs/TESTS.md) |
 | **Erreurs / correctifs** | [`docs/ERRORS.md`](docs/ERRORS.md) |
 | **Carte technique** (arborescence) | [`docs/STRUCTURE.md`](docs/STRUCTURE.md) |
-| Bac à sable Docker | [`scripts/test/SANDBOX.md`](scripts/test/SANDBOX.md) |
+| **Branche Git / flux** | [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md) |
+| **Vision E2E / multi-OS** | [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md) |
 
 ---
 
 ## Journal récent (suivi détaillé)
 
-1. **Livraison 2026-06-12** — lot **« prompt root Powerlevel10k »** :
+0. **Livraison 2026-06-16** — lot **« TESTS A→I + updateman multi-distro + installman pkg_backend »** :
+   - **`updateman system`** : `core/lib/distro.sh`, `pkg_backend.sh` ; `updateman all` = système + registre ; smoke Docker `make test-updateman-system-smoke` (arch/debian/ubuntu/alpine/fedora/opensuse/centos × bash/zsh/fish).
+   - **TESTS.md** : **G.1–G.27**, **H.1–H.3**, **I.1–I.2** ; fix **`fi` orphelins** (gitman, devman, virtman, testman, testzshman, multimediaman).
+   - **installman** : `detect_distro` / `upgrade auto` / `detect_package_managers` délèguent à `core/lib/` quand disponible.
+   - **Merge** : `feat/manual-tests-g0` → **`dev`**.
+1. **Livraison 2026-06-16** — lot **« tests manuels G.0 + outillage copie + branches »** :
+   - **TESTS.md** : G.0, G.0.b, G.0.c documentés ; aide `make tests-copy` / `scripts/tools/tests_copy.sh` (bloc complet ou ligne).
+   - **Branches** : convention `feat/` / `test/` / `fix/` / `preprod` ; règle **ne plus supprimer** les branches fusionnées — [`docs/architecture/GIT_BRANCHING.md`](docs/architecture/GIT_BRANCHING.md).
+   - **Vision E2E** : familles de tests + roadmap multi-distro/VM — [`docs/architecture/E2E_TESTING_VISION.md`](docs/architecture/E2E_TESTING_VISION.md).
+2. **Livraison 2026-06-12** — lot **« prompt root Powerlevel10k »** :
    - **Commande** : `configman p10k root --dry-run` prévisualise ; `configman p10k root --apply` applique avec confirmation et backup horodaté.
    - **Fichiers** : [`.p10k-root.zsh`](.p10k-root.zsh) reprend le layout utilisateur puis force couleurs root ; [`scripts/config/setup_root_prompt.sh`](scripts/config/setup_root_prompt.sh) gère `/root/.zshrc`, `/root/.p10k.zsh`, `/root/dotfiles` et les prérequis.
 2. **Livraison 2026-06-12** — lot **« tests Docker menus / intégration future »** :
@@ -88,6 +103,7 @@
 
 | Période | Sujet |
 |---------|--------|
+| 2026-08-17 | **dockerman** (aide/vue Docker, cheat, prune dry-run) |
 | 2026-06-12 | **diskman** (diagnostic disque, nettoyage dry-run/apply, rapport) |
 | 2026-05-22 | **updateman cursor/status/all** (Cursor AppImage + timer systemd user) ; P3b/P8b/P8c planifies |
 | 2026-05-15 | **diffman** (diff coloré, rapports) + doc INDEX / ARCHITECTURE / TODOS |

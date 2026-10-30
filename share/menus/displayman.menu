@@ -1,6 +1,9 @@
 # displayman - Menu dotfiles-menu (label|command)
 # Utilisation: dfm displayman
 Detecter ecrans|displayman detect
+Layout multi-ecrans|displayman layout
+Doctor hotplug Philips DP|displayman doctor
+Fix layout (soft-replug DP)|displayman fix
 Dump VCP ecran 1|displayman dump 1
 Diagnostic Full/Limited range|displayman range
 Guide OSD physique|displayman osd-guide

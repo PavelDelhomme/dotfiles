@@ -1,0 +1,3 @@
+#!/bin/sh
+# Optionnel : appel par chemin. Les shells utilisent l'alias handbrake → /usr/bin/ghb.
+exec /usr/bin/ghb "$@"

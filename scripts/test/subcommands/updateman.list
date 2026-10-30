@@ -1,6 +1,17 @@
 help
 status
+system help
+system status
+system pending
 arch help
 arch fix-cache
 arch clean-hints
 cursor help
+cursor check
+cursor status
+docker status
+docker check
+docker install
+brave status
+brave check
+brave install

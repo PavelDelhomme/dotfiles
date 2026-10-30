@@ -441,11 +441,63 @@ check_ssh_configured() {
     return 1
 }
 
+# DESC: Vérifie si CGoban (KGS) est installé dans /opt
+# USAGE: check_cgoban_installed
+check_cgoban_installed() {
+    _check_paths /opt/cgoban.jar && { echo "installed"; return 0; }
+    _check_desktop_pattern "cgoban" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Noita est installé
+check_noita_installed() {
+    _check_paths /opt/Noita/start.sh "$HOME/.local/bin/noita" && { echo "installed"; return 0; }
+    _check_desktop_pattern "Noita" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Terraria (GOG) est installé
+check_terraria_installed() {
+    _check_paths "$HOME/GOG Games/Terraria/start.sh" "$HOME/.local/bin/terraria" && { echo "installed"; return 0; }
+    _check_desktop_pattern "Terraria" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Project Zomboid est configurable/lancable
+check_zomboid_installed() {
+    _check_paths "$HOME/.local/bin/zomboid" && { echo "installed"; return 0; }
+    if [ -f "$HOME/Jeux/ProjectZomboid/ProjectZomboid64.exe" ] \
+        || [ -f /data/jeux/ProjectZomboid/ProjectZomboid64.exe ]; then
+        echo "installed"; return 0
+    fi
+    _check_desktop_pattern "Zomboid" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Stoat (AppImage) est installé
+# USAGE: check_stoat_installed
+check_stoat_installed() {
+    _check_paths \
+        "$HOME/Applications/Stoat.AppImage" \
+        "$HOME/.local/bin/stoat" \
+        "$HOME/.local/bin/stoatchat" && { echo "installed"; return 0; }
+    for f in "$HOME/Applications"/Stoat*.AppImage; do
+        [ -f "$f" ] && { echo "installed"; return 0; }
+    done
+    _check_desktop_pattern "stoat" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si HandBrake est installé (CLI, GUI, toute distro: ghb, HandBrakeCLI, flatpak, .desktop)
 # USAGE: check_handbrake_installed
 check_handbrake_installed() {
-    _check_binaries HandBrakeCLI HandBrake handbrake handbrake-cli ghb && { echo "installed"; return 0; }
-    _check_paths /usr/bin/HandBrakeCLI /usr/bin/handbrake /usr/bin/ghb /usr/bin/HandBrake && { echo "installed"; return 0; }
+    _check_binaries HandBrakeCLI HandBrake handbrake-cli ghb && { echo "installed"; return 0; }
+    _check_paths /usr/bin/HandBrakeCLI /usr/bin/ghb /usr/bin/HandBrake && { echo "installed"; return 0; }
     _check_desktop_pattern "handbrake" && { echo "installed"; return 0; }
     _check_desktop_pattern "ghb" && { echo "installed"; return 0; }
     _check_package handbrake handbrake-cli HandBrake-cli fr.handbrake.ghb org.handbrake.HandBrake && { echo "installed"; return 0; }
@@ -629,6 +681,20 @@ check_i2p_installed() {
     return 1
 }
 
+# DESC: GNU IceCat (ou iceweasel legacy)
+# USAGE: check_icecat_installed
+check_icecat_installed() {
+    _check_binaries icecat iceweasel && { echo "installed"; return 0; }
+    _check_paths /usr/bin/icecat /usr/bin/iceweasel && { echo "installed"; return 0; }
+    _check_package icecat icecat-bin iceweasel && { echo "installed"; return 0; }
+    if command -v flatpak &>/dev/null && flatpak list --app 2>/dev/null | grep -qiE 'icecat|org\.gnu\.icecat'; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Pilotes NVIDIA (nvidia-smi ou module noyau)
 # USAGE: check_nvidia_driver_installed
 check_nvidia_driver_installed() {
@@ -676,6 +742,18 @@ check_flatpak_stack_installed() {
 check_pyenv_installed() {
     local root="${PYENV_ROOT:-$HOME/.pyenv}"
     if [[ -x "$root/bin/pyenv" ]] || command -v pyenv &>/dev/null; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Dépôt ~/dotfiles (ou DOTFILES_DIR) présent
+# USAGE: check_dotfiles_installed
+check_dotfiles_installed() {
+    local dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [[ -d "$dir/.git" ]]; then
         echo "installed"
         return 0
     fi

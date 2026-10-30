@@ -97,6 +97,7 @@ load_manager "helpman" "$DOTFILES_DIR/shells/fish/adapters/helpman.fish" "HELPMA
 load_manager "cyberman" "$DOTFILES_DIR/shells/fish/adapters/cyberman.fish" "CYBERMAN"
 load_manager "devman" "$DOTFILES_DIR/shells/fish/adapters/devman.fish" "DEVMAN"
 load_manager "virtman" "$DOTFILES_DIR/shells/fish/adapters/virtman.fish" "VIRTMAN"
+load_manager "dockerman" "$DOTFILES_DIR/shells/fish/adapters/dockerman.fish" "DOCKERMAN"
 load_manager "miscman" "$DOTFILES_DIR/shells/fish/adapters/miscman.fish" "MISCMAN"
 # Managers restants (wrappers temporaires)
 load_manager "netman" "$DOTFILES_DIR/shells/fish/adapters/netman.fish" "NETMAN"
@@ -110,6 +111,9 @@ load_manager "cyberlearn" "$DOTFILES_DIR/shells/fish/adapters/cyberlearn.fish" "
 load_manager "displayman" "$DOTFILES_DIR/shells/fish/adapters/displayman.fish" "DISPLAYMAN"
 load_manager "diffman" "$DOTFILES_DIR/shells/fish/adapters/diffman.fish" "DIFFMAN"
 load_manager "diskman" "$DOTFILES_DIR/shells/fish/adapters/diskman.fish" "DISKMAN"
+load_manager "anonyman" "$DOTFILES_DIR/shells/fish/adapters/anonyman.fish" "ANONYMAN"
+load_manager "shellman" "$DOTFILES_DIR/shells/fish/adapters/shellman.fish" "SHELLMAN"
+load_manager "versionman" "$DOTFILES_DIR/shells/fish/adapters/versionman.fish" "VERSIONMAN"
 
 
 # =============================================================================
@@ -203,6 +207,27 @@ end
 
 function dfmenu -d "Alias long de dfm"
     dfm $argv
+end
+
+# Complétions *man (Tab) — share/completions/mans.conf
+set -l _df_comp "$DOTFILES_PATH/fish/completions/dotfiles_mans.fish"
+if set -q DOTFILES_DIR
+    set _df_comp "$DOTFILES_DIR/fish/completions/dotfiles_mans.fish"
+end
+if test -f $_df_comp
+    source $_df_comp
+end
+
+# Auto-update dépôt (pull background si stamp vieux) — même logique que zsh/bash
+# Désactiver : set -gx DOTFILES_AUTO_UPDATE 0
+if test "$DOTFILES_AUTO_UPDATE" != "0"
+    set -l _df_root $HOME/dotfiles
+    set -q DOTFILES_DIR; and set _df_root $DOTFILES_DIR
+    set -q DOTFILES_PATH; and set _df_root $DOTFILES_PATH
+    set -l _df_hook "$_df_root/shared/dotfiles_autoupdate.sh"
+    if test -f $_df_hook
+        bash -c "source '$_df_hook'" 2>/dev/null &
+    end
 end
 
 #neofetch

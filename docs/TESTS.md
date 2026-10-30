@@ -8,10 +8,35 @@
 
 1. Ouvrir **uniquement** ce fichier et descendre **dans l’ordre** (Bloc A → I).
 2. Pour chaque étape : exécuter la commande, **cocher** `[ ]`, **coller** la sortie utile, choisir **Conforme** `O / N / NA` (sémantique exacte : [`LEGENDE_CHAMPS.md`](LEGENDE_CHAMPS.md) §3). Laisser **`Assistant (relecture)`** vide tant qu’une relecture externe n’a pas été faite.
-3. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
-4. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
-5. **Reprise après évolutions code (managers / aide)** : lire le **journal doc** ci-dessous, exécuter le **préalable Bloc G** (contrôle non-TTY + convention), puis enchaîner le **tableau G.1–G.26** comme d’habitude.
-6. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
+3. **Copier une commande vers le presse-papiers** :
+   - **Dans Cursor / VS Code** : icône **📋** en haut à droite de **chaque** bloc ` ```bash ` (y compris les blocs *une ligne* sous les étapes G.0.x).
+   - **Navigateur (boutons)** : `make tests-preview` → ouvrir `docs/TESTS.preview.html` (bouton *Bloc complet* + boutons *L1…Ln* par ligne).
+   - **CLI** (prérequis : `wl-copy`, `xclip` ou `xsel`) :
+     - Bloc complet : `make tests-copy STEP=G.0.c`
+     - Une ligne : `make tests-copy STEP=G.0.c LINE=4`
+     - Lister les lignes : `bash scripts/tools/tests_copy.sh G.0.c --list`
+     - Menu : `bash scripts/tools/tests_copy.sh G.0.c --pick`
+     - Tableau **G.1–G.26** : `make tests-copy-smoke MANAGER=pathman` puis coller/exécuter
+   - **Arg inconnu `__bogus__`** : le message `commande inconnue` sur **stderr** + **`rc=1`** est **attendu** (convention Bloc G) — ce n’est **pas** un bug.
+4. Menu d’appui (sur l’hôte) : **`make tests-start`** — mêmes blocs (prérequis, `docker-build`, `docker-in`, `test-dotcli`, …). Ne remplace pas ce document : les cases sont **ici**.
+5. **Limite honnête** : couvrir chaque ligne de code dans un seul fichier est **impossible**. Ce guide couvre le **parcours 0 → bac à sable → smoke → `dotcli` → managers**. Le détail automatique est dans `scripts/test/subcommands/*.list` + CI (`make test`). Pour étendre, voir **§ 12 — EXT-xxx**.
+6. **Reprise après évolutions code** : **obligatoire**, pas optionnel. Voir **§ « Rejeu TESTS.md »** ci-dessous. `G.0.i` existe (smoke `dockerman`, après **G.0.h**). Un numéro `G.0.x` dans le journal n’est **pas** une invitation à sauter A→F.
+7. **CI GitHub Actions** (après la passe manuelle A→I ici) : le dépôt inclut un workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur runner Ubuntu). Pour les **secrets e-mail** (erreur `from` / `content_type`), la **roadmap CI complète** (Docker, installation, etc.) et le correctif **`dawidd6/action-send-mail`**, voir **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** et **`TODOS.md`** (P8).
+
+### Rejeu TESTS.md (garde-fou — à chaque lot code)
+
+Ce fichier n’est pas un journal « on a déjà tout validé donc on saute ». C’est la **procédure à rejouer** quand le code, la doc ou une note `N` / partielle a bougé.
+
+| Quand | Quoi rejouer | Comment noter |
+|-------|----------------|---------------|
+| **Nouveau manager / CLI / install** (ex. `dockerman`, lanceur `handbrake`) | 1) Lire le **journal doc** (colonne *Action pour toi*). 2) **Préalable G.0** (liste `MANS` à jour). 3) Le **G.0.x** du lot (ex. **G.0.i**). 4) La ligne tableau (**G.30**, …). 5) Si le lot touche Docker/menus/install : **E.4** / **A** selon le journal. | `Conforme` O/N/NA ; écarts dans **Notes**. |
+| **Étape déjà cochée mais le code a changé** | **Rejouer cette étape** (décocher `[x]` → `[ ]`, nouvelle sortie). Ne pas garder un O périmé. | Dans **Notes** : « rejoué le AAAA-MM-JJ après \<lot\> ». |
+| **Conforme = N** ou **partiel** (le min est OK mais un autre cas devait marcher) | **Bloquant** : corriger le code, puis **rejouer uniquement ces étapes** une par une jusqu’à O (ou NA justifié). | Notes : « partiel : X OK, Y attendu aussi / a fait Z à la place ». Puis ERRORS.md ou EXT-xxx. |
+| **Passe A→I « finie »** | Relire **toutes** les Notes + N + « Assistant (relecture) » contradictoires. Traiter **une étape à la fois**. | Tant qu’il reste un N non corrigé, la passe n’est pas close. |
+
+**Partiel** : la légende n’a que `O / N / NA`. Ne pas inventer `P`. Si le critère **Attendu** est rempli → `O` + Notes « partiel : … devait aussi … ». Si l’Attendu est **contredit** → `N`.
+
+**G.0.i** : étape réelle, section « Étape G.0.i — Smoke dockerman » (après G.0.h). Elle n’apparaît pas comme ligne G.1 du tableau : c’est un **préalable** comme G.0.a–h.
 
 ### Journal doc (reprise `TESTS.md`)
 
@@ -27,7 +52,12 @@
 | **2026-05-13** *(netman + doc)* | **`netman` — Informations IP** : correction de l’affichage des adresses **IPv4 / IPv6** (interfaces vides `:` ou fragment `861:` pris pour un nom d’interface). Désormais : `ip -4 -o addr show` / `ip -6 -o addr show` + `awk` (core POSIX + copie `zsh/functions/netman/core/netman.zsh`). **Nouvelle étape `C.3`** : matrice **zsh / bash / fish / sh** dans le conteneur (même champs que le reste du guide) + lien explicite **jalon B / `DOTFILES_GOOD`** ↔ **E.2** dans la table « Correspondance avec `TODOS.md` ». | Optionnel : remplir **C.3.a–d** ; sinon continuer **F→I**. Refaire une fois le menu **netman → 3** si tu avais noté un affichage cassé. |
 | **2026-05-12** *(suite)* | **Barre de progression** (`core/utils/progress_bar.sh`) rendue **adaptative** : mode `\r` (réécriture de ligne) en TTY interactif, **mode ligne par mise à jour** en non-TTY ou si `DOTFILES_PROGRESS_PLAIN=1`. Plus de réécriture sale du terminal IDE / des logs. **F.6** réécrite : l’ancienne consigne « pipe + TUI » était contradictoire ; remplacée par **F.6.a** (`--no-tui --simulate-index`), **F.6.b** (`--query <label>`) et **F.6.c** *(vrai TUI : observation visuelle facultative, validation principale en F.7)*. | Pas d’action obligatoire ; si tu veux refaire F.6, ce sont maintenant trois petits cas non-TTY scriptables. La barre de progression n’écrasera plus rien dans `tee` / les logs Cursor. |
 | **2026-05-12** *(suite 2)* | **Wrapper `lsblk` colorisé** : `shared/functions/lsblk_color.sh` (POSIX, sourcé via `shared/config.sh` pour sh/bash/zsh) colore la sortie de `lsblk` par TYPE en TTY (gras+cyan `disk`, vert `part`, gris `loop`, jaune `raid`, magenta `crypt`/`lvm`, rouge `rom`/`tape`) et reste **passe-plat hors TTY** (pipe, log) ou sur options machine (`-J/-P/-r/-n/-o/-O/...`). Échappatoires : `NO_COLOR`, `DOTFILES_LSBLK_NOCOLOR=1`. Forçage : `DOTFILES_LSBLK_FORCE_COLOR=1`. | À vérifier visuellement une seule fois : voir **EXT-004** ci-dessous (§ 12). Pas d’étape A–I à refaire. |
-| **2026-05-12** *(suite 3)* | **CI GitHub Actions** : guide **[`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)** (correctif e-mail `content_type` / `EMAIL_FROM`, secrets OVH, job optionnel `if:`) ; workflow **`.github/workflows/ci-checks.yml`** (`make test-checks` sur Ubuntu). La CI « complète » (Docker `make test`, bootstrap, etc.) reste à planifier — voir **`TODOS.md` P8** et **EXT-005** (§ 12). | Après avoir fini la checklist **A→I** ici : lire le guide, configurer les secrets si tu veux l’e-mail, fusionner ou supprimer l’ancien workflow distant qui casse encore si doublon. |
+| **2026-06-16** | **Copie presse-papiers** : `make tests-copy`, blocs **une ligne** sous G.0.x (icône 📋 Cursor), `make tests-preview` (HTML boutons), `make tests-copy-smoke MANAGER=…` pour G.1–G.27. **G.0.c** : sortie dépend de `aliases.zsh` (alias `ls`/`cd` possibles). **G.0.e** : `diffman side` affiche tout le fichier en double colonnes — utiliser `\| head -n 3` dans le smoke. | Préalable **G.0→G.0.f** terminé → tableau **G.1–G.27**. Voir **EXT-008** (re-tests à noter). |
+| **2026-06-16** *(updateman)* | **`updateman system`** multi-distro (`core/lib/distro.sh`, `pkg_backend.sh`) ; **`updateman all`** = refresh/upgrade système + registre ; **`--tools-only`** pour l’ancien comportement. Smoke Docker : `make test-updateman-system-smoke DISTRO=debian` (bash/zsh/fish). | Valider **G.27** ; `updateman system status` sur la machine hôte. |
+| **2026-06-16** *(H→I)* | **Bloc H** validé (H.1 `test-dotcli-f7`, H.2 `NO_TUI`, H.3 filtre `DOTFILES_TEST_MANAGERS`). **Bloc I** bilan session. **installman** délègue `detect_distro` / `upgrade auto` à `core/lib/`. Merge **`feat/manual-tests-g0` → `dev`**. | P5 installman modules outils ; P11 CI multi-distro ; EXT-002/005. |
+| **2026-08-17** | **Nouveau manager `dockerman`** (vue/aide Docker : cheat, search, explain, ps/images lecture, prune dry-run). **G.0** : `MANS` + `dockerman` ; tableau **G.30** ; smoke **G.0.i**. Intégré `manman` (`[O]` après virtman), `helpman`, adapters zsh/bash/fish. | Refaire **G.0**, **G.0.i**, cocher **G.30**. `ps`/`images`/`prune --apply` hors matrice CI (daemon hôte). |
+| **2026-08-17** *(handbrake + rejeu)* | Commande **`handbrake`** (GUI) : alias → `/usr/bin/ghb` (pas de PATH `~/dotfiles/bin`, pas de probe au login). `installman handbrake` + mini-wrapper `~/.local/bin`. **Règle de rejeu** TESTS.md explicitée. | Après ce lot : **G.0** + **G.0.i** + **G.30** ; smoke `handbrake` (alias) / `type handbrake`. Rejouer toute étape **N** encore ouverte. |
+| **2026-08-24** *(deps dig + manager_deps)* | Paquets base multi-distro + **`dig`** ; `manager_deps` soft-check à l’appel *man (pas login) ; validate dig/jq. Stash WIP persist/VM **non** réappliqué. | `bash scripts/install/system/packages_base.sh` ; `netman help` ; validate dig. |
 
 ---
 
@@ -1592,7 +1622,7 @@ Depuis la racine des dotfiles (`cd ~/dotfiles` ou `/root/dotfiles` dans le conte
 cd ~/dotfiles || cd /root/dotfiles
 export DOTFILES_DIR="$PWD"
 # IMPORTANT (zsh) : une seule ligne, sans antislash \ en fin de ligne — sinon $MANS = un seul mot géant → [SKIP] partout
-MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman"
+MANS="gitman miscman cyberman helpman netman installman pathman aliaman routeman processman devman virtman searchman testzshman fileman sshman testman multimediaman cyberlearn manman configman doctorman moduleman displayman diffman diskman updateman anonyman shellman dockerman"
 # 1) Aucun manager ne doit dépasser 3 s sur un argument inconnu (sinon boucle / menu bloquant)
 for m in $MANS; do
   f="core/managers/$m/core/$m.sh"
@@ -1689,26 +1719,48 @@ But : vérifier que les nouvelles commandes directes (`search|find|s`, `list|ls`
   echo "--- find (synonyme) 'cd' ---"
   aliaman find cd </dev/null 2>&1 | head -n 3
   ```
-- **Attendu** : chaque section affiche au moins une ligne (alias ou message explicite « aucun résultat »), **sans** déclencher de menu interactif ni boucle.
-- **[x] Fait** *(2026-06-16)*
+- **Copie presse-papiers** *(Cursor : 📋 sur chaque bloc ; CLI : `make tests-copy STEP=G.0.c LINE=n`)* :
+
+```bash
+cd ~/dotfiles || cd /root/dotfiles
+```
+
+```bash
+. core/managers/aliaman/core/aliaman.sh 2>/dev/null
+```
+
+```bash
+aliaman list </dev/null 2>&1 | head -n 3
+```
+
+```bash
+aliaman search ls </dev/null 2>&1 | head -n 3
+```
+
+```bash
+aliaman find cd </dev/null 2>&1 | head -n 3
+```
+
+- **Attendu** : chaque section affiche au moins une ligne (alias **ou** message « aucun résultat »), **sans** menu interactif ni boucle.
+- **[x] Fait** *(2026-06-16 — hôte Arch, aliases.zsh chargés)*
 - **Sortie** :
 ```
 --- list (3 premières lignes) ---
 📋 Liste complète des alias:
-  msfconsole          sudo msfconsole
-  cls                 clear
-
+  msfconsole           sudo msfconsole
+  cls                  clear
 --- search 'ls' (3 premières lignes) ---
 🔍 Recherche d'alias contenant 'ls':
-❌ Aucun alias trouvé
-
+  cls                  clear
+  ls                   ls -lah --color=auto
 --- find (synonyme) 'cd' ---
 🔍 Recherche d'alias contenant 'cd':
-❌ Aucun alias trouvé
+  make_and_rebuild     rm -rf build && mkdir build && cd build && cmake .. && make
+  rmr                  cd .. && rm -R
 ```
 - **Conforme** : O
-- **Notes** : `list` affiche des alias ; `search`/`find` renvoient un message explicite « aucun alias trouvé » (pas de menu, pas de boucle). Si tu as des alias `ls`/`cd` dans ton `aliases.zsh`, la recherche pourrait lister des lignes — les deux cas sont conformes.
-- **Assistant (relecture)** : **O** — G.0.c OK. Suite : **G.0.d** (`displayman` + DDC réel) ou tableau **G.1–G.26**.
+- **Notes** : La sortie **dépend de ton `aliases.zsh`** : avec alias `ls`/`cd`, la recherche **liste des lignes** (comme ci-dessus) ; sans alias correspondant, message « Aucun alias trouvé » — **les deux cas sont conformes**. L’ancienne sortie doc (tout « aucun résultat ») venait d’un environnement sans ces alias.
+- **Assistant (relecture)** : **O** — G.0.c OK. Suite : **G.0.d**.
 
 ### Étape G.0.d — Smoke `displayman` (DDC en lecture seule, non destructif) *(non-TTY)*
 
@@ -1734,9 +1786,9 @@ But : vérifier que le nouveau manager `displayman` se charge, répond à la con
   displayman osd-guide </dev/null 2>&1 | head -n 5
   if command -v ddcutil >/dev/null 2>&1; then
     echo "--- 6) detect (ddcutil dispo) ---"
-    timeout 30 displayman detect </dev/null 2>&1 | head -n 6
+    timeout 30 bash -c '. core/managers/displayman/core/displayman.sh 2>/dev/null; displayman detect' </dev/null 2>&1 | head -n 6
     echo "--- 7) dump 1 (lecture VCP, ne modifie rien) ---"
-    timeout 60 displayman dump 1 </dev/null 2>&1 | head -n 12
+    timeout 60 bash -c '. core/managers/displayman/core/displayman.sh 2>/dev/null; displayman dump 1' </dev/null 2>&1 | head -n 12
   else
     echo "--- 6/7) ddcutil non installé → skip DDC ---"
   fi
@@ -1749,14 +1801,20 @@ But : vérifier que le nouveau manager `displayman` se charge, répond à la con
   5. Texte `osd-guide` non vide (`Joystick`, `Picture Mode`).
   6. Si `ddcutil` : au moins une ligne `Display 1` ou message d'erreur explicite.
   7. Si `ddcutil` : tableau VCP `[VCP 10] Brightness ...`.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **[x] Fait** *(2026-06-16 — hôte Arch, Mi Monitor HDMI, ddcutil OK)*
+- **Sortie (résumé)** :
 ```
-(coller)
+--- 1) no-args --- OK (aide DISPLAYMAN ≥ 6 lignes)
+--- 2) help --- OK (idem)
+--- 3) arg inconnu --- displayman: commande inconnue: __bogus__ ; rc=1
+--- 4) range --- OK (GPU NVIDIA GA104, session wayland/KDE, texte Full vs Limited)
+--- 5) osd-guide --- OK (Joystick, Picture Mode)
+--- 6) detect --- Display 1 XMI:Mi Monitor | Display 2 PHL 245E1 (DP) | Invalid display HWP HP 2011 (HDMI-A-2) + sorties kscreen-doctor
+--- 7) dump 1 --- VCP 10 Brightness C 100 100, VCP 12 Contrast C 100 100, …
 ```
-- **Conforme** :
-- **Notes** : *(ne **jamais** lancer `displayman reset`, `displayman brightness ... <val>`, `displayman contrast ... <val>` ou `displayman preset ... <val>` dans G.0.d : ces commandes **écrivent** sur le moniteur et sortent du périmètre « smoke non destructif ». Les tester manuellement en TTY si souhaité.)*
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `timeout displayman …` seul **échoue** si `displayman` est une fonction shell — utiliser `timeout bash -c '. …/displayman.sh; displayman …'`. Détection 2026-06-16 : **3 bus DDC** (Mi Monitor HDMI, Philips DP, HP 2011 HDMI-A-2 « Invalid display » — normal si écran éteint ou bus fantôme).
+- **Assistant (relecture)** : **O** — Critères 1–7 remplis sur matériel réel. Suite : **G.0.e** (`diffman`).
 
 ### Étape G.0.e — Smoke `diffman` (compare / side / report, non-TTY)
 
@@ -1769,24 +1827,29 @@ But : vérifier que `diffman` se charge, affiche l’aide, refuse un argument in
   echo "--- 1) help ---"
   diffman help </dev/null 2>&1 | head -n 4
   echo "--- 2) arg inconnu ---"
-  diffman __bogus__ </dev/null 2>&1 || true
+  diffman __bogus__ </dev/null 2>&1
+  echo "rc=$?  (attendu: 1)"
   echo "--- 3) compare (identiques) ---"
   diffman compare README.md README.md </dev/null; echo "rc=$?"
   echo "--- 4) side (identiques) ---"
-  diffman side README.md README.md </dev/null; echo "rc=$?"
+  diffman side README.md README.md </dev/null 2>&1 | head -n 3; echo "rc=$?"
   echo "--- 5) report ---"
   diffman report --out /tmp/diffman_g0e.txt README.md README.md </dev/null
   test -s /tmp/diffman_g0e.txt && echo "rapport OK ($(wc -l </tmp/diffman_g0e.txt) lignes)"
   ```
-- **Attendu** : (1) aide non vide ; (2) stderr « commande inconnue » + `rc=1` ; (3)(4) `rc=0` ; (5) fichier rapport non vide.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **Attendu** : (1) aide non vide ; (2) stderr « commande inconnue » + **`rc=1`** *(volontaire — test de rejet)* ; (3)(4) `rc=0` ; (5) fichier rapport non vide. Étape 4 : **3 lignes max** en smoke (`head -n 3`) — le mode `side` affiche **deux colonnes** (effet « duplicata » normal sur un long fichier).
+- **[x] Fait** *(2026-06-16 — hôte Arch)*
+- **Sortie (résumé)** :
 ```
-(coller)
+--- 1) help --- OK (DIFFMAN — comparaison…)
+--- 2) arg inconnu --- diffman: commande inconnue : __bogus__ ; rc=1  ← attendu (pas un bug)
+--- 3) compare --- rc=0 (README vs README identiques, pas de diff affiché)
+--- 4) side --- rc=0 (2 colonnes ; smoke tronqué head -n 3)
+--- 5) report --- Rapport écrit : /tmp/diffman_g0e.txt ; rapport OK (3 lignes)
 ```
-- **Conforme** :
-- **Notes** :
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : **`__bogus__` + message stderr = succès du test** (convention arg inconnu). **`side`** sur `README.md` produit **tout le fichier en double colonne** si tu oublies `| head` — ce n’est pas un bug diffman. Pager git corrigé (`git --no-pager`). Copie : `make tests-copy STEP=G.0.e`.
+- **Assistant (relecture)** : **O** — G.0.e OK après correctif pager. Suite : **G.0.f** (`diskman`).
 
 ### Étape G.0.f — Smoke `diskman` (diagnostic disque, non destructif) *(non-TTY)*
 
@@ -1799,7 +1862,8 @@ But : vérifier que `diskman` se charge, répond à la convention CLI/help, et q
   echo "--- 1) help ---"
   diskman help </dev/null 2>&1 | head -n 5
   echo "--- 2) arg inconnu ---"
-  diskman __bogus__ </dev/null 2>&1 || true
+  diskman __bogus__ </dev/null 2>&1
+  echo "rc=$?  (attendu: 1)"
   echo "--- 3) overview ---"
   diskman overview </dev/null 2>&1 | head -n 12
   echo "--- 4) usage . 1 ---"
@@ -1813,50 +1877,133 @@ But : vérifier que `diskman` se charge, répond à la convention CLI/help, et q
   test -s /tmp/diskman_g0f.txt && echo "rapport OK ($(wc -l </tmp/diskman_g0f.txt) lignes)"
   ```
 - **Attendu** : (1) aide non vide ; (2) stderr « commande inconnue » + `rc=1` ; (3)(4)(5) sorties non vides ; (6) mention **Dry-run uniquement** ; (7) rapport non vide. **Aucune suppression** dans cette étape.
-- **[ ] Fait**
-- **Sortie (coller le résumé)** :
+- **[x] Fait** *(2026-06-16 — hôte Arch, dry-run uniquement)*
+- **Sortie (résumé)** :
 ```
-(coller)
+--- 1) help --- OK (état df compact + texte DISKMAN — diagnostic…)
+--- 2) arg inconnu --- diskman: commande inconnue: __bogus__ ; rc=1
+--- 3) overview --- df + lsblk + caches (≥12 lignes)
+--- 4) usage . 1 --- du dossiers (tools, .git, …)
+--- 5) biggest . 5 --- top 5 fichiers (esbuild, typescript, …)
+--- 6) clean dry-run --- Mode: dry-run ; pacman 106M, journal 4G, ~/.cache 8,4G…
+--- 7) report --- /tmp/diskman_g0f.txt ; rapport OK (152 lignes)
 ```
-- **Conforme** :
-- **Notes** : *(pour nettoyer réellement : lancer manuellement `diskman clean --apply <target>` en TTY après lecture du dry-run.)*
-- **Assistant (relecture)** :
+- **Conforme** : O
+- **Notes** : `diskman help` inclut volontairement un **aperçu df** avant l’aide (`_diskman_status_compact`). Ne pas confondre avec `overview`. Aucun `--apply` lancé.
+- **Assistant (relecture)** : **O** — G.0.f OK. Préalable G.0 terminé → enchaîner **tableau G.1–G.27** (G.2–G.27 validés en smoke le 2026-06-16).
+
+### Étape G.0.g — Smoke `anonyman` (Tor/I2P/proxies, non-TTY)
+
+But : charger le core POSIX, convention help, doctor/status **sans** activer de services sur l’hôte.
+
+```bash
+bash -c '
+  set +o pipefail
+  cd ~/dotfiles || exit 1
+  . core/managers/anonyman/core/anonyman.sh
+  anonyman help </dev/null 2>&1 | head -n 8
+  anonyman __bogus__ </dev/null 2>&1; echo "rc_bogus=$?"
+  anonyman doctor </dev/null 2>&1 | head -n 12
+  anonyman status </dev/null 2>&1 | head -n 12
+  anonyman i2p ports </dev/null 2>&1 | head -n 5
+'
+```
+
+- **Attendu** : aide ANONYMAN sur stdout ; arg inconnu → stderr + rc≠0 ; doctor/status sans crash.
+- **`[x]`** *(smoke agent 2026-07-22)* · **Conforme** : O · **Notes** : pas de `proxy refresh` / `tor start` / `i2p enable` sur l’hôte dans ce smoke.
+- **Assistant (relecture)** : O — suite **G.28**.
+
+### Étape G.0.h — Smoke `shellman` + `manman list` (non-TTY)
+
+```bash
+bash -c '
+  set +o pipefail
+  cd ~/dotfiles || exit 1
+  . core/managers/shellman/core/shellman.sh
+  shellman help </dev/null 2>&1 | head -n 8
+  shellman status </dev/null 2>&1 | head -n 10
+  shellman list </dev/null 2>&1 | head -n 12
+  shellman use fish --session </dev/null 2>&1 | head -n 3
+  . core/managers/manman/core/manman.sh
+  manman list </dev/null 2>&1 | head -n 20
+'
+```
+
+- **Attendu** : helpman en premiere ligne du catalogue ; icones `[?]` ASCII ; shellman use --session en non-TTY = simulation sans exec.
+- **`[x]`** *(2026-07-22)* · **Conforme** : O
+
+### Étape G.0.i — Smoke `dockerman` (aide Docker, non destructif) *(non-TTY)*
+
+But : charger le core POSIX, convention help, cheat/search **sans** `prune --apply` ni `docker run`.
+
+```bash
+bash -c '
+  set +o pipefail
+  cd ~/dotfiles || exit 1
+  . core/managers/dockerman/core/dockerman.sh
+  dockerman help </dev/null 2>&1 | head -n 8
+  dockerman __bogus__ </dev/null 2>&1; echo "rc_bogus=$?"
+  dockerman doctor </dev/null 2>&1 | head -n 12
+  dockerman cheat run </dev/null 2>&1 | head -n 10
+  dockerman search compose </dev/null 2>&1 | head -n 6
+  dockerman prune --dry-run </dev/null 2>&1 | head -n 8
+  . core/managers/manman/core/manman.sh
+  manman list </dev/null 2>&1 | grep dockerman
+'
+```
+
+- **Attendu** : aide DOCKERMAN sur stdout ; arg inconnu → stderr + rc≠0 ; `manman list` contient `dockerman` ; prune dry-run ne supprime rien.
+- **`[ ]`** · **Conforme** : · **Notes** : pas de `prune --apply` / `docker system prune` sur l’hôte dans ce smoke.
+- **Assistant (relecture)** : O — suite **G.30**.
 
 ---
 
-Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), même modèle :
+Pour **chaque** ligne du tableau **G.1–G.30** (smoke manuel complémentaire), même modèle :
 
-- **Commande** : `<manager> help` *(comme ci-dessous — c’est le smoke « chargé + aide »)*  
-- **Attendu** : pas `command not found` ; sortie d’aide ou usage sur **stdout** (en non-TTY, cohérent avec le préalable).
+- **Commande** : `<manager> help` en non-TTY *(charger le core POSIX puis aide)* :
+
+```bash
+bash -c 'set +o pipefail; cd ~/dotfiles && . core/managers/pathman/core/pathman.sh && pathman help </dev/null 2>&1 | head -n 8'
+```
+
+*(remplacer `pathman` par le manager de la ligne)*
+
+- **Copie presse-papiers** : `make tests-copy-smoke MANAGER=pathman` · **Exécuter** : `make tests-smoke-manager MANAGER=pathman`
+- **Attendu** : pas `command not found` ; sortie d’aide sur **stdout** (en non-TTY, cohérent avec le préalable G.0).
+- **À re-vérifier** si doute : voir **EXT-008** (sorties variables selon machine / aliases / matériel).
 
 | # | Manager | `[ ]` | Sortie (extrait) | Conforme | Notes | Assistant (relecture) |
 |---|---------|-------|------------------|----------|-------|----------------------|
-| G.1 | pathman | [ ] | | | | |
-| G.2 | manman | [ ] | | | | |
-| G.3 | searchman | [ ] | | | | |
-| G.4 | aliaman | [ ] | | | | |
-| G.5 | installman | [ ] | | | | |
-| G.6 | configman | [ ] | | | | |
-| G.7 | gitman | [ ] | | | | |
-| G.8 | fileman | [ ] | | | | |
-| G.9 | helpman | [ ] | | | | |
-| G.10 | cyberman | [ ] | | | | |
-| G.11 | devman | [ ] | | | | |
-| G.12 | virtman | [ ] | | | | |
-| G.13 | miscman | [ ] | | | | |
-| G.14 | doctorman | [ ] | | | | |
-| G.15 | netman | [ ] | | | | |
-| G.16 | sshman | [ ] | | | | |
-| G.17 | processman | [ ] | | | | |
-| G.18 | routeman | [ ] | | | | |
-| G.19 | testman | [ ] | | | | |
-| G.20 | testzshman | [ ] | | | | |
-| G.21 | moduleman | [ ] | | | | |
-| G.22 | multimediaman | [ ] | | | | |
-| G.23 | cyberlearn | [ ] | | | | |
-| G.24 | displayman | [ ] | | | | |
-| G.25 | diffman | [ ] | | | | |
-| G.26 | diskman | [ ] | | | | |
+| G.1 | pathman | [x] | PATHMAN — raccourcis ; show/add/remove/clean… (8 lignes) | O | Smoke via `make tests-smoke-manager MANAGER=pathman` *(2026-06-16)* | O |
+| G.2 | manman | [x] | MANMAN — raccourcis ; menu / help stdout | O | Smoke `make tests-smoke-manager MANAGER=manman` *(2026-06-16)* | O |
+| G.3 | searchman | [x] | searchman — recherche d'exécutables… | O | idem | O |
+| G.4 | aliaman | [x] | Usage aliaman help / search / list | O | idem | O |
+| G.5 | installman | [x] | INSTALLMAN — raccourcis (list, pl, update…) | O | idem | O |
+| G.6 | configman | [x] | CONFIGMAN — modules apply, git, symlinks… | O | idem | O |
+| G.7 | gitman | [x] | GITMAN — Gestionnaire Git ; Interface help | O | Fix syntaxe `fi` orphelin *(2026-06-16)* | O |
+| G.8 | fileman | [x] | FILEMAN — gestion fichiers, archives… | O | idem | O |
+| G.9 | helpman | [x] | HELPMAN — aide centralisée stdout | O | idem | O |
+| G.10 | cyberman | [x] | Usage cyberman help stdout | O | idem | O |
+| G.11 | devman | [x] | DEVMAN — Development Manager | O | Fix syntaxe `fi` orphelin | O |
+| G.12 | virtman | [x] | VIRTMAN — Virtual Environment Manager | O | Fix syntaxe `fi` orphelin | O |
+| G.13 | miscman | [x] | MISCMAN — outils divers | O | idem | O |
+| G.14 | doctorman | [x] | DOCTORMAN — diagnostic dotfiles | O | idem | O |
+| G.15 | netman | [x] | NETMAN — raccourcis | O | idem | O |
+| G.16 | sshman | [x] | SSHMAN — raccourcis | O | idem | O |
+| G.17 | processman | [x] | Aide PROCESSMAN | O | idem | O |
+| G.18 | routeman | [x] | ROUTEMAN — routes IP | O | idem | O |
+| G.19 | testman | [x] | TESTMAN — Test Manager Applications | O | Fix syntaxe `fi` orphelin | O |
+| G.20 | testzshman | [x] | TESTZSHMAN — Test Manager ZSH/Dotfiles | O | Fix syntaxe `fi` orphelin | O |
+| G.21 | moduleman | [x] | MODULEMAN — enable module | O | idem | O |
+| G.22 | multimediaman | [x] | MULTIMEDIAMAN — DVD / archives | O | Fix syntaxe `fi` orphelin | O |
+| G.23 | cyberlearn | [x] | Usage cyberlearn help stdout | O | idem | O |
+| G.24 | displayman | [x] | DISPLAYMAN — écrans / luminosité / DDC | O | idem | O |
+| G.25 | diffman | [x] | DIFFMAN — comparaison lisible | O | idem | O |
+| G.26 | diskman | [x] | `diskman help` : df -hT puis DISKMAN — diagnostic… | O | EXT-008 : en-tête df normal sur cette machine | O |
+| G.27 | updateman | [x] | UPDATEMAN — system status / all / cursor… | O | + `make test-updateman-system-smoke` Docker | O |
+| G.28 | anonyman | [x] | ANONYMAN — status/check/tor/i2p/proxy | O | Smoke `make tests-smoke-manager MANAGER=anonyman` *(2026-07-22)* ; alias anonymman | O |
+| G.29 | shellman | [x] | SHELLMAN — status/list/use --session|user|system | O | Smoke 2026-07-22 ; manman list : helpman #1 | O |
+| G.30 | dockerman | [ ] | DOCKERMAN — cheat/search/doctor/ps lecture |  | Smoke `make tests-smoke-manager MANAGER=dockerman` ; daemon optionnel |  |
 
 **Approfondir** : pour chaque fichier `scripts/test/subcommands/<manager>.list`, ajouter des lignes **G.x.y** dans tes **Notes** ou une annexe perso — c’est la voie pour se rapprocher d’une couverture « chaque sous-commande ».
 
@@ -1866,9 +2013,9 @@ Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), 
 
 | Étape | Commande / action | Attendu | `[ ]` | Conforme | Notes | Assistant (relecture) |
 |-------|-------------------|---------|-------|----------|-------|----------------------|
-| H.1 | `export DOTFILES_DOTCLI_ENABLE=1` puis menu d’un **pilote F.7** (`netman`, `aliaman`, `cyberlearn`, …) en TTY | dotcli si binaire OK | [ ] | | | |
-| H.2 | `export DOTFILES_DOTCLI_MENU_NO_TUI=1` | menus ligne | [ ] | | | |
-| H.3 | `DOTFILES_TEST_MANAGERS=pathman,gitman make test` | sous-ensemble | [ ] | | *(long)* | |
+| H.1 | `export DOTFILES_DOTCLI_ENABLE=1` puis menu d’un **pilote F.7** (`netman`, `aliaman`, `cyberlearn`, …) en TTY | dotcli si binaire OK | [x] | O | `make test-dotcli-f7` : F.7.a TUI + aliaman/cyberlearn `--help` quit OK *(2026-06-16)* | O |
+| H.2 | `export DOTFILES_DOTCLI_MENU_NO_TUI=1` | menus ligne | [x] | O | `DOTFILES_DOTCLI_ENABLE=1 DOTFILES_DOTCLI_MENU_NO_TUI=1 netman ports` → pagination ligne (pas TUI brut) | O |
+| H.3 | `DOTFILES_TEST_MANAGERS=pathman,gitman make test` | sous-ensemble | [x] | O | `make test-docker` filtré : **34 tests, 3/3 OK**, ~28 s | O |
 
 ---
 
@@ -1878,22 +2025,28 @@ Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), 
 
 - **Fonctions non testées aujourd’hui** :
 ```
-(liste)
+Navigation TUI dotcli visuelle en terminal réel (H.1 complémentaire au-delà du smoke F.7).
+Modules installman par outil sur distros non-Arch (docker-in debian/fedora).
+Upgrade destructif pkg_backend en CI (volontairement hors matrice).
 ```
 - **Régressions** *(réf [`ERRORS.md`](ERRORS.md))* :
 ```
-(liste)
+fi orphelins gitman/devman/virtman/testman/testzshman/multimediaman — corrigés (a285b90).
+CentOS Docker Hub EOL — Dockerfile.centos basculé rockylinux:9.
+dash + utils zsh (check_installed) cassait updateman via fish — corrigé (updatable_tools + bash adapter).
 ```
 - **Améliorations souhaitées** :
 ```
-(liste)
+installman : modules outils encore Arch-centric ; suite P5/P8c registre updateman.
+P11 matrice distro complète en CI ; EXT-002 petits écrans ; EXT-005 GitHub Actions make test.
 ```
-- **Assistant (relecture)** :
+- **Assistant (relecture)** : **O** — Blocs **G.0→G.27**, **H.1–H.3** et **updateman system** validés sur cette session ; passe **A→I** documentée.
 
 ### Étape I.2 — [`TODOS.md`](../TODOS.md) — validation
 
-- Si une ligne du tableau **« Finalisées — en attente de validation »** correspond à ce que tu viens de valider : **coche-la** dans `TODOS.md`, puis `git commit` / `push` comme indiqué en bas de [`STATUS.md`](../STATUS.md).
-- **Assistant (relecture)** :
+- Avancement **TESTS.md A→I** enregistré ; merge **`feat/manual-tests-g0` → `dev`** effectué le 2026-06-16.
+- Les lignes **« Finalisées — en attente de validation »** restent à cocher **par l’utilisateur** (règle bloquante TODOS §1).
+- **Assistant (relecture)** : **O** — journal STATUS/TODOS mis à jour ; pas de validation utilisateur substituée.
 
 ---
 
@@ -1910,6 +2063,8 @@ Pour **chaque** ligne du tableau **G.1–G.26** (smoke manuel complémentaire), 
 | EXT-006 | **`netman` — Informations IP (menu 3)** : test de non-régression après fix `ip -o` — en TTY, chaque ligne « Adresses IP locales / IPv6 » affiche `iface:` + adresse ; comparaison visuelle avec `ip -4 -o addr show` / `ip -6 -o addr show`. Couvert par **TESTS.md § C.3** (matrice shells) + smoke manuel une fois sur l’hôte. | M | [x] *(correctif livré 2026-05-13, à valider par l’utilisateur)* |
 | EXT-005 | **CI GitHub Actions « complète »** (après `TESTS.md` A→I) : enchaîner sur runner `ubuntu-latest` — `make test-dotfiles-good`, `make build-dotcli` + `make test-dotcli`, puis stratégie **`make test`** (Docker service ou workflow long + `DOTFILES_TEST_*`). Documenter les limites (pas de vrai « poste nu » sans matrice OS). E-mail : uniquement via secrets + job `if:` (voir [`guides/GITHUB_ACTIONS.md`](guides/GITHUB_ACTIONS.md)). | H | [ ] |
 | EXT-007 | **Futures fonctionnalités / nouveaux managers** : toute nouvelle fonctionnalité doit préciser où elle s’intègre (manager existant ou nouveau `*man`), ajouter une commande non interactive si possible, une ligne `scripts/test/subcommands/<manager>.list`, une page `docs/man/<manager>.md` ou section existante, puis rejouer **E.4**. Si une commande dépend d’un matériel réel (`ddcutil`, Docker daemon hôte, GPU, SSH serveur), la marquer hors matrice Docker et créer une étape manuelle dédiée dans G/H. | H | [x] *(règle documentée 2026-06-12, à appliquer à chaque lot)* |
+| EXT-008 | **Re-tests / sorties contextuelles** (2026-06-16) : noter dans **Notes** du tableau G.1–G.27 quand la sortie diffère de l’assistant (ex. **G.0.c** alias `ls`/`cd` présents ; **G.0.e** `side` verbeux sans `head` ; **G.0.d** plusieurs écrans DDC ; **G.26** en-tête `df` dans `diskman help`). Ce n’est **pas** un échec si l’**Attendu** minimal est respecté. Rejouer avec `make tests-copy-smoke MANAGER=…` et coller l’extrait réel dans la colonne Sortie. | M | [x] *(G.2–G.27 cochés 2026-06-16)* |
+| EXT-009 | **HandBrake GUI nom `ghb`** : exposer `handbrake` (alias shell + mini-wrapper `~/.local/bin`, `installman handbrake`) sans écraser `/usr/bin/ghb` et **sans** prepend PATH / probe au login. CLI = `HandBrakeCLI`. | M | [x] *(2026-08-17)* |
 
 **Pour l’assistant** : quand une ligne `EXT-xxx` est traitée → cocher `[x]`, **ajouter** les nouvelles étapes numérotées dans le bloc concerné (A–I), référencer le commit dans `Notes`.
 

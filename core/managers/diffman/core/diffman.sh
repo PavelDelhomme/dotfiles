@@ -100,7 +100,7 @@ EOF
         _dm_b="$2"
         if _dm_has_git && [ "${_dm_NO_GIT-0}" != 1 ]; then
             # shellcheck disable=SC2086
-            git -c color.ui=always diff --no-index --minimal ${_dm_GIT_EXTRA-} -- "$_dm_a" "$_dm_b"
+            git --no-pager -c color.ui=always diff --no-index --minimal ${_dm_GIT_EXTRA-} -- "$_dm_a" "$_dm_b"
             _dm_rc=$?
             if [ "$_dm_rc" -eq 0 ] || [ "$_dm_rc" -eq 1 ]; then
                 return "$_dm_rc"

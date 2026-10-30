@@ -21,39 +21,29 @@
 
 ### Commandes Makefile (recommandé)
 
-Aller dans le dossier dotfiles :
-
 ```bash
 cd ~/dotfiles
+make help              # aide courte (démarrage)
+make help-all          # catalogue complet
+make init help         # procédures init / install / tests (pas « make init --help »)
+make init status       # preflight : ce qui est déjà présent
+make init plan         # plan d’install sans appliquer
+make init install      # preflight + confirmation OUI + bootstrap
+make init tests        # chemin tests Docker sans polluer l’hôte
+make preflight         # alias check
 ```
 
-Voir toutes les commandes disponibles :
+Installation (avec garde-fou) :
 
 ```bash
-make help
+make install           # idem make init install
 ```
 
-Installation complète :
-
-```bash
-make install
-```
-
-Menu interactif :
+Menu interactif / symlinks / migration :
 
 ```bash
 make setup
-```
-
-Créer symlinks :
-
-```bash
 make symlinks
-```
-
-Migrer config existante :
-
-```bash
 make migrate
 ```
 
@@ -734,13 +724,11 @@ Voir aussi `docs/architecture/ARCHITECTURE.md` pour plus de détails.
 
 ### Scripts Docker de test
 
-#### `test-docker.sh` (à la racine)
-- **Emplacement** : `~/dotfiles/test-docker.sh` (à la racine du projet)
-- **Pourquoi à la racine ?** :
-  - Appelé directement par `make docker-test-auto` depuis le Makefile
-  - Doit être accessible facilement depuis la racine du projet
-  - Script principal d'orchestration des tests Docker
-  - Permet de sélectionner interactivement les managers à tester
+#### `test-docker.sh` (wrapper racine)
+- **Emplacement** : `~/dotfiles/test-docker.sh` → `scripts/test/test_docker.sh`
+- **Aide** : `bash test-docker.sh --help` (aucune interaction)
+- **Non interactif** : `--yes` / `--no-clean --managers all --shell zsh`
+- **Interactif** (TTY sans flags) : propose le nettoyage *seulement* si une image/conteneur `dotfiles-test` existe, puis managers + shell
 
 #### `Dockerfile.test`
 - **Emplacement** : `~/dotfiles/Dockerfile.test` (à la racine)

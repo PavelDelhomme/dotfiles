@@ -67,15 +67,34 @@ get_current_version() {
             fi
             ;;
         cursor)
-            # Ne jamais exécuter l’AppImage / le binaire cursor pour lire la version : ça peut lancer l’IDE.
+            # Ne jamais exécuter l'AppImage / le binaire cursor pour lire la version : ça peut lancer l'IDE.
+            local df vf cur
+            df="${DOTFILES_DIR:-$HOME/dotfiles}"
+            for vf in \
+                "$HOME/Applications/.cursor-version" \
+                "$HOME/.config/cursor/version" \
+                "$HOME/Applications/cursor/.cursor-version" \
+                "$HOME/.cursor-version"; do
+                if [[ -f "$vf" ]]; then
+                    cur="$(tr -d ' \n\r' <"$vf" 2>/dev/null)"
+                    [[ -n "$cur" ]] && { echo "$cur"; return 0; }
+                fi
+            done
+            for df in "$HOME/.local/share/applications/cursor.desktop" /usr/share/applications/cursor.desktop; do
+                if [[ -f "$df" ]] && grep -qE '^Version=' "$df" 2>/dev/null; then
+                    grep -m1 '^Version=' "$df" | cut -d= -f2- | tr -d ' \n\r' || echo "unknown"
+                    return 0
+                fi
+            done
             if [[ -f /usr/share/cursor/resources/app/product.json ]]; then
                 grep -oE '"version"[[:space:]]*:[[:space:]]*"[0-9]+\.[0-9]+\.[0-9]+"' /usr/share/cursor/resources/app/product.json 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "unknown"
                 return 0
             fi
-            local df
-            for df in "$HOME/.local/share/applications/cursor.desktop" /usr/share/applications/cursor.desktop; do
-                if [[ -f "$df" ]] && grep -qE '^Version=' "$df" 2>/dev/null; then
-                    grep -m1 '^Version=' "$df" | cut -d= -f2- | tr -d ' ' || echo "unknown"
+            for vf in "$HOME/Applications"/Cursor*.AppImage "$HOME/Applications"/cursor*.AppImage /opt/cursor.appimage; do
+                [[ -f "$vf" ]] || continue
+                cur="$(basename "$vf")"
+                if [[ "$cur" =~ Cursor-([0-9]+\.[0-9]+\.[0-9]+)- ]]; then
+                    echo "${match[1]}"
                     return 0
                 fi
             done
@@ -115,6 +134,24 @@ get_current_version() {
                 gv=$(g++ --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "?")
                 cv=$(cmake --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "?")
                 echo "g++ ${gv} / cmake ${cv}"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        cgoban)
+            if [[ -f /opt/cgoban.version ]]; then
+                tr -d ' \n\r' </opt/cgoban.version
+            elif [[ -f /opt/cgoban.jar ]]; then
+                echo "installed"
+            else
+                echo "not_installed"
+            fi
+            ;;
+        stoat|stoatchat)
+            if [[ -f "$HOME/Applications/.stoat-version" ]]; then
+                tr -d ' \n\r' <"$HOME/Applications/.stoat-version"
+            elif [[ -f "$HOME/Applications/Stoat.AppImage" ]] || compgen -G "$HOME/Applications/Stoat*.AppImage" >/dev/null; then
+                echo "installed"
             else
                 echo "not_installed"
             fi
@@ -239,8 +276,31 @@ get_available_versions() {
             echo "$java_version"
             ;;
         cursor)
-            # Version lue dynamiquement depuis https://cursor.com/download lors de l'install/update
-            echo "latest"
+            local df rel ver
+            df="${DOTFILES_DIR:-$HOME/dotfiles}"
+            if [[ -f "$df/core/lib/tool_release.sh" ]]; then
+                # shellcheck source=../../../../core/lib/tool_release.sh
+                . "$df/core/lib/tool_release.sh"
+                if ver="$(tool_release_latest cursor 2>/dev/null)" && [[ -n "$ver" ]]; then
+                    echo "$ver"
+                    return 0
+                fi
+            fi
+            echo "unknown"
+            ;;
+        cgoban)
+            local html ver
+            html=$(curl -fsSL --connect-timeout 10 --max-time 20 https://www.gokgs.com/download.jsp 2>/dev/null || true)
+            ver=$(printf '%s' "$html" | grep -oE 'CGoban v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+            [[ -n "$ver" ]] && echo "$ver" || echo "unknown"
+            ;;
+        stoat|stoatchat)
+            curl -fsSL --connect-timeout 10 --max-time 20 \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'User-Agent: dotfiles-stoat-updater' \
+                https://api.github.com/repos/stoatchat/for-desktop/releases/latest 2>/dev/null \
+                | python3 -c "import sys,json,re; t=json.load(sys.stdin).get('tag_name') or ''; print(re.sub(r'^v','',t) or 'unknown')" 2>/dev/null \
+                || echo "unknown"
             ;;
         *)
             # Pour les autres outils, on propose "latest"
@@ -265,22 +325,18 @@ compare_versions() {
     local v1="$1"
     local v2="$2"
     
-    # Si une version est "latest" ou "not_installed", on ne peut pas comparer
     if [ "$v1" = "latest" ] || [ "$v1" = "not_installed" ] || [ "$v1" = "unknown" ] || \
        [ "$v2" = "latest" ] || [ "$v2" = "not_installed" ] || [ "$v2" = "unknown" ]; then
         return 0
     fi
     
-    # Comparaison simple avec sort -V
-    if [ "$(printf '%s\n' "$v1" "$v2" | sort -V | head -n1)" = "$v1" ]; then
-        if [ "$v1" = "$v2" ]; then
-            return 0  # Égales
-        else
-            return -1  # v1 < v2
-        fi
-    else
-        return 1  # v1 > v2
+    if [ "$v1" = "$v2" ]; then
+        return 0
     fi
+    if [ "$(printf '%s\n' "$v1" "$v2" | sort -V | head -n1)" = "$v1" ]; then
+        return 1
+    fi
+    return 2
 }
 
 # DESC: Vérifie si une mise à jour est disponible
@@ -295,18 +351,16 @@ is_update_available() {
         return 1
     fi
     
-    if [ "$latest_version" = "latest" ] || [ "$latest_version" = "unknown" ]; then
+    if [ "$latest_version" = "latest" ] || [ "$latest_version" = "unknown" ] || [ -z "$latest_version" ]; then
         return 1
     fi
     
     compare_versions "$current_version" "$latest_version"
     local cmp_result=$?
     
-    # Si current < latest, mise à jour disponible
-    if [ $cmp_result -eq -1 ]; then
+    if [ "$cmp_result" -eq 1 ]; then
         return 0
-    else
-        return 1
     fi
+    return 1
 }
 

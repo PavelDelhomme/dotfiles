@@ -14,7 +14,7 @@ function updateman
     if test -f "$UPDATEMAN_CORE"
         set -l _df "$DOTFILES_DIR"
         test -n "$_df"; or set _df "$HOME/dotfiles"
-        env DOTFILES_DIR="$_df" sh -c '. "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"; updateman "$@"' sh $argv
+        env DOTFILES_DIR="$_df" bash -c '. "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"; updateman "$@"' bash $argv
     else
         echo "❌ updateman core non trouvé: $UPDATEMAN_CORE"
         return 1

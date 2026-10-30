@@ -130,24 +130,30 @@ if ! curl -s --head --fail "https://cursor.com" >/dev/null 2>&1; then
     exit 1
 fi
 
-log_info "Récupération de la dernière version depuis https://cursor.com/download ..."
+log_info "Récupération de la dernière version via l'API officielle Cursor ..."
 
 CURSOR_VERSION=""
 CURSOR_URL=""
-TEMP_HTML=$(mktemp)
-trap 'rm -f "$TEMP_HTML"' EXIT
 
-if curl -s -L "https://cursor.com/download" -o "$TEMP_HTML" 2>/dev/null; then
-    # Extraire la version affichée sur la page (ex: 2.5) pour le log
-    CURSOR_VERSION=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+$')
-    [ -z "$CURSOR_VERSION" ] && CURSOR_VERSION=$(grep -oE "https://api2\.cursor\.sh/updates/download/golden/linux-[^/]+/cursor/[0-9]+\.[0-9]+" "$TEMP_HTML" 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+$')
-    [ -n "$CURSOR_VERSION" ] && log_info "Dernière branche (cursor.com/download): $CURSOR_VERSION"
+if [ -f "$DOTFILES_DIR/core/lib/tool_release.sh" ]; then
+    # shellcheck source=../../../core/lib/tool_release.sh
+    . "$DOTFILES_DIR/core/lib/tool_release.sh"
+    if tool_release_cursor_fetch; then
+        CURSOR_VERSION="$TOOL_RELEASE_VERSION"
+        case "$CURSOR_FORMAT" in
+            deb) CURSOR_URL="$TOOL_RELEASE_DEB_URL" ;;
+            rpm) CURSOR_URL="$TOOL_RELEASE_RPM_URL" ;;
+            *)   CURSOR_URL="$TOOL_RELEASE_URL" ;;
+        esac
+        log_info "API: ${TOOL_RELEASE_API_URL:-?}"
+        log_info "Version distante: ${CURSOR_VERSION:-?}"
+    fi
 fi
 
-# Toujours utiliser /latest pour le téléchargement : le serveur renvoie la dernière build (ex: 2.5.30)
-# plutôt que la version "fixe" de la page (ex: 2.5) qui peut être une build plus ancienne
-CURSOR_URL="https://api2.cursor.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/latest"
-log_info "Téléchargement via /latest (dernière build disponible)"
+if [ -z "$CURSOR_URL" ]; then
+    log_warn "API indisponible — repli sur /latest golden"
+    CURSOR_URL="https://api2.cursor.sh/updates/download/golden/${CURSOR_SUFFIX}/cursor/latest"
+fi
 
 log_info "Format: $CURSOR_FORMAT | Arch: $CURSOR_ARCH"
 log_info "URL: $CURSOR_URL"

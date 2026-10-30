@@ -1,0 +1,9 @@
+[Unit]
+Description=Update Brave via updateman (pkg backend)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=DOTFILES_DIR=%h/dotfiles
+ExecStart=/bin/sh -c '. "$DOTFILES_DIR/core/managers/updateman/core/updateman.sh"; updateman brave run'

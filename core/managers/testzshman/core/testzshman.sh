@@ -746,8 +746,6 @@ $cyberlearn_dir/labs"
         done
         return 0
     fi
-        return 0
-    fi
 
     if [ -n "$1" ]; then
         _logdf="${DOTFILES_DIR:-$HOME/dotfiles}"
