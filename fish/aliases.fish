@@ -46,8 +46,8 @@ alias rmr_build 'cd .. && rm -rf build && mkdir -p build && cd build && cmake ..
 alias rebuild_cpp 'cd .. && rm -rf build && mkdir build && cd build && cmake .. && make -j(nproc) && cd ..'
 
 # Jeux aliases 
-# DESC: Lance le jeu de Go CGoban
-alias cgoban 'java -jar /opt/cgoban.jar'
+# DESC: Lance le jeu de Go CGoban (wrapper Java 11 — Applet)
+alias cgoban '$HOME/.local/bin/cgoban'
 
 # DESC: Lance le jeu Noita
 alias noita 'cd /opt/Noita && ./start.sh'

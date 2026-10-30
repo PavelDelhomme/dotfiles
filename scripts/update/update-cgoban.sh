@@ -45,16 +45,46 @@ local_version() {
     printf 'not_installed'
 }
 
-install_java_hint() {
-    if command -v java >/dev/null 2>&1; then
+# CGoban appelle java.applet.Applet (sonnerie challenge) — absent dès Java 27.
+ensure_java11() {
+    if [ -x /usr/lib/jvm/java-11-openjdk/bin/java ]; then
         return 0
     fi
-    err "Java absent — installe un JRE (ex: sudo pacman -S jre-openjdk)"
-    return 1
+    log "JDK 11 requis pour CGoban (Applet) — installation…"
+    if command -v pacman >/dev/null 2>&1; then
+        sudo pacman -S --needed --noconfirm jdk11-openjdk || {
+            err "installe: sudo pacman -S jdk11-openjdk"
+            return 1
+        }
+    else
+        err "installe un JDK 11 (java.applet.Applet requis)"
+        return 1
+    fi
+}
+
+install_wrapper() {
+    local src="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/update/cgoban-wrapper.sh"
+    local dest="${XDG_BIN_HOME:-$HOME/.local/bin}/cgoban"
+    mkdir -p "$(dirname "$dest")"
+    if [ -f "$src" ]; then
+        install -m 0755 "$src" "$dest"
+    else
+        # fallback inline si le dépôt n'est pas là
+        cat >"$dest" <<'WRAP'
+#!/usr/bin/env bash
+JAR=/opt/cgoban.jar
+JAVA=/usr/lib/jvm/java-11-openjdk/bin/java
+[ -x "$JAVA" ] || JAVA=$(command -v java)
+exec "$JAVA" -jar "$JAR" "$@"
+WRAP
+        chmod +x "$dest"
+    fi
+    log "wrapper: $dest"
 }
 
 write_desktop() {
     local icon="$ICON_PATH"
+    local wrap="${XDG_BIN_HOME:-$HOME/.local/bin}/cgoban"
     [ -f "$icon" ] || icon=applications-games
     mkdir -p "$(dirname "$DESKTOP_APP")" "$(dirname "$ICON_PATH")" 2>/dev/null || true
     cat >"$DESKTOP_APP" <<EOF
@@ -63,9 +93,9 @@ Version=1.0
 Type=Application
 Name=CGoban
 GenericName=Go Client
-Comment=Client Go / KGS (CGoban)
-Exec=java -jar $OPT_JAR
-TryExec=/usr/bin/java
+Comment=Client Go / KGS (CGoban — Java 11)
+Exec=$wrap
+TryExec=$wrap
 Path=/opt
 Icon=$icon
 Terminal=false
@@ -116,7 +146,7 @@ cleanup_downloads() {
 
 install_or_update() {
     need_cmd curl
-    install_java_hint || true
+    ensure_java11 || true
 
     local remote local etag_hdr etag_file force
     force="${1:-}"
@@ -128,6 +158,7 @@ install_or_update() {
 
     if [ "$force" != "--force" ] && [ -f "$OPT_JAR" ] && [ "$local" = "$remote" ] && [ "$remote" != "unknown" ]; then
         log "déjà à jour ($local)"
+        install_wrapper
         write_desktop
         cleanup_downloads
         return 0
@@ -170,10 +201,11 @@ install_or_update() {
     fi
 
     extract_icon
+    install_wrapper
     write_desktop
     cleanup_downloads
     log "OK → $OPT_JAR (v$remote)"
-    log "lance: cgoban   ou   java -jar $OPT_JAR"
+    log "lance avec Java 11: cgoban   (pas java -jar seul sous Java 27)"
 }
 
 case "${1:-update}" in

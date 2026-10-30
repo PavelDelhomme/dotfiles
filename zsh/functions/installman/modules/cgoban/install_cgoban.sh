@@ -16,25 +16,26 @@ UPDATE_SCRIPT="${DOTFILES_DIR}/scripts/update/update-cgoban.sh"
 install_cgoban() {
     log_step "Installation de CGoban (KGS)…"
 
-    if ! command -v java &>/dev/null; then
-        log_info "Java manquant — installation JRE…"
+    # Obligatoire: JDK 11 (java.applet.Applet). Java 27 fait planter KGS.
+    if [ ! -x /usr/lib/jvm/java-11-openjdk/bin/java ]; then
+        log_info "Installation JDK 11 (requis pour CGoban / Applet)…"
         local distro
         distro=$(detect_distro 2>/dev/null || echo arch)
         case "$distro" in
             arch|manjaro)
-                sudo pacman -S --needed --noconfirm jre-openjdk || {
-                    log_error "Échec installation jre-openjdk"
+                sudo pacman -S --needed --noconfirm jdk11-openjdk || {
+                    log_error "Échec installation jdk11-openjdk"
                     return 1
                 }
                 ;;
             debian|ubuntu)
-                sudo apt-get update && sudo apt-get install -y default-jre || return 1
+                sudo apt-get update && sudo apt-get install -y openjdk-11-jre || return 1
                 ;;
             fedora)
-                sudo dnf install -y java-latest-openjdk || return 1
+                sudo dnf install -y java-11-openjdk || return 1
                 ;;
             *)
-                log_warn "Installe un JRE manuellement puis relance installman cgoban"
+                log_warn "Installe un JDK 11 manuellement puis relance installman cgoban"
                 ;;
         esac
     fi
