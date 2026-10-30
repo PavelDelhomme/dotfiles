@@ -46,18 +46,19 @@ local_version() {
 }
 
 # CGoban appelle java.applet.Applet (sonnerie challenge) — absent dès Java 27.
-ensure_java11() {
-    if [ -x /usr/lib/jvm/java-11-openjdk/bin/java ]; then
+# Cible: Java 21 (présent sur cette machine).
+ensure_java21() {
+    if [ -x /usr/lib/jvm/java-21-openjdk/bin/java ]; then
         return 0
     fi
-    log "JDK 11 requis pour CGoban (Applet) — installation…"
+    log "JDK 21 requis pour CGoban — installation…"
     if command -v pacman >/dev/null 2>&1; then
-        sudo pacman -S --needed --noconfirm jdk11-openjdk || {
-            err "installe: sudo pacman -S jdk11-openjdk"
+        sudo pacman -S --needed --noconfirm jdk21-openjdk || {
+            err "installe: sudo pacman -S jdk21-openjdk"
             return 1
         }
     else
-        err "installe un JDK 11 (java.applet.Applet requis)"
+        err "installe un JDK 21 (java.applet.Applet requis ; pas Java 27)"
         return 1
     fi
 }
@@ -73,7 +74,8 @@ install_wrapper() {
         cat >"$dest" <<'WRAP'
 #!/usr/bin/env bash
 JAR=/opt/cgoban.jar
-JAVA=/usr/lib/jvm/java-11-openjdk/bin/java
+JAVA=/usr/lib/jvm/java-21-openjdk/bin/java
+[ -x "$JAVA" ] || JAVA=/usr/lib/jvm/java-17-openjdk/bin/java
 [ -x "$JAVA" ] || JAVA=$(command -v java)
 exec "$JAVA" -jar "$JAR" "$@"
 WRAP
@@ -93,7 +95,7 @@ Version=1.0
 Type=Application
 Name=CGoban
 GenericName=Go Client
-Comment=Client Go / KGS (CGoban — Java 11)
+Comment=Client Go / KGS (CGoban — Java 21)
 Exec=$wrap
 TryExec=$wrap
 Path=/opt
@@ -146,7 +148,7 @@ cleanup_downloads() {
 
 install_or_update() {
     need_cmd curl
-    ensure_java11 || true
+    ensure_java21 || true
 
     local remote local etag_hdr etag_file force
     force="${1:-}"
@@ -205,7 +207,7 @@ install_or_update() {
     write_desktop
     cleanup_downloads
     log "OK → $OPT_JAR (v$remote)"
-    log "lance avec Java 11: cgoban   (pas java -jar seul sous Java 27)"
+    log "lance avec Java 21: cgoban   (pas java -jar seul sous Java 27)"
 }
 
 case "${1:-update}" in

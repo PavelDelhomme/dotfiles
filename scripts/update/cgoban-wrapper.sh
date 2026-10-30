@@ -15,12 +15,13 @@ pick_java() {
         return 0
     fi
     local cand
-    # Ordre: 11 (idéal) → 8 → 17. Jamais le java PATH (souvent 27).
+    # Forcé: Java 21 (Applet OK sur Arch). Fallback 17/11/8. Jamais le java PATH (27).
     for cand in \
+        /usr/lib/jvm/java-21-openjdk/bin/java \
+        /usr/lib/jvm/java-17-openjdk/bin/java \
         /usr/lib/jvm/java-11-openjdk/bin/java \
         /usr/lib/jvm/java-8-openjdk/jre/bin/java \
-        /usr/lib/jvm/java-8-openjdk/bin/java \
-        /usr/lib/jvm/java-17-openjdk/bin/java; do
+        /usr/lib/jvm/java-8-openjdk/bin/java; do
         if [ -x "$cand" ]; then
             printf '%s\n' "$cand"
             return 0
@@ -30,8 +31,8 @@ pick_java() {
 }
 
 JAVA_BIN="$(pick_java)" || {
-    echo "Aucun Java 8/11/17 trouvé (requis: java.applet.Applet)." >&2
-    echo "  sudo pacman -S jdk11-openjdk" >&2
+    echo "Aucun Java 21/17/11/8 trouvé (requis: java.applet.Applet)." >&2
+    echo "  sudo pacman -S jdk21-openjdk" >&2
     echo "  Ne pas lancer avec /usr/bin/java (Java 27 casse CGoban)." >&2
     exit 1
 }

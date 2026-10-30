@@ -7,7 +7,7 @@ alias networkmanager="network_manager"
 alias copytree="copy_tree"
 alias tree_clean="tree -I 'venv|__pycache__|staticfiles|objects|hooks|*.pyc|*.pyo|*.log|*.sqlite3' -a -L 5"
 alias copyfile="copy_file"
-# CGoban: Java 11 obligatoire (java.applet.Applet absent en Java 27)
+# CGoban: Java 21 (Applet OK ; Java 27 casse KGS)
 alias cgoban="$HOME/.local/bin/cgoban"
 alias make_and_rebuild="rm -rf build && mkdir build && cd build && cmake .. && make"
 alias rmr="cd .. && rm -R"

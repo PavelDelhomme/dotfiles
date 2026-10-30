@@ -169,7 +169,7 @@ EOF
         done
         [ "$_vm_found" = "1" ] || printf "    (aucune)\n"
         echo ""
-        printf "  ${YELLOW}CGoban${RESET}: wrapper → ~/.local/bin/cgoban (force Java 11)\n"
+        printf "  ${YELLOW}CGoban${RESET}: wrapper → ~/.local/bin/cgoban (force Java 21)\n"
         if [ -x "$HOME/.local/bin/cgoban" ]; then
             printf "    présent: %s\n" "$HOME/.local/bin/cgoban"
         else
