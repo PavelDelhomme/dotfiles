@@ -138,6 +138,15 @@ get_current_version() {
                 echo "not_installed"
             fi
             ;;
+        cgoban)
+            if [[ -f /opt/cgoban.version ]]; then
+                tr -d ' \n\r' </opt/cgoban.version
+            elif [[ -f /opt/cgoban.jar ]]; then
+                echo "installed"
+            else
+                echo "not_installed"
+            fi
+            ;;
         handbrake)
             if command -v HandBrakeCLI &>/dev/null; then
                 HandBrakeCLI --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
@@ -269,6 +278,12 @@ get_available_versions() {
                 fi
             fi
             echo "unknown"
+            ;;
+        cgoban)
+            local html ver
+            html=$(curl -fsSL --connect-timeout 10 --max-time 20 https://www.gokgs.com/download.jsp 2>/dev/null || true)
+            ver=$(printf '%s' "$html" | grep -oE 'CGoban v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+            [[ -n "$ver" ]] && echo "$ver" || echo "unknown"
             ;;
         *)
             # Pour les autres outils, on propose "latest"

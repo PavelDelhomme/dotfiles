@@ -1,0 +1,9 @@
+[Unit]
+Description=Update CGoban (KGS client JAR)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=DOTFILES_DIR=%h/dotfiles
+ExecStart=/bin/bash %h/dotfiles/scripts/update/update-cgoban.sh update

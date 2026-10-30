@@ -441,6 +441,15 @@ check_ssh_configured() {
     return 1
 }
 
+# DESC: Vérifie si CGoban (KGS) est installé dans /opt
+# USAGE: check_cgoban_installed
+check_cgoban_installed() {
+    _check_paths /opt/cgoban.jar && { echo "installed"; return 0; }
+    _check_desktop_pattern "cgoban" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si HandBrake est installé (CLI, GUI, toute distro: ghb, HandBrakeCLI, flatpak, .desktop)
 # USAGE: check_handbrake_installed
 check_handbrake_installed() {

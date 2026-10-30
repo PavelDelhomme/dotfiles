@@ -1,0 +1,11 @@
+[Unit]
+Description=Run CGoban updater weekly
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=7d
+Persistent=true
+Unit=cgoban-update.service
+
+[Install]
+WantedBy=timers.target

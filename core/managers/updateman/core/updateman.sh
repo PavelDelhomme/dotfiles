@@ -68,6 +68,9 @@ updateman() {
         printf "  ${BOLD}updateman cursor enable${RESET}       active le timer systemd user\n"
         printf "  ${BOLD}updateman cursor status${RESET}       installation, versions, maj, timer\n"
         printf "  ${BOLD}updateman cursor logs${RESET}         logs du service Cursor\n"
+        printf "  ${BOLD}updateman cgoban${RESET}              met CGoban (/opt) a jour depuis gokgs.com\n"
+        printf "  ${BOLD}updateman cgoban check${RESET}        version locale vs download.jsp\n"
+        printf "  ${BOLD}updateman cgoban enable${RESET}       timer hebdo systemd user\n"
         printf "  ${BOLD}updateman help${RESET}                affiche cette aide\n"
         printf "\n${YELLOW}Note:${RESET} les scripts internes (ex. update-cursor-appimage) ne sont pas des commandes publiques.\n"
         printf "      Installation initiale : ${BOLD}installman <outil>${RESET} ; mises a jour : ${BOLD}updateman${RESET}.\n"
@@ -427,6 +430,17 @@ updateman() {
                 fi
                 printf 'not_installed'
                 ;;
+            cgoban)
+                if [ -f /opt/cgoban.version ]; then
+                    tr -d ' \n\r' </opt/cgoban.version
+                    return 0
+                fi
+                if [ -f /opt/cgoban.jar ]; then
+                    printf 'installed'
+                    return 0
+                fi
+                printf 'not_installed'
+                ;;
             *)
                 printf 'n/a'
                 ;;
@@ -440,6 +454,15 @@ updateman() {
             cursor_appimage)
                 if command -v tool_release_cursor_fetch >/dev/null 2>&1 && tool_release_cursor_fetch; then
                     printf '%s' "${TOOL_RELEASE_VERSION:-n/a}"
+                    return 0
+                fi
+                printf 'n/a'
+                ;;
+            cgoban_jar)
+                _urv_html=$(curl -fsSL --connect-timeout 10 --max-time 20 https://www.gokgs.com/download.jsp 2>/dev/null || true)
+                _urv_ver=$(printf '%s' "$_urv_html" | grep -oE 'CGoban v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+                if [ -n "$_urv_ver" ]; then
+                    printf '%s' "$_urv_ver"
                     return 0
                 fi
                 printf 'n/a'
@@ -548,6 +571,10 @@ updateman() {
                 elif command -v brave-browser >/dev/null 2>&1; then command -v brave-browser
                 else printf '%s' "-"; fi
                 ;;
+            cgoban)
+                if [ -f /opt/cgoban.jar ]; then printf '%s' /opt/cgoban.jar
+                else printf '%s' "-"; fi
+                ;;
             *) printf '%s' "-" ;;
         esac
     }
@@ -637,23 +664,27 @@ updateman() {
         _utc_kind="$(updatable_tool_update_kind "$_utc_tool" 2>/dev/null || printf '%s' unknown)"
         case "$_utc_kind" in
             cursor_appimage) __updateman_cursor_check ;;
-            pkg)
+            cgoban_jar|pkg)
                 _utc_cur="$(__updateman_local_version "$_utc_tool")"
                 _utc_rem="$(__updateman_remote_version "$_utc_tool")"
                 _utc_upd="$(__updateman_version_update_label "$_utc_cur" "$_utc_rem" "$_utc_tool")"
                 printf "${CYAN}${BOLD}%s — verification${RESET}\n\n" "$_utc_tool"
                 printf "  Locale:    %s\n" "$_utc_cur"
-                printf "  Depot:     %s\n" "$_utc_rem"
+                if [ "$_utc_kind" = "cgoban_jar" ]; then
+                    printf "  Officielle:%s\n" "$_utc_rem"
+                else
+                    printf "  Depot:     %s\n" "$_utc_rem"
+                fi
                 printf "  Maj?       %s\n" "$_utc_upd"
                 if [ "$_utc_cur" = "not_installed" ]; then
                     printf "\n${YELLOW}Non installe — lance: installman %s${RESET}\n" "$_utc_tool"
                     return 1
                 fi
                 if [ "$_utc_upd" = "oui" ]; then
-                    printf "\n${YELLOW}Mise a jour depot disponible — lance: updateman %s${RESET}\n" "$_utc_tool"
+                    printf "\n${YELLOW}Mise a jour disponible — lance: updateman %s${RESET}\n" "$_utc_tool"
                     return 0
                 fi
-                printf "\n${GREEN}A jour (depot) ou rien en attente.${RESET}\n"
+                printf "\n${GREEN}A jour ou rien en attente.${RESET}\n"
                 return 0
                 ;;
             *)
@@ -673,11 +704,23 @@ updateman() {
         return $?
     }
 
+    __updateman_run_cgoban() {
+        _urg_script="$DOTFILES_DIR/scripts/update/update-cgoban.sh"
+        __updateman_need_file "$_urg_script" || return 1
+        if ! command -v bash >/dev/null 2>&1; then
+            printf "${RED}bash introuvable${RESET}\n" >&2
+            return 1
+        fi
+        bash "$_urg_script" update
+        return $?
+    }
+
     __updateman_run_tool() {
         _urt_tool="$1"
         _urt_kind="$(updatable_tool_update_kind "$_urt_tool" 2>/dev/null || printf '%s' unknown)"
         case "$_urt_kind" in
             cursor_appimage) __updateman_run_cursor ;;
+            cgoban_jar) __updateman_run_cgoban ;;
             pkg)
                 if command -v pkg_backend_upgrade_registered_tool >/dev/null 2>&1; then
                     pkg_backend_upgrade_registered_tool "$_urt_tool"
