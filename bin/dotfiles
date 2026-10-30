@@ -61,6 +61,7 @@ Usage:
   dotfiles session emergency      session Openbox minimale
   dotfiles adb …                  adbman (USB/Wi-Fi sans spam)
   dotfiles version …              versionman (Java & logiciels)
+  dotfiles games …                miroir jeux hors-git (noita/terraria/…)
   dotfiles perso status|backup    audit Git Perso / snapshot home
   dotfiles shims install          *man dans ~/.local/bin (marche sous sudo)
   dotfiles update [pull|full|status|enable|disable]
@@ -160,6 +161,9 @@ case "$cmd" in
         # shellcheck source=/dev/null
         . "$ROOT/core/managers/versionman/core/versionman.sh"
         versionman "$@"
+        ;;
+    games|jeux)
+        bash "$ROOT/scripts/install/games/games_cli.sh" "$@"
         ;;
     perso)
         sub="${1:-status}"

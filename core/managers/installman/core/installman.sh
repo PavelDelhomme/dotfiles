@@ -138,6 +138,9 @@ cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_
 handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake
 cgoban:kgs,go-client:⚫:CGoban (client Go KGS):check_cgoban_installed:cgoban/install_cgoban.sh:install_cgoban
 stoat:stoatchat,revolt:💬:Stoat Chat (AppImage GitHub):check_stoat_installed:stoat/install_stoat.sh:install_stoat
+noita::🪄:Noita (archive locale /data/jeux):check_noita_installed:noita/install_noita.sh:install_noita
+terraria::🌳:Terraria GOG (installeur .sh):check_terraria_installed:terraria/install_terraria.sh:install_terraria
+zomboid:projectzomboid,pz:🧟:Project Zomboid (PortProton):check_zomboid_installed:zomboid/install_zomboid.sh:install_zomboid
 network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools
 qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu
 sshpass:sshpass-bin:🔑:sshpass (SSH automatisé / setup VPS):check_sshpass_installed:ssh/install_sshpass.sh:install_sshpass

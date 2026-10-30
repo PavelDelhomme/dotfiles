@@ -1,0 +1,53 @@
+# Manifest jeux — métadonnées UNIQUEMENT (pas de binaires dans git).
+# Archives : /data/jeux/dotfiles-mirror/  ou  $DOTFILES_GAMES_MIRROR_DIR
+# Optionnel HTTP privé : $DOTFILES_GAMES_MIRROR_URL  (jamais committer de dump pirate sur GitHub public)
+
+[defaults]
+mirror_dir = "/data/jeux/dotfiles-mirror"
+search_dirs = [
+  "/data/jeux/dotfiles-mirror",
+  "/data/jeux",
+  "$HOME/Téléchargements",
+  "$HOME/Downloads",
+  "$HOME/Jeux",
+]
+
+[games.noita]
+name = "Noita"
+archive = "Noita_v08.04.24_Linux.tar.xz"
+# install_kind: extract_dir = extrait archive, déplace sous-dossier → dest
+install_kind = "extract_subdir"
+archive_subdir = "Noita"
+dest = "/opt/Noita"
+launcher = "start.sh"
+desktop_name = "Noita"
+categories = "Game;"
+aliases = ["noita"]
+
+[games.terraria]
+name = "Terraria"
+archive = "terraria_v1_4_5_6_89299.sh"
+install_kind = "gog_mojo"
+dest = "$HOME/GOG Games/Terraria"
+launcher = "start.sh"
+desktop_name = "Terraria"
+categories = "Game;"
+aliases = ["terraria"]
+# Si déjà installé GOG, on peut aussi « link » depuis dest existant
+
+[games.zomboid]
+name = "Project Zomboid"
+# Pas d’archive unique fiable ici : on cherche un .exe / dossier
+install_kind = "portproton_exe"
+exe_names = ["ProjectZomboid64.exe", "ProjectZomboid32.exe"]
+search_globs = [
+  "$HOME/Jeux/ProjectZomboid",
+  "$HOME/ProjectZomboid",
+  "/data/jeux/ProjectZomboid",
+  "$HOME/PortProton/data/prefixes/*/drive_c/Program Files*/Project Zomboid",
+]
+dest = "$HOME/Jeux/ProjectZomboid"
+portproton_start = "$HOME/PortProton/data/scripts/start.sh"
+desktop_name = "Project Zomboid 64"
+categories = "Game;"
+aliases = ["zomboid", "projectzomboid"]

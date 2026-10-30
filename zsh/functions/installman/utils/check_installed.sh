@@ -450,6 +450,34 @@ check_cgoban_installed() {
     return 1
 }
 
+# DESC: Vérifie si Noita est installé
+check_noita_installed() {
+    _check_paths /opt/Noita/start.sh "$HOME/.local/bin/noita" && { echo "installed"; return 0; }
+    _check_desktop_pattern "Noita" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Terraria (GOG) est installé
+check_terraria_installed() {
+    _check_paths "$HOME/GOG Games/Terraria/start.sh" "$HOME/.local/bin/terraria" && { echo "installed"; return 0; }
+    _check_desktop_pattern "Terraria" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
+# DESC: Vérifie si Project Zomboid est configurable/lancable
+check_zomboid_installed() {
+    _check_paths "$HOME/.local/bin/zomboid" && { echo "installed"; return 0; }
+    if [ -f "$HOME/Jeux/ProjectZomboid/ProjectZomboid64.exe" ] \
+        || [ -f /data/jeux/ProjectZomboid/ProjectZomboid64.exe ]; then
+        echo "installed"; return 0
+    fi
+    _check_desktop_pattern "Zomboid" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si Stoat (AppImage) est installé
 # USAGE: check_stoat_installed
 check_stoat_installed() {

@@ -34,3 +34,9 @@ zsh/backups/
 scripts/.ssh/
 scripts/.gitconfig
 docs/TESTS.preview.html
+
+# Gros jeux hors git
+/data/
+dotfiles-mirror/
+*.tar.xz
+
