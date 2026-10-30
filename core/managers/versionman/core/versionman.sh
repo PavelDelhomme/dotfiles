@@ -95,7 +95,20 @@ EOF
     }
 
     _vm_cmd_path() {
-        command -v "$1" 2>/dev/null || true
+        _vm_name="$1"
+        _vm_p=$(command -v "$_vm_name" 2>/dev/null || true)
+        # Ignorer fonctions/alias shell et dossiers (ex. ~/dotfiles/git)
+        if [ -n "$_vm_p" ] && [ -x "$_vm_p" ] && [ ! -d "$_vm_p" ]; then
+            printf '%s\n' "$_vm_p"
+            return 0
+        fi
+        for _vm_d in /usr/bin /usr/local/bin "$HOME/.local/bin" /bin; do
+            if [ -x "$_vm_d/$_vm_name" ] && [ ! -d "$_vm_d/$_vm_name" ]; then
+                printf '%s\n' "$_vm_d/$_vm_name"
+                return 0
+            fi
+        done
+        return 1
     }
 
     # --- JAVA ---
@@ -464,7 +477,5 @@ EOF
     esac
 }
 
-# Exécution directe (shim)
-if [ "${0##*/}" = "versionman" ] || [ "${0##*/}" = "versionman.sh" ]; then
-    versionman "$@"
-fi
+# L’exécution CLI passe par le shim (~/.local/bin/versionman) qui source ce fichier
+# puis appelle versionman "$@". Pas d’auto-run ici (sinon double exécution au source).
