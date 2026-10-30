@@ -3,13 +3,16 @@
 # Mise à jour du dépôt dotfiles (multi-machine / multi-shell)
 #
 # Modes (DOTFILES_SYNC_MODE) :
-#   pull  — fetch + fast-forward / rebase (défaut, sûr) — pour recevoir Arch→Gentoo…
+#   pull  — fetch + fast-forward / rebase (défaut)
 #   full  — pull puis auto-commit + push des changements locaux
 #
-# Usage:
-#   bash scripts/sync/dotfiles_update.sh [pull|full|status]
-#   DOTFILES_SYNC_MODE=full bash scripts/sync/dotfiles_update.sh
-#   DOTFILES_UPDATE_QUIET=1 …   # peu de sortie (hook login)
+# Canal (DOTFILES_SYNC_TRACK) :
+#   main  — prod (défaut) — toutes les machines reçoivent la dernière release
+#   dev   — branche dev
+#   auto  — branche courante uniquement
+#   <nom> — branche explicite (ex: feat/manual-tests-g0)
+#
+# Config persistante : ~/.config/dotfiles/sync.env
 ################################################################################
 
 set +e
@@ -28,9 +31,22 @@ case "$DOTFILES_DIR" in
     */scripts) DOTFILES_DIR="${DOTFILES_DIR%/scripts}" ;;
 esac
 
-MODE="${1:-${DOTFILES_SYNC_MODE:-pull}}"
+# Charger config utilisateur
+SYNC_ENV="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/sync.env"
+if [ -f "$SYNC_ENV" ]; then
+    # shellcheck source=/dev/null
+    set -a
+    # shellcheck disable=SC1090
+    . "$SYNC_ENV"
+    set +a
+fi
+
+# Args: [pull|full|status|track <branche>|help]
+ARG1="${1:-}"
+ARG2="${2:-}"
+MODE="${ARG1:-${DOTFILES_SYNC_MODE:-pull}}"
 case "$MODE" in
-    pull|full|status|help|-h|--help) ;;
+    pull|full|status|track|help|-h|--help) ;;
     *) MODE="${DOTFILES_SYNC_MODE:-pull}" ;;
 esac
 
@@ -41,6 +57,7 @@ LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/dotfiles_update.lock"
 STAMP_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
 STAMP_FILE="$STAMP_DIR/last_update"
 REMOTE="${DOTFILES_SYNC_REMOTE:-origin}"
+TRACK_RAW="${DOTFILES_SYNC_TRACK:-main}"
 
 _q() {
     if [ "$QUIET" = "1" ]; then
@@ -58,15 +75,18 @@ mkdir -p "$LOG_DIR" "$STAMP_DIR" 2>/dev/null || true
 
 if [ "$MODE" = "help" ] || [ "$MODE" = "-h" ] || [ "$MODE" = "--help" ]; then
     cat <<'EOF'
-dotfiles_update.sh — sync du dépôt
+dotfiles_update.sh — sync du dépôt sur toutes les machines
 
-  pull     fetch + mise à jour locale depuis origin (défaut)
-  full     pull + commit auto des changements locaux + push
-  status   branche, ahead/behind, dirty, timer
+  pull     fetch + mise à jour depuis le canal (défaut)
+  full     pull + commit auto locaux + push
+  status   branche, track, ahead/behind, timer
+  track X  définit le canal (main|dev|auto|<branche>) dans ~/.config/dotfiles/sync.env
 
 Variables:
-  DOTFILES_DIR  DOTFILES_SYNC_MODE=pull|full  DOTFILES_UPDATE_QUIET=1
-  DOTFILES_SYNC_REMOTE=origin
+  DOTFILES_DIR  DOTFILES_SYNC_MODE=pull|full
+  DOTFILES_SYNC_TRACK=main|dev|auto|<branche>
+  DOTFILES_SYNC_REMOTE=origin  DOTFILES_UPDATE_QUIET=1
+  DOTFILES_SYNC_FORCE_REMOTE=1
 EOF
     exit 0
 fi
@@ -78,24 +98,57 @@ fi
 
 cd "$DOTFILES_DIR" || exit 1
 
-BRANCH=$(git branch --show-current 2>/dev/null || echo main)
+CURRENT=$(git branch --show-current 2>/dev/null || echo main)
+
+# Résoudre le canal
+case "$TRACK_RAW" in
+    auto|"") TRACK="$CURRENT" ;;
+    *) TRACK="$TRACK_RAW" ;;
+esac
+
+_write_track() {
+    local t="$1"
+    mkdir -p "$(dirname "$SYNC_ENV")"
+    if [ -f "$SYNC_ENV" ] && grep -q '^DOTFILES_SYNC_TRACK=' "$SYNC_ENV" 2>/dev/null; then
+        sed -i "s|^DOTFILES_SYNC_TRACK=.*|DOTFILES_SYNC_TRACK=$t|" "$SYNC_ENV" 2>/dev/null \
+            || sed -i '' "s|^DOTFILES_SYNC_TRACK=.*|DOTFILES_SYNC_TRACK=$t|" "$SYNC_ENV"
+    else
+        {
+            echo "DOTFILES_SYNC_TRACK=$t"
+            echo "DOTFILES_SYNC_MODE=${DOTFILES_SYNC_MODE:-pull}"
+        } >"$SYNC_ENV"
+    fi
+    _info "Canal sync → $t ($SYNC_ENV)"
+}
+
+if [ "$MODE" = "track" ]; then
+    newt="${ARG2:-main}"
+    [ -z "$newt" ] && newt=main
+    _write_track "$newt"
+    exit 0
+fi
 
 _status() {
     echo "DOTFILES_DIR=$DOTFILES_DIR"
-    echo "branch=$BRANCH  remote=$REMOTE  mode=${DOTFILES_SYNC_MODE:-pull}"
+    echo "branch=$CURRENT  track=$TRACK  remote=$REMOTE  mode=${DOTFILES_SYNC_MODE:-pull}"
+    local_sha=$(git rev-parse --short HEAD 2>/dev/null || echo '?')
+    echo "local=$local_sha"
     git status -sb 2>/dev/null | head -8
-    if git rev-parse "$REMOTE/$BRANCH" >/dev/null 2>&1; then
-        ahead=$(git rev-list --count "$REMOTE/$BRANCH"..HEAD 2>/dev/null || echo 0)
-        behind=$(git rev-list --count HEAD.."$REMOTE/$BRANCH" 2>/dev/null || echo 0)
-        echo "ahead=$ahead  behind=$behind"
+    git fetch "$REMOTE" "$TRACK" --quiet 2>/dev/null || true
+    if git rev-parse "$REMOTE/$TRACK" >/dev/null 2>&1; then
+        ahead=$(git rev-list --count "$REMOTE/$TRACK"..HEAD 2>/dev/null || echo 0)
+        behind=$(git rev-list --count HEAD.."$REMOTE/$TRACK" 2>/dev/null || echo 0)
+        rem_sha=$(git rev-parse --short "$REMOTE/$TRACK" 2>/dev/null || echo '?')
+        echo "remote_track=$REMOTE/$TRACK@$rem_sha  ahead=$ahead  behind=$behind"
     fi
     if systemctl --user is-enabled dotfiles-sync.timer >/dev/null 2>&1; then
         echo "timer=enabled  $(systemctl --user is-active dotfiles-sync.timer 2>/dev/null)"
         systemctl --user list-timers dotfiles-sync.timer --no-pager 2>/dev/null | head -3
     else
-        echo "timer=disabled (dotfiles update enable)"
+        echo "timer=disabled (updateman dotfiles enable | dotfiles update enable)"
     fi
     [ -f "$STAMP_FILE" ] && echo "last_update=$(cat "$STAMP_FILE")"
+    [ -f "$SYNC_ENV" ] && echo "config=$SYNC_ENV"
 }
 
 if [ "$MODE" = "status" ]; then
@@ -119,48 +172,73 @@ fi
 echo $$ >"$LOCK_FILE"
 trap 'rm -f "$LOCK_FILE"' EXIT
 
-_q "═══ update mode=$MODE branch=$BRANCH ═══"
+_q "═══ update mode=$MODE track=$TRACK current=$CURRENT ═══"
 
-# --- PULL ---
-if ! git fetch "$REMOTE" "$BRANCH" >/dev/null 2>&1; then
-    _warn "fetch impossible (réseau?)"
-else
-    LOCAL=$(git rev-parse HEAD)
-    REMOTE_REF=$(git rev-parse "$REMOTE/$BRANCH" 2>/dev/null || echo "")
-    if [ -n "$REMOTE_REF" ] && [ "$LOCAL" != "$REMOTE_REF" ]; then
-        dirty=$(git status --porcelain 2>/dev/null)
-        if [ -n "$dirty" ]; then
-            # stash local changes to allow pull, then pop
-            _warn "Modifs locales présentes — stash avant pull"
-            git stash push -u -m "dotfiles-update-autostash $(date +%s)" >/dev/null 2>&1 || true
-            STASHED=1
-        else
-            STASHED=0
-        fi
-        if git pull --ff-only "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1 \
-            || git pull --rebase "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1; then
-            _info "✓ à jour depuis $REMOTE/$BRANCH"
-        else
-            _warn "pull en conflit — abandon rebase, priorité remote"
-            git rebase --abort >/dev/null 2>&1 || true
-            if [ "${DOTFILES_SYNC_FORCE_REMOTE:-0}" = "1" ]; then
-                git reset --hard "$REMOTE/$BRANCH" >>"$LOG_FILE" 2>&1 && _warn "reset --hard remote (FORCE)"
-            else
-                _err "Échec pull. Relance avec DOTFILES_SYNC_FORCE_REMOTE=1 pour écraser le local."
-            fi
-        fi
-        if [ "${STASHED:-0}" = "1" ]; then
-            git stash pop >/dev/null 2>&1 || _warn "stash pop partiel — voir git stash list"
-        fi
-    else
-        _info "✓ déjà synchronisé avec $REMOTE/$BRANCH"
+# --- PULL du canal ---
+if ! git fetch "$REMOTE" "$TRACK" >/dev/null 2>&1; then
+    # fallback: fetch all
+    if ! git fetch "$REMOTE" >/dev/null 2>&1; then
+        _warn "fetch impossible (réseau?)"
+        date -Iseconds >"$STAMP_FILE" 2>/dev/null || true
+        exit 0
     fi
+fi
+
+# Si on n'est pas sur le track et FOLLOW=1 (défaut pour pull consumers), checkout track
+FOLLOW="${DOTFILES_SYNC_FOLLOW_TRACK:-1}"
+if [ "$FOLLOW" = "1" ] && [ "$CURRENT" != "$TRACK" ]; then
+    if git rev-parse --verify "$REMOTE/$TRACK" >/dev/null 2>&1; then
+        dirty=$(git status --porcelain 2>/dev/null)
+        if [ -z "$dirty" ]; then
+            _info "Basculer sur canal $TRACK…"
+            git checkout -B "$TRACK" "$REMOTE/$TRACK" >>"$LOG_FILE" 2>&1 \
+                || git checkout "$TRACK" >>"$LOG_FILE" 2>&1 \
+                || _warn "checkout $TRACK échoué — reste sur $CURRENT"
+            CURRENT=$(git branch --show-current 2>/dev/null || echo "$CURRENT")
+        else
+            _warn "Modifs locales — reste sur $CURRENT (stash ou commit pour suivre $TRACK)"
+            TRACK="$CURRENT"
+        fi
+    fi
+fi
+
+# Pull sur la branche effective
+BRANCH=$(git branch --show-current 2>/dev/null || echo "$TRACK")
+git fetch "$REMOTE" "$BRANCH" >/dev/null 2>&1 || true
+
+LOCAL=$(git rev-parse HEAD)
+REMOTE_REF=$(git rev-parse "$REMOTE/$BRANCH" 2>/dev/null || echo "")
+if [ -n "$REMOTE_REF" ] && [ "$LOCAL" != "$REMOTE_REF" ]; then
+    dirty=$(git status --porcelain 2>/dev/null)
+    if [ -n "$dirty" ]; then
+        _warn "Modifs locales présentes — stash avant pull"
+        git stash push -u -m "dotfiles-update-autostash $(date +%s)" >/dev/null 2>&1 || true
+        STASHED=1
+    else
+        STASHED=0
+    fi
+    if git pull --ff-only "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1 \
+        || git pull --rebase "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1; then
+        _info "✓ à jour depuis $REMOTE/$BRANCH"
+    else
+        _warn "pull en conflit — abandon rebase"
+        git rebase --abort >/dev/null 2>&1 || true
+        if [ "${DOTFILES_SYNC_FORCE_REMOTE:-0}" = "1" ]; then
+            git reset --hard "$REMOTE/$BRANCH" >>"$LOG_FILE" 2>&1 && _warn "reset --hard remote (FORCE)"
+        else
+            _err "Échec pull. DOTFILES_SYNC_FORCE_REMOTE=1 pour écraser le local."
+        fi
+    fi
+    if [ "${STASHED:-0}" = "1" ]; then
+        git stash pop >/dev/null 2>&1 || _warn "stash pop partiel — git stash list"
+    fi
+else
+    _info "✓ déjà synchronisé avec $REMOTE/$BRANCH"
 fi
 
 # --- FULL : commit + push ---
 if [ "$MODE" = "full" ]; then
     if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
-        # Ne jamais committer .env / secrets
         git add -A
         git reset HEAD -- .env .env.local '*.pem' '*.key' 2>/dev/null || true
         if [ -n "$(git diff --cached --name-only 2>/dev/null)" ]; then
@@ -178,7 +256,7 @@ if [ "$MODE" = "full" ]; then
             if git push "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1; then
                 _info "✓ push $REMOTE/$BRANCH"
             else
-                _warn "push échoué — pull --rebase puis retry"
+                _warn "push échoué — rebase puis retry"
                 git pull --rebase "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1
                 git push "$REMOTE" "$BRANCH" >>"$LOG_FILE" 2>&1 && _info "✓ push après rebase" || _err "push toujours KO"
             fi

@@ -74,6 +74,9 @@ updateman() {
         printf "  ${BOLD}updateman stoat${RESET}               met Stoat AppImage a jour (GitHub)\n"
         printf "  ${BOLD}updateman stoat check${RESET}         version locale vs GitHub releases\n"
         printf "  ${BOLD}updateman stoat enable${RESET}        timer quotidien systemd user\n"
+        printf "  ${BOLD}updateman dotfiles${RESET}            sync le depot (canal main) sur cette machine\n"
+        printf "  ${BOLD}updateman dotfiles check${RESET}      SHA local vs origin/<track>\n"
+        printf "  ${BOLD}updateman dotfiles enable${RESET}     timer horaire + hook login\n"
         printf "  ${BOLD}updateman help${RESET}                affiche cette aide\n"
         printf "\n${YELLOW}Note:${RESET} les scripts internes (ex. update-cursor-appimage) ne sont pas des commandes publiques.\n"
         printf "      Installation initiale : ${BOLD}installman <outil>${RESET} ; mises a jour : ${BOLD}updateman${RESET}.\n"
@@ -455,6 +458,14 @@ updateman() {
                 fi
                 printf 'not_installed'
                 ;;
+            dotfiles)
+                _ulv_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+                if [ -d "$_ulv_df/.git" ]; then
+                    git -C "$_ulv_df" rev-parse --short HEAD 2>/dev/null || printf 'unknown'
+                    return 0
+                fi
+                printf 'not_installed'
+                ;;
             *)
                 printf 'n/a'
                 ;;
@@ -489,6 +500,22 @@ updateman() {
                     | python3 -c "import sys,json,re; t=json.load(sys.stdin).get('tag_name') or ''; print(re.sub(r'^v','',t))" 2>/dev/null || true)
                 if [ -n "$_urv_ver" ]; then
                     printf '%s' "$_urv_ver"
+                    return 0
+                fi
+                printf 'n/a'
+                ;;
+            dotfiles_git)
+                _urv_df="${DOTFILES_DIR:-$HOME/dotfiles}"
+                _urv_track="${DOTFILES_SYNC_TRACK:-main}"
+                _urv_env="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/sync.env"
+                if [ -f "$_urv_env" ]; then
+                    _urv_from_env="$(grep -E '^DOTFILES_SYNC_TRACK=' "$_urv_env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\"'\'' \r')"
+                    [ -n "$_urv_from_env" ] && _urv_track="$_urv_from_env"
+                fi
+                [ "$_urv_track" = "auto" ] && _urv_track="$(git -C "$_urv_df" branch --show-current 2>/dev/null || echo main)"
+                if [ -d "$_urv_df/.git" ]; then
+                    git -C "$_urv_df" fetch origin "$_urv_track" --quiet 2>/dev/null || true
+                    git -C "$_urv_df" rev-parse --short "origin/$_urv_track" 2>/dev/null || printf 'n/a'
                     return 0
                 fi
                 printf 'n/a'
@@ -549,6 +576,12 @@ updateman() {
             printf '%s' "non"
             return 0
         fi
+        # SHA git (dotfiles sync) : toute différence = mise a jour possible
+        if printf '%s' "$_vul_cur" | grep -Eq '^[0-9a-fA-F]{7,40}$' \
+           && printf '%s' "$_vul_rem" | grep -Eq '^[0-9a-fA-F]{7,40}$'; then
+            printf '%s' "oui"
+            return 0
+        fi
         if [ "$(printf '%s\n' "$_vul_cur" "$_vul_rem" | sort -V | head -n1)" = "$_vul_cur" ] \
            && [ "$_vul_cur" != "$_vul_rem" ]; then
             printf '%s' "oui"
@@ -607,6 +640,9 @@ updateman() {
                 else
                     printf '%s' "-"
                 fi
+                ;;
+            dotfiles)
+                printf '%s' "${DOTFILES_DIR:-$HOME/dotfiles}"
                 ;;
             *) printf '%s' "-" ;;
         esac
@@ -697,7 +733,7 @@ updateman() {
         _utc_kind="$(updatable_tool_update_kind "$_utc_tool" 2>/dev/null || printf '%s' unknown)"
         case "$_utc_kind" in
             cursor_appimage) __updateman_cursor_check ;;
-            cgoban_jar|stoat_appimage|pkg)
+            cgoban_jar|stoat_appimage|dotfiles_git|pkg)
                 _utc_cur="$(__updateman_local_version "$_utc_tool")"
                 _utc_rem="$(__updateman_remote_version "$_utc_tool")"
                 _utc_upd="$(__updateman_version_update_label "$_utc_cur" "$_utc_rem" "$_utc_tool")"
@@ -707,6 +743,8 @@ updateman() {
                     printf "  Officielle:%s\n" "$_utc_rem"
                 elif [ "$_utc_kind" = "stoat_appimage" ]; then
                     printf "  GitHub:    %s\n" "$_utc_rem"
+                elif [ "$_utc_kind" = "dotfiles_git" ]; then
+                    printf "  Remote:    %s (track %s)\n" "$_utc_rem" "${DOTFILES_SYNC_TRACK:-main}"
                 else
                     printf "  Depot:     %s\n" "$_utc_rem"
                 fi
@@ -761,6 +799,17 @@ updateman() {
         return $?
     }
 
+    __updateman_run_dotfiles() {
+        _urd_script="$DOTFILES_DIR/scripts/sync/dotfiles_update.sh"
+        __updateman_need_file "$_urd_script" || return 1
+        if ! command -v bash >/dev/null 2>&1; then
+            printf "${RED}bash introuvable${RESET}\n" >&2
+            return 1
+        fi
+        bash "$_urd_script" "${DOTFILES_SYNC_MODE:-pull}"
+        return $?
+    }
+
     __updateman_run_tool() {
         _urt_tool="$1"
         _urt_kind="$(updatable_tool_update_kind "$_urt_tool" 2>/dev/null || printf '%s' unknown)"
@@ -768,6 +817,7 @@ updateman() {
             cursor_appimage) __updateman_run_cursor ;;
             cgoban_jar) __updateman_run_cgoban ;;
             stoat_appimage) __updateman_run_stoat ;;
+            dotfiles_git) __updateman_run_dotfiles ;;
             pkg)
                 if command -v pkg_backend_upgrade_registered_tool >/dev/null 2>&1; then
                     pkg_backend_upgrade_registered_tool "$_urt_tool"
@@ -886,6 +936,14 @@ updateman() {
     }
 
     __updateman_setup_tool_service() {
+        if [ "$1" = "dotfiles" ]; then
+            _sts_inst="$DOTFILES_DIR/scripts/sync/install_auto_sync.sh"
+            if [ -f "$_sts_inst" ]; then
+                DOTFILES_DIR="$DOTFILES_DIR" DOTFILES_SYNC_MODE="${DOTFILES_SYNC_MODE:-pull}" \
+                    bash "$_sts_inst"
+                return $?
+            fi
+        fi
         __updateman_enable_tool_timer "$1"
     }
 

@@ -78,15 +78,22 @@ else
     log_warn "systemctl absent — seul le hook login (shared/dotfiles_autoupdate.sh) s'appliquera"
 fi
 
+# Canal prod par défaut (toutes les machines suivent main)
+TRACK="${DOTFILES_SYNC_TRACK:-main}"
+bash "$SYNC_SCRIPT" track "$TRACK" || true
+
 # Premier pull immédiat
 bash "$SYNC_SCRIPT" pull || true
 
 echo ""
 log_info "Hook login : sourcé via zsh/fish/bash (shared/dotfiles_autoupdate.sh)"
 log_info "Commandes :"
+echo "  updateman dotfiles       # sync maintenant (installman/updateman)"
+echo "  installman dotfiles      # clone ou sync + timer"
 echo "  dotfiles update          # pull maintenant"
 echo "  dotfiles update full     # pull + commit/push locaux"
 echo "  dotfiles update status"
+echo "  dotfiles update track main"
 echo "  dotfiles update enable|disable"
 echo "  DOTFILES_SYNC_MODE=full make auto-sync   # push auto aussi"
 echo ""

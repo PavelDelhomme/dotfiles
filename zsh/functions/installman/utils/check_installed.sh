@@ -749,6 +749,18 @@ check_pyenv_installed() {
     return 1
 }
 
+# DESC: Dépôt ~/dotfiles (ou DOTFILES_DIR) présent
+# USAGE: check_dotfiles_installed
+check_dotfiles_installed() {
+    local dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [[ -d "$dir/.git" ]]; then
+        echo "installed"
+        return 0
+    fi
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Projet utilisateur cloné (répertoire .git)
 # USAGE: check_user_project_installed
 check_user_project_installed() {

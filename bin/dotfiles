@@ -64,7 +64,7 @@ Usage:
   dotfiles games …                miroir jeux hors-git (noita/terraria/…)
   dotfiles perso status|backup    audit Git Perso / snapshot home
   dotfiles shims install          *man dans ~/.local/bin (marche sous sudo)
-  dotfiles update [pull|full|status|enable|disable]
+  dotfiles update [pull|full|status|enable|disable|track]
   dotfiles preflight              état avant install/reset
   dotfiles mincheck               binaires critiques only (fresh OS)
   dotfiles help
@@ -72,8 +72,10 @@ Usage:
 Update multi-machine (Arch zsh → Gentoo fish, …) :
   dotfiles update enable          timer systemd + hook login (pull)
   DOTFILES_SYNC_MODE=full dotfiles update enable   # + auto commit/push
-  dotfiles update                 # pull maintenant
+  dotfiles update                 # pull maintenant (canal main)
   dotfiles update full            # pull + push locaux
+  dotfiles update track main      # canal prod (défaut toutes machines)
+  updateman dotfiles | installman dotfiles
 
 Fresh install (CLI only, root ou user) :
   ~/dotfiles/bin/dotfiles doctor
@@ -197,6 +199,10 @@ case "$cmd" in
                 [ -z "${1:-}" ] && sub=pull
                 bash "$ROOT/scripts/sync/dotfiles_update.sh" "$sub"
                 ;;
+            track)
+                shift || true
+                bash "$ROOT/scripts/sync/dotfiles_update.sh" track "${1:-main}"
+                ;;
             enable|install|on)
                 DOTFILES_SYNC_MODE="${DOTFILES_SYNC_MODE:-pull}" \
                     bash "$ROOT/scripts/sync/install_auto_sync.sh"
@@ -211,7 +217,7 @@ case "$cmd" in
                 bash "$ROOT/scripts/sync/dotfiles_update.sh" pull
                 ;;
             *)
-                echo "update: pull|full|status|enable|disable" >&2
+                echo "update: pull|full|status|enable|disable|track" >&2
                 exit 1
                 ;;
         esac

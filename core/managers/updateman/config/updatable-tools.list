@@ -1,6 +1,7 @@
 # Registre des outils geres par updateman
 # Format: name|check_fn|timer_unit|auto_service|update_kind
-# update_kind: cursor_appimage | cgoban_jar | pkg
+# update_kind: cursor_appimage | cgoban_jar | stoat_appimage | dotfiles_git | pkg
+dotfiles|check_dotfiles_installed|dotfiles-sync.timer|1|dotfiles_git
 cursor|check_cursor_installed|cursor-update.timer|1|cursor_appimage
 docker|check_docker_installed|docker-update.timer|0|pkg
 brave|check_brave_installed|brave-update.timer|0|pkg

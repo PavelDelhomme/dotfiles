@@ -60,6 +60,7 @@ typeset -ga TOOLS=(
     "brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave.sh:install_brave"
     "chrome:google-chrome:🌐:Google Chrome:check_chrome_installed:chrome/install_chrome.sh:install_chrome"
     "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
+    "dotfiles:dots,dotfiles-sync:📁:Dépôt dotfiles (clone/sync canal main):check_dotfiles_installed:dotfiles/install_dotfiles.sh:install_dotfiles"
     "handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake"
     "cgoban:kgs,go-client:⚫:CGoban (client Go KGS):check_cgoban_installed:cgoban/install_cgoban.sh:install_cgoban"
     "stoat:stoatchat,revolt:💬:Stoat Chat (AppImage GitHub):check_stoat_installed:stoat/install_stoat.sh:install_stoat"
