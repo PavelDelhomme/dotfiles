@@ -164,6 +164,7 @@ load_manager "diffman" "$DOTFILES_DIR/shells/zsh/adapters/diffman.zsh" "DIFFMAN"
 load_manager "diskman" "$DOTFILES_DIR/shells/zsh/adapters/diskman.zsh" "DISKMAN"
 load_manager "anonyman" "$DOTFILES_DIR/shells/zsh/adapters/anonyman.zsh" "ANONYMAN"
 load_manager "shellman" "$DOTFILES_DIR/shells/zsh/adapters/shellman.zsh" "SHELLMAN"
+load_manager "versionman" "$DOTFILES_DIR/shells/zsh/adapters/versionman.zsh" "VERSIONMAN"
 
 # =============================================================================
 # ÉTAPE 2.5 : CONFIGURATION HISTORIQUE (AVANT ENV)
@@ -435,7 +436,7 @@ if _dotfiles_ensure_compadd 2>/dev/null \
         autoload -Uz _dotfiles_mans
         for _dm in netman sshman pathman aliaman aliasman installman updateman configman \
             gitman fileman helpman manman moduleman miscman searchman cyberman cyberlearn \
-            devman virtman displayman diffman diskman doctorman processman routeman \
+            devman virtman displayman diffman diskman doctorman processman routeman versionman \
             multimediaman shellman anonyman anonymman dockerman testman testzshman dfm dfmenu
         do
             compdef _dotfiles_mans "$_dm" 2>/dev/null || true

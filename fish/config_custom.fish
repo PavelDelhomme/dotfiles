@@ -113,6 +113,7 @@ load_manager "diffman" "$DOTFILES_DIR/shells/fish/adapters/diffman.fish" "DIFFMA
 load_manager "diskman" "$DOTFILES_DIR/shells/fish/adapters/diskman.fish" "DISKMAN"
 load_manager "anonyman" "$DOTFILES_DIR/shells/fish/adapters/anonyman.fish" "ANONYMAN"
 load_manager "shellman" "$DOTFILES_DIR/shells/fish/adapters/shellman.fish" "SHELLMAN"
+load_manager "versionman" "$DOTFILES_DIR/shells/fish/adapters/versionman.fish" "VERSIONMAN"
 
 
 # =============================================================================

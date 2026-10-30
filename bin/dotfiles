@@ -60,6 +60,7 @@ Usage:
   dotfiles session prefer-gnome   GDM + GNOME
   dotfiles session emergency      session Openbox minimale
   dotfiles adb …                  adbman (USB/Wi-Fi sans spam)
+  dotfiles version …              versionman (Java & logiciels)
   dotfiles perso status|backup    audit Git Perso / snapshot home
   dotfiles shims install          *man dans ~/.local/bin (marche sous sudo)
   dotfiles update [pull|full|status|enable|disable]
@@ -154,6 +155,11 @@ case "$cmd" in
         # shellcheck source=/dev/null
         . "$ROOT/core/managers/adbman/core/adbman.sh"
         adbman "$@"
+        ;;
+    version|versions|versionman|vm)
+        # shellcheck source=/dev/null
+        . "$ROOT/core/managers/versionman/core/versionman.sh"
+        versionman "$@"
         ;;
     perso)
         sub="${1:-status}"
