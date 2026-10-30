@@ -62,6 +62,7 @@ typeset -ga TOOLS=(
     "cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor"
     "handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake"
     "cgoban:kgs,go-client:⚫:CGoban (client Go KGS):check_cgoban_installed:cgoban/install_cgoban.sh:install_cgoban"
+    "stoat:stoatchat,revolt:💬:Stoat Chat (AppImage GitHub):check_stoat_installed:stoat/install_stoat.sh:install_stoat"
     "network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools"
     "qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu"
     "sshpass:sshpass-bin:🔑:sshpass (SSH automatisé / setup VPS):check_sshpass_installed:ssh/install_sshpass.sh:install_sshpass"
@@ -589,7 +590,7 @@ installman() {
         local order_names=(
             "flutter" "dotnet" "emacs" "java8" "java11" "java17" "java21" "java25"
             "android-studio" "android-tools" "docker" "cmake" "gdb" "c-tools" "cpp-tools"
-            "brave" "chrome" "cursor" "handbrake" "cgoban" "db-browser"
+            "brave" "chrome" "cursor" "handbrake" "cgoban" "stoat" "db-browser"
             "wine" "portproton"
             "protonmail" "bluemail"
             "snap" "nextcloud"

@@ -71,6 +71,9 @@ updateman() {
         printf "  ${BOLD}updateman cgoban${RESET}              met CGoban (/opt) a jour depuis gokgs.com\n"
         printf "  ${BOLD}updateman cgoban check${RESET}        version locale vs download.jsp\n"
         printf "  ${BOLD}updateman cgoban enable${RESET}       timer hebdo systemd user\n"
+        printf "  ${BOLD}updateman stoat${RESET}               met Stoat AppImage a jour (GitHub)\n"
+        printf "  ${BOLD}updateman stoat check${RESET}         version locale vs GitHub releases\n"
+        printf "  ${BOLD}updateman stoat enable${RESET}        timer quotidien systemd user\n"
         printf "  ${BOLD}updateman help${RESET}                affiche cette aide\n"
         printf "\n${YELLOW}Note:${RESET} les scripts internes (ex. update-cursor-appimage) ne sont pas des commandes publiques.\n"
         printf "      Installation initiale : ${BOLD}installman <outil>${RESET} ; mises a jour : ${BOLD}updateman${RESET}.\n"
@@ -441,6 +444,17 @@ updateman() {
                 fi
                 printf 'not_installed'
                 ;;
+            stoat)
+                if [ -f "$HOME/Applications/.stoat-version" ]; then
+                    tr -d ' \n\r' <"$HOME/Applications/.stoat-version"
+                    return 0
+                fi
+                if [ -f "$HOME/Applications/Stoat.AppImage" ]; then
+                    printf 'installed'
+                    return 0
+                fi
+                printf 'not_installed'
+                ;;
             *)
                 printf 'n/a'
                 ;;
@@ -461,6 +475,18 @@ updateman() {
             cgoban_jar)
                 _urv_html=$(curl -fsSL --connect-timeout 10 --max-time 20 https://www.gokgs.com/download.jsp 2>/dev/null || true)
                 _urv_ver=$(printf '%s' "$_urv_html" | grep -oE 'CGoban v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
+                if [ -n "$_urv_ver" ]; then
+                    printf '%s' "$_urv_ver"
+                    return 0
+                fi
+                printf 'n/a'
+                ;;
+            stoat_appimage)
+                _urv_ver=$(curl -fsSL --connect-timeout 10 --max-time 25 \
+                    -H 'Accept: application/vnd.github+json' \
+                    -H 'User-Agent: dotfiles-stoat-updater' \
+                    https://api.github.com/repos/stoatchat/for-desktop/releases/latest 2>/dev/null \
+                    | python3 -c "import sys,json,re; t=json.load(sys.stdin).get('tag_name') or ''; print(re.sub(r'^v','',t))" 2>/dev/null || true)
                 if [ -n "$_urv_ver" ]; then
                     printf '%s' "$_urv_ver"
                     return 0
@@ -575,6 +601,13 @@ updateman() {
                 if [ -f /opt/cgoban.jar ]; then printf '%s' /opt/cgoban.jar
                 else printf '%s' "-"; fi
                 ;;
+            stoat)
+                if [ -f "$HOME/Applications/Stoat.AppImage" ]; then
+                    printf '%s' "$HOME/Applications/Stoat.AppImage"
+                else
+                    printf '%s' "-"
+                fi
+                ;;
             *) printf '%s' "-" ;;
         esac
     }
@@ -664,7 +697,7 @@ updateman() {
         _utc_kind="$(updatable_tool_update_kind "$_utc_tool" 2>/dev/null || printf '%s' unknown)"
         case "$_utc_kind" in
             cursor_appimage) __updateman_cursor_check ;;
-            cgoban_jar|pkg)
+            cgoban_jar|stoat_appimage|pkg)
                 _utc_cur="$(__updateman_local_version "$_utc_tool")"
                 _utc_rem="$(__updateman_remote_version "$_utc_tool")"
                 _utc_upd="$(__updateman_version_update_label "$_utc_cur" "$_utc_rem" "$_utc_tool")"
@@ -672,6 +705,8 @@ updateman() {
                 printf "  Locale:    %s\n" "$_utc_cur"
                 if [ "$_utc_kind" = "cgoban_jar" ]; then
                     printf "  Officielle:%s\n" "$_utc_rem"
+                elif [ "$_utc_kind" = "stoat_appimage" ]; then
+                    printf "  GitHub:    %s\n" "$_utc_rem"
                 else
                     printf "  Depot:     %s\n" "$_utc_rem"
                 fi
@@ -715,12 +750,24 @@ updateman() {
         return $?
     }
 
+    __updateman_run_stoat() {
+        _urs_script="$DOTFILES_DIR/scripts/update/update-stoat-appimage.sh"
+        __updateman_need_file "$_urs_script" || return 1
+        if ! command -v bash >/dev/null 2>&1; then
+            printf "${RED}bash introuvable${RESET}\n" >&2
+            return 1
+        fi
+        bash "$_urs_script" update
+        return $?
+    }
+
     __updateman_run_tool() {
         _urt_tool="$1"
         _urt_kind="$(updatable_tool_update_kind "$_urt_tool" 2>/dev/null || printf '%s' unknown)"
         case "$_urt_kind" in
             cursor_appimage) __updateman_run_cursor ;;
             cgoban_jar) __updateman_run_cgoban ;;
+            stoat_appimage) __updateman_run_stoat ;;
             pkg)
                 if command -v pkg_backend_upgrade_registered_tool >/dev/null 2>&1; then
                     pkg_backend_upgrade_registered_tool "$_urt_tool"

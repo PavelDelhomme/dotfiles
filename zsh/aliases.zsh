@@ -9,6 +9,9 @@ alias tree_clean="tree -I 'venv|__pycache__|staticfiles|objects|hooks|*.pyc|*.py
 alias copyfile="copy_file"
 # CGoban: Java 21 (Applet OK ; Java 27 casse KGS)
 alias cgoban="$HOME/.local/bin/cgoban"
+# Stoat (ex-Revolt) AppImage
+alias stoat="$HOME/.local/bin/stoat"
+alias stoatchat="$HOME/.local/bin/stoat"
 alias make_and_rebuild="rm -rf build && mkdir build && cd build && cmake .. && make"
 alias rmr="cd .. && rm -R"
 alias rmr_build="cd .. && rm -rf build && mkdir -p build && cd build && cmake .. && make -j20"

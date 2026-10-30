@@ -137,6 +137,7 @@ brave:brave-browser:🌐:Brave Browser:check_brave_installed:brave/install_brave
 cursor::💻:Cursor IDE:check_cursor_installed:cursor/install_cursor.sh:install_cursor
 handbrake:hb,handbrake-cli:🎬:HandBrake (encodage vidéo):check_handbrake_installed:handbrake/install_handbrake.sh:install_handbrake
 cgoban:kgs,go-client:⚫:CGoban (client Go KGS):check_cgoban_installed:cgoban/install_cgoban.sh:install_cgoban
+stoat:stoatchat,revolt:💬:Stoat Chat (AppImage GitHub):check_stoat_installed:stoat/install_stoat.sh:install_stoat
 network-tools:net-tools,net-tools:🌐:Outils réseau (nslookup, dig, nmap, etc.):check_network_tools_installed:network-tools/install_network_tools.sh:install_network_tools
 qemu:qemu-kvm,kvm:🖥️:QEMU/KVM (Virtualisation):check_qemu_installed:qemu/install_qemu.sh:install_qemu
 sshpass:sshpass-bin:🔑:sshpass (SSH automatisé / setup VPS):check_sshpass_installed:ssh/install_sshpass.sh:install_sshpass

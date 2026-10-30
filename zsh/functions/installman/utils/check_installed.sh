@@ -450,6 +450,21 @@ check_cgoban_installed() {
     return 1
 }
 
+# DESC: Vérifie si Stoat (AppImage) est installé
+# USAGE: check_stoat_installed
+check_stoat_installed() {
+    _check_paths \
+        "$HOME/Applications/Stoat.AppImage" \
+        "$HOME/.local/bin/stoat" \
+        "$HOME/.local/bin/stoatchat" && { echo "installed"; return 0; }
+    for f in "$HOME/Applications"/Stoat*.AppImage; do
+        [ -f "$f" ] && { echo "installed"; return 0; }
+    done
+    _check_desktop_pattern "stoat" && { echo "installed"; return 0; }
+    echo "not_installed"
+    return 1
+}
+
 # DESC: Vérifie si HandBrake est installé (CLI, GUI, toute distro: ghb, HandBrakeCLI, flatpak, .desktop)
 # USAGE: check_handbrake_installed
 check_handbrake_installed() {

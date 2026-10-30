@@ -147,6 +147,15 @@ get_current_version() {
                 echo "not_installed"
             fi
             ;;
+        stoat|stoatchat)
+            if [[ -f "$HOME/Applications/.stoat-version" ]]; then
+                tr -d ' \n\r' <"$HOME/Applications/.stoat-version"
+            elif [[ -f "$HOME/Applications/Stoat.AppImage" ]] || compgen -G "$HOME/Applications/Stoat*.AppImage" >/dev/null; then
+                echo "installed"
+            else
+                echo "not_installed"
+            fi
+            ;;
         handbrake)
             if command -v HandBrakeCLI &>/dev/null; then
                 HandBrakeCLI --version 2>/dev/null | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1 || echo "unknown"
@@ -284,6 +293,14 @@ get_available_versions() {
             html=$(curl -fsSL --connect-timeout 10 --max-time 20 https://www.gokgs.com/download.jsp 2>/dev/null || true)
             ver=$(printf '%s' "$html" | grep -oE 'CGoban v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || true)
             [[ -n "$ver" ]] && echo "$ver" || echo "unknown"
+            ;;
+        stoat|stoatchat)
+            curl -fsSL --connect-timeout 10 --max-time 20 \
+                -H 'Accept: application/vnd.github+json' \
+                -H 'User-Agent: dotfiles-stoat-updater' \
+                https://api.github.com/repos/stoatchat/for-desktop/releases/latest 2>/dev/null \
+                | python3 -c "import sys,json,re; t=json.load(sys.stdin).get('tag_name') or ''; print(re.sub(r'^v','',t) or 'unknown')" 2>/dev/null \
+                || echo "unknown"
             ;;
         *)
             # Pour les autres outils, on propose "latest"
